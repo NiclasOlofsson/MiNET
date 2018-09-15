@@ -101,6 +101,7 @@ namespace MiNET
 
 		public DamageCalculator DamageCalculator { get; set; } = new DamageCalculator();
 
+		private Dictionary<Tuple<int, int>, double> _chunkOrderQueue = new Dictionary<Tuple<int, int>, double>();
 
 		public Player(MiNetServer server, IPEndPoint endPoint) : base(-1, null)
 		{
@@ -998,7 +999,7 @@ namespace MiNET
 
 			SendSetTime();
 
-			MiNetServer.FastThreadPool.QueueUserWorkItem(() => ForcedSendChunks());
+			UpdateChunkOrderQueue(new ChunkCoordinates(KnownPosition));
 
 			//SendPlayerStatus(3);
 
@@ -1194,14 +1195,10 @@ namespace MiNET
 
 			MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
 			{
-				Level.AddPlayer(this, true);
-
-				ForcedSendChunks(() =>
-				{
-					Log.WarnFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-
-					SendSetTime();
-				});
+				Level.AddPlayer(this, true);				
+				UpdateChunkOrderQueue(new ChunkCoordinates(KnownPosition));
+				SendSetTime();
+				Log.WarnFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 			});
 		}
 
@@ -1510,15 +1507,10 @@ namespace MiNET
 				MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
 				{
 					Level.AddPlayer(this, true);
-
-					ForcedSendChunks(() =>
-					{
-						Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-
-						SendSetTime();
-
-						postSpawnAction?.Invoke();
-					});
+					UpdateChunkOrderQueue(new ChunkCoordinates(KnownPosition));
+					SendSetTime();
+					postSpawnAction?.Invoke();
+					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 				});
 			};
 
@@ -2629,6 +2621,11 @@ namespace MiNET
 					_chunksUsed.Add(key, chunk);
 				}
 
+				if (_chunkOrderQueue.ContainsKey(key))
+				{
+					_chunkOrderQueue.Remove(key);
+				}
+
 				if (chunk != null)
 				{
 					SendPacket(chunk);
@@ -2685,6 +2682,7 @@ namespace MiNET
 
 					packetCount++;
 				}
+				_chunkOrderQueue.Clear();
 			}
 			finally
 			{
@@ -2697,57 +2695,67 @@ namespace MiNET
 			}
 		}
 
+		private void CheckChunkOrderQueue()
+		{
+			if (_chunkOrderQueue.Count <= 0 || Level == null || Level.WorldProvider == null) return;
+
+			lock (_chunksUsed)
+			{
+				int chunkCount = 0;
+				foreach (var pair in _chunkOrderQueue.OrderBy(pair => pair.Value))
+				{
+					if (IsSpawned && chunkCount > 5)
+					{
+						return;
+					}
+					if (_chunksUsed.ContainsKey(pair.Key)) 
+					{
+						_chunkOrderQueue.Remove(pair.Key);
+						continue;
+					}
+					
+					ChunkColumn chunkColumn = Level.GetChunk(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
+					McpeWrapper chunk = null;
+					if (chunkColumn != null)
+					{
+						chunk = chunkColumn.GetBatch();
+					}
+					chunkCount++;
+					if (chunk != null) SendPacket(chunk);
+
+					if (!IsSpawned && chunkCount == 56)
+					{
+						InitializePlayer();
+					}
+					_chunksUsed.Add(pair.Key, chunk);
+					_chunkOrderQueue.Remove(pair.Key);
+					
+				}
+			}
+		}
+
 		private void SendChunksForKnownPosition()
 		{
-			if (!Monitor.TryEnter(_sendChunkSync)) return;
-
 			Log.Debug($"Send chunks: {KnownPosition}");
-
-			try
+			if (ChunkRadius <= 0 || Level == null) return;
+			var chunkPosition = new ChunkCoordinates(KnownPosition);
+			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
+			if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < MoveRenderDistance)
 			{
-				if (ChunkRadius <= 0) return;
-
-
-				var chunkPosition = new ChunkCoordinates(KnownPosition);
-				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
-
-				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < MoveRenderDistance)
-				{
-					return;
-				}
-
-				_currentChunkPosition = chunkPosition;
-
-				int packetCount = 0;
-
-				if (Level == null) return;
-
-				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
-				{
-					if (chunk != null) SendPacket(chunk);
-					Thread.Sleep(5);
-
-					if (!IsSpawned)
-					{
-						if (packetCount++ == 56)
-						{
-							InitializePlayer();
-						}
-					}
-					else
-					{
-						//if (packetCount++ > 56) Thread.Sleep(1);
-					}
-				}
+				return;
 			}
-			catch (Exception e)
+			UpdateChunkOrderQueue(chunkPosition);
+			if (!IsSpawned)
 			{
-				Log.Error($"Failed sending chunks for {KnownPosition}", e);
+				CheckChunkOrderQueue();
 			}
-			finally
-			{
-				Monitor.Exit(_sendChunkSync);
-			}
+		}
+
+		private void UpdateChunkOrderQueue(ChunkCoordinates chunkPosition)
+		{
+			if (ChunkRadius <= 0 || Level == null) return;
+			_currentChunkPosition = chunkPosition;
+			_chunkOrderQueue = Level.GetNeededChunks(_currentChunkPosition, _chunksUsed, ChunkRadius);	
 		}
 
 		public virtual void SendUpdateAttributes()
@@ -2978,7 +2986,7 @@ namespace MiNET
 			HungerManager.OnTick();
 
 			base.OnTick(entities);
-
+			CheckChunkOrderQueue();
 			if (LastAttackTarget != null && LastAttackTarget.HealthManager.IsDead)
 			{
 				LastAttackTarget = null;
@@ -3313,6 +3321,7 @@ namespace MiNET
 			lock (_sendChunkSync)
 			{
 				_chunksUsed.Clear();
+				_chunkOrderQueue.Clear();
 			}
 		}
 

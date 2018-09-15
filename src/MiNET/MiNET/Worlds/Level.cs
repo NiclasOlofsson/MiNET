@@ -462,7 +462,7 @@ namespace MiNET.Worlds
 			//	return;
 			//}
 
-			if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 65) Log.Warn($"Time between world tick too long: {_tickTimer.ElapsedMilliseconds} ms. Last processing time={LastTickProcessingTime}, Avarage={AvarageTickProcessingTime}");
+			 if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 65) Log.Warn($"Time between world tick too long: {_tickTimer.ElapsedMilliseconds} ms. Last processing time={LastTickProcessingTime}, Avarage={AvarageTickProcessingTime}");
 
 			Measurement worldTickMeasurement = _profiler.Begin("World tick");
 
@@ -946,49 +946,46 @@ namespace MiNET.Worlds
 			}
 		}
 
+		public Dictionary<Tuple<int, int>, double> GetNeededChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeWrapper> chunksUsed, double radius)
+		{
+			Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
+
+			double radiusSquared = Math.Pow(radius, 2);
+
+			int centerX = chunkPosition.X;
+			int centerZ = chunkPosition.Z;
+
+			for (double x = -radius; x <= radius; ++x)
+			{
+				for (double z = -radius; z <= radius; ++z)
+				{
+					var distance = (x*x) + (z*z);
+					if (distance > radiusSquared)
+					{
+						continue;
+					}
+					int chunkX = (int) (x + centerX);
+					int chunkZ = (int) (z + centerZ);
+					Tuple<int, int> index = new Tuple<int, int>(chunkX, chunkZ);
+					newOrders[index] = distance;
+				}
+			}
+			foreach (var chunkKey in chunksUsed.Keys.ToArray())
+			{
+				if (!newOrders.ContainsKey(chunkKey))
+				{
+					chunksUsed.Remove(chunkKey);
+				}
+			}
+
+			return newOrders;
+		}
+
 		public IEnumerable<McpeWrapper> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeWrapper> chunksUsed, double radius)
 		{
 			lock (chunksUsed)
 			{
-				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
-
-				double radiusSquared = Math.Pow(radius, 2);
-
-				int centerX = chunkPosition.X;
-				int centerZ = chunkPosition.Z;
-
-				for (double x = -radius; x <= radius; ++x)
-				{
-					for (double z = -radius; z <= radius; ++z)
-					{
-						var distance = (x*x) + (z*z);
-						if (distance > radiusSquared)
-						{
-							continue;
-						}
-						int chunkX = (int) (x + centerX);
-						int chunkZ = (int) (z + centerZ);
-						Tuple<int, int> index = new Tuple<int, int>(chunkX, chunkZ);
-						newOrders[index] = distance;
-					}
-				}
-
-				//if (newOrders.Count > viewArea)
-				//{
-				//	foreach (var pair in newOrders.OrderByDescending(pair => pair.Value))
-				//	{
-				//		if (newOrders.Count <= viewArea) break;
-				//		newOrders.Remove(pair.Key);
-				//	}
-				//}
-
-				foreach (var chunkKey in chunksUsed.Keys.ToArray())
-				{
-					if (!newOrders.ContainsKey(chunkKey))
-					{
-						chunksUsed.Remove(chunkKey);
-					}
-				}
+				Dictionary<Tuple<int, int>, double> newOrders = GetNeededChunks(chunkPosition, chunksUsed, radius);
 
 				foreach (var pair in newOrders.OrderBy(pair => pair.Value))
 				{

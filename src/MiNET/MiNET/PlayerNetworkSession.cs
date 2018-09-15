@@ -928,7 +928,7 @@ namespace MiNET
 				Interlocked.Increment(ref Server.ServerInfo.NumberOfAckSent);
 				acks.acks.Add(ack);
 			}
-
+		
 			if (acks.acks.Count > 0)
 			{
 				byte[] data = acks.Encode();
@@ -984,14 +984,14 @@ namespace MiNET
 							Server.SendPacket(this, packet);
 						}
 						else if (packet is McpeWrapper)
-						{
+						{							
 							SendBuffered(messageCount, memStream);
 							messageCount = 0;
 							Server.SendPacket(this, packet);
-							Thread.Sleep(1); // Really important to slow down speed a bit
+							Thread.Sleep(0); // Really important to slow down speed a bit
 						}
 						else if (packet.NoBatch)
-						{
+						{ 
 							SendBuffered(messageCount, memStream);
 							messageCount = 0;
 							Server.SendPacket(this, packet);

@@ -988,7 +988,11 @@ namespace MiNET
 							SendBuffered(messageCount, memStream);
 							messageCount = 0;
 							Server.SendPacket(this, packet);
-							Thread.Sleep(1); // Really important to slow down speed a bit
+							// The following is necessary if no throttling is done on chunk sending,
+							// but having it creates a lot of packet lag when using SpawnLevel. You can see it
+							// as players standing still, but having running particles.
+							//
+							//Thread.Sleep(1); // Really important to slow down speed a bit
 						}
 						else if (packet.NoBatch)
 						{

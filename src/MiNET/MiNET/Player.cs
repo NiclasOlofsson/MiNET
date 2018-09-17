@@ -1505,11 +1505,11 @@ namespace MiNET
 				// send teleport to spawn
 				SetPosition(SpawnPosition);
 
-				SetNoAi(oldNoAi);
-
 				MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
 				{
 					Level.AddPlayer(this, true);
+
+					SetNoAi(oldNoAi);
 
 					ForcedSendChunks(() =>
 					{
@@ -2725,7 +2725,6 @@ namespace MiNET
 				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
 					if (chunk != null) SendPacket(chunk);
-					Thread.Sleep(5);
 
 					if (!IsSpawned)
 					{

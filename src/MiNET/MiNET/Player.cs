@@ -2681,9 +2681,7 @@ namespace MiNET
 				{
 					if (chunk != null) SendPacket(chunk);
 
-					//if (packetCount > 16) Thread.Sleep(12);
-
-					packetCount++;
+					if (++packetCount%16 == 0) Thread.Sleep(12);
 				}
 			}
 			finally
@@ -2726,16 +2724,11 @@ namespace MiNET
 				{
 					if (chunk != null) SendPacket(chunk);
 
-					if (!IsSpawned)
+					if (++packetCount%16 == 0) Thread.Sleep(12);
+
+					if (!IsSpawned && packetCount == 56)
 					{
-						if (packetCount++ == 56)
-						{
-							InitializePlayer();
-						}
-					}
-					else
-					{
-						//if (packetCount++ > 56) Thread.Sleep(1);
+						InitializePlayer();
 					}
 				}
 			}

@@ -33,6 +33,13 @@ namespace MiNET.Utils
 			Z = (int) Math.Floor(location.Z);
 		}
 
+		public BlockCoordinates(Vector3 location)
+		{
+			X = (int)Math.Floor(location.X);
+			Y = (int)Math.Floor(location.Y);
+			Z = (int)Math.Floor(location.Z);
+		}
+
 
 		/// <summary>
 		/// Calculates the distance between two BlockCoordinates objects.
@@ -179,18 +186,17 @@ namespace MiNET.Utils
 
 		public static explicit operator BlockCoordinates(ChunkCoordinates a)
 		{
-			return new BlockCoordinates(a.X, 0, a.Z);
+			return new BlockCoordinates(a.X << 4, 0, a.Z << 4);
 		}
 
 		public static implicit operator BlockCoordinates(Vector3 a)
 		{
-			//return new BlockCoordinates((int)(a.X), (int)(a.Y), (int)(a.Z));
-			return new BlockCoordinates((int)Math.Floor(a.X), (int)Math.Floor(a.Y), (int)Math.Floor(a.Z));
+			return new BlockCoordinates(a);
 		}
 
 		public static explicit operator BlockCoordinates(PlayerLocation a)
 		{
-			return new BlockCoordinates((int)Math.Floor(a.X), (int)Math.Floor(a.Y), (int)Math.Floor(a.Z));
+			return new BlockCoordinates(a);
 		}
 
 		public static implicit operator Vector3(BlockCoordinates a)

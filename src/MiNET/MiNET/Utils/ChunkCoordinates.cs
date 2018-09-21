@@ -66,7 +66,7 @@ namespace MiNET.Utils
 		/// <returns></returns>
 		public override string ToString()
 		{
-			return $"X: {X}, Z: {Z}";
+			return $"X={X}, Z={Z}";
 		}
 
 		#region Math

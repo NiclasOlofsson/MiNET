@@ -597,7 +597,7 @@ namespace TestPlugin
 		[Command(Name = "tpw", Aliases = new[] {"teleport"}, Description = "Teleports player to default world.")]
 		public void TeleportWorld(Player player)
 		{
-			TeleportWorld(player, "Default");
+			TeleportWorld(player, Dimension.Overworld.ToString());
 		}
 
 		private object _levelSync = new object();

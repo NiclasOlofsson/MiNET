@@ -145,7 +145,7 @@ namespace MiNET.Worlds
 				chunkLoading.Start();
 				// Pre-cache chunks for spawn coordinates
 				int i = 0;
-				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeWrapper>(), ViewDistance))
+				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<ChunkCoordinates, McpeWrapper>(), ViewDistance))
 				{
 					if (chunk != null) i++;
 				}
@@ -946,11 +946,11 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public IEnumerable<McpeWrapper> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeWrapper> chunksUsed, double radius)
+		public IEnumerable<McpeWrapper> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<ChunkCoordinates, McpeWrapper> chunksUsed, double radius)
 		{
 			lock (chunksUsed)
 			{
-				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
+				Dictionary<ChunkCoordinates, double> newOrders = new Dictionary<ChunkCoordinates, double>();
 
 				double radiusSquared = Math.Pow(radius, 2);
 
@@ -968,19 +968,10 @@ namespace MiNET.Worlds
 						}
 						int chunkX = (int) (x + centerX);
 						int chunkZ = (int) (z + centerZ);
-						Tuple<int, int> index = new Tuple<int, int>(chunkX, chunkZ);
+						var index = new ChunkCoordinates(chunkX, chunkZ);
 						newOrders[index] = distance;
 					}
 				}
-
-				//if (newOrders.Count > viewArea)
-				//{
-				//	foreach (var pair in newOrders.OrderByDescending(pair => pair.Value))
-				//	{
-				//		if (newOrders.Count <= viewArea) break;
-				//		newOrders.Remove(pair.Key);
-				//	}
-				//}
 
 				foreach (var chunkKey in chunksUsed.Keys.ToArray())
 				{
@@ -996,7 +987,7 @@ namespace MiNET.Worlds
 
 					if (WorldProvider == null) continue;
 
-					ChunkColumn chunkColumn = GetChunk(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
+					ChunkColumn chunkColumn = GetChunk(pair.Key);
 					McpeWrapper chunk = null;
 					if (chunkColumn != null)
 					{

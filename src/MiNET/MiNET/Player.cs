@@ -58,7 +58,7 @@ namespace MiNET
 		public IPEndPoint EndPoint { get; private set; }
 		public INetworkHandler NetworkHandler { get; set; }
 
-		private Dictionary<Tuple<int, int>, McpeWrapper> _chunksUsed = new Dictionary<Tuple<int, int>, McpeWrapper>();
+		private Dictionary<ChunkCoordinates, McpeWrapper> _chunksUsed = new Dictionary<ChunkCoordinates, McpeWrapper>();
 		private ChunkCoordinates _currentChunkPosition;
 
 		private IInventory _openInventory;
@@ -1076,10 +1076,7 @@ namespace MiNET
 
 		private bool IsChunkInCache(PlayerLocation position)
 		{
-			var chunkPosition = new ChunkCoordinates(position);
-
-			var key = new Tuple<int, int>(chunkPosition.X, chunkPosition.Z);
-			return _chunksUsed.ContainsKey(key);
+			return _chunksUsed.ContainsKey(new ChunkCoordinates(position));
 		}
 
 		public virtual void ChangeDimension(Level toLevel, PlayerLocation spawnPoint, Dimension dimension, Func<Level> levelFunc = null)
@@ -2623,10 +2620,9 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(position);
 
 				McpeWrapper chunk = Level.GetChunk(chunkPosition)?.GetBatch();
-				var key = new Tuple<int, int>(chunkPosition.X, chunkPosition.Z);
-				if (!_chunksUsed.ContainsKey(key))
+				if (!_chunksUsed.ContainsKey(chunkPosition))
 				{
-					_chunksUsed.Add(key, chunk);
+					_chunksUsed.Add(chunkPosition, chunk);
 				}
 
 				if (chunk != null)
@@ -2699,8 +2695,6 @@ namespace MiNET
 		{
 			if (!Monitor.TryEnter(_sendChunkSync)) return;
 
-			Log.Debug($"Send chunks: {KnownPosition}");
-
 			try
 			{
 				if (ChunkRadius <= 0) return;
@@ -2731,6 +2725,8 @@ namespace MiNET
 						InitializePlayer();
 					}
 				}
+
+				Log.Debug($"Sent {packetCount} chunks for {chunkPosition}");
 			}
 			catch (Exception e)
 			{

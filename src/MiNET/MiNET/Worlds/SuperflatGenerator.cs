@@ -27,12 +27,15 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using MiNET.Blocks;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
 	public class SuperflatGenerator : IWorldGenerator
 	{
+		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.MiNetConfiguration.World;
 		public string Seed { get; set; }
 		public List<Block> BlockLayers { get; set; }
 		public Dimension Dimension { get; set; }
@@ -43,13 +46,13 @@ namespace MiNET.Worlds
 			switch (dimension)
 			{
 				case Dimension.Overworld:
-					Seed = Config.GetProperty("superflat.overworld", "3;minecraft:bedrock,2*minecraft:dirt,minecraft:grass;1;village");
+					Seed = WorldConfig.SuperflatOverworldSeed;
 					break;
 				case Dimension.Nether:
-					Seed = Config.GetProperty("superflat.nether", "3;minecraft:bedrock,2*minecraft:netherrack,3*minecraft:lava,2*minecraft:netherrack,20*minecraft:air,minecraft:bedrock;1;village");
+					Seed = WorldConfig.SuperflatNetherSeed;
 					break;
 				case Dimension.TheEnd:
-					Seed = Config.GetProperty("superflat.theend", "3;40*minecraft:air,minecraft:bedrock,7*minecraft:endstone;1;village");
+					Seed = WorldConfig.SuperflatTheEndSeed;
 					break;
 			}
 		}

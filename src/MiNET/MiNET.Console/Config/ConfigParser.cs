@@ -24,83 +24,21 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Reflection;
-using log4net;
+using Microsoft.Extensions.Configuration;
 using MiNET.Worlds;
 
-namespace MiNET.Utils
+namespace MiNET.Console.Config
 {
-	public class Config
+	internal class ConfigParser
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Config));
+		private readonly IConfiguration _config;
 
-		public static string ConfigFileName = "server.conf";
-		private static IReadOnlyDictionary<string, string> KeyValues { get; set; }
-
-		static Config()
+		public ConfigParser(IConfiguration config)
 		{
-			try
-			{
-				string username = Environment.UserName;
-
-				string fileContents = string.Empty;
-				string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-				if (path != null)
-				{
-					var configFilePath = Path.Combine(path, $"server.{username}.conf");
-					Log.Info($"Trying to load config-file {configFilePath}");
-					if (File.Exists(configFilePath))
-					{
-						fileContents = File.ReadAllText(configFilePath);
-					}
-					else
-					{
-						configFilePath = Path.Combine(path, ConfigFileName);
-
-						Log.Info($"Trying to load config-file {configFilePath}");
-
-						if (File.Exists(configFilePath))
-						{
-							fileContents = File.ReadAllText(configFilePath);
-						}
-					}
-					Log.Info($"Loading config-file {configFilePath}");
-				}
-
-				LoadValues(fileContents);
-			}
-			catch (Exception e)
-			{
-				Log.Warn("Error configuring parser", e);
-			}
+			_config = config;
 		}
 
-		private static void LoadValues(string data)
-		{
-			Dictionary<string, string> newDictionairy = new Dictionary<string, string>();
-			foreach (
-				string rawLine in data.Split(new[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
-			{
-				string line = rawLine.Trim();
-				if (line.StartsWith("#") || !line.Contains("=")) continue; //It's a comment or not a key value pair.
-
-				string[] splitLine = line.Split('=', 2);
-
-				string key = splitLine[0].ToLower();
-				string value = splitLine[1];
-				Log.Debug($"{key}={value}");
-				if (!newDictionairy.ContainsKey(key))
-				{
-					newDictionairy.Add(key, value);
-				}
-			}
-			KeyValues = new ReadOnlyDictionary<string, string>(newDictionairy);
-		}
-
-		public static ServerRole GetProperty(string property, ServerRole defaultValue)
+		public ServerRole GetProperty(string property, ServerRole defaultValue)
 		{
 			string value = ReadString(property);
 			if (value == null) return defaultValue;
@@ -121,7 +59,7 @@ namespace MiNET.Utils
 			}
 		}
 
-		public static GameMode GetProperty(string property, GameMode defaultValue)
+		public GameMode GetProperty(string property, GameMode defaultValue)
 		{
 			string value = ReadString(property);
 			if (value == null) return defaultValue;
@@ -145,7 +83,7 @@ namespace MiNET.Utils
 			}
 		}
 
-		public static Boolean GetProperty(string property, bool defaultValue)
+		public bool GetProperty(string property, bool defaultValue)
 		{
 			try
 			{
@@ -160,7 +98,7 @@ namespace MiNET.Utils
 			}
 		}
 
-		public static int GetProperty(string property, int defaultValue)
+		public int GetProperty(string property, int defaultValue)
 		{
 			try
 			{
@@ -175,7 +113,7 @@ namespace MiNET.Utils
 			}
 		}
 
-		public static Difficulty GetProperty(string property, Difficulty defaultValue)
+		public Difficulty GetProperty(string property, Difficulty defaultValue)
 		{
 			string df = ReadString(property);
 
@@ -202,16 +140,14 @@ namespace MiNET.Utils
 			}
 		}
 
-		public static string GetProperty(string property, string defaultValue)
+		public string GetProperty(string property, string defaultValue)
 		{
 			return ReadString(property) ?? defaultValue;
 		}
 
-		private static string ReadString(string property)
+		private string ReadString(string property)
 		{
-			property = property.ToLower();
-			if (!KeyValues.ContainsKey(property)) return null;
-			return KeyValues[property];
+			return _config[property];
 		}
 	}
 }

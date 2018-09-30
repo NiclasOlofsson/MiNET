@@ -28,6 +28,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using log4net;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -36,6 +38,7 @@ namespace MiNET
 	public class LevelManager
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LevelManager));
+		protected static readonly IMiNETConfiguration Config = ConfigurationProvider.MiNetConfiguration;
 
 		public List<Level> Levels { get; set; } = new List<Level>();
 
@@ -50,13 +53,13 @@ namespace MiNET
 			Level level = Levels.FirstOrDefault(l => l.LevelId.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 			if (level == null)
 			{
-				GameMode gameMode = Config.GetProperty("GameMode", GameMode.Survival);
-				Difficulty difficulty = Config.GetProperty("Difficulty", Difficulty.Normal);
-				int viewDistance = Config.GetProperty("ViewDistance", 11);
+				GameMode gameMode = Config.World.GameMode;
+				Difficulty difficulty = Config.World.Difficulty;
+				int viewDistance = Config.World.ViewDistance;
 
 				IWorldProvider worldProvider = null;
 
-				switch (Config.GetProperty("WorldProvider", "anvil").ToLower().Trim())
+				switch (Config.World.WorldProvider.ToLower().Trim())
 				{
 					case "cool":
 						worldProvider = new CoolWorldProvider();
@@ -71,50 +74,50 @@ namespace MiNET
 						worldProvider = new AnvilWorldProvider
 						{
 							MissingChunkProvider = new SuperflatGenerator(Dimension.Overworld),
-							ReadSkyLight = !Config.GetProperty("CalculateLights", false),
-							ReadBlockLight = !Config.GetProperty("CalculateLights", false),
+							ReadSkyLight = !Config.World.CalculateLights,
+							ReadBlockLight = !Config.World.CalculateLights,
 						};
 						break;
 				}
 
 				level = new Level(this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance)
 				{
-					EnableBlockTicking = Config.GetProperty("EnableBlockTicking", false),
-					EnableChunkTicking = Config.GetProperty("EnableChunkTicking", false),
-					SaveInterval = Config.GetProperty("Save.Interval", 300),
-					UnloadInterval = Config.GetProperty("Unload.Interval", -1),
+					EnableBlockTicking = Config.World.EnableBlockTicking,
+					EnableChunkTicking = Config.World.EnableChunkTicking,
+					SaveInterval = Config.World.SaveInterval,
+					UnloadInterval = Config.World.UnloadInterval,
 
-					DrowningDamage = Config.GetProperty("GameRule.DrowningDamage", true),
-					CommandblockOutput = Config.GetProperty("GameRule.CommandblockOutput", true),
-					DoTiledrops = Config.GetProperty("GameRule.DoTiledrops", true),
-					DoMobloot = Config.GetProperty("GameRule.DoMobloot", true),
-					KeepInventory = Config.GetProperty("GameRule.KeepInventory", true),
-					DoDaylightcycle = Config.GetProperty("GameRule.DoDaylightcycle", true),
-					DoMobspawning = Config.GetProperty("GameRule.DoMobspawning", true),
-					DoEntitydrops = Config.GetProperty("GameRule.DoEntitydrops", true),
-					DoFiretick = Config.GetProperty("GameRule.DoFiretick", true),
-					DoWeathercycle = Config.GetProperty("GameRule.DoWeathercycle", true),
-					Pvp = Config.GetProperty("GameRule.Pvp", true),
-					Falldamage = Config.GetProperty("GameRule.Falldamage", true),
-					Firedamage = Config.GetProperty("GameRule.Firedamage", true),
-					Mobgriefing = Config.GetProperty("GameRule.Mobgriefing", true),
-					ShowCoordinates = Config.GetProperty("GameRule.ShowCoordinates", true),
-					NaturalRegeneration = Config.GetProperty("GameRule.NaturalRegeneration", true),
-					TntExplodes = Config.GetProperty("GameRule.TntExplodes", true),
-					SendCommandfeedback = Config.GetProperty("GameRule.SendCommandfeedback", true),
-					RandomTickSpeed = Config.GetProperty("GameRule.RandomTickSpeed", 3),
+					DrowningDamage = Config.GameRules.DrowningDamage,
+					CommandblockOutput = Config.GameRules.CommandBlockOutput,
+					DoTiledrops = Config.GameRules.DoTiledrops,
+					DoMobloot = Config.GameRules.DoMobloot,
+					KeepInventory = Config.GameRules.KeepInventory,
+					DoDaylightcycle = Config.GameRules.DoDaylightcycle,
+					DoMobspawning = Config.GameRules.DoMobSpawning,
+					DoEntitydrops = Config.GameRules.DoEntitydrops,
+					DoFiretick = Config.GameRules.DoFiretick,
+					DoWeathercycle = Config.GameRules.DoWeathercycle,
+					Pvp = Config.GameRules.Pvp,
+					Falldamage = Config.GameRules.Falldamage,
+					Firedamage = Config.GameRules.Firedamage,
+					Mobgriefing = Config.GameRules.Mobgriefing,
+					ShowCoordinates = Config.GameRules.ShowCoordinates,
+					NaturalRegeneration = Config.GameRules.NaturalRegeneration,
+					TntExplodes = Config.GameRules.TntExplodes,
+					SendCommandfeedback = Config.GameRules.SendCommandfeedback,
+					RandomTickSpeed = Config.GameRules.RandomTickSpeed,
 				};
 				level.Initialize();
 
-				//if (Config.GetProperty("CalculateLights", false))
+				//if (_config.World.CalculateLights)
 				//{
 				//	{
 				//		AnvilWorldProvider wp = level.WorldProvider as AnvilWorldProvider;
 				//		if (wp != null)
 				//		{
 				//			wp.Locked = true;
-				////			wp.PruneAir();
-				////			wp.MakeAirChunksAroundWorldToCompensateForBadRendering();
+				//			//			wp.PruneAir();
+				//			//			wp.MakeAirChunksAroundWorldToCompensateForBadRendering();
 				//			Stopwatch sw = new Stopwatch();
 
 				//			var chunkCount = 0;
@@ -216,7 +219,7 @@ namespace MiNET
 
 			newLevel.Initialize();
 
-			//if (Config.GetProperty("CalculateLights", false))
+			//if (_config.World.CalculateLights)
 			//{
 			//	worldProvider.Locked = true;
 			//	SkyLightCalculations.Calculate(newLevel);
@@ -228,7 +231,7 @@ namespace MiNET
 			//	RecalculateBlockLight(newLevel, worldProvider);
 
 			//	var chunkCount = worldProvider._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
-			//	Log.Debug($"Recalc sky and block light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
+			//	Log.Debug($"Recalc sky and block light for {chunkCount} chunks, {chunkCount * 16 * 16 * 256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
 			//	worldProvider.Locked = false;
 			//}
 
@@ -270,9 +273,9 @@ namespace MiNET
 
 		public virtual Level CreateLevel(string name, IWorldProvider provider)
 		{
-			GameMode gameMode = Config.GetProperty("GameMode", GameMode.Survival);
-			Difficulty difficulty = Config.GetProperty("Difficulty", Difficulty.Peaceful);
-			int viewDistance = Config.GetProperty("ViewDistance", 11);
+			GameMode gameMode = Config.World.GameMode;
+			Difficulty difficulty = Config.World.Difficulty;
+			int viewDistance = Config.World.ViewDistance;
 
 			IWorldProvider worldProvider = null;
 			worldProvider = provider ?? new AnvilWorldProvider {MissingChunkProvider = new SuperflatGenerator(Dimension.Overworld)};

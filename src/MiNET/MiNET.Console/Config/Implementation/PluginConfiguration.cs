@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
@@ -20,51 +19,35 @@
 // 
 // All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
-
 #endregion
 
+using System;
 using System.IO;
 using System.Reflection;
-using System.Threading;
-using log4net;
-using log4net.Config;
-using Microsoft.Extensions.Configuration;
-using MiNET.Console.Factories;
+using MiNET.Config.Contracts;
 
-namespace MiNET.Console
+namespace MiNET.Console.Config.Implementation
 {
-	class Startup
+	internal class PluginConfiguration: IPluginConfiguration
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Startup));
+		private readonly ConfigParser _configParser;
 
-		static void Main(string[] args)
+		public PluginConfiguration(ConfigParser configParser)
 		{
-			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.xml"));
-
-			IMiNETConfigurationFactory configurationFactory = new MiNETConfigurationFactory(BuildConfiguration());
-			var miNETConfig = configurationFactory.GetConfiguration();
-
-			int threads;
-			int portThreads;
-			ThreadPool.GetMinThreads(out threads, out portThreads);
-			Log.Info($"Threads: {threads}, Port Threads: {portThreads}");
-
-			var service = new MiNetServer(miNETConfig);
-			Log.Info("Starting MiNET");
-			service.StartServer();
-
-			System.Console.WriteLine("MiNET running. Press <enter> to stop service.");
-			System.Console.ReadLine();
-			service.StopServer();
+			_configParser = configParser;
 		}
 
-		private static IConfiguration BuildConfiguration()
+		// Default to the directory we are executing from, and below.
+		private static string DefaultPluginDirectoryPaths =>
+			Path.GetDirectoryName(new Uri(Assembly.GetEntryAssembly().CodeBase).LocalPath);
+
+	public string PluginDirectoryPaths => _configParser.GetProperty("PluginDirectory", DefaultPluginDirectoryPaths);
+
+		public bool PluginEnabled(string pluginName)
 		{
-			return 
-				new ConfigurationBuilder()
-				.AddIniFile("server.conf")
-				.Build();
+			return _configParser.GetProperty(pluginName + ".Enabled", true);
 		}
+
+		public bool PluginDisabled => _configParser.GetProperty("PluginDisabled", false);
 	}
 }

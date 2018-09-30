@@ -34,6 +34,8 @@ using AStarNavigator.Algorithms;
 using AStarNavigator.Providers;
 using log4net;
 using MiNET.Blocks;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -148,6 +150,7 @@ namespace MiNET.Entities.Behaviors
 	{
 		public List<Tile> Current { get; set; } = new List<Tile>();
 		private Dictionary<Tile, Block> _blockCache;
+		private static readonly IGameRuleConfiguration Config = ConfigurationProvider.MiNetConfiguration.GameRules;
 
 		public Path(Dictionary<Tile, Block> blockCache = null)
 		{
@@ -171,7 +174,7 @@ namespace MiNET.Entities.Behaviors
 
 		public void PrintPath(Level level)
 		{
-			if (Config.GetProperty("Pathfinder.PrintPath", false))
+			if (Config.PathFinderPrintPath)
 			{
 				foreach (var tile in Current)
 				{
@@ -186,7 +189,7 @@ namespace MiNET.Entities.Behaviors
 
 		public void PrintTile(Level level, Tile tile)
 		{
-			if (Config.GetProperty("Pathfinder.PrintPath", false))
+			if (Config.PathFinderPrintPath)
 			{
 				Block block = GetBlock(tile);
 				var particle = new RedstoneParticle(level);

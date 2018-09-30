@@ -34,6 +34,8 @@ using System.Numerics;
 using System.Threading;
 using log4net;
 using MiNET.Blocks;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Crafting;
 using MiNET.Effects;
 using MiNET.Entities;
@@ -53,6 +55,7 @@ namespace MiNET
 	public class Player : Entity, IMcpeMessageHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Player));
+		private static readonly IPlayerConfiguration PlayerConfig = ConfigurationProvider.MiNetConfiguration.Player;
 
 		private MiNetServer Server { get; set; }
 		public IPEndPoint EndPoint { get; private set; }
@@ -810,7 +813,7 @@ namespace MiNET
 
 				Level.EntityManager.AddEntity(this);
 
-				GameMode = Config.GetProperty("Player.GameMode", Level.GameMode);
+				GameMode = PlayerConfig.PlayerGameMode;
 
 				//
 				// Start game - spawn sequence starts here
@@ -870,7 +873,7 @@ namespace MiNET
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
 		}
 
-		public bool EnableCommands { get; set; } = Config.GetProperty("EnableCommands", false);
+		public bool EnableCommands { get; set; } = PlayerConfig.EnableCommands;
 
 		protected virtual void SendSetCommandsEnabled()
 		{

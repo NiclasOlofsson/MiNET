@@ -30,6 +30,8 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using log4net;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Utils;
 using Newtonsoft.Json.Linq;
 
@@ -38,6 +40,7 @@ namespace MiNET
 	public class EduTokenManager
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(EduTokenManager));
+		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.MiNetConfiguration.Security;
 
 		private string _username;
 		private string _password;
@@ -46,8 +49,8 @@ namespace MiNET
 
 		public EduTokenManager()
 		{
-			_username = Config.GetProperty("AAD.username", "");
-			_password = Config.GetProperty("AAD.password", "");
+			_username = SecurityConfig.EduUsername;
+			_password = SecurityConfig.EduPassword;
 
 			if (_username.StartsWith("secure:", StringComparison.InvariantCultureIgnoreCase) && _password.StartsWith("secure:", StringComparison.InvariantCultureIgnoreCase))
 			{

@@ -33,6 +33,8 @@ using System.Text;
 using fNbt;
 using Jose;
 using log4net;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
@@ -51,6 +53,7 @@ namespace MiNET
 	public class LoginMessageHandler : IMcpeMessageHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LoginMessageHandler));
+		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.MiNetConfiguration.Security;
 
 		private readonly PlayerNetworkSession _session;
 
@@ -306,7 +309,7 @@ namespace MiNET
 
 						_session.CryptoContext = new CryptoContext
 						{
-							UseEncryption = Config.GetProperty("UseEncryptionForAll", false) || (Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(_playerInfo.CertificateData.ExtraData.Xuid)),
+							UseEncryption = SecurityConfig.UseEncryptionForAll || SecurityConfig.UseEncryption && !string.IsNullOrWhiteSpace(_playerInfo.CertificateData.ExtraData.Xuid)
 						};
 
 #if LINUX
@@ -424,10 +427,10 @@ namespace MiNET
 				return;
 			}
 
-			if (Config.GetProperty("ForceXBLAuthentication", false) && _playerInfo.CertificateData.ExtraData.Xuid == null)
+			if (SecurityConfig.ForceXBLAuthentication && _playerInfo.CertificateData.ExtraData.Xuid == null)
 			{
 				Log.Warn($"You must authenticate to XBOX Live to join this server.");
-				_session.Disconnect(Config.GetProperty("ForceXBLLogin", "You must authenticate to XBOX Live to join this server."));
+				_session.Disconnect(SecurityConfig.ForceXBLLogin);
 
 				return;
 			}

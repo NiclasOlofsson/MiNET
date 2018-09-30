@@ -29,6 +29,8 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using log4net;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
@@ -44,6 +46,7 @@ namespace MiNET.Plugins.Commands
 	public class VanillaCommands
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (VanillaCommands));
+		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.MiNetConfiguration.Security;
 
 		public VanillaCommands()
 		{
@@ -290,7 +293,7 @@ namespace MiNET.Plugins.Commands
 					mob = new Vex(world);
 					break;
 				case EntityType.Npc:
-					if (Config.GetProperty("EnableEdu", false))
+					if (SecurityConfig.EnableEdu)
 					{
 						mob = new Npc(world);
 					}

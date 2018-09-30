@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
@@ -20,51 +19,37 @@
 // 
 // All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
-
 #endregion
 
-using System.IO;
-using System.Reflection;
-using System.Threading;
-using log4net;
-using log4net.Config;
 using Microsoft.Extensions.Configuration;
-using MiNET.Console.Factories;
+using MiNET.Config.Contracts;
+using MiNET.Console.Config;
+using MiNET.Console.Config.Implementation;
 
-namespace MiNET.Console
+namespace MiNET.Console.Factories
 {
-	class Startup
+	internal class MiNETConfigurationFactory: IMiNETConfigurationFactory
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Startup));
+		private readonly IConfiguration _config;
 
-		static void Main(string[] args)
+		public MiNETConfigurationFactory(IConfiguration config)
 		{
-			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.xml"));
-
-			IMiNETConfigurationFactory configurationFactory = new MiNETConfigurationFactory(BuildConfiguration());
-			var miNETConfig = configurationFactory.GetConfiguration();
-
-			int threads;
-			int portThreads;
-			ThreadPool.GetMinThreads(out threads, out portThreads);
-			Log.Info($"Threads: {threads}, Port Threads: {portThreads}");
-
-			var service = new MiNetServer(miNETConfig);
-			Log.Info("Starting MiNET");
-			service.StartServer();
-
-			System.Console.WriteLine("MiNET running. Press <enter> to stop service.");
-			System.Console.ReadLine();
-			service.StopServer();
+			_config = config;
 		}
 
-		private static IConfiguration BuildConfiguration()
+		public IMiNETConfiguration GetConfiguration()
 		{
-			return 
-				new ConfigurationBuilder()
-				.AddIniFile("server.conf")
-				.Build();
+			var configParser = new ConfigParser(_config);
+
+			var serverConfig = new ServerConfiguration(configParser);
+			var worldConfig = new WorldConfiguration(configParser);
+			var securityConfig = new SecurityConfiguration(configParser);
+			var playerConfig = new PlayerConfiguration(configParser, worldConfig);
+			var pluginConfig = new PluginConfiguration(configParser);
+			var debugConfig = new DebugConfiguration(configParser);
+			var gameRuleConfig = new GameRuleConfiguration(configParser);
+			return new MiNetConfiguration(serverConfig, worldConfig, securityConfig, playerConfig, pluginConfig,
+				debugConfig, gameRuleConfig);
 		}
 	}
 }

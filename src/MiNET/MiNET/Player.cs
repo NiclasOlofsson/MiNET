@@ -55,7 +55,7 @@ namespace MiNET
 	public class Player : Entity, IMcpeMessageHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Player));
-		private static readonly IPlayerConfiguration PlayerConfig = ConfigurationProvider.Configuration.Player;
+		private static readonly IPlayerConfiguration PlayerConfig = ConfigurationProvider.MiNetConfiguration.Player;
 
 		private MiNetServer Server { get; set; }
 		public IPEndPoint EndPoint { get; private set; }

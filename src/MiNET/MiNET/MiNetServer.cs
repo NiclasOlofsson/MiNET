@@ -51,7 +51,7 @@ namespace MiNET
 	public class MiNetServer
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(MiNetServer));
-		private static readonly IConfiguration Config = ConfigurationProvider.Configuration;
+		private static readonly IMiNETConfiguration Config = ConfigurationProvider.MiNetConfiguration;
 
 		private const int DefaultPort = 19132;
 
@@ -89,9 +89,9 @@ namespace MiNET
 		internal static DedicatedThreadPool FastThreadPool { get; set; }
 		internal static DedicatedThreadPool LevelThreadPool { get; set; }
 
-		public MiNetServer(IConfiguration config)
+		public MiNetServer(IMiNETConfiguration config)
 		{
-			ConfigurationProvider.Configuration = config;
+			ConfigurationProvider.MiNetConfiguration = config;
 
 			IsEdu = Config.Security.EnableEdu;
 			ServerRole = Config.Server.ServerRole;

@@ -21,16 +21,12 @@
 // All Rights Reserved.
 #endregion
 
-namespace MiNET.Config.Contracts
+using MiNET.Config.Contracts;
+
+namespace MiNET.Console.Factories
 {
-	public interface IConfiguration
+	internal interface IMiNETConfigurationFactory
 	{
-		IServerConfiguration Server { get; }
-		IWorldConfiguration World { get; }
-		ISecurityConfiguration Security { get; }
-		IPlayerConfiguration Player { get; }
-		IPluginConfiguration Plugin { get; }
-		IDebugConfiguration Debug { get; }
-		IGameRuleConfiguration GameRules { get; }
+		IMiNETConfiguration GetConfiguration();
 	}
 }

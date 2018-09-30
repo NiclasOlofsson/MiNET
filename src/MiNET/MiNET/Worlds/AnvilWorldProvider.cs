@@ -63,7 +63,7 @@ namespace MiNET.Worlds
 	public class AnvilWorldProvider : IWorldProvider, ICachingWorldProvider, ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(AnvilWorldProvider));
-		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.Configuration.World;
+		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.MiNetConfiguration.World;
 
 		public static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 

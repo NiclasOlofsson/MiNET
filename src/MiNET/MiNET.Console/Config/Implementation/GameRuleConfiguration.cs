@@ -23,29 +23,36 @@
 
 using MiNET.Config.Contracts;
 
-namespace MiNET.Console.Config.Providers
+namespace MiNET.Console.Config.Implementation
 {
 	internal class GameRuleConfiguration: IGameRuleConfiguration
 	{
-		public bool DrowningDamage => ConfigParser.GetProperty("GameRule.DrowningDamage", true);
-		public bool CommandBlockOutput => ConfigParser.GetProperty("GameRule.CommandblockOutput", true);
-		public bool DoTiledrops => ConfigParser.GetProperty("GameRule.DoTiledrops", true);
-		public bool DoMobloot => ConfigParser.GetProperty("GameRule.DoMobloot", true);
-		public bool KeepInventory => ConfigParser.GetProperty("GameRule.KeepInventory", true);
-		public bool DoDaylightcycle => ConfigParser.GetProperty("GameRule.DoDaylightcycle", true);
-		public bool DoMobSpawning => ConfigParser.GetProperty("GameRule.DoMobspawning", true);
-		public bool DoEntitydrops => ConfigParser.GetProperty("GameRule.DoEntitydrops", true);
-		public bool DoFiretick => ConfigParser.GetProperty("GameRule.DoFiretick", true);
-		public bool DoWeathercycle => ConfigParser.GetProperty("GameRule.DoWeathercycle", true);
-		public bool Pvp => ConfigParser.GetProperty("GameRule.Pvp", true);
-		public bool Falldamage => ConfigParser.GetProperty("GameRule.Falldamage", true);
-		public bool Firedamage => ConfigParser.GetProperty("GameRule.Firedamage", true);
-		public bool Mobgriefing => ConfigParser.GetProperty("GameRule.Mobgriefing", true);
-		public bool ShowCoordinates => ConfigParser.GetProperty("GameRule.ShowCoordinates", true);
-		public bool NaturalRegeneration => ConfigParser.GetProperty("GameRule.NaturalRegeneration", true);
-		public bool TntExplodes => ConfigParser.GetProperty("GameRule.TntExplodes", true);
-		public bool SendCommandfeedback => ConfigParser.GetProperty("GameRule.SendCommandfeedback", true);
-		public int RandomTickSpeed => ConfigParser.GetProperty("GameRule.RandomTickSpeed", 3);
-		public bool PathFinderPrintPath => ConfigParser.GetProperty("Pathfinder.PrintPath", false);
+		private readonly ConfigParser _configParser;
+
+		public GameRuleConfiguration(ConfigParser configParser)
+		{
+			_configParser = configParser;
+		}
+
+		public bool DrowningDamage => _configParser.GetProperty("GameRule.DrowningDamage", true);
+		public bool CommandBlockOutput => _configParser.GetProperty("GameRule.CommandblockOutput", true);
+		public bool DoTiledrops => _configParser.GetProperty("GameRule.DoTiledrops", true);
+		public bool DoMobloot => _configParser.GetProperty("GameRule.DoMobloot", true);
+		public bool KeepInventory => _configParser.GetProperty("GameRule.KeepInventory", true);
+		public bool DoDaylightcycle => _configParser.GetProperty("GameRule.DoDaylightcycle", true);
+		public bool DoMobSpawning => _configParser.GetProperty("GameRule.DoMobspawning", true);
+		public bool DoEntitydrops => _configParser.GetProperty("GameRule.DoEntitydrops", true);
+		public bool DoFiretick => _configParser.GetProperty("GameRule.DoFiretick", true);
+		public bool DoWeathercycle => _configParser.GetProperty("GameRule.DoWeathercycle", true);
+		public bool Pvp => _configParser.GetProperty("GameRule.Pvp", true);
+		public bool Falldamage => _configParser.GetProperty("GameRule.Falldamage", true);
+		public bool Firedamage => _configParser.GetProperty("GameRule.Firedamage", true);
+		public bool Mobgriefing => _configParser.GetProperty("GameRule.Mobgriefing", true);
+		public bool ShowCoordinates => _configParser.GetProperty("GameRule.ShowCoordinates", true);
+		public bool NaturalRegeneration => _configParser.GetProperty("GameRule.NaturalRegeneration", true);
+		public bool TntExplodes => _configParser.GetProperty("GameRule.TntExplodes", true);
+		public bool SendCommandfeedback => _configParser.GetProperty("GameRule.SendCommandfeedback", true);
+		public int RandomTickSpeed => _configParser.GetProperty("GameRule.RandomTickSpeed", 3);
+		public bool PathFinderPrintPath => _configParser.GetProperty("Pathfinder.PrintPath", false);
 	}
 }

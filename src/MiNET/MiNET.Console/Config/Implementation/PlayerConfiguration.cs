@@ -21,23 +21,25 @@
 // All Rights Reserved.
 #endregion
 
-using MiNET.Config;
 using MiNET.Config.Contracts;
 using MiNET.Worlds;
 
-namespace MiNET.Console.Config.Providers
+namespace MiNET.Console.Config.Implementation
 {
 	internal class PlayerConfiguration: IPlayerConfiguration
 	{
-		public PlayerConfiguration(IWorldConfiguration worldConfig)
+		private readonly ConfigParser _configParser;
+		private readonly IWorldConfiguration _worldConfig;
+
+		public PlayerConfiguration(ConfigParser configParser, IWorldConfiguration worldConfig)
 		{
+			_configParser = configParser;
 			_worldConfig = worldConfig;
 		}
 
-		private readonly IWorldConfiguration _worldConfig;
-		public GameMode PlayerGameMode => ConfigParser.GetProperty("Player.GameMode", _worldConfig.GameMode);
-		public bool EnableCommands => ConfigParser.GetProperty("EnableCommands", false);
-		public int MaxViewDistance => ConfigParser.GetProperty("MaxViewDistance", 22);
-		public int MoveRenderDistance => ConfigParser.GetProperty("MoveRenderDistance", 1);
+		public GameMode PlayerGameMode => _configParser.GetProperty("Player.GameMode", _worldConfig.GameMode);
+		public bool EnableCommands => _configParser.GetProperty("EnableCommands", false);
+		public int MaxViewDistance => _configParser.GetProperty("MaxViewDistance", 22);
+		public int MoveRenderDistance => _configParser.GetProperty("MoveRenderDistance", 1);
 	}
 }

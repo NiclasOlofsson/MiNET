@@ -21,25 +21,35 @@
 // All Rights Reserved.
 #endregion
 
+using Microsoft.Extensions.Configuration;
 using MiNET.Config.Contracts;
+using MiNET.Console.Config;
+using MiNET.Console.Config.Implementation;
 
-namespace MiNET.Console.Config.Implementation
+namespace MiNET.Console.Factories
 {
-	internal class SecurityConfiguration: ISecurityConfiguration
+	internal class MiNETConfigurationFactory: IMiNETConfigurationFactory
 	{
-		private readonly ConfigParser _configParser;
+		private readonly IConfiguration _config;
 
-		public SecurityConfiguration(ConfigParser configParser)
+		public MiNETConfigurationFactory(IConfiguration config)
 		{
-			_configParser = configParser;
+			_config = config;
 		}
 
-		public bool UseEncryption => _configParser.GetProperty("UseEncryption", true);
-		public bool UseEncryptionForAll => _configParser.GetProperty("UseEncryptionForAll", false);
-		public bool ForceXBLAuthentication => _configParser.GetProperty("ForceXBLAuthentication", false);
-		public string ForceXBLLogin => _configParser.GetProperty("ForceXBLLogin", "You must authenticate to XBOX Live to join this server.");
-		public bool EnableEdu => _configParser.GetProperty("EnableEdu", false);
-		public string EduUsername => _configParser.GetProperty("AAD.username", "");
-		public string EduPassword => _configParser.GetProperty("AAD.password", "");
+		public IMiNETConfiguration GetConfiguration()
+		{
+			var configParser = new ConfigParser(_config);
+
+			var serverConfig = new ServerConfiguration(configParser);
+			var worldConfig = new WorldConfiguration(configParser);
+			var securityConfig = new SecurityConfiguration(configParser);
+			var playerConfig = new PlayerConfiguration(configParser, worldConfig);
+			var pluginConfig = new PluginConfiguration(configParser);
+			var debugConfig = new DebugConfiguration(configParser);
+			var gameRuleConfig = new GameRuleConfiguration(configParser);
+			return new MiNetConfiguration(serverConfig, worldConfig, securityConfig, playerConfig, pluginConfig,
+				debugConfig, gameRuleConfig);
+		}
 	}
 }

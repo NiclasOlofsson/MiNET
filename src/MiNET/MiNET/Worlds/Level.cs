@@ -53,7 +53,7 @@ namespace MiNET.Worlds
 	public class Level : IBlockAccess
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Level));
-		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.Configuration.World;
+		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.MiNetConfiguration.World;
 
 		public static readonly BlockCoordinates Up = new BlockCoordinates(0, 1, 0);
 		public static readonly BlockCoordinates Down = new BlockCoordinates(0, -1, 0);

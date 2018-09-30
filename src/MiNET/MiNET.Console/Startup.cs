@@ -28,7 +28,8 @@ using System.Reflection;
 using System.Threading;
 using log4net;
 using log4net.Config;
-using MiNET.Console.Config.Providers;
+using Microsoft.Extensions.Configuration;
+using MiNET.Console.Factories;
 
 namespace MiNET.Console
 {
@@ -41,14 +42,15 @@ namespace MiNET.Console
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.xml"));
 
+			IMiNETConfigurationFactory configurationFactory = new MiNETConfigurationFactory(BuildConfiguration());
+			var miNETConfig = configurationFactory.GetConfiguration();
 
-			var config = CreateConfig();
 			int threads;
 			int portThreads;
 			ThreadPool.GetMinThreads(out threads, out portThreads);
 			Log.Info($"Threads: {threads}, Port Threads: {portThreads}");
 
-			var service = new MiNetServer(config);
+			var service = new MiNetServer(miNETConfig);
 			Log.Info("Starting MiNET");
 			service.StartServer();
 
@@ -57,17 +59,12 @@ namespace MiNET.Console
 			service.StopServer();
 		}
 
-		private static Configuration CreateConfig()
+		private static IConfiguration BuildConfiguration()
 		{
-			var serverConfig = new ServerConfiguration();
-			var worldConfig = new WorldConfiguration();
-			var securityConfig = new SecurityConfiguration();
-			var playerConfig = new PlayerConfiguration(worldConfig);
-			var pluginConfig = new PluginConfiguration();
-			var debugConfig = new DebugConfiguration();
-			var gameRuleConfig = new GameRuleConfiguration();
-			return new Configuration(serverConfig, worldConfig, securityConfig, playerConfig, pluginConfig,
-				debugConfig, gameRuleConfig);
+			return 
+				new ConfigurationBuilder()
+				.AddIniFile("server.conf")
+				.Build();
 		}
 	}
 }

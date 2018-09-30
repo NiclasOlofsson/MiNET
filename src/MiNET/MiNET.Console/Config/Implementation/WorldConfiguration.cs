@@ -24,32 +24,39 @@
 using MiNET.Config.Contracts;
 using MiNET.Worlds;
 
-namespace MiNET.Console.Config.Providers
+namespace MiNET.Console.Config.Implementation
 {
 	internal class WorldConfiguration: IWorldConfiguration
 	{
-		public GameMode GameMode => ConfigParser.GetProperty("GameMode", GameMode.Survival);
-		public Difficulty Difficulty => ConfigParser.GetProperty("Difficulty", Difficulty.Normal);
-		public string WorldProvider => ConfigParser.GetProperty("WorldProvider", "anvil");
-		public string PCWorldFolder => ConfigParser.GetProperty("PCWorldFolder", "World");
-		public bool SaveEnabled => ConfigParser.GetProperty("Save.Enabled", false);
-		public int SaveInterval => ConfigParser.GetProperty("Save.Interval", 300);
-		public int UnloadInterval => ConfigParser.GetProperty("Unload.Interval", -1);
-		public bool CalculateLights => ConfigParser.GetProperty("CalculateLights", false);
-		public bool CalculateLightsMakeMovie => ConfigParser.GetProperty("CalculateLights.MakeMovie", false);
-		public bool CheckForSafeSpawn => ConfigParser.GetProperty("CheckForSafeSpawn", false);
-		public bool EnableBlockTicking => ConfigParser.GetProperty("EnableBlockTicking", false);
-		public bool EnableChunkTicking => ConfigParser.GetProperty("EnableChunkTicking", false);
-		public int ViewDistance => ConfigParser.GetProperty("ViewDistance", 11);
-		public string Seed => ConfigParser.GetProperty("seed", "noise");
+		private readonly ConfigParser _configParser;
 
-		public string SuperflatOverworldSeed => ConfigParser.GetProperty("superflat.overworld",
+		public WorldConfiguration(ConfigParser configParser)
+		{
+			_configParser = configParser;
+		}
+
+		public GameMode GameMode => _configParser.GetProperty("GameMode", GameMode.Survival);
+		public Difficulty Difficulty => _configParser.GetProperty("Difficulty", Difficulty.Normal);
+		public string WorldProvider => _configParser.GetProperty("WorldProvider", "anvil");
+		public string PCWorldFolder => _configParser.GetProperty("PCWorldFolder", "World");
+		public bool SaveEnabled => _configParser.GetProperty("Save.Enabled", false);
+		public int SaveInterval => _configParser.GetProperty("Save.Interval", 300);
+		public int UnloadInterval => _configParser.GetProperty("Unload.Interval", -1);
+		public bool CalculateLights => _configParser.GetProperty("CalculateLights", false);
+		public bool CalculateLightsMakeMovie => _configParser.GetProperty("CalculateLights.MakeMovie", false);
+		public bool CheckForSafeSpawn => _configParser.GetProperty("CheckForSafeSpawn", false);
+		public bool EnableBlockTicking => _configParser.GetProperty("EnableBlockTicking", false);
+		public bool EnableChunkTicking => _configParser.GetProperty("EnableChunkTicking", false);
+		public int ViewDistance => _configParser.GetProperty("ViewDistance", 11);
+		public string Seed => _configParser.GetProperty("seed", "noise");
+
+		public string SuperflatOverworldSeed => _configParser.GetProperty("superflat.overworld",
 			"3;minecraft:bedrock,2*minecraft:dirt,minecraft:grass;1;village");
 
-		public string SuperflatNetherSeed => ConfigParser.GetProperty("superflat.nether",
+		public string SuperflatNetherSeed => _configParser.GetProperty("superflat.nether",
 			"3;minecraft:bedrock,2*minecraft:netherrack,3*minecraft:lava,2*minecraft:netherrack,20*minecraft:air,minecraft:bedrock;1;village");
 
-		public string SuperflatTheEndSeed => ConfigParser.GetProperty("superflat.theend",
+		public string SuperflatTheEndSeed => _configParser.GetProperty("superflat.theend",
 			"3;40*minecraft:air,minecraft:bedrock,7*minecraft:endstone;1;village");
 	}
 }

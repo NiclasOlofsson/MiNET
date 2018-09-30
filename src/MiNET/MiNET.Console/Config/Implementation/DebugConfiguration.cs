@@ -23,17 +23,24 @@
 
 using MiNET.Config.Contracts;
 
-namespace MiNET.Console.Config.Providers
+namespace MiNET.Console.Config.Implementation
 {
 	internal class DebugConfiguration: IDebugConfiguration
 	{
-		public bool ProfilerEnabled => ConfigParser.GetProperty("Profiler.Enabled", false);
-		public string TracePacketsInclude => ConfigParser.GetProperty("TracePackets.Include", ".*");
-		public string TracePacketsExclude => ConfigParser.GetProperty("TracePackets.Exclude", null);
-		public int TracePacketsVerbosity => ConfigParser.GetProperty("TracePackets.Verbosity", 0);
+		private readonly ConfigParser _configParser;
+
+		public DebugConfiguration(ConfigParser configParser)
+		{
+			_configParser = configParser;
+		}
+
+		public bool ProfilerEnabled => _configParser.GetProperty("Profiler.Enabled", false);
+		public string TracePacketsInclude => _configParser.GetProperty("TracePackets.Include", ".*");
+		public string TracePacketsExclude => _configParser.GetProperty("TracePackets.Exclude", null);
+		public int TracePacketsVerbosity => _configParser.GetProperty("TracePackets.Verbosity", 0);
 		public int TracePacketsVerbosityFor(string typeName)
 		{
-			return ConfigParser.GetProperty($"TracePackets.Verbosity.{typeName}", TracePacketsVerbosity);
+			return _configParser.GetProperty($"TracePackets.Verbosity.{typeName}", TracePacketsVerbosity);
 		}
 	}
 }

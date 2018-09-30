@@ -27,6 +27,6 @@ namespace MiNET.Config
 {
 	public static class ConfigurationProvider
 	{
-		public static IConfiguration Configuration { get; set; }
+		public static IMiNETConfiguration MiNetConfiguration { get; set; }
 	}
 }

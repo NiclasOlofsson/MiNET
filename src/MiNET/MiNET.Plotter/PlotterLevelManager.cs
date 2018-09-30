@@ -34,7 +34,7 @@ namespace MiNET.Plotter
 {
 	public class PlotterLevelManager : LevelManager
 	{
-		private static readonly IConfiguration Config = ConfigurationProvider.Configuration;
+		private static readonly IMiNETConfiguration Config = ConfigurationProvider.MiNetConfiguration;
 		public override Level GetLevel(Player player, string name)
 		{
 			Level level = Levels.FirstOrDefault(l => l.LevelId.Equals(name, StringComparison.InvariantCultureIgnoreCase));

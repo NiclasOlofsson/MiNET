@@ -21,32 +21,16 @@
 // All Rights Reserved.
 #endregion
 
-using MiNET.Config.Contracts;
-
-namespace MiNET.Console.Config.Providers
+namespace MiNET.Config.Contracts
 {
-	internal class Configuration: IConfiguration
+	public interface IMiNETConfiguration
 	{
-		public Configuration(IServerConfiguration server, IWorldConfiguration world,
-			ISecurityConfiguration security, IPlayerConfiguration player,
-			IPluginConfiguration plugin, IDebugConfiguration debug,
-			IGameRuleConfiguration gameRules)
-		{
-			Server = server;
-			World = world;
-			Security = security;
-			Player = player;
-			Plugin = plugin;
-			Debug = debug;
-			GameRules = gameRules;
-		}
-
-		public IServerConfiguration Server { get; }
-		public IWorldConfiguration World { get; }
-		public ISecurityConfiguration Security { get; }
-		public IPlayerConfiguration Player { get; }
-		public IPluginConfiguration Plugin { get; }
-		public IDebugConfiguration Debug { get; }
-		public IGameRuleConfiguration GameRules { get; }
+		IServerConfiguration Server { get; }
+		IWorldConfiguration World { get; }
+		ISecurityConfiguration Security { get; }
+		IPlayerConfiguration Player { get; }
+		IPluginConfiguration Plugin { get; }
+		IDebugConfiguration Debug { get; }
+		IGameRuleConfiguration GameRules { get; }
 	}
 }

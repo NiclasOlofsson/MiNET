@@ -38,7 +38,7 @@ namespace MiNET
 	public class LevelManager
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LevelManager));
-		protected static readonly IConfiguration Config = ConfigurationProvider.Configuration;
+		protected static readonly IMiNETConfiguration Config = ConfigurationProvider.MiNetConfiguration;
 
 		public List<Level> Levels { get; set; } = new List<Level>();
 

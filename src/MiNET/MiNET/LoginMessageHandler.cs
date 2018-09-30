@@ -53,7 +53,7 @@ namespace MiNET
 	public class LoginMessageHandler : IMcpeMessageHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LoginMessageHandler));
-		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.Configuration.Security;
+		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.MiNetConfiguration.Security;
 
 		private readonly PlayerNetworkSession _session;
 

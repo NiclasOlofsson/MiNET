@@ -116,7 +116,7 @@ namespace MiNET.Worlds
 	public class SkyLightCalculations
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (SkyLightCalculations));
-		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.Configuration.World;
+		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.MiNetConfiguration.World;
 
 		// Debug tracking, don't enable unless you really need to "see it".
 

@@ -46,7 +46,7 @@ namespace MiNET.Plugins.Commands
 	public class VanillaCommands
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (VanillaCommands));
-		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.Configuration.Security;
+		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.MiNetConfiguration.Security;
 
 		public VanillaCommands()
 		{

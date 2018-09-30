@@ -48,7 +48,7 @@ namespace MiNET.Plugins
 	public class PluginManager
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
-		private static readonly IPluginConfiguration PluginConfig = ConfigurationProvider.Configuration.Plugin;
+		private static readonly IPluginConfiguration PluginConfig = ConfigurationProvider.MiNetConfiguration.Plugin;
 
 		private readonly List<object> _plugins = new List<object>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();

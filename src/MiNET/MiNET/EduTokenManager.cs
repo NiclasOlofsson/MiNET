@@ -40,7 +40,7 @@ namespace MiNET
 	public class EduTokenManager
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(EduTokenManager));
-		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.Configuration.Security;
+		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.MiNetConfiguration.Security;
 
 		private string _username;
 		private string _password;

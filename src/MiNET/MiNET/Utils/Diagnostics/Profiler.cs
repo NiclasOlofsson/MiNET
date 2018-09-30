@@ -45,7 +45,7 @@ namespace MiNET.Utils.Diagnostics
 	/// </summary>
 	public class Profiler
 	{
-		private static readonly IDebugConfiguration DebugConfig = ConfigurationProvider.Configuration.Debug;
+		private static readonly IDebugConfiguration DebugConfig = ConfigurationProvider.MiNetConfiguration.Debug;
 		public bool Enabled { get; set; }
 
 		ConcurrentBag<ProfilerResult> _results = new ConcurrentBag<ProfilerResult>();

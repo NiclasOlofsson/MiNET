@@ -8,7 +8,7 @@ namespace MiNET
 {
 	public class PlayerFactory
 	{
-		private static readonly IPlayerConfiguration PlayerConfig = ConfigurationProvider.Configuration.Player;
+		private static readonly IPlayerConfiguration PlayerConfig = ConfigurationProvider.MiNetConfiguration.Player;
 		public virtual Player CreatePlayer(MiNetServer server, IPEndPoint endPoint, PlayerInfo playerInfo)
 		{
 			var player = new Player(server, endPoint);

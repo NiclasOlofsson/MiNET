@@ -73,7 +73,7 @@ namespace MiNET.Client
 	public class MiNetClient
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetClient));
-		private static readonly IConfiguration Config = ConfigurationProvider.Configuration;
+		private static readonly IMiNETConfiguration Config = ConfigurationProvider.MiNetConfiguration;
 
 		private IPEndPoint _clientEndpoint;
 		private IPEndPoint _serverEndpoint;

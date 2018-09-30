@@ -33,7 +33,7 @@ namespace MiNET
 {
 	public class MotdProvider
 	{
-		private static readonly IServerConfiguration ServerConfig = ConfigurationProvider.Configuration.Server;
+		private static readonly IServerConfiguration ServerConfig = ConfigurationProvider.MiNetConfiguration.Server;
 		public string Motd { get; set; }
 
 		public string SecondLine { get; set; }

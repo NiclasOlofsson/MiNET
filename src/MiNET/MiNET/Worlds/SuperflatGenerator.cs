@@ -35,7 +35,7 @@ namespace MiNET.Worlds
 {
 	public class SuperflatGenerator : IWorldGenerator
 	{
-		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.Configuration.World;
+		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.MiNetConfiguration.World;
 		public string Seed { get; set; }
 		public List<Block> BlockLayers { get; set; }
 		public Dimension Dimension { get; set; }

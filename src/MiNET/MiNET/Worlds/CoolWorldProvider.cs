@@ -113,7 +113,7 @@ namespace MiNET.Worlds
 
 	public class CoolWorldProvider : IWorldProvider
 	{
-		private static readonly  IWorldConfiguration WorldConfig = ConfigurationProvider.Configuration.World;
+		private static readonly  IWorldConfiguration WorldConfig = ConfigurationProvider.MiNetConfiguration.World;
 		private string _seed = WorldConfig.Seed;
 		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 		public bool IsCaching { get; private set; }

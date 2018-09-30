@@ -51,7 +51,7 @@ namespace MiNET.Utils
 	public static class CryptoUtils
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (CryptoUtils));
-		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.Configuration.Security;
+		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.MiNetConfiguration.Security;
 
 		public static byte[] DecodeBase64Url(this string input)
 		{

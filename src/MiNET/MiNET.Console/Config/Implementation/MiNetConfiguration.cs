@@ -25,21 +25,28 @@ using MiNET.Config.Contracts;
 
 namespace MiNET.Console.Config.Implementation
 {
-	internal class SecurityConfiguration: ISecurityConfiguration
+	internal class MiNetConfiguration: IMiNETConfiguration
 	{
-		private readonly ConfigParser _configParser;
-
-		public SecurityConfiguration(ConfigParser configParser)
+		public MiNetConfiguration(IServerConfiguration server, IWorldConfiguration world,
+			ISecurityConfiguration security, IPlayerConfiguration player,
+			IPluginConfiguration plugin, IDebugConfiguration debug,
+			IGameRuleConfiguration gameRules)
 		{
-			_configParser = configParser;
+			Server = server;
+			World = world;
+			Security = security;
+			Player = player;
+			Plugin = plugin;
+			Debug = debug;
+			GameRules = gameRules;
 		}
 
-		public bool UseEncryption => _configParser.GetProperty("UseEncryption", true);
-		public bool UseEncryptionForAll => _configParser.GetProperty("UseEncryptionForAll", false);
-		public bool ForceXBLAuthentication => _configParser.GetProperty("ForceXBLAuthentication", false);
-		public string ForceXBLLogin => _configParser.GetProperty("ForceXBLLogin", "You must authenticate to XBOX Live to join this server.");
-		public bool EnableEdu => _configParser.GetProperty("EnableEdu", false);
-		public string EduUsername => _configParser.GetProperty("AAD.username", "");
-		public string EduPassword => _configParser.GetProperty("AAD.password", "");
+		public IServerConfiguration Server { get; }
+		public IWorldConfiguration World { get; }
+		public ISecurityConfiguration Security { get; }
+		public IPlayerConfiguration Player { get; }
+		public IPluginConfiguration Plugin { get; }
+		public IDebugConfiguration Debug { get; }
+		public IGameRuleConfiguration GameRules { get; }
 	}
 }

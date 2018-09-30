@@ -26,21 +26,28 @@ using System.IO;
 using System.Reflection;
 using MiNET.Config.Contracts;
 
-namespace MiNET.Console.Config.Providers
+namespace MiNET.Console.Config.Implementation
 {
 	internal class PluginConfiguration: IPluginConfiguration
 	{
+		private readonly ConfigParser _configParser;
+
+		public PluginConfiguration(ConfigParser configParser)
+		{
+			_configParser = configParser;
+		}
+
 		// Default to the directory we are executing from, and below.
 		private static string DefaultPluginDirectoryPaths =>
 			Path.GetDirectoryName(new Uri(Assembly.GetEntryAssembly().CodeBase).LocalPath);
 
-		public string PluginDirectoryPaths => ConfigParser.GetProperty("PluginDirectory", DefaultPluginDirectoryPaths);
+	public string PluginDirectoryPaths => _configParser.GetProperty("PluginDirectory", DefaultPluginDirectoryPaths);
 
 		public bool PluginEnabled(string pluginName)
 		{
-			return ConfigParser.GetProperty(pluginName + ".Enabled", true);
+			return _configParser.GetProperty(pluginName + ".Enabled", true);
 		}
 
-		public bool PluginDisabled => ConfigParser.GetProperty("PluginDisabled", false);
+		public bool PluginDisabled => _configParser.GetProperty("PluginDisabled", false);
 	}
 }

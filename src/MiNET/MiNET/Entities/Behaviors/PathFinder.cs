@@ -150,7 +150,7 @@ namespace MiNET.Entities.Behaviors
 	{
 		public List<Tile> Current { get; set; } = new List<Tile>();
 		private Dictionary<Tile, Block> _blockCache;
-		private static readonly IGameRuleConfiguration Config = ConfigurationProvider.Configuration.GameRules;
+		private static readonly IGameRuleConfiguration Config = ConfigurationProvider.MiNetConfiguration.GameRules;
 
 		public Path(Dictionary<Tile, Block> blockCache = null)
 		{

@@ -23,23 +23,30 @@
 
 using MiNET.Config.Contracts;
 
-namespace MiNET.Console.Config.Providers
+namespace MiNET.Console.Config.Implementation
 {
 	internal class ServerConfiguration: IServerConfiguration
 	{
-		public ServerRole ServerRole => ConfigParser.GetProperty("ServerRole", ServerRole.Full);
-		public string Ip => ConfigParser.GetProperty("ip", "0.0.0.0");
-		public int Port => ConfigParser.GetProperty("port", 19132);
-		public int InactivityTimeout => ConfigParser.GetProperty("InactivityTimeout", 8500);
-		public int ResendThreshold => ConfigParser.GetProperty("ResendThreshold", 10);
-		public bool ForceOrderingForAll => ConfigParser.GetProperty("ForceOrderingForAll", false);
-		public int MaxNumberOfPlayers => ConfigParser.GetProperty("MaxNumberOfPlayers", 1000);
-		public int MaxNumberOfConcurrentConnects => ConfigParser.GetProperty("MaxNumberOfConcurrentConnects", MaxNumberOfPlayers);
-		public int MinWorkerThreads => ConfigParser.GetProperty("MinWorkerThreads", -1);
-		public int MinCompletionPortThreads => ConfigParser.GetProperty("MinCompletionPortThreads", -1);
-		public bool EnableQuery => ConfigParser.GetProperty("EnableQuery", false);
-		public string Motd => ConfigParser.GetProperty("motd", "MiNET: MCPE Server");
-		public string MotdSecond => ConfigParser.GetProperty("motd-2nd", "MiNET");
-		public string AuthorizeErrorMessage => ConfigParser.GetProperty("Authorize.ErrorMessage", "§cInsufficient permissions. Requires {1}, but player had {0}");
+		private readonly ConfigParser _configParser;
+
+		public ServerConfiguration(ConfigParser configParser)
+		{
+			_configParser = configParser;
+		}
+
+		public ServerRole ServerRole => _configParser.GetProperty("ServerRole", ServerRole.Full);
+		public string Ip => _configParser.GetProperty("ip", "0.0.0.0");
+		public int Port => _configParser.GetProperty("port", 19132);
+		public int InactivityTimeout => _configParser.GetProperty("InactivityTimeout", 8500);
+		public int ResendThreshold => _configParser.GetProperty("ResendThreshold", 10);
+		public bool ForceOrderingForAll => _configParser.GetProperty("ForceOrderingForAll", false);
+		public int MaxNumberOfPlayers => _configParser.GetProperty("MaxNumberOfPlayers", 1000);
+		public int MaxNumberOfConcurrentConnects => _configParser.GetProperty("MaxNumberOfConcurrentConnects", MaxNumberOfPlayers);
+		public int MinWorkerThreads => _configParser.GetProperty("MinWorkerThreads", -1);
+		public int MinCompletionPortThreads => _configParser.GetProperty("MinCompletionPortThreads", -1);
+		public bool EnableQuery => _configParser.GetProperty("EnableQuery", false);
+		public string Motd => _configParser.GetProperty("motd", "MiNET: MCPE Server");
+		public string MotdSecond => _configParser.GetProperty("motd-2nd", "MiNET");
+		public string AuthorizeErrorMessage => _configParser.GetProperty("Authorize.ErrorMessage", "§cInsufficient permissions. Requires {1}, but player had {0}");
 	}
 }

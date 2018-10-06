@@ -212,7 +212,7 @@ namespace MiNET.Entities
 								if (doSpawnPassive && PassiveMobs.Contains(entityType)
 								    && Level.GetSubtractedLight(firstBlock.Coordinates, 0) >= 9)
 								{
-									var secondBlock = Level.GetBlock(x, y + 2, z);
+									var secondBlock = Level.GetBlock(x, y + 1, z);
 									if ((spawnBlock is Grass || (entityType == EntityType.Rabbit && spawnBlock is Sand)) && !secondBlock.IsSolid)
 									{
 										var yaw = random.Next(360);
@@ -220,7 +220,7 @@ namespace MiNET.Entities
 										if (Spawn(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw), entityType, random))
 										{
 											if (Log.IsDebugEnabled)
-												Log.Warn($"Spawned {entityType}");
+												Log.Debug($"Spawned {entityType}");
 											//Level.StrikeLightning(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw)); 
 											//Level.SetBlock(new StainedGlass() { Metadata = (byte)firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
 											++numberOfSpawnedMobs;
@@ -241,6 +241,8 @@ namespace MiNET.Entities
 
 										if (Spawn(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw), entityType, random))
 										{
+											if (Log.IsDebugEnabled)
+												Log.Debug($"Spawned {entityType} at lightlevel={Level.GetSubtractedLight(firstBlock.Coordinates)}");
 											//Level.SetBlock(new StainedGlass() { Metadata = (byte) firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
 											//Log.Warn($"Spawned {entityType} at {firstBlock.Coordinates} at light level on bottom={firstBlock.SkyLight} amd top={secondBlock.SkyLight}, world time={Level.CurrentWorldTime}");
 

@@ -22,13 +22,9 @@ namespace MiNET.Blocks
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
 			// No decay
-			if ((Metadata & 0x04) == 0x04)
-				return;
+			if ((Metadata & 0x04) == 0x04) return;
 
-			if ((Metadata & 0x08) == 0x08)
-			{
-				return;
-			}
+			if ((Metadata & 0x08) == 0x08) return;
 
 			Metadata = (byte) (Metadata | 0x08);
 			level.SetBlock(this, false, false, false);
@@ -36,13 +32,9 @@ namespace MiNET.Blocks
 
 		public override void OnTick(Level level, bool isRandom)
 		{
-			if ((Metadata & 0x04) == 0x04)
-				return;
+			if ((Metadata & 0x04) == 0x04) return;
 
-			if ((Metadata & 0x08) != 0x08)
-			{
-				return;
-			}
+			if ((Metadata & 0x08) != 0x08) return;
 
 			//Log.Debug("Checking decay");
 

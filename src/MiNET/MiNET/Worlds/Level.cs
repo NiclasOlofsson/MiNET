@@ -1122,7 +1122,7 @@ namespace MiNET.Worlds
 
 		public void SetBlock(int x, int y, int z, int blockId, int metadata = 0, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true, ChunkColumn possibleChunk = null)
 		{
-			Block block = BlockFactory.GetBlockById((byte) blockId);
+			Block block = BlockFactory.GetBlockById(blockId);
 			block.Coordinates = new BlockCoordinates(x, y, z);
 			block.Metadata = (byte) metadata;
 			SetBlock(block, broadcast, applyPhysics, calculateLight, possibleChunk);
@@ -1145,7 +1145,7 @@ namespace MiNET.Worlds
 
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Metadata);
-			if (chunk.GetHeight(block.Coordinates.X & 0x0f, block.Coordinates.Z & 0x0f) <= block.Coordinates.Y + 1)
+			if (calculateLight && chunk.GetHeight(block.Coordinates.X & 0x0f, block.Coordinates.Z & 0x0f) <= block.Coordinates.Y + 1)
 			{
 				chunk.RecalcHeight(block.Coordinates.X & 0x0f, block.Coordinates.Z & 0x0f, Math.Min(255, block.Coordinates.Y + 1));
 			}

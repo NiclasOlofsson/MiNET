@@ -68,7 +68,7 @@ using Org.BouncyCastle.Security;
 
 namespace MiNET.Client
 {
-	public class MiNetClient
+	public class MiNetClient: IMcpeClientMessageHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetClient));
 
@@ -100,6 +100,9 @@ namespace MiNET.Client
 		public string Username { get; set; }
 		public int ClientId { get; set; }
 
+
+		public IMcpeClientMessageHandler MessageHandler { get; set; }
+
 		public MiNetClient(IPEndPoint endpoint, string username, DedicatedThreadPool threadPool)
 		{
 			Random random = new Random();
@@ -111,6 +114,7 @@ namespace MiNET.Client
 			_threadPool = threadPool;
 			if (_serverEndpoint != null) Log.Warn("Connecting to: " + _serverEndpoint);
 			_clientEndpoint = new IPEndPoint(IPAddress.Any, 0);
+			MessageHandler = this;
 		}
 
 		private static void Main(string[] args)
@@ -261,11 +265,6 @@ namespace MiNET.Client
 
 		public void StartClient()
 		{
-			McpeSetSpawnPosition spawn = new McpeSetSpawnPosition();
-			spawn.coordinates = new BlockCoordinates(0, 0, 0);
-			var bytes = spawn.Encode();
-			Log.Debug($"\n{Packet.HexDump(bytes)}");
-
 			if (UdpClient != null) return;
 
 			try
@@ -827,343 +826,233 @@ namespace MiNET.Client
 		{
 			TraceReceive(message);
 
-			if (typeof (McpeWrapper) == message.GetType())
+			if (typeof(McpeWrapper) == message.GetType())
 			{
-				OnBatch(message);
+				HandleBatch((McpeWrapper) message);
 				return;
 			}
 
 			//Log.Debug($"Handle packet 0x{message.Id:X2} {message.GetType().Name}");
 
-			if (typeof (McpeDisconnect) == message.GetType())
+			if (typeof(McpeDisconnect) == message.GetType())
 			{
-				McpeDisconnect msg = (McpeDisconnect) message;
-				Log.InfoFormat("Disconnect {1}: {0}", msg.message, Username);
-				//SendDisconnectionNotification();
-				StopClient();
-				return;
+				MessageHandler.HandleMcpeDisconnect((McpeDisconnect) message);
 			}
-			else if (typeof (McpeServerToClientHandshake) == message.GetType())
+			else if (typeof(McpeServerToClientHandshake) == message.GetType())
 			{
-				OnMcpeServerToClientHandshake((McpeServerToClientHandshake) message);
-
-				return;
+				MessageHandler.HandleMcpeServerToClientHandshake((McpeServerToClientHandshake) message);
 			}
-			else if (typeof (ConnectedPing) == message.GetType())
+			else if (typeof(ConnectedPing) == message.GetType())
 			{
 				ConnectedPing msg = (ConnectedPing) message;
 				SendConnectedPong(msg.sendpingtime);
-				return;
 			}
-
-			else if (typeof (McpeResourcePacksInfo) == message.GetType())
+			else if (typeof(McpeResourcePacksInfo) == message.GetType())
 			{
-				OnMcpeResourcePacksInfo((McpeResourcePacksInfo) message);
-				return;
+				MessageHandler.HandleMcpeResourcePacksInfo((McpeResourcePacksInfo) message);
 			}
-
-			else if (typeof (McpeResourcePackStack) == message.GetType())
+			else if (typeof(McpeResourcePackStack) == message.GetType())
 			{
-				OnMcpeResourcePackStack((McpeResourcePackStack) message);
-				return;
+				MessageHandler.HandleMcpeResourcePackStack((McpeResourcePackStack) message);
 			}
 
-			else if (typeof (McpeResourcePackDataInfo) == message.GetType())
+			else if (typeof(McpeResourcePackDataInfo) == message.GetType())
 			{
-				OnMcpeResourcePackDataInfo((McpeResourcePackDataInfo) message);
-				return;
+				MessageHandler.HandleMcpeResourcePackDataInfo((McpeResourcePackDataInfo) message);
 			}
-
-			else if (typeof (McpeResourcePackChunkData) == message.GetType())
+			else if (typeof(McpeResourcePackChunkData) == message.GetType())
 			{
-				OnMcpeResourcePackChunkData((McpeResourcePackChunkData) message);
-				return;
+				MessageHandler.HandleMcpeResourcePackChunkData((McpeResourcePackChunkData) message);
 			}
-
-			else if (typeof (McpeFullChunkData) == message.GetType())
+			else if (typeof(McpeFullChunkData) == message.GetType())
 			{
-				OnFullChunkData((McpeFullChunkData) message);
-				return;
+				MessageHandler.HandleMcpeFullChunkData((McpeFullChunkData) message);
 			}
-
-			else if (typeof (ConnectionRequestAccepted) == message.GetType())
+			else if (typeof(ConnectionRequestAccepted) == message.GetType())
 			{
 				OnConnectionRequestAccepted();
-				return;
 			}
-
-			else if (typeof (McpeSetSpawnPosition) == message.GetType())
+			else if (typeof(McpeSetSpawnPosition) == message.GetType())
 			{
-				OnMcpeSetSpawnPosition(message);
-
-				return;
+				MessageHandler.HandleMcpeSetSpawnPosition((McpeSetSpawnPosition) message);
 			}
-
-			else if (typeof (McpeGameRulesChanged) == message.GetType())
+			else if (typeof(McpeGameRulesChanged) == message.GetType())
 			{
-				OnMcpeGameRulesChanged((McpeGameRulesChanged) message);
-
-				return;
+				MessageHandler.HandleMcpeGameRulesChanged((McpeGameRulesChanged) message);
 			}
-
-			else if (typeof (McpeSetTime) == message.GetType())
+			else if (typeof(McpeSetTime) == message.GetType())
 			{
-				OnMcpeSetTime((McpeSetTime) message);
-
-				return;
+				MessageHandler.HandleMcpeSetTime((McpeSetTime) message);
 			}
-
-			else if (typeof (McpeStartGame) == message.GetType())
+			else if (typeof(McpeStartGame) == message.GetType())
 			{
-				OnMcpeStartGame((McpeStartGame) message);
-
-				return;
+				MessageHandler.HandleMcpeStartGame((McpeStartGame) message);
 			}
-			else if (typeof (McpeRespawn) == message.GetType())
+			else if (typeof(McpeRespawn) == message.GetType())
 			{
-				OnMcpeRespawn((McpeRespawn) message);
-
-				return;
+				MessageHandler.HandleMcpeRespawn((McpeRespawn) message);
 			}
-
-			else if (typeof (McpeBlockEvent) == message.GetType())
+			else if (typeof(McpeBlockEvent) == message.GetType())
 			{
-				OnMcpeBlockEvent(message);
-				return;
+				MessageHandler.HandleMcpeBlockEvent((McpeBlockEvent) message);
 			}
-
-			else if (typeof (McpeBlockEntityData) == message.GetType())
+			else if (typeof(McpeBlockEntityData) == message.GetType())
 			{
-				OnMcpeBlockEntityData((McpeBlockEntityData) message);
-				return;
+				MessageHandler.HandleMcpeBlockEntityData((McpeBlockEntityData) message);
 			}
-
-			else if (typeof (McpeAddPlayer) == message.GetType())
+			else if (typeof(McpeAddPlayer) == message.GetType())
 			{
-				OnMcpeAddPlayer(message);
-
-				return;
+				MessageHandler.HandleMcpeAddPlayer((McpeAddPlayer) message);
 			}
-			else if (typeof (McpeAddEntity) == message.GetType())
+			else if (typeof(McpeAddEntity) == message.GetType())
 			{
-				OnMcpeAddEntity((McpeAddEntity) message);
-
-				return;
+				MessageHandler.HandleMcpeAddEntity((McpeAddEntity) message);
 			}
-			else if (typeof (McpeRemoveEntity) == message.GetType())
+			else if (typeof(McpeRemoveEntity) == message.GetType())
 			{
-				OnMcpeRemoveEntity((McpeRemoveEntity) message);
-
-				return;
+				MessageHandler.HandleMcpeRemoveEntity((McpeRemoveEntity) message);
 			}
-
-			else if (typeof (McpeAddItemEntity) == message.GetType())
+			else if (typeof(McpeAddItemEntity) == message.GetType())
 			{
-				OnMcpeAddItemEntity(message);
-
-				return;
+				MessageHandler.HandleMcpeAddItemEntity((McpeAddItemEntity) message);
 			}
-			else if (typeof (McpePlayerList) == message.GetType())
+			else if (typeof(McpePlayerList) == message.GetType())
 			{
-				OnMcpePlayerList((McpePlayerList) message);
-
-				return;
+				MessageHandler.HandleMcpePlayerList((McpePlayerList) message);
 			}
-			else if (typeof (McpeMovePlayer) == message.GetType())
+			else if (typeof(McpeMovePlayer) == message.GetType())
 			{
-				OnMcpeMovePlayer((McpeMovePlayer) message);
-				return;
+				MessageHandler.HandleMcpeMovePlayer((McpeMovePlayer) message);
 			}
 
-			else if (typeof (McpeMobArmorEquipment) == message.GetType())
+			else if (typeof(McpeMobArmorEquipment) == message.GetType())
 			{
-				OnMcpeMobArmorEquipment((McpeMobArmorEquipment) message);
-
-				return;
+				MessageHandler.HandleMcpeMobArmorEquipment((McpeMobArmorEquipment) message);
 			}
-
-			else if (typeof (McpeSetEntityData) == message.GetType())
+			else if (typeof(McpeSetEntityData) == message.GetType())
 			{
-				OnMcpeSetEntityData(message);
-				return;
+				MessageHandler.HandleMcpeSetEntityData((McpeSetEntityData) message);
 			}
-
-			else if (typeof (McpeMovePlayer) == message.GetType())
+			else if (typeof(McpeLevelEvent) == message.GetType())
 			{
-				OnMcpeMovePlayer((McpeMovePlayer) message);
-				return;
+				MessageHandler.HandleMcpeLevelEvent((McpeLevelEvent) message);
 			}
-
-			else if (typeof (McpeLevelEvent) == message.GetType())
+			else if (typeof(McpeMobEffect) == message.GetType())
 			{
-				OnMcpeLevelEvent(message);
-				return;
+				MessageHandler.HandleMcpeMobEffect((McpeMobEffect) message);
 			}
-
-			else if (typeof (McpeMobEffect) == message.GetType())
+			else if (typeof(McpeSpawnExperienceOrb) == message.GetType())
 			{
-				OnMcpeMobEffect(message);
-				return;
+				MessageHandler.HandleMcpeSpawnExperienceOrb((McpeSpawnExperienceOrb) message);
 			}
-
-			else if (typeof (McpeSpawnExperienceOrb) == message.GetType())
+			else if (typeof(McpeMobEquipment) == message.GetType())
 			{
-				OnMcpeSpawnExperienceOrb(message);
-				return;
+				MessageHandler.HandleMcpeMobEquipment((McpeMobEquipment) message);
 			}
-
-			else if (typeof (McpeMobEquipment) == message.GetType())
+			else if (typeof(McpeContainerOpen) == message.GetType())
 			{
-				OnMcpePlayerEquipment((McpeMobEquipment) message);
-				return;
+				MessageHandler.HandleMcpeContainerOpen((McpeContainerOpen) message);
 			}
-
-			else if (typeof (McpeContainerOpen) == message.GetType())
+			else if (typeof(McpeContainerSetData) == message.GetType())
 			{
-				OnMcpeContainerOpen((McpeContainerOpen) message);
-				return;
+				MessageHandler.HandleMcpeContainerSetData((McpeContainerSetData) message);
 			}
-
-			else if (typeof (McpeContainerSetData) == message.GetType())
+			else if (typeof(McpeInventoryContent) == message.GetType())
 			{
-				OnMcpeContainerSetData(message);
-				return;
+				MessageHandler.HandleMcpeInventoryContent((McpeInventoryContent) message);
 			}
-
-			else if (typeof (McpeInventoryContent) == message.GetType())
+			else if (typeof(McpeInventoryTransaction) == message.GetType())
 			{
-				OnMcpeInventoryContent((McpeInventoryContent) message);
-				return;
+				MessageHandler.HandleMcpeInventoryTransaction((McpeInventoryTransaction) message);
 			}
-
-			else if (typeof (McpeInventoryTransaction) == message.GetType())
+			else if (typeof(McpePlayerHotbar) == message.GetType())
 			{
-				OnMcpeInventoryTransaction((McpeInventoryTransaction) message);
-				return;
+				MessageHandler.HandleMcpePlayerHotbar((McpePlayerHotbar) message);
 			}
-
-			else if (typeof (McpePlayerHotbar) == message.GetType())
+			else if (typeof(McpeCraftingData) == message.GetType())
 			{
-				OnMcpePlayerHotbar((McpePlayerHotbar) message);
-				return;
+				MessageHandler.HandleMcpeCraftingData((McpeCraftingData) message);
 			}
-
-			else if (typeof (McpeCraftingData) == message.GetType())
+			else if (typeof(McpeAdventureSettings) == message.GetType())
 			{
-				OnMcpeCraftingData(message);
-				return;
+				MessageHandler.HandleMcpeAdventureSettings((McpeAdventureSettings) message);
 			}
-
-			else if (typeof (McpeAdventureSettings) == message.GetType())
+			else if (typeof(McpeMoveEntity) == message.GetType())
 			{
-				OnMcpeAdventureSettings((McpeAdventureSettings) message);
-				return;
+				MessageHandler.HandleMcpeMoveEntity((McpeMoveEntity) message);
 			}
-
-
-			else if (typeof (McpeMoveEntity) == message.GetType())
-			{
-				OnMcpeMoveEntity((McpeMoveEntity) message);
-				return;
-			}
-
 			else if (typeof(McpeMoveEntityDelta) == message.GetType())
 			{
-				OnMcpeMoveEntityDelta((McpeMoveEntityDelta)message);
-				return;
+				MessageHandler.HandleMcpeMoveEntityDelta((McpeMoveEntityDelta) message);
 			}
-
-			else if (typeof (McpeSetEntityMotion) == message.GetType())
+			else if (typeof(McpeSetEntityMotion) == message.GetType())
 			{
+				MessageHandler.HandleMcpeSetEntityMotion((McpeSetEntityMotion) message);
 			}
-
-			else if (typeof (McpeEntityEvent) == message.GetType())
+			else if (typeof(McpeEntityEvent) == message.GetType())
 			{
+				MessageHandler.HandleMcpeEntityEvent((McpeEntityEvent) message);
 			}
-
-			else if (typeof (McpeUpdateAttributes) == message.GetType())
+			else if (typeof(McpeUpdateAttributes) == message.GetType())
 			{
-				OnMcpeUpdateAttributes((McpeUpdateAttributes) message);
+				MessageHandler.HandleMcpeUpdateAttributes((McpeUpdateAttributes) message);
 			}
-
-			else if (typeof (McpeText) == message.GetType())
+			else if (typeof(McpeText) == message.GetType())
 			{
-				OnMcpeText((McpeText) message);
+				MessageHandler.HandleMcpeText((McpeText) message);
 			}
-
-			else if (typeof (McpePlayStatus) == message.GetType())
+			else if (typeof(McpePlayStatus) == message.GetType())
 			{
-				OnMcpePlayStatus((McpePlayStatus) message);
+				MessageHandler.HandleMcpePlayStatus((McpePlayStatus) message);
 			}
-
-			else if (typeof (McpeClientboundMapItemData) == message.GetType())
+			else if (typeof(McpeClientboundMapItemData) == message.GetType())
 			{
-				McpeClientboundMapItemData packet = (McpeClientboundMapItemData) message;
+				MessageHandler.HandleMcpeClientboundMapItemData((McpeClientboundMapItemData) message);
 			}
-
-			else if (typeof (McpeHurtArmor) == message.GetType())
+			else if (typeof(McpeHurtArmor) == message.GetType())
 			{
-				OnMcpeHurtArmor((McpeHurtArmor) message);
+				MessageHandler.HandleMcpeHurtArmor((McpeHurtArmor) message);
 			}
-
-			else if (typeof (McpeAnimate) == message.GetType())
+			else if (typeof(McpeAnimate) == message.GetType())
 			{
-				OnMcpeAnimate((McpeAnimate) message);
+				MessageHandler.HandleMcpeAnimate((McpeAnimate) message);
 			}
-
-			else if (typeof (McpeMapInfoRequest) == message.GetType())
+			else if (typeof(McpeMapInfoRequest) == message.GetType())
 			{
-				OnMcpeMapInfoRequest((McpeMapInfoRequest) message);
+				MessageHandler.HandleMcpeMapInfoRequest((McpeMapInfoRequest) message);
 			}
-
-			else if (typeof (McpeClientboundMapItemData) == message.GetType())
+			else if (typeof(McpeClientboundMapItemData) == message.GetType())
 			{
-				OnMcpeClientboundMapItemData((McpeClientboundMapItemData) message);
+				MessageHandler.HandleMcpeClientboundMapItemData((McpeClientboundMapItemData) message);
 			}
-
-			else if (typeof (McpeInteract) == message.GetType())
+			else if (typeof(McpeInteract) == message.GetType())
 			{
-				OnMcpeInteract((McpeInteract) message);
+				MessageHandler.HandleMcpeInteract((McpeInteract) message);
 			}
-
-			else if (typeof (McpeAvailableCommands) == message.GetType())
+			else if (typeof(McpeAvailableCommands) == message.GetType())
 			{
-				OnMcpeAvailableCommands((McpeAvailableCommands) message);
+				MessageHandler.HandleMcpeAvailableCommands((McpeAvailableCommands) message);
 			}
-			else if (typeof (McpeChangeDimension) == message.GetType())
+			else if (typeof(McpeChangeDimension) == message.GetType())
 			{
-				OnMcpeChangeDimension((McpeChangeDimension) message);
+				MessageHandler.HandleMcpeChangeDimension((McpeChangeDimension) message);
 			}
-
-			else if (typeof (McpeUpdateEquipment) == message.GetType())
+			else if (typeof(McpeUpdateEquipment) == message.GetType())
 			{
-				OnMcpeUpdateEquipment((McpeUpdateEquipment) message);
-
-				return;
+				MessageHandler.HandleMcpeUpdateEquipment((McpeUpdateEquipment) message);
 			}
-
-
-			else if (typeof (UnknownPacket) == message.GetType())
+			else if (typeof(UnknownPacket) == message.GetType())
 			{
 				UnknownPacket packet = (UnknownPacket) message;
 				if (Log.IsDebugEnabled) Log.Warn($"Unknown packet 0x{message.Id:X2}\n{Packet.HexDump(packet.Message)}");
 			}
-
 			else
 			{
 				if (Log.IsDebugEnabled) Log.Warn($"Unhandled packet 0x{message.Id:X2} {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 			}
 		}
 
-		private void OnMcpeInventoryTransaction(McpeInventoryTransaction message)
-		{
-		}
-
-		private void OnMcpePlayerHotbar(McpePlayerHotbar message)
-		{
-		}
-
-		private void OnMcpeChangeDimension(McpeChangeDimension message)
+		public virtual void HandleMcpeChangeDimension(McpeChangeDimension message)
 		{
 			Thread.Sleep(3000);
 			McpePlayerAction action = McpePlayerAction.CreateObject();
@@ -1172,19 +1061,11 @@ namespace MiNET.Client
 			SendPacket(action);
 		}
 
-		private void OnMcpeClientboundMapItemData(McpeClientboundMapItemData message)
+		public virtual void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)
 		{
 		}
 
-		private void OnMcpeMapInfoRequest(McpeMapInfoRequest message)
-		{
-		}
-
-		private void OnMcpeMobArmorEquipment(McpeMobArmorEquipment message)
-		{
-		}
-
-		private void OnMcpeMoveEntity(McpeMoveEntity message)
+		public virtual void HandleMcpeMoveEntity(McpeMoveEntity message)
 		{
 			//if (Entities.ContainsKey(message.entityId))
 			//{
@@ -1194,7 +1075,7 @@ namespace MiNET.Client
 			//}
 		}
 
-		private void OnMcpeMoveEntityDelta(McpeMoveEntityDelta message)
+		public virtual void HandleMcpeMoveEntityDelta(McpeMoveEntityDelta message)
 		{
 			//if (Entities.ContainsKey(message.entityId))
 			//{
@@ -1204,12 +1085,12 @@ namespace MiNET.Client
 			//}
 		}
 
-		private void OnMcpeRespawn(McpeRespawn message)
+		public virtual void HandleMcpeRespawn(McpeRespawn message)
 		{
 			CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
 		}
 
-		private void OnMcpeGameRulesChanged(McpeGameRulesChanged message)
+		public virtual void HandleMcpeGameRulesChanged(McpeGameRulesChanged message)
 		{
 			GameRules rules = message.rules;
 			foreach (var rule in rules)
@@ -1233,7 +1114,7 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnMcpeResourcePacksInfo(McpeResourcePacksInfo message)
+		public virtual void HandleMcpeResourcePacksInfo(McpeResourcePacksInfo message)
 		{
 			Log.Warn($"HEX: \n{Packet.HexDump(message.Bytes)}");
 
@@ -1280,7 +1161,7 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnMcpeResourcePackStack(McpeResourcePackStack message)
+		public virtual void HandleMcpeResourcePackStack(McpeResourcePackStack message)
 		{
 			//Log.Debug($"HEX: \n{Package.HexDump(message.Bytes)}");
 
@@ -1318,7 +1199,7 @@ namespace MiNET.Client
 
 		private Dictionary<string, uint> resourcePackDataInfos = new Dictionary<string, uint>();
 
-		private void OnMcpeResourcePackDataInfo(McpeResourcePackDataInfo message)
+		public virtual void HandleMcpeResourcePackDataInfo(McpeResourcePackDataInfo message)
 		{
 			var packageId = message.packageId;
 			McpeResourcePackChunkRequest request = new McpeResourcePackChunkRequest();
@@ -1328,7 +1209,7 @@ namespace MiNET.Client
 			resourcePackDataInfos.Add(message.packageId, message.chunkCount);
 		}
 
-		private void OnMcpeResourcePackChunkData(McpeResourcePackChunkData message)
+		public virtual void HandleMcpeResourcePackChunkData(McpeResourcePackChunkData message)
 		{
 			string fileName = Path.GetTempPath() + "ResourcePackChunkData_" + message.packageId + ".zip";
 			Log.Warn("Writing ResourcePackChunkData part " + message.chunkIndex.ToString() + " to filename: " + fileName);
@@ -1366,7 +1247,7 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnMcpeContainerOpen(McpeContainerOpen message)
+		public virtual void HandleMcpeContainerOpen(McpeContainerOpen message)
 		{
 			var stringWriter = new StringWriter();
 			ObjectDumper.Write(message, 1, stringWriter);
@@ -1374,7 +1255,7 @@ namespace MiNET.Client
 			Log.Debug($"Handled chest for {EntityId} 0x{message.Id:x2} {message.GetType().Name}:\n{stringWriter} ");
 		}
 
-		private void OnMcpeAvailableCommands(McpeAvailableCommands message)
+		public virtual void HandleMcpeAvailableCommands(McpeAvailableCommands message)
 		{
 			//{
 			//	dynamic json = JObject.Parse(message.commands);
@@ -1391,7 +1272,7 @@ namespace MiNET.Client
 			//}
 		}
 
-		private void OnMcpeSetTime(McpeSetTime message)
+		public virtual void HandleMcpeSetTime(McpeSetTime message)
 		{
 		}
 
@@ -1401,7 +1282,7 @@ namespace MiNET.Client
 			StopClient();
 		}
 
-		private void OnMcpePlayerList(McpePlayerList message)
+		public virtual void HandleMcpePlayerList(McpePlayerList message)
 		{
 			foreach (var playerRecord in message.records)
 			{
@@ -1433,7 +1314,7 @@ namespace MiNET.Client
 			SendPacket(loginPacket);
 		}
 
-		private void OnMcpeServerToClientHandshake(McpeServerToClientHandshake message)
+		public void HandleMcpeServerToClientHandshake(McpeServerToClientHandshake message)
 		{
 			string token = message.token;
 			Log.Debug("JWT:\n" + token);
@@ -1531,22 +1412,22 @@ namespace MiNET.Client
 
 		public CommandPermission UserPermission { get; set; }
 
-		private void OnMcpeAdventureSettings(McpeAdventureSettings message)
+		public virtual void HandleMcpeAdventureSettings(McpeAdventureSettings message)
 		{
 			UserPermission = (CommandPermission) message.commandPermission;
 		}
 
-		private void OnMcpeInteract(McpeInteract message)
+		public virtual void HandleMcpeInteract(McpeInteract message)
 		{
 			Log.Debug($"Interact: EID={message.targetRuntimeEntityId}, Action ID={message.actionId}");
 		}
 
-		private void OnMcpeAnimate(McpeAnimate message)
+		public virtual void HandleMcpeAnimate(McpeAnimate message)
 		{
 			Log.Debug($"Animate: EID={message.runtimeEntityId}, Action ID={message.actionId}");
 		}
 
-		private void OnMcpeHurtArmor(McpeHurtArmor message)
+		public virtual void HandleMcpeHurtArmor(McpeHurtArmor message)
 		{
 			Log.Debug($"Hurt Armor: Health={message.health}");
 		}
@@ -1554,7 +1435,7 @@ namespace MiNET.Client
 		public AutoResetEvent PlayerStatusChangedWaitHandle = new AutoResetEvent(false);
 		public bool HasSpawned { get; set; }
 
-		private void OnMcpePlayStatus(McpePlayStatus message)
+		public virtual void HandleMcpePlayStatus(McpePlayStatus message)
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Player status={message.status}");
 			PlayerStatus = message.status;
@@ -1571,7 +1452,7 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnMcpeUpdateAttributes(McpeUpdateAttributes message)
+		public virtual void HandleMcpeUpdateAttributes(McpeUpdateAttributes message)
 		{
 			if (Log.IsDebugEnabled)
 				foreach (var playerAttribute in message.attributes)
@@ -1580,7 +1461,7 @@ namespace MiNET.Client
 				}
 		}
 
-		private void OnMcpeText(McpeText message)
+		public virtual void HandleMcpeText(McpeText message)
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Text: {message.message}");
 
@@ -1590,7 +1471,7 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnMcpePlayerEquipment(McpeMobEquipment message)
+		public virtual void HandleMcpeMobEquipment(McpeMobEquipment message)
 		{
 			if (Log.IsDebugEnabled)
 				Log.Debug($"PlayerEquipment: Entity ID: {message.runtimeEntityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item: {message.item}");
@@ -1728,7 +1609,7 @@ namespace MiNET.Client
 		}
 
 
-		private void OnMcpeCraftingData(Packet message)
+		public virtual void HandleMcpeCraftingData(McpeCraftingData msg)
 		{
 			if (IsEmulator) return;
 
@@ -1736,7 +1617,6 @@ namespace MiNET.Client
 			Log.Info("Writing recipes to filename: " + fileName);
 			FileStream file = File.OpenWrite(fileName);
 
-			McpeCraftingData msg = (McpeCraftingData) message;
 			IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
 
 			writer.WriteLine("static RecipeManager()");
@@ -1819,13 +1699,12 @@ namespace MiNET.Client
 			//Environment.Exit(0);
 		}
 
-		private void OnMcpeContainerSetData(Packet msg)
+		public virtual void HandleMcpeContainerSetData(McpeContainerSetData message)
 		{
-			McpeContainerSetData message = (McpeContainerSetData) msg;
 			if (Log.IsDebugEnabled) Log.Debug($"Set container data window 0x{message.windowId:X2} with property ID: {message.property} value: {message.value}");
 		}
 
-		private void OnMcpeInventoryContent(McpeInventoryContent msg)
+		public virtual void HandleMcpeInventoryContent(McpeInventoryContent msg)
 		{
 			Log.Debug($"Set container content on Window ID: 0x{msg.inventoryId:x2}, Count: {msg.input.Count}");
 
@@ -1916,17 +1795,8 @@ namespace MiNET.Client
 			file.Close();
 		}
 
-		private void OnMcpeSpawnExperienceOrb(Packet message)
+		public virtual void HandleMcpeLevelEvent(McpeLevelEvent msg)
 		{
-		}
-
-		private void OnMcpeMobEffect(Packet message)
-		{
-		}
-
-		private void OnMcpeLevelEvent(Packet message)
-		{
-			McpeLevelEvent msg = (McpeLevelEvent) message;
 			int data = msg.data;
 			if (msg.eventId == 2001)
 			{
@@ -1936,7 +1806,7 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnMcpeMovePlayer(McpeMovePlayer message)
+		public virtual void HandleMcpeMovePlayer(McpeMovePlayer message)
 		{
 			if (message.runtimeEntityId != EntityId) return;
 
@@ -1947,9 +1817,8 @@ namespace MiNET.Client
 			SendMcpeMovePlayer();
 		}
 
-		private static void OnMcpeSetEntityData(Packet message)
+		public virtual void HandleMcpeSetEntityData(McpeSetEntityData msg)
 		{
-			McpeSetEntityData msg = (McpeSetEntityData) message;
 			Log.DebugFormat("McpeSetEntityData Entity ID: {0}, Metadata: {1}", msg.runtimeEntityId, MetadataToCode(msg.metadata));
 			//Log.Debug($"Package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
 		}
@@ -2058,11 +1927,10 @@ namespace MiNET.Client
 			return sb.ToString();
 		}
 
-		private void OnMcpeAddPlayer(Packet message)
+		public virtual void HandleMcpeAddPlayer(McpeAddPlayer msg)
 		{
 			if (IsEmulator) return;
 
-			McpeAddPlayer msg = (McpeAddPlayer) message;
 			Log.DebugFormat("McpeAddPlayer Entity ID: {0}", msg.entityIdSelf);
 			Log.DebugFormat("McpeAddPlayer Runtime Entity ID: {0}", msg.runtimeEntityId);
 			Log.DebugFormat("X: {0}", msg.x);
@@ -2079,7 +1947,7 @@ namespace MiNET.Client
 
 		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
 
-		private void OnMcpeAddEntity(McpeAddEntity message)
+		public virtual void HandleMcpeAddEntity(McpeAddEntity message)
 		{
 			if (IsEmulator) return;
 
@@ -2217,18 +2085,18 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnMcpeUpdateEquipment(McpeUpdateEquipment message)
+		public virtual void HandleMcpeUpdateEquipment(McpeUpdateEquipment message)
 		{
 			Log.Debug($"{message.namedtag.NbtFile}");
 		}
 
-		private void OnMcpeRemoveEntity(McpeRemoveEntity message)
+		public virtual void HandleMcpeRemoveEntity(McpeRemoveEntity message)
 		{
 			Entity value;
 			Entities.TryRemove(message.entityIdSelf, out value);
 		}
 
-		private void OnMcpeAddItemEntity(Packet message)
+		public virtual void HandleMcpeAddItemEntity(Packet message)
 		{
 			if (IsEmulator) return;
 
@@ -2243,7 +2111,7 @@ namespace MiNET.Client
 			//Log.Info($"Item {msg.item}");
 		}
 
-		private static void OnMcpeBlockEntityData(McpeBlockEntityData message)
+		public virtual void HandleMcpeBlockEntityData(McpeBlockEntityData message)
 		{
 			Log.DebugFormat("X: {0}", message.coordinates.X);
 			Log.DebugFormat("Y: {0}", message.coordinates.Y);
@@ -2251,15 +2119,14 @@ namespace MiNET.Client
 			Log.DebugFormat("NBT:\n{0}", message.namedtag.NbtFile.RootTag);
 		}
 
-		private static void OnMcpeBlockEvent(Packet message)
+		public virtual void HandleMcpeBlockEvent(McpeBlockEvent message)
 		{
-			McpeBlockEvent msg = (McpeBlockEvent) message;
-			Log.DebugFormat("Coord: {0}", msg.coordinates);
-			Log.DebugFormat("Case 1: {0}", msg.case1);
-			Log.DebugFormat("Case 2: {0}", msg.case2);
+			Log.DebugFormat("Coord: {0}", message.coordinates);
+			Log.DebugFormat("Case 1: {0}", message.case1);
+			Log.DebugFormat("Case 2: {0}", message.case2);
 		}
 
-		private void OnMcpeStartGame(McpeStartGame message)
+		public virtual void HandleMcpeStartGame(McpeStartGame message)
 		{
 			EntityId = message.runtimeEntityId;
 			NetworkEntityId = message.entityIdSelf;
@@ -2383,7 +2250,7 @@ namespace MiNET.Client
 			return result;
 		}
 
-		private void OnMcpeSetSpawnPosition(Packet message)
+		public virtual void HandleMcpeSetSpawnPosition(McpeSetSpawnPosition message)
 		{
 			McpeSetSpawnPosition msg = (McpeSetSpawnPosition) message;
 			_spawn = new Vector3(msg.coordinates.X, msg.coordinates.Y, msg.coordinates.Z);
@@ -2393,7 +2260,7 @@ namespace MiNET.Client
 			Log.Info($"Spawn position: {msg.coordinates}");
 		}
 
-		private void OnConnectionRequestAccepted()
+		public virtual void OnConnectionRequestAccepted()
 		{
 			Thread.Sleep(50);
 			SendNewIncomingConnection();
@@ -2407,7 +2274,7 @@ namespace MiNET.Client
 		private ConcurrentDictionary<Tuple<int, int>, bool> _chunks = new ConcurrentDictionary<Tuple<int, int>, bool>();
 		private static IndentedTextWriter _mobWriter;
 
-		private void OnFullChunkData(McpeFullChunkData msg)
+		public virtual void HandleMcpeFullChunkData(McpeFullChunkData msg)
 		{
 			if (IsEmulator) return;
 
@@ -2438,11 +2305,9 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnBatch(Packet message)
+		public virtual void HandleBatch(McpeWrapper batch)
 		{
 			FirstPacketWaitHandle.Set();
-
-			McpeWrapper batch = (McpeWrapper) message;
 
 			var messages = new List<Packet>();
 
@@ -2770,6 +2635,312 @@ namespace MiNET.Client
 		{
 			Session.CryptoContext = null;
 			SendPacket(new DisconnectionNotification());
+		}
+
+		public void HandleMcpeDisconnect(McpeDisconnect message)
+		{
+			McpeDisconnect msg = (McpeDisconnect)message;
+			Log.InfoFormat("Disconnect {1}: {0}", msg.message, Username);
+			//SendDisconnectionNotification();
+			StopClient();
+		}
+
+		public virtual void HandleMcpeAddItemEntity(McpeAddItemEntity message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeTakeItemEntity(McpeTakeItemEntity message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeRiderJump(McpeRiderJump message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeUpdateBlock(McpeUpdateBlock message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeAddPainting(McpeAddPainting message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeExplode(McpeExplode message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeEntityEvent(McpeEntityEvent message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeMobEffect(McpeMobEffect message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeInventoryTransaction(McpeInventoryTransaction message)
+		{
+		}
+
+		public virtual void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetEntityLink(McpeSetEntityLink message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetHealth(McpeSetHealth message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeContainerClose(McpeContainerClose message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpePlayerHotbar(McpePlayerHotbar message)
+		{
+		}
+
+		public virtual void HandleMcpeInventorySlot(McpeInventorySlot message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeCraftingEvent(McpeCraftingEvent message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeGuiDataPickItem(McpeGuiDataPickItem message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetCommandsEnabled(McpeSetCommandsEnabled message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetDifficulty(McpeSetDifficulty message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSimpleEvent(McpeSimpleEvent message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeTelemetryEvent(McpeTelemetryEvent message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSpawnExperienceOrb(McpeSpawnExperienceOrb message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeClientboundMapItemData(McpeClientboundMapItemData message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeChunkRadiusUpdate(McpeChunkRadiusUpdate message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeItemFrameDropItem(McpeItemFrameDropItem message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeCamera(McpeCamera message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeBossEvent(McpeBossEvent message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeShowCredits(McpeShowCredits message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeCommandOutput(McpeCommandOutput message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeUpdateTrade(McpeUpdateTrade message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeTransfer(McpeTransfer message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpePlaySound(McpePlaySound message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeStopSound(McpeStopSound message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetTitle(McpeSetTitle message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeAddBehaviorTree(McpeAddBehaviorTree message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeStructureBlockUpdate(McpeStructureBlockUpdate message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeShowStoreOffer(McpeShowStoreOffer message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpePlayerSkin(McpePlayerSkin message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSubClientLogin(McpeSubClientLogin message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeInitiateWebSocketConnection(McpeInitiateWebSocketConnection message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetLastHurtBy(McpeSetLastHurtBy message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeBookEdit(McpeBookEdit message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeNpcRequest(McpeNpcRequest message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeModalFormRequest(McpeModalFormRequest message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeServerSettingsResponse(McpeServerSettingsResponse message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeShowProfile(McpeShowProfile message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetDefaultGameType(McpeSetDefaultGameType message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeRemoveObjective(McpeRemoveObjective message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetScore(McpeSetScore message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeLabTable(McpeLabTable message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeUpdateBlockSynced(McpeUpdateBlockSynced message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeSetScoreboardIdentityPacket(McpeSetScoreboardIdentityPacket message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void HandleFtlCreatePlayer(FtlCreatePlayer message)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

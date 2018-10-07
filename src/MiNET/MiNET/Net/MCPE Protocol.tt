@@ -73,6 +73,20 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @cli
 #>
 	}
 
+	public interface IMcpeClientMessageHandler
+	{
+<#	
+
+
+foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @server='true']"))
+{
+#>
+		void Handle<#= CodeTypeName(pdu.Attributes["name"].Value) #>(<#= CodeTypeName(pdu.Attributes["name"].Value) #> message);
+<#	
+} // foreach
+#>
+	}
+
 	public class PacketFactory
 	{
 		public static Packet Create(byte messageId, byte[] buffer, string ns)

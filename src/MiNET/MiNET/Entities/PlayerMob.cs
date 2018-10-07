@@ -173,6 +173,45 @@ namespace MiNET.Entities
 			}
 		}
 
+		public void RemoveFromPlayerList()
+		{
+			Player fake = new Player(null, null)
+			{
+				ClientUuid = ClientUuid,
+				EntityId = EntityId,
+				NameTag = NameTag,
+				Skin = Skin
+			};
+
+			var players = Level.GetSpawnedPlayers();
+
+			McpePlayerList playerList = McpePlayerList.CreateObject();
+			playerList.records = new PlayerRemoveRecords {fake};
+			Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
+			playerList.records = null;
+			playerList.PutPool();
+		}
+
+		public void AddToPlayerList()
+		{
+			Player fake = new Player(null, null)
+			{
+				ClientUuid = ClientUuid,
+				EntityId = EntityId,
+				NameTag = NameTag,
+				Skin = Skin,
+				PlayerInfo = new PlayerInfo()
+			};
+
+			var players = Level.GetSpawnedPlayers();
+
+			McpePlayerList playerList = McpePlayerList.CreateObject();
+			playerList.records = new PlayerAddRecords { fake };
+			Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
+			playerList.records = null;
+			playerList.PutPool();
+		}
+
 		public override void DespawnFromPlayers(Player[] players)
 		{
 			{

@@ -482,7 +482,7 @@ namespace TestPlugin.NiceLobby
 
 				player.SendTitle(null, TitleType.Clear);
 				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20*10);
-				player.SendTitle($"{ChatColors.White}This is gurun's MiNET\n.NET core test server", TitleType.SubTitle);
+				player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
 				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
 			});
 		}

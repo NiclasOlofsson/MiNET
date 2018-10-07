@@ -8025,6 +8025,7 @@ namespace MiNET.Net
 	public partial class McpeSetLocalPlayerAsInitializedPacket : Packet<McpeSetLocalPlayerAsInitializedPacket>
 	{
 
+		public long runtimeEntityId; // = null;
 
 		public McpeSetLocalPlayerAsInitializedPacket()
 		{
@@ -8038,6 +8039,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			WriteUnsignedVarLong(runtimeEntityId);
 
 			AfterEncode();
 		}
@@ -8051,6 +8053,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			runtimeEntityId = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}
@@ -8062,6 +8065,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+			runtimeEntityId=default(long);
 		}
 
 	}

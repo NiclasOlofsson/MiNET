@@ -2285,6 +2285,7 @@ Wiki: [Set Local Player As Initialized Packet](https://github.com/NiclasOlofsson
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Update Soft Enum Packet (0x72)
 Wiki: [Update Soft Enum Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateSoftEnumPacket)

@@ -539,6 +539,21 @@ namespace MiNET.Entities.Behaviors
 					}
 				}
 
+				// finally, check for gaps (tricky)
+				{
+					bool isDiagonalMove = item.X != block.Coordinates.X && item.Y != block.Coordinates.Z;
+					var blockToCheck = _blockCache[item];
+					if (blockToCheck.Coordinates.Y < block.Coordinates.Y)
+					{
+						if (IsObstructed(new BlockCoordinates(item.X, block.Coordinates.Y, item.Y))) continue;
+					}
+					if (isDiagonalMove)
+					{
+						if (IsObstructed(new BlockCoordinates(block.Coordinates.X + Neighbors[index, 0], block.Coordinates.Y, block.Coordinates.Z))) continue;
+						if (IsObstructed(new BlockCoordinates(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z + Neighbors[index, 1]))) continue;
+					}
+				}
+
 				list.Add(item);
 			}
 

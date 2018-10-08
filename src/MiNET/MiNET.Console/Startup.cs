@@ -25,7 +25,6 @@
 
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using log4net;
 using log4net.Config;
 
@@ -40,13 +39,9 @@ namespace MiNET.Console
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.xml"));
 
-			int threads;
-			int portThreads;
-			ThreadPool.GetMinThreads(out threads, out portThreads);
-			Log.Info($"Threads: {threads}, Port Threads: {portThreads}");
-
 			var service = new MiNetServer();
-			Log.Info("Starting MiNET");
+			Log.Info(MiNetServer.MiNET);
+			Log.Info("Starting...");
 			service.StartServer();
 
 			System.Console.WriteLine("MiNET running. Press <enter> to stop service.");

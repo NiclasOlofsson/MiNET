@@ -62,8 +62,6 @@ namespace MiNET.Net
 		void Disconnect(string reason, bool sendDisconnect = true);
 
 <#	
-
-
 foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @client='true']"))
 {
 #>
@@ -76,15 +74,41 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @cli
 	public interface IMcpeClientMessageHandler
 	{
 <#	
-
-
 foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @server='true']"))
 {
 #>
 		void Handle<#= CodeTypeName(pdu.Attributes["name"].Value) #>(<#= CodeTypeName(pdu.Attributes["name"].Value) #> message);
 <#	
 } // foreach
+
 #>
+	}
+
+	public class McpeClientMessageDispatcher
+	{
+		private IMcpeClientMessageHandler _messageHandler = null;
+
+		public McpeClientMessageDispatcher(IMcpeClientMessageHandler messageHandler)
+		{
+			_messageHandler = messageHandler;
+		}
+
+		public bool HandlePacket(Packet message)
+		{
+			if (false) {}
+<#	
+foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @server='true']"))
+{
+#>
+			else if (typeof(<#= CodeTypeName(pdu.Attributes["name"].Value) #>) == message.GetType()) _messageHandler.Handle<#= CodeTypeName(pdu.Attributes["name"].Value) #>((<#= CodeTypeName(pdu.Attributes["name"].Value) #>) message);
+<#	
+} // foreach
+
+#>
+			else return false;
+
+			return true;
+		}
 	}
 
 	public class PacketFactory

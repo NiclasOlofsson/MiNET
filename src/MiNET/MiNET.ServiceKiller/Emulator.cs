@@ -195,7 +195,7 @@ namespace MiNET.ServiceKiller
 				{
 					if (client.UdpClient == null) break;
 
-					float y = client.Level.SpawnX + Random.Next(7, 10) + /*24*/ 75;
+					float y = client.LevelInfo.SpawnX + Random.Next(7, 10) + /*24*/ 75;
 					float length = Random.Next(5, 20);
 
 					double angle = 0.0;
@@ -210,8 +210,8 @@ namespace MiNET.ServiceKiller
 						float z = (float) (length*Math.Sin(angle));
 						y += heightStepsize;
 
-						x += client.Level.SpawnX;
-						z += client.Level.SpawnZ;
+						x += client.LevelInfo.SpawnX;
+						z += client.LevelInfo.SpawnZ;
 
 						client.CurrentLocation = new PlayerLocation(x, y, z);
 						client.SendMcpeMovePlayer();

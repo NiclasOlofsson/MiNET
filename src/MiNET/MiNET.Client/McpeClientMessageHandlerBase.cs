@@ -67,14 +67,14 @@ namespace MiNET.Client
 		public virtual void HandleMcpeServerToClientHandshake(McpeServerToClientHandshake message)
 		{
 			string token = message.token;
-			Log.Debug("JWT:\n" + token);
+			Log.Debug($"JWT:\n{token}");
 
 			IDictionary<string, dynamic> headers = JWT.Headers(token);
 			string x5u = headers["x5u"];
 
-			ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters)
-				PublicKeyFactory.CreateKey(x5u.DecodeBase64());
+			Log.Debug($"JWT payload:\n{JWT.Payload(token)}");
 
+			ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(x5u.DecodeBase64());
 
 			var signParam = new ECParameters
 			{
@@ -167,9 +167,12 @@ namespace MiNET.Client
 			if (message.runtimeEntityId != Client.EntityId) return;
 
 			Client.CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
-			Client.Level.SpawnX = (int) message.x;
-			Client.Level.SpawnY = (int) message.y;
-			Client.Level.SpawnZ = (int) message.z;
+			Log.Debug($"Position: {Client.CurrentLocation}");
+
+			Client.LevelInfo.SpawnX = (int)message.x;
+			Client.LevelInfo.SpawnY = (int)message.y;
+			Client.LevelInfo.SpawnZ = (int)message.z;
+
 			Client.SendMcpeMovePlayer();
 		}
 

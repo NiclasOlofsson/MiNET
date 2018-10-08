@@ -51,15 +51,15 @@ namespace MiNET.Client
 		{
 		}
 
-		public override void HandleMcpePlayStatus(McpePlayStatus message)
-		{
-			throw new NotImplementedException();
-		}
+		//public override void HandleMcpePlayStatus(McpePlayStatus message)
+		//{
+		//	throw new NotImplementedException();
+		//}
 
-		public override void HandleMcpeServerToClientHandshake(McpeServerToClientHandshake message)
-		{
-			throw new NotImplementedException();
-		}
+		//public override void HandleMcpeServerToClientHandshake(McpeServerToClientHandshake message)
+		//{
+		//	throw new NotImplementedException();
+		//}
 
 		public override void HandleMcpeDisconnect(McpeDisconnect message)
 		{
@@ -128,15 +128,16 @@ namespace MiNET.Client
 
 		public override void HandleMcpeSetTime(McpeSetTime message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeStartGame(McpeStartGame message)
 		{
 			Client.EntityId = message.runtimeEntityId;
 			Client.NetworkEntityId = message.entityIdSelf;
-			Client._spawn = new Vector3(message.x, message.y, message.z);
-			Client.CurrentLocation = new PlayerLocation(Client._spawn);
+			Client.SpawnPoint = message.spawn;
+			Client.CurrentLocation = new PlayerLocation(Client.SpawnPoint, message.unknown1.X, message.unknown1.X, message.unknown1.Y);
+
+			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");
 
 			string fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
 			using (FileStream file = File.OpenWrite(fileName))
@@ -209,9 +210,9 @@ namespace MiNET.Client
 			//	worldName: {message.worldName}	
 			//");
 
-			Client.Level.LevelName = "Default";
-			Client.Level.Version = 19133;
-			Client.Level.GameType = message.gamemode;
+			Client.LevelInfo.LevelName = "Default";
+			Client.LevelInfo.Version = 19133;
+			Client.LevelInfo.GameType = message.gamemode;
 
 			//ClientUtils.SaveLevel(_level);
 
@@ -387,47 +388,39 @@ namespace MiNET.Client
 
 		public override void HandleMcpeAddItemEntity(McpeAddItemEntity message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeTakeItemEntity(McpeTakeItemEntity message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeMoveEntity(McpeMoveEntity message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeMovePlayer(McpeMovePlayer message)
 		{
-			throw new NotImplementedException();
+			base.HandleMcpeMovePlayer(message);
 		}
 
 		public override void HandleMcpeRiderJump(McpeRiderJump message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeUpdateBlock(McpeUpdateBlock message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeAddPainting(McpeAddPainting message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeExplode(McpeExplode message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeLevelEvent(McpeLevelEvent message)
@@ -443,17 +436,14 @@ namespace MiNET.Client
 
 		public override void HandleMcpeBlockEvent(McpeBlockEvent message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeEntityEvent(McpeEntityEvent message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeMobEffect(McpeMobEffect message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeUpdateAttributes(McpeUpdateAttributes message)
@@ -466,27 +456,22 @@ namespace MiNET.Client
 
 		public override void HandleMcpeInventoryTransaction(McpeInventoryTransaction message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeMobEquipment(McpeMobEquipment message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeInteract(McpeInteract message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeHurtArmor(McpeHurtArmor message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetEntityData(McpeSetEntityData message)
@@ -496,36 +481,31 @@ namespace MiNET.Client
 
 		public override void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetEntityLink(McpeSetEntityLink message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetHealth(McpeSetHealth message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetSpawnPosition(McpeSetSpawnPosition message)
 		{
-			Client._spawn = new Vector3(message.coordinates.X, message.coordinates.Y, message.coordinates.Z);
-			Client.Level.SpawnX = (int) Client._spawn.X;
-			Client.Level.SpawnY = (int) Client._spawn.Y;
-			Client.Level.SpawnZ = (int) Client._spawn.Z;
+			Client.SpawnPoint = new Vector3(message.coordinates.X, message.coordinates.Y, message.coordinates.Z);
+			Client.LevelInfo.SpawnX = (int) Client.SpawnPoint.X;
+			Client.LevelInfo.SpawnY = (int) Client.SpawnPoint.Y;
+			Client.LevelInfo.SpawnZ = (int) Client.SpawnPoint.Z;
 			Log.Info($"Spawn position: {message.coordinates}");
 		}
 
 		public override void HandleMcpeAnimate(McpeAnimate message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeRespawn(McpeRespawn message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeContainerOpen(McpeContainerOpen message)
@@ -538,12 +518,10 @@ namespace MiNET.Client
 
 		public override void HandleMcpeContainerClose(McpeContainerClose message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpePlayerHotbar(McpePlayerHotbar message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeInventoryContent(McpeInventoryContent message)
@@ -568,12 +546,10 @@ namespace MiNET.Client
 
 		public override void HandleMcpeInventorySlot(McpeInventorySlot message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeContainerSetData(McpeContainerSetData message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeCraftingData(McpeCraftingData message)
@@ -668,12 +644,10 @@ namespace MiNET.Client
 
 		public override void HandleMcpeCraftingEvent(McpeCraftingEvent message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeGuiDataPickItem(McpeGuiDataPickItem message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeAdventureSettings(McpeAdventureSettings message)
@@ -721,22 +695,18 @@ namespace MiNET.Client
 
 		public override void HandleMcpeSetCommandsEnabled(McpeSetCommandsEnabled message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetDifficulty(McpeSetDifficulty message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeChangeDimension(McpeChangeDimension message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpePlayerList(McpePlayerList message)
@@ -749,42 +719,34 @@ namespace MiNET.Client
 
 		public override void HandleMcpeSimpleEvent(McpeSimpleEvent message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeTelemetryEvent(McpeTelemetryEvent message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSpawnExperienceOrb(McpeSpawnExperienceOrb message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeClientboundMapItemData(McpeClientboundMapItemData message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeChunkRadiusUpdate(McpeChunkRadiusUpdate message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeItemFrameDropItem(McpeItemFrameDropItem message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeGameRulesChanged(McpeGameRulesChanged message)
@@ -813,17 +775,14 @@ namespace MiNET.Client
 
 		public override void HandleMcpeCamera(McpeCamera message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeBossEvent(McpeBossEvent message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeShowCredits(McpeShowCredits message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeAvailableCommands(McpeAvailableCommands message)
@@ -845,22 +804,18 @@ namespace MiNET.Client
 
 		public override void HandleMcpeCommandOutput(McpeCommandOutput message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeUpdateTrade(McpeUpdateTrade message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeUpdateEquipment(McpeUpdateEquipment message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeResourcePackDataInfo(McpeResourcePackDataInfo message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeResourcePackChunkData(McpeResourcePackChunkData message)
@@ -885,137 +840,110 @@ namespace MiNET.Client
 
 		public override void HandleMcpeTransfer(McpeTransfer message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpePlaySound(McpePlaySound message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeStopSound(McpeStopSound message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetTitle(McpeSetTitle message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeAddBehaviorTree(McpeAddBehaviorTree message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeStructureBlockUpdate(McpeStructureBlockUpdate message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeShowStoreOffer(McpeShowStoreOffer message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpePlayerSkin(McpePlayerSkin message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSubClientLogin(McpeSubClientLogin message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeInitiateWebSocketConnection(McpeInitiateWebSocketConnection message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetLastHurtBy(McpeSetLastHurtBy message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeBookEdit(McpeBookEdit message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeNpcRequest(McpeNpcRequest message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeModalFormRequest(McpeModalFormRequest message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeServerSettingsResponse(McpeServerSettingsResponse message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeShowProfile(McpeShowProfile message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetDefaultGameType(McpeSetDefaultGameType message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeRemoveObjective(McpeRemoveObjective message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetScore(McpeSetScore message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeLabTable(McpeLabTable message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeUpdateBlockSynced(McpeUpdateBlockSynced message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeMoveEntityDelta(McpeMoveEntityDelta message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeSetScoreboardIdentityPacket(McpeSetScoreboardIdentityPacket message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
 		{
-			throw new NotImplementedException();
 		}
 
 		public override void HandleFtlCreatePlayer(FtlCreatePlayer message)
 		{
-			throw new NotImplementedException();
 		}
 	}
 }

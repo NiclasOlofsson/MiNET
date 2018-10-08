@@ -50,6 +50,8 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(MiNetServer));
 
+		public const string MiNET = "\r\n __   __  ___   __    _  _______  _______ \r\n|  |_|  ||   | |  |  | ||       ||       |\r\n|       ||   | |   |_| ||    ___||_     _|\r\n|       ||   | |       ||   |___   |   |  \r\n|       ||   | |  _    ||    ___|  |   |  \r\n| ||_|| ||   | | | |   ||   |___   |   |  \r\n|_|   |_||___| |_|  |__||_______|  |___|  \r\n";
+
 		private const int DefaultPort = 19132;
 
 		public IPEndPoint Endpoint { get; private set; }

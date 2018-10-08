@@ -199,6 +199,123 @@ namespace MiNET.Net
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
 
+	public class McpeClientMessageDispatcher
+	{
+		private IMcpeClientMessageHandler _messageHandler = null;
+
+		public McpeClientMessageDispatcher(IMcpeClientMessageHandler messageHandler)
+		{
+			_messageHandler = messageHandler;
+		}
+
+		public bool HandlePacket(Packet message)
+		{
+			if (false) {}
+			else if (typeof(McpePlayStatus) == message.GetType()) _messageHandler.HandleMcpePlayStatus((McpePlayStatus) message);
+			else if (typeof(McpeServerToClientHandshake) == message.GetType()) _messageHandler.HandleMcpeServerToClientHandshake((McpeServerToClientHandshake) message);
+			else if (typeof(McpeDisconnect) == message.GetType()) _messageHandler.HandleMcpeDisconnect((McpeDisconnect) message);
+			else if (typeof(McpeResourcePacksInfo) == message.GetType()) _messageHandler.HandleMcpeResourcePacksInfo((McpeResourcePacksInfo) message);
+			else if (typeof(McpeResourcePackStack) == message.GetType()) _messageHandler.HandleMcpeResourcePackStack((McpeResourcePackStack) message);
+			else if (typeof(McpeText) == message.GetType()) _messageHandler.HandleMcpeText((McpeText) message);
+			else if (typeof(McpeSetTime) == message.GetType()) _messageHandler.HandleMcpeSetTime((McpeSetTime) message);
+			else if (typeof(McpeStartGame) == message.GetType()) _messageHandler.HandleMcpeStartGame((McpeStartGame) message);
+			else if (typeof(McpeAddPlayer) == message.GetType()) _messageHandler.HandleMcpeAddPlayer((McpeAddPlayer) message);
+			else if (typeof(McpeAddEntity) == message.GetType()) _messageHandler.HandleMcpeAddEntity((McpeAddEntity) message);
+			else if (typeof(McpeRemoveEntity) == message.GetType()) _messageHandler.HandleMcpeRemoveEntity((McpeRemoveEntity) message);
+			else if (typeof(McpeAddItemEntity) == message.GetType()) _messageHandler.HandleMcpeAddItemEntity((McpeAddItemEntity) message);
+			else if (typeof(McpeTakeItemEntity) == message.GetType()) _messageHandler.HandleMcpeTakeItemEntity((McpeTakeItemEntity) message);
+			else if (typeof(McpeMoveEntity) == message.GetType()) _messageHandler.HandleMcpeMoveEntity((McpeMoveEntity) message);
+			else if (typeof(McpeMovePlayer) == message.GetType()) _messageHandler.HandleMcpeMovePlayer((McpeMovePlayer) message);
+			else if (typeof(McpeRiderJump) == message.GetType()) _messageHandler.HandleMcpeRiderJump((McpeRiderJump) message);
+			else if (typeof(McpeUpdateBlock) == message.GetType()) _messageHandler.HandleMcpeUpdateBlock((McpeUpdateBlock) message);
+			else if (typeof(McpeAddPainting) == message.GetType()) _messageHandler.HandleMcpeAddPainting((McpeAddPainting) message);
+			else if (typeof(McpeExplode) == message.GetType()) _messageHandler.HandleMcpeExplode((McpeExplode) message);
+			else if (typeof(McpeLevelSoundEvent) == message.GetType()) _messageHandler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent) message);
+			else if (typeof(McpeLevelEvent) == message.GetType()) _messageHandler.HandleMcpeLevelEvent((McpeLevelEvent) message);
+			else if (typeof(McpeBlockEvent) == message.GetType()) _messageHandler.HandleMcpeBlockEvent((McpeBlockEvent) message);
+			else if (typeof(McpeEntityEvent) == message.GetType()) _messageHandler.HandleMcpeEntityEvent((McpeEntityEvent) message);
+			else if (typeof(McpeMobEffect) == message.GetType()) _messageHandler.HandleMcpeMobEffect((McpeMobEffect) message);
+			else if (typeof(McpeUpdateAttributes) == message.GetType()) _messageHandler.HandleMcpeUpdateAttributes((McpeUpdateAttributes) message);
+			else if (typeof(McpeInventoryTransaction) == message.GetType()) _messageHandler.HandleMcpeInventoryTransaction((McpeInventoryTransaction) message);
+			else if (typeof(McpeMobEquipment) == message.GetType()) _messageHandler.HandleMcpeMobEquipment((McpeMobEquipment) message);
+			else if (typeof(McpeMobArmorEquipment) == message.GetType()) _messageHandler.HandleMcpeMobArmorEquipment((McpeMobArmorEquipment) message);
+			else if (typeof(McpeInteract) == message.GetType()) _messageHandler.HandleMcpeInteract((McpeInteract) message);
+			else if (typeof(McpeHurtArmor) == message.GetType()) _messageHandler.HandleMcpeHurtArmor((McpeHurtArmor) message);
+			else if (typeof(McpeSetEntityData) == message.GetType()) _messageHandler.HandleMcpeSetEntityData((McpeSetEntityData) message);
+			else if (typeof(McpeSetEntityMotion) == message.GetType()) _messageHandler.HandleMcpeSetEntityMotion((McpeSetEntityMotion) message);
+			else if (typeof(McpeSetEntityLink) == message.GetType()) _messageHandler.HandleMcpeSetEntityLink((McpeSetEntityLink) message);
+			else if (typeof(McpeSetHealth) == message.GetType()) _messageHandler.HandleMcpeSetHealth((McpeSetHealth) message);
+			else if (typeof(McpeSetSpawnPosition) == message.GetType()) _messageHandler.HandleMcpeSetSpawnPosition((McpeSetSpawnPosition) message);
+			else if (typeof(McpeAnimate) == message.GetType()) _messageHandler.HandleMcpeAnimate((McpeAnimate) message);
+			else if (typeof(McpeRespawn) == message.GetType()) _messageHandler.HandleMcpeRespawn((McpeRespawn) message);
+			else if (typeof(McpeContainerOpen) == message.GetType()) _messageHandler.HandleMcpeContainerOpen((McpeContainerOpen) message);
+			else if (typeof(McpeContainerClose) == message.GetType()) _messageHandler.HandleMcpeContainerClose((McpeContainerClose) message);
+			else if (typeof(McpePlayerHotbar) == message.GetType()) _messageHandler.HandleMcpePlayerHotbar((McpePlayerHotbar) message);
+			else if (typeof(McpeInventoryContent) == message.GetType()) _messageHandler.HandleMcpeInventoryContent((McpeInventoryContent) message);
+			else if (typeof(McpeInventorySlot) == message.GetType()) _messageHandler.HandleMcpeInventorySlot((McpeInventorySlot) message);
+			else if (typeof(McpeContainerSetData) == message.GetType()) _messageHandler.HandleMcpeContainerSetData((McpeContainerSetData) message);
+			else if (typeof(McpeCraftingData) == message.GetType()) _messageHandler.HandleMcpeCraftingData((McpeCraftingData) message);
+			else if (typeof(McpeCraftingEvent) == message.GetType()) _messageHandler.HandleMcpeCraftingEvent((McpeCraftingEvent) message);
+			else if (typeof(McpeGuiDataPickItem) == message.GetType()) _messageHandler.HandleMcpeGuiDataPickItem((McpeGuiDataPickItem) message);
+			else if (typeof(McpeAdventureSettings) == message.GetType()) _messageHandler.HandleMcpeAdventureSettings((McpeAdventureSettings) message);
+			else if (typeof(McpeBlockEntityData) == message.GetType()) _messageHandler.HandleMcpeBlockEntityData((McpeBlockEntityData) message);
+			else if (typeof(McpeFullChunkData) == message.GetType()) _messageHandler.HandleMcpeFullChunkData((McpeFullChunkData) message);
+			else if (typeof(McpeSetCommandsEnabled) == message.GetType()) _messageHandler.HandleMcpeSetCommandsEnabled((McpeSetCommandsEnabled) message);
+			else if (typeof(McpeSetDifficulty) == message.GetType()) _messageHandler.HandleMcpeSetDifficulty((McpeSetDifficulty) message);
+			else if (typeof(McpeChangeDimension) == message.GetType()) _messageHandler.HandleMcpeChangeDimension((McpeChangeDimension) message);
+			else if (typeof(McpeSetPlayerGameType) == message.GetType()) _messageHandler.HandleMcpeSetPlayerGameType((McpeSetPlayerGameType) message);
+			else if (typeof(McpePlayerList) == message.GetType()) _messageHandler.HandleMcpePlayerList((McpePlayerList) message);
+			else if (typeof(McpeSimpleEvent) == message.GetType()) _messageHandler.HandleMcpeSimpleEvent((McpeSimpleEvent) message);
+			else if (typeof(McpeTelemetryEvent) == message.GetType()) _messageHandler.HandleMcpeTelemetryEvent((McpeTelemetryEvent) message);
+			else if (typeof(McpeSpawnExperienceOrb) == message.GetType()) _messageHandler.HandleMcpeSpawnExperienceOrb((McpeSpawnExperienceOrb) message);
+			else if (typeof(McpeClientboundMapItemData) == message.GetType()) _messageHandler.HandleMcpeClientboundMapItemData((McpeClientboundMapItemData) message);
+			else if (typeof(McpeMapInfoRequest) == message.GetType()) _messageHandler.HandleMcpeMapInfoRequest((McpeMapInfoRequest) message);
+			else if (typeof(McpeRequestChunkRadius) == message.GetType()) _messageHandler.HandleMcpeRequestChunkRadius((McpeRequestChunkRadius) message);
+			else if (typeof(McpeChunkRadiusUpdate) == message.GetType()) _messageHandler.HandleMcpeChunkRadiusUpdate((McpeChunkRadiusUpdate) message);
+			else if (typeof(McpeItemFrameDropItem) == message.GetType()) _messageHandler.HandleMcpeItemFrameDropItem((McpeItemFrameDropItem) message);
+			else if (typeof(McpeGameRulesChanged) == message.GetType()) _messageHandler.HandleMcpeGameRulesChanged((McpeGameRulesChanged) message);
+			else if (typeof(McpeCamera) == message.GetType()) _messageHandler.HandleMcpeCamera((McpeCamera) message);
+			else if (typeof(McpeBossEvent) == message.GetType()) _messageHandler.HandleMcpeBossEvent((McpeBossEvent) message);
+			else if (typeof(McpeShowCredits) == message.GetType()) _messageHandler.HandleMcpeShowCredits((McpeShowCredits) message);
+			else if (typeof(McpeAvailableCommands) == message.GetType()) _messageHandler.HandleMcpeAvailableCommands((McpeAvailableCommands) message);
+			else if (typeof(McpeCommandOutput) == message.GetType()) _messageHandler.HandleMcpeCommandOutput((McpeCommandOutput) message);
+			else if (typeof(McpeUpdateTrade) == message.GetType()) _messageHandler.HandleMcpeUpdateTrade((McpeUpdateTrade) message);
+			else if (typeof(McpeUpdateEquipment) == message.GetType()) _messageHandler.HandleMcpeUpdateEquipment((McpeUpdateEquipment) message);
+			else if (typeof(McpeResourcePackDataInfo) == message.GetType()) _messageHandler.HandleMcpeResourcePackDataInfo((McpeResourcePackDataInfo) message);
+			else if (typeof(McpeResourcePackChunkData) == message.GetType()) _messageHandler.HandleMcpeResourcePackChunkData((McpeResourcePackChunkData) message);
+			else if (typeof(McpeTransfer) == message.GetType()) _messageHandler.HandleMcpeTransfer((McpeTransfer) message);
+			else if (typeof(McpePlaySound) == message.GetType()) _messageHandler.HandleMcpePlaySound((McpePlaySound) message);
+			else if (typeof(McpeStopSound) == message.GetType()) _messageHandler.HandleMcpeStopSound((McpeStopSound) message);
+			else if (typeof(McpeSetTitle) == message.GetType()) _messageHandler.HandleMcpeSetTitle((McpeSetTitle) message);
+			else if (typeof(McpeAddBehaviorTree) == message.GetType()) _messageHandler.HandleMcpeAddBehaviorTree((McpeAddBehaviorTree) message);
+			else if (typeof(McpeStructureBlockUpdate) == message.GetType()) _messageHandler.HandleMcpeStructureBlockUpdate((McpeStructureBlockUpdate) message);
+			else if (typeof(McpeShowStoreOffer) == message.GetType()) _messageHandler.HandleMcpeShowStoreOffer((McpeShowStoreOffer) message);
+			else if (typeof(McpePlayerSkin) == message.GetType()) _messageHandler.HandleMcpePlayerSkin((McpePlayerSkin) message);
+			else if (typeof(McpeSubClientLogin) == message.GetType()) _messageHandler.HandleMcpeSubClientLogin((McpeSubClientLogin) message);
+			else if (typeof(McpeInitiateWebSocketConnection) == message.GetType()) _messageHandler.HandleMcpeInitiateWebSocketConnection((McpeInitiateWebSocketConnection) message);
+			else if (typeof(McpeSetLastHurtBy) == message.GetType()) _messageHandler.HandleMcpeSetLastHurtBy((McpeSetLastHurtBy) message);
+			else if (typeof(McpeBookEdit) == message.GetType()) _messageHandler.HandleMcpeBookEdit((McpeBookEdit) message);
+			else if (typeof(McpeNpcRequest) == message.GetType()) _messageHandler.HandleMcpeNpcRequest((McpeNpcRequest) message);
+			else if (typeof(McpeModalFormRequest) == message.GetType()) _messageHandler.HandleMcpeModalFormRequest((McpeModalFormRequest) message);
+			else if (typeof(McpeServerSettingsResponse) == message.GetType()) _messageHandler.HandleMcpeServerSettingsResponse((McpeServerSettingsResponse) message);
+			else if (typeof(McpeShowProfile) == message.GetType()) _messageHandler.HandleMcpeShowProfile((McpeShowProfile) message);
+			else if (typeof(McpeSetDefaultGameType) == message.GetType()) _messageHandler.HandleMcpeSetDefaultGameType((McpeSetDefaultGameType) message);
+			else if (typeof(McpeRemoveObjective) == message.GetType()) _messageHandler.HandleMcpeRemoveObjective((McpeRemoveObjective) message);
+			else if (typeof(McpeSetDisplayObjective) == message.GetType()) _messageHandler.HandleMcpeSetDisplayObjective((McpeSetDisplayObjective) message);
+			else if (typeof(McpeSetScore) == message.GetType()) _messageHandler.HandleMcpeSetScore((McpeSetScore) message);
+			else if (typeof(McpeLabTable) == message.GetType()) _messageHandler.HandleMcpeLabTable((McpeLabTable) message);
+			else if (typeof(McpeUpdateBlockSynced) == message.GetType()) _messageHandler.HandleMcpeUpdateBlockSynced((McpeUpdateBlockSynced) message);
+			else if (typeof(McpeMoveEntityDelta) == message.GetType()) _messageHandler.HandleMcpeMoveEntityDelta((McpeMoveEntityDelta) message);
+			else if (typeof(McpeSetScoreboardIdentityPacket) == message.GetType()) _messageHandler.HandleMcpeSetScoreboardIdentityPacket((McpeSetScoreboardIdentityPacket) message);
+			else if (typeof(McpeUpdateSoftEnumPacket) == message.GetType()) _messageHandler.HandleMcpeUpdateSoftEnumPacket((McpeUpdateSoftEnumPacket) message);
+			else if (typeof(McpeNetworkStackLatencyPacket) == message.GetType()) _messageHandler.HandleMcpeNetworkStackLatencyPacket((McpeNetworkStackLatencyPacket) message);
+			else if (typeof(FtlCreatePlayer) == message.GetType()) _messageHandler.HandleFtlCreatePlayer((FtlCreatePlayer) message);
+			else return false;
+
+			return true;
+		}
+	}
+
 	public class PacketFactory
 	{
 		public static Packet Create(byte messageId, byte[] buffer, string ns)

@@ -105,6 +105,11 @@ namespace TestPlugin.NiceLobby
 			var player = e.Player;
 			var level = player.Level;
 
+			if(player.Inventory.GetItemInHand() is CustomTestItem item)
+			{
+				player.SendMessage("0x" + item.SomeVariable.ToString("X"), MessageType.Popup);
+			}
+
 			//if (e.Level.TickTime % 2 == 0)
 			//{
 			//	BlockCoordinates pos = (BlockCoordinates)player.KnownPosition;
@@ -394,8 +399,11 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Vine(), 0) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Dirt(), 0) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
-			idx = 8;
-			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
+			player.Inventory.Slots[idx++] = new CustomTestItem(0xC0FFEE) { Count = 10 };
+			player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
+			player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
+			player.Inventory.Slots[idx++] = new CustomTestItem(0xBEEF) {Count = 10 };
+			player.Inventory.Slots[idx++] = new ItemStick() { Count = 64};
 
 			var fireworks = new ItemFireworks() {Count = 64};
 

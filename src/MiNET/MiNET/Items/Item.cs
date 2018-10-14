@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Numerics;
 using fNbt;
 using MiNET.BlockEntities;
@@ -195,14 +196,39 @@ namespace MiNET.Items
 
 		protected bool Equals(Item other)
 		{
-			return Id == other.Id && Metadata == other.Metadata;
+			byte[] saveToBuffer = null;
+			if (other.ExtraData != null)
+			{
+				other.ExtraData.Name = string.Empty;
+				saveToBuffer = new NbtFile(other.ExtraData).SaveToBuffer(NbtCompression.None);
+			}
+
+			byte[] saveToBuffer2 = null;
+			if (ExtraData != null)
+			{
+				ExtraData.Name = string.Empty;
+				saveToBuffer2 = new NbtFile(ExtraData).SaveToBuffer(NbtCompression.None);
+			}
+			var nbtCheck = !(saveToBuffer == null ^ saveToBuffer2 == null);
+			if (nbtCheck)
+			{
+				if (saveToBuffer == null)
+				{
+					nbtCheck = true;
+				}
+				else
+				{
+					nbtCheck = saveToBuffer.SequenceEqual(saveToBuffer2);
+				}
+			}
+			return Id == other.Id && Metadata == other.Metadata && nbtCheck;
 		}
 
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
 			if (ReferenceEquals(this, obj)) return true;
-			if (obj.GetType() != this.GetType()) return false;
+			if (!(obj is Item)) return false;
 			return Equals((Item) obj);
 		}
 

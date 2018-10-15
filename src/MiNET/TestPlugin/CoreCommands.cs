@@ -357,7 +357,8 @@ namespace TestPlugin
 				var level = player.Level;
 				ChunkColumn chunk = level.GetChunk((BlockCoordinates) player.KnownPosition);
 				sw.Start();
-				new SkyLightCalculations().RecalcSkyLight(chunk, level);
+				SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(level.WorldProvider, chunk);
+				new SkyLightCalculations().RecalcSkyLight(chunk, blockAccess);
 				sw.Stop();
 				player.CleanCache();
 				player.ForcedSendChunks(() => { player.SendMessage($"Calculated skylights ({sw.ElapsedMilliseconds}ms) and resent chunks."); });

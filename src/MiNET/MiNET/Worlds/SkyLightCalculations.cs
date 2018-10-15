@@ -285,7 +285,7 @@ namespace MiNET.Worlds
 						continue;
 					}
 
-					//var skyLight = chunk.GetSkyLight(x, height, z);
+					//var skyLight = chunk.GetSkylight(x, height, z);
 					//if (skyLight == 15)
 					{
 						//Block block = level.GetBlock(new BlockCoordinates(x + (chunk.x*16), height, z + (chunk.z*16)), chunk);
@@ -413,16 +413,28 @@ namespace MiNET.Worlds
 				{
 					var coordinates = lightBfQueue.Dequeue();
 					lightBfSet.Remove(coordinates);
-					if (coordinates.Y < 0 || coordinates.Y > 255) continue;
+					if (coordinates.Y < 0 || coordinates.Y > 255)
+					{
+						Log.Warn($"Y coord out of bounce {coordinates.Y}");
+						continue;
+					}
 
 					ChunkColumn chunk = level.GetChunk(coordinates);
-					if(chunk == null) continue;
+					if(chunk == null)
+					{
+						Log.Warn($"Chunk was null");
+						continue;
+					}
 
 					var newChunkCoord = (ChunkCoordinates) coordinates;
 					if (chunk.x != newChunkCoord.X || chunk.z != newChunkCoord.Z)
 					{
 						chunk = level.GetChunk(newChunkCoord);
-						if (chunk == null) continue;
+						if (chunk == null)
+						{
+							Log.Warn($"Chunk with new coords was null");
+							continue;
+						}
 					}
 
 					ProcessNode(level, chunk, coordinates, lightBfQueue, lightBfSet);
@@ -580,30 +592,31 @@ namespace MiNET.Worlds
 			if (chunk == null) return true;
 
 			int bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
-			return bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30 && bid != 8 && bid != 9);
+			return bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 161 && bid != 30 && bid != 8 && bid != 9);
 		}
 
-		public static int GetDiffuseLevel(BlockCoordinates blockCoordinates, ChunkBase chunk)
+		public static int GetDiffuseLevel(BlockCoordinates blockCoordinates, ChunkBase section)
 		{
-			if (chunk == null) return 15;
+			//TODO: Figure out if this is really correct. Perhaps should be zero.
+			if (section == null) return 15;
 
 			int bx = blockCoordinates.X & 0x0f;
 			int by = blockCoordinates.Y & 0xff;
 			int bz = blockCoordinates.Z & 0x0f;
 
-			int bid = chunk.GetBlock(bx, by - 16*(by >> 4), bz);
-			return bid == 8 || bid == 9 ? 3 : bid == 18 && bid == 30 ? 2 : 1;
+			int bid = section.GetBlock(bx, by - 16*(by >> 4), bz);
+			return bid == 8 || bid == 9 ? 3 : bid == 18 || bid == 161 || bid == 30 ? 2 : 1;
 		}
 
-		public static bool IsTransparent(BlockCoordinates blockCoordinates, ChunkBase chunk)
+		public static bool IsTransparent(BlockCoordinates blockCoordinates, ChunkBase section)
 		{
-			if (chunk == null) return true;
+			if (section == null) return true;
 
 			int bx = blockCoordinates.X & 0x0f;
 			int by = blockCoordinates.Y & 0xff;
 			int bz = blockCoordinates.Z & 0x0f;
 
-			int bid = chunk.GetBlock(bx, by - 16*(by >> 4), bz);
+			int bid = section.GetBlock(bx, by - 16*(by >> 4), bz);
 			return bid == 0 || BlockFactory.TransparentBlocks[bid] == 1;
 		}
 

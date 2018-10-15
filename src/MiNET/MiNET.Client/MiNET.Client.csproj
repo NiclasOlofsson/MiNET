@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
-    <StartupObject>MiNET.Client.MiNetClient</StartupObject>
+    <StartupObject>MiNET.Client.Startup</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +19,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MiNET\MiNET.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="server.conf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

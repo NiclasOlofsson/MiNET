@@ -133,6 +133,7 @@ namespace TestPlugin.Code4Fun
 					foreach (var mobCoord in mobs)
 					{
 						PlayerMob mob = mobCoord.Value;
+						mob.AddToPlayerList();
 
 						int offsetx = (mobCoord.Key.Item1) * 64;
 						int offsety = (_height - mobCoord.Key.Item2-1) * 64;
@@ -152,6 +153,8 @@ namespace TestPlugin.Code4Fun
 							updateSkin.geometryData = skin.SkinGeometry;
 							mob.Level.RelayBroadcast(updateSkin);
 						}
+
+						mob.RemoveFromPlayerList();
 					}
 				}
 			}

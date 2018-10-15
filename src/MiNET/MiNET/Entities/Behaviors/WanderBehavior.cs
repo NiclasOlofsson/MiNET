@@ -63,8 +63,22 @@ namespace MiNET.Entities.Behaviors
 			return _currentPath.HavePath();
 		}
 
+		private BlockCoordinates _lastPosition;
+		private int _stallTime = 0;
+
 		public override bool CanContinue()
 		{
+			BlockCoordinates currPos = (BlockCoordinates) _entity.KnownPosition;
+			if (currPos == _lastPosition)
+			{
+				if (_stallTime++ > 100) return false;
+			}
+			else
+			{
+				_stallTime = 0;
+				_lastPosition = currPos;
+			}
+
 			return _currentPath.HavePath();
 		}
 
@@ -90,6 +104,7 @@ namespace MiNET.Entities.Behaviors
 		{
 			_entity.Velocity *= new Vector3(0, 1, 0);
 			_currentPath = null;
+			_stallTime = 0;
 		}
 
 		private static BlockCoordinates? FindRandomTargetBlock(Entity entity, int dxz, int dy, Vector3? targetDirectinon = null)

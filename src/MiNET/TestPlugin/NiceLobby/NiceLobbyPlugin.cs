@@ -112,7 +112,7 @@ namespace TestPlugin.NiceLobby
 				{
 					Id = 11,
 					MessageType = MessageType.Popup,
-					Message = $"SkyLight Subtracted={level.SkylightSubtracted}, Under={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Height={level.GetHeight(pos)}",
+					Message = $"SkyLight Subtracted={level.SkylightSubtracted}, Under={level.GetSkyLight(pos.BlockDown())}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos.BlockUp())}, Height={level.GetHeight(pos)}",
 					Duration = 20 * 5,
 				});
 			}

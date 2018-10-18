@@ -50,18 +50,18 @@ namespace MiNET.Blocks
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
 			bool shouldKeep = true;
-			shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.Up));
-			shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.Down));
+			shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockUp()));
+			shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockDown()));
 
 			if (Metadata < 2)
 			{
-				shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.West));
-				shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.East));
+				shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockWest()));
+				shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockEast()));
 			}
 			else
 			{
-				shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.South));
-				shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.North));
+				shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockSouth()));
+				shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockNorth()));
 			}
 
 			if (!shouldKeep)

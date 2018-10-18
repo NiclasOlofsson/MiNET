@@ -67,7 +67,7 @@ namespace MiNET.Entities.Behaviors
 			var coordinates = _entity.KnownPosition;
 			var direction = _entity.GetHorizDir()*new Vector3(1, 0, 1);
 
-			var blockDown = level.GetBlock(coordinates + BlockCoordinates.Down);
+			var blockDown = level.GetBlock(((BlockCoordinates)coordinates).BlockDown());
 			if (_entity.Velocity.Y < 0 && blockDown is Air)
 			{
 				_timeLeft = 0;
@@ -108,8 +108,8 @@ namespace MiNET.Entities.Behaviors
 			}
 
 			var block = level.GetBlock(coord);
-			var blockUp = level.GetBlock(coord + BlockCoordinates.Up);
-			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
+			var blockUp = level.GetBlock(coord.BlockUp());
+			var blockUpUp = level.GetBlock(coord.BlockUp().BlockUp());
 
 			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
 			if (!colliding && !entityCollide)

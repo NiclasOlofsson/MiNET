@@ -88,7 +88,7 @@ namespace MiNET.Entities
 		private static readonly ILog Log = LogManager.GetLogger(typeof (EntitySpawnManager));
 
 		public const int CapHostile = 70;
-		public const int CapPassive = 10;
+		public const int CapPassive = 70;
 		public const int CapAmbient = 15;
 		public const int CapWater = 5;
 

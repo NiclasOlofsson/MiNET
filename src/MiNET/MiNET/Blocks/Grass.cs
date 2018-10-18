@@ -46,7 +46,7 @@ namespace MiNET.Blocks
 		{
 			if (level.GameMode == GameMode.Creative) return;
 
-			if (level.GetSubtractedLight(Coordinates + BlockCoordinates.Up) < 4)
+			if (level.GetSubtractedLight(Coordinates.BlockUp()) < 4)
 			{
 				Block dirt = BlockFactory.GetBlockById(3);
 				dirt.Coordinates = Coordinates;
@@ -59,7 +59,7 @@ namespace MiNET.Blocks
 			if (level.GameMode == GameMode.Creative) return;
 			if (!isRandom) return;
 
-			var lightLevel = level.GetSubtractedLight(Coordinates + BlockCoordinates.Up);
+			var lightLevel = level.GetSubtractedLight(Coordinates.BlockUp());
 			if (lightLevel < 4 /* && check opacity */)
 			{
 				Block dirt = BlockFactory.GetBlockById(3);
@@ -77,7 +77,7 @@ namespace MiNET.Blocks
 						Block next = level.GetBlock(coordinates);
 						if (next is Dirt && next.Metadata == 0)
 						{
-							Block nextUp = level.GetBlock(coordinates + BlockCoordinates.Up);
+							Block nextUp = level.GetBlock(coordinates.BlockUp());
 							if (nextUp.IsTransparent && (nextUp.BlockLight >= 4 || nextUp.SkyLight >= 4))
 							{
 								level.SetBlock(new Grass {Coordinates = coordinates});

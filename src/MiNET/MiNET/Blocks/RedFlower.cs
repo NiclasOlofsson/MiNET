@@ -15,7 +15,7 @@ namespace MiNET.Blocks
 		{
 			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
 			{
-				Block under = world.GetBlock(Coordinates + BlockCoordinates.Down);
+				Block under = world.GetBlock(Coordinates.BlockDown());
 				return under is Grass || under is Dirt;
 			}
 
@@ -24,7 +24,7 @@ namespace MiNET.Blocks
 
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
-			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
+			if (Coordinates.BlockDown() == blockCoordinates)
 			{
 				level.SetAir(Coordinates);
 				UpdateBlocks(level);

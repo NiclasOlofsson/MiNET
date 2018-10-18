@@ -354,12 +354,12 @@ namespace MiNET.Worlds
 			else
 			{
 				sourceQueue.Enqueue(coordinates);
-				sourceQueue.Enqueue(coordinates + BlockCoordinates.Up);
-				sourceQueue.Enqueue(coordinates + BlockCoordinates.Down);
-				sourceQueue.Enqueue(coordinates + BlockCoordinates.West);
-				sourceQueue.Enqueue(coordinates + BlockCoordinates.East);
-				sourceQueue.Enqueue(coordinates + BlockCoordinates.North);
-				sourceQueue.Enqueue(coordinates + BlockCoordinates.South);
+				sourceQueue.Enqueue(coordinates.BlockUp());
+				sourceQueue.Enqueue(coordinates.BlockDown());
+				sourceQueue.Enqueue(coordinates.BlockWest());
+				sourceQueue.Enqueue(coordinates.BlockEast());
+				sourceQueue.Enqueue(coordinates.BlockNorth());
+				sourceQueue.Enqueue(coordinates.BlockSouth());
 			}
 
 			chunk.SetHeight(coordinates.X & 0x0f, coordinates.Z & 0x0f, (short) height);
@@ -377,13 +377,13 @@ namespace MiNET.Worlds
 			int currentLight = level.GetSkyLight(coordinates);
 
 			if (coordinates.Y < 255)
-				TestForSource(level, resetQueue, sourceQueue, coordinates + BlockCoordinates.Up, currentLight);
+				TestForSource(level, resetQueue, sourceQueue, coordinates.BlockUp(), currentLight);
 			if (coordinates.Y > 0)
-				TestForSource(level, resetQueue, sourceQueue, coordinates + BlockCoordinates.Down, currentLight, true);
-			TestForSource(level, resetQueue, sourceQueue, coordinates + BlockCoordinates.West, currentLight);
-			TestForSource(level, resetQueue, sourceQueue, coordinates + BlockCoordinates.East, currentLight);
-			TestForSource(level, resetQueue, sourceQueue, coordinates + BlockCoordinates.North, currentLight);
-			TestForSource(level, resetQueue, sourceQueue, coordinates + BlockCoordinates.South, currentLight);
+				TestForSource(level, resetQueue, sourceQueue, coordinates.BlockDown(), currentLight, true);
+			TestForSource(level, resetQueue, sourceQueue, coordinates.BlockWest(), currentLight);
+			TestForSource(level, resetQueue, sourceQueue, coordinates.BlockEast(), currentLight);
+			TestForSource(level, resetQueue, sourceQueue, coordinates.BlockNorth(), currentLight);
+			TestForSource(level, resetQueue, sourceQueue, coordinates.BlockSouth(), currentLight);
 		}
 
 		private void TestForSource(Level level, Queue<BlockCoordinates> resetQueue, Queue<BlockCoordinates> sourceQueue, BlockCoordinates coordinates, int currentLight, bool down = false)
@@ -458,28 +458,28 @@ namespace MiNET.Worlds
 			byte maxSkyLight = currentSkyLight;
 			if (coordinates.Y < 255)
 			{
-				var up = coordinates + BlockCoordinates.Up;
+				var up = coordinates.BlockUp();
 				maxSkyLight = Math.Max(maxSkyLight, SetLightLevel(level, chunk, section, sectionIdx, lightBfsQueue, lightBfSet, up, currentSkyLight, up: true));
 			}
 
 			if (coordinates.Y > 0)
 			{
-				var down = coordinates + BlockCoordinates.Down;
+				var down = coordinates.BlockDown();
 				maxSkyLight = Math.Max(maxSkyLight, SetLightLevel(level, chunk, section, sectionIdx, lightBfsQueue, lightBfSet, down, currentSkyLight, down: true));
 			}
 
-			var west = coordinates + BlockCoordinates.West;
+			var west = coordinates.BlockWest();
 			maxSkyLight = Math.Max(maxSkyLight, SetLightLevel(level, chunk, section, sectionIdx, lightBfsQueue, lightBfSet, west, currentSkyLight));
 
 
-			var east = coordinates + BlockCoordinates.East;
+			var east = coordinates.BlockEast();
 			maxSkyLight = Math.Max(maxSkyLight, SetLightLevel(level, chunk, section, sectionIdx, lightBfsQueue, lightBfSet, east, currentSkyLight));
 
 
-			var south = coordinates + BlockCoordinates.South;
+			var south = coordinates.BlockSouth();
 			maxSkyLight = Math.Max(maxSkyLight, SetLightLevel(level, chunk, section, sectionIdx, lightBfsQueue, lightBfSet, south, currentSkyLight));
 
-			var north = coordinates + BlockCoordinates.North;
+			var north = coordinates.BlockNorth();
 			maxSkyLight = Math.Max(maxSkyLight, SetLightLevel(level, chunk, section, sectionIdx, lightBfsQueue, lightBfSet, north, currentSkyLight));
 
 			if (IsTransparent(coordinates, section) && currentSkyLight != 15)
@@ -1000,10 +1000,10 @@ namespace MiNET.Worlds
 				var coords = new BlockCoordinates(x + (chunk.x*16), h, z + (chunk.z*16));
 
 				//h = Math.Max(h, level.GetHeight(coords + BlockCoordinates.Up));
-				h = Math.Max(h, level.GetHeight(coords + BlockCoordinates.West));
-				h = Math.Max(h, level.GetHeight(coords + BlockCoordinates.East));
-				h = Math.Max(h, level.GetHeight(coords + BlockCoordinates.North));
-				h = Math.Max(h, level.GetHeight(coords + BlockCoordinates.South));
+				h = Math.Max(h, level.GetHeight(coords.BlockWest()));
+				h = Math.Max(h, level.GetHeight(coords.BlockEast()));
+				h = Math.Max(h, level.GetHeight(coords.BlockNorth()));
+				h = Math.Max(h, level.GetHeight(coords.BlockSouth()));
 				if (h > 255) h = 255;
 				if (h < 0) h = 0;
 				return h;

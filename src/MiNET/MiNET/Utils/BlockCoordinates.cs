@@ -209,15 +209,66 @@ namespace MiNET.Utils
 
 		public static readonly BlockCoordinates Up = new BlockCoordinates(0, 1, 0);
 		public static readonly BlockCoordinates Down = new BlockCoordinates(0, -1, 0);
+		public static readonly BlockCoordinates East = new BlockCoordinates(1, 0, 0);
+		public static readonly BlockCoordinates West = new BlockCoordinates(-1, 0, 0);
+		public static readonly BlockCoordinates North = new BlockCoordinates(0, 0, -1);
+		public static readonly BlockCoordinates South = new BlockCoordinates(0, 0, 1);
+
+		// not sure these are useful. Three is no "left" or "right" here :-(
 		public static readonly BlockCoordinates Left = new BlockCoordinates(-1, 0, 0);
 		public static readonly BlockCoordinates Right = new BlockCoordinates(1, 0, 0);
 		public static readonly BlockCoordinates Backwards = new BlockCoordinates(0, 0, -1);
 		public static readonly BlockCoordinates Forwards = new BlockCoordinates(0, 0, 1);
 
-		public static readonly BlockCoordinates East = new BlockCoordinates(1, 0, 0);
-		public static readonly BlockCoordinates West = new BlockCoordinates(-1, 0, 0);
-		public static readonly BlockCoordinates North = new BlockCoordinates(0, 0, -1);
-		public static readonly BlockCoordinates South = new BlockCoordinates(0, 0, 1);
+		public BlockCoordinates BlockUp()
+		{
+			return this + BlockCoordinates.Up;
+		}
+
+		public BlockCoordinates BlockDown()
+		{
+			return this + BlockCoordinates.Down;
+		}
+
+		public BlockCoordinates BlockEast()
+		{
+			return this + BlockCoordinates.East;
+		}
+
+		public BlockCoordinates BlockWest()
+		{
+			return this + BlockCoordinates.West;
+		}
+
+		public BlockCoordinates BlockNorth()
+		{
+			return this + BlockCoordinates.North;
+		}
+
+		public BlockCoordinates BlockSouth()
+		{
+			return this + BlockCoordinates.South;
+		}
+
+		public BlockCoordinates BlockNorthEast()
+		{
+			return this + BlockCoordinates.North + BlockCoordinates.East;
+		}
+
+		public BlockCoordinates BlockNorthWest()
+		{
+			return this + BlockCoordinates.North + BlockCoordinates.West;
+		}
+
+		public BlockCoordinates BlockSouthEast()
+		{
+			return this + BlockCoordinates.South + BlockCoordinates.East;
+		}
+
+		public BlockCoordinates BlockSouthWest()
+		{
+			return this + BlockCoordinates.South + BlockCoordinates.West;
+		}
 
 		public bool Equals(BlockCoordinates other)
 		{

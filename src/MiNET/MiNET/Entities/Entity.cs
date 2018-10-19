@@ -347,6 +347,7 @@ namespace MiNET.Entities
 			Charged,
 
 			Tamed,
+			Orphaned,
 			Leashed,
 			Sheared,
 			FlagAllFlying,
@@ -597,15 +598,26 @@ namespace MiNET.Entities
 
 		public virtual BoundingBox GetBoundingBox()
 		{
-			var pos = KnownPosition;
-			//if (Math.Abs(pos.X - _bboxCache.Item1.X) < 0.01 && Math.Abs(pos.Y - _bboxCache.Item1.Y) < 0.01 && Math.Abs(pos.Z - _bboxCache.Item1.Z) < 0.01) return _bboxCache.Item2;
+			//var pos = KnownPosition;
+			////if (Math.Abs(pos.X - _bboxCache.Item1.X) < 0.01 && Math.Abs(pos.Y - _bboxCache.Item1.Y) < 0.01 && Math.Abs(pos.Z - _bboxCache.Item1.Z) < 0.01) return _bboxCache.Item2;
 
+			//float halfWidth = (float) (Width/2);
+
+			//var bbox = new BoundingBox(
+			//	Vector3.Min(new Vector3(pos.X - halfWidth, pos.Y, pos.Z - halfWidth), new Vector3(pos.X + halfWidth, pos.Y, pos.Z + halfWidth)),
+			//	Vector3.Max(new Vector3(pos.X - halfWidth, (float) (pos.Y - Height), pos.Z - halfWidth), new Vector3(pos.X + halfWidth, (float) (pos.Y + Height), pos.Z + halfWidth)));
+			////_bboxCache = new Tuple<Vector3, BoundingBox>(KnownPosition, bbox);
+			//return bbox;
+			return GetBoundingBox(KnownPosition);
+		}
+
+		public virtual BoundingBox GetBoundingBox(Vector3 pos)
+		{
 			float halfWidth = (float) (Width/2);
 
 			var bbox = new BoundingBox(
-				Vector3.Min(new Vector3(pos.X - halfWidth, pos.Y, pos.Z - halfWidth), new Vector3(pos.X + halfWidth, pos.Y, pos.Z + halfWidth)),
-				Vector3.Max(new Vector3(pos.X - halfWidth, (float) (pos.Y - Height), pos.Z - halfWidth), new Vector3(pos.X + halfWidth, (float) (pos.Y + Height), pos.Z + halfWidth)));
-			//_bboxCache = new Tuple<Vector3, BoundingBox>(KnownPosition, bbox);
+				new Vector3(pos.X - halfWidth, pos.Y, pos.Z - halfWidth),
+				new Vector3(pos.X + halfWidth, (float) (pos.Y + Height), pos.Z + halfWidth));
 			return bbox;
 		}
 

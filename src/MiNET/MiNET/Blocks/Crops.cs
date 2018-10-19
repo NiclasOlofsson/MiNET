@@ -77,17 +77,17 @@ namespace MiNET.Blocks
 			double points = 0;
 
 			// The farmland block the crop is planted in gives 2 points if dry or 4 if hydrated.
-			Block under = level.GetBlock(target.Coordinates + BlockCoordinates.Down);
+			Block under = level.GetBlock(target.Coordinates.BlockDown());
 			points += under.Metadata == 0 ? 2 : 4;
 
-			Block west = level.GetBlock(target.Coordinates + BlockCoordinates.West);
-			Block east = level.GetBlock(target.Coordinates + BlockCoordinates.East);
-			Block south = level.GetBlock(target.Coordinates + BlockCoordinates.North);
-			Block north = level.GetBlock(target.Coordinates + BlockCoordinates.South);
-			Block southWest = level.GetBlock(target.Coordinates + BlockCoordinates.West + BlockCoordinates.South);
-			Block southEast = level.GetBlock(target.Coordinates + BlockCoordinates.East + BlockCoordinates.South);
-			Block northWest = level.GetBlock(target.Coordinates + BlockCoordinates.North + BlockCoordinates.North);
-			Block northEast = level.GetBlock(target.Coordinates + BlockCoordinates.South + BlockCoordinates.North);
+			Block west = level.GetBlock(target.Coordinates.BlockWest());
+			Block east = level.GetBlock(target.Coordinates.BlockEast());
+			Block south = level.GetBlock(target.Coordinates.BlockNorth());
+			Block north = level.GetBlock(target.Coordinates.BlockSouth());
+			Block southWest = level.GetBlock(target.Coordinates.BlockSouthWest());
+			Block southEast = level.GetBlock(target.Coordinates.BlockSouthEast());
+			Block northWest = level.GetBlock(target.Coordinates.BlockNorthWest());
+			Block northEast = level.GetBlock(target.Coordinates.BlockNorthEast());
 
 			// For each of the 8 blocks around the block in which the crop is planted, dry farmland gives 0.25 points, and hydrated farmland gives 0.75
 			points += west is Farmland ? west.Metadata == 0 ? 0.25 : 0.75 : 0;
@@ -125,7 +125,7 @@ namespace MiNET.Blocks
 		{
 			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
 			{
-				Block under = world.GetBlock(Coordinates + BlockCoordinates.Down);
+				Block under = world.GetBlock(Coordinates.BlockDown());
 				return under is Farmland;
 			}
 
@@ -134,7 +134,7 @@ namespace MiNET.Blocks
 
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
-			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
+			if (Coordinates.BlockDown() == blockCoordinates)
 			{
 				level.BreakBlock(null, this);
 			}

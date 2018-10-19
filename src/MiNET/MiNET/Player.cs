@@ -480,10 +480,10 @@ namespace MiNET
 				{
 					if (message.face == (int) BlockFace.Up)
 					{
-						Block block = Level.GetBlock(message.coordinates + BlockCoordinates.Up);
+						Block block = Level.GetBlock(message.coordinates.BlockUp());
 						if (block is Fire)
 						{
-							Level.BreakBlock(this, message.coordinates + BlockCoordinates.Up);
+							Level.BreakBlock(this, message.coordinates.BlockUp());
 							break;
 						}
 					}
@@ -1116,7 +1116,7 @@ namespace MiNET
 			// Check if we need to generate a platform
 			if (dimension == Dimension.TheEnd)
 			{
-				BlockCoordinates platformPosition = (BlockCoordinates) (SpawnPosition + BlockCoordinates.Down);
+				BlockCoordinates platformPosition = ((BlockCoordinates) SpawnPosition).BlockDown();
 				if (!(Level.GetBlock(platformPosition) is Obsidian))
 				{
 					for (int x = 0; x < 5; x++)
@@ -1230,17 +1230,17 @@ namespace MiNET
 						if (coord.DistanceTo(start) > closestDistance) continue;
 
 						bool b = level.IsBlock(coord, portalId);
-						b &= level.IsBlock(coord + BlockCoordinates.Down, obsidionId);
+						b &= level.IsBlock(coord.BlockDown(), obsidionId);
 						if (b)
 						{
 							Portal portal = (Portal) level.GetBlock(coord);
 							if (portal.Metadata >= 2)
 							{
-								b &= level.IsBlock(coord + BlockCoordinates.North, portalId);
+								b &= level.IsBlock(coord.BlockNorth(), portalId);
 							}
 							else
 							{
-								b &= level.IsBlock(coord + BlockCoordinates.East, portalId);
+								b &= level.IsBlock(coord.BlockEast(), portalId);
 							}
 
 							Log.Debug($"Found portal block at {coord}, direction={portal.Metadata}");
@@ -1292,7 +1292,7 @@ namespace MiNET
 						var coord = new BlockCoordinates(x, y, z);
 						if (coord.DistanceTo(start) > closestPortalDistance) continue;
 
-						if (!(!level.IsAir(coord) && level.IsAir(coord + BlockCoordinates.Up))) continue;
+						if (!(!level.IsAir(coord) && level.IsAir(coord.BlockUp()))) continue;
 
 						var bbox = new BoundingBox(coord, coord + new BlockCoordinates(3, 5, 4));
 						if (!SpawnAreaClear(bbox))

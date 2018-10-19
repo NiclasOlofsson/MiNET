@@ -461,8 +461,6 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.PlayerInfo.ThirdPartyName ?? record.DisplayName ?? record.Username);
-					WriteSignedVarInt(record.PlayerInfo.DeviceOS);
 					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
 					Write(record.PlayerInfo.PlatformChatId);
 				}
@@ -495,12 +493,10 @@ namespace MiNET.Net
 						player.ClientUuid = ReadUUID();
 						player.EntityId = ReadSignedVarLong();
 						player.DisplayName = ReadString();
-						var thirdPartyName = ReadString(); //TODO: third party name
-						var platform = ReadSignedVarInt(); //TODO: platform
 						player.Skin = ReadSkin();
 						var platformChatId = ReadString(); //TODO: platform chat ID
 						records.Add(player);
-						Log.Warn($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', '{thirdPartyName}', {platform}, {platformChatId}");
+						Log.Warn($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', {platformChatId}");
 					}
 					break;
 				case 1:

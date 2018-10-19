@@ -49,7 +49,7 @@ namespace MiNET.Blocks
 		{
 			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
 			{
-				Block under = world.GetBlock(Coordinates + BlockCoordinates.Down);
+				Block under = world.GetBlock(Coordinates.BlockDown());
 				return under is Dirt || under is Podzol || under is Grass;
 			}
 
@@ -211,11 +211,11 @@ namespace MiNET.Blocks
 				}
 				else
 				{
-					Block block = level.GetBlock(position + BlockCoordinates.Down);
+					Block block = level.GetBlock(position.BlockDown());
 
 					if ((block is Grass || block is Dirt || block is Farmland) && position.Y < 256 - height - 1)
 					{
-						level.SetBlock(new Dirt {Coordinates = position + BlockCoordinates.Down});
+						level.SetBlock(new Dirt {Coordinates = position.BlockDown() });
 
 						for (int y = position.Y - 3 + height; y <= position.Y + height; ++y)
 						{

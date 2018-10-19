@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -40,113 +40,10 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities.Behaviors
 {
-	//public class TileNavigator : ITileNavigator
-	//{
-	//	private readonly IBlockedProvider blockedProvider;
-	//	private readonly INeighborProvider neighborProvider;
-
-	//	private readonly IDistanceAlgorithm distanceAlgorithm;
-	//	private readonly IDistanceAlgorithm heuristicAlgorithm;
-
-	//	public TileNavigator(
-	//		IBlockedProvider blockedProvider,
-	//		INeighborProvider neighborProvider,
-	//		IDistanceAlgorithm distanceAlgorithm,
-	//		IDistanceAlgorithm heuristicAlgorithm)
-	//	{
-	//		this.blockedProvider = blockedProvider;
-	//		this.neighborProvider = neighborProvider;
-
-	//		this.distanceAlgorithm = distanceAlgorithm;
-	//		this.heuristicAlgorithm = heuristicAlgorithm;
-	//	}
-
-	//	public IEnumerable<Tile> Navigate(Tile from, Tile to, int maxAttempts = int.MaxValue)
-	//	{
-	//		var closed = new HashSet<Tile>();
-	//		var open = new HashSet<Tile>() {from};
-	//		var path = new Dictionary<Tile, Tile>();
-
-	//		from.FScore = heuristicAlgorithm.Calculate(from, to);
-
-	//		int noOfAttempts = 0;
-
-	//		Tile highScore = from;
-	//		Tile last = from;
-	//		while (open.Count != 0)
-	//		{
-	//			var current = last;
-	//			if (last != highScore)
-	//			{
-	//				current = open
-	//					.OrderBy(c => c.FScore)
-	//					.First();
-	//			}
-
-	//			last = null;
-
-	//			if (++noOfAttempts > maxAttempts)
-	//			{
-	//				return ReconstructPath(path, highScore);
-	//			}
-	//			if (current.Equals(to))
-	//			{
-	//				return ReconstructPath(path, current);
-	//			}
-
-	//			open.Remove(current);
-	//			closed.Add(current);
-
-	//			foreach (Tile neighbor in neighborProvider.GetNeighbors(current))
-	//			{
-	//				if (closed.Contains(neighbor) || blockedProvider.IsBlocked(neighbor))
-	//				{
-	//					continue;
-	//				}
-
-	//				var tentativeG = current.GScore + distanceAlgorithm.Calculate(current, neighbor);
-
-	//				if (!open.Add(neighbor) && tentativeG >= neighbor.GScore)
-	//				{
-	//					continue;
-	//				}
-
-	//				path[neighbor] = current;
-
-	//				neighbor.GScore = tentativeG;
-	//				neighbor.FScore = neighbor.GScore + heuristicAlgorithm.Calculate(neighbor, to);
-	//				if (neighbor.FScore <= highScore.FScore)
-	//				{
-	//					highScore = neighbor;
-	//					last = neighbor;
-	//				}
-	//			}
-	//		}
-
-	//		return null;
-	//	}
-
-	//	private IEnumerable<Tile> ReconstructPath(
-	//		IDictionary<Tile, Tile> path,
-	//		Tile current)
-	//	{
-	//		List<Tile> totalPath = new List<Tile>() {current};
-
-	//		while (path.ContainsKey(current))
-	//		{
-	//			current = path[current];
-	//			totalPath.Insert(0, current);
-	//		}
-
-	//		totalPath.RemoveAt(0);
-
-	//		return totalPath;
-	//	}
-	//}
-
 	public class Path
 	{
 		public List<Tile> Current { get; set; } = new List<Tile>();
+		public List<Tile> History { get; set; } = new List<Tile>();
 		private Dictionary<Tile, Block> _blockCache;
 
 		public Path(Dictionary<Tile, Block> blockCache = null)
@@ -167,13 +64,17 @@ namespace MiNET.Entities.Behaviors
 		public void Reset()
 		{
 			Current?.Clear();
+			History?.Clear();
 		}
 
 		public void PrintPath(Level level)
 		{
 			if (Config.GetProperty("Pathfinder.PrintPath", false))
 			{
-				foreach (var tile in Current)
+				List<Tile> list = new List<Tile>();
+				list.AddRange(Current);
+				list.AddRange(History);
+				foreach (var tile in list)
 				{
 					Block block = GetBlock(tile);
 					Color color = Color.FromArgb(Math.Max(0, 255 - Current.Count*10), 255, 255);
@@ -216,6 +117,7 @@ namespace MiNET.Entities.Behaviors
 		public void Remove(Tile tile)
 		{
 			Current.Remove(tile);
+			History.Add(tile);
 		}
 
 		public bool GetNextTile(Entity entity, out Tile next, bool compressPath = false)
@@ -288,7 +190,7 @@ namespace MiNET.Entities.Behaviors
 
 	public class Pathfinder
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Pathfinder));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Pathfinder));
 
 		private Dictionary<Tile, Block> _blockCache = new Dictionary<Tile, Block>();
 
@@ -307,7 +209,7 @@ namespace MiNET.Entities.Behaviors
 				foreach (var entry in source.Level.GetEntites())
 				{
 					var position = (BlockCoordinates) entry.KnownPosition;
-					if(position == target) continue;
+					if (position == target) continue;
 
 					entityCoords.Add(position);
 				}
@@ -341,7 +243,7 @@ namespace MiNET.Entities.Behaviors
 
 	public class BlockDistanceAlgorithm : IDistanceAlgorithm
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockDistanceAlgorithm));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(BlockDistanceAlgorithm));
 
 		private readonly Dictionary<Tile, Block> _blockCache;
 		private readonly bool _canClimb;
@@ -384,7 +286,7 @@ namespace MiNET.Entities.Behaviors
 
 	public class BlockDiagonalNeighborProvider : INeighborProvider
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockDiagonalNeighborProvider));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(BlockDiagonalNeighborProvider));
 
 		private readonly CachedBlockAccess _level;
 		private readonly int _startY;
@@ -401,67 +303,60 @@ namespace MiNET.Entities.Behaviors
 
 		private static readonly int[,] Neighbors = new int[,]
 		{
-			{
-				0,
-				-1
-			},
-			{
-				1,
-				0
-			},
-			{
-				0,
-				1
-			},
-			{
-				-1,
-				0
-			},
-			{
-				-1,
-				-1
-			},
-			{
-				1,
-				-1
-			},
-			{
-				1,
-				1
-			},
-			{
-				-1,
-				1
-			}
+			{0, -1},
+			{1, 0},
+			{0, 1},
+			{-1, 0},
+			{-1, -1},
+			{1, -1},
+			{1, 1},
+			{-1, 1}
 		};
 
-		public IEnumerable<Tile> GetNeighbors(Tile tile)
+		public IEnumerable<Tile> GetNeighbors(Tile start)
 		{
-			Block block;
-			if (!_blockCache.TryGetValue(tile, out block))
+			if (!_blockCache.TryGetValue(start, out var block))
 			{
-				block = _level.GetBlock(new BlockCoordinates((int) tile.X, _startY, (int) tile.Y));
-				_blockCache.Add(tile, block);
+				block = _level.GetBlock(new BlockCoordinates(start.X, _startY, start.Y));
+				_blockCache.Add(start, block);
 			}
 
-			HashSet<Tile> list = new HashSet<Tile>();
+			HashSet<Tile> neighbors = new HashSet<Tile>();
 			for (int index = 0; index < Neighbors.GetLength(0); ++index)
 			{
-				var item = new Tile(tile.X + Neighbors[index, 0], tile.Y + Neighbors[index, 1]);
+				var item = new Tile3d(start.X + Neighbors[index, 0], start.Y + Neighbors[index, 1], block.Coordinates.Y);
+
+				bool isDiagonalMove = item.X != start.X && item.Y != start.Y;
+				if (isDiagonalMove)
+				{
+					// Don't allow cutting corners where there is a block
+					Tile undiagonal = new Tile(start.X, start.Y + Neighbors[index, 1]);
+					if (!_blockCache.TryGetValue(undiagonal, out var udblock)) continue;
+					if (udblock.Coordinates.Y != block.Coordinates.Y) continue;
+				}
 
 				// Check for too high steps
-				BlockCoordinates coord = new BlockCoordinates((int) item.X, block.Coordinates.Y, (int) item.Y);
+				BlockCoordinates coord = new BlockCoordinates(item.X, block.Coordinates.Y, item.Y);
+
 				if (_level.GetBlock(coord).IsSolid)
 				{
+					// Only allow diagonal movements if on same Y level
+					if(isDiagonalMove) continue;
+
+					// Check if we hit head if we jump or climb up to next block
+					if (IsObstructed(block.Coordinates.BlockUp())) continue;
+
 					if (_entity.CanClimb)
 					{
-						Block blockUp = _level.GetBlock(coord + BlockCoordinates.Up);
+						Block blockUp = _level.GetBlock(coord.BlockUp());
+						Block currBlockUp = _level.GetBlock(block.Coordinates.BlockUp()); // Check if we hit ceiling too
 						bool canMove = false;
 						for (int i = 0; i < 10; i++)
 						{
-							if (IsBlocked(blockUp.Coordinates))
+							if (IsBlocked(blockUp) && !IsBlocked(currBlockUp))
 							{
-								blockUp = _level.GetBlock(blockUp.Coordinates + BlockCoordinates.Up);
+								blockUp = _level.GetBlock(blockUp.Coordinates.BlockUp());
+								currBlockUp = _level.GetBlock(currBlockUp.Coordinates.BlockUp());
 								continue;
 							}
 
@@ -473,36 +368,65 @@ namespace MiNET.Entities.Behaviors
 
 						if (IsObstructed(blockUp.Coordinates)) continue;
 
+						if (_blockCache.TryGetValue(item, out var trash) && trash.Coordinates.Y != blockUp.Coordinates.Y)
+						{
+							//Log.Warn("Already had this coordinated but on different Y");
+							continue;
+						}
+						item.RealY = blockUp.Coordinates.Y;
 						_blockCache[item] = blockUp;
 					}
 					else
 					{
-						Block blockUp = _level.GetBlock(coord + BlockCoordinates.Up);
+						Block blockUp = _level.GetBlock(coord.BlockUp());
 						if (blockUp.IsSolid)
 						{
-							// Can't jump
+							// Can't jump. This is hardwired for 1 block jump height for all mobs.
 							continue;
 						}
 
 						if (IsObstructed(blockUp.Coordinates)) continue;
 
+						//TODO: There is a problem when there is a path both under and over a block. It chooses the last checked block.
+						if (_blockCache.TryGetValue(item, out var trash) && trash.Coordinates.Y != blockUp.Coordinates.Y)
+						{
+							//Log.Warn("Already had this coordinated but on different Y");
+							continue;
+						}
+						item.RealY = blockUp.Coordinates.Y;
 						_blockCache[item] = blockUp;
 					}
 				}
 				else
 				{
-					var blockDown = _level.GetBlock(coord + BlockCoordinates.Down);
-					if (!blockDown.IsSolid)
+					if (IsObstructed(coord)) continue;
+
+					var blockDown = _level.GetBlock(coord.BlockDown());
+					if (blockDown.IsSolid)
 					{
+						// Continue on same Y level
+						if (_blockCache.TryGetValue(item, out var trash) && trash.Coordinates.Y != coord.Y)
+						{
+							//Log.Warn("Already had this coordinated but on different Y");
+							continue;
+						}
+						item.RealY = coord.Y;
+						_blockCache[item] = _level.GetBlock(coord);
+					}
+					else
+					{
+						// Only allow diagonal movements if on same Y level
+						if (isDiagonalMove) continue;
+
 						if (_entity.CanClimb)
 						{
 							bool canClimb = false;
-							blockDown = _level.GetBlock(blockDown.Coordinates + BlockCoordinates.Down);
+							blockDown = _level.GetBlock(blockDown.Coordinates.BlockDown());
 							for (int i = 0; i < 10; i++)
 							{
 								if (!blockDown.IsSolid)
 								{
-									blockDown = _level.GetBlock(blockDown.Coordinates + BlockCoordinates.Down);
+									blockDown = _level.GetBlock(blockDown.Coordinates.BlockDown());
 									continue;
 								}
 
@@ -512,15 +436,21 @@ namespace MiNET.Entities.Behaviors
 
 							if (!canClimb) continue;
 
-							blockDown = _level.GetBlock(blockDown.Coordinates + BlockCoordinates.Up);
+							blockDown = _level.GetBlock(blockDown.Coordinates.BlockUp());
 
 							if (IsObstructed(blockDown.Coordinates)) continue;
 
+							if (_blockCache.TryGetValue(item, out var trash) && trash.Coordinates.Y != blockDown.Coordinates.Y)
+							{
+								//Log.Warn("Already had this coordinated but on different Y");
+								continue;
+							}
+							item.RealY = blockDown.Coordinates.Y;
 							_blockCache[item] = blockDown;
 						}
 						else
 						{
-							if (!_level.GetBlock(coord + BlockCoordinates.Down + BlockCoordinates.Down).IsSolid)
+							if (!_level.GetBlock(coord.BlockDown().BlockDown()).IsSolid)
 							{
 								// Will fall
 								continue;
@@ -528,38 +458,23 @@ namespace MiNET.Entities.Behaviors
 
 							if (IsObstructed(blockDown.Coordinates)) continue;
 
+							if (_blockCache.TryGetValue(item, out var trash) && trash.Coordinates.Y != blockDown.Coordinates.Y)
+							{
+								//Log.Warn("Already had this coordinated but on different Y");
+								continue;
+							}
+							item.RealY = blockDown.Coordinates.Y;
 							_blockCache[item] = blockDown;
 						}
 					}
-					else
-					{
-						if (IsObstructed(coord)) continue;
-
-						_blockCache[item] = _level.GetBlock(coord);
-					}
 				}
 
-				// finally, check for gaps (tricky)
-				{
-					bool isDiagonalMove = item.X != block.Coordinates.X && item.Y != block.Coordinates.Z;
-					var blockToCheck = _blockCache[item];
-					if (blockToCheck.Coordinates.Y < block.Coordinates.Y)
-					{
-						if (IsObstructed(new BlockCoordinates(item.X, block.Coordinates.Y, item.Y))) continue;
-					}
-					if (isDiagonalMove)
-					{
-						if (IsObstructed(new BlockCoordinates(block.Coordinates.X + Neighbors[index, 0], block.Coordinates.Y, block.Coordinates.Z))) continue;
-						if (IsObstructed(new BlockCoordinates(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z + Neighbors[index, 1]))) continue;
-					}
-				}
-
-				list.Add(item);
+				neighbors.Add(item);
 			}
 
-			CheckDiagonals(block, list);
+			CheckDiagonals(block, neighbors);
 
-			return list;
+			return neighbors;
 		}
 
 		private bool IsObstructed(BlockCoordinates coord)
@@ -575,7 +490,11 @@ namespace MiNET.Entities.Behaviors
 		private bool IsBlocked(BlockCoordinates coord)
 		{
 			var block = _level.GetBlock(coord);
+			return IsBlocked(block);
+		}
 
+		private bool IsBlocked(Block block)
+		{
 			if (block == null || block.IsSolid)
 			{
 				return true;
@@ -586,32 +505,32 @@ namespace MiNET.Entities.Behaviors
 		private void CheckDiagonals(Block block, HashSet<Tile> list)
 		{
 			// if no north, remove all north
-			if (!list.Contains(TileFromBlock(block.Coordinates + BlockCoordinates.North)))
+			if (!list.Contains(TileFromBlock(block.Coordinates.BlockNorth())))
 			{
 				//Log.Debug("Removed north");
-				list.Remove(TileFromBlock(block.Coordinates + BlockCoordinates.North + BlockCoordinates.East));
-				list.Remove(TileFromBlock(block.Coordinates + BlockCoordinates.North + BlockCoordinates.West));
+				list.Remove(TileFromBlock(block.Coordinates.BlockNorthEast()));
+				list.Remove(TileFromBlock(block.Coordinates.BlockNorthWest()));
 			}
 			// if no south, remove all south
-			if (!list.Contains(TileFromBlock(block.Coordinates + BlockCoordinates.South)))
+			if (!list.Contains(TileFromBlock(block.Coordinates.BlockSouth())))
 			{
 				//Log.Debug("Removed south");
-				list.Remove(TileFromBlock(block.Coordinates + BlockCoordinates.South + BlockCoordinates.East));
-				list.Remove(TileFromBlock(block.Coordinates + BlockCoordinates.South + BlockCoordinates.West));
+				list.Remove(TileFromBlock(block.Coordinates.BlockSouthEast()));
+				list.Remove(TileFromBlock(block.Coordinates.BlockSouthWest()));
 			}
 			// if no west, remove all west
-			if (!list.Contains(TileFromBlock(block.Coordinates + BlockCoordinates.West)))
+			if (!list.Contains(TileFromBlock(block.Coordinates.BlockWest())))
 			{
 				//Log.Debug("Removed west");
-				list.Remove(TileFromBlock(block.Coordinates + BlockCoordinates.West + BlockCoordinates.North));
-				list.Remove(TileFromBlock(block.Coordinates + BlockCoordinates.West + BlockCoordinates.South));
+				list.Remove(TileFromBlock(block.Coordinates.BlockNorthWest()));
+				list.Remove(TileFromBlock(block.Coordinates.BlockSouthWest()));
 			}
 			// if no east, remove all east
-			if (!list.Contains(TileFromBlock(block.Coordinates + BlockCoordinates.East)))
+			if (!list.Contains(TileFromBlock(block.Coordinates.BlockEast())))
 			{
 				//Log.Debug("Removed east");
-				list.Remove(TileFromBlock(block.Coordinates + BlockCoordinates.East + BlockCoordinates.North));
-				list.Remove(TileFromBlock(block.Coordinates + BlockCoordinates.East + BlockCoordinates.South));
+				list.Remove(TileFromBlock(block.Coordinates.BlockNorthEast()));
+				list.Remove(TileFromBlock(block.Coordinates.BlockSouthEast()));
 			}
 		}
 
@@ -624,7 +543,7 @@ namespace MiNET.Entities.Behaviors
 
 	public class LevelNavigator : IBlockedProvider
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (LevelNavigator));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(LevelNavigator));
 
 		private readonly Entity _entity;
 		private readonly Vector3 _entityPos;
@@ -651,7 +570,7 @@ namespace MiNET.Entities.Behaviors
 				return true;
 			}
 
-			if (block.IsSolid) return true;
+			if (block.IsSolid) return true; // ? Should never happen, right. If solid, shouldn't even be here.
 			if (_entityCoords.Contains(block.Coordinates)) return true;
 
 			//if (Math.Abs(_entityPos.Y - block.Coordinates.Y) > _entity.Height + 3) return true;
@@ -740,5 +659,36 @@ namespace MiNET.Entities.Behaviors
 			_blockCache.Remove(block.Coordinates);
 			_level.SetBlock(block, broadcast, applyPhysics, calculateLight, possibleChunk);
 		}
+	}
+
+	public class Tile3d : Tile
+	{
+		public int RealY;
+
+		public Tile3d(int x, int y, int realY) : base(x, y)
+		{
+			RealY = realY;
+		}
+
+		//protected bool Equals(Tile3d other)
+		//{
+		//	return base.Equals(other) && RealY == other.RealY;
+		//}
+
+		//public override bool Equals(object obj)
+		//{
+		//	if (ReferenceEquals(null, obj)) return false;
+		//	if (ReferenceEquals(this, obj)) return true;
+		//	if (obj.GetType() != this.GetType()) return false;
+		//	return Equals((Tile3d) obj);
+		//}
+
+		//public override int GetHashCode()
+		//{
+		//	unchecked
+		//	{
+		//		return (base.GetHashCode()*397) ^ RealY;
+		//	}
+		//}
 	}
 }

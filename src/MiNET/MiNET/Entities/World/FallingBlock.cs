@@ -138,15 +138,16 @@ namespace MiNET.Entities.World
 			if (Velocity.Y < -0.001)
 			{
 				int distance = (int) Math.Ceiling(Velocity.Length());
+				BlockCoordinates check = new BlockCoordinates(KnownPosition);
 				for (int i = 0; i < distance; i++)
 				{
-					BlockCoordinates check = new BlockCoordinates(KnownPosition) + (BlockCoordinates.Down*i);
 					if (Level.GetBlock(check).IsSolid)
 					{
 						_checkPosition = false;
-						KnownPosition = check + BlockCoordinates.Up;
+						KnownPosition = check.BlockUp();
 						return;
 					}
+					check = check.BlockDown();
 				}
 			}
 

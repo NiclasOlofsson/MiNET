@@ -68,16 +68,16 @@ namespace MiNET.Entities.Behaviors
 
 		public override bool CanContinue()
 		{
-			BlockCoordinates currPos = (BlockCoordinates) _entity.KnownPosition;
-			if (currPos == _lastPosition)
-			{
-				if (_stallTime++ > 100) return false;
-			}
-			else
-			{
-				_stallTime = 0;
-				_lastPosition = currPos;
-			}
+			//BlockCoordinates currPos = (BlockCoordinates) _entity.KnownPosition;
+			//if (currPos == _lastPosition)
+			//{
+			//	if (_stallTime++ > 100) return false;
+			//}
+			//else
+			//{
+			//	_stallTime = 0;
+			//	_lastPosition = currPos;
+			//}
 
 			return _currentPath.HavePath();
 		}
@@ -123,7 +123,7 @@ namespace MiNET.Entities.Behaviors
 
 				var blockCoordinates = new BlockCoordinates(x, y, z) + coords;
 				var block = entity.Level.GetBlock(blockCoordinates);
-				var blockDown = entity.Level.GetBlock(blockCoordinates + BlockCoordinates.Down);
+				var blockDown = entity.Level.GetBlock(blockCoordinates.BlockDown());
 				if (blockDown.IsSolid)
 				{
 					double weight = CalculateBlockWeight(entity, block, blockDown);

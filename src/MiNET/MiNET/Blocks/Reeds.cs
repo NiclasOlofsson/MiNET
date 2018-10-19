@@ -14,7 +14,7 @@ namespace MiNET.Blocks
 
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
-			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
+			if (Coordinates.BlockDown() == blockCoordinates)
 			{
 				level.BreakBlock(null, this);
 			}

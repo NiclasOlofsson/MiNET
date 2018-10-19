@@ -57,12 +57,12 @@ namespace MiNET.Worlds
 
 			int lightLevel = chunk.GetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f);
 
-			Test(level, coord, coord + BlockCoordinates.Up, lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord + BlockCoordinates.Down, lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord + BlockCoordinates.West, lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord + BlockCoordinates.East, lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord + BlockCoordinates.South, lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord + BlockCoordinates.North, lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockUp(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockDown(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockWest(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockEast(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockSouth(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockNorth(), lightBfsQueue, chunk, lightLevel);
 
 			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.Down, chunk), lightLevel);
 			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.West, chunk), lightLevel);

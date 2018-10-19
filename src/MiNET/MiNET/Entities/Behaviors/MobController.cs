@@ -149,14 +149,14 @@ namespace MiNET.Entities.Behaviors
 
 			BlockCoordinates coord = (BlockCoordinates) (currPosition + (direction*speedFactor) + (direction*(float) (_entity.Length*0.5f)));
 			var block = level.GetBlock(coord);
-			var blockUp = level.GetBlock(coord + BlockCoordinates.Up);
-			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
+			var blockUp = level.GetBlock(coord.BlockUp());
+			var blockUpUp = level.GetBlock(coord.BlockUp().BlockUp());
 
-			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
+			var colliding = block.IsSolid || (_entity.Height > 1 && blockUp.IsSolid);
 
 			if (!colliding && !entityCollide)
 			{
-				var blockDown = level.GetBlock(coord + BlockCoordinates.Down);
+				var blockDown = level.GetBlock(coord.BlockDown());
 				if (!_entity.IsOnGround && !blockDown.IsSolid) return;
 
 				//Log.Debug($"Move forward: {block}, {(_entity.IsOnGround ? "On ground" : "not on ground")}, Position: {(Vector3) _entity.KnownPosition}");

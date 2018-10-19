@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using log4net;
@@ -147,6 +148,8 @@ namespace MiNET.Entities
 			base.OnTick(entities);
 
 			if (HealthManager.IsDead) return;
+
+			RenderBbox(this);
 
 			bool noPlayersWithin32 = false;
 			if (Level.EnableChunkTicking && DespawnIfNotSeenPlayer)
@@ -441,7 +444,7 @@ namespace MiNET.Entities
 				return IsMobInGround(pos);
 
 			BlockCoordinates coord = pos;
-			Block block = Level.GetBlock(coord + BlockCoordinates.Down);
+			Block block = Level.GetBlock(coord.BlockDown());
 
 			return block.IsSolid;
 			//return block.IsSolid && block.GetBoundingBox().Contains(GetBoundingBox().OffsetBy(new Vector3(0, -0.1f, 0))) == ContainmentType.Intersects;
@@ -453,5 +456,31 @@ namespace MiNET.Entities
 
 			return block.IsSolid;
 		}
+
+		private void RenderBbox(Entity entity)
+		{
+			try
+			{
+				BoundingBox box = entity.GetBoundingBox();
+
+				List<McpeLevelEvent> packets = new List<McpeLevelEvent>();
+
+				foreach (var v in box.GetCorners())
+				{
+					McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
+					particleEvent.eventId = (short) (0x4000 | 10);
+					particleEvent.position = v;
+					particleEvent.data = 0;
+					packets.Add(particleEvent);
+				}
+
+				packets.ForEach(p => entity.Level.RelayBroadcast(p));
+			}
+			catch (Exception e)
+			{
+				Log.Error("Display selection", e);
+			}
+		}
+
 	}
 }

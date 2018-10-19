@@ -88,17 +88,17 @@ namespace MiNET.Blocks
 			if ((block.Metadata & 0x07) != (Metadata & 0x07)) return false;
 
 			// check down
-			if (FindLog(level, coord + BlockCoordinates.Down, visited, distance + 1)) return true;
+			if (FindLog(level, coord.BlockDown(), visited, distance + 1)) return true;
 			// check west
-			if (FindLog(level, coord + BlockCoordinates.West, visited, distance + 1)) return true;
+			if (FindLog(level, coord.BlockWest(), visited, distance + 1)) return true;
 			// check east
-			if (FindLog(level, coord + BlockCoordinates.East, visited, distance + 1)) return true;
+			if (FindLog(level, coord.BlockEast(), visited, distance + 1)) return true;
 			// check south
-			if (FindLog(level, coord + BlockCoordinates.South, visited, distance + 1)) return true;
+			if (FindLog(level, coord.BlockSouth(), visited, distance + 1)) return true;
 			// check north
-			if (FindLog(level, coord + BlockCoordinates.North, visited, distance + 1)) return true;
+			if (FindLog(level, coord.BlockNorth(), visited, distance + 1)) return true;
 			// check up
-			if (FindLog(level, coord + BlockCoordinates.Up, visited, distance + 1)) return true;
+			if (FindLog(level, coord.BlockUp(), visited, distance + 1)) return true;
 
 			return false;
 		}

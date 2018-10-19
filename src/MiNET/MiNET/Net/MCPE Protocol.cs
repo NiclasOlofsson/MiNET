@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 282;
-		public const string GameVersion = "1.6.0";
+		public const int ProtocolVersion = 291;
+		public const string GameVersion = "1.7.0";
 	}
 
 	public interface IMcpeMessageHandler
@@ -2343,6 +2343,7 @@ namespace MiNET.Net
 		public bool hasLockedBehaviorPack; // = null;
 		public bool hasLockedResourcePack; // = null;
 		public bool isFromLockedWorldTemplate; // = null;
+		public bool useMsaGamertagsOnly; // = null;
 		public string levelId; // = null;
 		public string worldName; // = null;
 		public string premiumWorldTemplateId; // = null;
@@ -2401,6 +2402,7 @@ namespace MiNET.Net
 			Write(hasLockedBehaviorPack);
 			Write(hasLockedResourcePack);
 			Write(isFromLockedWorldTemplate);
+			Write(useMsaGamertagsOnly);
 			Write(levelId);
 			Write(worldName);
 			Write(premiumWorldTemplateId);
@@ -2459,6 +2461,7 @@ namespace MiNET.Net
 			hasLockedBehaviorPack = ReadBool();
 			hasLockedResourcePack = ReadBool();
 			isFromLockedWorldTemplate = ReadBool();
+			useMsaGamertagsOnly = ReadBool();
 			levelId = ReadString();
 			worldName = ReadString();
 			premiumWorldTemplateId = ReadString();
@@ -2515,6 +2518,7 @@ namespace MiNET.Net
 			hasLockedBehaviorPack=default(bool);
 			hasLockedResourcePack=default(bool);
 			isFromLockedWorldTemplate=default(bool);
+			useMsaGamertagsOnly=default(bool);
 			levelId=default(string);
 			worldName=default(string);
 			premiumWorldTemplateId=default(string);
@@ -2532,8 +2536,6 @@ namespace MiNET.Net
 
 		public UUID uuid; // = null;
 		public string username; // = null;
-		public string thirdPartyName; // = null;
-		public int platform; // = null;
 		public long entityIdSelf; // = null;
 		public long runtimeEntityId; // = null;
 		public string platformChatId; // = null;
@@ -2571,8 +2573,6 @@ namespace MiNET.Net
 
 			Write(uuid);
 			Write(username);
-			Write(thirdPartyName);
-			WriteSignedVarInt(platform);
 			WriteSignedVarLong(entityIdSelf);
 			WriteUnsignedVarLong(runtimeEntityId);
 			Write(platformChatId);
@@ -2610,8 +2610,6 @@ namespace MiNET.Net
 
 			uuid = ReadUUID();
 			username = ReadString();
-			thirdPartyName = ReadString();
-			platform = ReadSignedVarInt();
 			entityIdSelf = ReadSignedVarLong();
 			runtimeEntityId = ReadUnsignedVarLong();
 			platformChatId = ReadString();
@@ -2647,8 +2645,6 @@ namespace MiNET.Net
 
 			uuid=default(UUID);
 			username=default(string);
-			thirdPartyName=default(string);
-			platform=default(int);
 			entityIdSelf=default(long);
 			runtimeEntityId=default(long);
 			platformChatId=default(string);

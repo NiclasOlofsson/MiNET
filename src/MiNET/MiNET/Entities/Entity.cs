@@ -347,6 +347,7 @@ namespace MiNET.Entities
 			Charged,
 
 			Tamed,
+			Orphaned,
 			Leashed,
 			Sheared,
 			FlagAllFlying,

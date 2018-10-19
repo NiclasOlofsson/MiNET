@@ -422,6 +422,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Has Locked Behavior Pack | bool |  |
 |Has Locked Resource Pack | bool |  |
 |Is From Locked World Template | bool |  |
+|Use MSA Gamertags Only | bool |  |
 |Level ID | string |  |
 |World name | string |  |
 |Premium World Template Id | string |  |
@@ -446,8 +447,6 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |:-----|:-----|:-----|
 |UUID | UUID |  |
 |Username | string |  |
-|Third Party Name | string |  |
-|Platform | SignedVarInt |  |
 |Entity ID Self | SignedVarLong |  |
 |Runtime Entity ID | UnsignedVarLong |  |
 |Platform Chat ID | string |  |

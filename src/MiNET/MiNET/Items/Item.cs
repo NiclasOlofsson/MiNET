@@ -196,6 +196,9 @@ namespace MiNET.Items
 
 		protected bool Equals(Item other)
 		{
+			if (Id != other.Id || Metadata != other.Metadata) return false;
+			if (ExtraData == null ^ other.ExtraData == null) return false;
+
 			byte[] saveToBuffer = null;
 			if (other.ExtraData != null)
 			{
@@ -221,7 +224,7 @@ namespace MiNET.Items
 					nbtCheck = saveToBuffer.SequenceEqual(saveToBuffer2);
 				}
 			}
-			return Id == other.Id && Metadata == other.Metadata && nbtCheck;
+			return nbtCheck;
 		}
 
 		public override bool Equals(object obj)

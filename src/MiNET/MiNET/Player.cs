@@ -3216,9 +3216,9 @@ namespace MiNET
 			Level.BroadcastTitle(text, type, fadeIn, fadeOut, stayTime, sender, new[] {this});
 		}
 
-		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
+		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null, bool needsTranslation = false, string[] parameters = null)
 		{
-			Level.BroadcastMessage(text, type, sender, new[] {this});
+			Level.BroadcastMessage(text, type, sender, new[] {this}, needsTranslation, parameters);
 		}
 
 		public override void BroadcastEntityEvent()

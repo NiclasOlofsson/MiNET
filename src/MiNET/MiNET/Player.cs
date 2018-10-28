@@ -1834,7 +1834,7 @@ namespace MiNET
 			return false;
 		}
 
-		public void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
+		public virtual void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
 		{
 			McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
 			sound.soundId = message.soundId;

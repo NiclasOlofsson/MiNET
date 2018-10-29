@@ -2197,13 +2197,7 @@ namespace MiNET
 								break;
 						}
 
-						McpeMobArmorEquipment mcpePlayerArmorEquipment = McpeMobArmorEquipment.CreateObject();
-						mcpePlayerArmorEquipment.runtimeEntityId = EntityId;
-						mcpePlayerArmorEquipment.helmet = Inventory.Helmet;
-						mcpePlayerArmorEquipment.chestplate = Inventory.Chest;
-						mcpePlayerArmorEquipment.leggings = Inventory.Leggings;
-						mcpePlayerArmorEquipment.boots = Inventory.Boots;
-						Level.RelayBroadcast(this, mcpePlayerArmorEquipment);
+						SendArmorForPlayer();
 					}
 					else if (invId == 121)
 					{

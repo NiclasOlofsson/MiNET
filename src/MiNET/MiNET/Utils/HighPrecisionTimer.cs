@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -51,13 +51,15 @@ namespace MiNET.Utils
 
 	public class HighPrecisionTimer : IDisposable
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (HighPrecisionTimer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(HighPrecisionTimer));
 
-		public Action<object> Action { get; set; }
+		private CancellationTokenSource _cancelSource;
+		private bool _running;
 
-		protected CancellationTokenSource CancelSource;
+		public AutoResetEvent AutoReset = new AutoResetEvent(true);
 
-		public bool Running { get; private set; }
+		public bool ContinueOnError { get; set; } = true;
+
 
 		public long Spins = 0;
 		public long Sleeps = 0;
@@ -65,7 +67,6 @@ namespace MiNET.Utils
 		public long Yields = 0;
 		public long Avarage = 0;
 
-		public AutoResetEvent AutoReset = new AutoResetEvent(true);
 
 		public HighPrecisionTimer(int interval, Action<object> action, bool useSignaling = false, bool skipTicks = true)
 		{
@@ -85,12 +86,11 @@ namespace MiNET.Utils
 			// END IS HERE. SAFE AGAIN ...
 #endif
 			Avarage = interval;
-			Action = action;
 
 			if (interval < 1)
 				throw new ArgumentOutOfRangeException();
 
-			CancelSource = new CancellationTokenSource();
+			_cancelSource = new CancellationTokenSource();
 
 			var watch = Stopwatch.StartNew();
 			long nextStop = interval;
@@ -101,9 +101,9 @@ namespace MiNET.Utils
 
 				try
 				{
-					Running = true;
+					_running = true;
 
-					while (!CancelSource.IsCancellationRequested)
+					while (!_cancelSource.IsCancellationRequested)
 					{
 						long msLeft = nextStop - watch.ElapsedMilliseconds;
 						if (msLeft <= 0)
@@ -112,7 +112,14 @@ namespace MiNET.Utils
 							//if (!skipTicks && msLeft < -4) Log.Warn($"We are {msLeft}ms late for action execution");
 
 							long execTime = watch.ElapsedMilliseconds;
-							Action(this);
+							try
+							{
+								action(this);
+							}
+							catch (Exception)
+							{
+								if (!ContinueOnError) throw;
+							}
 							AutoReset.Reset();
 							execTime = watch.ElapsedMilliseconds - execTime;
 							Avarage = (Avarage*9 + execTime)/10L;
@@ -184,28 +191,39 @@ namespace MiNET.Utils
 							if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
 						}
 					}
-
+				}
+				catch (Exception e)
+				{
+					Log.Error("Timer crashed out with uncaught exception leaving it in an undisposed state.", e);
+					throw;
 				}
 				finally
 				{
-					CancelSource?.Dispose();
-					CancelSource = null;
-
-					AutoReset?.Dispose();
-					AutoReset = null;
-
-					Running = false;
+					_running = false;
+					Dispose();
 				}
-			}, CancelSource.Token, TaskCreationOptions.LongRunning);
+			}, _cancelSource.Token, TaskCreationOptions.LongRunning);
 
 			task.Start();
 		}
 
 		public void Dispose()
 		{
-			CancelSource.Cancel();
-			AutoReset?.Set();
-			while (Running) Thread.Yield();
+			if (_cancelSource == null) return;
+			if (AutoReset == null) return;
+
+			if (_running)
+			{
+				_cancelSource.Cancel();
+				AutoReset?.Set();
+				while (_running) Thread.Yield();
+			}
+
+			_cancelSource?.Dispose();
+			_cancelSource = null;
+
+			AutoReset?.Dispose();
+			AutoReset = null;
 		}
 	}
 }

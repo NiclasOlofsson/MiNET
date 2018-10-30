@@ -423,7 +423,7 @@ namespace MiNET.Worlds
 			RelayBroadcast(sender, sendList, mcpeSetTitle);
 		}
 
-		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null, Player[] sendList = null)
+		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null, Player[] sendList = null, bool needsTranslation = false, string[] parameters = null)
 		{
 			if (type == MessageType.Chat || type == MessageType.Raw)
 			{
@@ -433,6 +433,8 @@ namespace MiNET.Worlds
 					message.type = (byte) type;
 					message.source = sender == null ? "" : sender.Username;
 					message.message = line;
+					message.needsTranslation = needsTranslation;
+					message.parameters = parameters;
 					RelayBroadcast(sendList, message);
 				}
 			}
@@ -442,6 +444,8 @@ namespace MiNET.Worlds
 				message.type = (byte) type;
 				message.source = sender == null ? "" : sender.Username;
 				message.message = text;
+				message.needsTranslation = needsTranslation;
+				message.parameters = parameters;
 				RelayBroadcast(sendList, message);
 			}
 		}

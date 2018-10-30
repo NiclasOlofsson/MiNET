@@ -1756,33 +1756,130 @@ namespace MiNET.Net
 			return map;
 		}
 
-		public void Write(ScorePacketInfos list)
+		public void Write(ScoreEntries list)
 		{
+			if(list == null) list = new ScoreEntries();
+
+			Write((byte) (list.FirstOrDefault() is ScoreEntryRemove ? McpeSetScore.Types.Remove : McpeSetScore.Types.Change));
 			WriteUnsignedVarInt((uint) list.Count);
-			foreach(var entry in list)
+			foreach (var entry in list)
 			{
-				Write(entry.uuid);
-				Write(entry.objectiveName);
-				Write(entry.score);
+				WriteSignedVarLong(entry.Id);
+				Write(entry.ObjectiveName);
+				Write(entry.Score);
+
+				if (entry is ScoreEntryRemove)
+				{
+					continue;
+				}
+
+				if (entry is ScoreEntryChangePlayer player)
+				{
+					Write((byte) McpeSetScore.ChangeTypes.Player);
+					WriteSignedVarLong(player.EntityId);
+				}
+				else if (entry is ScoreEntryChangeEntity entity)
+				{
+					Write((byte) McpeSetScore.ChangeTypes.Entity);
+					WriteSignedVarLong(entity.EntityId);
+				}
+				else if (entry is ScoreEntryChangeFakePlayer fakePlayer)
+				{
+					Write((byte) McpeSetScore.ChangeTypes.FakePlayer);
+					Write(fakePlayer.CustomName);
+				}
 			}
 		}
 
-		public ScorePacketInfos ReadScorePacketInfos()
+		public ScoreEntries ReadScoreEntries()
 		{
-			var list = new ScorePacketInfos();
-
+			var list = new ScoreEntries();
+			byte type = ReadByte();
 			var length = ReadUnsignedVarInt();
-			for(var i = 0; i < length; ++i)
+			for (var i = 0; i < length; ++i)
 			{
-				var entry = new ScorePacketInfo();
-				entry.uuid = ReadUUID();
-				entry.objectiveName = ReadString();
-				entry.score = ReadUint();
+				var entryId = ReadSignedVarLong();
+				var entryObjectiveName = ReadString();
+				var entryScore = ReadUint();
+
+				ScoreEntry entry = null;
+
+				if (type == (int) McpeSetScore.Types.Remove)
+				{
+					entry = new ScoreEntryRemove();
+				}
+				else
+				{
+					McpeSetScore.ChangeTypes changeType = (McpeSetScore.ChangeTypes) ReadByte();
+					switch (changeType)
+					{
+						case McpeSetScore.ChangeTypes.Player:
+							entry = new ScoreEntryChangePlayer {EntityId = ReadSignedVarLong()};
+							break;
+						case McpeSetScore.ChangeTypes.Entity:
+							entry = new ScoreEntryChangeEntity {EntityId = ReadSignedVarLong()};
+							break;
+						case McpeSetScore.ChangeTypes.FakePlayer:
+							entry = new ScoreEntryChangeFakePlayer {CustomName = ReadString()};
+							break;
+					}
+				}
+
+				if (entry == null) continue;
+
+				entry.Id = entryId;
+				entry.ObjectiveName = entryObjectiveName;
+				entry.Score = entryScore;
+
 				list.Add(entry);
 			}
 
 			return list;
 		}
+
+		public void Write(ScoreboardIdentityEntries list)
+		{
+			if (list == null) list = new ScoreboardIdentityEntries();
+
+			Write((byte) (list.FirstOrDefault() is ScoreboardClearIdentityEntry ? McpeSetScoreboardIdentityPacket.Operations.ClearIdentity : McpeSetScoreboardIdentityPacket.Operations.RegisterIdentity));
+			WriteUnsignedVarInt((uint) list.Count);
+			foreach (var entry in list)
+			{
+				WriteSignedVarLong(entry.Id);
+				if (entry is ScoreboardRegisterIdentityEntry reg)
+				{
+					WriteSignedVarLong(reg.EntityId);
+				}
+			}
+		}
+
+		public ScoreboardIdentityEntries ReadScoreboardIdentityEntries()
+		{
+			ScoreboardIdentityEntries list = new ScoreboardIdentityEntries();
+
+			McpeSetScoreboardIdentityPacket.Operations type = (McpeSetScoreboardIdentityPacket.Operations) ReadByte();
+			var length = ReadUnsignedVarInt();
+			for (var i = 0; i < length; ++i)
+			{
+				var scoreboardId = ReadSignedVarLong();
+
+				switch (type)
+				{
+					case McpeSetScoreboardIdentityPacket.Operations.RegisterIdentity:
+						list.Add(new ScoreboardRegisterIdentityEntry() {Id = scoreboardId, EntityId = ReadSignedVarLong()});
+						break;
+					case McpeSetScoreboardIdentityPacket.Operations.ClearIdentity:
+						list.Add(new ScoreboardClearIdentityEntry() {Id = scoreboardId});
+						break;
+				}
+
+				// https://github.com/pmmp/PocketMine-MP/commit/39808dd94f4f2d1716eca31cb5a1cfe9000b6c38#diff-041914be0a0493190a4911ae5c4ac502R62
+			}
+
+			return list;
+		}
+
+
 
 		public bool CanRead()
 		{

@@ -942,6 +942,10 @@ namespace MiNET.Client
 		{
 		}
 
+		public override void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
+		{
+		}
+
 		public override void HandleFtlCreatePlayer(FtlCreatePlayer message)
 		{
 		}

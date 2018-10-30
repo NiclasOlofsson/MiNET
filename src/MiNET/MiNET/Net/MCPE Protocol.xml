@@ -976,16 +976,20 @@
 		<field name="Objective Name" type="string" />
 		<field name="Display Name" type="string" />
 		<field name="Criteria Name" type="string" />
-		<field name="Sort Order" type="VarInt" />
+		<field name="Sort Order" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x6c" online="false" client="false" server="true" name="MCPE_SET_SCORE">
 		<enums id="Types">
-			<enum id="Modify Score" value="0" />
-			<enum id="Reset Score" value="1" />
+			<enum id="Change" value="0" />
+			<enum id="Remove" value="1" />
 		</enums>
-		<field name="Type" type="byte" />
-		<field name="Score Packet Infos" type="ScorePacketInfos" />
+		<enums id="Change Types">
+			<enum id="Player" value="1" />
+			<enum id="Entity" value="2" />
+			<enum id="Fake Player" value="3" />
+		</enums>
+		<field name="Entries" type="ScoreEntries" />
 	</pdu>
 
 
@@ -1012,6 +1016,11 @@
 	</pdu>
 
 	<pdu id="0x70" online="false" client="false" server="true" name="MCPE_SET_SCOREBOARD_IDENTITY_PACKET">
+		<enums id="Operations">
+			<enum id="Register Identity" value="0" />
+			<enum id="Clear Identity" value="1" />
+		</enums>
+		<field name="Entries" type="ScoreboardIdentityEntries" />
 	</pdu>
 
 	<pdu id="0x71" online="false" client="true" server="false" name="MCPE_SET_LOCAL_PLAYER_AS_INITIALIZED_PACKET">
@@ -1022,6 +1031,11 @@
 	</pdu>
 
 	<pdu id="0x73" online="false" client="false" server="true" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
+	</pdu>
+
+	<pdu id="0x75" online="false" client="false" server="true" name="MCPE_SCRIPT_CUSTOM_EVENT_PACKET">
+		<field name="Event Name" type="string" />
+		<field name="Event Data" type="string" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">

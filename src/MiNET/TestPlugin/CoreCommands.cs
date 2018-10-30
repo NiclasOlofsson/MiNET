@@ -1413,6 +1413,43 @@ namespace TestPlugin
 				level.SetBlock(block);
 			}
 		}
+
+		[Command]
+		public string ShowScoreboard(Player player)
+		{
+			McpeSetDisplayObjective objective = McpeSetDisplayObjective.CreateObject();
+			objective.displaySlot = "sidebar";
+			objective.objectiveName = "ObjectiveName";
+			objective.criteriaName = "dummy";
+			objective.displayName = "DisplayName";
+			objective.sortOrder = 0;
+			player.SendPacket(objective);
+
+			//McpeSetScoreboardIdentityPacket ident = McpeSetScoreboardIdentityPacket.CreateObject();
+			//ident.entries = new ScoreboardIdentityEntries() {new ScoreboardRegisterIdentityEntry(){}};
+
+			McpeSetScore score = McpeSetScore.CreateObject();
+			score.entries = new ScoreEntries();
+			score.entries.Add(new ScoreEntryChangeFakePlayer
+			{
+				Id = 3,
+				CustomName = "CustomName1",
+				ObjectiveName = "ObjectiveName",
+				Score = 2
+			});
+			score.entries.Add(new ScoreEntryChangeFakePlayer
+			{
+				Id = 4,
+				CustomName = "CustomName2",
+				ObjectiveName = "ObjectiveName",
+				Score = 3
+			});
+
+			player.SendPacket(score);
+
+			return "Added scoreboard";
+		}
+
 	}
 
 

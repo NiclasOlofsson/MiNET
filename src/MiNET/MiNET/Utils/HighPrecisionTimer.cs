@@ -57,6 +57,8 @@ namespace MiNET.Utils
 
 		protected CancellationTokenSource CancelSource;
 
+		public bool Running { get; private set; }
+
 		public long Spins = 0;
 		public long Sleeps = 0;
 		public long Misses = 0;
@@ -97,93 +99,103 @@ namespace MiNET.Utils
 			{
 				Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
 
-				while (!CancelSource.IsCancellationRequested)
+				try
 				{
-					long msLeft = nextStop - watch.ElapsedMilliseconds;
-					if (msLeft <= 0)
+					Running = true;
+
+					while (!CancelSource.IsCancellationRequested)
 					{
-						if (msLeft < -1) Misses++;
-						//if (!skipTicks && msLeft < -4) Log.Warn($"We are {msLeft}ms late for action execution");
-
-						long execTime = watch.ElapsedMilliseconds;
-						Action(this);
-						AutoReset.Reset();
-						execTime = watch.ElapsedMilliseconds - execTime;
-						Avarage = (Avarage*9 + execTime)/10L;
-
-						if (skipTicks)
+						long msLeft = nextStop - watch.ElapsedMilliseconds;
+						if (msLeft <= 0)
 						{
-							// Calculate when the next stop is. If we're too slow on the trigger then we'll skip ticks
-							nextStop = (long) (interval*(Math.Floor(watch.ElapsedMilliseconds/(float) interval /*+ 1f*/) + 1));
-						}
-						else
-						{
-							long calculatedNextStop = (long) (interval*(Math.Floor(watch.ElapsedMilliseconds/(float) interval /*+ 1f*/) + 1));
-							nextStop += interval;
+							if (msLeft < -1) Misses++;
+							//if (!skipTicks && msLeft < -4) Log.Warn($"We are {msLeft}ms late for action execution");
 
-							// Calculate when the next stop is. If we're very behind on ticks then we'll skip ticks
-							if (calculatedNextStop - nextStop > 2*interval)
+							long execTime = watch.ElapsedMilliseconds;
+							Action(this);
+							AutoReset.Reset();
+							execTime = watch.ElapsedMilliseconds - execTime;
+							Avarage = (Avarage*9 + execTime)/10L;
+
+							if (skipTicks)
 							{
-								//Log.Warn($"Skipping ticks because behind {calculatedNextStop - nextStop}ms. Too much");
-								nextStop = calculatedNextStop;
+								// Calculate when the next stop is. If we're too slow on the trigger then we'll skip ticks
+								nextStop = (long) (interval*(Math.Floor(watch.ElapsedMilliseconds/(float) interval /*+ 1f*/) + 1));
 							}
+							else
+							{
+								long calculatedNextStop = (long) (interval*(Math.Floor(watch.ElapsedMilliseconds/(float) interval /*+ 1f*/) + 1));
+								nextStop += interval;
+
+								// Calculate when the next stop is. If we're very behind on ticks then we'll skip ticks
+								if (calculatedNextStop - nextStop > 2*interval)
+								{
+									//Log.Warn($"Skipping ticks because behind {calculatedNextStop - nextStop}ms. Too much");
+									nextStop = calculatedNextStop;
+								}
+							}
+
+							// If we can't keep up on execution time, we start skipping ticks until we catch up again.
+							if (Avarage > interval) nextStop += interval;
+
+							continue;
+						}
+						if (msLeft < 5)
+						{
+							Spins++;
+
+							if (useSignaling)
+							{
+								AutoReset.WaitOne(50);
+							}
+
+							var stop = nextStop;
+							if (watch.ElapsedMilliseconds < stop)
+							{
+								SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= stop);
+							}
+
+							continue;
 						}
 
-						// If we can't keep up on execution time, we start skipping ticks until we catch up again.
-						if (Avarage > interval) nextStop += interval;
-
-						continue;
-					}
-					if (msLeft < 5)
-					{
-						Spins++;
-
-						if (useSignaling)
+						if (msLeft < 16)
 						{
-							AutoReset.WaitOne(50);
-						}
+							if (Thread.Yield())
+							{
+								Yields++;
+								continue;
+							}
 
-						var stop = nextStop;
-						if (watch.ElapsedMilliseconds < stop)
-						{
-							SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= stop);
-						}
-
-						continue;
-					}
-
-					if (msLeft < 16)
-					{
-						if (Thread.Yield())
-						{
-							Yields++;
+							Sleeps++;
+							Thread.Sleep(1);
+							if (!skipTicks)
+							{
+								long t = nextStop - watch.ElapsedMilliseconds;
+								if (t < -5) Log.Warn($"We overslept {t}ms in thread yield/sleep");
+							}
 							continue;
 						}
 
 						Sleeps++;
-						Thread.Sleep(1);
+						Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));
 						if (!skipTicks)
 						{
 							long t = nextStop - watch.ElapsedMilliseconds;
-							if (t < -5) Log.Warn($"We overslept {t}ms in thread yield/sleep");
+							if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
 						}
-						continue;
 					}
 
-					Sleeps++;
-					Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));
-					if (!skipTicks)
-					{
-						long t = nextStop - watch.ElapsedMilliseconds;
-						if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
-					}
 				}
+				finally
+				{
+					CancelSource?.Dispose();
+					CancelSource = null;
 
-				CancelSource.Dispose();
-				CancelSource = null;
+					AutoReset?.Dispose();
+					AutoReset = null;
 
-				AutoReset.Dispose();
-				AutoReset = null;
+					Running = false;
+				}
 			}, CancelSource.Token, TaskCreationOptions.LongRunning);
 
 			task.Start();
@@ -193,6 +205,7 @@ namespace MiNET.Utils
 		{
 			CancelSource.Cancel();
 			AutoReset?.Set();
+			while (Running) Thread.Yield();
 		}
 	}
 }

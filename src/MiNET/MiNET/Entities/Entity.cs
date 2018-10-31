@@ -495,7 +495,7 @@ namespace MiNET.Entities
 			{
 				Name = "minecraft:health",
 				MinValue = 0,
-				MaxValue = 20,
+				MaxValue = HealthManager.MaxHearts,
 				Value = HealthManager.Hearts
 			};
 			attributes["minecraft:knockback_resistance"] = new EntityAttribute

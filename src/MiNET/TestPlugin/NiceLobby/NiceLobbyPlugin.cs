@@ -393,6 +393,10 @@ namespace TestPlugin.NiceLobby
 				player.SendAdventureSettings();
 			}
 
+			player.HealthManager.MaxHealth = 800;
+			player.HealthManager.ResetHealth();
+			player.SendUpdateAttributes();
+
 
 			int idx = 0;
 			//player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};

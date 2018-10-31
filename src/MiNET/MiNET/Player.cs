@@ -2873,9 +2873,9 @@ namespace MiNET
 			{
 				Name = "minecraft:health",
 				MinValue = 0,
-				MaxValue = 20,
+				MaxValue = HealthManager.MaxHearts,
 				Value = HealthManager.Hearts,
-				Default = 20,
+				Default = HealthManager.MaxHearts,
 			};
 			attributes["minecraft:movement"] = new PlayerAttribute
 			{

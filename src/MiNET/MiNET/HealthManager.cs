@@ -64,6 +64,11 @@ namespace MiNET
 			get { return (int) Math.Ceiling(Health/10d); }
 		}
 
+		public int MaxHearts
+		{
+			get { return (int) Math.Ceiling(MaxHealth/10d); }
+		}
+
 		public virtual void Regen(int amount = 1)
 		{
 			Health += amount*10;

@@ -2257,18 +2257,7 @@ namespace MiNET
 					if (record.Slot == 0)
 					{
 						// Drop
-
-						ItemEntity itemEntity = new ItemEntity(Level, record.NewItem)
-						{
-							Velocity = KnownPosition.GetDirection().Normalize()*0.3f,
-							KnownPosition =
-							{
-								X = KnownPosition.X,
-								Y = KnownPosition.Y + 1.62f,
-								Z = KnownPosition.Z
-							},
-						};
-						itemEntity.SpawnEntity();
+						DropItem(record.NewItem);
 					}
 					else if (record.Slot == 1)
 					{
@@ -2276,6 +2265,16 @@ namespace MiNET
 					}
 				}
 			}
+		}
+
+		public virtual void DropItem(Item item)
+		{
+			var itemEntity = new ItemEntity(Level, item)
+			{
+				Velocity = KnownPosition.GetDirection().Normalize() * 0.3f,
+				KnownPosition = KnownPosition + new Vector3(0f, 1.62f, 0f)
+			};
+			itemEntity.SpawnEntity();
 		}
 
 		private bool VerifyRecipe(List<Item> craftingInput, Item result)

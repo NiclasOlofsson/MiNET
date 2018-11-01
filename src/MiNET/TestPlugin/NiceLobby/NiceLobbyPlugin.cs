@@ -397,9 +397,9 @@ namespace TestPlugin.NiceLobby
 				player.SendAdventureSettings();
 			}
 
-			player.HealthManager.MaxHealth = 800;
-			player.HealthManager.ResetHealth();
-			player.SendUpdateAttributes();
+			//player.HealthManager.MaxHealth = 800;
+			//player.HealthManager.ResetHealth();
+			//player.SendUpdateAttributes();
 
 
 			int idx = 0;
@@ -411,11 +411,12 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Vine(), 0) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Dirt(), 0) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
-			player.Inventory.Slots[idx++] = new CustomTestItem(0xC0FFEE) { Count = 10 };
-			player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
-			player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
-			player.Inventory.Slots[idx++] = new CustomTestItem(0xBEEF) {Count = 10 };
-			player.Inventory.Slots[idx++] = new ItemStick() { Count = 64};
+			//player.Inventory.Slots[idx++] = new CustomTestItem(0xC0FFEE) { Count = 10 };
+			//player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
+			//player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
+			//player.Inventory.Slots[idx++] = new CustomTestItem(0xBEEF) {Count = 10 };
+			idx = 8;
+			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
 
 			var fireworks = new ItemFireworks() {Count = 64};
 

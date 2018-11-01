@@ -18,29 +18,30 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
 using System;
 using System.Collections.Generic;
-using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Entities.Behaviors;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.Skins;
 using MiNET.Worlds;
 
 namespace MiNET.Entities
 {
 	public class Mob : Entity
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Mob));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Mob));
 
 		public bool DespawnIfNotSeenPlayer { get; set; }
 		public DateTime LastSeenPlayerTimer { get; set; }
@@ -133,7 +134,7 @@ namespace MiNET.Entities
 				Name = "minecraft:movement",
 				MinValue = 0,
 				MaxValue = float.MaxValue,
-				Value = (float)Speed
+				Value = (float) Speed
 			};
 
 			return attributes;
@@ -149,7 +150,7 @@ namespace MiNET.Entities
 
 			if (HealthManager.IsDead) return;
 
-			RenderBbox(this);
+			//RenderBbox(this);
 
 			bool noPlayersWithin32 = false;
 			if (Level.EnableChunkTicking && DespawnIfNotSeenPlayer)
@@ -263,7 +264,7 @@ namespace MiNET.Entities
 			Velocity *= drag;
 		}
 
-		private static T GetBehavior<T>(List<T> behaviors, T currentBehavior) where T: class, IBehavior
+		private static T GetBehavior<T>(List<T> behaviors, T currentBehavior) where T : class, IBehavior
 		{
 			foreach (var behavior in behaviors)
 			{
@@ -457,30 +458,163 @@ namespace MiNET.Entities
 			return block.IsSolid;
 		}
 
+
+		PlayerMob fake = null;
+
 		private void RenderBbox(Entity entity)
 		{
-			try
+			if (fake == null)
 			{
-				BoundingBox box = entity.GetBoundingBox();
-
-				List<McpeLevelEvent> packets = new List<McpeLevelEvent>();
-
-				foreach (var v in box.GetCorners())
-				{
-					McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
-					particleEvent.eventId = (short) (0x4000 | 10);
-					particleEvent.position = v;
-					particleEvent.data = 0;
-					packets.Add(particleEvent);
-				}
-
-				packets.ForEach(p => entity.Level.RelayBroadcast(p));
+				fake = RenderBoundingBox(this);
 			}
-			catch (Exception e)
-			{
-				Log.Error("Display selection", e);
-			}
+
+			fake.SetPosition(new PlayerLocation(entity.KnownPosition, 0, 0, 0));
 		}
 
+
+		public PlayerMob RenderBoundingBox(Mob theMob)
+		{
+			var coordinates = theMob.KnownPosition;
+
+			byte[] skinBytes = Encoding.Default.GetBytes(new string('Z', 64*64*4));
+
+			int geoW = (int) Math.Floor(theMob.Width*16f);
+			int geoH = (int) Math.Floor(theMob.Height*16f);
+			Log.Error($"Height={geoH}, Width={geoW}");
+
+			var skinGeometryName = "geometry.flat." + Guid.NewGuid();
+			GeometryModel model = new GeometryModel()
+			{
+				{
+					skinGeometryName, new Geometry()
+					{
+						Name = skinGeometryName,
+						TextureHeight = 64,
+						TextureWidth = 64,
+						Bones = new List<Bone>()
+						{
+							new Bone()
+							{
+								Name = BoneName.Body,
+								Pivot = new float[3],
+								Cubes = new List<Cube>()
+								{
+									//Origin = new float[3],
+									//Size = new float[] {geoW, geoH, geoW},
+
+									// sides
+
+									new Cube()
+									{
+										Origin = new float[] {-(geoW/2f), 0, -(geoW/2f)},
+										Size = new float[] {1, geoH, 1},
+										Uv = new float[] {64, 0},
+									},
+									new Cube()
+									{
+										Origin = new float[] {-(geoW/2f), 0, +(geoW/2f)},
+										Size = new float[] {1, geoH, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {+(geoW/2f), 0, -(geoW/2f)},
+										//Origin = new float[3],
+										Size = new float[] {1, geoH, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {+(geoW/2f), 0, +(geoW/2f)},
+										//Origin = new float[3],
+										Size = new float[] {1, geoH, 1},
+										Uv = new float[] {64, 0}
+									},
+
+									// bottom
+
+									new Cube()
+									{
+										Origin = new float[] {-(geoW/2f), 0, -(geoW/2f)},
+										Size = new float[] {1, 1, geoW},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {-(geoW/2f), 0, -(geoW/2f)},
+										//Origin = new float[3],
+										Size = new float[] {geoW, 1, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {-(geoW/2f), 0, +(geoW/2f)},
+										Size = new float[] {geoW, 1, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {+(geoW/2f), 0, -(geoW/2f)},
+										//Origin = new float[3],
+										Size = new float[] {1, 1, geoW},
+										Uv = new float[] {64, 0}
+									},
+
+									// top
+
+									new Cube()
+									{
+										Origin = new float[] {-(geoW/2f), geoH, -(geoW/2f)},
+										Size = new float[] {1, 1, geoW},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {-(geoW/2f), geoH, -(geoW/2f)},
+										//Origin = new float[3],
+										Size = new float[] {geoW, 1, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {-(geoW/2f), geoH, +(geoW/2f)},
+										Size = new float[] {geoW, 1, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {+(geoW/2f), geoH, -(geoW/2f)},
+										//Origin = new float[3],
+										Size = new float[] {1, 1, geoW},
+										Uv = new float[] {64, 0}
+									},
+								}
+							}
+						}
+					}
+				},
+			};
+
+			PlayerMob fake = new PlayerMob(string.Empty, theMob.Level)
+			{
+				Width = theMob.Width,
+				Length = theMob.Width,
+				Height = theMob.Height,
+
+				Skin = new Skin
+				{
+					SkinId = "testing" + new Guid(),
+					Slim = false,
+					SkinData = skinBytes,
+					CapeData = new byte[0],
+					SkinGeometryName = skinGeometryName,
+					SkinGeometry = Skin.ToJson(model),
+				},
+				KnownPosition = new PlayerLocation(coordinates)
+			};
+			fake.SpawnEntity();
+
+			return fake;
+		}
 	}
 }

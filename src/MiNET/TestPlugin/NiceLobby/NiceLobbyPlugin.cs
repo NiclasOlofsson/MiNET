@@ -114,18 +114,22 @@ namespace TestPlugin.NiceLobby
 			var player = e.Player;
 			var level = player.Level;
 
-			if (e.Level.TickTime % 2 == 0)
+			if(player.Inventory.GetItemInHand() is CustomTestItem item)
 			{
-				BlockCoordinates pos = (BlockCoordinates)player.KnownPosition;
-				player.AddPopup(new Popup()
-				{
-					Id = 11,
-					MessageType = MessageType.Popup,
-					Message = $"SkyLight Subtracted={level.SkylightSubtracted}, Under={level.GetSkyLight(pos.BlockDown())}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos.BlockUp())}, Height={level.GetHeight(pos)}",
-					Duration = 20 * 5,
-				});
+				player.SendMessage("0x" + item.SomeVariable.ToString("X"), MessageType.Popup);
 			}
 
+			//if (e.Level.TickTime % 2 == 0)
+			//{
+			//	BlockCoordinates pos = (BlockCoordinates)player.KnownPosition;
+			//	player.AddPopup(new Popup()
+			//	{
+			//		Id = 11,
+			//		MessageType = MessageType.Popup,
+			//		Message = $"SkyLight Subtracted={level.SkylightSubtracted}, Under={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Height={level.GetHeight(pos)}",
+			//		Duration = 20 * 5,
+			//	});
+			//}
 
 			// Compass
 			//if (e.Level.TickTime % 2 == 0)
@@ -403,8 +407,11 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Vine(), 0) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Dirt(), 0) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
-			idx = 8;
-			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
+			player.Inventory.Slots[idx++] = new CustomTestItem(0xC0FFEE) { Count = 10 };
+			player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
+			player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
+			player.Inventory.Slots[idx++] = new CustomTestItem(0xBEEF) {Count = 10 };
+			player.Inventory.Slots[idx++] = new ItemStick() { Count = 64};
 
 			var fireworks = new ItemFireworks() {Count = 64};
 

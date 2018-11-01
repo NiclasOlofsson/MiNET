@@ -2172,15 +2172,135 @@ namespace MiNET
 					Item oldItem = trans.OldItem;
 					Item newItem = trans.NewItem;
 
+					if (oldItem is ItemAir) continue;
+
+					Item oldItemSlots = null;
+					switch (invId)
+					{
+						case 0:
+							oldItemSlots = Inventory.Slots[trans.Slot];
+							break;
+						case 124:
+							oldItemSlots = Inventory.Cursor;
+							break;
+						case 120:
+							switch (slot)
+							{
+								case 0:
+									oldItemSlots = Inventory.Helmet;
+									break;
+								case 1:
+									oldItemSlots = Inventory.Chest;
+									Inventory.Chest = newItem;
+									break;
+								case 2:
+									oldItemSlots = Inventory.Leggings;
+									break;
+								case 3:
+									oldItemSlots = Inventory.Boots;
+									break;
+								default:
+									oldItemSlots = new ItemAir();
+									break;
+							}
+							break;
+						case 121:
+							if (GameMode != GameMode.Creative && Log.IsDebugEnabled) Log.Warn($"Player {Username} made transaction with creative inventory without being in creative gamemode.");
+							oldItemSlots = oldItem;
+							break;
+						default:
+							if (_openInventory != null)
+							{
+								if (_openInventory is Inventory inventory && inventory.WindowsId == invId)
+								{
+									oldItemSlots = inventory.GetSlot((byte) slot);
+								}
+								else if (_openInventory is HorseInventory horseInventory)
+								{
+									oldItemSlots = horseInventory.GetSlot((byte) slot);
+								}
+							}
+							else
+							{
+								oldItemSlots = new ItemAir();
+							}
+							break;
+					}
+					trans.OldItem = oldItemSlots;
+
+				}
+			}
+
+			foreach (var record in transaction.Transactions)
+			{
+				Item oldItem = record.OldItem;
+				Item newItem = null;
+				if (record.NewItem is ItemAir)
+				{
+					newItem = new ItemAir();
+				}
+				else
+					foreach (var r in transaction.Transactions)
+					{
+						if (r is ContainerTransactionRecord cont)
+						{
+							if (r.OldItem.Equals(record.NewItem))
+							{
+								if (r.OldItem.Count + (newItem?.Count ?? 0) >= record.NewItem.Count)
+								{
+									if (newItem == null)
+									{
+										newItem = r.OldItem;
+									}
+
+
+									r.OldItem = (Item) r.OldItem.Clone();
+									r.OldItem.Count = (byte) (r.OldItem.Count + newItem.Count - record.NewItem.Count);
+									newItem.Count = record.NewItem.Count;
+									if (r.OldItem.Count <= 0)
+									{
+										r.OldItem = new ItemAir();
+									}
+									break;
+								}
+								else
+								{
+									if (newItem == null)
+									{
+										newItem = r.OldItem;
+									}
+									else
+									{
+										newItem.Count += r.OldItem.Count;
+									}
+									r.OldItem = new ItemAir();
+								}
+							}
+						}
+					}
+
+				if (newItem == null)
+				{
+					newItem = record.NewItem;
+					Log.Fatal($"Couldn't find item in slots for player {Username}, item {newItem}, old item {oldItem}");
+				}
+
+
+				if (record is ContainerTransactionRecord)
+				{
+					var trans = (ContainerTransactionRecord) record;
+					int invId = trans.InventoryId;
+					int slot = trans.Slot;
+
 					if (invId == 0)
 					{
 						// Player inventory
-						if (!oldItem.Equals(Inventory.Slots[trans.Slot])) Log.Warn($"Inventory mismatch. Client reported old item as {oldItem} and it did not match existing the item {Inventory.Slots[trans.Slot]}");
+						//if (!oldItem.Equals(Inventory.Slots[trans.Slot])) Log.Warn($"Inventory mismatch. Client reported old item as {oldItem} and it did not match existing the item {Inventory.Slots[trans.Slot]}");
 						Inventory.Slots[trans.Slot] = newItem;
 					}
 					else if (invId == 120)
 					{
-						if (!newItem.Equals(Inventory.Cursor)) Log.Warn($"Cursor mismatch. Client reported new item as {newItem} and it did not match existing the item {Inventory.Cursor}");
+						//if (!newItem.Equals(Inventory.Cursor)) Log.Warn($"Cursor mismatch. Client reported new item as {newItem} and it did not match existing the item {Inventory.Cursor}");
 						switch (slot)
 						{
 							case 0:
@@ -2201,37 +2321,36 @@ namespace MiNET
 					}
 					else if (invId == 121)
 					{
-						if(GameMode != GameMode.Creative && Log.IsDebugEnabled) Log.Warn($"Player {Username} made transaction with creative inventory without being in creative gamemode.");
+						if (GameMode != GameMode.Creative && Log.IsDebugEnabled) Log.Warn($"Player {Username} made transaction with creative inventory without being in creative gamemode.");
 					}
 					else if (invId == 124)
 					{
 						// Cursor
-						if (!oldItem.Equals(Inventory.Cursor)) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {Inventory.Cursor}");
+						//if (!oldItem.Equals(Inventory.Cursor)) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {Inventory.Cursor}");
 						Inventory.Cursor = newItem;
 					}
 					else if (_openInventory != null)
 					{
 						if (_openInventory is Inventory inventory && inventory.WindowsId == invId)
 						{
-							if (!oldItem.Equals(inventory.GetSlot((byte) slot))) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {inventory.GetSlot((byte) slot)}");
+							//if (!oldItem.Equals(inventory.GetSlot((byte)slot))) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {inventory.GetSlot((byte)slot)}");
 
 							// block inventories of various kinds (chests, furnace, etc)
 							inventory.SetSlot(this, (byte) slot, newItem);
 						}
 						else if (_openInventory is HorseInventory horseInventory)
 						{
-							if (!oldItem.Equals(horseInventory.GetSlot((byte) slot))) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {horseInventory.GetSlot((byte) slot)}");
+							//if (!oldItem.Equals(horseInventory.GetSlot((byte)slot))) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {horseInventory.GetSlot((byte)slot)}");
 							horseInventory.SetSlot(slot, newItem);
 						}
 					}
+
 				}
 				else if (record is CraftTransactionRecord)
 				{
 					var trans = (CraftTransactionRecord) record;
 					int invId = trans.Action;
 					int slot = trans.Slot;
-					Item oldItem = trans.OldItem;
-					Item newItem = trans.NewItem;
 
 					if (invId == (int) McpeInventoryTransaction.NormalAction.CraftUse)
 					{
@@ -2257,18 +2376,7 @@ namespace MiNET
 					if (record.Slot == 0)
 					{
 						// Drop
-
-						ItemEntity itemEntity = new ItemEntity(Level, record.NewItem)
-						{
-							Velocity = KnownPosition.GetDirection().Normalize()*0.3f,
-							KnownPosition =
-							{
-								X = KnownPosition.X,
-								Y = KnownPosition.Y + 1.62f,
-								Z = KnownPosition.Z
-							},
-						};
-						itemEntity.SpawnEntity();
+						DropItem(record.NewItem);
 					}
 					else if (record.Slot == 1)
 					{
@@ -2276,6 +2384,16 @@ namespace MiNET
 					}
 				}
 			}
+		}
+
+		public virtual void DropItem(Item item)
+		{
+			var itemEntity = new ItemEntity(Level, item)
+			{
+				Velocity = KnownPosition.GetDirection().Normalize() * 0.3f,
+				KnownPosition = KnownPosition + new Vector3(0f, 1.62f, 0f)
+			};
+			itemEntity.SpawnEntity();
 		}
 
 		private bool VerifyRecipe(List<Item> craftingInput, Item result)

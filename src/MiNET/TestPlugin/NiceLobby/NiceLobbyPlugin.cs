@@ -100,6 +100,15 @@ namespace TestPlugin.NiceLobby
 			//_tickTimer = new Timer(SkinTick, null, 0, 50);
 		}
 
+		[Command]
+		public void TestTranslatedMessages(Player player)
+		{
+			for(var i = 0; i <= 8; i++)
+			{
+				player.SendMessage(ChatColors.Green + (MessageType) i + ChatFormatting.Reset + ": %key.smoothCamera", (MessageType) i, player, true);
+			}
+		}
+
 		private void OnTicking(object sender, PlayerEventArgs e)
 		{
 			var player = e.Player;

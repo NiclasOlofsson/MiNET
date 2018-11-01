@@ -121,6 +121,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Set Local Player As Initialized Packet | 0x71 | 113 |   
 | Update Soft Enum Packet | 0x72 | 114 |   
 | Network Stack Latency Packet | 0x73 | 115 |   
+| Script Custom Event Packet | 0x75 | 117 |   
 
 
 ## Data types
@@ -156,7 +157,8 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | ResourcePackIds [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIds) |
 | ResourcePackIdVersions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIdVersions) |
 | ResourcePackInfos [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackInfos) |
-| ScorePacketInfos [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ScorePacketInfos) |
+| ScoreboardIdentityEntries [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ScoreboardIdentityEntries) |
+| ScoreEntries [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ScoreEntries) |
 | short [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-short) |
 | SignedVarInt [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-SignedVarInt) |
 | SignedVarLong [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-SignedVarLong) |
@@ -2177,7 +2179,7 @@ Wiki: [Set Display Objective](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Objective Name | string |  |
 |Display Name | string |  |
 |Criteria Name | string |  |
-|Sort Order | VarInt |  |
+|Sort Order | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Set Score (0x6c)
 Wiki: [Set Score](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetScore)
@@ -2191,16 +2193,23 @@ Wiki: [Set Score](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetScor
 
 | Name | Value |
 |:-----|:-----|
-|Modify Score | 0 |
-|Reset Score | 1 |
+|Change | 0 |
+|Remove | 1 |
+
+#### Change Types constants
+
+| Name | Value |
+|:-----|:-----|
+|Player | 1 |
+|Entity | 2 |
+|Fake Player | 3 |
 
 
 #### Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Type | byte |  |
-|Score Packet Infos | ScorePacketInfos |  |
+|Entries | ScoreEntries |  |
 -----------------------------------------------------------------------
 ### Lab Table (0x6d)
 Wiki: [Lab Table](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LabTable)
@@ -2265,11 +2274,19 @@ Wiki: [Set Scoreboard Identity Packet](https://github.com/NiclasOlofsson/MiNET/w
 
 
 
+#### Operations constants
+
+| Name | Value |
+|:-----|:-----|
+|Register Identity | 0 |
+|Clear Identity | 1 |
+
 
 #### Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Entries | ScoreboardIdentityEntries |  |
 -----------------------------------------------------------------------
 ### Set Local Player As Initialized Packet (0x71)
 Wiki: [Set Local Player As Initialized Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetLocalPlayerAsInitializedPacket)
@@ -2313,6 +2330,22 @@ Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wik
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Script Custom Event Packet (0x75)
+Wiki: [Script Custom Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ScriptCustomEventPacket)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Event Name | string |  |
+|Event Data | string |  |
 -----------------------------------------------------------------------
 
 

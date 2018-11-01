@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -51,11 +51,15 @@ namespace MiNET.Utils
 
 	public class HighPrecisionTimer : IDisposable
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (HighPrecisionTimer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(HighPrecisionTimer));
 
-		public Action<object> Action { get; set; }
+		private CancellationTokenSource _cancelSource;
+		private bool _running;
 
-		protected CancellationTokenSource CancelSource;
+		public AutoResetEvent AutoReset = new AutoResetEvent(true);
+
+		public bool ContinueOnError { get; set; } = true;
+
 
 		public long Spins = 0;
 		public long Sleeps = 0;
@@ -63,7 +67,6 @@ namespace MiNET.Utils
 		public long Yields = 0;
 		public long Avarage = 0;
 
-		public AutoResetEvent AutoReset = new AutoResetEvent(true);
 
 		public HighPrecisionTimer(int interval, Action<object> action, bool useSignaling = false, bool skipTicks = true)
 		{
@@ -83,12 +86,11 @@ namespace MiNET.Utils
 			// END IS HERE. SAFE AGAIN ...
 #endif
 			Avarage = interval;
-			Action = action;
 
 			if (interval < 1)
 				throw new ArgumentOutOfRangeException();
 
-			CancelSource = new CancellationTokenSource();
+			_cancelSource = new CancellationTokenSource();
 
 			var watch = Stopwatch.StartNew();
 			long nextStop = interval;
@@ -97,102 +99,131 @@ namespace MiNET.Utils
 			{
 				Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
 
-				while (!CancelSource.IsCancellationRequested)
+				try
 				{
-					long msLeft = nextStop - watch.ElapsedMilliseconds;
-					if (msLeft <= 0)
+					_running = true;
+
+					while (!_cancelSource.IsCancellationRequested)
 					{
-						if (msLeft < -1) Misses++;
-						//if (!skipTicks && msLeft < -4) Log.Warn($"We are {msLeft}ms late for action execution");
-
-						long execTime = watch.ElapsedMilliseconds;
-						Action(this);
-						AutoReset.Reset();
-						execTime = watch.ElapsedMilliseconds - execTime;
-						Avarage = (Avarage*9 + execTime)/10L;
-
-						if (skipTicks)
+						long msLeft = nextStop - watch.ElapsedMilliseconds;
+						if (msLeft <= 0)
 						{
-							// Calculate when the next stop is. If we're too slow on the trigger then we'll skip ticks
-							nextStop = (long) (interval*(Math.Floor(watch.ElapsedMilliseconds/(float) interval /*+ 1f*/) + 1));
-						}
-						else
-						{
-							long calculatedNextStop = (long) (interval*(Math.Floor(watch.ElapsedMilliseconds/(float) interval /*+ 1f*/) + 1));
-							nextStop += interval;
+							if (msLeft < -1) Misses++;
+							//if (!skipTicks && msLeft < -4) Log.Warn($"We are {msLeft}ms late for action execution");
 
-							// Calculate when the next stop is. If we're very behind on ticks then we'll skip ticks
-							if (calculatedNextStop - nextStop > 2*interval)
+							long execTime = watch.ElapsedMilliseconds;
+							try
 							{
-								//Log.Warn($"Skipping ticks because behind {calculatedNextStop - nextStop}ms. Too much");
-								nextStop = calculatedNextStop;
+								action(this);
 							}
+							catch (Exception)
+							{
+								if (!ContinueOnError) throw;
+							}
+							AutoReset.Reset();
+							execTime = watch.ElapsedMilliseconds - execTime;
+							Avarage = (Avarage*9 + execTime)/10L;
+
+							if (skipTicks)
+							{
+								// Calculate when the next stop is. If we're too slow on the trigger then we'll skip ticks
+								nextStop = (long) (interval*(Math.Floor(watch.ElapsedMilliseconds/(float) interval /*+ 1f*/) + 1));
+							}
+							else
+							{
+								long calculatedNextStop = (long) (interval*(Math.Floor(watch.ElapsedMilliseconds/(float) interval /*+ 1f*/) + 1));
+								nextStop += interval;
+
+								// Calculate when the next stop is. If we're very behind on ticks then we'll skip ticks
+								if (calculatedNextStop - nextStop > 2*interval)
+								{
+									//Log.Warn($"Skipping ticks because behind {calculatedNextStop - nextStop}ms. Too much");
+									nextStop = calculatedNextStop;
+								}
+							}
+
+							// If we can't keep up on execution time, we start skipping ticks until we catch up again.
+							if (Avarage > interval) nextStop += interval;
+
+							continue;
+						}
+						if (msLeft < 5)
+						{
+							Spins++;
+
+							if (useSignaling)
+							{
+								AutoReset.WaitOne(50);
+							}
+
+							var stop = nextStop;
+							if (watch.ElapsedMilliseconds < stop)
+							{
+								SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= stop);
+							}
+
+							continue;
 						}
 
-						// If we can't keep up on execution time, we start skipping ticks until we catch up again.
-						if (Avarage > interval) nextStop += interval;
-
-						continue;
-					}
-					if (msLeft < 5)
-					{
-						Spins++;
-
-						if (useSignaling)
+						if (msLeft < 16)
 						{
-							AutoReset.WaitOne(50);
-						}
+							if (Thread.Yield())
+							{
+								Yields++;
+								continue;
+							}
 
-						var stop = nextStop;
-						if (watch.ElapsedMilliseconds < stop)
-						{
-							SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= stop);
-						}
-
-						continue;
-					}
-
-					if (msLeft < 16)
-					{
-						if (Thread.Yield())
-						{
-							Yields++;
+							Sleeps++;
+							Thread.Sleep(1);
+							if (!skipTicks)
+							{
+								long t = nextStop - watch.ElapsedMilliseconds;
+								if (t < -5) Log.Warn($"We overslept {t}ms in thread yield/sleep");
+							}
 							continue;
 						}
 
 						Sleeps++;
-						Thread.Sleep(1);
+						Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));
 						if (!skipTicks)
 						{
 							long t = nextStop - watch.ElapsedMilliseconds;
-							if (t < -5) Log.Warn($"We overslept {t}ms in thread yield/sleep");
+							if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
 						}
-						continue;
-					}
-
-					Sleeps++;
-					Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));
-					if (!skipTicks)
-					{
-						long t = nextStop - watch.ElapsedMilliseconds;
-						if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
 					}
 				}
-
-				CancelSource.Dispose();
-				CancelSource = null;
-
-				AutoReset.Dispose();
-				AutoReset = null;
-			}, CancelSource.Token, TaskCreationOptions.LongRunning);
+				catch (Exception e)
+				{
+					Log.Error("Timer crashed out with uncaught exception leaving it in an undisposed state.", e);
+					throw;
+				}
+				finally
+				{
+					_running = false;
+					Dispose();
+				}
+			}, _cancelSource.Token, TaskCreationOptions.LongRunning);
 
 			task.Start();
 		}
 
 		public void Dispose()
 		{
-			CancelSource.Cancel();
-			AutoReset?.Set();
+			if (_cancelSource == null) return;
+			if (AutoReset == null) return;
+
+			if (_running)
+			{
+				_cancelSource.Cancel();
+				AutoReset?.Set();
+				while (_running) Thread.Yield();
+			}
+
+			_cancelSource?.Dispose();
+			_cancelSource = null;
+
+			AutoReset?.Dispose();
+			AutoReset = null;
 		}
 	}
 }

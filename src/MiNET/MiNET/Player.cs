@@ -1834,7 +1834,7 @@ namespace MiNET
 			return false;
 		}
 
-		public void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
+		public virtual void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
 		{
 			McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
 			sound.soundId = message.soundId;
@@ -2317,13 +2317,7 @@ namespace MiNET
 								break;
 						}
 
-						McpeMobArmorEquipment mcpePlayerArmorEquipment = McpeMobArmorEquipment.CreateObject();
-						mcpePlayerArmorEquipment.runtimeEntityId = EntityId;
-						mcpePlayerArmorEquipment.helmet = Inventory.Helmet;
-						mcpePlayerArmorEquipment.chestplate = Inventory.Chest;
-						mcpePlayerArmorEquipment.leggings = Inventory.Leggings;
-						mcpePlayerArmorEquipment.boots = Inventory.Boots;
-						Level.RelayBroadcast(this, mcpePlayerArmorEquipment);
+						SendArmorForPlayer();
 					}
 					else if (invId == 121)
 					{
@@ -2382,17 +2376,7 @@ namespace MiNET
 					if (record.Slot == 0)
 					{
 						// Drop
-						ItemEntity itemEntity = new ItemEntity(Level, newItem)
-						{
-							Velocity = KnownPosition.GetDirection().Normalize() * 0.3f,
-							KnownPosition =
-							{
-								X = KnownPosition.X,
-								Y = KnownPosition.Y + 1.62f,
-								Z = KnownPosition.Z
-							},
-						};
-						itemEntity.SpawnEntity();
+						DropItem(record.NewItem);
 					}
 					else if (record.Slot == 1)
 					{
@@ -2400,6 +2384,16 @@ namespace MiNET
 					}
 				}
 			}
+		}
+
+		public virtual void DropItem(Item item)
+		{
+			var itemEntity = new ItemEntity(Level, item)
+			{
+				Velocity = KnownPosition.GetDirection().Normalize() * 0.3f,
+				KnownPosition = KnownPosition + new Vector3(0f, 1.62f, 0f)
+			};
+			itemEntity.SpawnEntity();
 		}
 
 		private bool VerifyRecipe(List<Item> craftingInput, Item result)
@@ -3334,9 +3328,9 @@ namespace MiNET
 			Level.BroadcastTitle(text, type, fadeIn, fadeOut, stayTime, sender, new[] {this});
 		}
 
-		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
+		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null, bool needsTranslation = false, string[] parameters = null)
 		{
-			Level.BroadcastMessage(text, type, sender, new[] {this});
+			Level.BroadcastMessage(text, type, sender, new[] {this}, needsTranslation, parameters);
 		}
 
 		public override void BroadcastEntityEvent()

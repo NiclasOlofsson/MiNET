@@ -196,6 +196,7 @@ namespace MiNET.Net
 		void HandleMcpeSetScoreboardIdentityPacket(McpeSetScoreboardIdentityPacket message);
 		void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message);
 		void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message);
+		void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
 
@@ -309,6 +310,7 @@ namespace MiNET.Net
 			else if (typeof(McpeSetScoreboardIdentityPacket) == message.GetType()) _messageHandler.HandleMcpeSetScoreboardIdentityPacket((McpeSetScoreboardIdentityPacket) message);
 			else if (typeof(McpeUpdateSoftEnumPacket) == message.GetType()) _messageHandler.HandleMcpeUpdateSoftEnumPacket((McpeUpdateSoftEnumPacket) message);
 			else if (typeof(McpeNetworkStackLatencyPacket) == message.GetType()) _messageHandler.HandleMcpeNetworkStackLatencyPacket((McpeNetworkStackLatencyPacket) message);
+			else if (typeof(McpeScriptCustomEventPacket) == message.GetType()) _messageHandler.HandleMcpeScriptCustomEventPacket((McpeScriptCustomEventPacket) message);
 			else if (typeof(FtlCreatePlayer) == message.GetType()) _messageHandler.HandleFtlCreatePlayer((FtlCreatePlayer) message);
 			else return false;
 
@@ -861,6 +863,10 @@ namespace MiNET.Net
 						return packet;
 					case 0x73:
 						packet = McpeNetworkStackLatencyPacket.CreateObject();
+						packet.Decode(buffer);
+						return packet;
+					case 0x75:
+						packet = McpeScriptCustomEventPacket.CreateObject();
 						packet.Decode(buffer);
 						return packet;
 				}
@@ -7914,7 +7920,7 @@ namespace MiNET.Net
 			Write(objectiveName);
 			Write(displayName);
 			Write(criteriaName);
-			WriteVarInt(sortOrder);
+			WriteSignedVarInt(sortOrder);
 
 			AfterEncode();
 		}
@@ -7932,7 +7938,7 @@ namespace MiNET.Net
 			objectiveName = ReadString();
 			displayName = ReadString();
 			criteriaName = ReadString();
-			sortOrder = ReadVarInt();
+			sortOrder = ReadSignedVarInt();
 
 			AfterDecode();
 		}
@@ -7957,12 +7963,17 @@ namespace MiNET.Net
 	{
 		public enum Types
 		{
-			ModifyScore = 0,
-			ResetScore = 1,
+			Change = 0,
+			Remove = 1,
+		}
+		public enum ChangeTypes
+		{
+			Player = 1,
+			Entity = 2,
+			FakePlayer = 3,
 		}
 
-		public byte type; // = null;
-		public ScorePacketInfos scorePacketInfos; // = null;
+		public ScoreEntries entries; // = null;
 
 		public McpeSetScore()
 		{
@@ -7976,8 +7987,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(type);
-			Write(scorePacketInfos);
+			Write(entries);
 
 			AfterEncode();
 		}
@@ -7991,8 +8001,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			type = ReadByte();
-			scorePacketInfos = ReadScorePacketInfos();
+			entries = ReadScoreEntries();
 
 			AfterDecode();
 		}
@@ -8004,8 +8013,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			type=default(byte);
-			scorePacketInfos=default(ScorePacketInfos);
+			entries=default(ScoreEntries);
 		}
 
 	}
@@ -8196,7 +8204,13 @@ namespace MiNET.Net
 
 	public partial class McpeSetScoreboardIdentityPacket : Packet<McpeSetScoreboardIdentityPacket>
 	{
+		public enum Operations
+		{
+			RegisterIdentity = 0,
+			ClearIdentity = 1,
+		}
 
+		public ScoreboardIdentityEntries entries; // = null;
 
 		public McpeSetScoreboardIdentityPacket()
 		{
@@ -8210,6 +8224,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(entries);
 
 			AfterEncode();
 		}
@@ -8223,6 +8238,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			entries = ReadScoreboardIdentityEntries();
 
 			AfterDecode();
 		}
@@ -8234,6 +8250,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+			entries=default(ScoreboardIdentityEntries);
 		}
 
 	}
@@ -8370,6 +8387,58 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+		}
+
+	}
+
+	public partial class McpeScriptCustomEventPacket : Packet<McpeScriptCustomEventPacket>
+	{
+
+		public string eventName; // = null;
+		public string eventData; // = null;
+
+		public McpeScriptCustomEventPacket()
+		{
+			Id = 0x75;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(eventName);
+			Write(eventData);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			eventName = ReadString();
+			eventData = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			eventName=default(string);
+			eventData=default(string);
 		}
 
 	}

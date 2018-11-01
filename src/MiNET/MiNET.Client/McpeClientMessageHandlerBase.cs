@@ -312,6 +312,8 @@ namespace MiNET.Client
 		public abstract void HandleMcpeSetScoreboardIdentityPacket(McpeSetScoreboardIdentityPacket message);
 		public abstract void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message);
 		public abstract void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message);
+		public abstract void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message);
+
 		public abstract void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
 }

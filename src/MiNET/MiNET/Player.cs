@@ -180,19 +180,19 @@ namespace MiNET
 			// no sensible default for MiNET.
 		}
 
-		private Form _currentForm = null;
+		protected Form CurrentForm = null;
 
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{
-			if (_currentForm == null) Log.Warn("No current form set for player when processing response");
+			if (CurrentForm == null) Log.Warn("No current form set for player when processing response");
 
-			var form = _currentForm;
+			var form = CurrentForm;
 			if (form == null || form.Id != message.formId)
 			{
 				Log.Warn("Receive data for form not currently active");
 				return;
 			}
-			_currentForm = null;
+			CurrentForm = null;
 			form?.FromJson(message.data, this);
 		}
 
@@ -218,7 +218,7 @@ namespace MiNET
 			var form = GetServerSettingsForm();
 			if (form == null) return;
 
-			_currentForm = form;
+			CurrentForm = form;
 			
 			McpeServerSettingsResponse response = McpeServerSettingsResponse.CreateObject();
 			response.formId = form.Id;
@@ -2996,7 +2996,7 @@ namespace MiNET
 
 		public virtual void SendForm(Form form)
 		{
-			_currentForm = form;
+			CurrentForm = form;
 
 			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
 			message.formId = form.Id; // whatever

@@ -235,7 +235,7 @@ namespace MiNET
 		{
 		}
 
-		public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message)
+		public virtual void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message)
 		{
 		}
 

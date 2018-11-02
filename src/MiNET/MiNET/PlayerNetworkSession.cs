@@ -455,6 +455,11 @@ namespace MiNET
 				handler.HandleMcpeResourcePackChunkRequest((McpeResourcePackChunkRequest) message);
 			}
 
+			else if (typeof(McpeSetLocalPlayerAsInitializedPacket) == message.GetType())
+			{
+				handler.HandleMcpeSetLocalPlayerAsInitializedPacket((McpeSetLocalPlayerAsInitializedPacket)message);
+			}
+
 			else if (typeof (McpeUpdateBlock) == message.GetType())
 			{
 				// DO NOT USE. Will dissapear from MCPE any release. 

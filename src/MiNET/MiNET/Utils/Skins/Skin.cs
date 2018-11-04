@@ -46,10 +46,12 @@ namespace MiNET.Utils.Skins
 		public static byte[] GetTextureFromFile(string filename)
 		{
 			Bitmap bitmap = new Bitmap(filename);
-			if (bitmap.Width != 64) return null;
-			if (bitmap.Height != 32 && bitmap.Height != 64) return null;
 
-			byte[] bytes = new byte[bitmap.Height*bitmap.Width*4];
+			var size = bitmap.Height * bitmap.Width * 4;
+
+			if (size != 0x2000 && size != 0x4000 && size != 0x10000) return null;
+
+			byte[] bytes = new byte[size];
 
 			int i = 0;
 			for (int y = 0; y < bitmap.Height; y++)
@@ -69,8 +71,10 @@ namespace MiNET.Utils.Skins
 
 		public static void SaveTextureToFile(string filename, byte[] bytes)
 		{
-			int width = 64;
-			var height = bytes.Length == 64*32*4 ? 32 : 64;
+			var size = bytes.Length;
+
+			int width = size == 0x10000 ? 128 : 64;
+			var height = size == 0x2000 ? 32 : (size == 0x4000 ? 64 : 128);
 
 			Bitmap bitmap = new Bitmap(width, height);
 

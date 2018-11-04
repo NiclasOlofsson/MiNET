@@ -50,6 +50,7 @@ using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
 using MiNET.UI;
 using MiNET.Utils;
+using MiNET.Utils.Skins;
 using MiNET.Worlds;
 using Button = MiNET.UI.Button;
 using Input = MiNET.UI.Input;
@@ -678,8 +679,8 @@ namespace TestPlugin
 		[Command(Name = "twitter")]
 		public void Twitter(Player player)
 		{
-			player.Level.BroadcastMessage("ง6Twitter @NiclasOlofsson", type: MessageType.Raw);
-			player.Level.BroadcastMessage("ง5twitch.tv/gurunx", type: MessageType.Raw);
+			player.Level.BroadcastMessage("ยง6Twitter @NiclasOlofsson", type: MessageType.Raw);
+			player.Level.BroadcastMessage("ยง5twitch.tv/gurunx", type: MessageType.Raw);
 		}
 
 		[Command(Name = "pi")]
@@ -1450,6 +1451,31 @@ namespace TestPlugin
 			return "Added scoreboard";
 		}
 
+
+		[Command(Aliases = new[] { "tsk" })]
+		public void TestSkins(Player player)
+		{
+			var sizes = new int[] { 0x2000, 0x4000, 0x10000 };
+
+			for(var i = 0; i < sizes.Length; i++)
+			{
+				var size = sizes[i].ToString("X4");
+
+				var skin = new Skin
+				{
+					SkinData = Skin.GetTextureFromFile("../../../../TestPlugin/" + size + ".png")
+				};
+
+				var playerMob = new PlayerMob("0x" + size, player.Level)
+				{
+					KnownPosition = player.KnownPosition + new Vector3(i * 2f, 0f, 0f),
+					Skin = skin
+				};
+				playerMob.SpawnEntity();
+
+				Skin.SaveTextureToFile(size + "_saved.png", skin.SkinData);
+			}
+		}
 	}
 
 

@@ -180,7 +180,7 @@ namespace MiNET
 			// no sensible default for MiNET.
 		}
 
-		protected Form CurrentForm = null;
+		protected Form CurrentForm { get; set; } = null;
 
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{

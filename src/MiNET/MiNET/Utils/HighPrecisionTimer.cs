@@ -55,6 +55,7 @@ namespace MiNET.Utils
 
 		private CancellationTokenSource _cancelSource;
 		private bool _running;
+		private Thread _timerThread;
 
 		public AutoResetEvent AutoReset = new AutoResetEvent(true);
 
@@ -97,6 +98,7 @@ namespace MiNET.Utils
 
 			var task = new Task(() =>
 			{
+				_timerThread = Thread.CurrentThread;
 				Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
 
 				try
@@ -212,18 +214,34 @@ namespace MiNET.Utils
 			if (_cancelSource == null) return;
 			if (AutoReset == null) return;
 
+			if (_timerThread != Thread.CurrentThread)
+			{
+				if (_running)
+				{
+					_cancelSource.Cancel();
+					AutoReset?.Set();
+				}
+
+				while (_running) Thread.Yield();
+
+				Log.Debug("Disposed from other thread");
+				return;
+			}
+
 			if (_running)
 			{
 				_cancelSource.Cancel();
 				AutoReset?.Set();
-				while (_running) Thread.Yield();
 			}
+			else
+			{
+				_cancelSource?.Dispose();
+				_cancelSource = null;
 
-			_cancelSource?.Dispose();
-			_cancelSource = null;
-
-			AutoReset?.Dispose();
-			AutoReset = null;
+				AutoReset?.Dispose();
+				AutoReset = null;
+				Log.Debug("Disposed from same thread");
+			}
 		}
 	}
 }

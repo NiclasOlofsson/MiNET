@@ -5,10 +5,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
 using MiNET.Items;
+using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json.Linq;
 
@@ -18,6 +21,21 @@ namespace MiNET.Test
 	public class GeneralTests
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GeneralTests));
+
+		//[TestMethod]
+		//public void TimerDisposeTest()
+		//{
+		//	int count = 0;
+		//	HighPrecisionTimer timer = null;
+		//	timer = new HighPrecisionTimer(100, o =>
+		//	{
+		//		Console.WriteLine(".. tick ..");
+		//		//if(count++ == 10) new Task(() => timer?.Dispose()).Start();
+		//		if(count++ == 10) timer?.Dispose();
+		//	}, false, false);
+			
+		//	Thread.Sleep(10000);
+		//}
 
 		[TestMethod]
 		public void NbtCheckPerformanceTests()

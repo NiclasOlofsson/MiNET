@@ -501,10 +501,18 @@ namespace TestPlugin.NiceLobby
 				var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
 				joinSound.Spawn(level);
 
-				player.SendTitle(null, TitleType.Clear);
+				//player.SendTitle(null, TitleType.Clear);
 				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20*10);
-				player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
-				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
+				if (Context.Server.IsEdu)
+				{
+					player.SendTitle($"{ChatColors.White}This is a MiNET Education Edition server", TitleType.SubTitle);
+					player.SendTitle($"{ChatColors.Gold}Welcome!", TitleType.Title);
+				}
+				else
+				{
+					player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
+					player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
+				}
 			});
 		}
 

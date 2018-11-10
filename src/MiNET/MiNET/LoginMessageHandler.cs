@@ -301,7 +301,7 @@ namespace MiNET
 						_session.Username = _playerInfo.Username;
 						string identity = _playerInfo.CertificateData.ExtraData.Identity;
 
-						if (Log.IsDebugEnabled) Log.Debug($"Connecting user {_playerInfo.Username} with identity={identity}");
+						if (Log.IsDebugEnabled) Log.Debug($"Connecting user {_playerInfo.Username} with identity={identity} on protocol version={_playerInfo.ProtocolVersion}");
 						_playerInfo.ClientUuid = new UUID(identity);
 
 						_session.CryptoContext = new CryptoContext

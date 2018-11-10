@@ -4,13 +4,13 @@
 ############################### 
 # All files 
 [*] 
-indent_style = space 
+indent_style = tab 
 # Code files 
 [*.{cs,csx,vb,vbx}] 
 indent_style = tab 
 indent_size = 4 
-insert_final_newline = true 
-charset = utf-8
+insert_final_newline = false 
+charset = utf-8-bom
 ############################### 
 # .NET Coding Conventions     # 
 ############################### 

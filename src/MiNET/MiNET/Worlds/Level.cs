@@ -671,7 +671,7 @@ namespace MiNET.Worlds
 				// Send player movements
 				BroadCastMovement(players, entities);
 
-				Parallel.ForEach(Players.Values, (player, state) =>
+				Parallel.ForEach(players, (player, state) =>
 				{
 					var session = (PlayerNetworkSession) player.NetworkHandler;
 					session?.SendQueue();

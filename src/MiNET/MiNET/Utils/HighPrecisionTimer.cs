@@ -56,6 +56,7 @@ namespace MiNET.Utils
 		private CancellationTokenSource _cancelSource;
 		private bool _running;
 		private Thread _timerThread;
+		private Action<object> _action;
 
 		public AutoResetEvent AutoReset = new AutoResetEvent(true);
 
@@ -87,6 +88,7 @@ namespace MiNET.Utils
 			// END IS HERE. SAFE AGAIN ...
 #endif
 			Avarage = interval;
+			_action = action;
 
 			if (interval < 1)
 				throw new ArgumentOutOfRangeException();
@@ -116,7 +118,7 @@ namespace MiNET.Utils
 							long execTime = watch.ElapsedMilliseconds;
 							try
 							{
-								action(this);
+								_action?.Invoke(this);
 							}
 							catch (Exception)
 							{
@@ -211,6 +213,10 @@ namespace MiNET.Utils
 
 		public void Dispose()
 		{
+			//Console.WriteLine("Called Disposed");
+
+			_action = null; // Make sure this will not fire again
+
 			if (_cancelSource == null) return;
 			if (AutoReset == null) return;
 
@@ -224,7 +230,7 @@ namespace MiNET.Utils
 
 				while (_running) Thread.Yield();
 
-				Log.Debug("Disposed from other thread");
+				//Console.WriteLine("Disposed from other thread");
 				return;
 			}
 
@@ -240,7 +246,7 @@ namespace MiNET.Utils
 
 				AutoReset?.Dispose();
 				AutoReset = null;
-				Log.Debug("Disposed from same thread");
+				//Console.WriteLine("Disposed from same thread");
 			}
 		}
 	}

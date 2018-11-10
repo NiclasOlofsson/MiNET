@@ -27,14 +27,14 @@ namespace MiNET.Test
 		//{
 		//	int count = 0;
 		//	HighPrecisionTimer timer = null;
-		//	timer = new HighPrecisionTimer(100, o =>
+		//	timer = new HighPrecisionTimer(2, o =>
 		//	{
 		//		Console.WriteLine(".. tick ..");
-		//		//if(count++ == 10) new Task(() => timer?.Dispose()).Start();
-		//		if(count++ == 10) timer?.Dispose();
+		//		if (count++ == 10) new Task(() => timer?.Dispose()).Start();
+		//		//if (count++ == 10) timer?.Dispose();
 		//	}, false, false);
-			
-		//	Thread.Sleep(10000);
+
+		//	Thread.Sleep(1000);
 		//}
 
 		[TestMethod]

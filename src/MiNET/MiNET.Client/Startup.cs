@@ -44,7 +44,7 @@ namespace MiNET.Client
 		static void Main(string[] args)
 		{
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.xml"));
+			XmlConfigurator.Configure(logRepository, new FileInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log4net.xml")));
 
 			Log.Info(MiNET);
 			Console.WriteLine(MiNET);

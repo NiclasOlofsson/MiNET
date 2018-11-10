@@ -42,7 +42,8 @@ namespace MiNET.ServiceKiller
 		private static void Main(string[] args)
 		{
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.xml"));
+			XmlConfigurator.Configure(logRepository, new FileInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log4net.xml")));
+
 
 			try
 			{

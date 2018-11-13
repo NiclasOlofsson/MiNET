@@ -141,7 +141,7 @@ namespace MiNET
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
-		public void HandleMcpeCommandBlockUpdate(McpeCommandBlockUpdate message)
+		public virtual void HandleMcpeCommandBlockUpdate(McpeCommandBlockUpdate message)
 		{
 		}
 

@@ -808,6 +808,7 @@
 	</pdu>
 
 	<pdu id="0x4e" online="false" client="true" server="false" name="MCPE_COMMAND_BLOCK_UPDATE">
+		<field name="Is Block" type="bool" />
 	</pdu>
 
 	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_COMMAND_OUTPUT">

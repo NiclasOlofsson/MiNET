@@ -1701,6 +1701,7 @@ Wiki: [Command Block Update](https://github.com/NiclasOlofsson/MiNET/wiki//Proto
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Is Block | bool |  |
 -----------------------------------------------------------------------
 ### Command Output (0x4f)
 Wiki: [Command Output](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandOutput)

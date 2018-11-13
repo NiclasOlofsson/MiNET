@@ -6350,6 +6350,7 @@ namespace MiNET.Net
 	public partial class McpeCommandBlockUpdate : Packet<McpeCommandBlockUpdate>
 	{
 
+		public bool isBlock; // = null;
 
 		public McpeCommandBlockUpdate()
 		{
@@ -6363,6 +6364,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(isBlock);
 
 			AfterEncode();
 		}
@@ -6376,6 +6378,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			isBlock = ReadBool();
 
 			AfterDecode();
 		}
@@ -6387,6 +6390,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+			isBlock=default(bool);
 		}
 
 	}

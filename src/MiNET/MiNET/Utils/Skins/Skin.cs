@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,19 +23,20 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace MiNET.Utils.Skins
 {
-	public class Skin
+	public class Skin : ICloneable
 	{
 		public bool Slim { get; set; }
-		public byte Alpha { get; set; }
 
 		public byte[] CapeData { get; set; }
 		public string SkinId { get; set; }
@@ -125,6 +126,19 @@ namespace MiNET.Utils.Skins
 			settings.Converters.Add(new StringEnumConverter {CamelCaseText = true});
 
 			return JsonConvert.SerializeObject(geometryModel, settings);
+		}
+
+		public object Clone()
+		{
+			return new Skin
+			{
+				SkinId = SkinId,
+				SkinGeometry = SkinGeometry,
+				SkinGeometryName = SkinGeometryName,
+				Slim = Slim,
+				SkinData = SkinData?.ToArray(),
+				CapeData = CapeData?.ToArray()
+			};
 		}
 	}
 }

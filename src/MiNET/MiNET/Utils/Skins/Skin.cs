@@ -27,7 +27,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -130,14 +129,28 @@ namespace MiNET.Utils.Skins
 
 		public object Clone()
 		{
+			byte[] clonedSkinData = null;
+			byte[] clonedCapeData = null;
+
+			if (SkinData != null)
+			{
+				clonedSkinData = new byte[SkinData.Length];
+				SkinData.CopyTo(clonedSkinData, 0);
+			}
+			if (CapeData != null)
+			{
+				clonedCapeData = new byte[CapeData.Length];
+				CapeData.CopyTo(clonedCapeData, 0);
+			}
+
 			return new Skin
 			{
 				SkinId = SkinId,
 				SkinGeometry = SkinGeometry,
 				SkinGeometryName = SkinGeometryName,
 				Slim = Slim,
-				SkinData = SkinData?.ToArray(),
-				CapeData = CapeData?.ToArray()
+				SkinData = clonedSkinData,
+				CapeData = clonedCapeData
 			};
 		}
 	}

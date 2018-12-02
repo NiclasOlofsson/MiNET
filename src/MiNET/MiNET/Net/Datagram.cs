@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -34,7 +34,7 @@ namespace MiNET.Net
 {
 	public class Datagram : Packet<Datagram>
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Datagram));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Datagram));
 
 		private int _currentSize = 4; // header
 		private MemoryStream _buf;
@@ -252,7 +252,7 @@ namespace MiNET.Net
 			if (encodedMessage.IsEmpty) return messageParts;
 
 			int datagramHeaderSize = 100;
-			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - datagramHeaderSize));
+			int count = (int) Math.Ceiling(encodedMessage.Length / ((double) mtuSize - datagramHeaderSize));
 			int index = 0;
 			if (session.SplitPartId > short.MaxValue - 100)
 			{
@@ -305,13 +305,13 @@ namespace MiNET.Net
 			List<(int from, int to)> result = new List<(int, int)>();
 
 			int i = 0;
-			for (; (i + 1)*intBufforLengt < length; i++)
+			for (; (i + 1) * intBufforLengt < length; i++)
 			{
-				result.Add((i*intBufforLengt, intBufforLengt));
+				result.Add((i * intBufforLengt, intBufforLengt));
 			}
 
-			(int,int) reminer = (i*intBufforLengt, length - i*intBufforLengt);
-			if(reminer.Item2 > 0)
+			(int, int) reminer = (i * intBufforLengt, length - i * intBufforLengt);
+			if (reminer.Item2 > 0)
 			{
 				result.Add(reminer);
 			}
@@ -325,23 +325,22 @@ namespace MiNET.Net
 			byte[] bReturn;
 
 			int i = 0;
-			for (; bArrayLenght > (i + 1)*intBufforLengt; i++)
+			for (; bArrayLenght > (i + 1) * intBufforLengt; i++)
 			{
 				bReturn = new byte[intBufforLengt];
 				//Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLengt);
-				Buffer.BlockCopy(bArray, i*intBufforLengt, bReturn, 0, intBufforLengt);
+				Buffer.BlockCopy(bArray, i * intBufforLengt, bReturn, 0, intBufforLengt);
 				yield return bReturn;
 			}
 
-			int intBufforLeft = bArrayLenght - i*intBufforLengt;
+			int intBufforLeft = bArrayLenght - i * intBufforLengt;
 			if (intBufforLeft > 0)
 			{
 				bReturn = new byte[intBufforLeft];
 				//Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLeft);
-				Buffer.BlockCopy(bArray, i*intBufforLengt, bReturn, 0, intBufforLeft);
+				Buffer.BlockCopy(bArray, i * intBufforLengt, bReturn, 0, intBufforLeft);
 				yield return bReturn;
 			}
 		}
-
 	}
 }

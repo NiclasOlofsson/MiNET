@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -36,7 +36,7 @@ namespace MiNET.Effects
 
 		public override void OnTick(Player player)
 		{
-			if (Duration%(Level == 1 ? 25 : 50) == 0)
+			if (Duration % (Level == 1 ? 25 : 50) == 0)
 			{
 				if (player.HealthManager.Health > 12)
 				{

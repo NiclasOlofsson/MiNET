@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -54,7 +54,7 @@ namespace MiNET.Entities.Passive
 			_timeUntilLayEgg = 6000 + random.Next(6000);
 
 			Behaviors.Add(new PanicBehavior(this, 60, Speed, 1.4));
-			Behaviors.Add(new TemptedBehavior(this, typeof (ItemWheatSeeds), 10, 1.0)); //TODO: Add other seeds
+			Behaviors.Add(new TemptedBehavior(this, typeof(ItemWheatSeeds), 10, 1.0)); //TODO: Add other seeds
 			Behaviors.Add(new WanderBehavior(this, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this));
 			Behaviors.Add(new RandomLookaroundBehavior(this));

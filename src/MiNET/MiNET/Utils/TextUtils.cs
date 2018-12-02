@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -52,45 +77,45 @@ namespace MiNET.Utils
 			RegexOptions.Compiled & RegexOptions.IgnoreCase);
 
 		private static readonly IDictionary<char, int> CharWidths = new Dictionary<char, int>
-			{
-				{' ', 4},
-				{'!', 2},
-				{'"', 5},
-				{'\'', 3},
-				{'(', 5},
-				{')', 5},
-				{'*', 5},
-				{',', 2},
-				{'.', 2},
-				{':', 2},
-				{';', 2},
-				{'<', 5},
-				{'>', 5},
-				{'@', 7},
-				{'I', 4},
-				{'[', 4},
-				{']', 4},
-				{'f', 5},
-				{'i', 2},
-				{'k', 5},
-				{'l', 3},
-				{'t', 4},
-				{'{', 5},
-				{'|', 2},
-				{'}', 5},
-				{'~', 7},
-				{'█', 9},
-				{'░', 8},
-				{'▒', 9},
-				{'▓', 9},
-				{'▌', 5},
-				{'─', 9}
-				//{'-', 9},
-			};
+		{
+			{' ', 4},
+			{'!', 2},
+			{'"', 5},
+			{'\'', 3},
+			{'(', 5},
+			{')', 5},
+			{'*', 5},
+			{',', 2},
+			{'.', 2},
+			{':', 2},
+			{';', 2},
+			{'<', 5},
+			{'>', 5},
+			{'@', 7},
+			{'I', 4},
+			{'[', 4},
+			{']', 4},
+			{'f', 5},
+			{'i', 2},
+			{'k', 5},
+			{'l', 3},
+			{'t', 4},
+			{'{', 5},
+			{'|', 2},
+			{'}', 5},
+			{'~', 7},
+			{'█', 9},
+			{'░', 8},
+			{'▒', 9},
+			{'▓', 9},
+			{'▌', 5},
+			{'─', 9}
+			//{'-', 9},
+		};
 
 		public static string CenterLine(string input)
 		{
-			return Center(input, LineLength*CharWidth);
+			return Center(input, LineLength * CharWidth);
 		}
 
 		public static string Center(string input)
@@ -116,9 +141,9 @@ namespace MiNET.Utils
 			foreach (var sortedLine in lines)
 			{
 				var len = Math.Max(maxLength - GetPixelLength(sortedLine), 0);
-				var padding = (int)Math.Round(len / (2d * spaceWidth));
-				var paddingRight = (int)Math.Floor(len / (2d * spaceWidth));
-				result += new string(SpaceChar, padding) + sortedLine + "§r" + (addRightPadding ? new string(SpaceChar, paddingRight) : "" ) + "\n";
+				var padding = (int) Math.Round(len / (2d * spaceWidth));
+				var paddingRight = (int) Math.Floor(len / (2d * spaceWidth));
+				result += new string(SpaceChar, padding) + sortedLine + "§r" + (addRightPadding ? new string(SpaceChar, paddingRight) : "") + "\n";
 			}
 
 			result = result.TrimEnd('\n');
@@ -167,7 +192,7 @@ namespace MiNET.Utils
 			}
 			return result;
 		}
-		
+
 		public static string RemoveFormatting(string input)
 		{
 			return CleanAllFormattingFilter.Replace(input, "");

@@ -162,6 +162,5 @@ namespace MiNET.Blocks
 
 			return base.GetDrops(tool);
 		}
-
 	}
 }

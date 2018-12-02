@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -31,7 +31,7 @@ namespace MiNET.Worlds
 {
 	public class FlatlandWorldProvider : IWorldGenerator
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (FlatlandWorldProvider));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(FlatlandWorldProvider));
 
 		public FlatlandWorldProvider()
 		{

@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -126,15 +126,15 @@ namespace MiNET.Worlds
 				for (int z = 0; z < 16; z++)
 				{
 					int stoneHeight = (int) Math.Floor(stoneBaseHeight);
-					stoneHeight += GetNoise(chunk.x*16 + x, chunk.z*16 + z, stoneMountainFrequency, (int) Math.Floor(stoneMountainHeight));
+					stoneHeight += GetNoise(chunk.x * 16 + x, chunk.z * 16 + z, stoneMountainFrequency, (int) Math.Floor(stoneMountainHeight));
 
 					if (stoneHeight < stoneMinHeight)
 						stoneHeight = (int) Math.Floor(stoneMinHeight);
 
-					stoneHeight += GetNoise(chunk.x*16 + x, chunk.z*16 + z, stoneBaseNoise, (int) Math.Floor(stoneBaseNoiseHeight));
+					stoneHeight += GetNoise(chunk.x * 16 + x, chunk.z * 16 + z, stoneBaseNoise, (int) Math.Floor(stoneBaseNoiseHeight));
 
 					int dirtHeight = stoneHeight + (int) Math.Floor(dirtBaseHeight);
-					dirtHeight += GetNoise(chunk.x*16 + x, chunk.z*16 + z, dirtNoise, (int) Math.Floor(dirtNoiseHeight));
+					dirtHeight += GetNoise(chunk.x * 16 + x, chunk.z * 16 + z, dirtNoise, (int) Math.Floor(dirtNoiseHeight));
 
 					for (int y = 0; y < 256; y++)
 					{
@@ -205,7 +205,7 @@ namespace MiNET.Worlds
 								for (int pos = 0; pos < trees; pos++)
 								{
 									if (treeBasePositions[pos, 0] < 14 && treeBasePositions[pos, 0] > 4 && treeBasePositions[pos, 1] < 14 &&
-									    treeBasePositions[pos, 1] > 4)
+										treeBasePositions[pos, 1] > 4)
 									{
 										if (y < waterLevel + 2)
 											break;
@@ -271,7 +271,7 @@ namespace MiNET.Worlds
 
 		public static int GetNoise(int x, int z, float scale, int max)
 		{
-			return (int) Math.Floor((OpenNoise.Evaluate(x*scale, z*scale) + 1f)*(max/2f));
+			return (int) Math.Floor((OpenNoise.Evaluate(x * scale, z * scale) + 1f) * (max / 2f));
 		}
 	}
 }

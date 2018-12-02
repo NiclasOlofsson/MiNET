@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -22,7 +47,10 @@ namespace MiNET.Utils
 		{
 		}
 
-		/// <summary>Initializes a new instance of the ConcurrentPriorityQueue class that contains elements copied from the specified collection.</summary>
+		/// <summary>
+		///     Initializes a new instance of the ConcurrentPriorityQueue class that contains elements copied from the
+		///     specified collection.
+		/// </summary>
 		/// <param name="collection">The collection whose elements are copied to the new ConcurrentPriorityQueue.</param>
 		public ConcurrentPriorityQueue(IEnumerable<KeyValuePair<TKey, TValue>> collection)
 		{
@@ -47,11 +75,11 @@ namespace MiNET.Utils
 
 		/// <summary>Attempts to remove and return the next prioritized item in the queue.</summary>
 		/// <param name="result">
-		/// When this method returns, if the operation was successful, result contains the object removed. If
-		/// no object was available to be removed, the value is unspecified.
+		///     When this method returns, if the operation was successful, result contains the object removed. If
+		///     no object was available to be removed, the value is unspecified.
 		/// </param>
 		/// <returns>
-		/// true if an element was removed and returned from the queue succesfully; otherwise, false.
+		///     true if an element was removed and returned from the queue succesfully; otherwise, false.
 		/// </returns>
 		public bool TryDequeue(out KeyValuePair<TKey, TValue> result)
 		{
@@ -69,11 +97,11 @@ namespace MiNET.Utils
 
 		/// <summary>Attempts to return the next prioritized item in the queue.</summary>
 		/// <param name="result">
-		/// When this method returns, if the operation was successful, result contains the object.
-		/// The queue was not modified by the operation.
+		///     When this method returns, if the operation was successful, result contains the object.
+		///     The queue was not modified by the operation.
 		/// </param>
 		/// <returns>
-		/// true if an element was returned from the queue succesfully; otherwise, false.
+		///     true if an element was returned from the queue succesfully; otherwise, false.
 		/// </returns>
 		public bool TryPeek(out KeyValuePair<TKey, TValue> result)
 		{
@@ -104,15 +132,18 @@ namespace MiNET.Utils
 		/// <summary>Gets the number of elements contained in the queue.</summary>
 		public int Count
 		{
-			get { lock (_syncLock) return _minHeap.Count; }
+			get
+			{
+				lock (_syncLock) return _minHeap.Count;
+			}
 		}
 
 		/// <summary>Copies the elements of the collection to an array, starting at a particular array index.</summary>
 		/// <param name="array">
-		/// The one-dimensional array that is the destination of the elements copied from the queue.
+		///     The one-dimensional array that is the destination of the elements copied from the queue.
 		/// </param>
 		/// <param name="index">
-		/// The zero-based index in array at which copying begins.
+		///     The zero-based index in array at which copying begins.
 		/// </param>
 		/// <remarks>The elements will not be copied to the array in any guaranteed order.</remarks>
 		public void CopyTo(KeyValuePair<TKey, TValue>[] array, int index)
@@ -139,7 +170,7 @@ namespace MiNET.Utils
 		/// <summary>Attempts to add an item in the queue.</summary>
 		/// <param name="item">The key/value pair to be added.</param>
 		/// <returns>
-		/// true if the pair was added; otherwise, false.
+		///     true if the pair was added; otherwise, false.
 		/// </returns>
 		bool IProducerConsumerCollection<KeyValuePair<TKey, TValue>>.TryAdd(KeyValuePair<TKey, TValue> item)
 		{
@@ -149,11 +180,11 @@ namespace MiNET.Utils
 
 		/// <summary>Attempts to remove and return the next prioritized item in the queue.</summary>
 		/// <param name="item">
-		/// When this method returns, if the operation was successful, result contains the object removed. If
-		/// no object was available to be removed, the value is unspecified.
+		///     When this method returns, if the operation was successful, result contains the object removed. If
+		///     no object was available to be removed, the value is unspecified.
 		/// </param>
 		/// <returns>
-		/// true if an element was removed and returned from the queue succesfully; otherwise, false.
+		///     true if an element was removed and returned from the queue succesfully; otherwise, false.
 		/// </returns>
 		bool IProducerConsumerCollection<KeyValuePair<TKey, TValue>>.TryTake(out KeyValuePair<TKey, TValue> item)
 		{
@@ -163,9 +194,9 @@ namespace MiNET.Utils
 		/// <summary>Returns an enumerator that iterates through the collection.</summary>
 		/// <returns>An enumerator for the contents of the queue.</returns>
 		/// <remarks>
-		/// The enumeration represents a moment-in-time snapshot of the contents of the queue. It does not
-		/// reflect any updates to the collection after GetEnumerator was called. The enumerator is safe to
-		/// use concurrently with reads from and writes to the queue.
+		///     The enumeration represents a moment-in-time snapshot of the contents of the queue. It does not
+		///     reflect any updates to the collection after GetEnumerator was called. The enumerator is safe to
+		///     use concurrently with reads from and writes to the queue.
 		/// </remarks>
 		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
 		{
@@ -182,10 +213,10 @@ namespace MiNET.Utils
 
 		/// <summary>Copies the elements of the collection to an array, starting at a particular array index.</summary>
 		/// <param name="array">
-		/// The one-dimensional array that is the destination of the elements copied from the queue.
+		///     The one-dimensional array that is the destination of the elements copied from the queue.
 		/// </param>
 		/// <param name="index">
-		/// The zero-based index in array at which copying begins.
+		///     The zero-based index in array at which copying begins.
 		/// </param>
 		void ICollection.CopyTo(Array array, int index)
 		{
@@ -193,7 +224,7 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether access to the ICollection is synchronized with the SyncRoot.
+		///     Gets a value indicating whether access to the ICollection is synchronized with the SyncRoot.
 		/// </summary>
 		bool ICollection.IsSynchronized
 		{
@@ -201,7 +232,7 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Gets an object that can be used to synchronize access to the collection.
+		///     Gets an object that can be used to synchronize access to the collection.
 		/// </summary>
 		object ICollection.SyncRoot
 		{
@@ -255,7 +286,7 @@ namespace MiNET.Utils
 				while (pos > 0)
 				{
 					// Get the next position to check
-					int nextPos = (pos - 1)/2;
+					int nextPos = (pos - 1) / 2;
 
 					// Extract the entry at the next position
 					var toCheck = _items[nextPos];
@@ -305,7 +336,7 @@ namespace MiNET.Utils
 					while (true)
 					{
 						// Get the positions of the node's children
-						int leftChildPos = 2*current + 1;
+						int leftChildPos = 2 * current + 1;
 						int rightChildPos = leftChildPos + 1;
 
 						// Should we swap with the left child?

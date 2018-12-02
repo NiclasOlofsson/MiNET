@@ -13,18 +13,17 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using log4net;
@@ -33,7 +32,7 @@ namespace MiNET
 {
 	public class ServerInfo
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ServerInfo));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ServerInfo));
 
 		private LevelManager _levelManager;
 		public ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> PlayerSessions { get; private set; }
@@ -91,8 +90,8 @@ namespace MiNET
 					int threads;
 					int portThreads;
 					ThreadPool.GetAvailableThreads(out threads, out portThreads);
-					double kbitPerSecondOut = Interlocked.Exchange(ref TotalPacketSizeOut, 0)*8/1000000D;
-					double kbitPerSecondIn = Interlocked.Exchange(ref TotalPacketSizeIn, 0)*8/1000000D;
+					double kbitPerSecondOut = Interlocked.Exchange(ref TotalPacketSizeOut, 0) * 8 / 1000000D;
+					double kbitPerSecondIn = Interlocked.Exchange(ref TotalPacketSizeIn, 0) * 8 / 1000000D;
 					Log.InfoFormat("{5} Pl(s) Pkt(#/s) (Out={0} In={2}) ACK/NAK/RESD/FTO(#/s) ({1}-{14})/{11}/{12}/{13} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
 						Interlocked.Exchange(ref NumberOfPacketsOutPerSecond, 0),
 						Interlocked.Exchange(ref NumberOfAckReceive, 0),
@@ -102,7 +101,7 @@ namespace MiNET
 						NumberOfPlayers,
 						Latency,
 						kbitPerSecondIn,
-						AvailableBytes/1000,
+						AvailableBytes / 1000,
 						threads,
 						portThreads,
 						Interlocked.Exchange(ref NumberOfNakReceive, 0),

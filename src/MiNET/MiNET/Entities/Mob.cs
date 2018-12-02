@@ -103,7 +103,7 @@ namespace MiNET.Entities
 
 		public static double ClampDegrees(double degrees)
 		{
-			return Math.Floor((degrees%360 + 360)%360);
+			return Math.Floor((degrees % 360 + 360) % 360);
 		}
 
 		public Vector3 GetHorizDir()
@@ -113,9 +113,9 @@ namespace MiNET.Entities
 
 			double pitch = 0;
 			double yaw = Direction.ToRadians();
-			vector.X = (float) (-Math.Sin(yaw)*Math.Cos(pitch));
+			vector.X = (float) (-Math.Sin(yaw) * Math.Cos(pitch));
 			vector.Y = (float) -Math.Sin(pitch);
-			vector.Z = (float) (Math.Cos(yaw)*Math.Cos(pitch));
+			vector.Z = (float) (Math.Cos(yaw) * Math.Cos(pitch));
 
 			return Vector3.Normalize(vector);
 		}
@@ -295,18 +295,18 @@ namespace MiNET.Entities
 
 		protected void CheckBlockAhead()
 		{
-			var length = Length/2;
-			var direction = Vector3.Normalize(Velocity*1.00000101f);
+			var length = Length / 2;
+			var direction = Vector3.Normalize(Velocity * 1.00000101f);
 			Vector3 position = KnownPosition;
-			int count = (int) (Math.Ceiling(Velocity.Length()/length) + 2);
+			int count = (int) (Math.Ceiling(Velocity.Length() / length) + 2);
 			for (int i = 0; i < count; i++)
 			{
-				var distVec = direction*(float) length*i;
+				var distVec = direction * (float) length * i;
 				BlockCoordinates blockPos = position + distVec;
 				Block block = Level.GetBlock(blockPos);
 				if (block.IsSolid)
 				{
-					var yaw = (Math.Atan2(direction.X, direction.Z)*180.0D/Math.PI) + 180;
+					var yaw = (Math.Atan2(direction.X, direction.Z) * 180.0D / Math.PI) + 180;
 					//Log.Warn($"Will hit block {block} at angle of {yaw}");
 
 					Ray ray = new Ray(position, direction);
@@ -416,7 +416,7 @@ namespace MiNET.Entities
 
 		private bool IsMobInFluid(Vector3 position)
 		{
-			float y = (float) (position.Y + Height*0.7);
+			float y = (float) (position.Y + Height * 0.7);
 
 			BlockCoordinates waterPos = new BlockCoordinates
 			{
@@ -429,7 +429,7 @@ namespace MiNET.Entities
 
 			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
 
-			return y < Math.Floor(y) + 1 - ((1f/9f) - 0.1111111);
+			return y < Math.Floor(y) + 1 - ((1f / 9f) - 0.1111111);
 		}
 
 		private bool IsMobStandingInFluid(Vector3 position)
@@ -476,10 +476,10 @@ namespace MiNET.Entities
 		{
 			var coordinates = theMob.KnownPosition;
 
-			byte[] skinBytes = Encoding.Default.GetBytes(new string('Z', 64*64*4));
+			byte[] skinBytes = Encoding.Default.GetBytes(new string('Z', 64 * 64 * 4));
 
-			int geoW = (int) Math.Floor(theMob.Width*16f);
-			int geoH = (int) Math.Floor(theMob.Height*16f);
+			int geoW = (int) Math.Floor(theMob.Width * 16f);
+			int geoH = (int) Math.Floor(theMob.Height * 16f);
 			Log.Error($"Height={geoH}, Width={geoW}");
 
 			var skinGeometryName = "geometry.flat." + Guid.NewGuid();
@@ -506,26 +506,26 @@ namespace MiNET.Entities
 
 									new Cube()
 									{
-										Origin = new float[] {-(geoW/2f), 0, -(geoW/2f)},
+										Origin = new float[] {-(geoW / 2f), 0, -(geoW / 2f)},
 										Size = new float[] {1, geoH, 1},
 										Uv = new float[] {64, 0},
 									},
 									new Cube()
 									{
-										Origin = new float[] {-(geoW/2f), 0, +(geoW/2f)},
+										Origin = new float[] {-(geoW / 2f), 0, +(geoW / 2f)},
 										Size = new float[] {1, geoH, 1},
 										Uv = new float[] {64, 0}
 									},
 									new Cube()
 									{
-										Origin = new float[] {+(geoW/2f), 0, -(geoW/2f)},
+										Origin = new float[] {+(geoW / 2f), 0, -(geoW / 2f)},
 										//Origin = new float[3],
 										Size = new float[] {1, geoH, 1},
 										Uv = new float[] {64, 0}
 									},
 									new Cube()
 									{
-										Origin = new float[] {+(geoW/2f), 0, +(geoW/2f)},
+										Origin = new float[] {+(geoW / 2f), 0, +(geoW / 2f)},
 										//Origin = new float[3],
 										Size = new float[] {1, geoH, 1},
 										Uv = new float[] {64, 0}
@@ -535,26 +535,26 @@ namespace MiNET.Entities
 
 									new Cube()
 									{
-										Origin = new float[] {-(geoW/2f), 0, -(geoW/2f)},
+										Origin = new float[] {-(geoW / 2f), 0, -(geoW / 2f)},
 										Size = new float[] {1, 1, geoW},
 										Uv = new float[] {64, 0}
 									},
 									new Cube()
 									{
-										Origin = new float[] {-(geoW/2f), 0, -(geoW/2f)},
+										Origin = new float[] {-(geoW / 2f), 0, -(geoW / 2f)},
 										//Origin = new float[3],
 										Size = new float[] {geoW, 1, 1},
 										Uv = new float[] {64, 0}
 									},
 									new Cube()
 									{
-										Origin = new float[] {-(geoW/2f), 0, +(geoW/2f)},
+										Origin = new float[] {-(geoW / 2f), 0, +(geoW / 2f)},
 										Size = new float[] {geoW, 1, 1},
 										Uv = new float[] {64, 0}
 									},
 									new Cube()
 									{
-										Origin = new float[] {+(geoW/2f), 0, -(geoW/2f)},
+										Origin = new float[] {+(geoW / 2f), 0, -(geoW / 2f)},
 										//Origin = new float[3],
 										Size = new float[] {1, 1, geoW},
 										Uv = new float[] {64, 0}
@@ -564,26 +564,26 @@ namespace MiNET.Entities
 
 									new Cube()
 									{
-										Origin = new float[] {-(geoW/2f), geoH, -(geoW/2f)},
+										Origin = new float[] {-(geoW / 2f), geoH, -(geoW / 2f)},
 										Size = new float[] {1, 1, geoW},
 										Uv = new float[] {64, 0}
 									},
 									new Cube()
 									{
-										Origin = new float[] {-(geoW/2f), geoH, -(geoW/2f)},
+										Origin = new float[] {-(geoW / 2f), geoH, -(geoW / 2f)},
 										//Origin = new float[3],
 										Size = new float[] {geoW, 1, 1},
 										Uv = new float[] {64, 0}
 									},
 									new Cube()
 									{
-										Origin = new float[] {-(geoW/2f), geoH, +(geoW/2f)},
+										Origin = new float[] {-(geoW / 2f), geoH, +(geoW / 2f)},
 										Size = new float[] {geoW, 1, 1},
 										Uv = new float[] {64, 0}
 									},
 									new Cube()
 									{
-										Origin = new float[] {+(geoW/2f), geoH, -(geoW/2f)},
+										Origin = new float[] {+(geoW / 2f), geoH, -(geoW / 2f)},
 										//Origin = new float[3],
 										Size = new float[] {1, 1, geoW},
 										Uv = new float[] {64, 0}

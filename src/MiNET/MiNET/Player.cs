@@ -203,13 +203,49 @@ namespace MiNET
 			customForm.Content = new List<CustomElement>()
 			{
 				new Label {Text = "A label"},
-				new Input {Text = "", Placeholder = "Placeholder", Value = ""},
-				new Toggle {Text = "A toggler", Value = true},
-				new Slider {Text = "A slider", Min = 0, Max = 10, Step = 2, Value = 3},
-				new StepSlider {Text = "A step slider", Steps = new List<string>() {"Step 1", "Step 2", "Step 3"}, Value = 1},
-				new Dropdown {Text = "A step slider", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Value = 1},
+				new Input
+				{
+					Text = "",
+					Placeholder = "Placeholder",
+					Value = ""
+				},
+				new Toggle
+				{
+					Text = "A toggler",
+					Value = true
+				},
+				new Slider
+				{
+					Text = "A slider",
+					Min = 0,
+					Max = 10,
+					Step = 2,
+					Value = 3
+				},
+				new StepSlider
+				{
+					Text = "A step slider",
+					Steps = new List<string>()
+					{
+						"Step 1",
+						"Step 2",
+						"Step 3"
+					},
+					Value = 1
+				},
+				new Dropdown
+				{
+					Text = "A step slider",
+					Options = new List<string>()
+					{
+						"Option 1",
+						"Option 2",
+						"Option 3"
+					},
+					Value = 1
+				},
 			};
-			
+
 			return customForm;
 		}
 
@@ -219,7 +255,7 @@ namespace MiNET
 			if (form == null) return;
 
 			CurrentForm = form;
-			
+
 			McpeServerSettingsResponse response = McpeServerSettingsResponse.CreateObject();
 			response.formId = form.Id;
 			response.data = form.ToJson();
@@ -286,7 +322,15 @@ namespace MiNET
 				packInfo.mustAccept = false;
 				packInfo.resourcepackinfos = new ResourcePackInfos
 				{
-					new ResourcePackInfo() {PackIdVersion = new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"}, Size = 359901},
+					new ResourcePackInfo()
+					{
+						PackIdVersion = new PackIdVersion()
+						{
+							Id = "5abdb963-4f3f-4d97-8482-88e2049ab149",
+							Version = "0.0.1"
+						},
+						Size = 359901
+					},
 				};
 			}
 
@@ -301,7 +345,11 @@ namespace MiNET
 				packStack.mustAccept = false;
 				packStack.resourcepackidversions = new ResourcePackIdVersions
 				{
-					new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"},
+					new PackIdVersion()
+					{
+						Id = "5abdb963-4f3f-4d97-8482-88e2049ab149",
+						Version = "0.0.1"
+					},
 				};
 			}
 
@@ -351,7 +399,6 @@ namespace MiNET
 					entity.SetEntityData(metadata);
 				}
 			}
-
 		}
 
 		private object _mapInfoSync = new object();
@@ -494,12 +541,12 @@ namespace MiNET
 						Block target = Level.GetBlock(message.coordinates);
 						var drops = target.GetDrops(Inventory.GetItemInHand());
 						float tooltypeFactor = drops == null || drops.Length == 0 ? 5f : 1.5f; // 1.5 if proper tool
-						double breakTime = Math.Ceiling(target.Hardness*tooltypeFactor*20);
+						double breakTime = Math.Ceiling(target.Hardness * tooltypeFactor * 20);
 
 						McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
 						breakEvent.eventId = 3600;
 						breakEvent.position = message.coordinates;
-						breakEvent.data = (int) (65535/breakTime);
+						breakEvent.data = (int) (65535 / breakTime);
 						Log.Debug("Break speed: " + breakEvent.data);
 						Level.RelayBroadcast(breakEvent);
 					}
@@ -643,7 +690,7 @@ namespace MiNET
 				{
 					IsSprinting = true;
 					_baseSpeed = MovementSpeed;
-					MovementSpeed += MovementSpeed*0.3f;
+					MovementSpeed += MovementSpeed * 0.3f;
 				}
 				else
 				{
@@ -1318,7 +1365,11 @@ namespace MiNET
 						if (coord.DistanceTo(start) < closestPortalDistance)
 						{
 							Log.Debug($"Found a closer portal location at {coord}");
-							closestPortal = new PortalInfo() {Coordinates = coord, Size = bbox};
+							closestPortal = new PortalInfo()
+							{
+								Coordinates = coord,
+								Size = bbox
+							};
 							closestPortalDistance = (int) coord.DistanceTo(start);
 						}
 					}
@@ -1362,7 +1413,7 @@ namespace MiNET
 			int depth = (int) (bbox.Depth);
 			int height = (int) (bbox.Height);
 
-			int midPoint = depth > 2 ? depth/2 : 0;
+			int midPoint = depth > 2 ? depth / 2 : 0;
 
 			bool haveSetCoordinate = false;
 			for (int x = 0; x < width; x++)
@@ -1398,7 +1449,11 @@ namespace MiNET
 							}
 							else
 							{
-								level.SetBlock(new Portal {Coordinates = coordinates, Metadata = 2});
+								level.SetBlock(new Portal
+								{
+									Coordinates = coordinates,
+									Metadata = 2
+								});
 								if (!haveSetCoordinate)
 								{
 									haveSetCoordinate = true;
@@ -1750,7 +1805,7 @@ namespace MiNET
 			Vector3 origin = KnownPosition.ToVector3();
 			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
 
-			CurrentSpeed = distanceTo/((double) (DateTime.UtcNow - LastUpdatedTime).Ticks/TimeSpan.TicksPerSecond);
+			CurrentSpeed = distanceTo / ((double) (DateTime.UtcNow - LastUpdatedTime).Ticks / TimeSpan.TicksPerSecond);
 
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
 
@@ -2065,14 +2120,14 @@ namespace MiNET
 				damage += DamageCalculator.CalculateDamageIncreaseFromEnchantments(this, itemInHand, player);
 				var reducedDamage = (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage, DamageCause.EntityAttack);
 				player.HealthManager.TakeHit(this, itemInHand, reducedDamage, DamageCause.EntityAttack);
-				if(reducedDamage < damage)
+				if (reducedDamage < damage)
 				{
 					player.Inventory.DamageArmor();
 				}
 				var fireAspectLevel = itemInHand.GetEnchantingLevel(EnchantingType.FireAspect);
 				if (fireAspectLevel > 0)
 				{
-					player.HealthManager.Ignite(fireAspectLevel*80);
+					player.HealthManager.Ignite(fireAspectLevel * 80);
 				}
 			}
 			else
@@ -2227,7 +2282,6 @@ namespace MiNET
 							break;
 					}
 					trans.OldItem = oldItemSlots;
-
 				}
 			}
 
@@ -2344,7 +2398,6 @@ namespace MiNET
 							horseInventory.SetSlot(slot, newItem);
 						}
 					}
-
 				}
 				else if (record is CraftTransactionRecord)
 				{
@@ -2427,7 +2480,7 @@ namespace MiNET
 					{
 						for (int col = 0; col < dim; col++)
 						{
-							var item = craftingInput[col + (dim*row)];
+							var item = craftingInput[col + (dim * row)];
 							if (item == null) continue;
 
 							if (rowOffset == -1 && item.Id != 0)
@@ -2442,12 +2495,12 @@ namespace MiNET
 						}
 					}
 
-					List<Item> shapedInputSmall = new List<Item>(new Item[recipe.Height*recipe.Width]);
+					List<Item> shapedInputSmall = new List<Item>(new Item[recipe.Height * recipe.Width]);
 					for (int row = 0; row < recipe.Height; row++)
 					{
 						for (int col = 0; col < recipe.Width; col++)
 						{
-							shapedInputSmall[col + (recipe.Width*row)] = craftingInput[(colOffset + col) + (dim*(row + rowOffset))];
+							shapedInputSmall[col + (recipe.Width * row)] = craftingInput[(colOffset + col) + (dim * (row + rowOffset))];
 						}
 					}
 
@@ -2633,7 +2686,7 @@ namespace MiNET
 		{
 			int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.
 
-			damage = (int) Math.Floor(damage*(1.0));
+			damage = (int) Math.Floor(damage * (1.0));
 
 			return damage;
 		}
@@ -2789,7 +2842,7 @@ namespace MiNET
 				{
 					if (chunk != null) SendPacket(chunk);
 
-					if (++packetCount%16 == 0) Thread.Sleep(12);
+					if (++packetCount % 16 == 0) Thread.Sleep(12);
 				}
 			}
 			finally
@@ -2830,7 +2883,7 @@ namespace MiNET
 				{
 					if (chunk != null) SendPacket(chunk);
 
-					if (++packetCount%16 == 0) Thread.Sleep(12);
+					if (++packetCount % 16 == 0) Thread.Sleep(12);
 
 					if (!IsSpawned && packetCount == 56)
 					{
@@ -2947,7 +3000,7 @@ namespace MiNET
 		{
 			var xpToNextLevel = GetXpToNextLevel();
 
-			return Experience/xpToNextLevel;
+			return Experience / xpToNextLevel;
 		}
 
 		public void RemoveExperienceLevels(float levels)
@@ -2955,7 +3008,7 @@ namespace MiNET
 			var currentXp = CalculateXp();
 			ExperienceLevel = Experience - Math.Abs(levels);
 			var xpToNextLevel = GetXpToNextLevel();
-			Experience = xpToNextLevel*currentXp;
+			Experience = xpToNextLevel * currentXp;
 		}
 
 		public void AddExperience(float xp, bool send = true)
@@ -2980,15 +3033,15 @@ namespace MiNET
 			float xpToNextLevel = 0;
 			if (ExperienceLevel >= 0 && ExperienceLevel <= 15)
 			{
-				xpToNextLevel = 2*ExperienceLevel + 7;
+				xpToNextLevel = 2 * ExperienceLevel + 7;
 			}
 			else if (ExperienceLevel > 15 && ExperienceLevel <= 30)
 			{
-				xpToNextLevel = 5*ExperienceLevel - 38;
+				xpToNextLevel = 5 * ExperienceLevel - 38;
 			}
 			else if (ExperienceLevel > 30)
 			{
-				xpToNextLevel = 9*ExperienceLevel - 158;
+				xpToNextLevel = 9 * ExperienceLevel - 158;
 			}
 
 			return xpToNextLevel;
@@ -3066,7 +3119,7 @@ namespace MiNET
 				}
 				else if (PortalDetected == 0)
 				{
-					PortalDetected = Level.TickTime + (GameMode == GameMode.Creative ? 1 : 4*20);
+					PortalDetected = Level.TickTime + (GameMode == GameMode.Creative ? 1 : 4 * 20);
 				}
 			}
 			else
@@ -3112,7 +3165,7 @@ namespace MiNET
 						if (popup.MessageType == MessageType.Tip && !hasDisplayedTip)
 						{
 							if (popup.CurrentTick <= popup.Duration + popup.DisplayDelay - 30)
-								if (popup.CurrentTick%20 == 0 || popup.CurrentTick == popup.Duration + popup.DisplayDelay - 30)
+								if (popup.CurrentTick % 20 == 0 || popup.CurrentTick == popup.Duration + popup.DisplayDelay - 30)
 									SendMessage(popup.Message, type: popup.MessageType);
 							hasDisplayedTip = true;
 						}
@@ -3121,7 +3174,7 @@ namespace MiNET
 						if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
 						{
 							if (popup.CurrentTick <= popup.Duration + popup.DisplayDelay - 30)
-								if (popup.CurrentTick%20 == 0 || popup.CurrentTick == popup.Duration + popup.DisplayDelay - 30)
+								if (popup.CurrentTick % 20 == 0 || popup.CurrentTick == popup.Duration + popup.DisplayDelay - 30)
 									SendMessage(popup.Message, type: popup.MessageType);
 							hasDisplayedPopup = true;
 						}
@@ -3301,9 +3354,9 @@ namespace MiNET
 				{
 					var color = effect.ParticleColor;
 					int level = effect.Level + 1;
-					r += color.R*level;
-					g += color.G*level;
-					b += color.B*level;
+					r += color.R * level;
+					g += color.G * level;
+					b += color.B * level;
 					levels += level;
 				}
 

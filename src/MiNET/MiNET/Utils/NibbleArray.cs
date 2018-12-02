@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -37,23 +37,23 @@ namespace MiNET.Utils
 
 		public NibbleArray(int length)
 		{
-			Data = new byte[length/2];
+			Data = new byte[length / 2];
 		}
 
 		public int Length
 		{
-			get { return Data.Length*2; }
+			get { return Data.Length * 2; }
 		}
 
 		public byte this[int index]
 		{
-			get { return (byte) (Data[index >> 1] >> ((index & 1)*4) & 0xF); }
+			get { return (byte) (Data[index >> 1] >> ((index & 1) * 4) & 0xF); }
 			set
 			{
 				value &= 0xF;
 				var idx = index >> 1;
-				Data[idx] &= (byte) (0xF << (((index + 1) & 1)*4));
-				Data[idx] |= (byte) (value << ((index & 1)*4));
+				Data[idx] &= (byte) (0xF << (((index + 1) & 1) * 4));
+				Data[idx] |= (byte) (value << ((index & 1) * 4));
 			}
 		}
 

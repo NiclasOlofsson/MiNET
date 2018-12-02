@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -91,7 +91,7 @@ namespace MiNET.Items
 			new PaintingData("Wasteland", 1, 0, 1, 0),
 		};
 
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemPainting));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemPainting));
 
 		public ItemPainting() : base(321)
 		{
@@ -173,16 +173,16 @@ namespace MiNET.Items
 			var paintings = new List<(PaintingData, BoundingBox)>();
 
 			int currentSize = 0;
-			foreach (var painting in _paintings.OrderByDescending(pd => pd.Height*pd.Width))
+			foreach (var painting in _paintings.OrderByDescending(pd => pd.Height * pd.Width))
 			{
 				int width = painting.Width;
 				int widthOffset = painting.WidthOffset;
 				int height = painting.Height;
 				int heightOffset = painting.HeightOffset;
 
-				if (paintings.Count > 0 && currentSize > width*height) break;
+				if (paintings.Count > 0 && currentSize > width * height) break;
 
-				currentSize = height*width;
+				currentSize = height * width;
 
 				BoundingBox bbox = new BoundingBox();
 				switch (face)
@@ -246,8 +246,16 @@ namespace MiNET.Items
 				}
 			}
 
-			level.SetBlock(new StainedGlass() {Metadata = 5, Coordinates = bbox.Max});
-			level.SetBlock(new StainedGlass() {Metadata = 7, Coordinates = bbox.Min});
+			level.SetBlock(new StainedGlass()
+			{
+				Metadata = 5,
+				Coordinates = bbox.Max
+			});
+			level.SetBlock(new StainedGlass()
+			{
+				Metadata = 7,
+				Coordinates = bbox.Min
+			});
 		}
 
 		private bool IsSpawnAreaSolid(Level level, BoundingBox bbox)

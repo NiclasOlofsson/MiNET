@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -81,7 +81,7 @@ namespace MiNET.Worlds
 
 			foreach (var octave in _generators)
 			{
-				result += octave.GetValue((float) (x*freq), (float) (y*freq), (float) (z*freq), (float) (w*freq))*amp;
+				result += octave.GetValue((float) (x * freq), (float) (y * freq), (float) (z * freq), (float) (w * freq)) * amp;
 				max += amp;
 				freq *= frequency;
 				amp *= amplitude;
@@ -189,8 +189,8 @@ namespace MiNET.Worlds
 
 			var bottom = new SimplexOctaveGenerator(_seed.GetHashCode(), 8);
 			var overhang = new SimplexOctaveGenerator(_seed.GetHashCode(), 8);
-			overhang.SetScale(1/64.0);
-			bottom.SetScale(1/128.0);
+			overhang.SetScale(1 / 64.0);
+			bottom.SetScale(1 / 128.0);
 
 			double overhangsMagnitude = 16;
 			double bottomsMagnitude = 32;
@@ -199,12 +199,12 @@ namespace MiNET.Worlds
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					float ox = x + chunk.x*16;
-					float oz = z + chunk.z*16;
+					float ox = x + chunk.x * 16;
+					float oz = z + chunk.z * 16;
 
 
-					int bottomHeight = (int) ((bottom.Noise(ox, oz, 0.5, 0.5)*bottomsMagnitude) + 64.0);
-					int maxHeight = (int) ((overhang.Noise(ox, oz, 0.5, 0.5)*overhangsMagnitude) + bottomHeight + 32.0);
+					int bottomHeight = (int) ((bottom.Noise(ox, oz, 0.5, 0.5) * bottomsMagnitude) + 64.0);
+					int maxHeight = (int) ((overhang.Noise(ox, oz, 0.5, 0.5) * overhangsMagnitude) + bottomHeight + 32.0);
 
 					double threshold = 0.0;
 
@@ -296,7 +296,7 @@ namespace MiNET.Worlds
 							for (int pos = 0; pos < trees; pos++)
 							{
 								if (treeBasePositions[pos, 0] < 14 && treeBasePositions[pos, 0] > 4 && treeBasePositions[pos, 1] < 14 &&
-								    treeBasePositions[pos, 1] > 4)
+									treeBasePositions[pos, 1] > 4)
 								{
 									if (chunk.GetBlock(treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1]) == 2)
 									{

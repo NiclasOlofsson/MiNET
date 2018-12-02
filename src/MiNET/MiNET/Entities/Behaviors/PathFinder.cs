@@ -77,7 +77,7 @@ namespace MiNET.Entities.Behaviors
 				foreach (var tile in list)
 				{
 					Block block = GetBlock(tile);
-					Color color = Color.FromArgb(Math.Max(0, 255 - Current.Count*10), 255, 255);
+					Color color = Color.FromArgb(Math.Max(0, 255 - Current.Count * 10), 255, 255);
 					var particle = new DustParticle(level, color);
 					particle.Position = (Vector3) block.Coordinates + new Vector3(0.5f, 0.5f, 0.5f);
 					particle.Spawn();
@@ -341,7 +341,7 @@ namespace MiNET.Entities.Behaviors
 				if (_level.GetBlock(coord).IsSolid)
 				{
 					// Only allow diagonal movements if on same Y level
-					if(isDiagonalMove) continue;
+					if (isDiagonalMove) continue;
 
 					// Check if we hit head if we jump or climb up to next block
 					if (IsObstructed(block.Coordinates.BlockUp())) continue;
@@ -481,7 +481,7 @@ namespace MiNET.Entities.Behaviors
 		{
 			for (int i = 1; i < _entity.Height; i++)
 			{
-				if (IsBlocked(coord + (BlockCoordinates.Up*i))) return true;
+				if (IsBlocked(coord + (BlockCoordinates.Up * i))) return true;
 			}
 
 			return false;
@@ -591,7 +591,7 @@ namespace MiNET.Entities.Behaviors
 		{
 			for (int i = 1; i < _entity.Height; i++)
 			{
-				if (IsBlocked(coord + (BlockCoordinates.Up*i))) return true;
+				if (IsBlocked(coord + (BlockCoordinates.Up * i))) return true;
 			}
 
 			return false;

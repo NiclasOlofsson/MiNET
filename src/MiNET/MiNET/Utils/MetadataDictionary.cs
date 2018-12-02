@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,7 +38,7 @@ namespace MiNET.Utils
 	/// </summary>
 	public class MetadataDictionary
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (MetadataDictionary));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MetadataDictionary));
 
 		public readonly Dictionary<int, MetadataEntry> _entries;
 
@@ -129,85 +154,84 @@ namespace MiNET.Utils
 			}
 		}
 
-        public static string MetadataToCode(MetadataDictionary metadata)
-        {
-            StringBuilder sb = new StringBuilder();
+		public static string MetadataToCode(MetadataDictionary metadata)
+		{
+			StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine();
-            sb.AppendLine("MetadataDictionary metadata = new MetadataDictionary();");
+			sb.AppendLine();
+			sb.AppendLine("MetadataDictionary metadata = new MetadataDictionary();");
 
-            foreach (var kvp in metadata._entries)
-            {
-                int idx = kvp.Key;
-                MetadataEntry entry = kvp.Value;
+			foreach (var kvp in metadata._entries)
+			{
+				int idx = kvp.Key;
+				MetadataEntry entry = kvp.Value;
 
-                sb.Append($"metadata[{idx}] = new ");
-                switch (entry.Identifier)
-                {
-                    case 0:
-                        {
-                            var e = (MetadataByte)entry;
-                            sb.Append($"{e.GetType().Name}({e.Value});");
-                            break;
-                        }
-                    case 1:
-                        {
-                            var e = (MetadataShort)entry;
-                            sb.Append($"{e.GetType().Name}({e.Value});");
-                            break;
-                        }
-                    case 2:
-                        {
-                            var e = (MetadataInt)entry;
-                            sb.Append($"{e.GetType().Name}({e.Value});");
-                            break;
-                        }
-                    case 3:
-                        {
-                            var e = (MetadataFloat)entry;
-                            sb.Append($"{e.GetType().Name}({e.Value.ToString(NumberFormatInfo.InvariantInfo)}f);");
-                            break;
-                        }
-                    case 4:
-                        {
-                            var e = (MetadataString)entry;
-                            sb.Append($"{e.GetType().Name}(\"{e.Value}\");");
-                            break;
-                        }
-                    case 5:
-                        {
-                            var e = (MetadataSlot)entry;
-                            sb.Append($"{e.GetType().Name}({e.Value});");
-                            break;
-                        }
-                    case 6:
-                        {
-                            var e = (MetadataIntCoordinates)entry;
-                            sb.Append($"{e.GetType().Name}({e.Value});");
-                            break;
-                        }
-                    case 7:
-                        {
-                            var e = (MetadataLong)entry;
-                            sb.Append($"{e.GetType().Name}({e.Value});");
-                            if (idx == 0)
-                            {
-                                sb.Append($" // {Convert.ToString(e.Value, 2)}");
-                            }
-                            break;
-                        }
-                    case 8:
-                        {
-                            var e = (MetadataVector3)entry;
-                            sb.Append($"{e.GetType().Name}({e.Value});");
-                            break;
-                        }
-                }
-                sb.AppendLine();
-            }
+				sb.Append($"metadata[{idx}] = new ");
+				switch (entry.Identifier)
+				{
+					case 0:
+					{
+						var e = (MetadataByte) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 1:
+					{
+						var e = (MetadataShort) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 2:
+					{
+						var e = (MetadataInt) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 3:
+					{
+						var e = (MetadataFloat) entry;
+						sb.Append($"{e.GetType().Name}({e.Value.ToString(NumberFormatInfo.InvariantInfo)}f);");
+						break;
+					}
+					case 4:
+					{
+						var e = (MetadataString) entry;
+						sb.Append($"{e.GetType().Name}(\"{e.Value}\");");
+						break;
+					}
+					case 5:
+					{
+						var e = (MetadataSlot) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 6:
+					{
+						var e = (MetadataIntCoordinates) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 7:
+					{
+						var e = (MetadataLong) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						if (idx == 0)
+						{
+							sb.Append($" // {Convert.ToString(e.Value, 2)}");
+						}
+						break;
+					}
+					case 8:
+					{
+						var e = (MetadataVector3) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+				}
+				sb.AppendLine();
+			}
 
-            return sb.ToString();
-        }
-
-    }
+			return sb.ToString();
+		}
+	}
 }

@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -52,7 +52,11 @@ namespace MiNET.Entities
 			IsSpawned = false;
 
 			NameTag = name;
-			Skin = new Skin {Slim = false, SkinData = Encoding.Default.GetBytes(new string('Z', 8192))};
+			Skin = new Skin
+			{
+				Slim = false,
+				SkinData = Encoding.Default.GetBytes(new string('Z', 8192))
+			};
 
 			ItemInHand = new ItemAir();
 
@@ -80,7 +84,7 @@ namespace MiNET.Entities
 			package.yaw = position.HeadYaw;
 			package.headYaw = position.Yaw;
 			package.pitch = position.Pitch;
-			package.mode = (byte)(teleport ? 1 : 0);
+			package.mode = (byte) (teleport ? 1 : 0);
 
 			Level.RelayBroadcast(package);
 		}
@@ -154,7 +158,7 @@ namespace MiNET.Entities
 				};
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerRemoveRecords { fake };
+				playerList.records = new PlayerRemoveRecords {fake};
 				Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
 				playerList.records = null;
 				playerList.PutPool();
@@ -201,7 +205,7 @@ namespace MiNET.Entities
 			var players = Level.GetSpawnedPlayers();
 
 			McpePlayerList playerList = McpePlayerList.CreateObject();
-			playerList.records = new PlayerAddRecords { fake };
+			playerList.records = new PlayerAddRecords {fake};
 			Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
 			playerList.records = null;
 			playerList.PutPool();

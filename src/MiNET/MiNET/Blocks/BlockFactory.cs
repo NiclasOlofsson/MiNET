@@ -23,7 +23,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -54,7 +53,7 @@ namespace MiNET.Blocks
 
 		static BlockFactory()
 		{
-			for (int i = 0; i < byte.MaxValue*2; i++)
+			for (int i = 0; i < byte.MaxValue * 2; i++)
 			{
 				var block = GetBlockById(i);
 				if (block != null)
@@ -86,8 +85,14 @@ namespace MiNET.Blocks
 				int runtimeId = 0;
 				foreach (var obj in result)
 				{
-					LegacyToRuntimeId[((int) obj.id << 4) | (int) obj.data] = (int)runtimeId;
-					Blockstates.Add(runtimeId, new Blockstate(){Id = (int)obj.id, Data = (short)obj.data, Name = (string)obj.name, RuntimeId = runtimeId});
+					LegacyToRuntimeId[((int) obj.id << 4) | (int) obj.data] = (int) runtimeId;
+					Blockstates.Add(runtimeId, new Blockstate()
+					{
+						Id = (int) obj.id,
+						Data = (short) obj.data,
+						Name = (string) obj.name,
+						RuntimeId = runtimeId
+					});
 
 					runtimeId++;
 				}
@@ -638,5 +643,4 @@ namespace MiNET.Blocks
 	//		}
 	//	}
 	//}
-
 }

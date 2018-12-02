@@ -121,7 +121,7 @@ namespace MiNET
 
 		public static void DisplayTimerProperties()
 		{
-			Console.WriteLine($"Are you blessed with HW accelerated vectors? {(Vector.IsHardwareAccelerated ? "Yep!" : "Nope, sorry :-(")}"); 
+			Console.WriteLine($"Are you blessed with HW accelerated vectors? {(Vector.IsHardwareAccelerated ? "Yep!" : "Nope, sorry :-(")}");
 
 			// Display the timer frequency and resolution.
 			if (Stopwatch.IsHighResolution)
@@ -136,7 +136,7 @@ namespace MiNET
 			long frequency = Stopwatch.Frequency;
 			Console.WriteLine("  Timer frequency in ticks per second = {0}",
 				frequency);
-			long nanosecPerTick = (1000L*1000L*1000L)/frequency;
+			long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
 			Console.WriteLine("  Timer is accurate within {0} nanoseconds",
 				nanosecPerTick);
 		}
@@ -153,7 +153,7 @@ namespace MiNET
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{
-					if(IsEdu) EduTokenManager = new EduTokenManager();
+					if (IsEdu) EduTokenManager = new EduTokenManager();
 
 					if (Endpoint == null)
 					{
@@ -220,16 +220,13 @@ namespace MiNET
 
 		private void SendTick(object obj)
 		{
-			Parallel.ForEach(_playerSessions.Values, (session, state) =>
-			{
-				session.SendTick(null);
-			});
+			Parallel.ForEach(_playerSessions.Values, (session, state) => { session.SendTick(null); });
 		}
 
 		private UdpClient CreateListener()
 		{
 			var listener = new UdpClient(Endpoint);
-			
+
 			//_listener.Client.ReceiveBufferSize = 1600*40000;
 			listener.Client.ReceiveBufferSize = int.MaxValue;
 			//_listener.Client.SendBufferSize = 1600*40000;
@@ -946,9 +943,9 @@ namespace MiNET
 			long RTT = session.Rtt;
 			long RTTVar = session.RttVar;
 
-			session.Rtt = (long) (RTT*0.875 + rtt*0.125);
-			session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-			session.Rto = session.Rtt + 4*session.RttVar + 100; // SYNC time in the end
+			session.Rtt = (long) (RTT * 0.875 + rtt * 0.125);
+			session.RttVar = (long) (RTTVar * 0.875 + Math.Abs(RTT - rtt) * 0.125);
+			session.Rto = session.Rtt + 4 * session.RttVar + 100; // SYNC time in the end
 		}
 
 		internal void HandlePacket(Packet message, PlayerNetworkSession playerSession)

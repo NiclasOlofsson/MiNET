@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Numerics;
 
@@ -35,28 +60,28 @@ namespace MiNET.Utils
 
 		public BlockCoordinates(Vector3 location)
 		{
-			X = (int)Math.Floor(location.X);
-			Y = (int)Math.Floor(location.Y);
-			Z = (int)Math.Floor(location.Z);
+			X = (int) Math.Floor(location.X);
+			Y = (int) Math.Floor(location.Y);
+			Z = (int) Math.Floor(location.Z);
 		}
 
 
 		/// <summary>
-		/// Calculates the distance between two BlockCoordinates objects.
+		///     Calculates the distance between two BlockCoordinates objects.
 		/// </summary>
 		public double DistanceTo(BlockCoordinates other)
 		{
 			return Math.Sqrt(Square(other.X - X) +
-			                 Square(other.Y - Y) +
-			                 Square(other.Z - Z));
+							Square(other.Y - Y) +
+							Square(other.Z - Z));
 		}
 
 		/// <summary>
-		/// Calculates the square of a num.
+		///     Calculates the square of a num.
 		/// </summary>
 		private int Square(int num)
 		{
-			return num*num;
+			return num * num;
 		}
 
 		public BlockCoordinates Abs()
@@ -65,11 +90,11 @@ namespace MiNET.Utils
 				Math.Abs(X),
 				Math.Abs(Y),
 				Math.Abs(Z)
-				);
+			);
 		}
 
 		/// <summary>
-		/// Finds the distance of this Coordinate3D from BlockCoordinates.Zero
+		///     Finds the distance of this Coordinate3D from BlockCoordinates.Zero
 		/// </summary>
 		public double Distance
 		{
@@ -82,7 +107,7 @@ namespace MiNET.Utils
 				Math.Min(value1.X, value2.X),
 				Math.Min(value1.Y, value2.Y),
 				Math.Min(value1.Z, value2.Z)
-				);
+			);
 		}
 
 		public static BlockCoordinates Max(BlockCoordinates value1, BlockCoordinates value2)
@@ -91,7 +116,7 @@ namespace MiNET.Utils
 				Math.Max(value1.X, value2.X),
 				Math.Max(value1.Y, value2.Y),
 				Math.Max(value1.Z, value2.Z)
-				);
+			);
 		}
 
 		public static bool operator !=(BlockCoordinates a, BlockCoordinates b)
@@ -121,17 +146,17 @@ namespace MiNET.Utils
 
 		public static BlockCoordinates operator *(BlockCoordinates a, BlockCoordinates b)
 		{
-			return new BlockCoordinates(a.X*b.X, a.Y*b.Y, a.Z*b.Z);
+			return new BlockCoordinates(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
 		}
 
 		public static BlockCoordinates operator /(BlockCoordinates a, BlockCoordinates b)
 		{
-			return new BlockCoordinates(a.X/b.X, a.Y/b.Y, a.Z/b.Z);
+			return new BlockCoordinates(a.X / b.X, a.Y / b.Y, a.Z / b.Z);
 		}
 
 		public static BlockCoordinates operator %(BlockCoordinates a, BlockCoordinates b)
 		{
-			return new BlockCoordinates(a.X%b.X, a.Y%b.Y, a.Z%b.Z);
+			return new BlockCoordinates(a.X % b.X, a.Y % b.Y, a.Z % b.Z);
 		}
 
 		public static BlockCoordinates operator +(BlockCoordinates a, int b)
@@ -146,17 +171,17 @@ namespace MiNET.Utils
 
 		public static BlockCoordinates operator *(BlockCoordinates a, int b)
 		{
-			return new BlockCoordinates(a.X*b, a.Y*b, a.Z*b);
+			return new BlockCoordinates(a.X * b, a.Y * b, a.Z * b);
 		}
 
 		public static BlockCoordinates operator /(BlockCoordinates a, int b)
 		{
-			return new BlockCoordinates(a.X/b, a.Y/b, a.Z/b);
+			return new BlockCoordinates(a.X / b, a.Y / b, a.Z / b);
 		}
 
 		public static BlockCoordinates operator %(BlockCoordinates a, int b)
 		{
-			return new BlockCoordinates(a.X%b, a.Y%b, a.Z%b);
+			return new BlockCoordinates(a.X % b, a.Y % b, a.Z % b);
 		}
 
 		public static BlockCoordinates operator +(int a, BlockCoordinates b)
@@ -171,17 +196,17 @@ namespace MiNET.Utils
 
 		public static BlockCoordinates operator *(int a, BlockCoordinates b)
 		{
-			return new BlockCoordinates(a*b.X, a*b.Y, a*b.Z);
+			return new BlockCoordinates(a * b.X, a * b.Y, a * b.Z);
 		}
 
 		public static BlockCoordinates operator /(int a, BlockCoordinates b)
 		{
-			return new BlockCoordinates(a/b.X, a/b.Y, a/b.Z);
+			return new BlockCoordinates(a / b.X, a / b.Y, a / b.Z);
 		}
 
 		public static BlockCoordinates operator %(int a, BlockCoordinates b)
 		{
-			return new BlockCoordinates(a%b.X, a%b.Y, a%b.Z);
+			return new BlockCoordinates(a % b.X, a % b.Y, a % b.Z);
 		}
 
 		public static explicit operator BlockCoordinates(ChunkCoordinates a)
@@ -222,52 +247,52 @@ namespace MiNET.Utils
 
 		public BlockCoordinates BlockUp()
 		{
-			return this + BlockCoordinates.Up;
+			return this + Up;
 		}
 
 		public BlockCoordinates BlockDown()
 		{
-			return this + BlockCoordinates.Down;
+			return this + Down;
 		}
 
 		public BlockCoordinates BlockEast()
 		{
-			return this + BlockCoordinates.East;
+			return this + East;
 		}
 
 		public BlockCoordinates BlockWest()
 		{
-			return this + BlockCoordinates.West;
+			return this + West;
 		}
 
 		public BlockCoordinates BlockNorth()
 		{
-			return this + BlockCoordinates.North;
+			return this + North;
 		}
 
 		public BlockCoordinates BlockSouth()
 		{
-			return this + BlockCoordinates.South;
+			return this + South;
 		}
 
 		public BlockCoordinates BlockNorthEast()
 		{
-			return this + BlockCoordinates.North + BlockCoordinates.East;
+			return this + North + East;
 		}
 
 		public BlockCoordinates BlockNorthWest()
 		{
-			return this + BlockCoordinates.North + BlockCoordinates.West;
+			return this + North + West;
 		}
 
 		public BlockCoordinates BlockSouthEast()
 		{
-			return this + BlockCoordinates.South + BlockCoordinates.East;
+			return this + South + East;
 		}
 
 		public BlockCoordinates BlockSouthWest()
 		{
-			return this + BlockCoordinates.South + BlockCoordinates.West;
+			return this + South + West;
 		}
 
 		public bool Equals(BlockCoordinates other)
@@ -286,8 +311,8 @@ namespace MiNET.Utils
 			unchecked
 			{
 				int hashCode = X;
-				hashCode = (hashCode*397) ^ Y;
-				hashCode = (hashCode*397) ^ Z;
+				hashCode = (hashCode * 397) ^ Y;
+				hashCode = (hashCode * 397) ^ Z;
 				return hashCode;
 			}
 		}

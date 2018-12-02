@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -32,7 +32,7 @@ namespace MiNET.Entities.Hostile
 {
 	public class SkeletonHorse : HostileMob
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (SkeletonHorse));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SkeletonHorse));
 
 		public SkeletonHorse(Level level) : base(EntityType.SkeletonHorse, level)
 		{
@@ -45,7 +45,7 @@ namespace MiNET.Entities.Hostile
 		public override MetadataDictionary GetMetadata()
 		{
 			var metadata = base.GetMetadata();
-			metadata[(int)MetadataFlags.Variant] = new MetadataInt(Variant);
+			metadata[(int) MetadataFlags.Variant] = new MetadataInt(Variant);
 			return metadata;
 		}
 	}

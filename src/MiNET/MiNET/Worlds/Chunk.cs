@@ -26,15 +26,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using log4net;
 using MiNET.Utils;
-using Newtonsoft.Json.Linq;
 
 namespace MiNET.Worlds
 {
-
 	public abstract class ChunkBase : ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ChunkBase));
@@ -91,7 +87,6 @@ namespace MiNET.Worlds
 		{
 			return (bx * 256) + (bz * 16) + by;
 		}
-
 	}
 
 	//public class Chunk : ChunkBase

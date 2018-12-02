@@ -162,22 +162,22 @@ namespace MiNET.Worlds
 				{211, new NoDataMapper(189)}, // minecraft:chain_command_block
 				{212, new NoDataMapper(297)}, // Frosted Ice
 				{218, new NoDataMapper(251)}, // minecraft:observer => Observer
-				{219, new Mapper(218, (i, b) => (byte)(0 + (b << 4)))}, // => minecraft:white_shulker_box
-				{220, new Mapper(218, (i, b) => (byte)(1 + (b << 4)))}, // => minecraft:orange_shulker_box
-				{221, new Mapper(218, (i, b) => (byte)(2 + (b << 4)))}, // => minecraft:magenta_shulker_box
-				{222, new Mapper(218, (i, b) => (byte)(3 + (b << 4)))}, // => minecraft:light_blue_shulker_box 
-				{223, new Mapper(218, (i, b) => (byte)(4 + (b << 4)))}, // => minecraft:yellow_shulker_box 
-				{224, new Mapper(218, (i, b) => (byte)(5 + (b << 4)))}, // => minecraft:lime_shulker_box 
-				{225, new Mapper(218, (i, b) => (byte)(6 + (b << 4)))}, // => minecraft:pink_shulker_box 
-				{226, new Mapper(218, (i, b) => (byte)(7 + (b << 4)))}, // => minecraft:gray_shulker_box 
-				{227, new Mapper(218, (i, b) => (byte)(8 + (b << 4)))}, // => minecraft:light_gray_shulker_box 
-				{228, new Mapper(218, (i, b) => (byte)(9 + (b << 4)))}, // => minecraft:cyan_shulker_box 
-				{229, new Mapper(218, (i, b) => (byte)(10 + (b << 4)))}, // => minecraft:purple_shulker_box 
-				{230, new Mapper(218, (i, b) => (byte)(11 + (b << 4)))}, // => minecraft:blue_shulker_box 
-				{231, new Mapper(218, (i, b) => (byte)(12 + (b << 4)))}, // => minecraft:brown_shulker_box 
-				{232, new Mapper(218, (i, b) => (byte)(13 + (b << 4)))}, // => minecraft:green_shulker_box 
-				{233, new Mapper(218, (i, b) => (byte)(14 + (b << 4)))}, // => minecraft:red_shulker_box 
-				{234, new Mapper(218, (i, b) => (byte)(15 + (b << 4)))}, // => minecraft:black_shulker_box 
+				{219, new Mapper(218, (i, b) => (byte) (0 + (b << 4)))}, // => minecraft:white_shulker_box
+				{220, new Mapper(218, (i, b) => (byte) (1 + (b << 4)))}, // => minecraft:orange_shulker_box
+				{221, new Mapper(218, (i, b) => (byte) (2 + (b << 4)))}, // => minecraft:magenta_shulker_box
+				{222, new Mapper(218, (i, b) => (byte) (3 + (b << 4)))}, // => minecraft:light_blue_shulker_box 
+				{223, new Mapper(218, (i, b) => (byte) (4 + (b << 4)))}, // => minecraft:yellow_shulker_box 
+				{224, new Mapper(218, (i, b) => (byte) (5 + (b << 4)))}, // => minecraft:lime_shulker_box 
+				{225, new Mapper(218, (i, b) => (byte) (6 + (b << 4)))}, // => minecraft:pink_shulker_box 
+				{226, new Mapper(218, (i, b) => (byte) (7 + (b << 4)))}, // => minecraft:gray_shulker_box 
+				{227, new Mapper(218, (i, b) => (byte) (8 + (b << 4)))}, // => minecraft:light_gray_shulker_box 
+				{228, new Mapper(218, (i, b) => (byte) (9 + (b << 4)))}, // => minecraft:cyan_shulker_box 
+				{229, new Mapper(218, (i, b) => (byte) (10 + (b << 4)))}, // => minecraft:purple_shulker_box 
+				{230, new Mapper(218, (i, b) => (byte) (11 + (b << 4)))}, // => minecraft:blue_shulker_box 
+				{231, new Mapper(218, (i, b) => (byte) (12 + (b << 4)))}, // => minecraft:brown_shulker_box 
+				{232, new Mapper(218, (i, b) => (byte) (13 + (b << 4)))}, // => minecraft:green_shulker_box 
+				{233, new Mapper(218, (i, b) => (byte) (14 + (b << 4)))}, // => minecraft:red_shulker_box 
+				{234, new Mapper(218, (i, b) => (byte) (15 + (b << 4)))}, // => minecraft:black_shulker_box 
 
 				{235, new NoDataMapper(220)}, // => minecraft:white_glazed_terracotta
 				{236, new NoDataMapper(221)}, // => minecraft:orange_glazed_terracotta
@@ -378,11 +378,11 @@ namespace MiNET.Worlds
 
 					regionFile.Read(buffer, 0, 8192);
 
-					int xi = (coordinates.X%width);
+					int xi = (coordinates.X % width);
 					if (xi < 0) xi += 32;
-					int zi = (coordinates.Z%depth);
+					int zi = (coordinates.Z % depth);
 					if (zi < 0) zi += 32;
-					int tableOffset = (xi + zi*width)*4;
+					int tableOffset = (xi + zi * width) * 4;
 
 					regionFile.Seek(tableOffset, SeekOrigin.Begin);
 
@@ -509,12 +509,13 @@ namespace MiNET.Worlds
 								}
 								else if (blockEntity is ChestBlockEntity || blockEntity is ShulkerBoxBlockEntity)
 								{
-									if(blockEntity is ShulkerBoxBlockEntity) {
+									if (blockEntity is ShulkerBoxBlockEntity)
+									{
 										var meta = chunk.GetMetadata(x & 0x0f, y, z & 0x0f);
 
-										blockEntityTag["facing"] = new NbtByte("facing", (byte)(meta >> 4));
+										blockEntityTag["facing"] = new NbtByte("facing", (byte) (meta >> 4));
 
-										chunk.SetMetadata(x & 0x0f, y, z & 0x0f, (byte)(meta - ((byte)(meta >> 4) << 4)));
+										chunk.SetMetadata(x & 0x0f, y, z & 0x0f, (byte) (meta - ((byte) (meta >> 4) << 4)));
 									}
 
 									NbtList items = (NbtList) blockEntityTag["Items"];
@@ -711,15 +712,15 @@ namespace MiNET.Worlds
 
 		private static byte Nibble4(byte[] arr, int index)
 		{
-			return (byte) (arr[index >> 1] >> ((index & 1)*4) & 0xF);
+			return (byte) (arr[index >> 1] >> ((index & 1) * 4) & 0xF);
 		}
 
 		private static void SetNibble4(byte[] arr, int index, byte value)
 		{
 			value &= 0xF;
 			var idx = index >> 1;
-			arr[idx] &= (byte) (0xF << (((index + 1) & 1)*4));
-			arr[idx] |= (byte) (value << ((index & 1)*4));
+			arr[idx] &= (byte) (0xF << (((index + 1) & 1) * 4));
+			arr[idx] |= (byte) (value << ((index & 1) * 4));
 		}
 
 		public Vector3 GetSpawnPoint()
@@ -893,11 +894,11 @@ namespace MiNET.Worlds
 				byte[] buffer = new byte[8192];
 				regionFile.Read(buffer, 0, buffer.Length);
 
-				int xi = (coordinates.X%width);
+				int xi = (coordinates.X % width);
 				if (xi < 0) xi += 32;
-				int zi = (coordinates.Z%depth);
+				int zi = (coordinates.Z % depth);
 				if (zi < 0) zi += 32;
-				int tableOffset = (xi + zi*width)*4;
+				int tableOffset = (xi + zi * width) * 4;
 
 				regionFile.Seek(tableOffset, SeekOrigin.Begin);
 
@@ -918,7 +919,7 @@ namespace MiNET.Worlds
 
 				byte[] nbtBuf = nbt.SaveToBuffer(NbtCompression.ZLib);
 				int nbtLength = nbtBuf.Length;
-				byte nbtSectorCount = (byte) Math.Ceiling(nbtLength/4096d);
+				byte nbtSectorCount = (byte) Math.Ceiling(nbtLength / 4096d);
 
 				// Don't write yet, just use the lenght
 
@@ -997,7 +998,7 @@ namespace MiNET.Worlds
 						{
 							for (int y = 0; y < 16; y++)
 							{
-								int anvilIndex = y*16*16 + z*16 + x;
+								int anvilIndex = y * 16 * 16 + z * 16 + x;
 								byte blockId = (byte) section.GetBlock(x, y, z);
 								blocks[anvilIndex] = blockId;
 								SetNibble4(data, anvilIndex, section.GetMetadata(x, y, z));

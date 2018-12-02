@@ -3,7 +3,8 @@
 <protocol gameVersion="1.7.0" protocolVersion="291">
 
 	<constants>
-		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]" value="{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }" />
+		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
+				value="{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }" />
 	</constants>
 
 	<pdu namespace="raknet" id="0x00" online="false" client="true" server="true" name="ID_CONNECTED_PING">
@@ -684,7 +685,8 @@
 		<enum id="Teleport" value="0x80" />
 
 		<enum id="Default" value="(BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs )" />
-		<enum id="All" value="(BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs | Operator | Teleport)" />
+		<enum id="All"
+			value="(BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs | Operator | Teleport)" />
 	</enums>
 
 	<pdu id="0x37" online="false" client="true" server="true" name="MCPE_ADVENTURE_SETTINGS">

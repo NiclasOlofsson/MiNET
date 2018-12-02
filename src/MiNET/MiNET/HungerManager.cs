@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using log4net;
 using MiNET.Items;
@@ -8,7 +33,7 @@ namespace MiNET
 {
 	public class HungerManager
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (HungerManager));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(HungerManager));
 
 		public Player Player { get; set; }
 
@@ -56,7 +81,7 @@ namespace MiNET
 				movementStrainFactor = 0.1;
 			}
 
-			Exhaustion += (distance*movementStrainFactor);
+			Exhaustion += (distance * movementStrainFactor);
 
 			ProcessHunger();
 		}
@@ -107,7 +132,7 @@ namespace MiNET
 			{
 				_ticker++;
 
-				if (_ticker%80 == 0)
+				if (_ticker % 80 == 0)
 				{
 					Player.HealthManager.TakeHit(null, 1, DamageCause.Starving);
 				}
@@ -118,9 +143,9 @@ namespace MiNET
 
 				if (Hunger >= 20 && Saturation > 0)
 				{
-					if (_ticker%10 == 0)
+					if (_ticker % 10 == 0)
 					{
-						if(Player.Level.Difficulty != Difficulty.Hardcore)
+						if (Player.Level.Difficulty != Difficulty.Hardcore)
 						{
 							IncreaseExhaustion(4);
 							Player.HealthManager.Regen(1);
@@ -129,7 +154,7 @@ namespace MiNET
 				}
 				else
 				{
-					if (_ticker%80 == 0)
+					if (_ticker % 80 == 0)
 					{
 						if (Player.Level.Difficulty != Difficulty.Hardcore)
 						{
@@ -151,13 +176,13 @@ namespace MiNET
 		{
 			if (Log.IsDebugEnabled)
 			{
-				if (Player.Level.TickTime%10 == 0)
+				if (Player.Level.TickTime % 10 == 0)
 				{
 					if (Player.Username.Equals("gurunx"))
 					{
 						Popup popup = new Popup
 						{
-							Duration = 20*2,
+							Duration = 20 * 2,
 							MessageType = MessageType.Tip,
 							Message = $"Saturation={Saturation}, Exhaustion={Exhaustion:F3}"
 						};

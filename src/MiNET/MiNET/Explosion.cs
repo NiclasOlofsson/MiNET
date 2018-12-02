@@ -1,8 +1,32 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MiNET.Blocks;
-using MiNET.Entities;
 using MiNET.Entities.World;
 using MiNET.Net;
 using MiNET.Utils;
@@ -67,15 +91,15 @@ namespace MiNET
 					{
 						if (i == 0 || i == Ray - 1 || j == 0 || j == Ray - 1 || k == 0 || k == Ray - 1)
 						{
-							double x = i/(Ray - 1.0F)*2.0F - 1.0F;
-							double y = j/(Ray - 1.0F)*2.0F - 1.0F;
-							double z = k/(Ray - 1.0F)*2.0F - 1.0F;
-							double dist = Math.Sqrt(x*x + y*y + z*z);
+							double x = i / (Ray - 1.0F) * 2.0F - 1.0F;
+							double y = j / (Ray - 1.0F) * 2.0F - 1.0F;
+							double z = k / (Ray - 1.0F) * 2.0F - 1.0F;
+							double dist = Math.Sqrt(x * x + y * y + z * z);
 
 							x /= dist;
 							y /= dist;
 							z /= dist;
-							float blastForce1 = (float) (_size*(0.7F + _world.Random.NextDouble()*0.6F));
+							float blastForce1 = (float) (_size * (0.7F + _world.Random.NextDouble() * 0.6F));
 
 							double cX = _centerCoordinates.X;
 							double cY = _centerCoordinates.Y;
@@ -91,8 +115,8 @@ namespace MiNET
 
 								if (!(block is Air))
 								{
-									float blastForce3 = block.BlastResistance/5f;
-									blastForce1 -= (blastForce3 + 0.3F)*0.3f;
+									float blastForce3 = block.BlastResistance / 5f;
+									blastForce1 -= (blastForce3 + 0.3F) * 0.3f;
 								}
 
 								if (blastForce1 > 0.0F)
@@ -100,9 +124,9 @@ namespace MiNET
 									if (!_afectedBlocks.ContainsKey(block.Coordinates) && !(block is Air)) _afectedBlocks.Add(block.Coordinates, block);
 								}
 
-								cX += x*blastForce2;
-								cY += y*blastForce2;
-								cZ += z*blastForce2;
+								cX += x * blastForce2;
+								cY += y * blastForce2;
+								cZ += z * blastForce2;
 							}
 						}
 					}

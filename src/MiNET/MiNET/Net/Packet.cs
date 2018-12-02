@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -44,15 +44,14 @@ namespace MiNET.Net
 {
 	public abstract partial class Packet
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Packet));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Packet));
 
 		private bool _isEncoded;
 		private byte[] _encodedMessage;
 
 		[JsonIgnore] public int DatagramSequenceNumber;
 
-		[JsonIgnore]
-		public bool NoBatch { get; set; }
+		[JsonIgnore] public bool NoBatch { get; set; }
 
 		[JsonIgnore] public Reliability Reliability = Reliability.Unreliable;
 		[JsonIgnore] public int ReliableMessageNumber;
@@ -69,8 +68,7 @@ namespace MiNET.Net
 		private BinaryReader _reader;
 		private Stopwatch _timer = new Stopwatch();
 
-		[JsonIgnore]
-		public byte[] Bytes { get; private set; }
+		[JsonIgnore] public byte[] Bytes { get; private set; }
 
 		public Packet()
 		{
@@ -540,10 +538,10 @@ namespace MiNET.Net
 			Write(location.X);
 			Write(location.Y);
 			Write(location.Z);
-			var d = 256f/360f;
-			Write((byte) Math.Round(location.Pitch*d)); // 256/360
-			Write((byte) Math.Round(location.HeadYaw*d)); // 256/360
-			Write((byte) Math.Round(location.Yaw*d)); // 256/360
+			var d = 256f / 360f;
+			Write((byte) Math.Round(location.Pitch * d)); // 256/360
+			Write((byte) Math.Round(location.HeadYaw * d)); // 256/360
+			Write((byte) Math.Round(location.Yaw * d)); // 256/360
 		}
 
 		public PlayerLocation ReadPlayerLocation()
@@ -552,9 +550,9 @@ namespace MiNET.Net
 			location.X = ReadFloat();
 			location.Y = ReadFloat();
 			location.Z = ReadFloat();
-			location.Pitch = ReadByte()*1f/0.71f;
-			location.HeadYaw = ReadByte()*1f/0.71f;
-			location.Yaw = ReadByte()*1f/0.71f;
+			location.Pitch = ReadByte() * 1f / 0.71f;
+			location.HeadYaw = ReadByte() * 1f / 0.71f;
+			location.Yaw = ReadByte() * 1f / 0.71f;
 
 			return location;
 		}
@@ -1252,7 +1250,11 @@ namespace MiNET.Net
 				var encryptionKey = ReadString();
 				var subpackName = ReadString();
 				var contentIdentity = ReadString();
-				info.PackIdVersion = new PackIdVersion {Id = id, Version = version};
+				info.PackIdVersion = new PackIdVersion
+				{
+					Id = id,
+					Version = version
+				};
 				info.Size = size;
 				packInfos.Add(info);
 			}
@@ -1286,7 +1288,12 @@ namespace MiNET.Net
 				var id = ReadString();
 				var version = ReadString();
 				var unknown = ReadString();
-				var info = new PackIdVersion {Id = id, Version = version, Unknown = unknown};
+				var info = new PackIdVersion
+				{
+					Id = id,
+					Version = version,
+					Unknown = unknown
+				};
 				packInfos.Add(info);
 			}
 
@@ -1401,7 +1408,7 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < rec.Height; h++)
 						{
-							Write(rec.Input[(h*rec.Width) + w]);
+							Write(rec.Input[(h * rec.Width) + w]);
 						}
 					}
 					WriteVarInt(1);
@@ -1470,7 +1477,7 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < height; h++)
 						{
-							recipe.Input[(h*width) + w] = ReadItem();
+							recipe.Input[(h * width) + w] = ReadItem();
 						}
 					}
 
@@ -1608,7 +1615,7 @@ namespace MiNET.Net
 				WriteSignedVarInt(map.XOffset);
 				WriteSignedVarInt(map.ZOffset);
 
-				WriteUnsignedVarInt((uint) (map.Col*map.Row));
+				WriteUnsignedVarInt((uint) (map.Col * map.Row));
 				int i = 0;
 				for (int col = 0; col < map.Col; col++)
 				{
@@ -1758,7 +1765,7 @@ namespace MiNET.Net
 
 		public void Write(ScoreEntries list)
 		{
-			if(list == null) list = new ScoreEntries();
+			if (list == null) list = new ScoreEntries();
 
 			Write((byte) (list.FirstOrDefault() is ScoreEntryRemove ? McpeSetScore.Types.Remove : McpeSetScore.Types.Change));
 			WriteUnsignedVarInt((uint) list.Count);
@@ -1866,7 +1873,11 @@ namespace MiNET.Net
 				switch (type)
 				{
 					case McpeSetScoreboardIdentityPacket.Operations.RegisterIdentity:
-						list.Add(new ScoreboardRegisterIdentityEntry() {Id = scoreboardId, EntityId = ReadSignedVarLong()});
+						list.Add(new ScoreboardRegisterIdentityEntry()
+						{
+							Id = scoreboardId,
+							EntityId = ReadSignedVarLong()
+						});
 						break;
 					case McpeSetScoreboardIdentityPacket.Operations.ClearIdentity:
 						list.Add(new ScoreboardClearIdentityEntry() {Id = scoreboardId});
@@ -1878,7 +1889,6 @@ namespace MiNET.Net
 
 			return list;
 		}
-
 
 
 		public bool CanRead()
@@ -1997,7 +2007,7 @@ namespace MiNET.Net
 				if (printLineCount) sb.AppendFormat("{0:x8} ", line);
 				sb.Append(string.Join(" ", lineBytes.Select(b => b.ToString("x2"))
 						.ToArray())
-					.PadRight(bytesPerLine*3));
+					.PadRight(bytesPerLine * 3));
 				sb.Append(" ");
 				sb.Append(new string(lineBytes.Select(b => b < 32 ? '.' : (char) b)
 					.ToArray()));
@@ -2024,7 +2034,7 @@ namespace MiNET.Net
 	/// Base package class
 	public abstract partial class Packet<T> : Packet, ICloneable where T : Packet<T>, new()
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Packet<T>));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Packet<T>));
 
 		private static readonly ObjectPool<T> Pool = new ObjectPool<T>(() => new T());
 

@@ -49,7 +49,7 @@ namespace MiNET.Net
 			// set the flags
 			bool shouldSend = flags != 0 || SetFlags();
 
-			if ( Log.IsDebugEnabled && !shouldSend) Log.Warn("Sending delta move with no change. Please fix!");
+			if (Log.IsDebugEnabled && !shouldSend) Log.Warn("Sending delta move with no change. Please fix!");
 		}
 
 		public bool SetFlags()
@@ -93,21 +93,21 @@ namespace MiNET.Net
 				WriteSignedVarInt(_dZ);
 			}
 
-			var d = 256f/360f;
+			var d = 256f / 360f;
 
 			if ((flags & 0x8) != 0)
 			{
-				Write((byte) Math.Round(currentPosition.Pitch*d)); // 256/360
+				Write((byte) Math.Round(currentPosition.Pitch * d)); // 256/360
 			}
 
 			if ((flags & 0x10) != 0)
 			{
-				Write((byte) Math.Round(currentPosition.Yaw*d)); // 256/360
+				Write((byte) Math.Round(currentPosition.Yaw * d)); // 256/360
 			}
 
 			if ((flags & 0x20) != 0)
 			{
-				Write((byte) Math.Round(currentPosition.HeadYaw*d)); // 256/360
+				Write((byte) Math.Round(currentPosition.HeadYaw * d)); // 256/360
 			}
 		}
 

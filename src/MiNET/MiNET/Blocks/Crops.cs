@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -34,7 +34,7 @@ namespace MiNET.Blocks
 {
 	public abstract class Crops : Block
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Crops));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Crops));
 
 		protected byte MaxGrowth { get; set; } = 7;
 
@@ -114,7 +114,7 @@ namespace MiNET.Blocks
 
 			//1 / (floor(25 / points) + 1)
 
-			double chance = 1/(Math.Floor(25/points) + 1);
+			double chance = 1 / (Math.Floor(25 / points) + 1);
 
 			var calculateGrowthChance = level.Random.NextDouble() <= chance;
 			//Log.Debug($"Calculated growth chance. Will grow={calculateGrowthChance} on a chance score of {chance}");

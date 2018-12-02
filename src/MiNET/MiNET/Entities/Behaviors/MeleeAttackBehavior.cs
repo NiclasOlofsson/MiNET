@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -33,7 +33,7 @@ namespace MiNET.Entities.Behaviors
 {
 	public class MeleeAttackBehavior : BehaviorBase
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (MeleeAttackBehavior));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MeleeAttackBehavior));
 
 		protected readonly Mob _entity;
 		private double _speedMultiplier;
@@ -148,7 +148,7 @@ namespace MiNET.Entities.Behaviors
 
 		private double GetAttackReach()
 		{
-			return _entity.Width*2.0F + _entity.Target.Width;
+			return _entity.Width * 2.0F + _entity.Target.Width;
 		}
 
 		public override void OnEnd()

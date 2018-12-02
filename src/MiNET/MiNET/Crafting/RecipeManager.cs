@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -33,7 +33,7 @@ namespace MiNET.Crafting
 {
 	public class RecipeManager
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (RecipeManager));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(RecipeManager));
 
 		public static Recipes Recipes { get; private set; }
 
@@ -4991,9 +4991,9 @@ namespace MiNET.Crafting
 						new Item(35, 15),
 						new Item(0, 0),
 					}),
-				new MultiRecipe() { Id = new UUID("b5c5d105-75a2-4076-af2b-923ea2bf4bf0") }, // b5c5d105-75a2-4076-af2b-923ea2bf4bf0
-				new MultiRecipe() { Id = new UUID("d81aaeaf-e172-4440-9225-868df030d27b") }, // d81aaeaf-e172-4440-9225-868df030d27b
-				new MultiRecipe() { Id = new UUID("00000000-0000-0000-0000-000000000002") }, // 00000000-0000-0000-0000-000000000002
+				new MultiRecipe() {Id = new UUID("b5c5d105-75a2-4076-af2b-923ea2bf4bf0")}, // b5c5d105-75a2-4076-af2b-923ea2bf4bf0
+				new MultiRecipe() {Id = new UUID("d81aaeaf-e172-4440-9225-868df030d27b")}, // d81aaeaf-e172-4440-9225-868df030d27b
+				new MultiRecipe() {Id = new UUID("00000000-0000-0000-0000-000000000002")}, // 00000000-0000-0000-0000-000000000002
 				new ShapedRecipe(3, 3, new Item(395, 0, 1),
 					new Item[]
 					{
@@ -5032,11 +5032,11 @@ namespace MiNET.Crafting
 						new Item(395, 1, 1),
 						new Item(345, 0, 1),
 					}),
-				new MultiRecipe() { Id = new UUID("85939755-ba10-4d9d-a4cc-efb7a8e943c4") }, // 85939755-ba10-4d9d-a4cc-efb7a8e943c4
-				new MultiRecipe() { Id = new UUID("d392b075-4ba1-40ae-8789-af868d56f6ce") }, // d392b075-4ba1-40ae-8789-af868d56f6ce
-				new MultiRecipe() { Id = new UUID("aecd2294-4b94-434b-8667-4499bb2c9327") }, // aecd2294-4b94-434b-8667-4499bb2c9327
-				new MultiRecipe() { Id = new UUID("00000000-0000-0000-0000-000000000001") }, // 00000000-0000-0000-0000-000000000001
-				new MultiRecipe() { Id = new UUID("d1ca6b84-338e-4f2f-9c6b-76cc8b4bd98d") }, // d1ca6b84-338e-4f2f-9c6b-76cc8b4bd98d
+				new MultiRecipe() {Id = new UUID("85939755-ba10-4d9d-a4cc-efb7a8e943c4")}, // 85939755-ba10-4d9d-a4cc-efb7a8e943c4
+				new MultiRecipe() {Id = new UUID("d392b075-4ba1-40ae-8789-af868d56f6ce")}, // d392b075-4ba1-40ae-8789-af868d56f6ce
+				new MultiRecipe() {Id = new UUID("aecd2294-4b94-434b-8667-4499bb2c9327")}, // aecd2294-4b94-434b-8667-4499bb2c9327
+				new MultiRecipe() {Id = new UUID("00000000-0000-0000-0000-000000000001")}, // 00000000-0000-0000-0000-000000000001
+				new MultiRecipe() {Id = new UUID("d1ca6b84-338e-4f2f-9c6b-76cc8b4bd98d")}, // d1ca6b84-338e-4f2f-9c6b-76cc8b4bd98d
 				new ShapedRecipe(3, 1, new Item(339, 0, 3),
 					new Item[]
 					{

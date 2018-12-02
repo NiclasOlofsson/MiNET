@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -33,7 +33,7 @@ namespace MiNET.Entities.Behaviors
 {
 	public class StrollBehavior : BehaviorBase
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (StrollBehavior));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(StrollBehavior));
 
 		private readonly Mob _entity;
 		private int _duration;
@@ -62,23 +62,23 @@ namespace MiNET.Entities.Behaviors
 
 		public override void OnTick(Entity[] entities)
 		{
-			float speedFactor = (float) (_speed*_speedMultiplier*0.7f*(_entity.IsInWater ? 0.3 : 1.0)); // 0.7 is a general mob base factor
+			float speedFactor = (float) (_speed * _speedMultiplier * 0.7f * (_entity.IsInWater ? 0.3 : 1.0)); // 0.7 is a general mob base factor
 			var level = _entity.Level;
 			var coordinates = _entity.KnownPosition;
-			var direction = _entity.GetHorizDir()*new Vector3(1, 0, 1);
+			var direction = _entity.GetHorizDir() * new Vector3(1, 0, 1);
 
-			var blockDown = level.GetBlock(((BlockCoordinates)coordinates).BlockDown());
+			var blockDown = level.GetBlock(((BlockCoordinates) coordinates).BlockDown());
 			if (_entity.Velocity.Y < 0 && blockDown is Air)
 			{
 				_timeLeft = 0;
 				return;
 			}
 
-			BlockCoordinates coord = (BlockCoordinates) (coordinates + (direction*speedFactor) + (direction*(float) _entity.Length/2));
+			BlockCoordinates coord = (BlockCoordinates) (coordinates + (direction * speedFactor) + (direction * (float) _entity.Length / 2));
 
 			var players = level.GetSpawnedPlayers();
 			bool entityCollide = false;
-			var boundingBox = _entity.GetBoundingBox().OffsetBy((direction*speedFactor) + (direction*(float) _entity.Length/2));
+			var boundingBox = _entity.GetBoundingBox().OffsetBy((direction * speedFactor) + (direction * (float) _entity.Length / 2));
 			foreach (var player in players)
 			{
 				if (player.GetBoundingBox().Intersects(boundingBox))
@@ -114,9 +114,9 @@ namespace MiNET.Entities.Behaviors
 			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
 			if (!colliding && !entityCollide)
 			{
-				var velocity = direction*speedFactor;
+				var velocity = direction * speedFactor;
 				//Log.Debug($"Moving sheep: {velocity}");
-				if ((_entity.Velocity*new Vector3(1, 0, 1)).Length() < velocity.Length())
+				if ((_entity.Velocity * new Vector3(1, 0, 1)).Length() < velocity.Length())
 				{
 					_entity.Velocity += velocity - _entity.Velocity;
 				}

@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -30,7 +30,7 @@ namespace MiNET.Entities.Behaviors
 	public class PanicBehavior : StrollBehavior
 	{
 		private readonly Mob _entity;
-		private static readonly ILog Log = LogManager.GetLogger(typeof (PanicBehavior));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(PanicBehavior));
 
 		public PanicBehavior(Mob entity, int duration, double speed, double speedMultiplier) : base(entity, duration, speed, speedMultiplier)
 		{

@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -35,7 +35,7 @@ namespace MiNET.Entities.Behaviors
 {
 	public class WanderBehavior : BehaviorBase
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (WanderBehavior));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(WanderBehavior));
 
 		private readonly Mob _entity;
 		private readonly double _speedMultiplier;
@@ -117,9 +117,9 @@ namespace MiNET.Entities.Behaviors
 			Block currentBlock = null;
 			for (int i = 0; i < 10; i++)
 			{
-				int x = random.Next(2*dxz + 1) - dxz;
-				int y = random.Next(2*dy + 1) - dy;
-				int z = random.Next(2*dxz + 1) - dxz;
+				int x = random.Next(2 * dxz + 1) - dxz;
+				int y = random.Next(2 * dy + 1) - dy;
+				int z = random.Next(2 * dxz + 1) - dxz;
 
 				var blockCoordinates = new BlockCoordinates(x, y, z) + coords;
 				var block = entity.Level.GetBlock(blockCoordinates);

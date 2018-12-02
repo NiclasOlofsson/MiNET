@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -34,12 +34,11 @@ using log4net;
 namespace MiNET.Utils.Diagnostics
 {
 	/// <summary>
-	/// A general purpose profiler. Profiler is threadsafe in order to be possible to use everywhere independent
-	/// of thread knowledge. Measurements can be collected in a hierarchy, so sub-timers can measure individual sections
-	/// of code, while still getting an overall view of the whole.
-	/// 
-	/// When using measurements, do make sure to check for null in the case profiler is disabled. Check world tick for
-	/// examples of proper use.
+	///     A general purpose profiler. Profiler is threadsafe in order to be possible to use everywhere independent
+	///     of thread knowledge. Measurements can be collected in a hierarchy, so sub-timers can measure individual sections
+	///     of code, while still getting an overall view of the whole.
+	///     When using measurements, do make sure to check for null in the case profiler is disabled. Check world tick for
+	///     examples of proper use.
 	/// </summary>
 	public class Profiler
 	{
@@ -75,7 +74,7 @@ namespace MiNET.Utils.Diagnostics
 
 		public string GetResults(long timespan = 10000)
 		{
-			long fromTime = (long) (Stopwatch.GetTimestamp() - ((TimeSpan.FromMilliseconds(timespan).TotalSeconds)*Stopwatch.Frequency));
+			long fromTime = (long) (Stopwatch.GetTimestamp() - ((TimeSpan.FromMilliseconds(timespan).TotalSeconds) * Stopwatch.Frequency));
 
 			ProfilerResult[] filtered = _results.ToArray().Where(o => o.TimeStamp > fromTime).ToArray();
 
@@ -95,7 +94,7 @@ namespace MiNET.Utils.Diagnostics
 			foreach (var counter in totalTime)
 			{
 				long count = filtered.Count(a => a.Name == counter.Key);
-				long avg = counter.Value/count;
+				long avg = counter.Value / count;
 				avarageTime.Add(counter.Key, avg);
 			}
 
@@ -119,7 +118,7 @@ namespace MiNET.Utils.Diagnostics
 
 	public class Measurement
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Measurement));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Measurement));
 
 		public string Name;
 		public Stopwatch Timer;

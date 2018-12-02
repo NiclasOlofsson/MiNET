@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -35,7 +35,7 @@ namespace MiNET.Entities.Projectiles
 {
 	public class FireworksRocket : Projectile
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (FireworksRocket));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(FireworksRocket));
 
 		public Item Fireworks { get; set; }
 		public int Lifetime { get; set; }
@@ -70,7 +70,7 @@ namespace MiNET.Entities.Projectiles
 				Log.Debug(e);
 			}
 
-			Lifetime = 20*flyTime + random.Next(5) + random.Next(7);
+			Lifetime = 20 * flyTime + random.Next(5) + random.Next(7);
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -82,7 +82,7 @@ namespace MiNET.Entities.Projectiles
 
 		public override void SpawnEntity()
 		{
-			Velocity = Force = KnownPosition.GetDirection().Normalize()*0.06055374f;
+			Velocity = Force = KnownPosition.GetDirection().Normalize() * 0.06055374f;
 			KnownPosition.Yaw = (float) Velocity.GetYaw();
 			KnownPosition.Pitch = (float) Velocity.GetPitch();
 

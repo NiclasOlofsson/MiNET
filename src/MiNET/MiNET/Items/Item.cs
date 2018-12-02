@@ -239,7 +239,7 @@ namespace MiNET.Items
 		{
 			unchecked
 			{
-				return (Id*397) ^ Metadata.GetHashCode();
+				return (Id * 397) ^ Metadata.GetHashCode();
 			}
 		}
 

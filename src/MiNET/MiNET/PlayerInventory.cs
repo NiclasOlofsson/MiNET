@@ -218,7 +218,7 @@ namespace MiNET
 
 			if (existingItem is ItemAir || existingItem.Id == 0 || existingItem.Id == -1)
 			{
-				Slots[si] = (Item)item.Clone();
+				Slots[si] = (Item) item.Clone();
 				item.Count = 0;
 				if (update) SendSetSlot(si);
 				return true;

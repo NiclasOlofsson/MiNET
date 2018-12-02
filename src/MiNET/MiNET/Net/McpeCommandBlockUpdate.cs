@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -41,13 +41,14 @@ namespace MiNET.Net
 
 		partial void AfterEncode()
 		{
-			if(isBlock)
+			if (isBlock)
 			{
 				Write(coordinates);
 				WriteUnsignedVarInt(commandBlockMode);
 				Write(isRedstoneMode);
 				Write(isConditional);
-			} else
+			}
+			else
 			{
 				WriteUnsignedVarLong(minecartEntityId);
 			}
@@ -60,13 +61,14 @@ namespace MiNET.Net
 
 		partial void AfterDecode()
 		{
-			if(isBlock)
+			if (isBlock)
 			{
 				coordinates = ReadBlockCoordinates();
 				commandBlockMode = ReadUnsignedVarInt();
 				isRedstoneMode = ReadBool();
 				isConditional = ReadBool();
-			} else
+			}
+			else
 			{
 				minecartEntityId = ReadUnsignedVarLong();
 			}

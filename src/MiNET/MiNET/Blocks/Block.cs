@@ -141,7 +141,7 @@ namespace MiNET.Blocks
 
 		public float GetHardness()
 		{
-			return Hardness/5.0F;
+			return Hardness / 5.0F;
 		}
 
 		//public double GetMineTime(Item miningTool)

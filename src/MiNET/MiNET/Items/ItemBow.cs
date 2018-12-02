@@ -95,7 +95,7 @@ namespace MiNET.Items
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			arrow.KnownPosition.Y += 1.62f;
 
-			arrow.Velocity = arrow.KnownPosition.GetHeadDirection()*(force*2.0f*1.5f);
+			arrow.Velocity = arrow.KnownPosition.GetHeadDirection() * (force * 2.0f * 1.5f);
 			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
 			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
 			arrow.BroadcastMovement = true;
@@ -106,9 +106,9 @@ namespace MiNET.Items
 
 		private float CalculateForce(long timeUsed)
 		{
-			float force = timeUsed/20.0F;
+			float force = timeUsed / 20.0F;
 
-			force = ((force*force) + (force*2.0F))/3.0F;
+			force = ((force * force) + (force * 2.0F)) / 3.0F;
 			if (force < 0.1D)
 			{
 				return 0;
@@ -124,7 +124,7 @@ namespace MiNET.Items
 
 		public Vector3 GetShootVector(double motX, double motY, double motZ, double f, double f1)
 		{
-			double f2 = Math.Sqrt(motX*motX + motY*motY + motZ*motZ);
+			double f2 = Math.Sqrt(motX * motX + motY * motY + motZ * motZ);
 
 			motX /= f2;
 			motY /= f2;

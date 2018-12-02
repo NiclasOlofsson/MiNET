@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -41,7 +41,7 @@ namespace MiNET.Entities
 {
 	public class Entity
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Entity));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Entity));
 
 
 		public Level Level { get; set; }
@@ -252,7 +252,7 @@ namespace MiNET.Entities
 			bits.CopyTo(bytes, 0);
 
 			List<DataFlags> flags = new List<DataFlags>();
-			foreach (var val in Enum.GetValues(typeof (DataFlags)))
+			foreach (var val in Enum.GetValues(typeof(DataFlags)))
 			{
 				if (bits[(int) val]) flags.Add((DataFlags) val);
 			}
@@ -613,7 +613,7 @@ namespace MiNET.Entities
 
 		public virtual BoundingBox GetBoundingBox(Vector3 pos)
 		{
-			float halfWidth = (float) (Width/2);
+			float halfWidth = (float) (Width / 2);
 
 			var bbox = new BoundingBox(
 				new Vector3(pos.X - halfWidth, pos.Y, pos.Z - halfWidth),
@@ -640,7 +640,7 @@ namespace MiNET.Entities
 
 		public static byte DirectionByRotationFlat(float yaw)
 		{
-			byte direction = (byte) ((int) Math.Floor((yaw*4F)/360F + 0.5D) & 0x03);
+			byte direction = (byte) ((int) Math.Floor((yaw * 4F) / 360F + 0.5D) & 0x03);
 			switch (direction)
 			{
 				case 0:
@@ -698,7 +698,7 @@ namespace MiNET.Entities
 					}
 				}
 
-				LastSentPosition = (PlayerLocation)KnownPosition.Clone(); // Used for delta
+				LastSentPosition = (PlayerLocation) KnownPosition.Clone(); // Used for delta
 			}
 		}
 

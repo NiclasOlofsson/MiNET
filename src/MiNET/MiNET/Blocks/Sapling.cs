@@ -215,12 +215,12 @@ namespace MiNET.Blocks
 
 					if ((block is Grass || block is Dirt || block is Farmland) && position.Y < 256 - height - 1)
 					{
-						level.SetBlock(new Dirt {Coordinates = position.BlockDown() });
+						level.SetBlock(new Dirt {Coordinates = position.BlockDown()});
 
 						for (int y = position.Y - 3 + height; y <= position.Y + height; ++y)
 						{
 							int yd = y - (position.Y + height);
-							int ydHalf = 1 - yd/2;
+							int ydHalf = 1 - yd / 2;
 
 							for (int x = position.X - ydHalf; x <= position.X + ydHalf; ++x)
 							{
@@ -247,7 +247,7 @@ namespace MiNET.Blocks
 
 						for (int y = 0; y < height; ++y)
 						{
-							BlockCoordinates blockpos = position + (BlockCoordinates.Up*y);
+							BlockCoordinates blockpos = position + (BlockCoordinates.Up * y);
 							Block material = level.GetBlock(blockpos);
 
 							if (material is Air || material is Leaves || material is Leaves2)

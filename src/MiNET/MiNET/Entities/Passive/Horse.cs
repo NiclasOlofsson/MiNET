@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -37,7 +37,7 @@ namespace MiNET.Entities.Passive
 {
 	public class Horse : PassiveMob
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Horse));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Horse));
 
 		public int Markings { get; set; }
 		public bool IsEating { get; set; }
@@ -54,8 +54,8 @@ namespace MiNET.Entities.Passive
 			var random = rnd ?? new Random((int) DateTime.UtcNow.Ticks);
 			Variant = random.Next(7);
 			Markings = random.Next(5);
-			Speed = (0.45 + random.NextDouble()*0.3D + random.NextDouble()*0.3D + random.NextDouble()*0.3)*0.25D;
-			JumpStrength = 0.4 + random.NextDouble()*0.2 + random.NextDouble()*0.2 + random.NextDouble()*0.2;
+			Speed = (0.45 + random.NextDouble() * 0.3D + random.NextDouble() * 0.3D + random.NextDouble() * 0.3) * 0.25D;
+			JumpStrength = 0.4 + random.NextDouble() * 0.2 + random.NextDouble() * 0.2 + random.NextDouble() * 0.2;
 
 			IsAffectedByGravity = true;
 			//IsBreathing = true; // ??
@@ -253,7 +253,7 @@ namespace MiNET.Entities.Passive
 
 	public class HorseRiddenBehavior : BehaviorBase
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (HorseRiddenBehavior));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(HorseRiddenBehavior));
 
 		private readonly Horse _horse;
 		private long _rideTime = 0;
@@ -315,7 +315,7 @@ namespace MiNET.Entities.Passive
 
 	public class HorseInventory : IInventory
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (HorseInventory));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(HorseInventory));
 
 		private readonly Horse _horse;
 
@@ -353,7 +353,11 @@ namespace MiNET.Entities.Passive
 
 			McpeInventoryContent containerSetContent = McpeInventoryContent.CreateObject();
 			containerSetContent.inventoryId = 2;
-			containerSetContent.input = new ItemStacks() {Slot0, Slot1};
+			containerSetContent.input = new ItemStacks()
+			{
+				Slot0,
+				Slot1
+			};
 			player.SendPacket(containerSetContent);
 		}
 

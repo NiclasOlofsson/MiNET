@@ -126,20 +126,20 @@ namespace MiNET.Utils
 							}
 							AutoReset.Reset();
 							execTime = watch.ElapsedMilliseconds - execTime;
-							Avarage = (Avarage*9 + execTime)/10L;
+							Avarage = (Avarage * 9 + execTime) / 10L;
 
 							if (skipTicks)
 							{
 								// Calculate when the next stop is. If we're too slow on the trigger then we'll skip ticks
-								nextStop = (long) (interval*(Math.Floor(watch.ElapsedMilliseconds/(float) interval /*+ 1f*/) + 1));
+								nextStop = (long) (interval * (Math.Floor(watch.ElapsedMilliseconds / (float) interval /*+ 1f*/) + 1));
 							}
 							else
 							{
-								long calculatedNextStop = (long) (interval*(Math.Floor(watch.ElapsedMilliseconds/(float) interval /*+ 1f*/) + 1));
+								long calculatedNextStop = (long) (interval * (Math.Floor(watch.ElapsedMilliseconds / (float) interval /*+ 1f*/) + 1));
 								nextStop += interval;
 
 								// Calculate when the next stop is. If we're very behind on ticks then we'll skip ticks
-								if (calculatedNextStop - nextStop > 2*interval)
+								if (calculatedNextStop - nextStop > 2 * interval)
 								{
 									//Log.Warn($"Skipping ticks because behind {calculatedNextStop - nextStop}ms. Too much");
 									nextStop = calculatedNextStop;

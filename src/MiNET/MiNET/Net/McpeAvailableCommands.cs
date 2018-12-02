@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using log4net;
 using MiNET.Plugins;
@@ -36,7 +35,7 @@ namespace MiNET.Net
 {
 	public partial class McpeAvailableCommands
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (McpeAvailableCommands));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(McpeAvailableCommands));
 
 		public CommandSet CommandSet { get; set; }
 
@@ -77,9 +76,9 @@ namespace MiNET.Net
 				for (int i = 0; i < count; i++)
 				{
 					string s = ReadString();
-					if(s != last)
+					if (s != last)
 					{
-						if(last != null)
+						if (last != null)
 						{
 							clazzType = null;
 							sb.AppendLine("}");
@@ -120,7 +119,6 @@ namespace MiNET.Net
 							}
 						}
 						sb.AppendLine($"\t{enumValue}, {(type == null ? "// missing" : "")}");
-
 					}
 				}
 
@@ -299,26 +297,25 @@ namespace MiNET.Net
 						if (writtenEnumList.Contains(aliasEnum)) continue;
 
 						Write(aliasEnum);
-						WriteUnsignedVarInt((uint)aliases.Length);
+						WriteUnsignedVarInt((uint) aliases.Length);
 						foreach (var enumValue in aliases)
 						{
 							if (!stringList.Contains(enumValue)) Log.Error($"Expected enum value: {enumValue} in string list, but didn't find it.");
 							if (stringList.Count <= byte.MaxValue)
 							{
-								Write((byte)stringList.IndexOf(enumValue));
+								Write((byte) stringList.IndexOf(enumValue));
 							}
 							else if (stringList.Count <= short.MaxValue)
 							{
-								Write((short)stringList.IndexOf(enumValue));
+								Write((short) stringList.IndexOf(enumValue));
 							}
 							else
 							{
-								Write((int)stringList.IndexOf(enumValue));
+								Write((int) stringList.IndexOf(enumValue));
 							}
 
 							//Log.Debug($"EnumType: {aliasEnum}, {enumValue}, {stringList.IndexOf(enumValue)} ");
 						}
-
 					}
 
 					var overloads = command.Versions[0].Overloads;

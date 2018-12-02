@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -61,8 +61,8 @@ namespace MiNET.Entities.Behaviors
 			var distance = _wolf.DistanceTo(_wolf.Target);
 
 			var velocity = _wolf.Velocity;
-			var x = direction.X/distance*0.5D*0.8 + velocity.X*0.2;
-			var z = direction.Z/distance*0.5D*0.8 + velocity.Z*0.2;
+			var x = direction.X / distance * 0.5D * 0.8 + velocity.X * 0.2;
+			var z = direction.Z / distance * 0.5D * 0.8 + velocity.Z * 0.2;
 			var y = _leapHeight;
 
 			_wolf.Velocity += new Vector3((float) x, (float) y, (float) z);

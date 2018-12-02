@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -37,7 +37,7 @@ namespace MiNET.Entities.Projectiles
 {
 	public class Projectile : Entity
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Projectile));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Projectile));
 
 		public Player Shooter { get; set; }
 		public int Ttl { get; set; } = 0;
@@ -95,8 +95,8 @@ namespace MiNET.Entities.Projectiles
 			//base.OnTick();
 
 			if (KnownPosition.Y <= 0
-			    || (Velocity.Length() <= 0 && DespawnOnImpact)
-			    || (Velocity.Length() <= 0 && !DespawnOnImpact && Ttl <= 0))
+				|| (Velocity.Length() <= 0 && DespawnOnImpact)
+				|| (Velocity.Length() <= 0 && !DespawnOnImpact && Ttl <= 0))
 			{
 				if (DespawnOnImpact || (!DespawnOnImpact && Ttl <= 0))
 				{
@@ -124,11 +124,11 @@ namespace MiNET.Entities.Projectiles
 			bool collided = false;
 			if (entityCollided != null)
 			{
-				double speed = Math.Sqrt(Velocity.X*Velocity.X + Velocity.Y*Velocity.Y + Velocity.Z*Velocity.Z);
-				double damage = Math.Ceiling(speed*Damage);
+				double speed = Math.Sqrt(Velocity.X * Velocity.X + Velocity.Y * Velocity.Y + Velocity.Z * Velocity.Z);
+				double damage = Math.Ceiling(speed * Damage);
 				if (IsCritical)
 				{
-					damage += Level.Random.Next((int) (damage/2 + 2));
+					damage += Level.Random.Next((int) (damage / 2 + 2));
 
 					McpeAnimate animate = McpeAnimate.CreateObject();
 					animate.runtimeEntityId = entityCollided.EntityId;
@@ -138,7 +138,7 @@ namespace MiNET.Entities.Projectiles
 
 				if (PowerLevel > 0)
 				{
-					damage = damage + ((PowerLevel + 1)*0.25);
+					damage = damage + ((PowerLevel + 1) * 0.25);
 				}
 
 				Player player = entityCollided as Player;
@@ -161,14 +161,14 @@ namespace MiNET.Entities.Projectiles
 				velocity2 *= (float) (1.0d - Drag);
 				velocity2 -= new Vector3(0, (float) Gravity, 0);
 				double distance = velocity2.Length();
-				velocity2 = Vector3.Normalize(velocity2)/2;
+				velocity2 = Vector3.Normalize(velocity2) / 2;
 
-				for (int i = 0; i < Math.Ceiling(distance)*2; i++)
+				for (int i = 0; i < Math.Ceiling(distance) * 2; i++)
 				{
 					Vector3 nextPos = KnownPosition.ToVector3();
-					nextPos.X += (float) velocity2.X*i;
-					nextPos.Y += (float) velocity2.Y*i;
-					nextPos.Z += (float) velocity2.Z*i;
+					nextPos.X += (float) velocity2.X * i;
+					nextPos.Y += (float) velocity2.Y * i;
+					nextPos.Z += (float) velocity2.Z * i;
 
 					Block block = Level.GetBlock(nextPos);
 					collided = block.IsSolid && block.GetBoundingBox().Contains(nextPos);
@@ -229,7 +229,7 @@ namespace MiNET.Entities.Projectiles
 				{
 					if (ray.tNear > direction.Length()) break;
 
-					Vector3 p = ray.x + new Vector3((float) ray.tNear)*ray.d;
+					Vector3 p = ray.x + new Vector3((float) ray.tNear) * ray.d;
 					KnownPosition = new PlayerLocation(p.X, p.Y, p.Z);
 					return entity;
 				}
@@ -245,7 +245,7 @@ namespace MiNET.Entities.Projectiles
 			if (distance != null)
 			{
 				float dist = (float) distance - 0.1f;
-				Vector3 pos = ray.Position + (ray.Direction*new Vector3(dist));
+				Vector3 pos = ray.Position + (ray.Direction * new Vector3(dist));
 				KnownPosition.X = pos.X;
 				KnownPosition.Y = pos.Y;
 				KnownPosition.Z = pos.Z;
@@ -256,7 +256,7 @@ namespace MiNET.Entities.Projectiles
 		}
 
 		/// <summary>
-		/// For debugging of flight-path and rotation.
+		///     For debugging of flight-path and rotation.
 		/// </summary>
 		private void BroadcastMoveAndMotion()
 		{
@@ -273,7 +273,7 @@ namespace MiNET.Entities.Projectiles
 				McpeMoveEntityDelta move = McpeMoveEntityDelta.CreateObject();
 				move.runtimeEntityId = EntityId;
 				move.prevSentPosition = LastSentPosition;
-				move.currentPosition = (PlayerLocation)KnownPosition.Clone();
+				move.currentPosition = (PlayerLocation) KnownPosition.Clone();
 				move.isOnGround = IsWalker && IsOnGround;
 				if (move.SetFlags())
 				{
@@ -281,13 +281,13 @@ namespace MiNET.Entities.Projectiles
 				}
 			}
 
-			LastSentPosition = (PlayerLocation)KnownPosition.Clone(); // Used for delta
+			LastSentPosition = (PlayerLocation) KnownPosition.Clone(); // Used for delta
 
 			if (Shooter != null && IsCritical)
 			{
 				var particle = new CriticalParticle(Level);
 				particle.Position = KnownPosition.ToVector3();
-				particle.Spawn(new[] { Shooter });
+				particle.Spawn(new[] {Shooter});
 			}
 		}
 
@@ -302,13 +302,13 @@ namespace MiNET.Entities.Projectiles
 
 			ray.tNear = Double.MaxValue;
 
-			t = (min.X - ix)/ray.d.X;
+			t = (min.X - ix) / ray.d.X;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
-				u = iz + ray.d.Z*t;
-				v = iy + ray.d.Y*t;
+				u = iz + ray.d.Z * t;
+				v = iy + ray.d.Y * t;
 				if (u >= min.Z && u <= max.Z &&
-				    v >= min.Y && v <= max.Y)
+					v >= min.Y && v <= max.Y)
 				{
 					hit = true;
 					ray.tNear = t;
@@ -320,13 +320,13 @@ namespace MiNET.Entities.Projectiles
 				}
 			}
 
-			t = (max.X - ix)/ray.d.X;
+			t = (max.X - ix) / ray.d.X;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
-				u = iz + ray.d.Z*t;
-				v = iy + ray.d.Y*t;
+				u = iz + ray.d.Z * t;
+				v = iy + ray.d.Y * t;
 				if (u >= min.Z && u <= max.Z &&
-				    v >= min.Y && v <= max.Y)
+					v >= min.Y && v <= max.Y)
 				{
 					hit = true;
 					ray.tNear = t;
@@ -338,13 +338,13 @@ namespace MiNET.Entities.Projectiles
 				}
 			}
 
-			t = (min.Y - iy)/ray.d.Y;
+			t = (min.Y - iy) / ray.d.Y;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
-				u = ix + ray.d.X*t;
-				v = iz + ray.d.Z*t;
+				u = ix + ray.d.X * t;
+				v = iz + ray.d.Z * t;
 				if (u >= min.X && u <= max.X &&
-				    v >= min.Z && v <= max.Z)
+					v >= min.Z && v <= max.Z)
 				{
 					hit = true;
 					ray.tNear = t;
@@ -356,13 +356,13 @@ namespace MiNET.Entities.Projectiles
 				}
 			}
 
-			t = (max.Y - iy)/ray.d.Y;
+			t = (max.Y - iy) / ray.d.Y;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
-				u = ix + ray.d.X*t;
-				v = iz + ray.d.Z*t;
+				u = ix + ray.d.X * t;
+				v = iz + ray.d.Z * t;
 				if (u >= min.X && u <= max.X &&
-				    v >= min.Z && v <= max.Z)
+					v >= min.Z && v <= max.Z)
 				{
 					hit = true;
 					ray.tNear = t;
@@ -374,13 +374,13 @@ namespace MiNET.Entities.Projectiles
 				}
 			}
 
-			t = (min.Z - iz)/ray.d.Z;
+			t = (min.Z - iz) / ray.d.Z;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
-				u = ix + ray.d.X*t;
-				v = iy + ray.d.Y*t;
+				u = ix + ray.d.X * t;
+				v = iy + ray.d.Y * t;
 				if (u >= min.X && u <= max.X &&
-				    v >= min.Y && v <= max.Y)
+					v >= min.Y && v <= max.Y)
 				{
 					hit = true;
 					ray.tNear = t;
@@ -392,13 +392,13 @@ namespace MiNET.Entities.Projectiles
 				}
 			}
 
-			t = (max.Z - iz)/ray.d.Z;
+			t = (max.Z - iz) / ray.d.Z;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
-				u = ix + ray.d.X*t;
-				v = iy + ray.d.Y*t;
+				u = ix + ray.d.X * t;
+				v = iy + ray.d.Y * t;
 				if (u >= min.X && u <= max.X &&
-				    v >= min.Y && v <= max.Y)
+					v >= min.Y && v <= max.Y)
 				{
 					hit = true;
 					ray.tNear = t;

@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -36,7 +36,7 @@ namespace MiNET.Items
 {
 	public class ItemFireworks : Item
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemFireworks));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemFireworks));
 
 		public float Spread { get; set; } = 5f;
 
@@ -51,7 +51,7 @@ namespace MiNET.Items
 			rocket.KnownPosition = blockCoordinates;
 			rocket.KnownPosition += faceCoords + new Vector3(0, 0.01f, 0);
 			rocket.KnownPosition.Yaw = random.Next(360);
-			rocket.KnownPosition.Pitch = -1*(float) (90f + (random.NextDouble()*Spread - Spread/2));
+			rocket.KnownPosition.Pitch = -1 * (float) (90f + (random.NextDouble() * Spread - Spread / 2));
 			rocket.BroadcastMovement = true;
 			rocket.DespawnOnImpact = true;
 			rocket.SpawnEntity();

@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.ComponentModel;
 using System.Numerics;
 using System.Reflection;
@@ -15,27 +40,41 @@ namespace MiNET
 	public enum DamageCause
 	{
 		[Description("{0} went MIA")] Unknown,
-		[Description("{0} was pricked  to death")] Contact,
+
+		[Description("{0} was pricked  to death")]
+		Contact,
 		[Description("{0} was slain by {1}")] EntityAttack,
 		[Description("{0} was shot by {1}")] Projectile,
-		[Description("{0} suffocated in a wall")] Suffocation,
-		[Description("{0} hit the ground too hard")] Fall,
+
+		[Description("{0} suffocated in a wall")]
+		Suffocation,
+
+		[Description("{0} hit the ground too hard")]
+		Fall,
 		[Description("{0} went up in flames")] Fire,
 		[Description("{0} burned to death")] FireTick,
-		[Description("{0} tried to swim in lava")] Lava,
+
+		[Description("{0} tried to swim in lava")]
+		Lava,
 		[Description("{0} drowned")] Drowning,
 		[Description("{0} blew up")] BlockExplosion,
 		[Description("{0} blew up")] EntityExplosion,
-		[Description("{0} fell out of the world")] Void,
+
+		[Description("{0} fell out of the world")]
+		Void,
 		[Description("{0} died")] Suicide,
-		[Description("{0} was killed by magic")] Magic,
+
+		[Description("{0} was killed by magic")]
+		Magic,
 		[Description("{0} starved to death")] Starving,
-		[Description("{0} died a customized death")] Custom
+
+		[Description("{0} died a customized death")]
+		Custom
 	}
 
 	public class HealthManager
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (HealthManager));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(HealthManager));
 
 		public Entity Entity { get; set; }
 		public int MaxHealth { get; set; } = 200;
@@ -61,17 +100,17 @@ namespace MiNET
 
 		public int Hearts
 		{
-			get { return (int) Math.Ceiling(Health/10d); }
+			get { return (int) Math.Ceiling(Health / 10d); }
 		}
 
 		public int MaxHearts
 		{
-			get { return (int) Math.Ceiling(MaxHealth/10d); }
+			get { return (int) Math.Ceiling(MaxHealth / 10d); }
 		}
 
 		public virtual void Regen(int amount = 1)
 		{
-			Health += amount*10;
+			Health += amount * 10;
 			if (Health > MaxHealth) Health = MaxHealth;
 
 			var player = Entity as Player;
@@ -98,7 +137,7 @@ namespace MiNET
 			LastDamageCause = cause;
 			if (Absorption > 0)
 			{
-				float abs = Absorption*10;
+				float abs = Absorption * 10;
 				abs = abs - damage;
 				if (abs < 0)
 				{
@@ -107,7 +146,7 @@ namespace MiNET
 				}
 				else
 				{
-					Absorption = abs/10f;
+					Absorption = abs / 10f;
 					damage = 0;
 				}
 			}
@@ -118,7 +157,7 @@ namespace MiNET
 				if (Entity.Level.Difficulty <= Difficulty.Normal && Hearts <= 1) return;
 			}
 
-			Health -= damage*10;
+			Health -= damage * 10;
 			if (Health < 0)
 			{
 				OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
@@ -152,22 +191,22 @@ namespace MiNET
 
 			Random rand = new Random();
 			double dz;
-			for (dz = source.KnownPosition.Z - Entity.KnownPosition.Z; dx*dx + dz*dz < 0.00010; dz = (rand.NextDouble() - rand.NextDouble())*0.01D)
+			for (dz = source.KnownPosition.Z - Entity.KnownPosition.Z; dx * dx + dz * dz < 0.00010; dz = (rand.NextDouble() - rand.NextDouble()) * 0.01D)
 			{
-				dx = (rand.NextDouble() - rand.NextDouble())*0.01D;
+				dx = (rand.NextDouble() - rand.NextDouble()) * 0.01D;
 			}
 
-			double knockbackForce = Math.Sqrt(dx*dx + dz*dz);
+			double knockbackForce = Math.Sqrt(dx * dx + dz * dz);
 			float knockbackMultiplier = 0.4F;
 
 			//this.motX /= 2.0D;
 			//this.motY /= 2.0D;
 			//this.motZ /= 2.0D;
 			double motX = 0;
-			motX -= dx/knockbackForce*knockbackMultiplier;
+			motX -= dx / knockbackForce * knockbackMultiplier;
 			double motY = knockbackMultiplier;
 			double motZ = 0;
-			motZ -= dz/knockbackForce*knockbackMultiplier;
+			motZ -= dz / knockbackForce * knockbackMultiplier;
 			if (motY > 0.4)
 			{
 				motY = 0.4;
@@ -179,7 +218,7 @@ namespace MiNET
 			if (player != null)
 			{
 				var knockback = player.DamageCalculator.CalculateKnockback(tool);
-				velocity += Vector3.Normalize(velocity)*new Vector3(knockback*0.5f, 0.1f, knockback*0.5f);
+				velocity += Vector3.Normalize(velocity) * new Vector3(knockback * 0.5f, 0.1f, knockback * 0.5f);
 			}
 
 			Entity.Knockback(velocity);
@@ -200,7 +239,7 @@ namespace MiNET
 			Player player = Entity as Player;
 			if (player != null)
 			{
-				ticks -= ticks*player.DamageCalculator.CalculateFireTickReduction(player);
+				ticks -= ticks * player.DamageCalculator.CalculateFireTickReduction(player);
 			}
 
 			ticks = Math.Max(0, ticks);
@@ -331,7 +370,7 @@ namespace MiNET
 				Air--;
 				if (Air <= 0)
 				{
-					if (Math.Abs(Air)%10 == 0)
+					if (Math.Abs(Air) % 10 == 0)
 					{
 						TakeHit(null, 1, DamageCause.Drowning);
 						Entity.BroadcastSetEntityData();
@@ -412,7 +451,7 @@ namespace MiNET
 					IsOnFire = false;
 					Entity.BroadcastSetEntityData();
 				}
-				else if (FireTick%20 == 0)
+				else if (FireTick % 20 == 0)
 				{
 					var player = Entity as Player;
 					if (player != null)
@@ -448,7 +487,7 @@ namespace MiNET
 
 			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
 
-			return y < Math.Floor(y) + 1 - ((1f/9f) - 0.1111111);
+			return y < Math.Floor(y) + 1 - ((1f / 9f) - 0.1111111);
 		}
 
 		public bool IsStandingInWater(PlayerLocation playerPosition)
@@ -459,7 +498,7 @@ namespace MiNET
 
 			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
 
-			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1f/9f) - 0.1111111);
+			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1f / 9f) - 0.1111111);
 		}
 
 		private bool IsInLava(PlayerLocation playerPosition)
@@ -470,7 +509,7 @@ namespace MiNET
 
 			if (block == null || (block.Id != 10 && block.Id != 11)) return false;
 
-			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1f/9f) - 0.1111111);
+			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1f / 9f) - 0.1111111);
 		}
 
 		private bool IsInOpaque(PlayerLocation playerPosition)
@@ -493,7 +532,7 @@ namespace MiNET
 		public static string GetDescription(Enum value)
 		{
 			FieldInfo fi = value.GetType().GetField(value.ToString());
-			DescriptionAttribute[] attributes = (DescriptionAttribute[]) fi.GetCustomAttributes(typeof (DescriptionAttribute), false);
+			DescriptionAttribute[] attributes = (DescriptionAttribute[]) fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
 
 			if (attributes.Length > 0)
 				return attributes[0].Description;

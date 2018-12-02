@@ -40,7 +40,7 @@ namespace MiNET.Client
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Startup));
 
 		private const string MiNET = "\r\n __   __  ___   __    _  _______  _______ \r\n|  |_|  ||   | |  |  | ||       ||       |\r\n|       ||   | |   |_| ||    ___||_     _|\r\n|       ||   | |       ||   |___   |   |  \r\n|       ||   | |  _    ||    ___|  |   |  \r\n| ||_|| ||   | | | |   ||   |___   |   |  \r\n|_|   |_||___| |_|  |__||_______|  |___|  \r\n";
-		
+
 		static void Main(string[] args)
 		{
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());

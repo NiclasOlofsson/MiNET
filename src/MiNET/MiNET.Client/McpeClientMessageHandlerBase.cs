@@ -169,9 +169,9 @@ namespace MiNET.Client
 			Client.CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
 			Log.Debug($"Position: {Client.CurrentLocation}");
 
-			Client.LevelInfo.SpawnX = (int)message.x;
-			Client.LevelInfo.SpawnY = (int)message.y;
-			Client.LevelInfo.SpawnZ = (int)message.z;
+			Client.LevelInfo.SpawnX = (int) message.x;
+			Client.LevelInfo.SpawnY = (int) message.y;
+			Client.LevelInfo.SpawnZ = (int) message.z;
 
 			Client.SendMcpeMovePlayer();
 		}

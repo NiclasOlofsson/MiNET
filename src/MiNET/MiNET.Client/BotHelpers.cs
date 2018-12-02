@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Numerics;
 using System.Threading;
@@ -11,7 +36,7 @@ namespace MiNET.Client
 {
 	public class BotHelpers
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (BotHelpers));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(BotHelpers));
 
 		public static PlayerLocation LookAt(Vector3 sourceLocation, Vector3 targetLocation)
 		{
@@ -21,7 +46,7 @@ namespace MiNET.Client
 			var pos = new PlayerLocation(sourceLocation.X, sourceLocation.Y, sourceLocation.Z);
 			if (dx > 0 || dz > 0)
 			{
-				double tanOutput = 90 - RadianToDegree(Math.Atan(dx/(dz)));
+				double tanOutput = 90 - RadianToDegree(Math.Atan(dx / (dz)));
 				double thetaOffset = 270d;
 				if (dz < 0)
 				{
@@ -29,9 +54,9 @@ namespace MiNET.Client
 				}
 				var yaw = thetaOffset + tanOutput;
 
-				double bDiff = Math.Sqrt((dx*dx) + (dz*dz));
+				double bDiff = Math.Sqrt((dx * dx) + (dz * dz));
 				var dy = (sourceLocation.Y) - (targetLocation.Y);
-				double pitch = RadianToDegree(Math.Atan(dy/(bDiff)));
+				double pitch = RadianToDegree(Math.Atan(dy / (bDiff)));
 
 				pos.Yaw = (float) yaw;
 				pos.HeadYaw = (float) yaw;
@@ -43,7 +68,7 @@ namespace MiNET.Client
 
 		private static double RadianToDegree(double angle)
 		{
-			return angle*(180.0/Math.PI);
+			return angle * (180.0 / Math.PI);
 		}
 
 		public static Action DoWaitForSpawn(MiNetClient client)
@@ -131,7 +156,7 @@ namespace MiNET.Client
 					if (Math.Abs((targetPosition - client.CurrentLocation.ToVector3()).Length()) > stepLen)
 					{
 						float lenLeft = Math.Abs((client.CurrentLocation.ToVector3() - targetPosition).Length());
-						weight = Math.Abs((float) ((lenLeft - stepLen)/lenght));
+						weight = Math.Abs((float) ((lenLeft - stepLen) / lenght));
 
 						client.CurrentLocation = new PlayerLocation(Vector3.Lerp(originalPosition, targetPosition, 1 - weight));
 

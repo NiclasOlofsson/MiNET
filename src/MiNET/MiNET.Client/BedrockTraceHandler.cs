@@ -668,7 +668,7 @@ namespace MiNET.Client
 
 			if (Client._chunks.TryAdd(new Tuple<int, int>(message.chunkX, message.chunkZ), true))
 			{
-				//Log.Debug($"Chunk X={msg.chunkX}, Z={msg.chunkZ}, size={msg.chunkData.Length}, Count={++_numberOfChunks}");
+				Log.Debug($"Chunk X={message.chunkX}, Z={message.chunkZ}, size={message.chunkData.Length}, Count={Client._chunks.Count}");
 
 				try
 				{

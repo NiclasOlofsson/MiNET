@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -44,7 +44,6 @@ using MiNET.Entities;
 using MiNET.Entities.Passive;
 using MiNET.Items;
 using MiNET.Net;
-using MiNET.Particles;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
@@ -60,7 +59,7 @@ namespace TestPlugin
 	[Plugin(PluginName = "CoreCommands", Description = "The core commands for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class CoreCommands : Plugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (CoreCommands));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(CoreCommands));
 
 		private Dictionary<string, Level> _worlds = new Dictionary<string, Level>();
 
@@ -177,7 +176,7 @@ namespace TestPlugin
 								//particle.Spawn(new[] {player});
 
 								McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
-								particleEvent.eventId = (short)(0x4000 | 10);
+								particleEvent.eventId = (short) (0x4000 | 10);
 								particleEvent.position = new Vector3(x, y, z);
 								particleEvent.data = 0;
 								packets.Add(particleEvent);
@@ -215,7 +214,7 @@ namespace TestPlugin
 								//particle.Spawn(new[] {player});
 
 								McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
-								particleEvent.eventId = (short)(0x4000 | 10);
+								particleEvent.eventId = (short) (0x4000 | 10);
 								particleEvent.position = new Vector3(x, y, z);
 								particleEvent.data = 0;
 								packets.Add(particleEvent);
@@ -250,7 +249,7 @@ namespace TestPlugin
 
 		public static PlayerLocation GetPositionFromPlayer(PlayerLocation coordinates, float distance = 2f, bool facePlayer = true)
 		{
-			var direction = Vector3.Normalize(coordinates.GetHeadDirection())*distance;
+			var direction = Vector3.Normalize(coordinates.GetHeadDirection()) * distance;
 			return new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, facePlayer ? coordinates.HeadYaw + 180f : coordinates.HeadYaw, facePlayer ? coordinates.Yaw + 180f : coordinates.Yaw);
 		}
 
@@ -295,11 +294,47 @@ namespace TestPlugin
 			customForm.Content = new List<CustomElement>()
 			{
 				new Label {Text = "A label"},
-				new Input {Text = "", Placeholder = "Placeholder", Value = ""},
-				new Toggle {Text = "A toggler", Value = true},
-				new Slider {Text = "A slider", Min = 0, Max = 10, Step = 0.1f, Value = 3},
-				new StepSlider {Text = "A step slider", Steps = new List<string>() {"Step 1", "Step 2", "Step 3"}, Value = 1},
-				new Dropdown {Text = "A dropdown", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Value = 1},
+				new Input
+				{
+					Text = "",
+					Placeholder = "Placeholder",
+					Value = ""
+				},
+				new Toggle
+				{
+					Text = "A toggler",
+					Value = true
+				},
+				new Slider
+				{
+					Text = "A slider",
+					Min = 0,
+					Max = 10,
+					Step = 0.1f,
+					Value = 3
+				},
+				new StepSlider
+				{
+					Text = "A step slider",
+					Steps = new List<string>()
+					{
+						"Step 1",
+						"Step 2",
+						"Step 3"
+					},
+					Value = 1
+				},
+				new Dropdown
+				{
+					Text = "A dropdown",
+					Options = new List<string>()
+					{
+						"Option 1",
+						"Option 2",
+						"Option 3"
+					},
+					Value = 1
+				},
 			};
 
 			player.SendForm(customForm);
@@ -325,9 +360,33 @@ namespace TestPlugin
 			simpleForm.Content = "A bit of content";
 			simpleForm.Buttons = new List<Button>()
 			{
-				new Button {Text = "Button 1", Image = new Image {Type = "url", Url = "https://i.imgur.com/SedU2Ad.png"}},
-				new Button {Text = "Button 2", Image = new Image {Type = "url", Url = "https://i.imgur.com/oBMg5H3.png"}},
-				new Button {Text = "Button 3", Image = new Image {Type = "url", Url = "https://i.imgur.com/hMAfqQd.png"}},
+				new Button
+				{
+					Text = "Button 1",
+					Image = new Image
+					{
+						Type = "url",
+						Url = "https://i.imgur.com/SedU2Ad.png"
+					}
+				},
+				new Button
+				{
+					Text = "Button 2",
+					Image = new Image
+					{
+						Type = "url",
+						Url = "https://i.imgur.com/oBMg5H3.png"
+					}
+				},
+				new Button
+				{
+					Text = "Button 3",
+					Image = new Image
+					{
+						Type = "url",
+						Url = "https://i.imgur.com/hMAfqQd.png"
+					}
+				},
 				new Button {Text = "Close"},
 			};
 
@@ -515,7 +574,7 @@ namespace TestPlugin
 			int width = 4;
 			int height = 5;
 
-			int x = (int) player.KnownPosition.X - width/2;
+			int x = (int) player.KnownPosition.X - width / 2;
 			int y = (int) player.KnownPosition.Y - 1;
 			int z = (int) player.KnownPosition.Z + 1;
 
@@ -868,14 +927,31 @@ namespace TestPlugin
 			//	TAG_String("map_uuid"): "-4294967268"
 			//}
 
-			inventory.Slots[c++] = new ItemBow() {ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 19), new NbtShort("lvl", 4)}}}}; // Bow
+			inventory.Slots[c++] = new ItemBow()
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound
+						{
+							new NbtShort("id", 19),
+							new NbtShort("lvl", 4)
+						}
+					}
+				}
+			}; // Bow
 			inventory.Slots[c++] = new ItemIronSword
 			{
 				ExtraData = new NbtCompound
 				{
 					new NbtList("ench")
 					{
-						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 1)}
+						new NbtCompound
+						{
+							new NbtShort("id", (short) EnchantingType.Knockback),
+							new NbtShort("lvl", 1)
+						}
 					}
 				}
 			};
@@ -885,7 +961,11 @@ namespace TestPlugin
 				{
 					new NbtList("ench")
 					{
-						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 2)}
+						new NbtCompound
+						{
+							new NbtShort("id", (short) EnchantingType.Knockback),
+							new NbtShort("lvl", 2)
+						}
 					}
 				}
 			};
@@ -895,7 +975,11 @@ namespace TestPlugin
 				{
 					new NbtList("ench")
 					{
-						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 3)}
+						new NbtCompound
+						{
+							new NbtShort("id", (short) EnchantingType.Knockback),
+							new NbtShort("lvl", 3)
+						}
 					}
 				}
 			};
@@ -905,11 +989,15 @@ namespace TestPlugin
 				{
 					new NbtList("ench")
 					{
-						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 4)}
+						new NbtCompound
+						{
+							new NbtShort("id", (short) EnchantingType.Knockback),
+							new NbtShort("lvl", 4)
+						}
 					}
 				}
 			};
-			inventory.Slots[c++] = new ItemBlock(new EnchantingTable(), 0) { Count = 64 };
+			inventory.Slots[c++] = new ItemBlock(new EnchantingTable(), 0) {Count = 64};
 			inventory.Slots[c++] = ItemFactory.GetItem(351, 4, 64);
 			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) {Count = 64};
 			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
@@ -927,8 +1015,16 @@ namespace TestPlugin
 				{
 					new NbtList("ench")
 					{
-						new NbtCompound {new NbtShort("id", (short) EnchantingType.FireAspect), new NbtShort("lvl", 1)},
-						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 1)}
+						new NbtCompound
+						{
+							new NbtShort("id", (short) EnchantingType.FireAspect),
+							new NbtShort("lvl", 1)
+						},
+						new NbtCompound
+						{
+							new NbtShort("id", (short) EnchantingType.Knockback),
+							new NbtShort("lvl", 1)
+						}
 					}
 				}
 			};
@@ -964,10 +1060,50 @@ namespace TestPlugin
 
 		private void EnchantArmor(PlayerInventory inventory, short enchId, short level)
 		{
-			inventory.Helmet.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", enchId), new NbtShort("lvl", level)}}};
-			inventory.Chest.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", enchId), new NbtShort("lvl", level)}}};
-			inventory.Leggings.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", enchId), new NbtShort("lvl", level)}}};
-			inventory.Boots.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", enchId), new NbtShort("lvl", level)}}};
+			inventory.Helmet.ExtraData = new NbtCompound
+			{
+				new NbtList("ench")
+				{
+					new NbtCompound
+					{
+						new NbtShort("id", enchId),
+						new NbtShort("lvl", level)
+					}
+				}
+			};
+			inventory.Chest.ExtraData = new NbtCompound
+			{
+				new NbtList("ench")
+				{
+					new NbtCompound
+					{
+						new NbtShort("id", enchId),
+						new NbtShort("lvl", level)
+					}
+				}
+			};
+			inventory.Leggings.ExtraData = new NbtCompound
+			{
+				new NbtList("ench")
+				{
+					new NbtCompound
+					{
+						new NbtShort("id", enchId),
+						new NbtShort("lvl", level)
+					}
+				}
+			};
+			inventory.Boots.ExtraData = new NbtCompound
+			{
+				new NbtList("ench")
+				{
+					new NbtCompound
+					{
+						new NbtShort("id", enchId),
+						new NbtShort("lvl", level)
+					}
+				}
+			};
 		}
 
 		[Command]
@@ -1205,7 +1341,7 @@ namespace TestPlugin
 					Priority = 100,
 					MessageType = MessageType.Tip,
 					Message = "SERVER WILL RESTART!",
-					Duration = 20*10,
+					Duration = 20 * 10,
 				});
 
 				player.AddPopup(new Popup()
@@ -1213,7 +1349,7 @@ namespace TestPlugin
 					Priority = 100,
 					MessageType = MessageType.Popup,
 					Message = "Transfering all players!",
-					Duration = 20*10,
+					Duration = 20 * 10,
 				});
 			}
 
@@ -1348,7 +1484,7 @@ namespace TestPlugin
 						List<Player> sendList = new List<Player>();
 						foreach (var p in players)
 						{
-							if (p.KnownPosition.DistanceTo(center + new BlockCoordinates(x, (int) p.KnownPosition.Y, z)) > p.ChunkRadius*16) continue;
+							if (p.KnownPosition.DistanceTo(center + new BlockCoordinates(x, (int) p.KnownPosition.Y, z)) > p.ChunkRadius * 16) continue;
 
 							sendList.Add(p);
 						}
@@ -1387,7 +1523,7 @@ namespace TestPlugin
 				var y = ycurve.GetY(x);
 				var z = zcurve.GetY(x);
 
-				GeneratePortal(level, pos + new Vector3(x*42, (float) y, (float) z), first, x == n - 1);
+				GeneratePortal(level, pos + new Vector3(x * 42, (float) y, (float) z), first, x == n - 1);
 				first = false;
 			}
 		}
@@ -1407,7 +1543,7 @@ namespace TestPlugin
 				{0, 0}, {6, 1}, {6, 2}, {6, 3}, {6, 4}, {6, 5},
 			};
 
-			for (int i = 0; i < coords.Length/2; i++)
+			for (int i = 0; i < coords.Length / 2; i++)
 			{
 				Log.Warn($"Lenght {coords.Length}");
 				block.Coordinates = coord + new BlockCoordinates(0, coords[i, 0], coords[i, 1]);
@@ -1452,12 +1588,12 @@ namespace TestPlugin
 		}
 
 
-		[Command(Aliases = new[] { "tsk" })]
+		[Command(Aliases = new[] {"tsk"})]
 		public void TestSkins(Player player)
 		{
-			var sizes = new int[] { 0x2000, 0x4000, 0x10000 };
+			var sizes = new int[] {0x2000, 0x4000, 0x10000};
 
-			for(var i = 0; i < sizes.Length; i++)
+			for (var i = 0; i < sizes.Length; i++)
 			{
 				var size = sizes[i].ToString("X4");
 
@@ -1491,7 +1627,7 @@ namespace TestPlugin
 		{
 			Amplitude = amplitude;
 			OrdinaryFrequency = ordinaryFrequency;
-			AngularFrequency = 2*Math.PI*ordinaryFrequency;
+			AngularFrequency = 2 * Math.PI * ordinaryFrequency;
 			Phase = phase;
 			ShiftY = shiftY;
 		}
@@ -1506,27 +1642,27 @@ namespace TestPlugin
 			m_sineWaves = new SineWave[components];
 
 			double totalPeakToPeakAmplitude = maxY - minY;
-			double averagePeakToPeakAmplitude = totalPeakToPeakAmplitude/components;
+			double averagePeakToPeakAmplitude = totalPeakToPeakAmplitude / components;
 
 			int prime = 1;
 			Random r = new Random();
 			for (int i = 0; i < components; i++)
 			{
 				// from 0.5 to 1.5 of averagePeakToPeakAmplitude 
-				double peakToPeakAmplitude = averagePeakToPeakAmplitude*(r.NextDouble() + 0.5d);
+				double peakToPeakAmplitude = averagePeakToPeakAmplitude * (r.NextDouble() + 0.5d);
 
 				// peak amplitude is a hald of peak-to-peak amplitude
-				double amplitude = peakToPeakAmplitude/2d;
+				double amplitude = peakToPeakAmplitude / 2d;
 
 				// period should be a multiple of the prime number to avoid regularities
 				prime = Utils.GetNextPrime(prime);
-				double period = flatness*prime;
+				double period = flatness * prime;
 
 				// ordinary frequency is reciprocal of period
-				double ordinaryFrequency = 1d/period;
+				double ordinaryFrequency = 1d / period;
 
 				// random phase
-				double phase = 2*Math.PI*(r.NextDouble() + 0.5d);
+				double phase = 2 * Math.PI * (r.NextDouble() + 0.5d);
 
 				// shiftY is the same as amplitude
 				double shiftY = amplitude;
@@ -1540,7 +1676,7 @@ namespace TestPlugin
 		{
 			double y = 0;
 			for (int i = 0; i < m_sineWaves.Length; i++)
-				y += m_sineWaves[i].Amplitude*Math.Sin(m_sineWaves[i].AngularFrequency*x + m_sineWaves[i].Phase) + m_sineWaves[i].ShiftY;
+				y += m_sineWaves[i].Amplitude * Math.Sin(m_sineWaves[i].AngularFrequency * x + m_sineWaves[i].Phase) + m_sineWaves[i].ShiftY;
 
 			return y;
 		}
@@ -1561,7 +1697,8 @@ namespace TestPlugin
 			if (number == 2) return true;
 
 			for (int i = 2; i < number; ++i)
-				if (number%i == 0) return false;
+				if (number % i == 0)
+					return false;
 
 			return true;
 		}

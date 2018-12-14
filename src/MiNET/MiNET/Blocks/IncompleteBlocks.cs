@@ -3698,31 +3698,6 @@ namespace MiNET.Blocks
 		}
 	}
 
-	public class Netherreactor : Block
-	{
-		public Netherreactor() : base(247)
-		{
-			Name = "minecraft:netherreactor";
-			// runtime id: 2105 0x839, data: 0
-		}
-	}
-
-	public class Pistonarmcollision : Block
-	{
-		public Pistonarmcollision() : base(34)
-		{
-			Name = "minecraft:pistonArmCollision";
-			// runtime id: 252 0xFC, data: 0
-			// runtime id: 253 0xFD, data: 1
-			// runtime id: 254 0xFE, data: 2
-			// runtime id: 255 0xFF, data: 3
-			// runtime id: 256 0x100, data: 4
-			// runtime id: 257 0x101, data: 5
-			// runtime id: 258 0x102, data: 6
-			// runtime id: 259 0x103, data: 7
-		}
-	}
-
 	public class RedNetherBrick : Block
 	{
 		public RedNetherBrick() : base(215)
@@ -3990,6 +3965,112 @@ namespace MiNET.Blocks
 			// runtime id: 2074 0x81A, data: 5
 			// runtime id: 2075 0x81B, data: 6
 			// runtime id: 2076 0x81C, data: 7
+		}
+	}
+
+	public class Bamboo : Block
+	{
+		public Bamboo() : base(418)
+		{
+			Name = "minecraft:bamboo";
+			// runtime id: 4469 0x1175, data: 0
+			// runtime id: 4470 0x1176, data: 1
+			// runtime id: 4471 0x1177, data: 2
+			// runtime id: 4472 0x1178, data: 3
+			// runtime id: 4473 0x1179, data: 4
+			// runtime id: 4474 0x117A, data: 5
+			// runtime id: 4475 0x117B, data: 6
+			// runtime id: 4476 0x117C, data: 7
+			// runtime id: 4477 0x117D, data: 8
+			// runtime id: 4478 0x117E, data: 9
+			// runtime id: 4479 0x117F, data: 10
+			// runtime id: 4480 0x1180, data: 11
+			// runtime id: 4481 0x1181, data: 12
+			// runtime id: 4482 0x1182, data: 13
+			// runtime id: 4483 0x1183, data: 14
+			// runtime id: 4484 0x1184, data: 15
+		}
+	}
+
+	public class BambooSapling : Block
+	{
+		public BambooSapling() : base(419)
+		{
+			Name = "minecraft:bamboo_sapling";
+			// runtime id: 4485 0x1185, data: 0
+			// runtime id: 4486 0x1186, data: 1
+			// runtime id: 4487 0x1187, data: 2
+			// runtime id: 4488 0x1188, data: 3
+			// runtime id: 4489 0x1189, data: 4
+			// runtime id: 4490 0x118A, data: 5
+			// runtime id: 4491 0x118B, data: 6
+			// runtime id: 4492 0x118C, data: 7
+			// runtime id: 4493 0x118D, data: 8
+			// runtime id: 4494 0x118E, data: 9
+			// runtime id: 4495 0x118F, data: 10
+			// runtime id: 4496 0x1190, data: 11
+			// runtime id: 4497 0x1191, data: 12
+			// runtime id: 4498 0x1192, data: 13
+			// runtime id: 4499 0x1193, data: 14
+			// runtime id: 4500 0x1194, data: 15
+		}
+	}
+
+	public class Barrier : Block
+	{
+		public Barrier() : base(416)
+		{
+			Name = "minecraft:barrier";
+			// runtime id: 4468 0x1174, data: 0
+		}
+	}
+
+	public class Netherreactor : Block
+	{
+		public Netherreactor() : base(247)
+		{
+			Name = "minecraft:netherreactor";
+			// runtime id: 2081 0x821, data: 0
+		}
+	}
+
+	public class Pistonarmcollision : Block
+	{
+		public Pistonarmcollision() : base(34)
+		{
+			Name = "minecraft:pistonArmCollision";
+			// runtime id: 252 0xFC, data: 0
+			// runtime id: 253 0xFD, data: 1
+			// runtime id: 254 0xFE, data: 2
+			// runtime id: 255 0xFF, data: 3
+			// runtime id: 256 0x100, data: 4
+			// runtime id: 257 0x101, data: 5
+			// runtime id: 258 0x102, data: 6
+			// runtime id: 259 0x103, data: 7
+		}
+	}
+
+	public class Scaffolding : Block
+	{
+		public Scaffolding() : base(420)
+		{
+			Name = "minecraft:scaffolding";
+			// runtime id: 4501 0x1195, data: 0
+			// runtime id: 4502 0x1196, data: 1
+			// runtime id: 4503 0x1197, data: 2
+			// runtime id: 4504 0x1198, data: 3
+			// runtime id: 4505 0x1199, data: 4
+			// runtime id: 4506 0x119A, data: 5
+			// runtime id: 4507 0x119B, data: 6
+			// runtime id: 4508 0x119C, data: 7
+			// runtime id: 4509 0x119D, data: 8
+			// runtime id: 4510 0x119E, data: 9
+			// runtime id: 4511 0x119F, data: 10
+			// runtime id: 4512 0x11A0, data: 11
+			// runtime id: 4513 0x11A1, data: 12
+			// runtime id: 4514 0x11A2, data: 13
+			// runtime id: 4515 0x11A3, data: 14
+			// runtime id: 4516 0x11A4, data: 15
 		}
 	}
 }

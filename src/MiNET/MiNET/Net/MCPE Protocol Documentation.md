@@ -2387,6 +2387,7 @@ Wiki: [Available Entity Identifiers](https://github.com/NiclasOlofsson/MiNET/wik
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|NamedTag | Nbt |  |
 -----------------------------------------------------------------------
 ### Level Sound Event (0x78)
 Wiki: [Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEvent)
@@ -2437,6 +2438,7 @@ Wiki: [Biome Definition List](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|NamedTag | Nbt |  |
 -----------------------------------------------------------------------
 
 

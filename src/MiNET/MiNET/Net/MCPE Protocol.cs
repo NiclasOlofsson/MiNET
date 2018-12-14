@@ -8553,6 +8553,7 @@ namespace MiNET.Net
 	public partial class McpeAvailableEntityIdentifiers : Packet<McpeAvailableEntityIdentifiers>
 	{
 
+		public Nbt namedtag; // = null;
 
 		public McpeAvailableEntityIdentifiers()
 		{
@@ -8566,6 +8567,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(namedtag);
 
 			AfterEncode();
 		}
@@ -8579,6 +8581,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			namedtag = ReadNbt();
 
 			AfterDecode();
 		}
@@ -8590,6 +8593,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+			namedtag=default(Nbt);
 		}
 
 	}
@@ -8717,6 +8721,7 @@ namespace MiNET.Net
 	public partial class McpeBiomeDefinitionList : Packet<McpeBiomeDefinitionList>
 	{
 
+		public Nbt namedtag; // = null;
 
 		public McpeBiomeDefinitionList()
 		{
@@ -8730,6 +8735,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(namedtag);
 
 			AfterEncode();
 		}
@@ -8743,6 +8749,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			namedtag = ReadNbt();
 
 			AfterDecode();
 		}
@@ -8754,6 +8761,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+			namedtag=default(Nbt);
 		}
 
 	}

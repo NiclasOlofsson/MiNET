@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -648,7 +648,7 @@ namespace MiNET.Net
 
 		public void Write(Nbt nbt)
 		{
-			Write(nbt, _writer.BaseStream, this is McpeBlockEntityData || this is McpeUpdateEquipment);
+			Write(nbt, _writer.BaseStream, nbt.NbtFile.UseVarInt || this is McpeBlockEntityData || this is McpeUpdateEquipment);
 		}
 
 		public static void Write(Nbt nbt, Stream stream, bool useVarInt)

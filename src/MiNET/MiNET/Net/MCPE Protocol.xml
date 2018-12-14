@@ -1052,7 +1052,7 @@
 	</pdu>
 
 	<pdu id="0x77" online="false" client="false" server="true" name="MCPE_AVAILABLE_ENTITY_IDENTIFIERS">
-		
+		<field name="NamedTag" type="Nbt" />
 	</pdu>
 	
 	<pdu id="0x78" online="false" client="true" server="true" name="MCPE_LEVEL_SOUND_EVENT">
@@ -1070,7 +1070,7 @@
 	</pdu>
 
 	<pdu id="0x7a" online="false" client="false" server="true" name="MCPE_BIOME_DEFINITION_LIST">
-		
+		<field name="NamedTag" type="Nbt" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">

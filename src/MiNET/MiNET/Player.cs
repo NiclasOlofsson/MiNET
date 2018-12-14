@@ -32,6 +32,7 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Threading;
+using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Crafting;
@@ -867,10 +868,11 @@ namespace MiNET
 
 				//Level.AddPlayer(this, false);
 
-
 				SendSetTime();
 
 				SendStartGame();
+
+				SendAvailableEntityIdentifiers();
 
 				BroadcastSetEntityData();
 
@@ -917,6 +919,26 @@ namespace MiNET
 
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
+		}
+
+		public virtual void SendAvailableEntityIdentifiers()
+		{
+			var nbt = new Nbt
+			{
+				NbtFile = new NbtFile
+				{
+					BigEndian = false,
+					UseVarInt = true,
+					RootTag = new NbtCompound("")
+					{
+						EntityHelpers.GenerateEntityIdentifiers()
+					}
+				}
+			};
+
+			var pk = McpeAvailableEntityIdentifiers.CreateObject();
+			pk.namedtag = nbt;
+			SendPacket(pk);
 		}
 
 		public bool EnableCommands { get; set; } = Config.GetProperty("EnableCommands", false);

@@ -88,6 +88,16 @@ namespace TestPlugin
 		{
 		}
 
+		[Command(Name = "pe", Description = "Particle effects!")]
+		public void ParticleEffect(Player player, string particle)
+		{
+			var pk = McpeSpawnParticleEffect.CreateObject();
+			pk.particleName = particle;
+			pk.position = player.KnownPosition;
+			pk.dimensionId = 0; // wat
+			player.Level.RelayBroadcast(pk);
+		}
+
 		[Command(Name = "gc", Description = "Force garbage collection to run")]
 		public string GarbageCollect(Player player)
 		{

@@ -2712,10 +2712,9 @@ namespace MiNET
 
 			if (Level.Entities.TryGetValue((long) message.runtimeEntityId, out var entity))
 			{
-				// Spawn eggs TBD!
-				/*Item item = ItemFactory.GetItem(383, (short) entity.EntityTypeId);
+				Item item = ItemFactory.GetItem(383, (short) EntityHelpers.ToEntityType(entity.EntityTypeId));
 
-				Inventory.SetInventorySlot(Inventory.InHandSlot, item);*/
+				Inventory.SetInventorySlot(Inventory.InHandSlot, item);
 			}
 		}
 

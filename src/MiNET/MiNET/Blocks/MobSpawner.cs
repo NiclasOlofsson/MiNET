@@ -74,8 +74,7 @@ namespace MiNET.Blocks
 					Entity entity = monsterEgg.Metadata.CreateEntity(world);
 					if (entity != null)
 					{
-						// TODO check this one
-						//blockEntity.EntityTypeId = entity.EntityTypeId;
+						blockEntity.EntityTypeId = (int)EntityHelpers.ToEntityType(entity.EntityTypeId);
 						blockEntity.DisplayEntityHeight = (float) entity.Height;
 						blockEntity.DisplayEntityWidth = (float) entity.Width;
 						blockEntity.DisplayEntityScale = (float) entity.Scale;

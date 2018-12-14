@@ -40,7 +40,7 @@ namespace MiNET.Entities.Projectiles
 		public Item Fireworks { get; set; }
 		public int Lifetime { get; set; }
 
-		public FireworksRocket(Player shooter, Level level, Item fireworks, Random random = null) : base(shooter, 72, level, 0)
+		public FireworksRocket(Player shooter, Level level, Item fireworks, Random random = null) : base(shooter, EntityType.FireworksRocket, level, 0)
 		{
 			random = random ?? new Random();
 
@@ -86,7 +86,7 @@ namespace MiNET.Entities.Projectiles
 			KnownPosition.Yaw = (float) Velocity.GetYaw();
 			KnownPosition.Pitch = (float) Velocity.GetPitch();
 
-			McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+			var sound = McpeLevelSoundEventOld.CreateObject();
 			sound.soundId = 55;
 			sound.blockId = -1;
 			sound.entityType = 1;
@@ -106,7 +106,7 @@ namespace MiNET.Entities.Projectiles
 
 			base.DespawnEntity();
 
-			McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+			var sound = McpeLevelSoundEventOld.CreateObject();
 			sound.soundId = 56;
 			sound.blockId = -1;
 			sound.entityType = 1;

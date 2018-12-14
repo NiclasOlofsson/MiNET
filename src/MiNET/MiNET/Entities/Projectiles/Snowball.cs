@@ -29,7 +29,7 @@ namespace MiNET.Entities.Projectiles
 {
 	public class Snowball : Projectile
 	{
-		public Snowball(Player shooter, Level level) : base(shooter, 81, level, 0)
+		public Snowball(Player shooter, Level level) : base(shooter, EntityType.ThrownSnowball, level, 0)
 		{
 			Width = 0.25;
 			Length = 0.25;

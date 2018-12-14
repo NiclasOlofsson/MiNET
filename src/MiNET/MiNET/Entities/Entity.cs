@@ -46,7 +46,7 @@ namespace MiNET.Entities
 
 		public Level Level { get; set; }
 
-		public int EntityTypeId { get; protected set; }
+		public string EntityTypeId { get; protected set; }
 		public long EntityId { get; set; }
 		public bool IsSpawned { get; set; }
 		public bool CanDespawn { get; set; } = true;
@@ -91,13 +91,17 @@ namespace MiNET.Entities
 
 		public ConcurrentDictionary<Type, object> PluginStore { get; set; } = new ConcurrentDictionary<Type, object>();
 
-		public Entity(int entityTypeId, Level level)
+		public Entity(string entityTypeId, Level level)
 		{
 			EntityId = EntityManager.EntityIdUndefined;
 			Level = level;
 			EntityTypeId = entityTypeId;
 			KnownPosition = new PlayerLocation();
 			HealthManager = new HealthManager(this);
+		}
+
+		public Entity(EntityType entityTypeId, Level level) : this(entityTypeId.ToStringId(), level)
+		{
 		}
 
 		public enum MetadataFlags
@@ -456,7 +460,7 @@ namespace MiNET.Entities
 		public virtual void SpawnToPlayers(Player[] players)
 		{
 			var addEntity = McpeAddEntity.CreateObject();
-			addEntity.entityType = (byte) EntityTypeId;
+			addEntity.entityType = EntityTypeId;
 			addEntity.entityIdSelf = EntityId;
 			addEntity.runtimeEntityId = EntityId;
 			addEntity.x = KnownPosition.X;

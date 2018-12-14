@@ -34,7 +34,7 @@ namespace MiNET.Entities.Hostile
 {
 	public class Spider : HostileMob
 	{
-		public Spider(Level level) : base((int) EntityType.Spider, level)
+		public Spider(Level level) : base(EntityType.Spider, level)
 		{
 			Width = Length = 1.4;
 			Height = 0.9;

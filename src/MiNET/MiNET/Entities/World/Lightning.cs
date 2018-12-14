@@ -29,7 +29,7 @@ namespace MiNET.Entities.World
 {
 	public class Lightning : Entity
 	{
-		public Lightning(Level level) : base(93, level)
+		public Lightning(Level level) : base(EntityType.LightningBolt, level)
 		{
 		}
 

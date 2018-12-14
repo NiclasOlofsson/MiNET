@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -789,7 +789,7 @@ namespace TestPlugin
 		{
 			Level level = player.Level;
 
-			var entity = new Entity(entityId, level)
+			var entity = new Entity((EntityType)entityId, level)
 			{
 				KnownPosition = player.KnownPosition,
 			};
@@ -1201,7 +1201,7 @@ namespace TestPlugin
 		[Command(Name = "xporb")]
 		public void ExperienceOrb(Player player)
 		{
-			Mob xpOrb = new Mob(69, player.Level);
+			Mob xpOrb = new Mob(EntityType.ExperienceOrb, player.Level);
 			xpOrb.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			xpOrb.SpawnEntity();
 		}

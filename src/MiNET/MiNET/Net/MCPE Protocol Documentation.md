@@ -29,7 +29,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Update Block | 0x15 | 21 |   
 | Add Painting | 0x16 | 22 |   
 | Explode | 0x17 | 23 |   
-| Level Sound Event | 0x18 | 24 |   
+| Level Sound Event Old | 0x18 | 24 |   
 | Level Event | 0x19 | 25 |   
 | Block Event | 0x1a | 26 |   
 | Entity Event | 0x1b | 27 |   
@@ -122,6 +122,11 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Update Soft Enum Packet | 0x72 | 114 |   
 | Network Stack Latency Packet | 0x73 | 115 |   
 | Script Custom Event Packet | 0x75 | 117 |   
+| Spawn Particle Effect | 0x76 | 118 |   
+| Available Entity Identifiers | 0x77 | 119 |   
+| Level Sound Event | 0x78 | 120 |   
+| Network Chunk Publisher Update | 0x79 | 121 |   
+| Biome Definition List | 0x7a | 122 |   
 
 
 ## Data types
@@ -304,6 +309,7 @@ Wiki: [Resource Pack Stack](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 |Must accept | bool |  |
 |BehaviorPackIdVersions | ResourcePackIdVersions |  |
 |ResourcePackIdVersions | ResourcePackIdVersions |  |
+|Is experimental | bool |  |
 -----------------------------------------------------------------------
 ### Resource Pack Client Response (0x08)
 Wiki: [Resource Pack Client Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackClientResponse)
@@ -425,6 +431,8 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Has Locked Resource Pack | bool |  |
 |Is From Locked World Template | bool |  |
 |Use MSA Gamertags Only | bool |  |
+|Is From World Template | bool |  |
+|Is World Template Option Locked | bool |  |
 |Level ID | string |  |
 |World name | string |  |
 |Premium World Template Id | string |  |
@@ -499,7 +507,7 @@ val2 float
 |:-----|:-----|:-----|
 |Entity ID Self | SignedVarLong |  |
 |Runtime Entity ID | UnsignedVarLong |  |
-|Entity Type | UnsignedVarInt |  |
+|Entity Type | string |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
@@ -711,8 +719,8 @@ Wiki: [Explode](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Explode)
 |Radius | SignedVarInt |  |
 |Records | Records |  |
 -----------------------------------------------------------------------
-### Level Sound Event (0x18)
-Wiki: [Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEvent)
+### Level Sound Event Old (0x18)
+Wiki: [Level Sound Event Old](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEventOld)
 
 **Sent from server:** true  
 **Sent from client:** true
@@ -1734,6 +1742,7 @@ Wiki: [Update Trade](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Upda
 |Window Type | byte |  |
 |Unknown0 | VarInt |  |
 |Unknown1 | VarInt |  |
+|Unknown2 | VarInt |  |
 |Is Willing | bool |  |
 |Trader Entity ID | SignedVarLong |  |
 |Player Entity ID | SignedVarLong |  |
@@ -2347,6 +2356,87 @@ Wiki: [Script Custom Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki/
 |:-----|:-----|:-----|
 |Event Name | string |  |
 |Event Data | string |  |
+-----------------------------------------------------------------------
+### Spawn Particle Effect (0x76)
+Wiki: [Spawn Particle Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SpawnParticleEffect)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Dimension ID | byte |  |
+|Position | Vector3 |  |
+|Particle name | string |  |
+-----------------------------------------------------------------------
+### Available Entity Identifiers (0x77)
+Wiki: [Available Entity Identifiers](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AvailableEntityIdentifiers)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Level Sound Event (0x78)
+Wiki: [Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEvent)
+
+**Sent from server:** true  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Sound ID | byte |  |
+|Position | Vector3 |  |
+|Block Id | SignedVarInt |  |
+|Entity Type | string |  |
+|Is baby mob | bool |  |
+|Is global | bool |  |
+-----------------------------------------------------------------------
+### Network Chunk Publisher Update (0x79)
+Wiki: [Network Chunk Publisher Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkChunkPublisherUpdate)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Coordinates | BlockCoordinates |  |
+|Radius | UnsignedVarInt |  |
+-----------------------------------------------------------------------
+### Biome Definition List (0x7a)
+Wiki: [Biome Definition List](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BiomeDefinitionList)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
 -----------------------------------------------------------------------
 
 

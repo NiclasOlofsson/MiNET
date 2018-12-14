@@ -37,6 +37,7 @@ namespace MiNET.Entities
 		DroppedItem = 64,
 		ExperienceOrb = 69,
 
+		ArmorStand = 61,
 		PrimedTnt = 65,
 		FallingBlock = 66,
 
@@ -44,6 +45,7 @@ namespace MiNET.Entities
 		EnderEye = 70,
 		EnderCrystal = 71,
 		FireworksRocket = 72,
+		Trident = 73,
 		ShulkerBullet = 76,
 		FishingRodHook = 77,
 		DragonFireball = 79,
@@ -69,6 +71,8 @@ namespace MiNET.Entities
 		LingeringPotion = 101,
 		LlamaSpit = 102,
 		EvocationFangs = 103,
+		IceBomb = 106,
+		Balloon = 107,
 
 		Zombie = 32,
 		Creeper = 33,
@@ -94,8 +98,10 @@ namespace MiNET.Entities
 		Shulker = 54,
 		Endermite = 55,
 		Vindicator = 57,
+		Phantom = 58,
 		Evoker = 104,
 		Vex = 105,
+		Drowned = 110,
 
 		Chicken = 10,
 		Cow = 11,
@@ -117,13 +123,24 @@ namespace MiNET.Entities
 		ZombieHorse = 27,
 		PolarBear = 28,
 		Llama = 29,
+		Parrot = 30,
+		Dolphin = 31,
+		Turtle = 74,
+		Cat = 75,
+		Pufferfish = 108,
+		Salmon = 109,
+		TropicalFish = 111,
+		Fish = 112,
+		Panda = 113,
 
 		Player = 63,
 
 		Npc = 51,
 		Agent = 56,
 		Camera = 62,
-		Chalkboard = 78
+		Chalkboard = 78,
+
+		Herobrine = 666
 	}
 
 	public static class EntityHelpers
@@ -137,6 +154,211 @@ namespace MiNET.Entities
 		{
 			EntityType entityType = (EntityType) entityTypeId;
 			return entityType.Create(world);
+		}
+
+		public static string ToStringId(this EntityType type)
+		{
+			switch (type)
+			{
+				case EntityType.Npc:
+					return "minecraft:npc";
+				case EntityType.Player:
+					return "minecraft:player";
+				case EntityType.WitherSkeleton:
+					return "minecraft:wither_skeleton";
+				case EntityType.Husk:
+					return "minecraft:husk";
+				case EntityType.Stray:
+					return "minecraft:stray";
+				case EntityType.Witch:
+					return "minecraft:witch";
+				case EntityType.ZombieVillager:
+					return "minecraft:zombie_villager";
+				case EntityType.Blaze:
+					return "minecraft:blaze";
+				case EntityType.MagmaCube:
+					return "minecraft:magma_cube";
+				case EntityType.Ghast:
+					return "minecraft:ghast";
+				case EntityType.CaveSpider:
+					return "minecraft:cave_spider";
+				case EntityType.Silverfish:
+					return "minecraft:silverfish";
+				case EntityType.Enderman:
+					return "minecraft:enderman";
+				case EntityType.Slime:
+					return "minecraft:slime";
+				case EntityType.ZombiePigman:
+					return "minecraft:zombie_pigman";
+				case EntityType.Spider:
+					return "minecraft:spider";
+				case EntityType.Skeleton:
+					return "minecraft:skeleton";
+				case EntityType.Creeper:
+					return "minecraft:creeper";
+				case EntityType.Zombie:
+					return "minecraft:zombie";
+				case EntityType.SkeletonHorse:
+					return "minecraft:skeleton_horse";
+				case EntityType.Mule:
+					return "minecraft:mule";
+				case EntityType.Donkey:
+					return "minecraft:donkey";
+				case EntityType.Dolphin:
+					return "minecraft:dolphin";
+				case EntityType.TropicalFish:
+					return "minecraft:tropicalfish";
+				case EntityType.Wolf:
+					return "minecraft:wolf";
+				case EntityType.Squid:
+					return "minecraft:squid";
+				case EntityType.Drowned:
+					return "minecraft:drowned";
+				case EntityType.Sheep:
+					return "minecraft:sheep";
+				case EntityType.MushroomCow:
+					return "minecraft:mooshroom";
+				case EntityType.Panda:
+					return "minecraft:panda";
+				case EntityType.Salmon:
+					return "minecraft:salmon";
+				case EntityType.Pig:
+					return "minecraft:pig";
+				case EntityType.Villager:
+					return "minecraft:villager";
+				case EntityType.Fish:
+					return "minecraft:cod";
+				case EntityType.Pufferfish:
+					return "minecraft:pufferfish";
+				case EntityType.Cow:
+					return "minecraft:cow";
+				case EntityType.Chicken:
+					return "minecraft:chicken";
+				case EntityType.Balloon:
+					return "minecraft:balloon";
+				case EntityType.Llama:
+					return "minecraft:llama";
+				case EntityType.IronGolem:
+					return "minecraft:iron_golem";
+				case EntityType.Rabbit:
+					return "minecraft:rabbit";
+				case EntityType.SnowGolem:
+					return "minecraft:snow_golem";
+				case EntityType.Bat:
+					return "minecraft:bat";
+				case EntityType.Ocelot:
+					return "minecraft:ocelot";
+				case EntityType.Horse:
+					return "minecraft:horse";
+				case EntityType.Cat:
+					return "minecraft:cat";
+				case EntityType.PolarBear:
+					return "minecraft:polar_bear";
+				case EntityType.ZombieHorse:
+					return "minecraft:zombie_horse";
+				case EntityType.Turtle:
+					return "minecraft:turtle";
+				case EntityType.Parrot:
+					return "minecraft:parrot";
+				case EntityType.Guardian:
+					return "minecraft:guardian";
+				case EntityType.ElderGuardian:
+					return "minecraft:elder_guardian";
+				case EntityType.Vindicator:
+					return "minecraft:vindicator";
+				case EntityType.Wither:
+					return "minecraft:wither";
+				case EntityType.Dragon:
+					return "minecraft:ender_dragon";
+				case EntityType.Shulker:
+					return "minecraft:shulker";
+				case EntityType.Endermite:
+					return "minecraft:endermite";
+				case EntityType.Minecart:
+					return "minecraft:minecart";
+				case EntityType.HopperMinecart:
+					return "minecraft:hopper_minecart";
+				case EntityType.TntMinecart:
+					return "minecraft:tnt_minecart";
+				case EntityType.ChestMinecart:
+					return "minecraft:chest_minecart";
+				case EntityType.CommandBlockMinecart:
+					return "minecraft:command_block_minecart";
+				case EntityType.ArmorStand:
+					return "minecraft:armor_stand";
+				case EntityType.DroppedItem:
+					return "minecraft:item";
+				case EntityType.PrimedTnt:
+					return "minecraft:tnt";
+				case EntityType.FallingBlock:
+					return "minecraft:falling_block";
+				case EntityType.ThrownBottleoEnchanting:
+					return "minecraft:xp_bottle";
+				case EntityType.ExperienceOrb:
+					return "minecraft:xp_orb";
+				case EntityType.EnderEye:
+					return "minecraft:eye_of_ender_signal";
+				case EntityType.EnderCrystal:
+					return "minecraft:ender_crystal";
+				case EntityType.ShulkerBullet:
+					return "minecraft:shulker_bullet";
+				case EntityType.FishingRodHook:
+					return "minecraft:fishing_hook";
+				case EntityType.DragonFireball:
+					return "minecraft:dragon_fireball";
+				case EntityType.ShotArrow:
+					return "minecraft:arrow";
+				case EntityType.ThrownSnowball:
+					return "minecraft:snowball";
+				case EntityType.ThrownEgg:
+					return "minecraft:egg";
+				case EntityType.Painting:
+					return "minecraft:painting";
+				case EntityType.Trident:
+					return "minecraft:thrown_trident";
+				case EntityType.GhastFireball:
+					return "minecraft:fireball";
+				case EntityType.ThrownSpashPotion:
+					return "minecraft:splash_potion";
+				case EntityType.ThrownEnderPerl:
+					return "minecraft:ender_pearl";
+				case EntityType.LeashKnot:
+					return "minecraft:leash_knot";
+				case EntityType.WitherSkull:
+					return "minecraft:wither_skull";
+				case EntityType.WitherSkullDangerous:
+					return "minecraft:wither_skull_dangerous";
+				case EntityType.Boat:
+					return "minecraft:boat";
+				case EntityType.LightningBolt:
+					return "minecraft:lightning_bolt";
+				case EntityType.BlazeFireball:
+					return "minecraft:small_fireball";
+				case EntityType.LlamaSpit:
+					return "minecraft:llama_spit";
+				case EntityType.AreaEffectCloud:
+					return "minecraft:area_effect_cloud";
+				case EntityType.LingeringPotion:
+					return "minecraft:lingering_potion";
+				case EntityType.FireworksRocket:
+					return "minecraft:fireworks_rocket";
+				case EntityType.EvocationFangs:
+					return "minecraft:evocation_fang";
+				case EntityType.Evoker:
+					return "minecraft:evocation_illager";
+				case EntityType.Vex:
+					return "minecraft:vex";
+				case EntityType.Agent:
+					return "minecraft:agent";
+				case EntityType.IceBomb:
+					return "minecraft:ice_bomb";
+				case EntityType.Phantom:
+					return "minecraft:phantom";
+				case EntityType.Camera:
+					return "minecraft:tripod_camera";
+				default:
+					return ":";
+			}
 		}
 
 		public static Entity Create(this EntityType entityType, Level world)

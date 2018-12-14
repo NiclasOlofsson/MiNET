@@ -102,7 +102,7 @@ namespace MiNET
 		public DamageCalculator DamageCalculator { get; set; } = new DamageCalculator();
 
 
-		public Player(MiNetServer server, IPEndPoint endPoint) : base(-1, null)
+		public Player(MiNetServer server, IPEndPoint endPoint) : base(EntityType.None, null)
 		{
 			Server = server;
 			EndPoint = endPoint;
@@ -903,6 +903,8 @@ namespace MiNET
 				SendCraftingRecipes();
 
 				SendAvailableCommands(); // Don't send this before StartGame!
+
+				SendNetworkChunkPublisherUpdate();
 			}
 			catch (Exception e)
 			{
@@ -1889,9 +1891,21 @@ namespace MiNET
 			return false;
 		}
 
+		public virtual void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message)
+		{
+			var sound = McpeLevelSoundEventOld.CreateObject();
+			sound.soundId = message.soundId;
+			sound.position = message.position;
+			sound.blockId = message.blockId;
+			sound.entityType = message.entityType;
+			sound.isBabyMob = message.isBabyMob;
+			sound.isGlobal = message.isGlobal;
+			Level.RelayBroadcast(sound);
+		}
+
 		public virtual void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
 		{
-			McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+			var sound = McpeLevelSoundEvent.CreateObject();
 			sound.soundId = message.soundId;
 			sound.position = message.position;
 			sound.blockId = message.blockId;
@@ -2676,9 +2690,10 @@ namespace MiNET
 
 			if (Level.Entities.TryGetValue((long) message.runtimeEntityId, out var entity))
 			{
-				Item item = ItemFactory.GetItem(383, (short) entity.EntityTypeId);
+				// Spawn eggs TBD!
+				/*Item item = ItemFactory.GetItem(383, (short) entity.EntityTypeId);
 
-				Inventory.SetInventorySlot(Inventory.InHandSlot, item);
+				Inventory.SetInventorySlot(Inventory.InHandSlot, item);*/
 			}
 		}
 
@@ -2826,6 +2841,14 @@ namespace MiNET
 			}
 		}
 
+		public void SendNetworkChunkPublisherUpdate()
+		{
+			var pk = McpeNetworkChunkPublisherUpdate.CreateObject();
+			pk.coordinates = KnownPosition.GetCoordinates3D();
+			pk.radius = (uint)(MaxViewDistance * 16);
+			SendPacket(pk);
+		}
+
 		public void ForcedSendChunks(Action postAction = null)
 		{
 			Monitor.Enter(_sendChunkSync);
@@ -2837,6 +2860,7 @@ namespace MiNET
 
 				if (Level == null) return;
 
+				SendNetworkChunkPublisherUpdate();
 				int packetCount = 0;
 				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
@@ -2878,6 +2902,8 @@ namespace MiNET
 				int packetCount = 0;
 
 				if (Level == null) return;
+
+				SendNetworkChunkPublisherUpdate();
 
 				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{

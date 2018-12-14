@@ -29,7 +29,7 @@ namespace MiNET.Entities.Vehicles
 {
 	public abstract class Vehicle : Entity
 	{
-		protected Vehicle(EntityType type, Level level) : base((int) type, level)
+		protected Vehicle(EntityType type, Level level) : base(type, level)
 		{
 		}
 	}

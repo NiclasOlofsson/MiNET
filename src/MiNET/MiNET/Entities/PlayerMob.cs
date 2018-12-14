@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -41,7 +41,7 @@ namespace MiNET.Entities
 
 		public Item ItemInHand { get; set; }
 
-		public PlayerMob(string name, Level level) : base(63, level)
+		public PlayerMob(string name, Level level) : base(EntityType.Player, level)
 		{
 			ClientUuid = new UUID(Guid.NewGuid().ToByteArray());
 

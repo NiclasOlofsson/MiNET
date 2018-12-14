@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -29,7 +29,7 @@ namespace MiNET.Entities.Hostile
 {
 	public class Stray : HostileMob, IAgeable
 	{
-		public Stray(Level level) : base((int) EntityType.Stray, level)
+		public Stray(Level level) : base(EntityType.Stray, level)
 		{
 			Width = Length = 0.6;
 			Height = 1.8;

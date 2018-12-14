@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -43,7 +43,7 @@ namespace TestPlugin.Pets
 		public bool IsInRage { get; set; }
 		public int RageTick { get; set; }
 
-		public Pet(Player owner, Level level, int id = 12) : base(id, level)
+		public Pet(Player owner, Level level, EntityType id = EntityType.Pig) : base(id, level)
 		{
 			IsBaby = true;
 			IsInRage = false;

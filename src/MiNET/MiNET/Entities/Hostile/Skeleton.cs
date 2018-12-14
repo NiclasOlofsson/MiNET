@@ -40,7 +40,7 @@ namespace MiNET.Entities.Hostile
 
 		public Item ItemInHand { get; set; }
 
-		public Skeleton(Level level) : base((int) EntityType.Skeleton, level)
+		public Skeleton(Level level) : base(EntityType.Skeleton, level)
 		{
 			Width = Length = 0.6;
 			Height = 1.95;

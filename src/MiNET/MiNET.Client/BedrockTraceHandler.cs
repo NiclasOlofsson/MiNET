@@ -249,20 +249,16 @@ namespace MiNET.Client
 
 			if (!Client.Entities.ContainsKey(message.entityIdSelf))
 			{
-				Entity entity = new Entity((int) message.entityType, null);
+				var entity = new Entity(message.entityType, null);
 				entity.EntityId = message.runtimeEntityId;
 				entity.KnownPosition = new PlayerLocation(message.x, message.y, message.z, message.yaw, message.yaw, message.pitch);
 				entity.Velocity = new Vector3(message.speedX, message.speedY, message.speedZ);
 				Client.Entities.TryAdd(entity.EntityId, entity);
 			}
 
-			byte[] typeBytes = BitConverter.GetBytes(message.entityType);
-
 			Log.DebugFormat("McpeAddEntity Entity ID: {0}", message.entityIdSelf);
 			Log.DebugFormat("McpeAddEntity Runtime Entity ID: {0}", message.runtimeEntityId);
-			Log.DebugFormat("Entity Type: {0} - 0x{0:x2}", message.entityType);
-			Log.DebugFormat("Entity Family: {0} - 0x{0:x2}", typeBytes[1]);
-			Log.DebugFormat("Entity Type ID: {0} - 0x{0:x2} {1}", typeBytes[0], (EntityType) typeBytes[0]);
+			Log.DebugFormat("Entity Type: {0}", message.entityType);
 			Log.DebugFormat("X: {0}", message.x);
 			Log.DebugFormat("Y: {0}", message.y);
 			Log.DebugFormat("Z: {0}", message.z);
@@ -296,9 +292,7 @@ namespace MiNET.Client
 
 			if (Log.IsDebugEnabled && Client._mobWriter != null)
 			{
-				Client._mobWriter.WriteLine("Entity Type: {0} - 0x{0:x2}", message.entityType);
-				Client._mobWriter.WriteLine("Entity Family: {0} - 0x{0:x2}", typeBytes[1]);
-				Client._mobWriter.WriteLine("Entity Type ID: {0} - 0x{0:x2} {1}", typeBytes[0], (EntityType) typeBytes[0]);
+				Client._mobWriter.WriteLine("Entity Type: {0}", message.entityType);
 				Client._mobWriter.Indent++;
 				Client._mobWriter.WriteLine("Metadata: {0}", Client.MetadataToCode(message.metadata));
 				Client._mobWriter.Indent--;
@@ -306,7 +300,7 @@ namespace MiNET.Client
 				Client._mobWriter.Flush();
 			}
 
-			if (typeBytes[0] == (ulong) EntityType.Horse)
+			if (message.entityType == "minecraft:horse")
 			{
 				var id = message.runtimeEntityId;
 				Vector3 pos = new Vector3(message.x, message.y, message.z);
@@ -943,6 +937,26 @@ namespace MiNET.Client
 		}
 
 		public override void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
+		{
+		}
+
+		public override void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message)
+		{
+		}
+
+		public override void HandleMcpeSpawnParticleEffect(McpeSpawnParticleEffect message)
+		{
+		}
+
+		public override void HandleMcpeAvailableEntityIdentifiers(McpeAvailableEntityIdentifiers message)
+		{
+		}
+
+		public override void HandleMcpeNetworkChunkPublisherUpdate(McpeNetworkChunkPublisherUpdate message)
+		{
+		}
+
+		public override void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message)
 		{
 		}
 

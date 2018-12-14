@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -37,7 +37,7 @@ namespace MiNET.Entities.World
 		public bool Fire { get; set; }
 		private bool CheckPosition = true;
 
-		public PrimedTnt(Level level) : base(65, level)
+		public PrimedTnt(Level level) : base(EntityType.PrimedTnt, level)
 		{
 			IsIgnited = true;
 			NoAi = false;

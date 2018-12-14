@@ -46,7 +46,7 @@ namespace MiNET.Entities.Hostile
 			}
 		}
 
-		public MagmaCube(Level level, byte size = 1) : base((int) EntityType.MagmaCube, level)
+		public MagmaCube(Level level, byte size = 1) : base(EntityType.MagmaCube, level)
 		{
 			Size = size;
 			HealthManager.ResetHealth();

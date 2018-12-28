@@ -104,6 +104,10 @@ namespace MiNET.Entities
 		{
 		}
 
+		public Entity(int entityTypeId, Level level) : this((EntityType) entityTypeId, level)
+		{
+		}
+
 		public enum MetadataFlags
 		{
 			EntityFlags = 0,

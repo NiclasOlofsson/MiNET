@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -54,11 +54,32 @@ namespace MiNET.Utils
 
 	public class MapDecorator
 	{
+		protected int Type;
 		public byte Rotation;
 		public byte Icon;
 		public byte X;
 		public byte Z;
 		public string Label;
 		public uint Color;
+	}
+
+	public class BlockMapDecorator : MapDecorator
+	{
+		public BlockCoordinates Coordinates;
+
+		public BlockMapDecorator()
+		{
+			Type = 1;
+		}
+	}
+
+	public class EntityMapDecorator : MapDecorator
+	{
+		public long EntityId;
+
+		public EntityMapDecorator()
+		{
+			Type = 0;
+		}
 	}
 }

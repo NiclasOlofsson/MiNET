@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -648,7 +648,7 @@ namespace MiNET.Net
 
 		public void Write(Nbt nbt)
 		{
-			Write(nbt, _writer.BaseStream, this is McpeBlockEntityData || this is McpeUpdateEquipment);
+			Write(nbt, _writer.BaseStream, nbt.NbtFile.UseVarInt || this is McpeBlockEntityData || this is McpeUpdateEquipment);
 		}
 
 		public static void Write(Nbt nbt, Stream stream, bool useVarInt)
@@ -1592,14 +1592,26 @@ namespace MiNET.Net
 
 			if ((map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
 			{
-				WriteUnsignedVarInt((uint) 0); //entities
-
 				var count = map.Decorators.Length;
+
 				WriteUnsignedVarInt((uint) count);
 				foreach (var decorator in map.Decorators)
 				{
-					Write((byte) decorator.Rotation);
+					if (decorator is EntityMapDecorator entity)
+					{
+						WriteSignedVarLong(entity.EntityId);
+					}
+					else if (decorator is BlockMapDecorator block)
+					{
+						Write(block.Coordinates);
+					}
+				}
+
+				WriteUnsignedVarInt((uint) count);
+				foreach (var decorator in map.Decorators)
+				{
 					Write((byte) decorator.Icon);
+					Write((byte) decorator.Rotation);
 					Write((byte) decorator.X);
 					Write((byte) decorator.Z);
 					Write(decorator.Label);
@@ -1666,7 +1678,17 @@ namespace MiNET.Net
 					var entityCount = ReadUnsignedVarInt();
 					for (int i = 0; i < entityCount; i++)
 					{
-						ReadSignedVarLong();
+						var type = ReadInt();
+						if (type == 0)
+						{
+							// entity
+							var q = ReadSignedVarLong();
+						}
+						else if(type == 1)
+						{
+							// block
+							var b = ReadBlockCoordinates();
+						}
 					}
 
 					var count = ReadUnsignedVarInt();
@@ -1674,8 +1696,8 @@ namespace MiNET.Net
 					for (int i = 0; i < count; i++)
 					{
 						MapDecorator decorator = new MapDecorator();
-						decorator.Rotation = ReadByte();
 						decorator.Icon = ReadByte();
+						decorator.Rotation = ReadByte();
 						decorator.X = ReadByte();
 						decorator.Z = ReadByte();
 						decorator.Label = ReadString();

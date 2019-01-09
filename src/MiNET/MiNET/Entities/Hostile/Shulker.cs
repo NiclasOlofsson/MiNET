@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -29,7 +29,7 @@ namespace MiNET.Entities.Hostile
 {
 	public class Shulker : HostileMob
 	{
-		public Shulker(Level level) : base((int) EntityType.Shulker, level)
+		public Shulker(Level level) : base(EntityType.Shulker, level)
 		{
 			Width = Length = 0.8;
 			Height = 1.8;

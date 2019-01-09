@@ -37,7 +37,6 @@ namespace MiNET.Entities.Passive
 
 		public Chicken(Level level, Random rnd = null) : base(EntityType.Chicken, level)
 		{
-			EntityTypeId = 0x130a;
 			Width = Length = 0.4;
 			Height = 0.7;
 			HealthManager.MaxHealth = 40;

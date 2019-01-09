@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 291;
-		public const string GameVersion = "1.7.0";
+		public const int ProtocolVersion = 313;
+		public const string GameVersion = "1.8.0";
 	}
 
 	public interface IMcpeMessageHandler
@@ -57,7 +57,7 @@ namespace MiNET.Net
 		void HandleMcpeMoveEntity(McpeMoveEntity message);
 		void HandleMcpeMovePlayer(McpeMovePlayer message);
 		void HandleMcpeRiderJump(McpeRiderJump message);
-		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
+		void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message);
 		void HandleMcpeEntityEvent(McpeEntityEvent message);
 		void HandleMcpeInventoryTransaction(McpeInventoryTransaction message);
 		void HandleMcpeMobEquipment(McpeMobEquipment message);
@@ -94,6 +94,7 @@ namespace MiNET.Net
 		void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message);
 		void HandleMcpeLabTable(McpeLabTable message);
 		void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message);
+		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
 	}
 
 	public interface IMcpeClientMessageHandler
@@ -117,7 +118,7 @@ namespace MiNET.Net
 		void HandleMcpeUpdateBlock(McpeUpdateBlock message);
 		void HandleMcpeAddPainting(McpeAddPainting message);
 		void HandleMcpeExplode(McpeExplode message);
-		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
+		void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message);
 		void HandleMcpeLevelEvent(McpeLevelEvent message);
 		void HandleMcpeBlockEvent(McpeBlockEvent message);
 		void HandleMcpeEntityEvent(McpeEntityEvent message);
@@ -197,6 +198,11 @@ namespace MiNET.Net
 		void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message);
 		void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message);
 		void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message);
+		void HandleMcpeSpawnParticleEffect(McpeSpawnParticleEffect message);
+		void HandleMcpeAvailableEntityIdentifiers(McpeAvailableEntityIdentifiers message);
+		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
+		void HandleMcpeNetworkChunkPublisherUpdate(McpeNetworkChunkPublisherUpdate message);
+		void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
 
@@ -231,7 +237,7 @@ namespace MiNET.Net
 			else if (typeof(McpeUpdateBlock) == message.GetType()) _messageHandler.HandleMcpeUpdateBlock((McpeUpdateBlock) message);
 			else if (typeof(McpeAddPainting) == message.GetType()) _messageHandler.HandleMcpeAddPainting((McpeAddPainting) message);
 			else if (typeof(McpeExplode) == message.GetType()) _messageHandler.HandleMcpeExplode((McpeExplode) message);
-			else if (typeof(McpeLevelSoundEvent) == message.GetType()) _messageHandler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent) message);
+			else if (typeof(McpeLevelSoundEventOld) == message.GetType()) _messageHandler.HandleMcpeLevelSoundEventOld((McpeLevelSoundEventOld) message);
 			else if (typeof(McpeLevelEvent) == message.GetType()) _messageHandler.HandleMcpeLevelEvent((McpeLevelEvent) message);
 			else if (typeof(McpeBlockEvent) == message.GetType()) _messageHandler.HandleMcpeBlockEvent((McpeBlockEvent) message);
 			else if (typeof(McpeEntityEvent) == message.GetType()) _messageHandler.HandleMcpeEntityEvent((McpeEntityEvent) message);
@@ -311,6 +317,11 @@ namespace MiNET.Net
 			else if (typeof(McpeUpdateSoftEnumPacket) == message.GetType()) _messageHandler.HandleMcpeUpdateSoftEnumPacket((McpeUpdateSoftEnumPacket) message);
 			else if (typeof(McpeNetworkStackLatencyPacket) == message.GetType()) _messageHandler.HandleMcpeNetworkStackLatencyPacket((McpeNetworkStackLatencyPacket) message);
 			else if (typeof(McpeScriptCustomEventPacket) == message.GetType()) _messageHandler.HandleMcpeScriptCustomEventPacket((McpeScriptCustomEventPacket) message);
+			else if (typeof(McpeSpawnParticleEffect) == message.GetType()) _messageHandler.HandleMcpeSpawnParticleEffect((McpeSpawnParticleEffect) message);
+			else if (typeof(McpeAvailableEntityIdentifiers) == message.GetType()) _messageHandler.HandleMcpeAvailableEntityIdentifiers((McpeAvailableEntityIdentifiers) message);
+			else if (typeof(McpeLevelSoundEvent) == message.GetType()) _messageHandler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent) message);
+			else if (typeof(McpeNetworkChunkPublisherUpdate) == message.GetType()) _messageHandler.HandleMcpeNetworkChunkPublisherUpdate((McpeNetworkChunkPublisherUpdate) message);
+			else if (typeof(McpeBiomeDefinitionList) == message.GetType()) _messageHandler.HandleMcpeBiomeDefinitionList((McpeBiomeDefinitionList) message);
 			else if (typeof(FtlCreatePlayer) == message.GetType()) _messageHandler.HandleFtlCreatePlayer((FtlCreatePlayer) message);
 			else return false;
 
@@ -498,7 +509,7 @@ namespace MiNET.Net
 						packet.Decode(buffer);
 						return packet;
 					case 0x18:
-						packet = McpeLevelSoundEvent.CreateObject();
+						packet = McpeLevelSoundEventOld.CreateObject();
 						packet.Decode(buffer);
 						return packet;
 					case 0x19:
@@ -867,6 +878,26 @@ namespace MiNET.Net
 						return packet;
 					case 0x75:
 						packet = McpeScriptCustomEventPacket.CreateObject();
+						packet.Decode(buffer);
+						return packet;
+					case 0x76:
+						packet = McpeSpawnParticleEffect.CreateObject();
+						packet.Decode(buffer);
+						return packet;
+					case 0x77:
+						packet = McpeAvailableEntityIdentifiers.CreateObject();
+						packet.Decode(buffer);
+						return packet;
+					case 0x78:
+						packet = McpeLevelSoundEvent.CreateObject();
+						packet.Decode(buffer);
+						return packet;
+					case 0x79:
+						packet = McpeNetworkChunkPublisherUpdate.CreateObject();
+						packet.Decode(buffer);
+						return packet;
+					case 0x7a:
+						packet = McpeBiomeDefinitionList.CreateObject();
 						packet.Decode(buffer);
 						return packet;
 				}
@@ -2092,6 +2123,7 @@ namespace MiNET.Net
 		public bool mustAccept; // = null;
 		public ResourcePackIdVersions behaviorpackidversions; // = null;
 		public ResourcePackIdVersions resourcepackidversions; // = null;
+		public bool isExperimental; // = null;
 
 		public McpeResourcePackStack()
 		{
@@ -2108,6 +2140,7 @@ namespace MiNET.Net
 			Write(mustAccept);
 			Write(behaviorpackidversions);
 			Write(resourcepackidversions);
+			Write(isExperimental);
 
 			AfterEncode();
 		}
@@ -2124,6 +2157,7 @@ namespace MiNET.Net
 			mustAccept = ReadBool();
 			behaviorpackidversions = ReadResourcePackIdVersions();
 			resourcepackidversions = ReadResourcePackIdVersions();
+			isExperimental = ReadBool();
 
 			AfterDecode();
 		}
@@ -2138,6 +2172,7 @@ namespace MiNET.Net
 			mustAccept=default(bool);
 			behaviorpackidversions=default(ResourcePackIdVersions);
 			resourcepackidversions=default(ResourcePackIdVersions);
+			isExperimental=default(bool);
 		}
 
 	}
@@ -2350,6 +2385,8 @@ namespace MiNET.Net
 		public bool hasLockedResourcePack; // = null;
 		public bool isFromLockedWorldTemplate; // = null;
 		public bool useMsaGamertagsOnly; // = null;
+		public bool isFromWorldTemplate; // = null;
+		public bool isWorldTemplateOptionLocked; // = null;
 		public string levelId; // = null;
 		public string worldName; // = null;
 		public string premiumWorldTemplateId; // = null;
@@ -2409,6 +2446,8 @@ namespace MiNET.Net
 			Write(hasLockedResourcePack);
 			Write(isFromLockedWorldTemplate);
 			Write(useMsaGamertagsOnly);
+			Write(isFromWorldTemplate);
+			Write(isWorldTemplateOptionLocked);
 			Write(levelId);
 			Write(worldName);
 			Write(premiumWorldTemplateId);
@@ -2468,6 +2507,8 @@ namespace MiNET.Net
 			hasLockedResourcePack = ReadBool();
 			isFromLockedWorldTemplate = ReadBool();
 			useMsaGamertagsOnly = ReadBool();
+			isFromWorldTemplate = ReadBool();
+			isWorldTemplateOptionLocked = ReadBool();
 			levelId = ReadString();
 			worldName = ReadString();
 			premiumWorldTemplateId = ReadString();
@@ -2525,6 +2566,8 @@ namespace MiNET.Net
 			hasLockedResourcePack=default(bool);
 			isFromLockedWorldTemplate=default(bool);
 			useMsaGamertagsOnly=default(bool);
+			isFromWorldTemplate=default(bool);
+			isWorldTemplateOptionLocked=default(bool);
 			levelId=default(string);
 			worldName=default(string);
 			premiumWorldTemplateId=default(string);
@@ -2682,7 +2725,7 @@ namespace MiNET.Net
 
 		public long entityIdSelf; // = null;
 		public long runtimeEntityId; // = null;
-		public uint entityType; // = null;
+		public string entityType; // = null;
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -2710,7 +2753,7 @@ namespace MiNET.Net
 
 			WriteSignedVarLong(entityIdSelf);
 			WriteUnsignedVarLong(runtimeEntityId);
-			WriteUnsignedVarInt(entityType);
+			Write(entityType);
 			Write(x);
 			Write(y);
 			Write(z);
@@ -2738,7 +2781,7 @@ namespace MiNET.Net
 
 			entityIdSelf = ReadSignedVarLong();
 			runtimeEntityId = ReadUnsignedVarLong();
-			entityType = ReadUnsignedVarInt();
+			entityType = ReadString();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
@@ -2764,7 +2807,7 @@ namespace MiNET.Net
 
 			entityIdSelf=default(long);
 			runtimeEntityId=default(long);
-			entityType=default(uint);
+			entityType=default(string);
 			x=default(float);
 			y=default(float);
 			z=default(float);
@@ -3363,7 +3406,7 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeLevelSoundEvent : Packet<McpeLevelSoundEvent>
+	public partial class McpeLevelSoundEventOld : Packet<McpeLevelSoundEventOld>
 	{
 
 		public byte soundId; // = null;
@@ -3373,7 +3416,7 @@ namespace MiNET.Net
 		public bool isBabyMob; // = null;
 		public bool isGlobal; // = null;
 
-		public McpeLevelSoundEvent()
+		public McpeLevelSoundEventOld()
 		{
 			Id = 0x18;
 			IsMcpe = true;
@@ -6446,6 +6489,7 @@ namespace MiNET.Net
 		public byte windowType; // = null;
 		public int unknown0; // = null;
 		public int unknown1; // = null;
+		public int unknown2; // = null;
 		public bool isWilling; // = null;
 		public long traderEntityId; // = null;
 		public long playerEntityId; // = null;
@@ -6468,6 +6512,7 @@ namespace MiNET.Net
 			Write(windowType);
 			WriteVarInt(unknown0);
 			WriteVarInt(unknown1);
+			WriteVarInt(unknown2);
 			Write(isWilling);
 			WriteSignedVarLong(traderEntityId);
 			WriteSignedVarLong(playerEntityId);
@@ -6490,6 +6535,7 @@ namespace MiNET.Net
 			windowType = ReadByte();
 			unknown0 = ReadVarInt();
 			unknown1 = ReadVarInt();
+			unknown2 = ReadVarInt();
 			isWilling = ReadBool();
 			traderEntityId = ReadSignedVarLong();
 			playerEntityId = ReadSignedVarLong();
@@ -6510,6 +6556,7 @@ namespace MiNET.Net
 			windowType=default(byte);
 			unknown0=default(int);
 			unknown1=default(int);
+			unknown2=default(int);
 			isWilling=default(bool);
 			traderEntityId=default(long);
 			playerEntityId=default(long);
@@ -8443,6 +8490,278 @@ namespace MiNET.Net
 
 			eventName=default(string);
 			eventData=default(string);
+		}
+
+	}
+
+	public partial class McpeSpawnParticleEffect : Packet<McpeSpawnParticleEffect>
+	{
+
+		public byte dimensionId; // = null;
+		public Vector3 position; // = null;
+		public string particleName; // = null;
+
+		public McpeSpawnParticleEffect()
+		{
+			Id = 0x76;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(dimensionId);
+			Write(position);
+			Write(particleName);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			dimensionId = ReadByte();
+			position = ReadVector3();
+			particleName = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			dimensionId=default(byte);
+			position=default(Vector3);
+			particleName=default(string);
+		}
+
+	}
+
+	public partial class McpeAvailableEntityIdentifiers : Packet<McpeAvailableEntityIdentifiers>
+	{
+
+		public Nbt namedtag; // = null;
+
+		public McpeAvailableEntityIdentifiers()
+		{
+			Id = 0x77;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(namedtag);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			namedtag = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			namedtag=default(Nbt);
+		}
+
+	}
+
+	public partial class McpeLevelSoundEvent : Packet<McpeLevelSoundEvent>
+	{
+
+		public byte soundId; // = null;
+		public Vector3 position; // = null;
+		public int blockId; // = null;
+		public string entityType; // = null;
+		public bool isBabyMob; // = null;
+		public bool isGlobal; // = null;
+
+		public McpeLevelSoundEvent()
+		{
+			Id = 0x78;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(soundId);
+			Write(position);
+			WriteSignedVarInt(blockId);
+			Write(entityType);
+			Write(isBabyMob);
+			Write(isGlobal);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			soundId = ReadByte();
+			position = ReadVector3();
+			blockId = ReadSignedVarInt();
+			entityType = ReadString();
+			isBabyMob = ReadBool();
+			isGlobal = ReadBool();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			soundId=default(byte);
+			position=default(Vector3);
+			blockId=default(int);
+			entityType=default(string);
+			isBabyMob=default(bool);
+			isGlobal=default(bool);
+		}
+
+	}
+
+	public partial class McpeNetworkChunkPublisherUpdate : Packet<McpeNetworkChunkPublisherUpdate>
+	{
+
+		public BlockCoordinates coordinates; // = null;
+		public uint radius; // = null;
+
+		public McpeNetworkChunkPublisherUpdate()
+		{
+			Id = 0x79;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(coordinates);
+			WriteUnsignedVarInt(radius);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			coordinates = ReadBlockCoordinates();
+			radius = ReadUnsignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			coordinates=default(BlockCoordinates);
+			radius=default(uint);
+		}
+
+	}
+
+	public partial class McpeBiomeDefinitionList : Packet<McpeBiomeDefinitionList>
+	{
+
+		public Nbt namedtag; // = null;
+
+		public McpeBiomeDefinitionList()
+		{
+			Id = 0x7a;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(namedtag);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			namedtag = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			namedtag=default(Nbt);
 		}
 
 	}

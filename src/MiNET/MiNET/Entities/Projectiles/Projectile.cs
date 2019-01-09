@@ -49,7 +49,7 @@ namespace MiNET.Entities.Projectiles
 
 		public bool BroadcastMovement { get; set; } = false;
 
-		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
+		protected Projectile(Player shooter, EntityType entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
 			Shooter = shooter;
 			Damage = damage;

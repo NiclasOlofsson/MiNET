@@ -36,7 +36,7 @@ namespace MiNET.Entities
 		public ItemPainting.PaintingData PaintingData { get; set; }
 		public BoundingBox Bbox { get; set; }
 
-		public Painting(Level level, ItemPainting.PaintingData data) : base((int) EntityType.Painting, level)
+		public Painting(Level level, ItemPainting.PaintingData data) : base(EntityType.Painting, level)
 		{
 			PaintingData = data;
 			HealthManager = new PaintingHealthManager(this);

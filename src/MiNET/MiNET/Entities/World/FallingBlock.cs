@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -41,7 +41,7 @@ namespace MiNET.Entities.World
 		private readonly Block _original;
 		private bool _checkPosition = true;
 
-		public FallingBlock(Level level, Block original) : base((int) EntityType.FallingBlock, level)
+		public FallingBlock(Level level, Block original) : base(EntityType.FallingBlock, level)
 		{
 			_original = original;
 			//Gravity = 0.04;
@@ -106,7 +106,7 @@ namespace MiNET.Entities.World
 				updateBlock.unknown1 = 1;
 
 				var addEntity = McpeAddEntity.CreateObject();
-				addEntity.entityType = (byte) EntityTypeId;
+				addEntity.entityType = EntityTypeId;
 				addEntity.entityIdSelf = EntityId;
 				addEntity.runtimeEntityId = EntityId;
 				addEntity.x = KnownPosition.X;

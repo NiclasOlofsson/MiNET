@@ -46,7 +46,7 @@ namespace MiNET.Entities.Hostile
 			}
 		}
 
-		public Slime(Level level, byte size = 1) : base((int) EntityType.Slime, level)
+		public Slime(Level level, byte size = 1) : base(EntityType.Slime, level)
 		{
 			Size = size;
 			HealthManager.ResetHealth();

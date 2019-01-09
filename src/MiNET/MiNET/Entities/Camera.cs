@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -37,7 +37,7 @@ namespace MiNET.Entities
 		public string InteractionLabel { get; set; } = "action.interact.takepicture";
 
 
-		public Camera(Level level) : base((int) EntityType.Camera, level)
+		public Camera(Level level) : base(EntityType.Camera, level)
 		{
 			Width = Length = 0.75f;
 			Height = 1.8f;

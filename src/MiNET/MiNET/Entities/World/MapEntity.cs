@@ -39,7 +39,7 @@ namespace MiNET.Entities.World
 		public MapInfo MapInfo { get; set; }
 		public IMapImageProvider ImageProvider { get; set; }
 
-		public MapEntity(Level level, long mapId = EntityManager.EntityIdUndefined) : base(-1, level)
+		public MapEntity(Level level, long mapId = EntityManager.EntityIdUndefined) : base(EntityType.None, level)
 		{
 			if (mapId != EntityManager.EntityIdUndefined)
 			{

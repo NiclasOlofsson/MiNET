@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -575,6 +575,10 @@ namespace MiNET.Blocks
 			else if (blockId == 412) block = new Conduit();
 			else if (blockId == 414) block = new TurtleEgg();
 			else if (blockId == 415) block = new BubbleColumn();
+			else if (blockId == 416) block = new Barrier();
+			else if (blockId == 418) block = new Bamboo();
+			else if (blockId == 419) block = new BambooSapling();
+			else if (blockId == 420) block = new Scaffolding();
 
 
 			else

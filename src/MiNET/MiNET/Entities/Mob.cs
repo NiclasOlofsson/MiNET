@@ -64,15 +64,11 @@ namespace MiNET.Entities
 
 		public Entity Target { get; private set; }
 
-		public Mob(int entityTypeId, Level level) : base(entityTypeId, level)
+		public Mob(EntityType entityTypeId, Level level) : base(entityTypeId, level)
 		{
 			Width = Length = 0.6;
 			Height = 1.80;
 			Controller = new MobController(this);
-		}
-
-		public Mob(EntityType mobTypes, Level level) : this((int) mobTypes, level)
-		{
 		}
 
 		public virtual void BroadcastArmor()

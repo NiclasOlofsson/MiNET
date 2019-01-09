@@ -44,7 +44,7 @@ namespace MiNET.Entities.Hostile
 			set => base.Speed = value;
 		}
 
-		public Zombie(Level level) : base((int) EntityType.Zombie, level)
+		public Zombie(Level level) : base(EntityType.Zombie, level)
 		{
 			Width = Length = 0.6;
 			Height = 1.95;

@@ -30,7 +30,7 @@ namespace MiNET.Entities.Hostile
 {
 	public class Herobrine : HostileMob, IEternal
 	{
-		public Herobrine(Level level) : base(666, level)
+		public Herobrine(Level level) : base(EntityType.Herobrine, level)
 		{
 			Width = Length = 0.6;
 			Height = 1.8;

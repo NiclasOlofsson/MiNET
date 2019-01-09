@@ -32,6 +32,7 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Threading;
+using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Crafting;
@@ -102,7 +103,7 @@ namespace MiNET
 		public DamageCalculator DamageCalculator { get; set; } = new DamageCalculator();
 
 
-		public Player(MiNetServer server, IPEndPoint endPoint) : base(-1, null)
+		public Player(MiNetServer server, IPEndPoint endPoint) : base(EntityType.None, null)
 		{
 			Server = server;
 			EndPoint = endPoint;
@@ -867,10 +868,11 @@ namespace MiNET
 
 				//Level.AddPlayer(this, false);
 
-
 				SendSetTime();
 
 				SendStartGame();
+
+				SendAvailableEntityIdentifiers();
 
 				BroadcastSetEntityData();
 
@@ -903,6 +905,8 @@ namespace MiNET
 				SendCraftingRecipes();
 
 				SendAvailableCommands(); // Don't send this before StartGame!
+
+				SendNetworkChunkPublisherUpdate();
 			}
 			catch (Exception e)
 			{
@@ -915,6 +919,26 @@ namespace MiNET
 
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
+		}
+
+		public virtual void SendAvailableEntityIdentifiers()
+		{
+			var nbt = new Nbt
+			{
+				NbtFile = new NbtFile
+				{
+					BigEndian = false,
+					UseVarInt = true,
+					RootTag = new NbtCompound("")
+					{
+						EntityHelpers.GenerateEntityIdentifiers()
+					}
+				}
+			};
+
+			var pk = McpeAvailableEntityIdentifiers.CreateObject();
+			pk.namedtag = nbt;
+			SendPacket(pk);
 		}
 
 		public bool EnableCommands { get; set; } = Config.GetProperty("EnableCommands", false);
@@ -1889,9 +1913,21 @@ namespace MiNET
 			return false;
 		}
 
+		public virtual void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message)
+		{
+			var sound = McpeLevelSoundEventOld.CreateObject();
+			sound.soundId = message.soundId;
+			sound.position = message.position;
+			sound.blockId = message.blockId;
+			sound.entityType = message.entityType;
+			sound.isBabyMob = message.isBabyMob;
+			sound.isGlobal = message.isGlobal;
+			Level.RelayBroadcast(sound);
+		}
+
 		public virtual void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
 		{
-			McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+			var sound = McpeLevelSoundEvent.CreateObject();
 			sound.soundId = message.soundId;
 			sound.position = message.position;
 			sound.blockId = message.blockId;
@@ -2676,7 +2712,7 @@ namespace MiNET
 
 			if (Level.Entities.TryGetValue((long) message.runtimeEntityId, out var entity))
 			{
-				Item item = ItemFactory.GetItem(383, (short) entity.EntityTypeId);
+				Item item = ItemFactory.GetItem(383, (short) EntityHelpers.ToEntityType(entity.EntityTypeId));
 
 				Inventory.SetInventorySlot(Inventory.InHandSlot, item);
 			}
@@ -2826,6 +2862,14 @@ namespace MiNET
 			}
 		}
 
+		public void SendNetworkChunkPublisherUpdate()
+		{
+			var pk = McpeNetworkChunkPublisherUpdate.CreateObject();
+			pk.coordinates = KnownPosition.GetCoordinates3D();
+			pk.radius = (uint)(MaxViewDistance * 16);
+			SendPacket(pk);
+		}
+
 		public void ForcedSendChunks(Action postAction = null)
 		{
 			Monitor.Enter(_sendChunkSync);
@@ -2837,6 +2881,7 @@ namespace MiNET
 
 				if (Level == null) return;
 
+				SendNetworkChunkPublisherUpdate();
 				int packetCount = 0;
 				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
@@ -2878,6 +2923,8 @@ namespace MiNET
 				int packetCount = 0;
 
 				if (Level == null) return;
+
+				SendNetworkChunkPublisherUpdate();
 
 				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{

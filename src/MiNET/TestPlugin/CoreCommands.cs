@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -86,6 +86,16 @@ namespace TestPlugin
 		[Command(Name = "tc", Description = "Test command")]
 		public void TestCommand(Player player, int param)
 		{
+		}
+
+		[Command(Name = "pe", Description = "Particle effects!")]
+		public void ParticleEffect(Player player, string particle)
+		{
+			var pk = McpeSpawnParticleEffect.CreateObject();
+			pk.particleName = particle;
+			pk.position = player.KnownPosition;
+			pk.dimensionId = 0; // wat
+			player.Level.RelayBroadcast(pk);
 		}
 
 		[Command(Name = "gc", Description = "Force garbage collection to run")]
@@ -789,7 +799,7 @@ namespace TestPlugin
 		{
 			Level level = player.Level;
 
-			var entity = new Entity(entityId, level)
+			var entity = new Entity((EntityType)entityId, level)
 			{
 				KnownPosition = player.KnownPosition,
 			};
@@ -1201,7 +1211,7 @@ namespace TestPlugin
 		[Command(Name = "xporb")]
 		public void ExperienceOrb(Player player)
 		{
-			Mob xpOrb = new Mob(69, player.Level);
+			Mob xpOrb = new Mob(EntityType.ExperienceOrb, player.Level);
 			xpOrb.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			xpOrb.SpawnEntity();
 		}

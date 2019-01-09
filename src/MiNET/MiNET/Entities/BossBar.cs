@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -52,7 +52,7 @@ namespace MiNET.Entities
 		public int Progress { get; set; } = 100;
 		public int MaxProgress { get; set; } = 100;
 
-		public BossBar(Level level) : base((int) EntityType.Slime, level)
+		public BossBar(Level level) : base(EntityType.Slime, level)
 		{
 			Width = 0;
 			Length = 0;

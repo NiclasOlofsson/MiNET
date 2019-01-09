@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -125,7 +125,7 @@ namespace TestPlugin.Pets
 				}
 			}
 
-			Pet newPet = new Pet(player, player.Level, (int) petType)
+			Pet newPet = new Pet(player, player.Level)
 			{
 				NameTag = petName,
 				KnownPosition = (PlayerLocation) player.KnownPosition.Clone(),

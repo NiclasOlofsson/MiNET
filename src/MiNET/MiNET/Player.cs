@@ -3265,7 +3265,7 @@ namespace MiNET
 		{
 			var metadata = base.GetMetadata();
 			metadata[4] = new MetadataString(NameTag ?? Username);
-			metadata[40] = new MetadataString(ButtonText ?? string.Empty);
+			metadata[39] = new MetadataString(ButtonText ?? string.Empty);
 
 			//MetadataDictionary metadata = new MetadataDictionary();
 			//metadata[0] = new MetadataLong(GetDataValue()); // 10000000000000011000000000000000

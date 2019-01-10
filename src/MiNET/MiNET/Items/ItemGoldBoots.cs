@@ -25,7 +25,7 @@
 
 namespace MiNET.Items
 {
-	public class ItemGoldBoots : Item
+	public class ItemGoldBoots : ArmorItem
 	{
 		public ItemGoldBoots() : base(317)
 		{

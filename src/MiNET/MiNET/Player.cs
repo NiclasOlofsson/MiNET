@@ -2238,7 +2238,11 @@ namespace MiNET
 				case McpeInventoryTransaction.ItemUseAction.Use:
 					_itemUseTimer = Level.TickTime;
 					itemInHand.UseItem(Level, this, transaction.Position);
-					//Inventory.UpdateInventorySlot(transaction.Slot, transaction.Item);
+					var item = transaction.Item;
+					if (item is ArmorItem)
+					{
+						Inventory.UpdateInventorySlot(transaction.Slot, item);
+					}
 					break;
 				case McpeInventoryTransaction.ItemUseAction.Destroy:
 					Level.BreakBlock(this, transaction.Position);

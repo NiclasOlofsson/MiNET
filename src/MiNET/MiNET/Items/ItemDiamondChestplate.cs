@@ -25,7 +25,7 @@
 
 namespace MiNET.Items
 {
-	public class ItemDiamondChestplate : Item
+	public class ItemDiamondChestplate : ArmorItem
 	{
 		public ItemDiamondChestplate() : base(311)
 		{

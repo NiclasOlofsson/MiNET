@@ -175,7 +175,7 @@ namespace MiNET
 							armorValue += 3;
 							break;
 					}
-					epfValue += CalculateDamageReducationFromEnchantments(source, armorPiece, tool, cause);
+					epfValue += CalculateDamageReductionFromEnchantments(source, armorPiece, tool, cause);
 				}
 
 				{
@@ -198,7 +198,7 @@ namespace MiNET
 							armorValue += 8;
 							break;
 					}
-					epfValue += CalculateDamageReducationFromEnchantments(source, armorPiece, tool, cause);
+					epfValue += CalculateDamageReductionFromEnchantments(source, armorPiece, tool, cause);
 				}
 
 				{
@@ -221,7 +221,7 @@ namespace MiNET
 							armorValue += 6;
 							break;
 					}
-					epfValue += CalculateDamageReducationFromEnchantments(source, armorPiece, tool, cause);
+					epfValue += CalculateDamageReductionFromEnchantments(source, armorPiece, tool, cause);
 				}
 
 				{
@@ -244,7 +244,7 @@ namespace MiNET
 							armorValue += 3;
 							break;
 					}
-					epfValue += CalculateDamageReducationFromEnchantments(source, armorPiece, tool, cause);
+					epfValue += CalculateDamageReductionFromEnchantments(source, armorPiece, tool, cause);
 				}
 			}
 
@@ -261,7 +261,7 @@ namespace MiNET
 			//return (int) Math.Floor(damage*(1.0 - armorValue));
 		}
 
-		protected virtual double CalculateDamageReducationFromEnchantments(Entity source, Item armor, Item tool, DamageCause cause)
+		protected virtual double CalculateDamageReductionFromEnchantments(Entity source, Item armor, Item tool, DamageCause cause)
 		{
 			if (armor == null) return 0;
 			if (armor.ExtraData == null) return 0;

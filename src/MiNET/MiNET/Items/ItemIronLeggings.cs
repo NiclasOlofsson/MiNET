@@ -25,7 +25,7 @@
 
 namespace MiNET.Items
 {
-	public class ItemIronLeggings : ArmorItem
+	public class ItemIronLeggings : LeggingsArmorItem
 	{
 		public ItemIronLeggings() : base(308)
 		{

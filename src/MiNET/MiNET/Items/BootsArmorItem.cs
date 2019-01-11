@@ -1,5 +1,4 @@
 #region LICENSE
-
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
@@ -18,20 +17,16 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2019 Niclas Olofsson. 
 // All Rights Reserved.
-
 #endregion
 
 namespace MiNET.Items
 {
-	public class ItemGoldHelmet : HelmetArmorItem
+	public abstract class BootsArmorItem : ArmorItem
 	{
-		public ItemGoldHelmet() : base(314)
+		protected BootsArmorItem(short id) : base(id)
 		{
-			MaxStackSize = 1;
-			ItemType = ItemType.Helmet;
-			ItemMaterial = ItemMaterial.Gold;
 		}
 	}
 }

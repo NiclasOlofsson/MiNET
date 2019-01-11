@@ -2239,7 +2239,7 @@ namespace MiNET
 					_itemUseTimer = Level.TickTime;
 					itemInHand.UseItem(Level, this, transaction.Position);
 					var item = transaction.Item;
-					if (item is ArmorItem)
+					if (item is ArmorItem || item is ItemElytra)
 					{
 						Inventory.UpdateInventorySlot(transaction.Slot, item);
 					}

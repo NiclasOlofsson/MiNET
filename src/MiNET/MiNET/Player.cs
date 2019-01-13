@@ -2242,6 +2242,7 @@ namespace MiNET
 					if (item is ArmorItem || item is ItemElytra)
 					{
 						Inventory.UpdateInventorySlot(transaction.Slot, item);
+						SendArmorForPlayer();
 					}
 					break;
 				case McpeInventoryTransaction.ItemUseAction.Destroy:

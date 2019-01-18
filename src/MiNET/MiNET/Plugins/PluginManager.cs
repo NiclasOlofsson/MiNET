@@ -124,11 +124,7 @@ namespace MiNET.Plugins
 								if (ctor != null)
 								{
 									var plugin = ctor.Invoke(null);
-									_plugins.Add(plugin);
-									LoadCommands(type);
-									Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
-									LoadPacketHandlers(type);
-									Log.Debug($"Loaded plugin {type}");
+									LoadPlugin(plugin, type);
 								}
 							}
 							catch (Exception ex)
@@ -147,6 +143,38 @@ namespace MiNET.Plugins
 			}
 
 			DebugPrintCommands();
+		}
+
+		public void LoadPlugin(object plugin)
+		{
+			Type type = plugin.GetType();
+
+			if (_plugins.Any(l => l.GetType().AssemblyQualifiedName == type.AssemblyQualifiedName))
+			{
+				Log.Error($"Tried to load duplicate plugin: {type}");
+				return;
+			}
+
+			if (type.IsDefined(typeof(PluginAttribute), true))
+			{
+				PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof(PluginAttribute), true) as PluginAttribute;
+				if (pluginAttribute != null)
+				{
+					if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true))
+						return;
+				}
+			}
+
+			LoadPlugin(plugin, type);
+		}
+
+		private void LoadPlugin(object plugin, Type type)
+		{
+			_plugins.Add(plugin);
+			LoadCommands(type);
+			Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
+			LoadPacketHandlers(type);
+			Log.Debug($"Loaded plugin {type}");
 		}
 
 		public event ResolveEventHandler AssemblyResolve;

@@ -289,7 +289,7 @@ namespace MiNET
 				dataInfo.maxChunkSize = 1048576;
 				dataInfo.chunkCount = 1;
 				dataInfo.compressedPackageSize = 359901; // Lenght of data
-				dataInfo.hash = "9&\r2'ëX•;\u001bð—Ð‹\u0006´6\u0007TÞ/[Üx…x*\u0005h\u0002à\u0012"; //TODO: Fix encoding for this. Right now, must be Default :-(
+				dataInfo.hash = new byte[] { 57, 38, 13, 50, 39, 63, 88, 63, 59, 27, 63, 63, 63, 63, 6, 63, 54, 7, 84, 63, 47, 91, 63, 120, 63, 120, 42, 5, 104, 2, 63, 18 };
 				SendPacket(dataInfo);
 				return;
 			}

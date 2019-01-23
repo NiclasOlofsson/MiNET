@@ -6637,7 +6637,7 @@ namespace MiNET.Net
 		public uint maxChunkSize; // = null;
 		public uint chunkCount; // = null;
 		public ulong compressedPackageSize; // = null;
-		public string hash; // = null;
+		public byte[] hash; // = null;
 
 		public McpeResourcePackDataInfo()
 		{
@@ -6655,7 +6655,7 @@ namespace MiNET.Net
 			Write(maxChunkSize);
 			Write(chunkCount);
 			Write(compressedPackageSize);
-			Write(hash);
+			WriteByteArray(hash);
 
 			AfterEncode();
 		}
@@ -6673,7 +6673,7 @@ namespace MiNET.Net
 			maxChunkSize = ReadUint();
 			chunkCount = ReadUint();
 			compressedPackageSize = ReadUlong();
-			hash = ReadString();
+			hash = ReadByteArray();
 
 			AfterDecode();
 		}
@@ -6689,7 +6689,7 @@ namespace MiNET.Net
 			maxChunkSize=default(uint);
 			chunkCount=default(uint);
 			compressedPackageSize=default(ulong);
-			hash=default(string);
+			hash=default(byte[]);
 		}
 
 	}

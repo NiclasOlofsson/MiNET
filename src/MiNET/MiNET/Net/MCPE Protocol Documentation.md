@@ -1782,10 +1782,10 @@ Wiki: [Resource Pack Data Info](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Package ID | string |  |
-|Max Chunk Size  | uint |  |
-|Chunk Count  | uint |  |
-|Compressed Package Size  | ulong |  |
-|Hash  | string |  |
+|Max Chunk Size | uint |  |
+|Chunk Count | uint |  |
+|Compressed Package Size | ulong |  |
+|Hash | ByteArray |  |
 -----------------------------------------------------------------------
 ### Resource Pack Chunk Data (0x53)
 Wiki: [Resource Pack Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackChunkData)

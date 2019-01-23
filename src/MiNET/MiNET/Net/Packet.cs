@@ -850,6 +850,7 @@ namespace MiNET.Net
 						};
 						break;
 					case McpeInventoryTransaction.InventorySourceType.Unspecified:
+					case McpeInventoryTransaction.InventorySourceType.Crafting:
 						record = new CraftTransactionRecord()
 						{
 							Source = sourceType,

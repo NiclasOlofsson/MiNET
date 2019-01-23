@@ -5,7 +5,7 @@
 
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>MiNET</PackageId>
-		<Version>0.0.2</Version>
+		<Version>0.0.0</Version>
 		<Authors>gurun</Authors>
 		<Company>Niclas Olofsson</Company>
 		<Description>MiNET - a Minecraft PocketEdition Server</Description>

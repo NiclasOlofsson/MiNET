@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -41,12 +41,12 @@ namespace MiNET.Entities
 {
 	public class Entity
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Entity));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Entity));
 
 
 		public Level Level { get; set; }
 
-		public int EntityTypeId { get; protected set; }
+		public string EntityTypeId { get; protected set; }
 		public long EntityId { get; set; }
 		public bool IsSpawned { get; set; }
 		public bool CanDespawn { get; set; } = true;
@@ -91,13 +91,21 @@ namespace MiNET.Entities
 
 		public ConcurrentDictionary<Type, object> PluginStore { get; set; } = new ConcurrentDictionary<Type, object>();
 
-		public Entity(int entityTypeId, Level level)
+		public Entity(string entityTypeId, Level level)
 		{
 			EntityId = EntityManager.EntityIdUndefined;
 			Level = level;
 			EntityTypeId = entityTypeId;
 			KnownPosition = new PlayerLocation();
 			HealthManager = new HealthManager(this);
+		}
+
+		public Entity(EntityType entityTypeId, Level level) : this(entityTypeId.ToStringId(), level)
+		{
+		}
+
+		public Entity(int entityTypeId, Level level) : this((EntityType) entityTypeId, level)
+		{
 		}
 
 		public enum MetadataFlags
@@ -252,7 +260,7 @@ namespace MiNET.Entities
 			bits.CopyTo(bytes, 0);
 
 			List<DataFlags> flags = new List<DataFlags>();
-			foreach (var val in Enum.GetValues(typeof (DataFlags)))
+			foreach (var val in Enum.GetValues(typeof(DataFlags)))
 			{
 				if (bits[(int) val]) flags.Add((DataFlags) val);
 			}
@@ -347,6 +355,7 @@ namespace MiNET.Entities
 			Charged,
 
 			Tamed,
+			Orphaned,
 			Leashed,
 			Sheared,
 			FlagAllFlying,
@@ -455,7 +464,7 @@ namespace MiNET.Entities
 		public virtual void SpawnToPlayers(Player[] players)
 		{
 			var addEntity = McpeAddEntity.CreateObject();
-			addEntity.entityType = (byte) EntityTypeId;
+			addEntity.entityType = EntityTypeId;
 			addEntity.entityIdSelf = EntityId;
 			addEntity.runtimeEntityId = EntityId;
 			addEntity.x = KnownPosition.X;
@@ -494,7 +503,7 @@ namespace MiNET.Entities
 			{
 				Name = "minecraft:health",
 				MinValue = 0,
-				MaxValue = 20,
+				MaxValue = HealthManager.MaxHearts,
 				Value = HealthManager.Hearts
 			};
 			attributes["minecraft:knockback_resistance"] = new EntityAttribute
@@ -597,15 +606,26 @@ namespace MiNET.Entities
 
 		public virtual BoundingBox GetBoundingBox()
 		{
-			var pos = KnownPosition;
-			//if (Math.Abs(pos.X - _bboxCache.Item1.X) < 0.01 && Math.Abs(pos.Y - _bboxCache.Item1.Y) < 0.01 && Math.Abs(pos.Z - _bboxCache.Item1.Z) < 0.01) return _bboxCache.Item2;
+			//var pos = KnownPosition;
+			////if (Math.Abs(pos.X - _bboxCache.Item1.X) < 0.01 && Math.Abs(pos.Y - _bboxCache.Item1.Y) < 0.01 && Math.Abs(pos.Z - _bboxCache.Item1.Z) < 0.01) return _bboxCache.Item2;
 
-			float halfWidth = (float) (Width/2);
+			//float halfWidth = (float) (Width/2);
+
+			//var bbox = new BoundingBox(
+			//	Vector3.Min(new Vector3(pos.X - halfWidth, pos.Y, pos.Z - halfWidth), new Vector3(pos.X + halfWidth, pos.Y, pos.Z + halfWidth)),
+			//	Vector3.Max(new Vector3(pos.X - halfWidth, (float) (pos.Y - Height), pos.Z - halfWidth), new Vector3(pos.X + halfWidth, (float) (pos.Y + Height), pos.Z + halfWidth)));
+			////_bboxCache = new Tuple<Vector3, BoundingBox>(KnownPosition, bbox);
+			//return bbox;
+			return GetBoundingBox(KnownPosition);
+		}
+
+		public virtual BoundingBox GetBoundingBox(Vector3 pos)
+		{
+			float halfWidth = (float) (Width / 2);
 
 			var bbox = new BoundingBox(
-				Vector3.Min(new Vector3(pos.X - halfWidth, pos.Y, pos.Z - halfWidth), new Vector3(pos.X + halfWidth, pos.Y, pos.Z + halfWidth)),
-				Vector3.Max(new Vector3(pos.X - halfWidth, (float) (pos.Y - Height), pos.Z - halfWidth), new Vector3(pos.X + halfWidth, (float) (pos.Y + Height), pos.Z + halfWidth)));
-			//_bboxCache = new Tuple<Vector3, BoundingBox>(KnownPosition, bbox);
+				new Vector3(pos.X - halfWidth, pos.Y, pos.Z - halfWidth),
+				new Vector3(pos.X + halfWidth, (float) (pos.Y + Height), pos.Z + halfWidth));
 			return bbox;
 		}
 
@@ -628,7 +648,7 @@ namespace MiNET.Entities
 
 		public static byte DirectionByRotationFlat(float yaw)
 		{
-			byte direction = (byte) ((int) Math.Floor((yaw*4F)/360F + 0.5D) & 0x03);
+			byte direction = (byte) ((int) Math.Floor((yaw * 4F) / 360F + 0.5D) & 0x03);
 			switch (direction)
 			{
 				case 0:
@@ -686,7 +706,7 @@ namespace MiNET.Entities
 					}
 				}
 
-				LastSentPosition = (PlayerLocation)KnownPosition.Clone(); // Used for delta
+				LastSentPosition = (PlayerLocation) KnownPosition.Clone(); // Used for delta
 			}
 		}
 

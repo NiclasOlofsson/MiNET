@@ -1,7 +1,27 @@
-﻿/*
- * Copyright 2015-2016 Roger Alsing, Aaron Stannard, Jeff Cyr
- * Helios.DedicatedThreadPool - https://github.com/helios-io/DedicatedThreadPool
- */
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
 
 using System;
 using System.Collections.Concurrent;
@@ -15,7 +35,7 @@ using System.Threading.Tasks;
 namespace MiNET.Utils
 {
 	/// <summary>
-	/// The type of threads to use - either foreground or background threads.
+	///     The type of threads to use - either foreground or background threads.
 	/// </summary>
 	public enum ThreadType
 	{
@@ -24,12 +44,12 @@ namespace MiNET.Utils
 	}
 
 	/// <summary>
-	/// Provides settings for a dedicated thread pool
+	///     Provides settings for a dedicated thread pool
 	/// </summary>
 	public class DedicatedThreadPoolSettings
 	{
 		/// <summary>
-		/// Background threads are the default thread type
+		///     Background threads are the default thread type
 		/// </summary>
 		public const ThreadType DefaultThreadType = ThreadType.Background;
 
@@ -66,25 +86,24 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// The total number of threads to run in this thread pool.
+		///     The total number of threads to run in this thread pool.
 		/// </summary>
 		public int NumThreads { get; private set; }
 
 		/// <summary>
-		/// The type of threads to run in this thread pool.
+		///     The type of threads to run in this thread pool.
 		/// </summary>
 		public ThreadType ThreadType { get; private set; }
 
 		/// <summary>
-		/// Apartment state for threads to run in this thread pool
+		///     Apartment state for threads to run in this thread pool
 		/// </summary>
 		public ApartmentState ApartmentState { get; private set; }
 
 		/// <summary>
-		/// Interval to check for thread deadlocks.
-		/// 
-		/// If a thread takes longer than <see cref="DeadlockTimeout"/> it will be aborted
-		/// and replaced.
+		///     Interval to check for thread deadlocks.
+		///     If a thread takes longer than <see cref="DeadlockTimeout" /> it will be aborted
+		///     and replaced.
 		/// </summary>
 		public TimeSpan? DeadlockTimeout { get; private set; }
 
@@ -93,13 +112,13 @@ namespace MiNET.Utils
 		public Action<Exception> ExceptionHandler { get; private set; }
 
 		/// <summary>
-		/// Gets the thread stack size, 0 represents the default stack size.
+		///     Gets the thread stack size, 0 represents the default stack size.
 		/// </summary>
 		public int ThreadMaxStackSize { get; private set; }
 	}
 
 	/// <summary>
-	/// TaskScheduler for working with a <see cref="DedicatedThreadPool"/> instance
+	///     TaskScheduler for working with a <see cref="DedicatedThreadPool" /> instance
 	/// </summary>
 	internal class DedicatedThreadPoolTaskScheduler : TaskScheduler
 	{
@@ -107,7 +126,7 @@ namespace MiNET.Utils
 		[ThreadStatic] private static bool _currentThreadIsRunningTasks;
 
 		/// <summary>
-		/// Number of tasks currently running
+		///     Number of tasks currently running
 		/// </summary>
 		private volatile int _parallelWorkers = 0;
 
@@ -150,8 +169,8 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Level of concurrency is directly equal to the number of threads
-		/// in the <see cref="DedicatedThreadPool"/>.
+		///     Level of concurrency is directly equal to the number of threads
+		///     in the <see cref="DedicatedThreadPool" />.
 		/// </summary>
 		public override int MaximumConcurrencyLevel
 		{
@@ -234,7 +253,7 @@ namespace MiNET.Utils
 						TryExecuteTask(item);
 					}
 				}
-					// We're done processing items on the current thread 
+				// We're done processing items on the current thread 
 				finally
 				{
 					_currentThreadIsRunningTasks = false;
@@ -245,7 +264,7 @@ namespace MiNET.Utils
 
 
 	/// <summary>
-	/// An instanced, dedicated thread pool.
+	///     An instanced, dedicated thread pool.
 	/// </summary>
 	public sealed class DedicatedThreadPool : IDisposable
 	{
@@ -574,8 +593,8 @@ namespace MiNET.Utils
 					}
 					else
 					{
-						double spinnersPerProcessor = (double) currentCounts.Spinners/Environment.ProcessorCount;
-						int spinLimit = (int) ((spinLimitPerProcessor/spinnersPerProcessor) + 0.5);
+						double spinnersPerProcessor = (double) currentCounts.Spinners / Environment.ProcessorCount;
+						int spinLimit = (int) ((spinLimitPerProcessor / spinnersPerProcessor) + 0.5);
 						if (numSpins >= spinLimit)
 						{
 							--newCounts.Spinners;

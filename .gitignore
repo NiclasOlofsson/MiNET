@@ -6,6 +6,10 @@
 *.user
 *.sln.docstates
 
+# User-specific server config
+server.*.conf
+!server.nicke_000.conf
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

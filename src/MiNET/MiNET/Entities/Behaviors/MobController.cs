@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -32,7 +32,7 @@ namespace MiNET.Entities.Behaviors
 {
 	public class MobController
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (MobController));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MobController));
 
 		private readonly Mob _entity;
 
@@ -51,14 +51,14 @@ namespace MiNET.Entities.Behaviors
 			}
 
 			Vector3 targetPos = target.KnownPosition + new Vector3(0, (float) (target is Player ? 1.62f : target.Height), 0);
-			Vector3 entityPos = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0) + _entity.GetHorizDir()*(float) _entity.Length/2f;
+			Vector3 entityPos = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0) + _entity.GetHorizDir() * (float) _entity.Length / 2f;
 			var d = Vector3.Normalize(targetPos - entityPos);
 
 			var dx = d.X;
 			var dy = d.Y;
 			var dz = d.Z;
 
-			double tanOutput = 90 - RadianToDegree(Math.Atan(dx/(dz)));
+			double tanOutput = 90 - RadianToDegree(Math.Atan(dx / (dz)));
 			double thetaOffset = 270d;
 			if (dz < 0)
 			{
@@ -82,7 +82,7 @@ namespace MiNET.Entities.Behaviors
 			var dy = d.Y;
 			var dz = d.Z;
 
-			double tanOutput = 90 - RadianToDegree(Math.Atan(dx/(dz)));
+			double tanOutput = 90 - RadianToDegree(Math.Atan(dx / (dz)));
 			double thetaOffset = 270d;
 			if (dz < 0)
 			{
@@ -96,7 +96,7 @@ namespace MiNET.Entities.Behaviors
 
 		private double ClampDegrees(double degrees)
 		{
-			return Math.Floor((degrees%360 + 360)%360);
+			return Math.Floor((degrees % 360 + 360) % 360);
 		}
 
 		private int _jumpCooldown = 0;
@@ -109,13 +109,13 @@ namespace MiNET.Entities.Behaviors
 				//return;
 			}
 
-			float speedFactor = (float) (_entity.Speed*speedMultiplier*0.7f);
+			float speedFactor = (float) (_entity.Speed * speedMultiplier * 0.7f);
 			var level = _entity.Level;
 			var currPosition = _entity.KnownPosition;
-			var direction = Vector3.Normalize(_entity.GetHorizDir()*new Vector3(1, 0, 1));
+			var direction = Vector3.Normalize(_entity.GetHorizDir() * new Vector3(1, 0, 1));
 
 			bool entityCollide = false;
-			var boundingBox = _entity.GetBoundingBox().OffsetBy(direction*speedFactor);
+			var boundingBox = _entity.GetBoundingBox().OffsetBy(direction * speedFactor);
 
 			var players = level.GetSpawnedPlayers();
 			foreach (var player in players)
@@ -147,24 +147,24 @@ namespace MiNET.Entities.Behaviors
 				}
 			}
 
-			BlockCoordinates coord = (BlockCoordinates) (currPosition + (direction*speedFactor) + (direction*(float) (_entity.Length*0.5f)));
+			BlockCoordinates coord = (BlockCoordinates) (currPosition + (direction * speedFactor) + (direction * (float) (_entity.Length * 0.5f)));
 			var block = level.GetBlock(coord);
-			var blockUp = level.GetBlock(coord + BlockCoordinates.Up);
-			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
+			var blockUp = level.GetBlock(coord.BlockUp());
+			var blockUpUp = level.GetBlock(coord.BlockUp().BlockUp());
 
-			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
+			var colliding = block.IsSolid || (_entity.Height > 1 && blockUp.IsSolid);
 
 			if (!colliding && !entityCollide)
 			{
-				var blockDown = level.GetBlock(coord + BlockCoordinates.Down);
+				var blockDown = level.GetBlock(coord.BlockDown());
 				if (!_entity.IsOnGround && !blockDown.IsSolid) return;
 
 				//Log.Debug($"Move forward: {block}, {(_entity.IsOnGround ? "On ground" : "not on ground")}, Position: {(Vector3) _entity.KnownPosition}");
 				//if (!_entity.IsOnGround) return;
 
-				var velocity = direction*speedFactor;
+				var velocity = direction * speedFactor;
 				//Log.Debug($"Moving sheep ({_entity.KnownPosition.Yaw}: {velocity}, {_entity.Velocity}");
-				if ((_entity.Velocity*new Vector3(1, 0, 1)).Length() < velocity.Length())
+				if ((_entity.Velocity * new Vector3(1, 0, 1)).Length() < velocity.Length())
 				{
 					_entity.Velocity += velocity - _entity.Velocity;
 				}
@@ -215,7 +215,7 @@ namespace MiNET.Entities.Behaviors
 
 		private double RadianToDegree(double angle)
 		{
-			return angle*(180.0/Math.PI);
+			return angle * (180.0 / Math.PI);
 		}
 	}
 }

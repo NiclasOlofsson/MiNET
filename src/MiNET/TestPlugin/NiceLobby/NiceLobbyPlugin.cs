@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -56,7 +56,7 @@ namespace TestPlugin.NiceLobby
 	[Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class NiceLobbyPlugin : Plugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (NiceLobbyPlugin));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(NiceLobbyPlugin));
 
 		private Timer _popupTimer;
 		private Timer _tickTimer;
@@ -100,10 +100,24 @@ namespace TestPlugin.NiceLobby
 			//_tickTimer = new Timer(SkinTick, null, 0, 50);
 		}
 
+		[Command]
+		public void TestTranslatedMessages(Player player)
+		{
+			for (var i = 0; i <= 8; i++)
+			{
+				player.SendMessage(ChatColors.Green + (MessageType) i + ChatFormatting.Reset + ": %key.smoothCamera", (MessageType) i, player, true);
+			}
+		}
+
 		private void OnTicking(object sender, PlayerEventArgs e)
 		{
 			var player = e.Player;
 			var level = player.Level;
+
+			if (player.Inventory.GetItemInHand() is CustomTestItem item)
+			{
+				player.SendMessage("0x" + item.SomeVariable.ToString("X"), MessageType.Popup);
+			}
 
 			//if (e.Level.TickTime % 2 == 0)
 			//{
@@ -116,7 +130,6 @@ namespace TestPlugin.NiceLobby
 			//		Duration = 20 * 5,
 			//	});
 			//}
-
 
 			// Compass
 			//if (e.Level.TickTime % 2 == 0)
@@ -156,13 +169,13 @@ namespace TestPlugin.NiceLobby
 
 		public static float Wrap(float angle)
 		{
-			return (float) (angle + Math.Ceiling(-angle/360)*360);
+			return (float) (angle + Math.Ceiling(-angle / 360) * 360);
 		}
 
 		public static string GetCompass(float direction)
 		{
 			direction = Wrap(direction);
-			direction = direction*2/10;
+			direction = direction * 2 / 10;
 
 			direction += 72;
 
@@ -191,7 +204,7 @@ namespace TestPlugin.NiceLobby
 
 			compass = compass.Concat(compass).Concat(compass).ToArray();
 
-			return new String(compass.Skip((int) (direction - Math.Floor((double) width/2))).Take(width).ToArray())
+			return new String(compass.Skip((int) (direction - Math.Floor((double) width / 2))).Take(width).ToArray())
 					.Replace("|", "| ")
 					.Replace("| N|", $"| {ChatFormatting.Bold}{ChatColors.Red}N{ChatFormatting.Reset} |")
 					.Replace("| NE|", $"| {ChatFormatting.Bold}{ChatColors.Yellow}NE{ChatFormatting.Reset} |").Trim('N', 'W', 'S', 'E').Trim('N', 'W', 'S', 'E')
@@ -245,7 +258,7 @@ namespace TestPlugin.NiceLobby
 							Bitmap bitmap = new Bitmap((Bitmap) Image.FromFile(file), 64, 64);
 							int offsetx = 16, offsety = 16;
 							bitmap = CropImage(bitmap, new Rectangle(offsetx, offsety, 12, 18));
-							byte[] bytes = new byte[32*64*4];
+							byte[] bytes = new byte[32 * 64 * 4];
 
 							int i = 0;
 							for (int y = 0; y < 32; y++)
@@ -282,7 +295,7 @@ namespace TestPlugin.NiceLobby
 
 						var texture = skin.SkinData;
 						byte[] smiley = GetTextureFromFile(@"D:\Temp\Smiley\big_smile0" + _image + ".png");
-						if (smiley.Length != 8*8*4) return;
+						if (smiley.Length != 8 * 8 * 4) return;
 						int s = 0;
 						int br = 8;
 						int bc = 8;
@@ -290,8 +303,8 @@ namespace TestPlugin.NiceLobby
 						{
 							for (int c = 0; c < 8; c++)
 							{
-								int i = ((c + bc)*4) + ((r + br)*64*4);
-								int j = ((c)*4) + ((r)*8*4);
+								int i = ((c + bc) * 4) + ((r + br) * 64 * 4);
+								int j = ((c) * 4) + ((r) * 8 * 4);
 
 								texture[(i) + 0] = smiley[j + 0];
 								texture[(i) + 1] = smiley[j + 1];
@@ -348,7 +361,7 @@ namespace TestPlugin.NiceLobby
 		public static byte[] GetTextureFromFile(string filename)
 		{
 			Bitmap bitmap = new Bitmap(filename);
-			byte[] bytes = new byte[bitmap.Height*bitmap.Width*4];
+			byte[] bytes = new byte[bitmap.Height * bitmap.Width * 4];
 
 			int i = 0;
 			for (int y = 0; y < bitmap.Height; y++)
@@ -376,13 +389,17 @@ namespace TestPlugin.NiceLobby
 			Player player = eventArgs.Player;
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
-			if(player.CertificateData.ExtraData.Xuid != null && player.Username.Equals("gurunx"))
+			if (player.CertificateData.ExtraData.Xuid != null && player.Username.Equals("gurunx"))
 			{
 				player.ActionPermissions = ActionPermissions.Operator;
 				player.CommandPermission = 4;
 				player.PermissionLevel = PermissionLevel.Operator;
 				player.SendAdventureSettings();
 			}
+
+			//player.HealthManager.MaxHealth = 800;
+			//player.HealthManager.ResetHealth();
+			//player.SendUpdateAttributes();
 
 
 			int idx = 0;
@@ -394,6 +411,10 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Vine(), 0) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Dirt(), 0) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
+			//player.Inventory.Slots[idx++] = new CustomTestItem(0xC0FFEE) { Count = 10 };
+			//player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
+			//player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
+			//player.Inventory.Slots[idx++] = new CustomTestItem(0xBEEF) {Count = 10 };
 			idx = 8;
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
 
@@ -480,10 +501,18 @@ namespace TestPlugin.NiceLobby
 				var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
 				joinSound.Spawn(level);
 
-				player.SendTitle(null, TitleType.Clear);
-				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20*10);
-				player.SendTitle($"{ChatColors.White}This is gurun's MiNET\n.NET core test server", TitleType.SubTitle);
-				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
+				//player.SendTitle(null, TitleType.Clear);
+				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20 * 10);
+				if (Context.Server.IsEdu)
+				{
+					player.SendTitle($"{ChatColors.White}This is a MiNET Education Edition server", TitleType.SubTitle);
+					player.SendTitle($"{ChatColors.Gold}Welcome!", TitleType.Title);
+				}
+				else
+				{
+					player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
+					player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
+				}
 			});
 		}
 
@@ -582,11 +611,11 @@ namespace TestPlugin.NiceLobby
 				}
 
 				if (m < 0.4 || m > 3)
-					for (int i = 0; i < 15 + (30*m); i++)
+					for (int i = 0; i < 15 + (30 * m); i++)
 					{
-						GenerateParticles(random, level, point1, m < 0.6 ? 0 : 20, new Vector3(m*(m/2), m + 10, m*(m/2)), m);
+						GenerateParticles(random, level, point1, m < 0.6 ? 0 : 20, new Vector3(m * (m / 2), m + 10, m * (m / 2)), m);
 						GenerateParticles(random, level, point2, m < 0.4 ? 0 : 12, new Vector3(m, m + 6, m), m);
-						GenerateParticles(random, level, point3, m < 0.2 ? 0 : 9, new Vector3(m/2, m/2 + 6, m/2), m);
+						GenerateParticles(random, level, point3, m < 0.2 ? 0 : 9, new Vector3(m / 2, m / 2 + 6, m / 2), m);
 					}
 			}
 			m += 0.1f;
@@ -662,12 +691,20 @@ namespace TestPlugin.NiceLobby
 			SendNameTag(player);
 			player.RemoveAllEffects();
 
-			player.SetEffect(new Speed {Level = 1, Duration = Effect.MaxDuration}); // 10s in ticks
+			player.SetEffect(new Speed
+			{
+				Level = 1,
+				Duration = Effect.MaxDuration
+			}); // 10s in ticks
 			//player.SetEffect(new Slowness { Level = 20, Duration = 20 * 10 });
 			//player.SetEffect(new Haste { Level = 20, Duration = 20 * 10 });
 			//player.SetEffect(new MiningFatigue { Level = 20, Duration = 20 * 10 });
 			//player.SetEffect(new Strength { Level = 20, Duration = 20 * 10 });
-			player.SetEffect(new JumpBoost {Level = 1, Duration = Effect.MaxDuration});
+			player.SetEffect(new JumpBoost
+			{
+				Level = 1,
+				Duration = Effect.MaxDuration
+			});
 			//player.SetEffect(new Blindness { Level = 20, Duration = 20 * 10 });
 			//player.SetAutoJump(true);
 
@@ -738,15 +775,15 @@ namespace TestPlugin.NiceLobby
 					{
 						MessageType = MessageType.Tip,
 						Message = $"{ChatFormatting.Bold}This is a MiNET development server",
-						Duration = 20*4
+						Duration = 20 * 4
 					});
 
 					player.AddPopup(new Popup()
 					{
 						MessageType = MessageType.Popup,
 						Message = "Restarts without notice frequently",
-						Duration = 20*5,
-						DisplayDelay = 20*1
+						Duration = 20 * 5,
+						DisplayDelay = 20 * 1
 					});
 				}
 			}
@@ -890,7 +927,7 @@ namespace TestPlugin.NiceLobby
 			EntityType mobType;
 			try
 			{
-				mobType = (EntityType) Enum.Parse(typeof (EntityType), type, true);
+				mobType = (EntityType) Enum.Parse(typeof(EntityType), type, true);
 			}
 			catch (ArgumentException e)
 			{
@@ -1006,7 +1043,7 @@ namespace TestPlugin.NiceLobby
 						//string file = Path.Combine(@"D:\Development\Other\2 by 1 PE test app ad for Gurun-2\exported frames 2", $"pe app ad{frame:D2}.bmp");
 						if (!File.Exists(file)) continue;
 
-						Bitmap image = new Bitmap((Bitmap) Image.FromFile(file), width*128, height*128);
+						Bitmap image = new Bitmap((Bitmap) Image.FromFile(file), width * 128, height * 128);
 
 						for (int x = 0; x < width; x++)
 						{
@@ -1018,10 +1055,10 @@ namespace TestPlugin.NiceLobby
 									entities.Add(key, new MapEntity(player.Level) {ImageProvider = new VideoImageProvider(frameTicker)});
 								}
 
-								var croppedImage = CropImage(image, new Rectangle(new Point(x*128, y*128), new Size(128, 128)));
+								var croppedImage = CropImage(image, new Rectangle(new Point(x * 128, y * 128), new Size(128, 128)));
 								byte[] bitmapToBytes = BitmapToBytes(croppedImage, color);
 
-								if (bitmapToBytes.Length != 128*128*4) return;
+								if (bitmapToBytes.Length != 128 * 128 * 4) return;
 
 								((VideoImageProvider) entities[key].ImageProvider).Frames.Add(CreateCachedPacket(entities[key].EntityId, bitmapToBytes));
 							}
@@ -1078,7 +1115,7 @@ namespace TestPlugin.NiceLobby
 						//string file = Path.Combine(@"D:\Development\Other\2 by 1 PE test app ad for Gurun-2\exported frames 2", $"pe app ad{frame:D2}.bmp");
 						if (!File.Exists(file)) continue;
 
-						Bitmap image = new Bitmap((Bitmap) Image.FromFile(file), width*128, height*128);
+						Bitmap image = new Bitmap((Bitmap) Image.FromFile(file), width * 128, height * 128);
 
 						for (int x = 0; x < width; x++)
 						{
@@ -1092,10 +1129,10 @@ namespace TestPlugin.NiceLobby
 
 								List<MapEntity> frames = entities[key];
 
-								var croppedImage = CropImage(image, new Rectangle(new Point(x*128, y*128), new Size(128, 128)));
+								var croppedImage = CropImage(image, new Rectangle(new Point(x * 128, y * 128), new Size(128, 128)));
 								byte[] bitmapToBytes = BitmapToBytes(croppedImage, color);
 
-								if (bitmapToBytes.Length != 128*128*4) return;
+								if (bitmapToBytes.Length != 128 * 128 * 4) return;
 
 								MapEntity entity = new MapEntity(player.Level);
 								entity.ImageProvider = new MapImageProvider {Batch = CreateCachedPacket(entity.EntityId, bitmapToBytes)};
@@ -1137,7 +1174,11 @@ namespace TestPlugin.NiceLobby
 								Coordinates = frambc
 							};
 
-							var itemFrame = new CustomFrame(frames, itemFrameBlockEntity, level, frameTicker) {Coordinates = frambc, Metadata = 3};
+							var itemFrame = new CustomFrame(frames, itemFrameBlockEntity, level, frameTicker)
+							{
+								Coordinates = frambc,
+								Metadata = 3
+							};
 							level.SetBlock(itemFrame);
 							level.SetBlockEntity(itemFrameBlockEntity);
 						}
@@ -1215,7 +1256,7 @@ namespace TestPlugin.NiceLobby
 				for (int x = 0; x < bmp.Width; x++)
 				{
 					var c = bmp.GetPixel(x, y);
-					var rgb = (int) ((c.R + c.G + c.B)/3);
+					var rgb = (int) ((c.R + c.G + c.B) / 3);
 					bmp.SetPixel(x, y, Color.FromArgb(rgb, rgb, rgb));
 				}
 			}
@@ -1225,7 +1266,7 @@ namespace TestPlugin.NiceLobby
 		public static byte[] BitmapToBytes(Bitmap bitmap, bool useColor = false)
 		{
 			byte[] bytes;
-			bytes = new byte[bitmap.Height*bitmap.Width*4];
+			bytes = new byte[bitmap.Height * bitmap.Width * 4];
 
 			int i = 0;
 			for (int y = 0; y < bitmap.Height; y++)
@@ -1235,7 +1276,7 @@ namespace TestPlugin.NiceLobby
 					Color color = bitmap.GetPixel(x, y);
 					if (!useColor)
 					{
-						byte rgb = (byte) ((color.R + color.G + color.B)/3);
+						byte rgb = (byte) ((color.R + color.G + color.B) / 3);
 						bytes[i++] = rgb;
 						bytes[i++] = rgb;
 						bytes[i++] = rgb;

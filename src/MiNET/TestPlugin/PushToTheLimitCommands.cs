@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -68,7 +68,7 @@ namespace TestPlugin
 				{
 					var bat = new Bat(player.Level);
 					bat.NoAi = false;
-					bat.KnownPosition = coordinates + new Vector3(x/2f, 1, z/2f);
+					bat.KnownPosition = coordinates + new Vector3(x / 2f, 1, z / 2f);
 					bat.SpawnEntity();
 				}
 			}
@@ -103,7 +103,7 @@ namespace TestPlugin
 				{
 					var dragon = new Dragon(player.Level);
 					dragon.NoAi = false;
-					dragon.KnownPosition = coordinates + new Vector3(x*15, 0, z*15);
+					dragon.KnownPosition = coordinates + new Vector3(x * 15, 0, z * 15);
 					dragon.SpawnEntity();
 				}
 			}
@@ -194,7 +194,7 @@ namespace TestPlugin
 
 					var wither = new Wither(player.Level);
 					wither.NoAi = false;
-					wither.KnownPosition = coordinates + new Vector3((float)x, 0, (float)z);
+					wither.KnownPosition = coordinates + new Vector3((float) x, 0, (float) z);
 					wither.KnownPosition.Yaw = angle + 90;
 					wither.SpawnEntity();
 					Thread.Sleep(50);
@@ -225,12 +225,12 @@ namespace TestPlugin
 					coordinates.Z = spawnPos.Z;
 			}
 
-			int limit = (int)Math.Sqrt(numberOfEntities);
+			int limit = (int) Math.Sqrt(numberOfEntities);
 			for (int x = 0; x < limit; x++)
 			{
 				for (int z = 0; z < limit; z++)
 				{
-					var entity = new PlayerMob($"TheGrey {z + (x*limit)}", player.Level)
+					var entity = new PlayerMob($"TheGrey {z + (x * limit)}", player.Level)
 					{
 						NoAi = true,
 						KnownPosition = coordinates + new Vector3(x, 0, z),
@@ -242,6 +242,5 @@ namespace TestPlugin
 				}
 			}
 		}
-
 	}
 }

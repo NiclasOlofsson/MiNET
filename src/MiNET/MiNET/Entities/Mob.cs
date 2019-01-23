@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -27,19 +27,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Entities.Behaviors;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.Skins;
 using MiNET.Worlds;
 
 namespace MiNET.Entities
 {
 	public class Mob : Entity
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Mob));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Mob));
 
 		public bool DespawnIfNotSeenPlayer { get; set; }
 		public DateTime LastSeenPlayerTimer { get; set; }
@@ -62,15 +64,11 @@ namespace MiNET.Entities
 
 		public Entity Target { get; private set; }
 
-		public Mob(int entityTypeId, Level level) : base(entityTypeId, level)
+		public Mob(EntityType entityTypeId, Level level) : base(entityTypeId, level)
 		{
 			Width = Length = 0.6;
 			Height = 1.80;
 			Controller = new MobController(this);
-		}
-
-		public Mob(EntityType mobTypes, Level level) : this((int) mobTypes, level)
-		{
 		}
 
 		public virtual void BroadcastArmor()
@@ -101,7 +99,7 @@ namespace MiNET.Entities
 
 		public static double ClampDegrees(double degrees)
 		{
-			return Math.Floor((degrees%360 + 360)%360);
+			return Math.Floor((degrees % 360 + 360) % 360);
 		}
 
 		public Vector3 GetHorizDir()
@@ -111,9 +109,9 @@ namespace MiNET.Entities
 
 			double pitch = 0;
 			double yaw = Direction.ToRadians();
-			vector.X = (float) (-Math.Sin(yaw)*Math.Cos(pitch));
+			vector.X = (float) (-Math.Sin(yaw) * Math.Cos(pitch));
 			vector.Y = (float) -Math.Sin(pitch);
-			vector.Z = (float) (Math.Cos(yaw)*Math.Cos(pitch));
+			vector.Z = (float) (Math.Cos(yaw) * Math.Cos(pitch));
 
 			return Vector3.Normalize(vector);
 		}
@@ -132,7 +130,7 @@ namespace MiNET.Entities
 				Name = "minecraft:movement",
 				MinValue = 0,
 				MaxValue = float.MaxValue,
-				Value = (float)Speed
+				Value = (float) Speed
 			};
 
 			return attributes;
@@ -147,6 +145,8 @@ namespace MiNET.Entities
 			base.OnTick(entities);
 
 			if (HealthManager.IsDead) return;
+
+			//RenderBbox(this);
 
 			bool noPlayersWithin32 = false;
 			if (Level.EnableChunkTicking && DespawnIfNotSeenPlayer)
@@ -260,7 +260,7 @@ namespace MiNET.Entities
 			Velocity *= drag;
 		}
 
-		private static T GetBehavior<T>(List<T> behaviors, T currentBehavior) where T: class, IBehavior
+		private static T GetBehavior<T>(List<T> behaviors, T currentBehavior) where T : class, IBehavior
 		{
 			foreach (var behavior in behaviors)
 			{
@@ -291,18 +291,18 @@ namespace MiNET.Entities
 
 		protected void CheckBlockAhead()
 		{
-			var length = Length/2;
-			var direction = Vector3.Normalize(Velocity*1.00000101f);
+			var length = Length / 2;
+			var direction = Vector3.Normalize(Velocity * 1.00000101f);
 			Vector3 position = KnownPosition;
-			int count = (int) (Math.Ceiling(Velocity.Length()/length) + 2);
+			int count = (int) (Math.Ceiling(Velocity.Length() / length) + 2);
 			for (int i = 0; i < count; i++)
 			{
-				var distVec = direction*(float) length*i;
+				var distVec = direction * (float) length * i;
 				BlockCoordinates blockPos = position + distVec;
 				Block block = Level.GetBlock(blockPos);
 				if (block.IsSolid)
 				{
-					var yaw = (Math.Atan2(direction.X, direction.Z)*180.0D/Math.PI) + 180;
+					var yaw = (Math.Atan2(direction.X, direction.Z) * 180.0D / Math.PI) + 180;
 					//Log.Warn($"Will hit block {block} at angle of {yaw}");
 
 					Ray ray = new Ray(position, direction);
@@ -412,7 +412,7 @@ namespace MiNET.Entities
 
 		private bool IsMobInFluid(Vector3 position)
 		{
-			float y = (float) (position.Y + Height*0.7);
+			float y = (float) (position.Y + Height * 0.7);
 
 			BlockCoordinates waterPos = new BlockCoordinates
 			{
@@ -425,7 +425,7 @@ namespace MiNET.Entities
 
 			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
 
-			return y < Math.Floor(y) + 1 - ((1f/9f) - 0.1111111);
+			return y < Math.Floor(y) + 1 - ((1f / 9f) - 0.1111111);
 		}
 
 		private bool IsMobStandingInFluid(Vector3 position)
@@ -441,7 +441,7 @@ namespace MiNET.Entities
 				return IsMobInGround(pos);
 
 			BlockCoordinates coord = pos;
-			Block block = Level.GetBlock(coord + BlockCoordinates.Down);
+			Block block = Level.GetBlock(coord.BlockDown());
 
 			return block.IsSolid;
 			//return block.IsSolid && block.GetBoundingBox().Contains(GetBoundingBox().OffsetBy(new Vector3(0, -0.1f, 0))) == ContainmentType.Intersects;
@@ -452,6 +452,165 @@ namespace MiNET.Entities
 			Block block = Level.GetBlock(position);
 
 			return block.IsSolid;
+		}
+
+
+		PlayerMob fake = null;
+
+		private void RenderBbox(Entity entity)
+		{
+			if (fake == null)
+			{
+				fake = RenderBoundingBox(this);
+			}
+
+			fake.SetPosition(new PlayerLocation(entity.KnownPosition, 0, 0, 0));
+		}
+
+
+		public PlayerMob RenderBoundingBox(Mob theMob)
+		{
+			var coordinates = theMob.KnownPosition;
+
+			byte[] skinBytes = Encoding.Default.GetBytes(new string('Z', 64 * 64 * 4));
+
+			int geoW = (int) Math.Floor(theMob.Width * 16f);
+			int geoH = (int) Math.Floor(theMob.Height * 16f);
+			Log.Error($"Height={geoH}, Width={geoW}");
+
+			var skinGeometryName = "geometry.flat." + Guid.NewGuid();
+			GeometryModel model = new GeometryModel()
+			{
+				{
+					skinGeometryName, new Geometry()
+					{
+						Name = skinGeometryName,
+						TextureHeight = 64,
+						TextureWidth = 64,
+						Bones = new List<Bone>()
+						{
+							new Bone()
+							{
+								Name = BoneName.Body,
+								Pivot = new float[3],
+								Cubes = new List<Cube>()
+								{
+									//Origin = new float[3],
+									//Size = new float[] {geoW, geoH, geoW},
+
+									// sides
+
+									new Cube()
+									{
+										Origin = new float[] {-(geoW / 2f), 0, -(geoW / 2f)},
+										Size = new float[] {1, geoH, 1},
+										Uv = new float[] {64, 0},
+									},
+									new Cube()
+									{
+										Origin = new float[] {-(geoW / 2f), 0, +(geoW / 2f)},
+										Size = new float[] {1, geoH, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {+(geoW / 2f), 0, -(geoW / 2f)},
+										//Origin = new float[3],
+										Size = new float[] {1, geoH, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {+(geoW / 2f), 0, +(geoW / 2f)},
+										//Origin = new float[3],
+										Size = new float[] {1, geoH, 1},
+										Uv = new float[] {64, 0}
+									},
+
+									// bottom
+
+									new Cube()
+									{
+										Origin = new float[] {-(geoW / 2f), 0, -(geoW / 2f)},
+										Size = new float[] {1, 1, geoW},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {-(geoW / 2f), 0, -(geoW / 2f)},
+										//Origin = new float[3],
+										Size = new float[] {geoW, 1, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {-(geoW / 2f), 0, +(geoW / 2f)},
+										Size = new float[] {geoW, 1, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {+(geoW / 2f), 0, -(geoW / 2f)},
+										//Origin = new float[3],
+										Size = new float[] {1, 1, geoW},
+										Uv = new float[] {64, 0}
+									},
+
+									// top
+
+									new Cube()
+									{
+										Origin = new float[] {-(geoW / 2f), geoH, -(geoW / 2f)},
+										Size = new float[] {1, 1, geoW},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {-(geoW / 2f), geoH, -(geoW / 2f)},
+										//Origin = new float[3],
+										Size = new float[] {geoW, 1, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {-(geoW / 2f), geoH, +(geoW / 2f)},
+										Size = new float[] {geoW, 1, 1},
+										Uv = new float[] {64, 0}
+									},
+									new Cube()
+									{
+										Origin = new float[] {+(geoW / 2f), geoH, -(geoW / 2f)},
+										//Origin = new float[3],
+										Size = new float[] {1, 1, geoW},
+										Uv = new float[] {64, 0}
+									},
+								}
+							}
+						}
+					}
+				},
+			};
+
+			PlayerMob fake = new PlayerMob(string.Empty, theMob.Level)
+			{
+				Width = theMob.Width,
+				Length = theMob.Width,
+				Height = theMob.Height,
+
+				Skin = new Skin
+				{
+					SkinId = "testing" + new Guid(),
+					Slim = false,
+					SkinData = skinBytes,
+					CapeData = new byte[0],
+					SkinGeometryName = skinGeometryName,
+					SkinGeometry = Skin.ToJson(model),
+				},
+				KnownPosition = new PlayerLocation(coordinates)
+			};
+			fake.SpawnEntity();
+
+			return fake;
 		}
 	}
 }

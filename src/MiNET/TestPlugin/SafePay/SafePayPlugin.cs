@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -48,9 +48,36 @@ namespace TestPlugin.SafePay
 			simpleForm.Content = "Select the amount of coins you want to buy.";
 			simpleForm.Buttons = new List<Button>()
 			{
-				new Button {Text = " 320 Coins -  $1.90", Image = new Image {Type = "url", Url = "https://i.imgur.com/SedU2Ad.png"}, ExecuteAction = ExecuteSelectPaymentMethod},
-				new Button {Text = "1032 Coins -  $4.95", Image = new Image {Type = "url", Url = "https://i.imgur.com/oBMg5H3.png"}, ExecuteAction = ExecuteSelectPaymentMethod},
-				new Button {Text = "3021 Coins - $10.05", Image = new Image {Type = "url", Url = "https://i.imgur.com/hMAfqQd.png"}, ExecuteAction = ExecuteSelectPaymentMethod},
+				new Button
+				{
+					Text = " 320 Coins -  $1.90",
+					Image = new Image
+					{
+						Type = "url",
+						Url = "https://i.imgur.com/SedU2Ad.png"
+					},
+					ExecuteAction = ExecuteSelectPaymentMethod
+				},
+				new Button
+				{
+					Text = "1032 Coins -  $4.95",
+					Image = new Image
+					{
+						Type = "url",
+						Url = "https://i.imgur.com/oBMg5H3.png"
+					},
+					ExecuteAction = ExecuteSelectPaymentMethod
+				},
+				new Button
+				{
+					Text = "3021 Coins - $10.05",
+					Image = new Image
+					{
+						Type = "url",
+						Url = "https://i.imgur.com/hMAfqQd.png"
+					},
+					ExecuteAction = ExecuteSelectPaymentMethod
+				},
 				new Button {Text = "Cancel"},
 			};
 
@@ -64,9 +91,34 @@ namespace TestPlugin.SafePay
 			simpleForm.Content = "Select the payment method you like to use for your purchase.";
 			simpleForm.Buttons = new List<Button>()
 			{
-				new Button {Text = "Pay with VISA", Image = new Image {Type = "url", Url = "http://www.credit-card-logos.com/images/visa_credit-card-logos/visa_logo_6.gif"}, ExecuteAction = ExecutePayVisa},
-				new Button {Text = "Pay with Mastercard", Image = new Image {Type = "url", Url = "http://www.credit-card-logos.com/images/mastercard_credit-card-logos/mastercard_logo_6.gif"}},
-				new Button {Text = "Use PayPal", Image = new Image {Type = "url", Url = "http://logok.org/wp-content/uploads/2014/05/Paypal-logo-20141.png"}},
+				new Button
+				{
+					Text = "Pay with VISA",
+					Image = new Image
+					{
+						Type = "url",
+						Url = "http://www.credit-card-logos.com/images/visa_credit-card-logos/visa_logo_6.gif"
+					},
+					ExecuteAction = ExecutePayVisa
+				},
+				new Button
+				{
+					Text = "Pay with Mastercard",
+					Image = new Image
+					{
+						Type = "url",
+						Url = "http://www.credit-card-logos.com/images/mastercard_credit-card-logos/mastercard_logo_6.gif"
+					}
+				},
+				new Button
+				{
+					Text = "Use PayPal",
+					Image = new Image
+					{
+						Type = "url",
+						Url = "http://logok.org/wp-content/uploads/2014/05/Paypal-logo-20141.png"
+					}
+				},
 				new Button {Text = "Cancel"},
 			};
 
@@ -81,12 +133,51 @@ namespace TestPlugin.SafePay
 			customForm.Content = new List<CustomElement>()
 			{
 				new Label {Text = "Safe money transfer using your VISA card"},
-				new Input {Text = "", Placeholder = "Name - as it appears on card", Value = "John Doe"},
-				new Input {Text = "", Placeholder = "Credit card number", Value = "4242424242424242"},
-				new Dropdown {Text = "Expiration date (month)", Options = new List<string>() {"01 - January", "02 - February", "03 - March"}, Value = 0},
-				new Dropdown {Text = "Expiration date (year)", Options = new List<string>() {"2017", "2018", "2019"}, Value = 2},
-				new Input {Text = "", Placeholder = "Security code (3 on back)", Value = "111"},
-				new Toggle {Text = "Save payment info (safe)", Value = true},
+				new Input
+				{
+					Text = "",
+					Placeholder = "Name - as it appears on card",
+					Value = "John Doe"
+				},
+				new Input
+				{
+					Text = "",
+					Placeholder = "Credit card number",
+					Value = "4242424242424242"
+				},
+				new Dropdown
+				{
+					Text = "Expiration date (month)",
+					Options = new List<string>()
+					{
+						"01 - January",
+						"02 - February",
+						"03 - March"
+					},
+					Value = 0
+				},
+				new Dropdown
+				{
+					Text = "Expiration date (year)",
+					Options = new List<string>()
+					{
+						"2017",
+						"2018",
+						"2019"
+					},
+					Value = 2
+				},
+				new Input
+				{
+					Text = "",
+					Placeholder = "Security code (3 on back)",
+					Value = "111"
+				},
+				new Toggle
+				{
+					Text = "Save payment info (safe)",
+					Value = true
+				},
 				new Label {Text = "§lWhat happens now?§r\nThis is step 1 of 2. After submitting payment information you will be able to review your order.\nWe will not bill you until confirm the order on next page (step 2)."},
 			};
 
@@ -113,7 +204,7 @@ namespace TestPlugin.SafePay
 
 			var chargeOptions = new StripeChargeCreateOptions()
 			{
-				Amount = (int?) (amount*100),
+				Amount = (int?) (amount * 100),
 				Currency = "usd",
 				Description = "Charge for rich.dude@mailinator.com",
 				SourceCard = new SourceCard()

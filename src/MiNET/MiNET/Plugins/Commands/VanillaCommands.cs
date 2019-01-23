@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -43,7 +43,7 @@ namespace MiNET.Plugins.Commands
 {
 	public class VanillaCommands
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (VanillaCommands));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(VanillaCommands));
 
 		public VanillaCommands()
 		{
@@ -125,14 +125,14 @@ namespace MiNET.Plugins.Commands
 			EntityType petType;
 			try
 			{
-				petType = (EntityType) Enum.Parse(typeof (EntityType), entityType.Value, true);
+				petType = (EntityType) Enum.Parse(typeof(EntityType), entityType.Value, true);
 			}
 			catch (ArgumentException e)
 			{
 				return;
 			}
 
-			if (!Enum.IsDefined(typeof (EntityType), petType))
+			if (!Enum.IsDefined(typeof(EntityType), petType))
 			{
 				player.SendMessage("No entity found");
 				return;
@@ -262,8 +262,8 @@ namespace MiNET.Plugins.Commands
 					mob = new ElderGuardian(world);
 					break;
 				case EntityType.Horse:
-				    var random = new Random();
-				    mob = new Horse(world, random.NextDouble() < 0.10, random);
+					var random = new Random();
+					mob = new Horse(world, random.NextDouble() < 0.10, random);
 					break;
 				case EntityType.PolarBear:
 					mob = new PolarBear(world);
@@ -307,7 +307,7 @@ namespace MiNET.Plugins.Commands
 			if (mob != null)
 			{
 				mob.NoAi = noAi;
-				var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection())*1.5f;
+				var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection()) * 1.5f;
 				mob.KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw, coordinates.Yaw);
 				mob.SpawnEntity();
 			}
@@ -550,7 +550,11 @@ namespace MiNET.Plugins.Commands
 
 			var enchanings = item.GetEnchantings();
 			enchanings.RemoveAll(ench => ench.Id == enchanting);
-			enchanings.Add(new Enchanting {Id = enchanting, Level = (short) level});
+			enchanings.Add(new Enchanting
+			{
+				Id = enchanting,
+				Level = (short) level
+			});
 			item.SetEnchantings(enchanings);
 			targetPlayer.Inventory.SendSetSlot(targetPlayer.Inventory.InHandSlot);
 		}
@@ -610,6 +614,5 @@ namespace MiNET.Plugins.Commands
 		public void Fill(Player commander, BlockPos from, BlockPos to, BlockTypeEnum tileName, int tileData = 0)
 		{
 		}
-
 	}
 }

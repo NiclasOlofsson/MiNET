@@ -29,7 +29,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Update Block | 0x15 | 21 |   
 | Add Painting | 0x16 | 22 |   
 | Explode | 0x17 | 23 |   
-| Level Sound Event | 0x18 | 24 |   
+| Level Sound Event Old | 0x18 | 24 |   
 | Level Event | 0x19 | 25 |   
 | Block Event | 0x1a | 26 |   
 | Entity Event | 0x1b | 27 |   
@@ -121,6 +121,12 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Set Local Player As Initialized Packet | 0x71 | 113 |   
 | Update Soft Enum Packet | 0x72 | 114 |   
 | Network Stack Latency Packet | 0x73 | 115 |   
+| Script Custom Event Packet | 0x75 | 117 |   
+| Spawn Particle Effect | 0x76 | 118 |   
+| Available Entity Identifiers | 0x77 | 119 |   
+| Level Sound Event | 0x78 | 120 |   
+| Network Chunk Publisher Update | 0x79 | 121 |   
+| Biome Definition List | 0x7a | 122 |   
 
 
 ## Data types
@@ -156,7 +162,8 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | ResourcePackIds [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIds) |
 | ResourcePackIdVersions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIdVersions) |
 | ResourcePackInfos [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackInfos) |
-| ScorePacketInfos [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ScorePacketInfos) |
+| ScoreboardIdentityEntries [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ScoreboardIdentityEntries) |
+| ScoreEntries [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ScoreEntries) |
 | short [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-short) |
 | SignedVarInt [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-SignedVarInt) |
 | SignedVarLong [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-SignedVarLong) |
@@ -302,6 +309,7 @@ Wiki: [Resource Pack Stack](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 |Must accept | bool |  |
 |BehaviorPackIdVersions | ResourcePackIdVersions |  |
 |ResourcePackIdVersions | ResourcePackIdVersions |  |
+|Is experimental | bool |  |
 -----------------------------------------------------------------------
 ### Resource Pack Client Response (0x08)
 Wiki: [Resource Pack Client Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackClientResponse)
@@ -422,6 +430,9 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Has Locked Behavior Pack | bool |  |
 |Has Locked Resource Pack | bool |  |
 |Is From Locked World Template | bool |  |
+|Use MSA Gamertags Only | bool |  |
+|Is From World Template | bool |  |
+|Is World Template Option Locked | bool |  |
 |Level ID | string |  |
 |World name | string |  |
 |Premium World Template Id | string |  |
@@ -446,8 +457,6 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |:-----|:-----|:-----|
 |UUID | UUID |  |
 |Username | string |  |
-|Third Party Name | string |  |
-|Platform | SignedVarInt |  |
 |Entity ID Self | SignedVarLong |  |
 |Runtime Entity ID | UnsignedVarLong |  |
 |Platform Chat ID | string |  |
@@ -498,7 +507,7 @@ val2 float
 |:-----|:-----|:-----|
 |Entity ID Self | SignedVarLong |  |
 |Runtime Entity ID | UnsignedVarLong |  |
-|Entity Type | UnsignedVarInt |  |
+|Entity Type | string |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
@@ -710,8 +719,8 @@ Wiki: [Explode](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Explode)
 |Radius | SignedVarInt |  |
 |Records | Records |  |
 -----------------------------------------------------------------------
-### Level Sound Event (0x18)
-Wiki: [Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEvent)
+### Level Sound Event Old (0x18)
+Wiki: [Level Sound Event Old](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEventOld)
 
 **Sent from server:** true  
 **Sent from client:** true
@@ -1700,6 +1709,7 @@ Wiki: [Command Block Update](https://github.com/NiclasOlofsson/MiNET/wiki//Proto
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Is Block | bool |  |
 -----------------------------------------------------------------------
 ### Command Output (0x4f)
 Wiki: [Command Output](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandOutput)
@@ -1732,6 +1742,7 @@ Wiki: [Update Trade](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Upda
 |Window Type | byte |  |
 |Unknown0 | VarInt |  |
 |Unknown1 | VarInt |  |
+|Unknown2 | VarInt |  |
 |Is Willing | bool |  |
 |Trader Entity ID | SignedVarLong |  |
 |Player Entity ID | SignedVarLong |  |
@@ -2178,7 +2189,7 @@ Wiki: [Set Display Objective](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Objective Name | string |  |
 |Display Name | string |  |
 |Criteria Name | string |  |
-|Sort Order | VarInt |  |
+|Sort Order | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Set Score (0x6c)
 Wiki: [Set Score](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetScore)
@@ -2192,16 +2203,23 @@ Wiki: [Set Score](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetScor
 
 | Name | Value |
 |:-----|:-----|
-|Modify Score | 0 |
-|Reset Score | 1 |
+|Change | 0 |
+|Remove | 1 |
+
+#### Change Types constants
+
+| Name | Value |
+|:-----|:-----|
+|Player | 1 |
+|Entity | 2 |
+|Fake Player | 3 |
 
 
 #### Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Type | byte |  |
-|Score Packet Infos | ScorePacketInfos |  |
+|Entries | ScoreEntries |  |
 -----------------------------------------------------------------------
 ### Lab Table (0x6d)
 Wiki: [Lab Table](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LabTable)
@@ -2266,11 +2284,19 @@ Wiki: [Set Scoreboard Identity Packet](https://github.com/NiclasOlofsson/MiNET/w
 
 
 
+#### Operations constants
+
+| Name | Value |
+|:-----|:-----|
+|Register Identity | 0 |
+|Clear Identity | 1 |
+
 
 #### Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Entries | ScoreboardIdentityEntries |  |
 -----------------------------------------------------------------------
 ### Set Local Player As Initialized Packet (0x71)
 Wiki: [Set Local Player As Initialized Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetLocalPlayerAsInitializedPacket)
@@ -2285,6 +2311,7 @@ Wiki: [Set Local Player As Initialized Packet](https://github.com/NiclasOlofsson
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Update Soft Enum Packet (0x72)
 Wiki: [Update Soft Enum Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateSoftEnumPacket)
@@ -2313,6 +2340,105 @@ Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wik
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Script Custom Event Packet (0x75)
+Wiki: [Script Custom Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ScriptCustomEventPacket)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Event Name | string |  |
+|Event Data | string |  |
+-----------------------------------------------------------------------
+### Spawn Particle Effect (0x76)
+Wiki: [Spawn Particle Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SpawnParticleEffect)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Dimension ID | byte |  |
+|Position | Vector3 |  |
+|Particle name | string |  |
+-----------------------------------------------------------------------
+### Available Entity Identifiers (0x77)
+Wiki: [Available Entity Identifiers](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AvailableEntityIdentifiers)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|NamedTag | Nbt |  |
+-----------------------------------------------------------------------
+### Level Sound Event (0x78)
+Wiki: [Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEvent)
+
+**Sent from server:** true  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Sound ID | byte |  |
+|Position | Vector3 |  |
+|Block Id | SignedVarInt |  |
+|Entity Type | string |  |
+|Is baby mob | bool |  |
+|Is global | bool |  |
+-----------------------------------------------------------------------
+### Network Chunk Publisher Update (0x79)
+Wiki: [Network Chunk Publisher Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkChunkPublisherUpdate)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Coordinates | BlockCoordinates |  |
+|Radius | UnsignedVarInt |  |
+-----------------------------------------------------------------------
+### Biome Definition List (0x7a)
+Wiki: [Biome Definition List](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BiomeDefinitionList)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|NamedTag | Nbt |  |
 -----------------------------------------------------------------------
 
 

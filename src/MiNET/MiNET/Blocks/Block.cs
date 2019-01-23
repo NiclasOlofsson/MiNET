@@ -107,12 +107,12 @@ namespace MiNET.Blocks
 
 		protected void UpdateBlocks(Level world)
 		{
-			world.GetBlock(Coordinates + BlockCoordinates.Up).BlockUpdate(world, Coordinates);
-			world.GetBlock(Coordinates + BlockCoordinates.Down).BlockUpdate(world, Coordinates);
-			world.GetBlock(Coordinates + BlockCoordinates.West).BlockUpdate(world, Coordinates);
-			world.GetBlock(Coordinates + BlockCoordinates.East).BlockUpdate(world, Coordinates);
-			world.GetBlock(Coordinates + BlockCoordinates.South).BlockUpdate(world, Coordinates);
-			world.GetBlock(Coordinates + BlockCoordinates.North).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates.BlockUp()).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates.BlockDown()).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates.BlockWest()).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates.BlockEast()).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates.BlockSouth()).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates.BlockNorth()).BlockUpdate(world, Coordinates);
 		}
 
 		public virtual bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
@@ -141,7 +141,7 @@ namespace MiNET.Blocks
 
 		public float GetHardness()
 		{
-			return Hardness/5.0F;
+			return Hardness / 5.0F;
 		}
 
 		//public double GetMineTime(Item miningTool)

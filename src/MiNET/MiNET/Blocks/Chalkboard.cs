@@ -56,7 +56,7 @@ namespace MiNET.Blocks
 
 			if (size == 0)
 			{
-				Metadata = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180)*16/360) + 0.5) & 0x0f);
+				Metadata = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180) * 16 / 360) + 0.5) & 0x0f);
 
 				var block = new Chalkboard
 				{
@@ -78,7 +78,7 @@ namespace MiNET.Blocks
 			}
 			else if (size == 1)
 			{
-				Metadata = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180)*4/360) + 0.5) & 0x0f);
+				Metadata = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180) * 4 / 360) + 0.5) & 0x0f);
 
 				var current = Coordinates;
 
@@ -86,14 +86,14 @@ namespace MiNET.Blocks
 				{
 					var block = new Chalkboard
 					{
-						Coordinates = current + GetDirCoord()*x,
+						Coordinates = current + GetDirCoord() * x,
 						Metadata = Metadata
 					};
 					world.SetBlock(block);
 					var blockEntity = new ChalkboardBlockEntity
 					{
 						BaseCoordinates = Coordinates,
-						Coordinates = current + GetDirCoord()*x,
+						Coordinates = current + GetDirCoord() * x,
 						Owner = player.EntityId,
 						Size = size,
 						OnGround = true,
@@ -103,24 +103,24 @@ namespace MiNET.Blocks
 			}
 			else if (size == 2)
 			{
-				Metadata = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180)*4/360) + 0.5) & 0x0f);
+				Metadata = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180) * 4 / 360) + 0.5) & 0x0f);
 
 				for (int y = 0; y < 2; y++)
 				{
-					var current = Coordinates + BlockCoordinates.Up*y;
+					var current = Coordinates + BlockCoordinates.Up * y;
 
 					for (int x = -1; x < 2; x++)
 					{
 						var block = new Chalkboard
 						{
-							Coordinates = current + GetDirCoord()*x,
+							Coordinates = current + GetDirCoord() * x,
 							Metadata = Metadata
 						};
 						world.SetBlock(block);
 						var blockEntity = new ChalkboardBlockEntity
 						{
 							BaseCoordinates = Coordinates,
-							Coordinates = current + GetDirCoord()*x,
+							Coordinates = current + GetDirCoord() * x,
 							Owner = player.EntityId,
 							Size = size,
 							OnGround = true,
@@ -162,19 +162,19 @@ namespace MiNET.Blocks
 
 				for (int x = 0; x < 2; x++)
 				{
-					world.SetAir(current + GetDirCoord()*x);
-					world.RemoveBlockEntity(current + GetDirCoord()*x);
+					world.SetAir(current + GetDirCoord() * x);
+					world.RemoveBlockEntity(current + GetDirCoord() * x);
 				}
 			}
 			else if (size == 2)
 			{
 				for (int y = 0; y < 2; y++)
 				{
-					var current = baseCoord + BlockCoordinates.Up*y;
+					var current = baseCoord + BlockCoordinates.Up * y;
 					for (int x = -1; x < 2; x++)
 					{
-						world.SetAir(current + GetDirCoord()*x);
-						world.RemoveBlockEntity(current + GetDirCoord()*x);
+						world.SetAir(current + GetDirCoord() * x);
+						world.RemoveBlockEntity(current + GetDirCoord() * x);
 					}
 				}
 			}

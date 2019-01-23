@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -67,7 +67,7 @@ namespace MiNET.Worlds
 
 			PopulateChunk(chunk);
 
-			Random random = new Random((chunk.x*397) ^ chunk.z);
+			Random random = new Random((chunk.x * 397) ^ chunk.z);
 			if (random.NextDouble() > 0.99)
 			{
 				GenerateLake(random, chunk, Dimension == Dimension.Overworld ? new Water() : Dimension == Dimension.Nether ? (Block) new Lava() : new Air());
@@ -98,7 +98,7 @@ namespace MiNET.Worlds
 					if (random.Next((int) Vector2.DistanceSquared(center, v)) < 1)
 					{
 						chunk.SetBlock(x, BlockLayers.Count - 2, z, new Glowstone().Id);
-						if(random.NextDouble() > 0.85)
+						if (random.NextDouble() > 0.85)
 						{
 							chunk.SetBlock(x, BlockLayers.Count - 3, z, new Glowstone().Id);
 							if (random.NextDouble() > 0.50)

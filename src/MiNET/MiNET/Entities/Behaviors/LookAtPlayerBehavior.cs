@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -68,7 +68,7 @@ namespace MiNET.Entities.Behaviors
 			var dx = _player.KnownPosition.X - _entity.KnownPosition.X;
 			var dz = _player.KnownPosition.Z - _entity.KnownPosition.Z;
 
-			double tanOutput = 90 - RadianToDegree(Math.Atan(dx/(dz)));
+			double tanOutput = 90 - RadianToDegree(Math.Atan(dx / (dz)));
 			double thetaOffset = 270d;
 			if (dz < 0)
 			{
@@ -76,9 +76,9 @@ namespace MiNET.Entities.Behaviors
 			}
 			var yaw = thetaOffset + tanOutput;
 
-			double bDiff = Math.Sqrt((dx*dx) + (dz*dz));
+			double bDiff = Math.Sqrt((dx * dx) + (dz * dz));
 			var dy = (_entity.KnownPosition.Y + _entity.Height) - (_player.KnownPosition.Y + 1.62);
-			double pitch = RadianToDegree(Math.Atan(dy/(bDiff)));
+			double pitch = RadianToDegree(Math.Atan(dy / (bDiff)));
 
 			_entity.Direction = (float) yaw;
 			_entity.KnownPosition.Yaw = (float) yaw;
@@ -96,7 +96,7 @@ namespace MiNET.Entities.Behaviors
 
 		private double RadianToDegree(double angle)
 		{
-			return angle*(180.0/Math.PI);
+			return angle * (180.0 / Math.PI);
 		}
 	}
 }

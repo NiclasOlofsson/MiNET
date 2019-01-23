@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -27,12 +27,16 @@ namespace MiNET.Net
 {
 	public partial class McpeText : Packet<McpeText>
 	{
+		public bool needsTranslation; // = null
 		public string source; // = null;
 		public string message; // = null;
+		public string xuid; // = null
+		public string platformChatId; // = null
+		public string[] parameters; // = null
 
 		partial void AfterEncode()
 		{
-			Write(false);
+			Write(needsTranslation);
 			ChatTypes chatType = (ChatTypes) type;
 			switch (chatType)
 			{
@@ -40,8 +44,6 @@ namespace MiNET.Net
 				case ChatTypes.Whisper:
 				case ChatTypes.Announcement:
 					Write(source);
-					Write(""); //TODO: third party name
-					WriteSignedVarInt(0); //TODO: platform
 					goto case ChatTypes.Raw;
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:
@@ -52,12 +54,23 @@ namespace MiNET.Net
 				case ChatTypes.Translation:
 				case ChatTypes.Jukeboxpopup:
 					Write(message);
-					WriteUnsignedVarInt(0); //TODO: translation parameters (list of strings)
+					if (parameters == null)
+					{
+						WriteUnsignedVarInt(0);
+					}
+					else
+					{
+						WriteUnsignedVarInt((uint) parameters.Length);
+						foreach (var parameter in parameters)
+						{
+							Write(parameter);
+						}
+					}
 					break;
 			}
 
-			Write(""); //TODO: XUID
-			Write(""); //TODO: platform chat ID
+			Write(xuid);
+			Write(platformChatId);
 		}
 
 		public override void Reset()
@@ -71,7 +84,7 @@ namespace MiNET.Net
 
 		partial void AfterDecode()
 		{
-			ReadBool(); // localization
+			needsTranslation = ReadBool();
 
 			ChatTypes chatType = (ChatTypes) type;
 			switch (chatType)
@@ -80,8 +93,6 @@ namespace MiNET.Net
 				case ChatTypes.Whisper:
 				case ChatTypes.Announcement:
 					source = ReadString();
-					ReadString(); //TODO: third party name
-					ReadSignedVarInt(); //TODO: platform
 					goto case ChatTypes.Raw;
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:
@@ -93,17 +104,16 @@ namespace MiNET.Net
 				case ChatTypes.Translation:
 				case ChatTypes.Jukeboxpopup:
 					message = ReadString();
-					uint parameterCount = ReadUnsignedVarInt();
-					for(uint i = 0; i < parameterCount; ++i)
+					parameters = new string[ReadUnsignedVarInt()];
+					for (var i = 0; i < parameters.Length; ++i)
 					{
-						ReadString(); //TODO: translation parameters
+						parameters[i] = ReadString();
 					}
-					// More stuff
 					break;
 			}
 
-			ReadString(); //TODO: XUID
-			ReadString(); //TODO: platform chat ID
+			xuid = ReadString();
+			platformChatId = ReadString();
 		}
 	}
 }

@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -18,11 +18,12 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -32,10 +33,9 @@ using Newtonsoft.Json.Serialization;
 
 namespace MiNET.Utils.Skins
 {
-	public class Skin
+	public class Skin : ICloneable
 	{
 		public bool Slim { get; set; }
-		public byte Alpha { get; set; }
 
 		public byte[] CapeData { get; set; }
 		public string SkinId { get; set; }
@@ -46,10 +46,12 @@ namespace MiNET.Utils.Skins
 		public static byte[] GetTextureFromFile(string filename)
 		{
 			Bitmap bitmap = new Bitmap(filename);
-			if (bitmap.Width != 64) return null;
-			if (bitmap.Height != 32 && bitmap.Height != 64) return null;
 
-			byte[] bytes = new byte[bitmap.Height*bitmap.Width*4];
+			var size = bitmap.Height * bitmap.Width * 4;
+
+			if (size != 0x2000 && size != 0x4000 && size != 0x10000) return null;
+
+			byte[] bytes = new byte[size];
 
 			int i = 0;
 			for (int y = 0; y < bitmap.Height; y++)
@@ -69,8 +71,10 @@ namespace MiNET.Utils.Skins
 
 		public static void SaveTextureToFile(string filename, byte[] bytes)
 		{
-			int width = 64;
-			var height = bytes.Length == 64*32*4 ? 32 : 64;
+			var size = bytes.Length;
+
+			int width = size == 0x10000 ? 128 : 64;
+			var height = size == 0x2000 ? 32 : (size == 0x4000 ? 64 : 128);
 
 			Bitmap bitmap = new Bitmap(width, height);
 
@@ -121,6 +125,33 @@ namespace MiNET.Utils.Skins
 			settings.Converters.Add(new StringEnumConverter {CamelCaseText = true});
 
 			return JsonConvert.SerializeObject(geometryModel, settings);
+		}
+
+		public object Clone()
+		{
+			byte[] clonedSkinData = null;
+			byte[] clonedCapeData = null;
+
+			if (SkinData != null)
+			{
+				clonedSkinData = new byte[SkinData.Length];
+				SkinData.CopyTo(clonedSkinData, 0);
+			}
+			if (CapeData != null)
+			{
+				clonedCapeData = new byte[CapeData.Length];
+				CapeData.CopyTo(clonedCapeData, 0);
+			}
+
+			return new Skin
+			{
+				SkinId = SkinId,
+				SkinGeometry = SkinGeometry,
+				SkinGeometryName = SkinGeometryName,
+				Slim = Slim,
+				SkinData = clonedSkinData,
+				CapeData = clonedCapeData
+			};
 		}
 	}
 }

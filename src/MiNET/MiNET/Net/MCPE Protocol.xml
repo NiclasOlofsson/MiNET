@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.6.0" protocolVersion="282">
+<protocol gameVersion="1.8.0" protocolVersion="313">
 
 	<constants>
-		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]" value="{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }" />
+		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
+				value="{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }" />
 	</constants>
 
 	<pdu namespace="raknet" id="0x00" online="false" client="true" server="true" name="ID_CONNECTED_PING">
@@ -158,6 +159,7 @@
 		<field name="Must accept" type="bool" />
 		<field name="BehaviorPackIdVersions" type="ResourcePackIdVersions" />
 		<field name="ResourcePackIdVersions" type="ResourcePackIdVersions" />
+		<field name="Is experimental" type="bool" />
 	</pdu>
 
 	<pdu id="0x08" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CLIENT_RESPONSE">
@@ -233,6 +235,10 @@
 		<field name="Has Locked Resource Pack" type="bool" />
 		<field name="Is From Locked World Template" type="bool" />
 
+		<field name="Use MSA Gamertags Only" type="bool" />
+		<field name="Is From World Template" type="bool" />
+		<field name="Is World Template Option Locked" type="bool" />
+
 		<field name="Level ID" type="string" />
 		<field name="World name" type="string" />
 		<field name="Premium World Template Id" type="string" />
@@ -247,8 +253,6 @@
 	<pdu id="0x0c" online="false" client="false" server="true" name="MCPE_ADD_PLAYER">
 		<field name="UUID" type="UUID" />
 		<field name="Username" type="string" />
-		<field name="Third Party Name" type="string" />
-		<field name="Platform" type="SignedVarInt" />
 		<field name="Entity ID Self" type="SignedVarLong" />
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Platform Chat ID" type="string" />
@@ -291,7 +295,7 @@
 	<pdu id="0x0d" online="false" client="false" server="true" name="MCPE_ADD_ENTITY">
 		<field name="Entity ID Self" type="SignedVarLong" />
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Entity Type" type="UnsignedVarInt" />
+		<field name="Entity Type" type="string" />
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
@@ -405,7 +409,7 @@
 		<field name="Records" type="Records" />
 	</pdu>
 
-	<pdu id="0x18" online="false" client="true" server="true" name="MCPE_LEVEL_SOUND_EVENT">
+	<pdu id="0x18" online="false" client="true" server="true" name="MCPE_LEVEL_SOUND_EVENT_OLD">
 		<field name="Sound ID" type="byte" />
 		<field name="Position" type="Vector3" />
 		<field name="Block Id" type="SignedVarInt" />
@@ -684,7 +688,8 @@
 		<enum id="Teleport" value="0x80" />
 
 		<enum id="Default" value="(BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs )" />
-		<enum id="All" value="(BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs | Operator | Teleport)" />
+		<enum id="All"
+			value="(BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs | Operator | Teleport)" />
 	</enums>
 
 	<pdu id="0x37" online="false" client="true" server="true" name="MCPE_ADVENTURE_SETTINGS">
@@ -808,6 +813,7 @@
 	</pdu>
 
 	<pdu id="0x4e" online="false" client="true" server="false" name="MCPE_COMMAND_BLOCK_UPDATE">
+		<field name="Is Block" type="bool" />
 	</pdu>
 
 	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_COMMAND_OUTPUT">
@@ -818,6 +824,7 @@
 		<field name="Window Type" type="byte" />
 		<field name="Unknown0" type="VarInt" />
 		<field name="Unknown1" type="VarInt" />
+		<field name="Unknown2" type="VarInt" />
 		<field name="Is Willing" type="bool" />
 		<field name="Trader Entity ID" type="SignedVarLong" />
 		<field name="Player Entity ID" type="SignedVarLong" />
@@ -976,16 +983,20 @@
 		<field name="Objective Name" type="string" />
 		<field name="Display Name" type="string" />
 		<field name="Criteria Name" type="string" />
-		<field name="Sort Order" type="VarInt" />
+		<field name="Sort Order" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x6c" online="false" client="false" server="true" name="MCPE_SET_SCORE">
 		<enums id="Types">
-			<enum id="Modify Score" value="0" />
-			<enum id="Reset Score" value="1" />
+			<enum id="Change" value="0" />
+			<enum id="Remove" value="1" />
 		</enums>
-		<field name="Type" type="byte" />
-		<field name="Score Packet Infos" type="ScorePacketInfos" />
+		<enums id="Change Types">
+			<enum id="Player" value="1" />
+			<enum id="Entity" value="2" />
+			<enum id="Fake Player" value="3" />
+		</enums>
+		<field name="Entries" type="ScoreEntries" />
 	</pdu>
 
 
@@ -1012,15 +1023,54 @@
 	</pdu>
 
 	<pdu id="0x70" online="false" client="false" server="true" name="MCPE_SET_SCOREBOARD_IDENTITY_PACKET">
+		<enums id="Operations">
+			<enum id="Register Identity" value="0" />
+			<enum id="Clear Identity" value="1" />
+		</enums>
+		<field name="Entries" type="ScoreboardIdentityEntries" />
 	</pdu>
 
 	<pdu id="0x71" online="false" client="true" server="false" name="MCPE_SET_LOCAL_PLAYER_AS_INITIALIZED_PACKET">
+		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x72" online="false" client="false" server="true" name="MCPE_UPDATE_SOFT_ENUM_PACKET">
 	</pdu>
 
 	<pdu id="0x73" online="false" client="false" server="true" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
+	</pdu>
+
+	<pdu id="0x75" online="false" client="false" server="true" name="MCPE_SCRIPT_CUSTOM_EVENT_PACKET">
+		<field name="Event Name" type="string" />
+		<field name="Event Data" type="string" />
+	</pdu>
+	
+	<pdu id="0x76" online="false" client="false" server="true" name="MCPE_SPAWN_PARTICLE_EFFECT">
+		<field name="Dimension ID" type="byte" />
+		<field name="Position" type="Vector3" />
+		<field name="Particle name" type="string" />
+	</pdu>
+
+	<pdu id="0x77" online="false" client="false" server="true" name="MCPE_AVAILABLE_ENTITY_IDENTIFIERS">
+		<field name="NamedTag" type="Nbt" />
+	</pdu>
+	
+	<pdu id="0x78" online="false" client="true" server="true" name="MCPE_LEVEL_SOUND_EVENT">
+		<field name="Sound ID" type="byte" />
+		<field name="Position" type="Vector3" />
+		<field name="Block Id" type="SignedVarInt" />
+		<field name="Entity Type" type="string" />
+		<field name="Is baby mob" type="bool" />
+		<field name="Is global" type="bool" />
+	</pdu>
+	
+	<pdu id="0x79" online="false" client="false" server="true" name="MCPE_NETWORK_CHUNK_PUBLISHER_UPDATE">
+		<field name="Coordinates" type="BlockCoordinates" />
+		<field name="Radius" type="UnsignedVarInt" />
+	</pdu>
+
+	<pdu id="0x7a" online="false" client="false" server="true" name="MCPE_BIOME_DEFINITION_LIST">
+		<field name="NamedTag" type="Nbt" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">

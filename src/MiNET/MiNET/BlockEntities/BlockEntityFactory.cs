@@ -38,7 +38,8 @@ namespace MiNET.BlockEntities
 		{
 			BlockEntity blockEntity = CustomBlockEntityFactory?.GetBlockEntityById(blockEntityId);
 
-			if(blockEntity != null) {
+			if (blockEntity != null)
+			{
 				return blockEntity;
 			}
 

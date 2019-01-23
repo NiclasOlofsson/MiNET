@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -34,7 +34,7 @@ namespace MiNET.Entities.Hostile
 {
 	public class Spider : HostileMob
 	{
-		public Spider(Level level) : base((int) EntityType.Spider, level)
+		public Spider(Level level) : base(EntityType.Spider, level)
 		{
 			Width = Length = 1.4;
 			Height = 0.9;

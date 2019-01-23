@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -35,7 +35,7 @@ namespace MiNET.Entities.Behaviors
 {
 	public class WanderBehavior : BehaviorBase
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (WanderBehavior));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(WanderBehavior));
 
 		private readonly Mob _entity;
 		private readonly double _speedMultiplier;
@@ -63,8 +63,22 @@ namespace MiNET.Entities.Behaviors
 			return _currentPath.HavePath();
 		}
 
+		private BlockCoordinates _lastPosition;
+		private int _stallTime = 0;
+
 		public override bool CanContinue()
 		{
+			//BlockCoordinates currPos = (BlockCoordinates) _entity.KnownPosition;
+			//if (currPos == _lastPosition)
+			//{
+			//	if (_stallTime++ > 100) return false;
+			//}
+			//else
+			//{
+			//	_stallTime = 0;
+			//	_lastPosition = currPos;
+			//}
+
 			return _currentPath.HavePath();
 		}
 
@@ -90,6 +104,7 @@ namespace MiNET.Entities.Behaviors
 		{
 			_entity.Velocity *= new Vector3(0, 1, 0);
 			_currentPath = null;
+			_stallTime = 0;
 		}
 
 		private static BlockCoordinates? FindRandomTargetBlock(Entity entity, int dxz, int dy, Vector3? targetDirectinon = null)
@@ -102,13 +117,13 @@ namespace MiNET.Entities.Behaviors
 			Block currentBlock = null;
 			for (int i = 0; i < 10; i++)
 			{
-				int x = random.Next(2*dxz + 1) - dxz;
-				int y = random.Next(2*dy + 1) - dy;
-				int z = random.Next(2*dxz + 1) - dxz;
+				int x = random.Next(2 * dxz + 1) - dxz;
+				int y = random.Next(2 * dy + 1) - dy;
+				int z = random.Next(2 * dxz + 1) - dxz;
 
 				var blockCoordinates = new BlockCoordinates(x, y, z) + coords;
 				var block = entity.Level.GetBlock(blockCoordinates);
-				var blockDown = entity.Level.GetBlock(blockCoordinates + BlockCoordinates.Down);
+				var blockDown = entity.Level.GetBlock(blockCoordinates.BlockDown());
 				if (blockDown.IsSolid)
 				{
 					double weight = CalculateBlockWeight(entity, block, blockDown);

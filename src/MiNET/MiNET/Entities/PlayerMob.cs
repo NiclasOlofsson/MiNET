@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -39,14 +39,9 @@ namespace MiNET.Entities
 		public UUID ClientUuid { get; private set; }
 		public Skin Skin { get; set; }
 
-		public short Boots { get; set; }
-		public short Leggings { get; set; }
-		public short Chest { get; set; }
-		public short Helmet { get; set; }
-
 		public Item ItemInHand { get; set; }
 
-		public PlayerMob(string name, Level level) : base(63, level)
+		public PlayerMob(string name, Level level) : base(EntityType.Player, level)
 		{
 			ClientUuid = new UUID(Guid.NewGuid().ToByteArray());
 
@@ -57,7 +52,11 @@ namespace MiNET.Entities
 			IsSpawned = false;
 
 			NameTag = name;
-			Skin = new Skin {Slim = false, SkinData = Encoding.Default.GetBytes(new string('Z', 8192))};
+			Skin = new Skin
+			{
+				Slim = false,
+				SkinData = Encoding.Default.GetBytes(new string('Z', 8192))
+			};
 
 			ItemInHand = new ItemAir();
 
@@ -85,7 +84,7 @@ namespace MiNET.Entities
 			package.yaw = position.HeadYaw;
 			package.headYaw = position.Yaw;
 			package.pitch = position.Pitch;
-			package.mode = (byte)(teleport ? 1 : 0);
+			package.mode = (byte) (teleport ? 1 : 0);
 
 			Level.RelayBroadcast(package);
 		}
@@ -142,10 +141,10 @@ namespace MiNET.Entities
 			{
 				McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
 				armorEquipment.runtimeEntityId = EntityId;
-				armorEquipment.helmet = ItemFactory.GetItem(Helmet);
-				armorEquipment.chestplate = ItemFactory.GetItem(Chest);
-				armorEquipment.leggings = ItemFactory.GetItem(Leggings);
-				armorEquipment.boots = ItemFactory.GetItem(Boots);
+				armorEquipment.helmet = Helmet;
+				armorEquipment.chestplate = Chest;
+				armorEquipment.leggings = Leggings;
+				armorEquipment.boots = Boots;
 				Level.RelayBroadcast(players, armorEquipment);
 			}
 
@@ -159,7 +158,7 @@ namespace MiNET.Entities
 				};
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerRemoveRecords { fake };
+				playerList.records = new PlayerRemoveRecords {fake};
 				Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
 				playerList.records = null;
 				playerList.PutPool();
@@ -171,6 +170,45 @@ namespace MiNET.Entities
 				setEntityData.metadata = GetMetadata();
 				Level?.RelayBroadcast(players, setEntityData);
 			}
+		}
+
+		public void RemoveFromPlayerList()
+		{
+			Player fake = new Player(null, null)
+			{
+				ClientUuid = ClientUuid,
+				EntityId = EntityId,
+				NameTag = NameTag,
+				Skin = Skin
+			};
+
+			var players = Level.GetSpawnedPlayers();
+
+			McpePlayerList playerList = McpePlayerList.CreateObject();
+			playerList.records = new PlayerRemoveRecords {fake};
+			Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
+			playerList.records = null;
+			playerList.PutPool();
+		}
+
+		public void AddToPlayerList()
+		{
+			Player fake = new Player(null, null)
+			{
+				ClientUuid = ClientUuid,
+				EntityId = EntityId,
+				NameTag = NameTag,
+				Skin = Skin,
+				PlayerInfo = new PlayerInfo()
+			};
+
+			var players = Level.GetSpawnedPlayers();
+
+			McpePlayerList playerList = McpePlayerList.CreateObject();
+			playerList.records = new PlayerAddRecords {fake};
+			Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
+			playerList.records = null;
+			playerList.PutPool();
 		}
 
 		public override void DespawnFromPlayers(Player[] players)
@@ -233,10 +271,10 @@ namespace MiNET.Entities
 		{
 			McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
 			armorEquipment.runtimeEntityId = EntityId;
-			armorEquipment.helmet = ItemFactory.GetItem(Helmet);
-			armorEquipment.chestplate = ItemFactory.GetItem(Chest);
-			armorEquipment.leggings = ItemFactory.GetItem(Leggings);
-			armorEquipment.boots = ItemFactory.GetItem(Boots);
+			armorEquipment.helmet = Helmet;
+			armorEquipment.chestplate = Chest;
+			armorEquipment.leggings = Leggings;
+			armorEquipment.boots = Boots;
 			Level.RelayBroadcast(armorEquipment);
 		}
 	}

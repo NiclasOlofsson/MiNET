@@ -5,9 +5,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
+using MiNET.Items;
+using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json.Linq;
 
@@ -17,6 +21,78 @@ namespace MiNET.Test
 	public class GeneralTests
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GeneralTests));
+
+		//[TestMethod]
+		//public void TimerDisposeTest()
+		//{
+		//	int count = 0;
+		//	HighPrecisionTimer timer = null;
+		//	timer = new HighPrecisionTimer(2, o =>
+		//	{
+		//		Console.WriteLine(".. tick ..");
+		//		if (count++ == 10) new Task(() => timer?.Dispose()).Start();
+		//		//if (count++ == 10) timer?.Dispose();
+		//	}, false, false);
+
+		//	Thread.Sleep(1000);
+		//}
+
+		[TestMethod]
+		public void NbtCheckPerformanceTests()
+		{
+			var firework = new ItemFireworks();
+
+			firework.ExtraData = ItemFireworks.ToNbt(new ItemFireworks.FireworksData()
+			{
+				Explosions = new List<ItemFireworks.FireworksExplosion>()
+				{
+					new ItemFireworks.FireworksExplosion()
+					{
+						FireworkColor = new[] {(byte) 0},
+						FireworkFade = new[] {(byte) 1},
+						FireworkFlicker = true,
+						FireworkTrail = false,
+						FireworkType = 0,
+					},
+					new ItemFireworks.FireworksExplosion()
+					{
+						FireworkColor = new[] {(byte) 1},
+						FireworkFade = new[] {(byte) 2},
+						FireworkFlicker = true,
+						FireworkTrail = false,
+						FireworkType = 1,
+					},
+					new ItemFireworks.FireworksExplosion()
+					{
+						FireworkColor = new[] {(byte) 2},
+						FireworkFade = new[] {(byte) 3},
+						FireworkFlicker = true,
+						FireworkTrail = false,
+						FireworkType = 2,
+					},
+					new ItemFireworks.FireworksExplosion()
+					{
+						FireworkColor = new[] {(byte) 3},
+						FireworkFade = new[] {(byte) 4},
+						FireworkFlicker = true,
+						FireworkTrail = false,
+						FireworkType = 3,
+					},
+					new ItemFireworks.FireworksExplosion()
+					{
+						FireworkColor = new[] {(byte) 4},
+						FireworkFade = new[] {(byte) 5},
+						FireworkFlicker = true,
+						FireworkTrail = false,
+						FireworkType = 4,
+					}
+				},
+				Flight = 2
+			});
+
+			for(var i = 0; i < 10000; i++)
+				Assert.AreEqual(firework.Equals(firework), true);
+		}
 
 		[TestMethod]
 		public void ArrayFillPerformanceTests()

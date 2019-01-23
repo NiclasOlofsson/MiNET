@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -57,7 +57,7 @@ namespace MiNET.Utils
 				h += (l += s[idx + 7]);
 			}
 
-			return (uint) (((h%ChecksumModulus) << 16) | (l%ChecksumModulus));
+			return (uint) (((h % ChecksumModulus) << 16) | (l % ChecksumModulus));
 		}
 
 		public ZLibStream(Stream stream, CompressionLevel level, bool leaveOpen) : base(stream, level, leaveOpen)

@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -40,7 +40,7 @@ namespace MiNET.Entities.Hostile
 
 		public Item ItemInHand { get; set; }
 
-		public Skeleton(Level level) : base((int) EntityType.Skeleton, level)
+		public Skeleton(Level level) : base(EntityType.Skeleton, level)
 		{
 			Width = Length = 0.6;
 			Height = 1.95;

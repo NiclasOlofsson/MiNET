@@ -13,19 +13,18 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
@@ -34,7 +33,7 @@ namespace MiNET.Worlds
 {
 	public class BlockLightCalculations
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockLightCalculations));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(BlockLightCalculations));
 
 		public static void Calculate(Level level, BlockCoordinates blockCoordinates)
 		{
@@ -57,12 +56,12 @@ namespace MiNET.Worlds
 
 			int lightLevel = chunk.GetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f);
 
-			Test(level, coord, coord + BlockCoordinates.Up, lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord + BlockCoordinates.Down, lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord + BlockCoordinates.West, lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord + BlockCoordinates.East, lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord + BlockCoordinates.South, lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord + BlockCoordinates.North, lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockUp(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockDown(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockWest(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockEast(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockSouth(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockNorth(), lightBfsQueue, chunk, lightLevel);
 
 			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.Down, chunk), lightLevel);
 			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.West, chunk), lightLevel);

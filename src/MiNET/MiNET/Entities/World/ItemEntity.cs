@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -36,13 +36,13 @@ namespace MiNET.Entities.World
 {
 	public class ItemEntity : Mob
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemEntity));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemEntity));
 
 		public Item Item { get; private set; }
 		public int PickupDelay { get; set; }
 		public int TimeToLive { get; set; }
 
-		public ItemEntity(Level level, Item item) : base(64, level)
+		public ItemEntity(Level level, Item item) : base(EntityType.DroppedItem, level)
 		{
 			Item = item;
 
@@ -142,7 +142,7 @@ namespace MiNET.Entities.World
 
 				if (!onGroundBefore && onGround)
 				{
-					float ff = 0.6f*0.98f;
+					float ff = 0.6f * 0.98f;
 					Velocity *= new Vector3(ff, 0, ff);
 				}
 				else
@@ -155,7 +155,7 @@ namespace MiNET.Entities.World
 					}
 					else
 					{
-						float ff = 0.6f*0.98f;
+						float ff = 0.6f * 0.98f;
 						Velocity *= new Vector3(ff, 0, ff);
 					}
 				}
@@ -211,7 +211,7 @@ namespace MiNET.Entities.World
 
 						DespawnEntity();
 
-						if(Item.Count > 0)
+						if (Item.Count > 0)
 						{
 							Level.DropItem(KnownPosition, Item);
 						}
@@ -224,13 +224,13 @@ namespace MiNET.Entities.World
 
 		private Vector3 GetAdjustedLengthFromCollision(Vector3 velocity)
 		{
-			var length = Length/2;
-			var direction = Vector3.Normalize(Velocity*1.00000101f);
+			var length = Length / 2;
+			var direction = Vector3.Normalize(Velocity * 1.00000101f);
 			var position = KnownPosition.ToVector3();
-			int count = (int) (Math.Ceiling(Velocity.Length()/length) + 2);
+			int count = (int) (Math.Ceiling(Velocity.Length() / length) + 2);
 			for (int i = 0; i < count; i++)
 			{
-				var distVec = direction*(float) length*i;
+				var distVec = direction * (float) length * i;
 				BlockCoordinates blockPos = position + distVec;
 				Block block = Level.GetBlock(blockPos);
 				if (block.IsSolid)
@@ -239,8 +239,8 @@ namespace MiNET.Entities.World
 					var distance = ray.Intersects(block.GetBoundingBox());
 					if (distance.HasValue)
 					{
-						float dist = (float) ((float) distance - (Length/4));
-						return ray.Direction*new Vector3(dist);
+						float dist = (float) ((float) distance - (Length / 4));
+						return ray.Direction * new Vector3(dist);
 					}
 				}
 			}
@@ -250,18 +250,18 @@ namespace MiNET.Entities.World
 
 		private void AdjustForCollision()
 		{
-			var length = Length/2;
-			var direction = Vector3.Normalize(Velocity*1.00000101f);
+			var length = Length / 2;
+			var direction = Vector3.Normalize(Velocity * 1.00000101f);
 			var position = KnownPosition.ToVector3();
-			int count = (int) (Math.Ceiling(Velocity.Length()/length) + 2);
+			int count = (int) (Math.Ceiling(Velocity.Length() / length) + 2);
 			for (int i = 0; i < count; i++)
 			{
-				var distVec = direction*(float) length*i;
+				var distVec = direction * (float) length * i;
 				BlockCoordinates blockPos = position + distVec;
 				Block block = Level.GetBlock(blockPos);
 				if (block.IsSolid)
 				{
-					var yaw = (Math.Atan2(direction.X, direction.Z)*180.0D/Math.PI) + 180;
+					var yaw = (Math.Atan2(direction.X, direction.Z) * 180.0D / Math.PI) + 180;
 					//Log.Warn($"Will hit block {block} at angle of {yaw}");
 
 					Ray ray = new Ray(position, direction);

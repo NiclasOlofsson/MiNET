@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -35,12 +35,12 @@ namespace MiNET.Entities.Projectiles
 {
 	public class FireworksRocket : Projectile
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (FireworksRocket));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(FireworksRocket));
 
 		public Item Fireworks { get; set; }
 		public int Lifetime { get; set; }
 
-		public FireworksRocket(Player shooter, Level level, Item fireworks, Random random = null) : base(shooter, 72, level, 0)
+		public FireworksRocket(Player shooter, Level level, Item fireworks, Random random = null) : base(shooter, EntityType.FireworksRocket, level, 0)
 		{
 			random = random ?? new Random();
 
@@ -70,7 +70,7 @@ namespace MiNET.Entities.Projectiles
 				Log.Debug(e);
 			}
 
-			Lifetime = 20*flyTime + random.Next(5) + random.Next(7);
+			Lifetime = 20 * flyTime + random.Next(5) + random.Next(7);
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -82,11 +82,11 @@ namespace MiNET.Entities.Projectiles
 
 		public override void SpawnEntity()
 		{
-			Velocity = Force = KnownPosition.GetDirection().Normalize()*0.06055374f;
+			Velocity = Force = KnownPosition.GetDirection().Normalize() * 0.06055374f;
 			KnownPosition.Yaw = (float) Velocity.GetYaw();
 			KnownPosition.Pitch = (float) Velocity.GetPitch();
 
-			McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+			var sound = McpeLevelSoundEventOld.CreateObject();
 			sound.soundId = 55;
 			sound.blockId = -1;
 			sound.entityType = 1;
@@ -106,7 +106,7 @@ namespace MiNET.Entities.Projectiles
 
 			base.DespawnEntity();
 
-			McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+			var sound = McpeLevelSoundEventOld.CreateObject();
 			sound.soundId = 56;
 			sound.blockId = -1;
 			sound.entityType = 1;

@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -33,11 +33,9 @@ namespace MiNET.Utils.Skins
 {
 	public class Geometry : ICloneable
 	{
-		[JsonIgnore]
-		public string Name { get; set; }
+		[JsonIgnore] public string Name { get; set; }
 
-		[JsonIgnore]
-		public string BaseGeometry { get; set; }
+		[JsonIgnore] public string BaseGeometry { get; set; }
 
 		public List<Bone> Bones { get; set; }
 
@@ -184,7 +182,7 @@ namespace MiNET.Utils.Skins
 										Size = new[] {1f, 1f, 1f},
 										Origin = new[] {cubeOrigin[0] + w, cubeOrigin[1] + h, cubeOrigin[2] + d - ZTearFactor},
 										Uv = bone.Mirror ? new[] {uvx - w, uvy--} : new[] {uvx + w, uvy--},
-										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
+										Velocity = new Vector3(0, (float) (random.NextDouble() * -0.01), 0)
 									};
 									bool isHead = bone.Name == BoneName.Head;
 									if (isHead || random.NextDouble() < CubeFilterFactor)
@@ -233,7 +231,7 @@ namespace MiNET.Utils.Skins
 										Size = new[] {1f, 1f, 1f},
 										Origin = new[] {cubeOrigin[0] + w, cubeOrigin[1] + h, cubeOrigin[2] + d + ZTearFactor},
 										Uv = !bone.Mirror ? new[] {uvx - w, uvy--} : new[] {uvx + w, uvy--},
-										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
+										Velocity = new Vector3(0, (float) (random.NextDouble() * -0.01), 0)
 									};
 									if (random.NextDouble() < CubeFilterFactor)
 									{
@@ -278,7 +276,7 @@ namespace MiNET.Utils.Skins
 										Size = new[] {1f, 1f, 1f},
 										Origin = new[] {cubeOrigin[0] + w, cubeOrigin[1] + h + ZTearFactor, cubeOrigin[2] + d},
 										Uv = !bone.Mirror ? new[] {uvx - w, uvy--} : new[] {uvx + w, uvy--},
-										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
+										Velocity = new Vector3(0, (float) (random.NextDouble() * -0.01), 0)
 									};
 									if (random.NextDouble() < CubeFilterFactor)
 									{
@@ -321,7 +319,7 @@ namespace MiNET.Utils.Skins
 										Size = new[] {1f, 1f, 1f},
 										Origin = new[] {cubeOrigin[0] + w, cubeOrigin[1] + h - ZTearFactor, cubeOrigin[2] + d},
 										Uv = new[] {uvx + w, uvy--},
-										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
+										Velocity = new Vector3(0, (float) (random.NextDouble() * -0.01), 0)
 									};
 									if (random.NextDouble() < CubeFilterFactor)
 									{
@@ -367,7 +365,7 @@ namespace MiNET.Utils.Skins
 										Size = new[] {1f, 1f, 1f},
 										Origin = new[] {cubeOrigin[0] + w - ZTearFactor, cubeOrigin[1] + h, cubeOrigin[2] + d},
 										Uv = !bone.Mirror ? new[] {uvx - d, uvy--} : new[] {uvx + d, uvy--},
-										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
+										Velocity = new Vector3(0, (float) (random.NextDouble() * -0.01), 0)
 									};
 									if (random.NextDouble() < CubeFilterFactor)
 									{
@@ -413,7 +411,7 @@ namespace MiNET.Utils.Skins
 										Size = new[] {1f, 1f, 1f},
 										Origin = new[] {cubeOrigin[0] + w + ZTearFactor, cubeOrigin[1] + h, cubeOrigin[2] + d},
 										Uv = bone.Mirror ? new[] {uvx - d, uvy--} : new[] {uvx + d, uvy--},
-										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
+										Velocity = new Vector3(0, (float) (random.NextDouble() * -0.01), 0)
 									};
 									if (random.NextDouble() < CubeFilterFactor)
 									{

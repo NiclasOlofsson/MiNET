@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -35,7 +35,7 @@ namespace MiNET.Client
 {
 	public class ClientUtils
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ClientUtils));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ClientUtils));
 
 		private static int _waterOffsetY = 0;
 		private static string _basePath = @"D:\Temp\MCPEWorldStore";
@@ -44,9 +44,6 @@ namespace MiNET.Client
 
 		public static ChunkColumn DecocedChunkColumn(byte[] buffer)
 		{
-
-			return null;
-
 			lock (_chunkRead)
 			{
 				MemoryStream stream = new MemoryStream(buffer);
@@ -68,54 +65,43 @@ namespace MiNET.Client
 
 					for (int s = 0; s < count; s++)
 					{
-						int idx = defStream.ReadByte();
+						int version = defStream.ReadByte();
+						int storageSize = defStream.ReadByte();
 
-						Log.Debug($"New section {s}, index={idx}");
-						ChunkBase chunk = chunkColumn[s];
+						for (int i = 0; i < storageSize; i++)
+						{
+							int bitsPerBlock = defStream.ReadByte() >> 1;
+							int noBlocksPerWord = (int) Math.Floor(32f / bitsPerBlock);
+							int wordCount = (int) Math.Ceiling(4096f / noBlocksPerWord);
+							Log.Warn($"New section {s}, " +
+									$"version={version}, " +
+									$"storageSize={storageSize}, " +
+									$"bitsPerBlock={bitsPerBlock}, " +
+									$"noBlocksPerWord={noBlocksPerWord}, " +
+									$"wordCount={wordCount}, " +
+									$"");
+							defStream.ReadBytes(wordCount * 4);
+							int paletteCount = VarInt.ReadSInt32(stream);
+							//Log.Warn($"New section {s}, " +
+							//		$"version={version}, " +
+							//		$"storageSize={storageSize}, " +
+							//		$"bitsPerBlock={bitsPerBlock}, " +
+							//		$"noBlocksPerWord={noBlocksPerWord}, " +
+							//		$"wordCount={wordCount}, " +
+							//		$"paletteCount={paletteCount}" +
+							//		$"");
 
-						int chunkSize = 16*16*16;
-						//defStream.Read(chunk.blocks, 0, chunkSize);
-						//Log.Debug($"Blocks1:\n{Package.HexDump(chunk.blocks)}");
-
-						//if (defStream.Read(chunk.metadata.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: metadata");
-
-						//Log.Debug($"metadata:\n{Package.HexDump(chunk.metadata.Data)}");
-
-						//if (defStream.Read(chunk.skylight.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: skylight");
-						//Log.Debug($"skylight:\n{Package.HexDump(chunk.skylight.Data)}");
-
-						//if (defStream.Read(chunk.blocklight.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: blocklight");
-						//Log.Debug($"blocklight:\n{Package.HexDump(chunk.blocklight.Data)}");
-
-						//Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skylight.Data, 64)}");
-						//Log.Debug($"blocklight.Data:\n{Package.HexDump(chunk.blocklight.Data)}");
-
-						//byte[] ints = new byte[256*4];
-						//var readLen = defStream.Read(ints, 0, ints.Length);
-						//if (readLen != ints.Length) Log.Error($"Out of data biomeColors, read lenght {readLen}");
-						//Log.Debug($"biomeColor (pre):\n{Package.HexDump(ints)}");
-
-						//return null;
-						//int j = 0;
-						//for (int i = 0; i < ints.Length; i = i + 4)
-						//{
-						//	chunk.biomeId[j] = ints[i];
-						//	chunk.biomeColor[j++] = BitConverter.ToInt32(new[] {(byte) 0, ints[i + 1], ints[i + 2], ints[i + 3]}, 0);
-						//}
-						//Log.Debug($"biomeId (post):\n{Package.HexDump(chunk.biomeId)}");
-
-						//if (stream.Position >= stream.Length - 1) return chunk;
-
-						////return chunk;
-
-						//return chunk;
+							for (int j = 0; j < paletteCount; j++)
+							{
+								VarInt.ReadSInt32(stream);
+							}
+						}
 					}
 
 					//if (stream.Position >= stream.Length - 1) continue;
 
-
 					byte[] ba = new byte[512];
-					if (defStream.Read(ba, 0, 256*2) != 256*2) Log.Error($"Out of data height");
+					if (defStream.Read(ba, 0, 256 * 2) != 256 * 2) Log.Error($"Out of data height");
 
 					Buffer.BlockCopy(ba, 0, chunkColumn.height, 0, 512);
 					//Log.Debug($"Heights:\n{Package.HexDump(ba)}");
@@ -125,10 +111,9 @@ namespace MiNET.Client
 					if (defStream.Read(chunkColumn.biomeId, 0, 256) != 256) Log.Error($"Out of data biomeId");
 					//Log.Debug($"biomeId:\n{Package.HexDump(chunk.biomeId)}");
 
-					//if (stream.Position >= stream.Length - 1) continue;
+					if (stream.Position >= stream.Length - 1) return chunkColumn;
 
-
-					int borderBlock = VarInt.ReadInt32(stream);
+					int borderBlock = VarInt.ReadSInt32(stream);
 					if (borderBlock != 0)
 					{
 						byte[] buf = new byte[borderBlock];
@@ -143,25 +128,17 @@ namespace MiNET.Client
 						}
 					}
 
-					int extraCount = VarInt.ReadSInt32(stream);
-					if (extraCount != 0)
-					{
-						//Log.Warn($"Got extradata\n{Package.HexDump(defStream.ReadBytes(extraCount*10))}");
-						for (int i = 0; i < extraCount; i++)
-						{
-							var hash = VarInt.ReadSInt32(stream);
-							var blockData = defStream.ReadInt16();
-							Log.Warn($"Got extradata: hash=0x{hash:X2}, blockdata=0x{blockData:X2}");
-						}
-					}
-
 					if (stream.Position < stream.Length - 1)
 					{
 						//Log.Debug($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
 
 						while (stream.Position < stream.Length)
 						{
-							NbtFile file = new NbtFile() {BigEndian = false, UseVarInt = true};
+							NbtFile file = new NbtFile()
+							{
+								BigEndian = false,
+								UseVarInt = true
+							};
 
 							file.LoadFromStream(stream, NbtCompression.None);
 
@@ -178,75 +155,15 @@ namespace MiNET.Client
 			}
 		}
 
-		//public static ChunkColumn DecocedOldChunkColumn(byte[] buffer)
-		//{
-		//	MemoryStream stream = new MemoryStream(buffer);
-		//	{
-		//		NbtBinaryReader defStream = new NbtBinaryReader(stream, true);
-		//		ChunkColumn chunk = new ChunkColumn();
-
-		//		//chunk.x = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
-		//		//chunk.z = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
-
-		//		int chunkSize = 16*16*128;
-		//		defStream.Read(chunk.blocks, 0, chunkSize);
-		//		defStream.Read(chunk.metadata.Data, 0, chunkSize/2);
-		//		defStream.Read(chunk.skylight.Data, 0, chunkSize/2);
-		//		defStream.Read(chunk.blocklight.Data, 0, chunkSize/2);
-
-		//		//Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skylight.Data, 64)}");
-		//		//Log.Debug($"blocklight.Data:\n{Package.HexDump(chunk.blocklight.Data)}");
-
-		//		defStream.Read(chunk.height, 0, 256);
-		//		//Log.Debug($"Heights:\n{Package.HexDump(chunk.height)}");
-
-		//		byte[] ints = new byte[256*4];
-		//		defStream.Read(ints, 0, ints.Length);
-		//		//Log.Debug($"biomeColor (pre):\n{Package.HexDump(ints)}");
-		//		int j = 0;
-		//		for (int i = 0; i < ints.Length; i = i + 4)
-		//		{
-		//			chunk.biomeId[j] = ints[i];
-		//			chunk.biomeColor[j++] = BitConverter.ToInt32(new[] {(byte) 0, ints[i + 1], ints[i + 2], ints[i + 3]}, 0);
-		//		}
-		//		//Log.Debug($"biomeId (post):\n{Package.HexDump(chunk.biomeId)}");
-
-		//		if (stream.Position >= stream.Length - 1) return chunk;
-
-		//		//return chunk;
-
-		//		int extraSize = defStream.ReadInt16();
-		//		if (extraSize != 0)
-		//		{
-		//			Log.Debug($"Got extradata\n{Package.HexDump(defStream.ReadBytes(extraSize))}");
-		//		}
-
-		//		if (stream.Position >= stream.Length - 1) return chunk;
-
-		//		//Log.Debug($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
-
-		//		while (stream.Position < stream.Length)
-		//		{
-		//			NbtFile file = new NbtFile() {BigEndian = false, UseVarInt = true};
-
-		//			file.LoadFromStream(stream, NbtCompression.None);
-
-		//			//Log.Debug($"Blockentity: {file.RootTag}");
-		//		}
-
-		//		return chunk;
-		//	}
-		//}
-
 		private static void SetNibble4(byte[] arr, int index, byte value)
 		{
-			if (index%2 == 0)
+			if (index % 2 == 0)
 			{
-				arr[index/2] = (byte) ((value & 0x0F) | arr[index/2]);
+				arr[index / 2] = (byte) ((value & 0x0F) | arr[index / 2]);
 			}
 			else
 			{
-				arr[index/2] = (byte) (((value << 4) & 0xF0) | arr[index/2]);
+				arr[index / 2] = (byte) (((value << 4) & 0xF0) | arr[index / 2]);
 			}
 		}
 
@@ -288,7 +205,7 @@ namespace MiNET.Client
 				NbtCompound sectionTag = new NbtCompound();
 				sectionsTag.Add(sectionTag);
 				sectionTag.Add(new NbtByte("Y", (byte) i));
-				int sy = i*16;
+				int sy = i * 16;
 
 				byte[] blocks = new byte[4096];
 				byte[] data = new byte[2048];
@@ -304,7 +221,7 @@ namespace MiNET.Client
 							int yi = sy + y;
 							if (yi < 0 || yi >= 256) continue; // ?
 
-							int anvilIndex = (y + _waterOffsetY)*16*16 + z*16 + x;
+							int anvilIndex = (y + _waterOffsetY) * 16 * 16 + z * 16 + x;
 							int blockId = chunk.GetBlock(x, yi, z);
 
 							// PE to Anvil friendly converstion

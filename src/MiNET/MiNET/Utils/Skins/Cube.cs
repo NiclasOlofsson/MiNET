@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -49,11 +49,9 @@ namespace MiNET.Utils.Skins
 		public float Inflate { get; set; }
 		public bool Mirror { get; set; }
 
-		[JsonIgnore]
-		public Vector3 Velocity { get; set; } = Vector3.Zero;
+		[JsonIgnore] public Vector3 Velocity { get; set; } = Vector3.Zero;
 
-		[JsonIgnore]
-		public Face Face { get; set; } = Face.None;
+		[JsonIgnore] public Face Face { get; set; } = Face.None;
 
 		public object Clone()
 		{

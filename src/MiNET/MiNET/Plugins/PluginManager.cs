@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -45,7 +45,7 @@ namespace MiNET.Plugins
 {
 	public class PluginManager
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MiNetServer));
 
 		private readonly List<object> _plugins = new List<object>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
@@ -103,17 +103,18 @@ namespace MiNET.Plugins
 							try
 							{
 								// If no PluginAttribute and does not implement IPlugin interface, not a valid plugin
-								if (!type.IsDefined(typeof (PluginAttribute), true) && !typeof (IPlugin).IsAssignableFrom(type)) continue;
+								if (!type.IsDefined(typeof(PluginAttribute), true) && !typeof(IPlugin).IsAssignableFrom(type)) continue;
 
 								// If plugin is already loaded don't load it again
-								if(_plugins.Any(l => l.GetType().AssemblyQualifiedName == type.AssemblyQualifiedName)) {
+								if (_plugins.Any(l => l.GetType().AssemblyQualifiedName == type.AssemblyQualifiedName))
+								{
 									Log.Error($"Tried to load duplicate plugin: {type}");
 									continue;
 								}
 
-								if (type.IsDefined(typeof (PluginAttribute), true))
+								if (type.IsDefined(typeof(PluginAttribute), true))
 								{
-									PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof (PluginAttribute), true) as PluginAttribute;
+									PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof(PluginAttribute), true) as PluginAttribute;
 									if (pluginAttribute != null)
 									{
 										if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true)) continue;
@@ -123,11 +124,7 @@ namespace MiNET.Plugins
 								if (ctor != null)
 								{
 									var plugin = ctor.Invoke(null);
-									_plugins.Add(plugin);
-									LoadCommands(type);
-									Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
-									LoadPacketHandlers(type);
-									Log.Debug($"Loaded plugin {type}");
+									LoadPlugin(plugin, type);
 								}
 							}
 							catch (Exception ex)
@@ -136,7 +133,6 @@ namespace MiNET.Plugins
 								Log.Debug("Plugin loader caught exception, but is moving on.", ex);
 							}
 						}
-
 					}
 					catch (Exception e)
 					{
@@ -147,6 +143,38 @@ namespace MiNET.Plugins
 			}
 
 			DebugPrintCommands();
+		}
+
+		public void LoadPlugin(object plugin)
+		{
+			Type type = plugin.GetType();
+
+			if (_plugins.Any(l => l.GetType().AssemblyQualifiedName == type.AssemblyQualifiedName))
+			{
+				Log.Error($"Tried to load duplicate plugin: {type}");
+				return;
+			}
+
+			if (type.IsDefined(typeof(PluginAttribute), true))
+			{
+				PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof(PluginAttribute), true) as PluginAttribute;
+				if (pluginAttribute != null)
+				{
+					if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true))
+						return;
+				}
+			}
+
+			LoadPlugin(plugin, type);
+		}
+
+		private void LoadPlugin(object plugin, Type type)
+		{
+			_plugins.Add(plugin);
+			LoadCommands(type);
+			Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
+			LoadPacketHandlers(type);
+			Log.Debug($"Loaded plugin {type}");
 		}
 
 		public event ResolveEventHandler AssemblyResolve;
@@ -210,7 +238,7 @@ namespace MiNET.Plugins
 			var methods = type.GetMethods();
 			foreach (MethodInfo method in methods)
 			{
-				CommandAttribute commandAttribute = Attribute.GetCustomAttribute(method, typeof (CommandAttribute), false) as CommandAttribute;
+				CommandAttribute commandAttribute = Attribute.GetCustomAttribute(method, typeof(CommandAttribute), false) as CommandAttribute;
 				if (commandAttribute == null) continue;
 
 				if (string.IsNullOrEmpty(commandAttribute.Name))
@@ -218,7 +246,7 @@ namespace MiNET.Plugins
 					commandAttribute.Name = method.Name;
 				}
 
-				DescriptionAttribute descriptionAttribute = Attribute.GetCustomAttribute(method, typeof (DescriptionAttribute), false) as DescriptionAttribute;
+				DescriptionAttribute descriptionAttribute = Attribute.GetCustomAttribute(method, typeof(DescriptionAttribute), false) as DescriptionAttribute;
 				if (descriptionAttribute != null) commandAttribute.Description = descriptionAttribute.Description;
 
 				try
@@ -238,10 +266,10 @@ namespace MiNET.Plugins
 
 			foreach (MethodInfo method in methods)
 			{
-				CommandAttribute commandAttribute = Attribute.GetCustomAttribute(method, typeof (CommandAttribute), false) as CommandAttribute;
+				CommandAttribute commandAttribute = Attribute.GetCustomAttribute(method, typeof(CommandAttribute), false) as CommandAttribute;
 				if (commandAttribute == null) continue;
 
-				AuthorizeAttribute authorizeAttribute = Attribute.GetCustomAttribute(method, typeof (AuthorizeAttribute), false) as AuthorizeAttribute ?? new AuthorizeAttribute();
+				AuthorizeAttribute authorizeAttribute = Attribute.GetCustomAttribute(method, typeof(AuthorizeAttribute), false) as AuthorizeAttribute ?? new AuthorizeAttribute();
 
 				if (string.IsNullOrEmpty(commandAttribute.Name))
 				{
@@ -308,7 +336,7 @@ namespace MiNET.Plugins
 				bool isFirstParam = true;
 				foreach (var parameter in parameters)
 				{
-					if (isFirstParam && typeof (Player).IsAssignableFrom(parameter.ParameterType))
+					if (isFirstParam && typeof(Player).IsAssignableFrom(parameter.ParameterType))
 					{
 						continue;
 					}
@@ -344,32 +372,32 @@ namespace MiNET.Plugins
 							typeName = typeName.ToLowerInvariant()[0] + typeName.Substring(1);
 							param.EnumType = typeName;
 
-							if (parameter.ParameterType == typeof (ItemTypeEnum))
+							if (parameter.ParameterType == typeof(ItemTypeEnum))
 							{
 								param.EnumValues = new string[] { };
 								param.EnumType = "Item";
 							}
-							if (parameter.ParameterType == typeof (BlockTypeEnum))
+							if (parameter.ParameterType == typeof(BlockTypeEnum))
 							{
 								param.EnumValues = new string[] { };
 								param.EnumType = "Block";
 							}
-							if (parameter.ParameterType == typeof (EntityTypeEnum))
+							if (parameter.ParameterType == typeof(EntityTypeEnum))
 							{
 								param.EnumValues = new string[] { };
 								param.EnumType = "EntityType";
 							}
-							if (parameter.ParameterType == typeof (CommandNameEnum))
+							if (parameter.ParameterType == typeof(CommandNameEnum))
 							{
 								param.EnumValues = new string[] { };
 								param.EnumType = "CommandName";
 							}
-							if (parameter.ParameterType == typeof (EnchantEnum))
+							if (parameter.ParameterType == typeof(EnchantEnum))
 							{
 								param.EnumValues = new string[] {"enchant_test"};
 								param.EnumType = "Enchant";
 							}
-							if (parameter.ParameterType == typeof (EffectEnum))
+							if (parameter.ParameterType == typeof(EffectEnum))
 							{
 								param.EnumValues = new string[] {"effect_test"};
 								param.EnumType = "Effect";
@@ -416,17 +444,17 @@ namespace MiNET.Plugins
 		{
 			string value = parameter.PropertyType.ToString();
 
-			if (parameter.PropertyType == typeof (int))
+			if (parameter.PropertyType == typeof(int))
 				value = "int";
-			else if (parameter.PropertyType == typeof (short))
+			else if (parameter.PropertyType == typeof(short))
 				value = "int";
-			else if (parameter.PropertyType == typeof (byte))
+			else if (parameter.PropertyType == typeof(byte))
 				value = "int";
-			else if (parameter.PropertyType == typeof (bool))
+			else if (parameter.PropertyType == typeof(bool))
 				value = "bool";
-			else if (parameter.PropertyType == typeof (string))
+			else if (parameter.PropertyType == typeof(string))
 				value = "string";
-			else if (parameter.PropertyType == typeof (string[]))
+			else if (parameter.PropertyType == typeof(string[]))
 				value = "rawtext";
 			else
 			{
@@ -440,31 +468,31 @@ namespace MiNET.Plugins
 		{
 			string value = parameter.ParameterType.ToString();
 
-			if (parameter.ParameterType == typeof (int))
+			if (parameter.ParameterType == typeof(int))
 				value = "int";
-			else if (parameter.ParameterType == typeof (short))
+			else if (parameter.ParameterType == typeof(short))
 				value = "int";
-			else if (parameter.ParameterType == typeof (byte))
+			else if (parameter.ParameterType == typeof(byte))
 				value = "int";
 			else if (parameter.ParameterType == typeof(float))
 				value = "float";
 			else if (parameter.ParameterType == typeof(double))
 				value = "float";
-			else if (parameter.ParameterType == typeof (bool))
+			else if (parameter.ParameterType == typeof(bool))
 				value = "bool";
-			else if (parameter.ParameterType == typeof (string))
+			else if (parameter.ParameterType == typeof(string))
 				value = "string";
-			else if (parameter.ParameterType == typeof (string[]))
+			else if (parameter.ParameterType == typeof(string[]))
 				value = "rawtext";
-			else if (parameter.ParameterType == typeof (Target))
+			else if (parameter.ParameterType == typeof(Target))
 				value = "target";
-			else if (parameter.ParameterType == typeof (BlockPos))
+			else if (parameter.ParameterType == typeof(BlockPos))
 				value = "blockpos";
 			else if (parameter.ParameterType.IsEnum)
 				value = "stringenum";
-			else if (parameter.ParameterType.BaseType == typeof (EnumBase))
+			else if (parameter.ParameterType.BaseType == typeof(EnumBase))
 				value = "stringenum";
-			else if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
+			else if (typeof(IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
 				// Custom serialization
 				value = "string";
 			else
@@ -499,15 +527,15 @@ namespace MiNET.Plugins
 			foreach (MethodInfo method in methods)
 			{
 				{
-					PacketHandlerAttribute packetHandlerAttribute = Attribute.GetCustomAttribute(method, typeof (PacketHandlerAttribute), false) as PacketHandlerAttribute;
+					PacketHandlerAttribute packetHandlerAttribute = Attribute.GetCustomAttribute(method, typeof(PacketHandlerAttribute), false) as PacketHandlerAttribute;
 					if (packetHandlerAttribute != null)
 					{
 						ParameterInfo[] parameters = method.GetParameters();
 						if (parameters.Length < 1) continue;
-						if (!typeof (Packet).IsAssignableFrom(parameters[0].ParameterType)) continue;
+						if (!typeof(Packet).IsAssignableFrom(parameters[0].ParameterType)) continue;
 						if (packetHandlerAttribute.PacketType == null) packetHandlerAttribute.PacketType = parameters[0].ParameterType;
 
-						if (Attribute.GetCustomAttribute(method, typeof (SendAttribute), false) != null)
+						if (Attribute.GetCustomAttribute(method, typeof(SendAttribute), false) != null)
 						{
 							_packetSendHandlerDictionary.Add(method, packetHandlerAttribute);
 						}
@@ -690,7 +718,7 @@ namespace MiNET.Plugins
 				{
 					foreach (ParameterInfo parameter in method.GetParameters())
 					{
-						if (typeof (Player).IsAssignableFrom(parameter.ParameterType)) continue;
+						if (typeof(Player).IsAssignableFrom(parameter.ParameterType)) continue;
 
 						if (HasProperty(commandInputJson, parameter.Name))
 						{
@@ -719,7 +747,7 @@ namespace MiNET.Plugins
 
 		private static bool IsParams(ParameterInfo param)
 		{
-			return Attribute.IsDefined(param, typeof (ParamArrayAttribute));
+			return Attribute.IsDefined(param, typeof(ParamArrayAttribute));
 		}
 
 		private bool ExecuteCommand(MethodInfo method, Player player, string[] args, out object result)
@@ -731,7 +759,7 @@ namespace MiNET.Plugins
 			var parameters = method.GetParameters();
 
 			int addLenght = 0;
-			if (parameters.Length > 0 && typeof (Player).IsAssignableFrom(parameters[0].ParameterType))
+			if (parameters.Length > 0 && typeof(Player).IsAssignableFrom(parameters[0].ParameterType))
 			{
 				addLenght = 1;
 			}
@@ -746,7 +774,7 @@ namespace MiNET.Plugins
 					var parameter = parameters[k];
 					if (k == 0 && addLenght == 1)
 					{
-						if (typeof (Player).IsAssignableFrom(parameter.ParameterType))
+						if (typeof(Player).IsAssignableFrom(parameter.ParameterType))
 						{
 							objectArgs[k] = player;
 							continue;
@@ -763,7 +791,7 @@ namespace MiNET.Plugins
 
 					if (args.Length < k) return false;
 
-					if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
+					if (typeof(IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
 					{
 						var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
 						IParameterSerializer defaultValue = ctor.Invoke(null) as IParameterSerializer;
@@ -774,7 +802,7 @@ namespace MiNET.Plugins
 						continue;
 					}
 
-					if (parameter.ParameterType.BaseType == typeof (EnumBase))
+					if (parameter.ParameterType.BaseType == typeof(EnumBase))
 					{
 						var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
 						EnumBase instance = (EnumBase) ctor.Invoke(null);
@@ -783,14 +811,14 @@ namespace MiNET.Plugins
 						continue;
 					}
 
-					if (parameter.ParameterType == typeof (Target))
+					if (parameter.ParameterType == typeof(Target))
 					{
 						var target = FillTargets(player, player.Level, args[i++]);
 						objectArgs[k] = target;
 						continue;
 					}
 
-					if (parameter.ParameterType == typeof (BlockPos))
+					if (parameter.ParameterType == typeof(BlockPos))
 					{
 						if (args.Length < i + 3) return false;
 
@@ -830,47 +858,47 @@ namespace MiNET.Plugins
 						continue;
 					}
 
-					if (parameter.ParameterType == typeof (string))
+					if (parameter.ParameterType == typeof(string))
 					{
 						objectArgs[k] = args[i++];
 						continue;
 					}
-					if (parameter.ParameterType == typeof (byte))
+					if (parameter.ParameterType == typeof(byte))
 					{
 						byte value;
 						if (!byte.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
-					if (parameter.ParameterType == typeof (short))
+					if (parameter.ParameterType == typeof(short))
 					{
 						short value;
 						if (!short.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
-					if (parameter.ParameterType == typeof (int))
+					if (parameter.ParameterType == typeof(int))
 					{
 						int value;
 						if (!int.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
-					if (parameter.ParameterType == typeof (bool))
+					if (parameter.ParameterType == typeof(bool))
 					{
 						bool value;
 						if (!bool.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
-					if (parameter.ParameterType == typeof (float))
+					if (parameter.ParameterType == typeof(float))
 					{
 						float value;
 						if (!float.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
-					if (parameter.ParameterType == typeof (double))
+					if (parameter.ParameterType == typeof(double))
 					{
 						double value;
 						if (!double.TryParse(args[i++], out value)) return false;
@@ -891,7 +919,7 @@ namespace MiNET.Plugins
 						continue;
 					}
 
-					if (IsParams(parameter) && parameter.ParameterType == typeof (string[]))
+					if (IsParams(parameter) && parameter.ParameterType == typeof(string[]))
 					{
 						List<string> strings = new List<string>();
 						for (int j = i++; j < args.Length; j++)
@@ -904,7 +932,6 @@ namespace MiNET.Plugins
 
 					return false;
 				}
-
 			}
 			catch (Exception e)
 			{
@@ -990,10 +1017,17 @@ namespace MiNET.Plugins
 		public static Target ParseTarget(string source)
 		{
 			Target target = new Target();
-			if(!source.StartsWith("@"))
+			if (!source.StartsWith("@"))
 			{
 				target.Selector = "closestPlayer";
-				target.Rules = new[] {new Target.Rule() {Name = "name", Value = source}};
+				target.Rules = new[]
+				{
+					new Target.Rule()
+					{
+						Name = "name",
+						Value = source
+					}
+				};
 			}
 			else
 			{
@@ -1036,7 +1070,7 @@ namespace MiNET.Plugins
 					{
 						rule.Value = value;
 					}
-					
+
 					rules.Add(rule);
 				}
 
@@ -1096,14 +1130,14 @@ namespace MiNET.Plugins
 						object pluginInstance = _plugins.FirstOrDefault(plugin => plugin.GetType() == method.DeclaringType);
 						if (pluginInstance == null) continue;
 
-						if (method.ReturnType == typeof (void))
+						if (method.ReturnType == typeof(void))
 						{
 							ParameterInfo[] parameters = method.GetParameters();
 							if (parameters.Length == 1)
 							{
 								method.Invoke(pluginInstance, new object[] {currentPacket});
 							}
-							else if (parameters.Length == 2 && typeof (Player).IsAssignableFrom(parameters[1].ParameterType))
+							else if (parameters.Length == 2 && typeof(Player).IsAssignableFrom(parameters[1].ParameterType))
 							{
 								method.Invoke(pluginInstance, new object[] {currentPacket, player});
 							}
@@ -1115,7 +1149,7 @@ namespace MiNET.Plugins
 							{
 								returnPacket = method.Invoke(pluginInstance, new object[] {currentPacket}) as Packet;
 							}
-							else if (parameters.Length == 2 && typeof (Player).IsAssignableFrom(parameters[1].ParameterType))
+							else if (parameters.Length == 2 && typeof(Player).IsAssignableFrom(parameters[1].ParameterType))
 							{
 								returnPacket = method.Invoke(pluginInstance, new object[] {currentPacket, player}) as Packet;
 							}

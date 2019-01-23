@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using log4net;
 using MiNET.Entities.ImageProviders;
 using MiNET.Net;
@@ -9,12 +34,12 @@ namespace MiNET.Entities.World
 {
 	public class MapEntity : Entity
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (MapEntity));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MapEntity));
 
 		public MapInfo MapInfo { get; set; }
 		public IMapImageProvider ImageProvider { get; set; }
 
-		public MapEntity(Level level, long mapId = EntityManager.EntityIdUndefined) : base(-1, level)
+		public MapEntity(Level level, long mapId = EntityManager.EntityIdUndefined) : base(EntityType.None, level)
 		{
 			if (mapId != EntityManager.EntityIdUndefined)
 			{
@@ -56,7 +81,7 @@ namespace MiNET.Entities.World
 
 		public override void OnTick(Entity[] entities)
 		{
-			if (Level.TickTime%2 != 0) return;
+			if (Level.TickTime % 2 != 0) return;
 
 			// if no image provider, do nothing
 			if (ImageProvider == null) return;
@@ -66,12 +91,12 @@ namespace MiNET.Entities.World
 			{
 				var decorator = new MapDecorator
 				{
-					Rotation = (byte) (Level.TickTime%16),
+					Rotation = (byte) (Level.TickTime % 16),
 					Icon = (byte) 1,
-					X = (byte) (Level.TickTime%255),
-					Z = (byte) (Level.TickTime%255),
+					X = (byte) (Level.TickTime % 255),
+					Z = (byte) (Level.TickTime % 255),
 					Label = "",
-					Color = BitConverter.ToUInt32(new byte[] { 0xff, 0xff, 0xff, 0xff }, 0),
+					Color = BitConverter.ToUInt32(new byte[] {0xff, 0xff, 0xff, 0xff}, 0),
 				};
 
 				MapInfo.Decorators[i] = decorator;
@@ -115,7 +140,7 @@ namespace MiNET.Entities.World
 				if (data != null)
 				{
 					MapInfo.Data = data;
-					var mapInfo = (MapInfo)MapInfo.Clone();
+					var mapInfo = (MapInfo) MapInfo.Clone();
 
 					McpeClientboundMapItemData msg = McpeClientboundMapItemData.CreateObject();
 					msg.mapinfo = mapInfo;

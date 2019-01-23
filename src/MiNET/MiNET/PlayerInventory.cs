@@ -86,7 +86,7 @@ namespace MiNET
 			{
 				Slots[InHandSlot] = new ItemAir();
 
-				McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+				var sound = McpeLevelSoundEventOld.CreateObject();
 				sound.soundId = 5;
 				sound.blockId = -1;
 				sound.entityType = 1;
@@ -124,7 +124,7 @@ namespace MiNET
 			{
 				item = new ItemAir();
 
-				McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+				var sound = McpeLevelSoundEventOld.CreateObject();
 				sound.soundId = 5;
 				sound.blockId = -1;
 				sound.entityType = 1;
@@ -190,7 +190,7 @@ namespace MiNET
 				Item existingItem = Slots[si];
 
 				// This needs to also take extradata into account when comparing.
-				if (existingItem.Id == item.Id && existingItem.Metadata == item.Metadata && existingItem.Count < existingItem.MaxStackSize)
+				if (existingItem.Equals(item) && existingItem.Count < existingItem.MaxStackSize)
 				{
 					int take = Math.Min(item.Count, existingItem.MaxStackSize - existingItem.Count);
 					existingItem.Count += (byte) take;
@@ -218,8 +218,7 @@ namespace MiNET
 
 			if (existingItem is ItemAir || existingItem.Id == 0 || existingItem.Id == -1)
 			{
-				Slots[si] = ItemFactory.GetItem(item.Id, item.Metadata, item.Count);
-				Slots[si].ExtraData = item.ExtraData;
+				Slots[si] = (Item) item.Clone();
 				item.Count = 0;
 				if (update) SendSetSlot(si);
 				return true;

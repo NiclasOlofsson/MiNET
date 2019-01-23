@@ -18,13 +18,12 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -48,7 +47,7 @@ namespace MiNET.Utils
 {
 	public static class CryptoUtils
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (CryptoUtils));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(CryptoUtils));
 
 		public static byte[] DecodeBase64Url(this string input)
 		{
@@ -270,8 +269,8 @@ namespace MiNET.Utils
 
 		private static ECDsa ConvertToSingKeyFormat(AsymmetricCipherKeyPair key)
 		{
-			ECPublicKeyParameters pubAsyKey = (ECPublicKeyParameters)key.Public;
-			ECPrivateKeyParameters privAsyKey = (ECPrivateKeyParameters)key.Private;
+			ECPublicKeyParameters pubAsyKey = (ECPublicKeyParameters) key.Public;
+			ECPrivateKeyParameters privAsyKey = (ECPrivateKeyParameters) key.Private;
 
 			var signParam = new ECParameters
 			{

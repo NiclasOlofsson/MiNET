@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -40,7 +40,7 @@ namespace MiNET.Entities.Passive
 			Speed = 0.25;
 
 			Behaviors.Add(new PanicBehavior(this, 60, Speed, 1.25));
-			Behaviors.Add(new TemptedBehavior(this, typeof (ItemCarrot), 10, 1.2));
+			Behaviors.Add(new TemptedBehavior(this, typeof(ItemCarrot), 10, 1.2));
 			//Behaviors.Add(new TemptedBehavior(this, typeof(ItemCarrotStick), 10, 1.2));
 			Behaviors.Add(new WanderBehavior(this, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this));

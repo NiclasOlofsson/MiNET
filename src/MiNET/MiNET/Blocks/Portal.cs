@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -50,18 +50,18 @@ namespace MiNET.Blocks
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
 			bool shouldKeep = true;
-			shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.Up));
-			shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.Down));
+			shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockUp()));
+			shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockDown()));
 
 			if (Metadata < 2)
 			{
-				shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.West));
-				shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.East));
+				shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockWest()));
+				shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockEast()));
 			}
 			else
 			{
-				shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.South));
-				shouldKeep &= IsValid(level.GetBlock(Coordinates + BlockCoordinates.North));
+				shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockSouth()));
+				shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockNorth()));
 			}
 
 			if (!shouldKeep)

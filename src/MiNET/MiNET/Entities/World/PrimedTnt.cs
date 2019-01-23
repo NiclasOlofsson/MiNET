@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -37,7 +37,7 @@ namespace MiNET.Entities.World
 		public bool Fire { get; set; }
 		private bool CheckPosition = true;
 
-		public PrimedTnt(Level level) : base(65, level)
+		public PrimedTnt(Level level) : base(EntityType.PrimedTnt, level)
 		{
 			IsIgnited = true;
 			NoAi = false;
@@ -98,15 +98,16 @@ namespace MiNET.Entities.World
 			if (Velocity.Y < -0.1)
 			{
 				int distance = (int) Math.Ceiling(Velocity.Length());
+				BlockCoordinates check = new BlockCoordinates(KnownPosition);
 				for (int i = 0; i < distance; i++)
 				{
-					BlockCoordinates check = new BlockCoordinates(KnownPosition) + (BlockCoordinates.Down*i);
 					if (Level.GetBlock(check).IsSolid)
 					{
 						_checkPosition = false;
-						KnownPosition = check + BlockCoordinates.Up;
+						KnownPosition = check.BlockUp();
 						return;
 					}
+					check = check.BlockDown();
 				}
 			}
 			KnownPosition.X += (float) Velocity.X;

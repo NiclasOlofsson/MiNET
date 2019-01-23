@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -86,8 +86,8 @@ namespace MiNET.BlockEntities
 
 			int pyramidLevels = GetPyramidLevels(level);
 
-			int duration = 180 + pyramidLevels*40;
-			int range = 10 + pyramidLevels*10;
+			int duration = 180 + pyramidLevels * 40;
+			int range = 10 + pyramidLevels * 10;
 
 			EffectType prim = (EffectType) Primary;
 			EffectType sec = (EffectType) Secondary;
@@ -120,7 +120,7 @@ namespace MiNET.BlockEntities
 			}
 		}
 
-		private static readonly ILog Log = LogManager.GetLogger(typeof (BeaconBlockEntity));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(BeaconBlockEntity));
 
 		private bool HaveSkyLight(Level level)
 		{
@@ -130,8 +130,8 @@ namespace MiNET.BlockEntities
 
 			for (int y = 1; y < height - Coordinates.Y; y++)
 			{
-				if (level.IsTransparent(Coordinates + (BlockCoordinates.Up*y))) continue;
-				if (level.IsBlock(Coordinates + (BlockCoordinates.Up*y), 7)) continue;
+				if (level.IsTransparent(Coordinates + (BlockCoordinates.Up * y))) continue;
+				if (level.IsBlock(Coordinates + (BlockCoordinates.Up * y), 7)) continue;
 
 				return false;
 			}

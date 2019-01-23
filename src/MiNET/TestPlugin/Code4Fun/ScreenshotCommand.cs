@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -43,7 +43,7 @@ namespace TestPlugin.Code4Fun
 {
 	public class ScreenshotCommand
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ScreenshotCommand));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ScreenshotCommand));
 
 		Dictionary<Tuple<int, int>, PlayerMob> mobs = new Dictionary<Tuple<int, int>, PlayerMob>();
 		private int _width = 3;
@@ -53,7 +53,7 @@ namespace TestPlugin.Code4Fun
 		public void Screenshot(Player player)
 		{
 			var coordinates = player.KnownPosition;
-			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection())*1.5f;
+			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection()) * 1.5f;
 
 			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 			byte[] skinBytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "test_skin.png"));
@@ -94,7 +94,7 @@ namespace TestPlugin.Code4Fun
 					{
 						Width = 0.1,
 						Length = 0.1,
-						Height= 0.1,
+						Height = 0.1,
 
 						Skin = new Skin
 						{
@@ -105,7 +105,7 @@ namespace TestPlugin.Code4Fun
 							SkinGeometryName = skinGeometryName,
 							SkinGeometry = Skin.ToJson(model),
 						},
-						KnownPosition = new PlayerLocation(coordinates.X + direction.X + (x*4), coordinates.Y + (y*4), coordinates.Z + direction.Z, 0, 0)
+						KnownPosition = new PlayerLocation(coordinates.X + direction.X + (x * 4), coordinates.Y + (y * 4), coordinates.Z + direction.Z, 0, 0)
 					};
 					mobs.Add(new Tuple<int, int>(x, y), fake);
 					fake.SpawnEntity();
@@ -118,7 +118,7 @@ namespace TestPlugin.Code4Fun
 		{
 			{
 				var player = (PlayerMob) sender;
-				if (player.Level.TickTime%4 != 0) return;
+				if (player.Level.TickTime % 4 != 0) return;
 			}
 
 			using (Bitmap bmpScreenCapture = new Bitmap(1118, 801))
@@ -133,9 +133,10 @@ namespace TestPlugin.Code4Fun
 					foreach (var mobCoord in mobs)
 					{
 						PlayerMob mob = mobCoord.Value;
+						mob.AddToPlayerList();
 
 						int offsetx = (mobCoord.Key.Item1) * 64;
-						int offsety = (_height - mobCoord.Key.Item2-1) * 64;
+						int offsety = (_height - mobCoord.Key.Item2 - 1) * 64;
 						using (Bitmap bitmap = NiceLobbyPlugin.CropImage(srcBitmap, new Rectangle(offsetx, offsety, 64, 64)))
 						{
 							var bytes = NiceLobbyPlugin.BitmapToBytes(bitmap, true);
@@ -152,6 +153,8 @@ namespace TestPlugin.Code4Fun
 							updateSkin.geometryData = skin.SkinGeometry;
 							mob.Level.RelayBroadcast(updateSkin);
 						}
+
+						mob.RemoveFromPlayerList();
 					}
 				}
 			}

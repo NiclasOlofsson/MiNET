@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -41,10 +41,8 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
-using ECPoint = Org.BouncyCastle.Math.EC.ECPoint;
 
 namespace MiNET
 {
@@ -182,7 +180,7 @@ namespace MiNET
 							SkinId = payload.SkinId,
 							SkinData = Convert.FromBase64String((string) payload.SkinData ?? string.Empty),
 							SkinGeometryName = payload.SkinGeometryName,
-							SkinGeometry = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinGeometry??string.Empty)),
+							SkinGeometry = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinGeometry ?? string.Empty)),
 						};
 						Log.Warn($"Cape data lenght={_playerInfo.Skin.CapeData.Length}");
 					}
@@ -243,7 +241,7 @@ namespace MiNET
 							Log.Debug("Derived Key is ok");
 						}
 
-						ECPublicKeyParameters x5KeyParam = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(x5u.DecodeBase64());
+						ECPublicKeyParameters x5KeyParam = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(x5u.DecodeBase64());
 						var signParam = new ECParameters
 						{
 							Curve = ECCurve.NamedCurves.nistP384,
@@ -301,7 +299,7 @@ namespace MiNET
 						_session.Username = _playerInfo.Username;
 						string identity = _playerInfo.CertificateData.ExtraData.Identity;
 
-						if (Log.IsDebugEnabled) Log.Debug($"Connecting user {_playerInfo.Username} with identity={identity}");
+						if (Log.IsDebugEnabled) Log.Debug($"Connecting user {_playerInfo.Username} with identity={identity} on protocol version={_playerInfo.ProtocolVersion}");
 						_playerInfo.ClientUuid = new UUID(identity);
 
 						_session.CryptoContext = new CryptoContext
@@ -375,13 +373,16 @@ namespace MiNET
 
 							var signKey = ECDsa.Create(signParam);
 							var b64PublicKey = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(pubAsyKey).GetEncoded().EncodeBase64();
-							var handshakeJson = new HandshakeData {salt = secretPrepend.EncodeBase64(), signedToken = signedToken};
+							var handshakeJson = new HandshakeData
+							{
+								salt = secretPrepend.EncodeBase64(),
+								signedToken = signedToken
+							};
 							string val = JWT.Encode(handshakeJson, signKey, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64PublicKey}});
 
 							Log.Warn($"Headers:\n{string.Join(";", JWT.Headers(val))}");
 							Log.Warn($"Return salt:\n{JWT.Payload(val)}");
 							Log.Warn($"JWT:\n{val}");
-
 
 
 							var response = McpeServerToClientHandshake.CreateObject();
@@ -597,10 +598,13 @@ namespace MiNET
 
 		public void HandleMcpeLabTable(McpeLabTable messae)
 		{
-
 		}
 
 		public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message)
+		{
+		}
+
+		public void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message)
 		{
 		}
 	}

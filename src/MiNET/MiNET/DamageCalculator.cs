@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using fNbt;
 using log4net;
@@ -12,7 +37,7 @@ namespace MiNET
 {
 	public class DamageCalculator
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (DamageCalculator));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(DamageCalculator));
 
 		public virtual double CalculateItemDamage(Player player, Item item, Player target)
 		{
@@ -28,7 +53,7 @@ namespace MiNET
 				switch (enchantingType)
 				{
 					case EnchantingType.Sharpness:
-						increase = 1 + (enchanting.Level*0.5);
+						increase = 1 + (enchanting.Level * 0.5);
 						break;
 					case EnchantingType.Smite:
 						break;
@@ -73,7 +98,7 @@ namespace MiNET
 
 		public virtual double CalculateFallDamage(Player player, double damage, Player target)
 		{
-			var fallDamage = new Random().Next((int) (damage/2 + 2));
+			var fallDamage = new Random().Next((int) (damage / 2 + 2));
 
 			McpeAnimate animate = McpeAnimate.CreateObject();
 			animate.runtimeEntityId = target.EntityId;
@@ -88,11 +113,11 @@ namespace MiNET
 			Effect effect;
 			if (player.Effects.TryGetValue(EffectType.Weakness, out effect))
 			{
-				effectDamage -= (effect.Level + 1)*4;
+				effectDamage -= (effect.Level + 1) * 4;
 			}
 			else if (player.Effects.TryGetValue(EffectType.Strength, out effect))
 			{
-				effectDamage += (effect.Level + 1)*3;
+				effectDamage += (effect.Level + 1) * 3;
 			}
 
 			return effectDamage;
@@ -116,7 +141,7 @@ namespace MiNET
 				short id = enchanting["id"].ShortValue;
 				if (id == 9)
 				{
-					increase += 1 + ((level - 1)*0.5);
+					increase += 1 + ((level - 1) * 0.5);
 				}
 			}
 
@@ -223,10 +248,10 @@ namespace MiNET
 				}
 			}
 
-			damage = damage*(1 - Math.Max(armorValue/5, armorValue - damage/2)/25);
+			damage = damage * (1 - Math.Max(armorValue / 5, armorValue - damage / 2) / 25);
 
 			epfValue = Math.Min(20, epfValue);
-			damage = damage*(1 - epfValue/25);
+			damage = damage * (1 - epfValue / 25);
 
 
 			Log.Debug($"Original Damage={originalDamage:F1} Redused Damage={damage:F1}, Armor Value={armorValue:F1}, EPF {epfValue:F1}");
@@ -324,7 +349,7 @@ namespace MiNET
 							throw new ArgumentOutOfRangeException();
 					}
 
-					reduction += enchanting.Level*typeModifier;
+					reduction += enchanting.Level * typeModifier;
 				}
 			}
 
@@ -334,12 +359,12 @@ namespace MiNET
 		public int CalculateFireTickReduction(Player target)
 		{
 			int reduction = 0;
-			reduction = Math.Max(reduction, target.Inventory.Helmet.GetEnchantingLevel(EnchantingType.FireProtection)*15);
-			reduction = Math.Max(reduction, target.Inventory.Chest.GetEnchantingLevel(EnchantingType.FireProtection)*15);
-			reduction = Math.Max(reduction, target.Inventory.Leggings.GetEnchantingLevel(EnchantingType.FireProtection)*15);
-			reduction = Math.Max(reduction, target.Inventory.Boots.GetEnchantingLevel(EnchantingType.FireProtection)*15);
+			reduction = Math.Max(reduction, target.Inventory.Helmet.GetEnchantingLevel(EnchantingType.FireProtection) * 15);
+			reduction = Math.Max(reduction, target.Inventory.Chest.GetEnchantingLevel(EnchantingType.FireProtection) * 15);
+			reduction = Math.Max(reduction, target.Inventory.Leggings.GetEnchantingLevel(EnchantingType.FireProtection) * 15);
+			reduction = Math.Max(reduction, target.Inventory.Boots.GetEnchantingLevel(EnchantingType.FireProtection) * 15);
 
-			return (int) Math.Ceiling(reduction/100f);
+			return (int) Math.Ceiling(reduction / 100f);
 		}
 
 		public int CalculateKnockback(Item tool)

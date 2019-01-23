@@ -161,7 +161,11 @@ namespace MiNET.Items
 
 		private void Visit(BlockCoordinates coordinates, List<Block> blocks, BlockFace direction)
 		{
-			blocks.Add(new Portal {Coordinates = coordinates, Metadata = (byte) (direction - 2)});
+			blocks.Add(new Portal
+			{
+				Coordinates = coordinates,
+				Metadata = (byte) (direction - 2)
+			});
 		}
 
 		private bool IsValid(Block block, List<Block> portals)

@@ -1,4 +1,29 @@
-﻿namespace MiNET.Net
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+namespace MiNET.Net
 {
 	///// \sa NetworkIDObject.h
 	//typedef unsigned char UniqueIDType; => C# byte
@@ -137,10 +162,12 @@
 
 		/// RakPeer - The remote system is using a password and has refused our connection because we did not set the correct password.
 		ID_INVALID_PASSWORD = 0x18,
+
 		// RAKNET_PROTOCOL_VERSION in RakNetVersion.h does not match on the remote system what we have on our system
 		// This means the two systems cannot communicate.
 		// The 2nd byte of the message contains the value of RAKNET_PROTOCOL_VERSION for the remote system
 		ID_INCOMPATIBLE_PROTOCOL_VERSION = 0x19,
+
 		// Means that this IP address connected recently, and can't connect again as a security measure. See
 		/// RakPeer::SetLimitIPConnectionFrequency()
 		ID_IP_RECENTLY_CONNECTED = 0x1A,
@@ -157,6 +184,7 @@
 		/// RakPeer - Inform a remote system of our IP/Port. On the recipient, all data past ID_ADVERTISE_SYSTEM is whatever was passed to
 		/// the data parameter
 		ID_ADVERTISE_SYSTEM = 0x1D,
+
 		// RakPeer - Downloading a large message. Format is ID_DOWNLOAD_PROGRESS (MessageID), partCount (unsigned int),
 		/// partTotal (unsigned int),
 		/// partLength (unsigned int), first part data (length
@@ -196,6 +224,7 @@
 
 		/// FileListTransfer plugin - A file
 		ID_FILE_LIST_TRANSFER_FILE,
+
 		// Ack for reference push, to send more of the file
 		ID_FILE_LIST_REFERENCE_PUSH_ACK,
 

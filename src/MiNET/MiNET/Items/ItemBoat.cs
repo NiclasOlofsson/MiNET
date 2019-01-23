@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -33,7 +33,7 @@ namespace MiNET.Items
 {
 	public class ItemBoat : Item
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemBoat));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBoat));
 
 		public ItemBoat(short metadata) : base(333, metadata)
 		{
@@ -53,7 +53,6 @@ namespace MiNET.Items
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
-
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)

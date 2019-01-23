@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -36,7 +36,7 @@ namespace MiNET.Effects
 
 		public override void SendAdd(Player player)
 		{
-			player.HealthManager.TakeHit(null, 6*(Level + 1), DamageCause.Magic);
+			player.HealthManager.TakeHit(null, 6 * (Level + 1), DamageCause.Magic);
 		}
 
 		public override void SendUpdate(Player player)

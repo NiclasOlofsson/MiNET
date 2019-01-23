@@ -1,4 +1,29 @@
-﻿namespace MiNET.Blocks
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+namespace MiNET.Blocks
 {
 	public class AcaciaButton : Block
 	{
@@ -23,6 +48,7 @@
 			// runtime id: 4236 0x108C, data: 15
 		}
 	}
+
 	public class AcaciaPressurePlate : Block
 	{
 		public AcaciaPressurePlate() : base(405)
@@ -46,6 +72,7 @@
 			// runtime id: 4396 0x112C, data: 15
 		}
 	}
+
 	public class AcaciaTrapdoor : Block
 	{
 		public AcaciaTrapdoor() : base(400)
@@ -69,6 +96,7 @@
 			// runtime id: 4316 0x10DC, data: 15
 		}
 	}
+
 	public class BirchButton : Block
 	{
 		public BirchButton() : base(396)
@@ -92,6 +120,7 @@
 			// runtime id: 4252 0x109C, data: 15
 		}
 	}
+
 	public class BirchPressurePlate : Block
 	{
 		public BirchPressurePlate() : base(406)
@@ -115,6 +144,7 @@
 			// runtime id: 4412 0x113C, data: 15
 		}
 	}
+
 	public class BirchTrapdoor : Block
 	{
 		public BirchTrapdoor() : base(401)
@@ -138,6 +168,7 @@
 			// runtime id: 4332 0x10EC, data: 15
 		}
 	}
+
 	public class BlueIce : Block
 	{
 		public BlueIce() : base(266)
@@ -146,6 +177,7 @@
 			// runtime id: 2199 0x897, data: 0
 		}
 	}
+
 	public class BoneBlock : Block
 	{
 		public BoneBlock() : base(216)
@@ -169,6 +201,7 @@
 			// runtime id: 1876 0x754, data: 15
 		}
 	}
+
 	public class BubbleColumn : Block
 	{
 		public BubbleColumn() : base(415)
@@ -178,6 +211,7 @@
 			// runtime id: 4491 0x118B, data: 1
 		}
 	}
+
 	public class CarvedPumpkin : Block
 	{
 		public CarvedPumpkin() : base(410)
@@ -189,6 +223,7 @@
 			// runtime id: 4464 0x1170, data: 3
 		}
 	}
+
 	public class ChainCommandBlock : Block
 	{
 		public ChainCommandBlock() : base(189)
@@ -212,6 +247,7 @@
 			// runtime id: 1671 0x687, data: 15
 		}
 	}
+
 	public class ChemicalHeat : Block
 	{
 		public ChemicalHeat() : base(192)
@@ -220,6 +256,7 @@
 			// runtime id: 1689 0x699, data: 0
 		}
 	}
+
 	public class ChemistryTable : Block
 	{
 		public ChemistryTable() : base(238)
@@ -243,6 +280,7 @@
 			// runtime id: 2068 0x814, data: 15
 		}
 	}
+
 	public class ColoredTorchBp : Block
 	{
 		public ColoredTorchBp() : base(204)
@@ -266,6 +304,7 @@
 			// runtime id: 1842 0x732, data: 15
 		}
 	}
+
 	public class ColoredTorchRg : Block
 	{
 		public ColoredTorchRg() : base(202)
@@ -289,6 +328,7 @@
 			// runtime id: 1818 0x71A, data: 15
 		}
 	}
+
 	public class CommandBlock : Block
 	{
 		public CommandBlock() : base(137)
@@ -312,6 +352,7 @@
 			// runtime id: 1075 0x433, data: 15
 		}
 	}
+
 	public class Conduit : Block
 	{
 		public Conduit() : base(412)
@@ -320,6 +361,7 @@
 			// runtime id: 4473 0x1179, data: 0
 		}
 	}
+
 	public class Coral : Block
 	{
 		public Coral() : base(386)
@@ -343,6 +385,7 @@
 			// runtime id: 4107 0x100B, data: 15
 		}
 	}
+
 	public class CoralBlock : Block
 	{
 		public CoralBlock() : base(387)
@@ -366,6 +409,7 @@
 			// runtime id: 4123 0x101B, data: 15
 		}
 	}
+
 	public class CoralFan : Block
 	{
 		public CoralFan() : base(388)
@@ -389,6 +433,7 @@
 			// runtime id: 4139 0x102B, data: 15
 		}
 	}
+
 	public class CoralFanDead : Block
 	{
 		public CoralFanDead() : base(389)
@@ -412,6 +457,7 @@
 			// runtime id: 4155 0x103B, data: 15
 		}
 	}
+
 	public class CoralFanHang : Block
 	{
 		public CoralFanHang() : base(390)
@@ -435,6 +481,7 @@
 			// runtime id: 4171 0x104B, data: 15
 		}
 	}
+
 	public class CoralFanHang2 : Block
 	{
 		public CoralFanHang2() : base(391)
@@ -458,6 +505,7 @@
 			// runtime id: 4187 0x105B, data: 15
 		}
 	}
+
 	public class CoralFanHang3 : Block
 	{
 		public CoralFanHang3() : base(392)
@@ -481,6 +529,7 @@
 			// runtime id: 4203 0x106B, data: 15
 		}
 	}
+
 	public class DarkOakButton : Block
 	{
 		public DarkOakButton() : base(397)
@@ -504,6 +553,7 @@
 			// runtime id: 4268 0x10AC, data: 15
 		}
 	}
+
 	public class DarkOakPressurePlate : Block
 	{
 		public DarkOakPressurePlate() : base(407)
@@ -527,6 +577,7 @@
 			// runtime id: 4428 0x114C, data: 15
 		}
 	}
+
 	public class DarkOakTrapdoor : Block
 	{
 		public DarkOakTrapdoor() : base(402)
@@ -550,6 +601,7 @@
 			// runtime id: 4348 0x10FC, data: 15
 		}
 	}
+
 	public class DriedKelpBlock : Block
 	{
 		public DriedKelpBlock() : base(394)
@@ -558,6 +610,7 @@
 			// runtime id: 4220 0x107C, data: 0
 		}
 	}
+
 	public class Element0 : Block
 	{
 		public Element0() : base(36)
@@ -581,6 +634,7 @@
 			// runtime id: 291 0x123, data: 15
 		}
 	}
+
 	public class Element1 : Block
 	{
 		public Element1() : base(267)
@@ -604,6 +658,7 @@
 			// runtime id: 2215 0x8A7, data: 15
 		}
 	}
+
 	public class Element10 : Block
 	{
 		public Element10() : base(276)
@@ -627,6 +682,7 @@
 			// runtime id: 2359 0x937, data: 15
 		}
 	}
+
 	public class Element100 : Block
 	{
 		public Element100() : base(366)
@@ -650,6 +706,7 @@
 			// runtime id: 3799 0xED7, data: 15
 		}
 	}
+
 	public class Element101 : Block
 	{
 		public Element101() : base(367)
@@ -673,6 +730,7 @@
 			// runtime id: 3815 0xEE7, data: 15
 		}
 	}
+
 	public class Element102 : Block
 	{
 		public Element102() : base(368)
@@ -696,6 +754,7 @@
 			// runtime id: 3831 0xEF7, data: 15
 		}
 	}
+
 	public class Element103 : Block
 	{
 		public Element103() : base(369)
@@ -719,6 +778,7 @@
 			// runtime id: 3847 0xF07, data: 15
 		}
 	}
+
 	public class Element104 : Block
 	{
 		public Element104() : base(370)
@@ -742,6 +802,7 @@
 			// runtime id: 3863 0xF17, data: 15
 		}
 	}
+
 	public class Element105 : Block
 	{
 		public Element105() : base(371)
@@ -765,6 +826,7 @@
 			// runtime id: 3879 0xF27, data: 15
 		}
 	}
+
 	public class Element106 : Block
 	{
 		public Element106() : base(372)
@@ -788,6 +850,7 @@
 			// runtime id: 3895 0xF37, data: 15
 		}
 	}
+
 	public class Element107 : Block
 	{
 		public Element107() : base(373)
@@ -811,6 +874,7 @@
 			// runtime id: 3911 0xF47, data: 15
 		}
 	}
+
 	public class Element108 : Block
 	{
 		public Element108() : base(374)
@@ -834,6 +898,7 @@
 			// runtime id: 3927 0xF57, data: 15
 		}
 	}
+
 	public class Element109 : Block
 	{
 		public Element109() : base(375)
@@ -857,6 +922,7 @@
 			// runtime id: 3943 0xF67, data: 15
 		}
 	}
+
 	public class Element11 : Block
 	{
 		public Element11() : base(277)
@@ -880,6 +946,7 @@
 			// runtime id: 2375 0x947, data: 15
 		}
 	}
+
 	public class Element110 : Block
 	{
 		public Element110() : base(376)
@@ -903,6 +970,7 @@
 			// runtime id: 3959 0xF77, data: 15
 		}
 	}
+
 	public class Element111 : Block
 	{
 		public Element111() : base(377)
@@ -926,6 +994,7 @@
 			// runtime id: 3975 0xF87, data: 15
 		}
 	}
+
 	public class Element112 : Block
 	{
 		public Element112() : base(378)
@@ -949,6 +1018,7 @@
 			// runtime id: 3991 0xF97, data: 15
 		}
 	}
+
 	public class Element113 : Block
 	{
 		public Element113() : base(379)
@@ -972,6 +1042,7 @@
 			// runtime id: 4007 0xFA7, data: 15
 		}
 	}
+
 	public class Element114 : Block
 	{
 		public Element114() : base(380)
@@ -995,6 +1066,7 @@
 			// runtime id: 4023 0xFB7, data: 15
 		}
 	}
+
 	public class Element115 : Block
 	{
 		public Element115() : base(381)
@@ -1018,6 +1090,7 @@
 			// runtime id: 4039 0xFC7, data: 15
 		}
 	}
+
 	public class Element116 : Block
 	{
 		public Element116() : base(382)
@@ -1041,6 +1114,7 @@
 			// runtime id: 4055 0xFD7, data: 15
 		}
 	}
+
 	public class Element117 : Block
 	{
 		public Element117() : base(383)
@@ -1064,6 +1138,7 @@
 			// runtime id: 4071 0xFE7, data: 15
 		}
 	}
+
 	public class Element118 : Block
 	{
 		public Element118() : base(384)
@@ -1087,6 +1162,7 @@
 			// runtime id: 4087 0xFF7, data: 15
 		}
 	}
+
 	public class Element12 : Block
 	{
 		public Element12() : base(278)
@@ -1110,6 +1186,7 @@
 			// runtime id: 2391 0x957, data: 15
 		}
 	}
+
 	public class Element13 : Block
 	{
 		public Element13() : base(279)
@@ -1133,6 +1210,7 @@
 			// runtime id: 2407 0x967, data: 15
 		}
 	}
+
 	public class Element14 : Block
 	{
 		public Element14() : base(280)
@@ -1156,6 +1234,7 @@
 			// runtime id: 2423 0x977, data: 15
 		}
 	}
+
 	public class Element15 : Block
 	{
 		public Element15() : base(281)
@@ -1179,6 +1258,7 @@
 			// runtime id: 2439 0x987, data: 15
 		}
 	}
+
 	public class Element16 : Block
 	{
 		public Element16() : base(282)
@@ -1202,6 +1282,7 @@
 			// runtime id: 2455 0x997, data: 15
 		}
 	}
+
 	public class Element17 : Block
 	{
 		public Element17() : base(283)
@@ -1225,6 +1306,7 @@
 			// runtime id: 2471 0x9A7, data: 15
 		}
 	}
+
 	public class Element18 : Block
 	{
 		public Element18() : base(284)
@@ -1248,6 +1330,7 @@
 			// runtime id: 2487 0x9B7, data: 15
 		}
 	}
+
 	public class Element19 : Block
 	{
 		public Element19() : base(285)
@@ -1271,6 +1354,7 @@
 			// runtime id: 2503 0x9C7, data: 15
 		}
 	}
+
 	public class Element2 : Block
 	{
 		public Element2() : base(268)
@@ -1294,6 +1378,7 @@
 			// runtime id: 2231 0x8B7, data: 15
 		}
 	}
+
 	public class Element20 : Block
 	{
 		public Element20() : base(286)
@@ -1317,6 +1402,7 @@
 			// runtime id: 2519 0x9D7, data: 15
 		}
 	}
+
 	public class Element21 : Block
 	{
 		public Element21() : base(287)
@@ -1340,6 +1426,7 @@
 			// runtime id: 2535 0x9E7, data: 15
 		}
 	}
+
 	public class Element22 : Block
 	{
 		public Element22() : base(288)
@@ -1363,6 +1450,7 @@
 			// runtime id: 2551 0x9F7, data: 15
 		}
 	}
+
 	public class Element23 : Block
 	{
 		public Element23() : base(289)
@@ -1386,6 +1474,7 @@
 			// runtime id: 2567 0xA07, data: 15
 		}
 	}
+
 	public class Element24 : Block
 	{
 		public Element24() : base(290)
@@ -1409,6 +1498,7 @@
 			// runtime id: 2583 0xA17, data: 15
 		}
 	}
+
 	public class Element25 : Block
 	{
 		public Element25() : base(291)
@@ -1432,6 +1522,7 @@
 			// runtime id: 2599 0xA27, data: 15
 		}
 	}
+
 	public class Element26 : Block
 	{
 		public Element26() : base(292)
@@ -1455,6 +1546,7 @@
 			// runtime id: 2615 0xA37, data: 15
 		}
 	}
+
 	public class Element27 : Block
 	{
 		public Element27() : base(293)
@@ -1478,6 +1570,7 @@
 			// runtime id: 2631 0xA47, data: 15
 		}
 	}
+
 	public class Element28 : Block
 	{
 		public Element28() : base(294)
@@ -1501,6 +1594,7 @@
 			// runtime id: 2647 0xA57, data: 15
 		}
 	}
+
 	public class Element29 : Block
 	{
 		public Element29() : base(295)
@@ -1524,6 +1618,7 @@
 			// runtime id: 2663 0xA67, data: 15
 		}
 	}
+
 	public class Element3 : Block
 	{
 		public Element3() : base(269)
@@ -1547,6 +1642,7 @@
 			// runtime id: 2247 0x8C7, data: 15
 		}
 	}
+
 	public class Element30 : Block
 	{
 		public Element30() : base(296)
@@ -1570,6 +1666,7 @@
 			// runtime id: 2679 0xA77, data: 15
 		}
 	}
+
 	public class Element31 : Block
 	{
 		public Element31() : base(297)
@@ -1593,6 +1690,7 @@
 			// runtime id: 2695 0xA87, data: 15
 		}
 	}
+
 	public class Element32 : Block
 	{
 		public Element32() : base(298)
@@ -1616,6 +1714,7 @@
 			// runtime id: 2711 0xA97, data: 15
 		}
 	}
+
 	public class Element33 : Block
 	{
 		public Element33() : base(299)
@@ -1639,6 +1738,7 @@
 			// runtime id: 2727 0xAA7, data: 15
 		}
 	}
+
 	public class Element34 : Block
 	{
 		public Element34() : base(300)
@@ -1662,6 +1762,7 @@
 			// runtime id: 2743 0xAB7, data: 15
 		}
 	}
+
 	public class Element35 : Block
 	{
 		public Element35() : base(301)
@@ -1685,6 +1786,7 @@
 			// runtime id: 2759 0xAC7, data: 15
 		}
 	}
+
 	public class Element36 : Block
 	{
 		public Element36() : base(302)
@@ -1708,6 +1810,7 @@
 			// runtime id: 2775 0xAD7, data: 15
 		}
 	}
+
 	public class Element37 : Block
 	{
 		public Element37() : base(303)
@@ -1731,6 +1834,7 @@
 			// runtime id: 2791 0xAE7, data: 15
 		}
 	}
+
 	public class Element38 : Block
 	{
 		public Element38() : base(304)
@@ -1754,6 +1858,7 @@
 			// runtime id: 2807 0xAF7, data: 15
 		}
 	}
+
 	public class Element39 : Block
 	{
 		public Element39() : base(305)
@@ -1777,6 +1882,7 @@
 			// runtime id: 2823 0xB07, data: 15
 		}
 	}
+
 	public class Element4 : Block
 	{
 		public Element4() : base(270)
@@ -1800,6 +1906,7 @@
 			// runtime id: 2263 0x8D7, data: 15
 		}
 	}
+
 	public class Element40 : Block
 	{
 		public Element40() : base(306)
@@ -1823,6 +1930,7 @@
 			// runtime id: 2839 0xB17, data: 15
 		}
 	}
+
 	public class Element41 : Block
 	{
 		public Element41() : base(307)
@@ -1846,6 +1954,7 @@
 			// runtime id: 2855 0xB27, data: 15
 		}
 	}
+
 	public class Element42 : Block
 	{
 		public Element42() : base(308)
@@ -1869,6 +1978,7 @@
 			// runtime id: 2871 0xB37, data: 15
 		}
 	}
+
 	public class Element43 : Block
 	{
 		public Element43() : base(309)
@@ -1892,6 +2002,7 @@
 			// runtime id: 2887 0xB47, data: 15
 		}
 	}
+
 	public class Element44 : Block
 	{
 		public Element44() : base(310)
@@ -1915,6 +2026,7 @@
 			// runtime id: 2903 0xB57, data: 15
 		}
 	}
+
 	public class Element45 : Block
 	{
 		public Element45() : base(311)
@@ -1938,6 +2050,7 @@
 			// runtime id: 2919 0xB67, data: 15
 		}
 	}
+
 	public class Element46 : Block
 	{
 		public Element46() : base(312)
@@ -1961,6 +2074,7 @@
 			// runtime id: 2935 0xB77, data: 15
 		}
 	}
+
 	public class Element47 : Block
 	{
 		public Element47() : base(313)
@@ -1984,6 +2098,7 @@
 			// runtime id: 2951 0xB87, data: 15
 		}
 	}
+
 	public class Element48 : Block
 	{
 		public Element48() : base(314)
@@ -2007,6 +2122,7 @@
 			// runtime id: 2967 0xB97, data: 15
 		}
 	}
+
 	public class Element49 : Block
 	{
 		public Element49() : base(315)
@@ -2030,6 +2146,7 @@
 			// runtime id: 2983 0xBA7, data: 15
 		}
 	}
+
 	public class Element5 : Block
 	{
 		public Element5() : base(271)
@@ -2053,6 +2170,7 @@
 			// runtime id: 2279 0x8E7, data: 15
 		}
 	}
+
 	public class Element50 : Block
 	{
 		public Element50() : base(316)
@@ -2076,6 +2194,7 @@
 			// runtime id: 2999 0xBB7, data: 15
 		}
 	}
+
 	public class Element51 : Block
 	{
 		public Element51() : base(317)
@@ -2099,6 +2218,7 @@
 			// runtime id: 3015 0xBC7, data: 15
 		}
 	}
+
 	public class Element52 : Block
 	{
 		public Element52() : base(318)
@@ -2122,6 +2242,7 @@
 			// runtime id: 3031 0xBD7, data: 15
 		}
 	}
+
 	public class Element53 : Block
 	{
 		public Element53() : base(319)
@@ -2145,6 +2266,7 @@
 			// runtime id: 3047 0xBE7, data: 15
 		}
 	}
+
 	public class Element54 : Block
 	{
 		public Element54() : base(320)
@@ -2168,6 +2290,7 @@
 			// runtime id: 3063 0xBF7, data: 15
 		}
 	}
+
 	public class Element55 : Block
 	{
 		public Element55() : base(321)
@@ -2191,6 +2314,7 @@
 			// runtime id: 3079 0xC07, data: 15
 		}
 	}
+
 	public class Element56 : Block
 	{
 		public Element56() : base(322)
@@ -2214,6 +2338,7 @@
 			// runtime id: 3095 0xC17, data: 15
 		}
 	}
+
 	public class Element57 : Block
 	{
 		public Element57() : base(323)
@@ -2237,6 +2362,7 @@
 			// runtime id: 3111 0xC27, data: 15
 		}
 	}
+
 	public class Element58 : Block
 	{
 		public Element58() : base(324)
@@ -2260,6 +2386,7 @@
 			// runtime id: 3127 0xC37, data: 15
 		}
 	}
+
 	public class Element59 : Block
 	{
 		public Element59() : base(325)
@@ -2283,6 +2410,7 @@
 			// runtime id: 3143 0xC47, data: 15
 		}
 	}
+
 	public class Element6 : Block
 	{
 		public Element6() : base(272)
@@ -2306,6 +2434,7 @@
 			// runtime id: 2295 0x8F7, data: 15
 		}
 	}
+
 	public class Element60 : Block
 	{
 		public Element60() : base(326)
@@ -2329,6 +2458,7 @@
 			// runtime id: 3159 0xC57, data: 15
 		}
 	}
+
 	public class Element61 : Block
 	{
 		public Element61() : base(327)
@@ -2352,6 +2482,7 @@
 			// runtime id: 3175 0xC67, data: 15
 		}
 	}
+
 	public class Element62 : Block
 	{
 		public Element62() : base(328)
@@ -2375,6 +2506,7 @@
 			// runtime id: 3191 0xC77, data: 15
 		}
 	}
+
 	public class Element63 : Block
 	{
 		public Element63() : base(329)
@@ -2398,6 +2530,7 @@
 			// runtime id: 3207 0xC87, data: 15
 		}
 	}
+
 	public class Element64 : Block
 	{
 		public Element64() : base(330)
@@ -2421,6 +2554,7 @@
 			// runtime id: 3223 0xC97, data: 15
 		}
 	}
+
 	public class Element65 : Block
 	{
 		public Element65() : base(331)
@@ -2444,6 +2578,7 @@
 			// runtime id: 3239 0xCA7, data: 15
 		}
 	}
+
 	public class Element66 : Block
 	{
 		public Element66() : base(332)
@@ -2467,6 +2602,7 @@
 			// runtime id: 3255 0xCB7, data: 15
 		}
 	}
+
 	public class Element67 : Block
 	{
 		public Element67() : base(333)
@@ -2490,6 +2626,7 @@
 			// runtime id: 3271 0xCC7, data: 15
 		}
 	}
+
 	public class Element68 : Block
 	{
 		public Element68() : base(334)
@@ -2513,6 +2650,7 @@
 			// runtime id: 3287 0xCD7, data: 15
 		}
 	}
+
 	public class Element69 : Block
 	{
 		public Element69() : base(335)
@@ -2536,6 +2674,7 @@
 			// runtime id: 3303 0xCE7, data: 15
 		}
 	}
+
 	public class Element7 : Block
 	{
 		public Element7() : base(273)
@@ -2559,6 +2698,7 @@
 			// runtime id: 2311 0x907, data: 15
 		}
 	}
+
 	public class Element70 : Block
 	{
 		public Element70() : base(336)
@@ -2582,6 +2722,7 @@
 			// runtime id: 3319 0xCF7, data: 15
 		}
 	}
+
 	public class Element71 : Block
 	{
 		public Element71() : base(337)
@@ -2605,6 +2746,7 @@
 			// runtime id: 3335 0xD07, data: 15
 		}
 	}
+
 	public class Element72 : Block
 	{
 		public Element72() : base(338)
@@ -2628,6 +2770,7 @@
 			// runtime id: 3351 0xD17, data: 15
 		}
 	}
+
 	public class Element73 : Block
 	{
 		public Element73() : base(339)
@@ -2651,6 +2794,7 @@
 			// runtime id: 3367 0xD27, data: 15
 		}
 	}
+
 	public class Element74 : Block
 	{
 		public Element74() : base(340)
@@ -2674,6 +2818,7 @@
 			// runtime id: 3383 0xD37, data: 15
 		}
 	}
+
 	public class Element75 : Block
 	{
 		public Element75() : base(341)
@@ -2697,6 +2842,7 @@
 			// runtime id: 3399 0xD47, data: 15
 		}
 	}
+
 	public class Element76 : Block
 	{
 		public Element76() : base(342)
@@ -2720,6 +2866,7 @@
 			// runtime id: 3415 0xD57, data: 15
 		}
 	}
+
 	public class Element77 : Block
 	{
 		public Element77() : base(343)
@@ -2743,6 +2890,7 @@
 			// runtime id: 3431 0xD67, data: 15
 		}
 	}
+
 	public class Element78 : Block
 	{
 		public Element78() : base(344)
@@ -2766,6 +2914,7 @@
 			// runtime id: 3447 0xD77, data: 15
 		}
 	}
+
 	public class Element79 : Block
 	{
 		public Element79() : base(345)
@@ -2789,6 +2938,7 @@
 			// runtime id: 3463 0xD87, data: 15
 		}
 	}
+
 	public class Element8 : Block
 	{
 		public Element8() : base(274)
@@ -2812,6 +2962,7 @@
 			// runtime id: 2327 0x917, data: 15
 		}
 	}
+
 	public class Element80 : Block
 	{
 		public Element80() : base(346)
@@ -2835,6 +2986,7 @@
 			// runtime id: 3479 0xD97, data: 15
 		}
 	}
+
 	public class Element81 : Block
 	{
 		public Element81() : base(347)
@@ -2858,6 +3010,7 @@
 			// runtime id: 3495 0xDA7, data: 15
 		}
 	}
+
 	public class Element82 : Block
 	{
 		public Element82() : base(348)
@@ -2881,6 +3034,7 @@
 			// runtime id: 3511 0xDB7, data: 15
 		}
 	}
+
 	public class Element83 : Block
 	{
 		public Element83() : base(349)
@@ -2904,6 +3058,7 @@
 			// runtime id: 3527 0xDC7, data: 15
 		}
 	}
+
 	public class Element84 : Block
 	{
 		public Element84() : base(350)
@@ -2927,6 +3082,7 @@
 			// runtime id: 3543 0xDD7, data: 15
 		}
 	}
+
 	public class Element85 : Block
 	{
 		public Element85() : base(351)
@@ -2950,6 +3106,7 @@
 			// runtime id: 3559 0xDE7, data: 15
 		}
 	}
+
 	public class Element86 : Block
 	{
 		public Element86() : base(352)
@@ -2973,6 +3130,7 @@
 			// runtime id: 3575 0xDF7, data: 15
 		}
 	}
+
 	public class Element87 : Block
 	{
 		public Element87() : base(353)
@@ -2996,6 +3154,7 @@
 			// runtime id: 3591 0xE07, data: 15
 		}
 	}
+
 	public class Element88 : Block
 	{
 		public Element88() : base(354)
@@ -3019,6 +3178,7 @@
 			// runtime id: 3607 0xE17, data: 15
 		}
 	}
+
 	public class Element89 : Block
 	{
 		public Element89() : base(355)
@@ -3042,6 +3202,7 @@
 			// runtime id: 3623 0xE27, data: 15
 		}
 	}
+
 	public class Element9 : Block
 	{
 		public Element9() : base(275)
@@ -3065,6 +3226,7 @@
 			// runtime id: 2343 0x927, data: 15
 		}
 	}
+
 	public class Element90 : Block
 	{
 		public Element90() : base(356)
@@ -3088,6 +3250,7 @@
 			// runtime id: 3639 0xE37, data: 15
 		}
 	}
+
 	public class Element91 : Block
 	{
 		public Element91() : base(357)
@@ -3111,6 +3274,7 @@
 			// runtime id: 3655 0xE47, data: 15
 		}
 	}
+
 	public class Element92 : Block
 	{
 		public Element92() : base(358)
@@ -3134,6 +3298,7 @@
 			// runtime id: 3671 0xE57, data: 15
 		}
 	}
+
 	public class Element93 : Block
 	{
 		public Element93() : base(359)
@@ -3157,6 +3322,7 @@
 			// runtime id: 3687 0xE67, data: 15
 		}
 	}
+
 	public class Element94 : Block
 	{
 		public Element94() : base(360)
@@ -3180,6 +3346,7 @@
 			// runtime id: 3703 0xE77, data: 15
 		}
 	}
+
 	public class Element95 : Block
 	{
 		public Element95() : base(361)
@@ -3203,6 +3370,7 @@
 			// runtime id: 3719 0xE87, data: 15
 		}
 	}
+
 	public class Element96 : Block
 	{
 		public Element96() : base(362)
@@ -3226,6 +3394,7 @@
 			// runtime id: 3735 0xE97, data: 15
 		}
 	}
+
 	public class Element97 : Block
 	{
 		public Element97() : base(363)
@@ -3249,6 +3418,7 @@
 			// runtime id: 3751 0xEA7, data: 15
 		}
 	}
+
 	public class Element98 : Block
 	{
 		public Element98() : base(364)
@@ -3272,6 +3442,7 @@
 			// runtime id: 3767 0xEB7, data: 15
 		}
 	}
+
 	public class Element99 : Block
 	{
 		public Element99() : base(365)
@@ -3295,6 +3466,7 @@
 			// runtime id: 3783 0xEC7, data: 15
 		}
 	}
+
 	public class GlowStick : Block
 	{
 		public GlowStick() : base(166)
@@ -3318,6 +3490,7 @@
 			// runtime id: 1403 0x57B, data: 15
 		}
 	}
+
 	public class HardGlass : Block
 	{
 		public HardGlass() : base(253)
@@ -3326,6 +3499,7 @@
 			// runtime id: 2133 0x855, data: 0
 		}
 	}
+
 	public class HardGlassPane : Block
 	{
 		public HardGlassPane() : base(190)
@@ -3334,6 +3508,7 @@
 			// runtime id: 1672 0x688, data: 0
 		}
 	}
+
 	public class HardStainedGlass : Block
 	{
 		public HardStainedGlass() : base(254)
@@ -3357,6 +3532,7 @@
 			// runtime id: 2149 0x865, data: 15
 		}
 	}
+
 	public class HardStainedGlassPane : Block
 	{
 		public HardStainedGlassPane() : base(191)
@@ -3380,6 +3556,7 @@
 			// runtime id: 1688 0x698, data: 15
 		}
 	}
+
 	public class InfoUpdate : Block
 	{
 		public InfoUpdate() : base(248)
@@ -3388,6 +3565,7 @@
 			// runtime id: 2106 0x83A, data: 0
 		}
 	}
+
 	public class InfoUpdate2 : Block
 	{
 		public InfoUpdate2() : base(249)
@@ -3396,6 +3574,7 @@
 			// runtime id: 2107 0x83B, data: 0
 		}
 	}
+
 	public class JungleButton : Block
 	{
 		public JungleButton() : base(398)
@@ -3419,6 +3598,7 @@
 			// runtime id: 4284 0x10BC, data: 15
 		}
 	}
+
 	public class JunglePressurePlate : Block
 	{
 		public JunglePressurePlate() : base(408)
@@ -3442,6 +3622,7 @@
 			// runtime id: 4444 0x115C, data: 15
 		}
 	}
+
 	public class JungleTrapdoor : Block
 	{
 		public JungleTrapdoor() : base(403)
@@ -3465,6 +3646,7 @@
 			// runtime id: 4364 0x110C, data: 15
 		}
 	}
+
 	public class Kelp : Block
 	{
 		public Kelp() : base(393)
@@ -3488,6 +3670,7 @@
 			// runtime id: 4219 0x107B, data: 15
 		}
 	}
+
 	public class Magma : Block
 	{
 		public Magma() : base(213)
@@ -3496,6 +3679,7 @@
 			// runtime id: 1858 0x742, data: 0
 		}
 	}
+
 	public class Movingblock : Block
 	{
 		public Movingblock() : base(250)
@@ -3504,6 +3688,7 @@
 			// runtime id: 2108 0x83C, data: 0
 		}
 	}
+
 	public class NetherWartBlock : Block
 	{
 		public NetherWartBlock() : base(214)
@@ -3512,29 +3697,7 @@
 			// runtime id: 1859 0x743, data: 0
 		}
 	}
-	public class Netherreactor : Block
-	{
-		public Netherreactor() : base(247)
-		{
-			Name = "minecraft:netherreactor";
-			// runtime id: 2105 0x839, data: 0
-		}
-	}
-	public class Pistonarmcollision : Block
-	{
-		public Pistonarmcollision() : base(34)
-		{
-			Name = "minecraft:pistonArmCollision";
-			// runtime id: 252 0xFC, data: 0
-			// runtime id: 253 0xFD, data: 1
-			// runtime id: 254 0xFE, data: 2
-			// runtime id: 255 0xFF, data: 3
-			// runtime id: 256 0x100, data: 4
-			// runtime id: 257 0x101, data: 5
-			// runtime id: 258 0x102, data: 6
-			// runtime id: 259 0x103, data: 7
-		}
-	}
+
 	public class RedNetherBrick : Block
 	{
 		public RedNetherBrick() : base(215)
@@ -3543,6 +3706,7 @@
 			// runtime id: 1860 0x744, data: 0
 		}
 	}
+
 	public class RepeatingCommandBlock : Block
 	{
 		public RepeatingCommandBlock() : base(188)
@@ -3566,6 +3730,7 @@
 			// runtime id: 1655 0x677, data: 15
 		}
 	}
+
 	public class Reserved6 : Block
 	{
 		public Reserved6() : base(255)
@@ -3574,6 +3739,7 @@
 			// runtime id: 2150 0x866, data: 0
 		}
 	}
+
 	public class SeaPickle : Block
 	{
 		public SeaPickle() : base(411)
@@ -3589,6 +3755,7 @@
 			// runtime id: 4472 0x1178, data: 7
 		}
 	}
+
 	public class Seagrass : Block
 	{
 		public Seagrass() : base(385)
@@ -3600,6 +3767,7 @@
 			// runtime id: 4091 0xFFB, data: 3
 		}
 	}
+
 	public class SpruceButton : Block
 	{
 		public SpruceButton() : base(399)
@@ -3623,6 +3791,7 @@
 			// runtime id: 4300 0x10CC, data: 15
 		}
 	}
+
 	public class SprucePressurePlate : Block
 	{
 		public SprucePressurePlate() : base(409)
@@ -3646,6 +3815,7 @@
 			// runtime id: 4460 0x116C, data: 15
 		}
 	}
+
 	public class SpruceTrapdoor : Block
 	{
 		public SpruceTrapdoor() : base(404)
@@ -3669,6 +3839,7 @@
 			// runtime id: 4380 0x111C, data: 15
 		}
 	}
+
 	public class StrippedAcaciaLog : Block
 	{
 		public StrippedAcaciaLog() : base(263)
@@ -3680,6 +3851,7 @@
 			// runtime id: 2190 0x88E, data: 3
 		}
 	}
+
 	public class StrippedBirchLog : Block
 	{
 		public StrippedBirchLog() : base(261)
@@ -3691,6 +3863,7 @@
 			// runtime id: 2182 0x886, data: 3
 		}
 	}
+
 	public class StrippedDarkOakLog : Block
 	{
 		public StrippedDarkOakLog() : base(264)
@@ -3702,6 +3875,7 @@
 			// runtime id: 2194 0x892, data: 3
 		}
 	}
+
 	public class StrippedJungleLog : Block
 	{
 		public StrippedJungleLog() : base(262)
@@ -3713,6 +3887,7 @@
 			// runtime id: 2186 0x88A, data: 3
 		}
 	}
+
 	public class StrippedOakLog : Block
 	{
 		public StrippedOakLog() : base(265)
@@ -3724,6 +3899,7 @@
 			// runtime id: 2198 0x896, data: 3
 		}
 	}
+
 	public class StrippedSpruceLog : Block
 	{
 		public StrippedSpruceLog() : base(260)
@@ -3735,6 +3911,7 @@
 			// runtime id: 2178 0x882, data: 3
 		}
 	}
+
 	public class StructureBlock : Block
 	{
 		public StructureBlock() : base(252)
@@ -3750,6 +3927,7 @@
 			// runtime id: 2132 0x854, data: 7
 		}
 	}
+
 	public class TurtleEgg : Block
 	{
 		public TurtleEgg() : base(414)
@@ -3773,6 +3951,7 @@
 			// runtime id: 4489 0x1189, data: 15
 		}
 	}
+
 	public class UnderwaterTorch : Block
 	{
 		public UnderwaterTorch() : base(239)
@@ -3786,6 +3965,112 @@
 			// runtime id: 2074 0x81A, data: 5
 			// runtime id: 2075 0x81B, data: 6
 			// runtime id: 2076 0x81C, data: 7
+		}
+	}
+
+	public class Bamboo : Block
+	{
+		public Bamboo() : base(418)
+		{
+			Name = "minecraft:bamboo";
+			// runtime id: 4469 0x1175, data: 0
+			// runtime id: 4470 0x1176, data: 1
+			// runtime id: 4471 0x1177, data: 2
+			// runtime id: 4472 0x1178, data: 3
+			// runtime id: 4473 0x1179, data: 4
+			// runtime id: 4474 0x117A, data: 5
+			// runtime id: 4475 0x117B, data: 6
+			// runtime id: 4476 0x117C, data: 7
+			// runtime id: 4477 0x117D, data: 8
+			// runtime id: 4478 0x117E, data: 9
+			// runtime id: 4479 0x117F, data: 10
+			// runtime id: 4480 0x1180, data: 11
+			// runtime id: 4481 0x1181, data: 12
+			// runtime id: 4482 0x1182, data: 13
+			// runtime id: 4483 0x1183, data: 14
+			// runtime id: 4484 0x1184, data: 15
+		}
+	}
+
+	public class BambooSapling : Block
+	{
+		public BambooSapling() : base(419)
+		{
+			Name = "minecraft:bamboo_sapling";
+			// runtime id: 4485 0x1185, data: 0
+			// runtime id: 4486 0x1186, data: 1
+			// runtime id: 4487 0x1187, data: 2
+			// runtime id: 4488 0x1188, data: 3
+			// runtime id: 4489 0x1189, data: 4
+			// runtime id: 4490 0x118A, data: 5
+			// runtime id: 4491 0x118B, data: 6
+			// runtime id: 4492 0x118C, data: 7
+			// runtime id: 4493 0x118D, data: 8
+			// runtime id: 4494 0x118E, data: 9
+			// runtime id: 4495 0x118F, data: 10
+			// runtime id: 4496 0x1190, data: 11
+			// runtime id: 4497 0x1191, data: 12
+			// runtime id: 4498 0x1192, data: 13
+			// runtime id: 4499 0x1193, data: 14
+			// runtime id: 4500 0x1194, data: 15
+		}
+	}
+
+	public class Barrier : Block
+	{
+		public Barrier() : base(416)
+		{
+			Name = "minecraft:barrier";
+			// runtime id: 4468 0x1174, data: 0
+		}
+	}
+
+	public class Netherreactor : Block
+	{
+		public Netherreactor() : base(247)
+		{
+			Name = "minecraft:netherreactor";
+			// runtime id: 2081 0x821, data: 0
+		}
+	}
+
+	public class Pistonarmcollision : Block
+	{
+		public Pistonarmcollision() : base(34)
+		{
+			Name = "minecraft:pistonArmCollision";
+			// runtime id: 252 0xFC, data: 0
+			// runtime id: 253 0xFD, data: 1
+			// runtime id: 254 0xFE, data: 2
+			// runtime id: 255 0xFF, data: 3
+			// runtime id: 256 0x100, data: 4
+			// runtime id: 257 0x101, data: 5
+			// runtime id: 258 0x102, data: 6
+			// runtime id: 259 0x103, data: 7
+		}
+	}
+
+	public class Scaffolding : Block
+	{
+		public Scaffolding() : base(420)
+		{
+			Name = "minecraft:scaffolding";
+			// runtime id: 4501 0x1195, data: 0
+			// runtime id: 4502 0x1196, data: 1
+			// runtime id: 4503 0x1197, data: 2
+			// runtime id: 4504 0x1198, data: 3
+			// runtime id: 4505 0x1199, data: 4
+			// runtime id: 4506 0x119A, data: 5
+			// runtime id: 4507 0x119B, data: 6
+			// runtime id: 4508 0x119C, data: 7
+			// runtime id: 4509 0x119D, data: 8
+			// runtime id: 4510 0x119E, data: 9
+			// runtime id: 4511 0x119F, data: 10
+			// runtime id: 4512 0x11A0, data: 11
+			// runtime id: 4513 0x11A1, data: 12
+			// runtime id: 4514 0x11A2, data: 13
+			// runtime id: 4515 0x11A3, data: 14
+			// runtime id: 4516 0x11A4, data: 15
 		}
 	}
 }

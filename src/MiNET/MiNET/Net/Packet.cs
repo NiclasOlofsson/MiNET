@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -44,15 +44,14 @@ namespace MiNET.Net
 {
 	public abstract partial class Packet
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Packet));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Packet));
 
 		private bool _isEncoded;
 		private byte[] _encodedMessage;
 
 		[JsonIgnore] public int DatagramSequenceNumber;
 
-		[JsonIgnore]
-		public bool NoBatch { get; set; }
+		[JsonIgnore] public bool NoBatch { get; set; }
 
 		[JsonIgnore] public Reliability Reliability = Reliability.Unreliable;
 		[JsonIgnore] public int ReliableMessageNumber;
@@ -69,8 +68,7 @@ namespace MiNET.Net
 		private BinaryReader _reader;
 		private Stopwatch _timer = new Stopwatch();
 
-		[JsonIgnore]
-		public byte[] Bytes { get; private set; }
+		[JsonIgnore] public byte[] Bytes { get; private set; }
 
 		public Packet()
 		{
@@ -461,8 +459,6 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.PlayerInfo.ThirdPartyName ?? record.DisplayName ?? record.Username);
-					WriteSignedVarInt(record.PlayerInfo.DeviceOS);
 					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
 					Write(record.PlayerInfo.PlatformChatId);
 				}
@@ -495,12 +491,10 @@ namespace MiNET.Net
 						player.ClientUuid = ReadUUID();
 						player.EntityId = ReadSignedVarLong();
 						player.DisplayName = ReadString();
-						var thirdPartyName = ReadString(); //TODO: third party name
-						var platform = ReadSignedVarInt(); //TODO: platform
 						player.Skin = ReadSkin();
 						var platformChatId = ReadString(); //TODO: platform chat ID
 						records.Add(player);
-						Log.Warn($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', '{thirdPartyName}', {platform}, {platformChatId}");
+						Log.Warn($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', {platformChatId}");
 					}
 					break;
 				case 1:
@@ -544,10 +538,10 @@ namespace MiNET.Net
 			Write(location.X);
 			Write(location.Y);
 			Write(location.Z);
-			var d = 256f/360f;
-			Write((byte) Math.Round(location.Pitch*d)); // 256/360
-			Write((byte) Math.Round(location.HeadYaw*d)); // 256/360
-			Write((byte) Math.Round(location.Yaw*d)); // 256/360
+			var d = 256f / 360f;
+			Write((byte) Math.Round(location.Pitch * d)); // 256/360
+			Write((byte) Math.Round(location.HeadYaw * d)); // 256/360
+			Write((byte) Math.Round(location.Yaw * d)); // 256/360
 		}
 
 		public PlayerLocation ReadPlayerLocation()
@@ -556,9 +550,9 @@ namespace MiNET.Net
 			location.X = ReadFloat();
 			location.Y = ReadFloat();
 			location.Z = ReadFloat();
-			location.Pitch = ReadByte()*1f/0.71f;
-			location.HeadYaw = ReadByte()*1f/0.71f;
-			location.Yaw = ReadByte()*1f/0.71f;
+			location.Pitch = ReadByte() * 1f / 0.71f;
+			location.HeadYaw = ReadByte() * 1f / 0.71f;
+			location.Yaw = ReadByte() * 1f / 0.71f;
 
 			return location;
 		}
@@ -654,7 +648,7 @@ namespace MiNET.Net
 
 		public void Write(Nbt nbt)
 		{
-			Write(nbt, _writer.BaseStream, this is McpeBlockEntityData || this is McpeUpdateEquipment);
+			Write(nbt, _writer.BaseStream, nbt.NbtFile.UseVarInt || this is McpeBlockEntityData || this is McpeUpdateEquipment);
 		}
 
 		public static void Write(Nbt nbt, Stream stream, bool useVarInt)
@@ -1257,7 +1251,11 @@ namespace MiNET.Net
 				var encryptionKey = ReadString();
 				var subpackName = ReadString();
 				var contentIdentity = ReadString();
-				info.PackIdVersion = new PackIdVersion {Id = id, Version = version};
+				info.PackIdVersion = new PackIdVersion
+				{
+					Id = id,
+					Version = version
+				};
 				info.Size = size;
 				packInfos.Add(info);
 			}
@@ -1291,7 +1289,12 @@ namespace MiNET.Net
 				var id = ReadString();
 				var version = ReadString();
 				var unknown = ReadString();
-				var info = new PackIdVersion {Id = id, Version = version, Unknown = unknown};
+				var info = new PackIdVersion
+				{
+					Id = id,
+					Version = version,
+					Unknown = unknown
+				};
 				packInfos.Add(info);
 			}
 
@@ -1406,7 +1409,7 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < rec.Height; h++)
 						{
-							Write(rec.Input[(h*rec.Width) + w]);
+							Write(rec.Input[(h * rec.Width) + w]);
 						}
 					}
 					WriteVarInt(1);
@@ -1475,7 +1478,7 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < height; h++)
 						{
-							recipe.Input[(h*width) + w] = ReadItem();
+							recipe.Input[(h * width) + w] = ReadItem();
 						}
 					}
 
@@ -1590,14 +1593,26 @@ namespace MiNET.Net
 
 			if ((map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
 			{
-				WriteUnsignedVarInt((uint) 0); //entities
-
 				var count = map.Decorators.Length;
+
 				WriteUnsignedVarInt((uint) count);
 				foreach (var decorator in map.Decorators)
 				{
-					Write((byte) decorator.Rotation);
+					if (decorator is EntityMapDecorator entity)
+					{
+						WriteSignedVarLong(entity.EntityId);
+					}
+					else if (decorator is BlockMapDecorator block)
+					{
+						Write(block.Coordinates);
+					}
+				}
+
+				WriteUnsignedVarInt((uint) count);
+				foreach (var decorator in map.Decorators)
+				{
 					Write((byte) decorator.Icon);
+					Write((byte) decorator.Rotation);
 					Write((byte) decorator.X);
 					Write((byte) decorator.Z);
 					Write(decorator.Label);
@@ -1613,7 +1628,7 @@ namespace MiNET.Net
 				WriteSignedVarInt(map.XOffset);
 				WriteSignedVarInt(map.ZOffset);
 
-				WriteUnsignedVarInt((uint) (map.Col*map.Row));
+				WriteUnsignedVarInt((uint) (map.Col * map.Row));
 				int i = 0;
 				for (int col = 0; col < map.Col; col++)
 				{
@@ -1664,7 +1679,17 @@ namespace MiNET.Net
 					var entityCount = ReadUnsignedVarInt();
 					for (int i = 0; i < entityCount; i++)
 					{
-						ReadSignedVarLong();
+						var type = ReadInt();
+						if (type == 0)
+						{
+							// entity
+							var q = ReadSignedVarLong();
+						}
+						else if(type == 1)
+						{
+							// block
+							var b = ReadBlockCoordinates();
+						}
 					}
 
 					var count = ReadUnsignedVarInt();
@@ -1672,8 +1697,8 @@ namespace MiNET.Net
 					for (int i = 0; i < count; i++)
 					{
 						MapDecorator decorator = new MapDecorator();
-						decorator.Rotation = ReadByte();
 						decorator.Icon = ReadByte();
+						decorator.Rotation = ReadByte();
 						decorator.X = ReadByte();
 						decorator.Z = ReadByte();
 						decorator.Label = ReadString();
@@ -1761,33 +1786,133 @@ namespace MiNET.Net
 			return map;
 		}
 
-		public void Write(ScorePacketInfos list)
+		public void Write(ScoreEntries list)
 		{
+			if (list == null) list = new ScoreEntries();
+
+			Write((byte) (list.FirstOrDefault() is ScoreEntryRemove ? McpeSetScore.Types.Remove : McpeSetScore.Types.Change));
 			WriteUnsignedVarInt((uint) list.Count);
-			foreach(var entry in list)
+			foreach (var entry in list)
 			{
-				Write(entry.uuid);
-				Write(entry.objectiveName);
-				Write(entry.score);
+				WriteSignedVarLong(entry.Id);
+				Write(entry.ObjectiveName);
+				Write(entry.Score);
+
+				if (entry is ScoreEntryRemove)
+				{
+					continue;
+				}
+
+				if (entry is ScoreEntryChangePlayer player)
+				{
+					Write((byte) McpeSetScore.ChangeTypes.Player);
+					WriteSignedVarLong(player.EntityId);
+				}
+				else if (entry is ScoreEntryChangeEntity entity)
+				{
+					Write((byte) McpeSetScore.ChangeTypes.Entity);
+					WriteSignedVarLong(entity.EntityId);
+				}
+				else if (entry is ScoreEntryChangeFakePlayer fakePlayer)
+				{
+					Write((byte) McpeSetScore.ChangeTypes.FakePlayer);
+					Write(fakePlayer.CustomName);
+				}
 			}
 		}
 
-		public ScorePacketInfos ReadScorePacketInfos()
+		public ScoreEntries ReadScoreEntries()
 		{
-			var list = new ScorePacketInfos();
-
+			var list = new ScoreEntries();
+			byte type = ReadByte();
 			var length = ReadUnsignedVarInt();
-			for(var i = 0; i < length; ++i)
+			for (var i = 0; i < length; ++i)
 			{
-				var entry = new ScorePacketInfo();
-				entry.uuid = ReadUUID();
-				entry.objectiveName = ReadString();
-				entry.score = ReadUint();
+				var entryId = ReadSignedVarLong();
+				var entryObjectiveName = ReadString();
+				var entryScore = ReadUint();
+
+				ScoreEntry entry = null;
+
+				if (type == (int) McpeSetScore.Types.Remove)
+				{
+					entry = new ScoreEntryRemove();
+				}
+				else
+				{
+					McpeSetScore.ChangeTypes changeType = (McpeSetScore.ChangeTypes) ReadByte();
+					switch (changeType)
+					{
+						case McpeSetScore.ChangeTypes.Player:
+							entry = new ScoreEntryChangePlayer {EntityId = ReadSignedVarLong()};
+							break;
+						case McpeSetScore.ChangeTypes.Entity:
+							entry = new ScoreEntryChangeEntity {EntityId = ReadSignedVarLong()};
+							break;
+						case McpeSetScore.ChangeTypes.FakePlayer:
+							entry = new ScoreEntryChangeFakePlayer {CustomName = ReadString()};
+							break;
+					}
+				}
+
+				if (entry == null) continue;
+
+				entry.Id = entryId;
+				entry.ObjectiveName = entryObjectiveName;
+				entry.Score = entryScore;
+
 				list.Add(entry);
 			}
 
 			return list;
 		}
+
+		public void Write(ScoreboardIdentityEntries list)
+		{
+			if (list == null) list = new ScoreboardIdentityEntries();
+
+			Write((byte) (list.FirstOrDefault() is ScoreboardClearIdentityEntry ? McpeSetScoreboardIdentityPacket.Operations.ClearIdentity : McpeSetScoreboardIdentityPacket.Operations.RegisterIdentity));
+			WriteUnsignedVarInt((uint) list.Count);
+			foreach (var entry in list)
+			{
+				WriteSignedVarLong(entry.Id);
+				if (entry is ScoreboardRegisterIdentityEntry reg)
+				{
+					WriteSignedVarLong(reg.EntityId);
+				}
+			}
+		}
+
+		public ScoreboardIdentityEntries ReadScoreboardIdentityEntries()
+		{
+			ScoreboardIdentityEntries list = new ScoreboardIdentityEntries();
+
+			McpeSetScoreboardIdentityPacket.Operations type = (McpeSetScoreboardIdentityPacket.Operations) ReadByte();
+			var length = ReadUnsignedVarInt();
+			for (var i = 0; i < length; ++i)
+			{
+				var scoreboardId = ReadSignedVarLong();
+
+				switch (type)
+				{
+					case McpeSetScoreboardIdentityPacket.Operations.RegisterIdentity:
+						list.Add(new ScoreboardRegisterIdentityEntry()
+						{
+							Id = scoreboardId,
+							EntityId = ReadSignedVarLong()
+						});
+						break;
+					case McpeSetScoreboardIdentityPacket.Operations.ClearIdentity:
+						list.Add(new ScoreboardClearIdentityEntry() {Id = scoreboardId});
+						break;
+				}
+
+				// https://github.com/pmmp/PocketMine-MP/commit/39808dd94f4f2d1716eca31cb5a1cfe9000b6c38#diff-041914be0a0493190a4911ae5c4ac502R62
+			}
+
+			return list;
+		}
+
 
 		public bool CanRead()
 		{
@@ -1905,7 +2030,7 @@ namespace MiNET.Net
 				if (printLineCount) sb.AppendFormat("{0:x8} ", line);
 				sb.Append(string.Join(" ", lineBytes.Select(b => b.ToString("x2"))
 						.ToArray())
-					.PadRight(bytesPerLine*3));
+					.PadRight(bytesPerLine * 3));
 				sb.Append(" ");
 				sb.Append(new string(lineBytes.Select(b => b < 32 ? '.' : (char) b)
 					.ToArray()));
@@ -1932,7 +2057,7 @@ namespace MiNET.Net
 	/// Base package class
 	public abstract partial class Packet<T> : Packet, ICloneable where T : Packet<T>, new()
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Packet<T>));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Packet<T>));
 
 		private static readonly ObjectPool<T> Pool = new ObjectPool<T>(() => new T());
 

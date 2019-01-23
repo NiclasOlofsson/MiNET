@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -41,7 +41,7 @@ namespace TestPlugin.Code4Fun
 	[Plugin(PluginName = "Code4Fun", Description = "Plugin with mostly fun stuff", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class Code4FunPlugin : Plugin
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Code4FunPlugin));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Code4FunPlugin));
 
 		public const double CubeFilterFactor = 1.3;
 		public const float ZTearFactor = 0.01f;
@@ -49,7 +49,7 @@ namespace TestPlugin.Code4Fun
 
 		protected override void OnEnable()
 		{
-			//Context.PluginManager.LoadCommands(new ScreenshotCommand());
+			Context.PluginManager.LoadCommands(new ScreenshotCommand());
 		}
 
 		[Command]
@@ -100,7 +100,7 @@ namespace TestPlugin.Code4Fun
 			GeometryModel geometryModel = Skin.Parse(skinString);
 
 			var coordinates = player.KnownPosition;
-			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection())*1.5f;
+			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection()) * 1.5f;
 
 			PlayerMob fake = new PlayerMob(string.Empty, player.Level)
 			{
@@ -127,7 +127,7 @@ namespace TestPlugin.Code4Fun
 
 		public class GravityGeometryBehavior
 		{
-			private static readonly ILog Log = LogManager.GetLogger(typeof (GravityGeometryBehavior));
+			private static readonly ILog Log = LogManager.GetLogger(typeof(GravityGeometryBehavior));
 
 			public const float Gravity = 0.20f;
 			public const float Drag = 0.02f;
@@ -185,19 +185,19 @@ namespace TestPlugin.Code4Fun
 			{
 				//Quaternion rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float) -Math.PI/2);
 
-				var pos = new Vector3(cube.Origin[0]/16f, cube.Origin[1]/16f, cube.Origin[2]/16f) + Mob.KnownPosition;
+				var pos = new Vector3(cube.Origin[0] / 16f, cube.Origin[1] / 16f, cube.Origin[2] / 16f) + Mob.KnownPosition;
 				//var dir = _origin - pos;
 				var dir = pos - _origin;
 				float distance = dir.Length();
 				Log.Debug("Position: " + pos);
 
 				distance = Math.Max(1, distance);
-				distance = distance/(distance*distance);
+				distance = distance / (distance * distance);
 				if (distance < 0.1) return;
 
 				Log.Debug("Lenght: " + distance);
-				Vector3 force = new Vector3(distance, distance, distance)*5;
-				cube.Velocity = Vector3.Reflect(dir.Normalize()*force, Vector3.UnitZ);
+				Vector3 force = new Vector3(distance, distance, distance) * 5;
+				cube.Velocity = Vector3.Reflect(dir.Normalize() * force, Vector3.UnitZ);
 
 				//+ new Vector3((float) random.NextDouble() - 0.5f, (float) random.NextDouble() - 0.5f, (float) random.NextDouble() - 0.5f)*10/distance;
 				Log.Debug("Velocity: " + cube.Velocity);

@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -32,7 +32,7 @@ namespace MiNET.UI
 {
 	public class CustomForm : Form
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (CustomForm));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(CustomForm));
 
 		public CustomForm()
 		{
@@ -67,8 +67,7 @@ namespace MiNET.UI
 			Execute(player);
 		}
 
-		[JsonIgnore]
-		public Action<Player, CustomForm> ExecuteAction { get; set; }
+		[JsonIgnore] public Action<Player, CustomForm> ExecuteAction { get; set; }
 
 		public void Execute(Player player)
 		{

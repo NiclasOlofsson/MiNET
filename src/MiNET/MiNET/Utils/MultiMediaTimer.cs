@@ -1,25 +1,25 @@
-#region License
+#region LICENSE
 
-/* Copyright (c) 2006 Leslie Sanford
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy 
- * of this software and associated documentation files (the "Software"), to 
- * deal in the Software without restriction, including without limitation the 
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
- * sell copies of the Software, and to permit persons to whom the Software is 
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in 
- * all copies or substantial portions of the Software. 
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
- * THE SOFTWARE.
- */
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
 
 #endregion
 
@@ -40,40 +40,40 @@ using System.Runtime.InteropServices;
 namespace MiNET.Utils
 {
 	/// <summary>
-	/// Defines constants for the multimedia Timer's event types.
+	///     Defines constants for the multimedia Timer's event types.
 	/// </summary>
 	public enum TimerMode
 	{
 		/// <summary>
-		/// Timer event occurs once.
+		///     Timer event occurs once.
 		/// </summary>
 		OneShot,
 
 		/// <summary>
-		/// Timer event occurs periodically.
+		///     Timer event occurs periodically.
 		/// </summary>
 		Periodic
 	};
 
 	/// <summary>
-	/// Represents information about the multimedia Timer's capabilities.
+	///     Represents information about the multimedia Timer's capabilities.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
 	public struct TimerCaps
 	{
 		/// <summary>
-		/// Minimum supported period in milliseconds.
+		///     Minimum supported period in milliseconds.
 		/// </summary>
 		public int periodMin;
 
 		/// <summary>
-		/// Maximum supported period in milliseconds.
+		///     Maximum supported period in milliseconds.
 		/// </summary>
 		public int periodMax;
 	}
 
 	/// <summary>
-	/// Represents the Windows multimedia timer.
+	///     Represents the Windows multimedia timer.
 	/// </summary>
 	public sealed class MultiMediaTimer : IComponent
 	{
@@ -151,17 +151,17 @@ namespace MiNET.Utils
 		#region Events
 
 		/// <summary>
-		/// Occurs when the Timer has started;
+		///     Occurs when the Timer has started;
 		/// </summary>
 		public event EventHandler Started;
 
 		/// <summary>
-		/// Occurs when the Timer has stopped;
+		///     Occurs when the Timer has stopped;
 		/// </summary>
 		public event EventHandler Stopped;
 
 		/// <summary>
-		/// Occurs when the time period has elapsed.
+		///     Occurs when the time period has elapsed.
 		/// </summary>
 		public event EventHandler Tick;
 
@@ -170,7 +170,7 @@ namespace MiNET.Utils
 		#region Construction
 
 		/// <summary>
-		/// Initialize class.
+		///     Initialize class.
 		/// </summary>
 		static MultiMediaTimer()
 		{
@@ -179,7 +179,7 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the Timer class.
+		///     Initializes a new instance of the Timer class.
 		/// </summary>
 		public MultiMediaTimer()
 		{
@@ -214,13 +214,13 @@ namespace MiNET.Utils
 		#region Methods
 
 		/// <summary>
-		/// Starts the timer.
+		///     Starts the timer.
 		/// </summary>
 		/// <exception cref="ObjectDisposedException">
-		/// The timer has already been disposed.
+		///     The timer has already been disposed.
 		/// </exception>
 		/// <exception cref="TimerStartException">
-		/// The timer failed to start.
+		///     The timer failed to start.
 		/// </exception>
 		public void Start()
 		{
@@ -278,10 +278,10 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Stops timer.
+		///     Stops timer.
 		/// </summary>
 		/// <exception cref="ObjectDisposedException">
-		/// If the timer has already been disposed.
+		///     If the timer has already been disposed.
 		/// </exception>
 		public void Stop()
 		{
@@ -409,7 +409,7 @@ namespace MiNET.Utils
 		#region Properties
 
 		/// <summary>
-		/// Gets or sets the object used to marshal event-handler calls.
+		///     Gets or sets the object used to marshal event-handler calls.
 		/// </summary>
 		public ISynchronizeInvoke SynchronizingObject
 		{
@@ -442,11 +442,11 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Gets or sets the time between Tick events.
+		///     Gets or sets the time between Tick events.
 		/// </summary>
 		/// <exception cref="ObjectDisposedException">
-		/// If the timer has already been disposed.
-		/// </exception>   
+		///     If the timer has already been disposed.
+		/// </exception>
 		public int Period
 		{
 			get
@@ -489,17 +489,17 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Gets or sets the timer resolution.
+		///     Gets or sets the timer resolution.
 		/// </summary>
 		/// <exception cref="ObjectDisposedException">
-		/// If the timer has already been disposed.
-		/// </exception>        
+		///     If the timer has already been disposed.
+		/// </exception>
 		/// <remarks>
-		/// The resolution is in milliseconds. The resolution increases 
-		/// with smaller values; a resolution of 0 indicates periodic events 
-		/// should occur with the greatest possible accuracy. To reduce system 
-		/// overhead, however, you should use the maximum value appropriate 
-		/// for your application.
+		///     The resolution is in milliseconds. The resolution increases
+		///     with smaller values; a resolution of 0 indicates periodic events
+		///     should occur with the greatest possible accuracy. To reduce system
+		///     overhead, however, you should use the maximum value appropriate
+		///     for your application.
 		/// </remarks>
 		public int Resolution
 		{
@@ -543,10 +543,10 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Gets the timer mode.
+		///     Gets the timer mode.
 		/// </summary>
 		/// <exception cref="ObjectDisposedException">
-		/// If the timer has already been disposed.
+		///     If the timer has already been disposed.
 		/// </exception>
 		public TimerMode Mode
 		{
@@ -585,7 +585,7 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Gets a value indicating whether the Timer is running.
+		///     Gets a value indicating whether the Timer is running.
 		/// </summary>
 		public bool IsRunning
 		{
@@ -593,7 +593,7 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Gets the timer capabilities.
+		///     Gets the timer capabilities.
 		/// </summary>
 		public static TimerCaps Capabilities
 		{
@@ -619,7 +619,7 @@ namespace MiNET.Utils
 		#region IDisposable Members
 
 		/// <summary>
-		/// Frees timer resources.
+		///     Frees timer resources.
 		/// </summary>
 		public void Dispose()
 		{
@@ -646,15 +646,15 @@ namespace MiNET.Utils
 	}
 
 	/// <summary>
-	/// The exception that is thrown when a timer fails to start.
+	///     The exception that is thrown when a timer fails to start.
 	/// </summary>
 	public class TimerStartException : ApplicationException
 	{
 		/// <summary>
-		/// Initializes a new instance of the TimerStartException class.
+		///     Initializes a new instance of the TimerStartException class.
 		/// </summary>
 		/// <param name="message">
-		/// The error message that explains the reason for the exception. 
+		///     The error message that explains the reason for the exception.
 		/// </param>
 		public TimerStartException(string message) : base(message)
 		{

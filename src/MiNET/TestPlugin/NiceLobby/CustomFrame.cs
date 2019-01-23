@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -40,7 +40,7 @@ namespace TestPlugin.NiceLobby
 {
 	public class CustomItemFrame : ItemFrame
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (CustomItemFrame));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(CustomItemFrame));
 
 		private readonly List<MapEntity> _frames;
 		private readonly FrameTicker _frameTicker;
@@ -79,7 +79,7 @@ namespace TestPlugin.NiceLobby
 
 	public class CustomFrame : Frame
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (CustomFrame));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(CustomFrame));
 
 		private readonly List<MapEntity> _frames;
 		private readonly ItemFrameBlockEntity _itemFrameBlockEntity;

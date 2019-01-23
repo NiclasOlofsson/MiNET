@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -34,7 +34,7 @@ namespace MiNET.Blocks
 {
 	public class Farmland : Block
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Farmland));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Farmland));
 
 		public Farmland() : base(60)
 		{
@@ -80,13 +80,13 @@ namespace MiNET.Blocks
 			// check down
 			//if (FindWater(level, coord + BlockCoordinates.Down, visited, distance + 1)) return true;
 			// check west
-			if (FindWater(level, coord + BlockCoordinates.West, visited, distance + 1)) return true;
+			if (FindWater(level, coord.BlockWest(), visited, distance + 1)) return true;
 			// check east
-			if (FindWater(level, coord + BlockCoordinates.East, visited, distance + 1)) return true;
+			if (FindWater(level, coord.BlockEast(), visited, distance + 1)) return true;
 			// check south
-			if (FindWater(level, coord + BlockCoordinates.South, visited, distance + 1)) return true;
+			if (FindWater(level, coord.BlockSouth(), visited, distance + 1)) return true;
 			// check north
-			if (FindWater(level, coord + BlockCoordinates.North, visited, distance + 1)) return true;
+			if (FindWater(level, coord.BlockNorth(), visited, distance + 1)) return true;
 			// check up
 			//if (FindWater(level, coord + BlockCoordinates.Up, visited, distance + 1)) return true;
 

@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -67,7 +67,7 @@ namespace MiNET.Entities
 				{
 					unchecked
 					{
-						return (obj.ChunkX*397) ^ obj.ChunkZ;
+						return (obj.ChunkX * 397) ^ obj.ChunkZ;
 					}
 				}
 			}
@@ -85,10 +85,10 @@ namespace MiNET.Entities
 			}
 		}
 
-		private static readonly ILog Log = LogManager.GetLogger(typeof (EntitySpawnManager));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(EntitySpawnManager));
 
 		public const int CapHostile = 70;
-		public const int CapPassive = 10;
+		public const int CapPassive = 70;
 		public const int CapAmbient = 15;
 		public const int CapWater = 5;
 
@@ -122,11 +122,11 @@ namespace MiNET.Entities
 		public virtual void DespawnMobs(long tickTime)
 		{
 			//if (tickTime%400 != 0) return;
-			if (tickTime%20 != 0) return;
+			if (tickTime % 20 != 0) return;
 
 			foreach (var entity in Level.Entities)
 			{
-				if(!entity.Value.CanDespawn) continue;
+				if (!entity.Value.CanDespawn) continue;
 
 				if (Level.Players.Count(player => player.Value.IsSpawned && Vector3.Distance(entity.Value.KnownPosition, player.Value.KnownPosition) < 128) == 0)
 				{
@@ -210,9 +210,9 @@ namespace MiNET.Entities
 							if (!firstBlock.IsSolid && !(firstBlock is Stationary) && !(firstBlock is Flowing))
 							{
 								if (doSpawnPassive && PassiveMobs.Contains(entityType)
-								    && Level.GetSubtractedLight(firstBlock.Coordinates, 0) >= 9)
+													&& Level.GetSubtractedLight(firstBlock.Coordinates, 0) >= 9)
 								{
-									var secondBlock = Level.GetBlock(x, y + 2, z);
+									var secondBlock = Level.GetBlock(x, y + 1, z);
 									if ((spawnBlock is Grass || (entityType == EntityType.Rabbit && spawnBlock is Sand)) && !secondBlock.IsSolid)
 									{
 										var yaw = random.Next(360);
@@ -220,7 +220,7 @@ namespace MiNET.Entities
 										if (Spawn(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw), entityType, random))
 										{
 											if (Log.IsDebugEnabled)
-												Log.Warn($"Spawned {entityType}");
+												Log.Debug($"Spawned {entityType}");
 											//Level.StrikeLightning(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw)); 
 											//Level.SetBlock(new StainedGlass() { Metadata = (byte)firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
 											++numberOfSpawnedMobs;
@@ -241,6 +241,8 @@ namespace MiNET.Entities
 
 										if (Spawn(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw), entityType, random))
 										{
+											if (Log.IsDebugEnabled)
+												Log.Debug($"Spawned {entityType} at lightlevel={Level.GetSubtractedLight(firstBlock.Coordinates)}");
 											//Level.SetBlock(new StainedGlass() { Metadata = (byte) firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
 											//Log.Warn($"Spawned {entityType} at {firstBlock.Coordinates} at light level on bottom={firstBlock.SkyLight} amd top={secondBlock.SkyLight}, world time={Level.CurrentWorldTime}");
 

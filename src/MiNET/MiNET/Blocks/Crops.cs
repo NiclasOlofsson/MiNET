@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -34,7 +34,7 @@ namespace MiNET.Blocks
 {
 	public abstract class Crops : Block
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Crops));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Crops));
 
 		protected byte MaxGrowth { get; set; } = 7;
 
@@ -77,17 +77,17 @@ namespace MiNET.Blocks
 			double points = 0;
 
 			// The farmland block the crop is planted in gives 2 points if dry or 4 if hydrated.
-			Block under = level.GetBlock(target.Coordinates + BlockCoordinates.Down);
+			Block under = level.GetBlock(target.Coordinates.BlockDown());
 			points += under.Metadata == 0 ? 2 : 4;
 
-			Block west = level.GetBlock(target.Coordinates + BlockCoordinates.West);
-			Block east = level.GetBlock(target.Coordinates + BlockCoordinates.East);
-			Block south = level.GetBlock(target.Coordinates + BlockCoordinates.North);
-			Block north = level.GetBlock(target.Coordinates + BlockCoordinates.South);
-			Block southWest = level.GetBlock(target.Coordinates + BlockCoordinates.West + BlockCoordinates.South);
-			Block southEast = level.GetBlock(target.Coordinates + BlockCoordinates.East + BlockCoordinates.South);
-			Block northWest = level.GetBlock(target.Coordinates + BlockCoordinates.North + BlockCoordinates.North);
-			Block northEast = level.GetBlock(target.Coordinates + BlockCoordinates.South + BlockCoordinates.North);
+			Block west = level.GetBlock(target.Coordinates.BlockWest());
+			Block east = level.GetBlock(target.Coordinates.BlockEast());
+			Block south = level.GetBlock(target.Coordinates.BlockNorth());
+			Block north = level.GetBlock(target.Coordinates.BlockSouth());
+			Block southWest = level.GetBlock(target.Coordinates.BlockSouthWest());
+			Block southEast = level.GetBlock(target.Coordinates.BlockSouthEast());
+			Block northWest = level.GetBlock(target.Coordinates.BlockNorthWest());
+			Block northEast = level.GetBlock(target.Coordinates.BlockNorthEast());
 
 			// For each of the 8 blocks around the block in which the crop is planted, dry farmland gives 0.25 points, and hydrated farmland gives 0.75
 			points += west is Farmland ? west.Metadata == 0 ? 0.25 : 0.75 : 0;
@@ -114,7 +114,7 @@ namespace MiNET.Blocks
 
 			//1 / (floor(25 / points) + 1)
 
-			double chance = 1/(Math.Floor(25/points) + 1);
+			double chance = 1 / (Math.Floor(25 / points) + 1);
 
 			var calculateGrowthChance = level.Random.NextDouble() <= chance;
 			//Log.Debug($"Calculated growth chance. Will grow={calculateGrowthChance} on a chance score of {chance}");
@@ -125,7 +125,7 @@ namespace MiNET.Blocks
 		{
 			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
 			{
-				Block under = world.GetBlock(Coordinates + BlockCoordinates.Down);
+				Block under = world.GetBlock(Coordinates.BlockDown());
 				return under is Farmland;
 			}
 
@@ -134,7 +134,7 @@ namespace MiNET.Blocks
 
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
-			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
+			if (Coordinates.BlockDown() == blockCoordinates)
 			{
 				level.BreakBlock(null, this);
 			}

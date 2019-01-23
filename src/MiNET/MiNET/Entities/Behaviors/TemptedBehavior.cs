@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -32,7 +32,7 @@ namespace MiNET.Entities.Behaviors
 {
 	public class TemptedBehavior : BehaviorBase
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (TemptedBehavior));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(TemptedBehavior));
 
 		private readonly Mob _entity;
 		private readonly Type _temptingItem;
@@ -143,10 +143,10 @@ namespace MiNET.Entities.Behaviors
 					}
 					else
 					{
-						m = m/2.0;
+						m = m / 2.0;
 					}
 					//double m = 1;
-					_entity.Controller.MoveForward(_speedMultiplier*m, entities);
+					_entity.Controller.MoveForward(_speedMultiplier * m, entities);
 				}
 			}
 			else

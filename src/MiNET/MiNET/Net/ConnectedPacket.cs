@@ -1,8 +1,30 @@
-// friendly name
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using log4net;
 using MiNET.Utils;
@@ -11,7 +33,7 @@ namespace MiNET.Net
 {
 	public class ConnectedPacket : Packet<ConnectedPacket>
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ConnectedPacket));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ConnectedPacket));
 
 		public DatagramHeader _datagramHeader;
 		public Int24 _datagramSequenceNumber; // uint 24
@@ -72,23 +94,23 @@ namespace MiNET.Net
 
 			byte rely = (byte) _reliability;
 			Write((byte) ((rely << 5) | (_hasSplit ? Convert.ToByte("00010000", 2) : 0x00)));
-			Write((short) (MessageLength*8), true); // length
+			Write((short) (MessageLength * 8), true); // length
 
 			if (_reliability == Reliability.Reliable
-			    || _reliability == Reliability.ReliableOrdered
-			    || _reliability == Reliability.ReliableSequenced
-			    || _reliability == Reliability.ReliableWithAckReceipt
-			    || _reliability == Reliability.ReliableOrderedWithAckReceipt
-				)
+				|| _reliability == Reliability.ReliableOrdered
+				|| _reliability == Reliability.ReliableSequenced
+				|| _reliability == Reliability.ReliableWithAckReceipt
+				|| _reliability == Reliability.ReliableOrderedWithAckReceipt
+			)
 			{
 				Write(_reliableMessageNumber);
 			}
 
 			if (_reliability == Reliability.UnreliableSequenced
-			    || _reliability == Reliability.ReliableOrdered
-			    || _reliability == Reliability.ReliableSequenced
-			    || _reliability == Reliability.ReliableOrderedWithAckReceipt
-				)
+				|| _reliability == Reliability.ReliableOrdered
+				|| _reliability == Reliability.ReliableSequenced
+				|| _reliability == Reliability.ReliableOrderedWithAckReceipt
+			)
 			{
 				Write(_orderingIndex);
 				Write(_orderingChannel);
@@ -119,7 +141,7 @@ namespace MiNET.Net
 			_hasSplit = false;
 			while (_buffer.Position < _buffer.Length)
 			{
-				if(_hasSplit) Log.Warn("Reading second split message");
+				if (_hasSplit) Log.Warn("Reading second split message");
 
 				byte flags = ReadByte();
 				_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
@@ -128,9 +150,9 @@ namespace MiNET.Net
 				short dataBitLength = ReadShort(true);
 
 				if (_reliability == Reliability.Reliable
-				    || _reliability == Reliability.ReliableSequenced
-				    || _reliability == Reliability.ReliableOrdered
-					)
+					|| _reliability == Reliability.ReliableSequenced
+					|| _reliability == Reliability.ReliableOrdered
+				)
 				{
 					_reliableMessageNumber = ReadLittle();
 				}
@@ -140,8 +162,8 @@ namespace MiNET.Net
 				}
 
 				if (_reliability == Reliability.UnreliableSequenced
-				    || _reliability == Reliability.ReliableSequenced
-					)
+					|| _reliability == Reliability.ReliableSequenced
+				)
 				{
 					_sequencingIndex = ReadLittle();
 				}
@@ -151,10 +173,10 @@ namespace MiNET.Net
 				}
 
 				if (_reliability == Reliability.UnreliableSequenced
-				    || _reliability == Reliability.ReliableSequenced
-				    || _reliability == Reliability.ReliableOrdered
-				    || _reliability == Reliability.ReliableOrderedWithAckReceipt
-					)
+					|| _reliability == Reliability.ReliableSequenced
+					|| _reliability == Reliability.ReliableOrdered
+					|| _reliability == Reliability.ReliableOrderedWithAckReceipt
+				)
 				{
 					_orderingIndex = ReadLittle();
 					_orderingChannel = ReadByte(); // flags
@@ -179,7 +201,7 @@ namespace MiNET.Net
 				}
 
 				// Slurp the payload
-				MessageLength = (int) Math.Ceiling((((double) dataBitLength)/8));
+				MessageLength = (int) Math.Ceiling((((double) dataBitLength) / 8));
 
 				byte[] internalBuffer = ReadBytes(MessageLength);
 

@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -41,7 +41,7 @@ namespace MiNET.Blocks
 
 		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
-			if (world.GetBlock(Coordinates + BlockCoordinates.Down) is SnowLayer current)
+			if (world.GetBlock(Coordinates.BlockDown()) is SnowLayer current)
 			{
 				if (current.Metadata < 7)
 				{
@@ -54,7 +54,7 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			if (world.GetBlock(Coordinates + BlockCoordinates.Down) is SnowLayer current)
+			if (world.GetBlock(Coordinates.BlockDown()) is SnowLayer current)
 			{
 				if (current.Metadata < 7)
 				{
@@ -65,7 +65,7 @@ namespace MiNET.Blocks
 				{
 					if (BlockFactory.GetBlockById(80) is Snow snow)
 					{
-						snow.Coordinates = Coordinates + BlockCoordinates.Down;
+						snow.Coordinates = Coordinates.BlockDown();
 						world.SetBlock(snow);
 					}
 				}

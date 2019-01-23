@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -34,7 +34,7 @@ namespace MiNET.Blocks
 {
 	public abstract class Flowing : Block
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Flowing));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Flowing));
 
 		private int _adjacentSources;
 		private int[] _flowCost = new int[4];
@@ -290,9 +290,9 @@ namespace MiNET.Blocks
 			for (int direction = 0; direction < 4; ++direction)
 			{
 				if ((direction != 0 || prevDirection != 1)
-				    && (direction != 1 || prevDirection != 0)
-				    && (direction != 2 || prevDirection != 3)
-				    && (direction != 3 || prevDirection != 2))
+					&& (direction != 1 || prevDirection != 0)
+					&& (direction != 2 || prevDirection != 3)
+					&& (direction != 3 || prevDirection != 2))
 				{
 					int x2 = x;
 					int z2 = z;

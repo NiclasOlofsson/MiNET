@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -64,14 +89,14 @@ namespace MiNET.Worlds
 				case NbtTagType.End:
 					break;
 				case NbtTagType.Byte:
-					if (propertyInfo.PropertyType == typeof (bool)) propertyInfo.SetValue(target, nbtTag.ByteValue == 1);
+					if (propertyInfo.PropertyType == typeof(bool)) propertyInfo.SetValue(target, nbtTag.ByteValue == 1);
 					else propertyInfo.SetValue(target, nbtTag.ByteValue);
 					break;
 				case NbtTagType.Short:
 					propertyInfo.SetValue(target, nbtTag.ShortValue);
 					break;
 				case NbtTagType.Int:
-					if (propertyInfo.PropertyType == typeof (bool)) propertyInfo.SetValue(target, nbtTag.IntValue == 1);
+					if (propertyInfo.PropertyType == typeof(bool)) propertyInfo.SetValue(target, nbtTag.IntValue == 1);
 					else propertyInfo.SetValue(target, nbtTag.IntValue);
 					break;
 				case NbtTagType.Long:
@@ -119,7 +144,7 @@ namespace MiNET.Worlds
 
 			if (nbtTag == null)
 			{
-				if (propertyInfo.PropertyType == typeof (bool))
+				if (propertyInfo.PropertyType == typeof(bool))
 				{
 					nbtTag = new NbtByte(propertyInfo.Name);
 				}
@@ -131,7 +156,7 @@ namespace MiNET.Worlds
 				{
 					nbtTag = new NbtShort(LowercaseFirst(propertyInfo.Name));
 				}
-				else if (propertyInfo.PropertyType == typeof (int))
+				else if (propertyInfo.PropertyType == typeof(int))
 				{
 					nbtTag = new NbtInt(LowercaseFirst(propertyInfo.Name));
 				}
@@ -167,8 +192,8 @@ namespace MiNET.Worlds
 				case NbtTagType.End:
 					break;
 				case NbtTagType.Byte:
-					if (propertyInfo.PropertyType == typeof (bool))
-						tag[nbtTag.Name] = new NbtByte(nbtTag.Name,(byte) ((bool) propertyInfo.GetValue(target) ? 1 : 0));
+					if (propertyInfo.PropertyType == typeof(bool))
+						tag[nbtTag.Name] = new NbtByte(nbtTag.Name, (byte) ((bool) propertyInfo.GetValue(target) ? 1 : 0));
 					else
 						tag[nbtTag.Name] = new NbtByte(nbtTag.Name, (byte) propertyInfo.GetValue(target));
 					break;
@@ -176,7 +201,7 @@ namespace MiNET.Worlds
 					tag[nbtTag.Name] = new NbtShort(nbtTag.Name, (short) propertyInfo.GetValue(target));
 					break;
 				case NbtTagType.Int:
-					if (propertyInfo.PropertyType == typeof (bool))
+					if (propertyInfo.PropertyType == typeof(bool))
 						tag[nbtTag.Name] = new NbtInt(nbtTag.Name, (bool) propertyInfo.GetValue(target) ? 1 : 0);
 					else
 						tag[nbtTag.Name] = new NbtInt(nbtTag.Name, (int) propertyInfo.GetValue(target));
@@ -194,7 +219,7 @@ namespace MiNET.Worlds
 					tag[nbtTag.Name] = new NbtByteArray(nbtTag.Name, (byte[]) propertyInfo.GetValue(target));
 					break;
 				case NbtTagType.String:
-					tag[nbtTag.Name] = new NbtString(nbtTag.Name, (string) propertyInfo.GetValue(target)??"");
+					tag[nbtTag.Name] = new NbtString(nbtTag.Name, (string) propertyInfo.GetValue(target) ?? "");
 					break;
 				case NbtTagType.List:
 					break;

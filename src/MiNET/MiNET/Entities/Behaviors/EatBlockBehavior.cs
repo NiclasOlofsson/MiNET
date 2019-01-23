@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -50,7 +50,7 @@ namespace MiNET.Entities.Behaviors
 
 			BlockCoordinates coord = new Vector3(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z);
 
-			var shouldStart = _entity.Level.GetBlock(coord + BlockCoordinates.Down) is Grass || _entity.Level.GetBlock(coord) is TallGrass;
+			var shouldStart = _entity.Level.GetBlock(coord.BlockDown()) is Grass || _entity.Level.GetBlock(coord) is TallGrass;
 			if (!shouldStart) return false;
 
 			_duration = 40;

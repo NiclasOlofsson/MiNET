@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -69,7 +69,7 @@ namespace TestPlugin.SurivalCraft
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
 		{
-			if (e.Block.Coordinates.DistanceTo((BlockCoordinates) e.Player.SpawnPosition) < 16*4)
+			if (e.Block.Coordinates.DistanceTo((BlockCoordinates) e.Player.SpawnPosition) < 16 * 4)
 			{
 				e.Cancel = e.Player.GameMode != GameMode.Creative;
 			}
@@ -77,7 +77,7 @@ namespace TestPlugin.SurivalCraft
 
 		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
 		{
-			if (e.ExistingBlock.Coordinates.DistanceTo((BlockCoordinates) e.Player.SpawnPosition) < 16*4)
+			if (e.ExistingBlock.Coordinates.DistanceTo((BlockCoordinates) e.Player.SpawnPosition) < 16 * 4)
 			{
 				e.Cancel = e.Player.GameMode != GameMode.Creative;
 			}

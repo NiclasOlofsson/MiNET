@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,7 +23,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -54,7 +53,7 @@ namespace MiNET.Blocks
 
 		static BlockFactory()
 		{
-			for (int i = 0; i < byte.MaxValue*2; i++)
+			for (int i = 0; i < byte.MaxValue * 2; i++)
 			{
 				var block = GetBlockById(i);
 				if (block != null)
@@ -86,8 +85,14 @@ namespace MiNET.Blocks
 				int runtimeId = 0;
 				foreach (var obj in result)
 				{
-					LegacyToRuntimeId[((int) obj.id << 4) | (int) obj.data] = (int)runtimeId;
-					Blockstates.Add(runtimeId, new Blockstate(){Id = (int)obj.id, Data = (short)obj.data, Name = (string)obj.name, RuntimeId = runtimeId});
+					LegacyToRuntimeId[((int) obj.id << 4) | (int) obj.data] = (int) runtimeId;
+					Blockstates.Add(runtimeId, new Blockstate()
+					{
+						Id = (int) obj.id,
+						Data = (short) obj.data,
+						Name = (string) obj.name,
+						RuntimeId = runtimeId
+					});
 
 					runtimeId++;
 				}
@@ -570,6 +575,10 @@ namespace MiNET.Blocks
 			else if (blockId == 412) block = new Conduit();
 			else if (blockId == 414) block = new TurtleEgg();
 			else if (blockId == 415) block = new BubbleColumn();
+			else if (blockId == 416) block = new Barrier();
+			else if (blockId == 418) block = new Bamboo();
+			else if (blockId == 419) block = new BambooSapling();
+			else if (blockId == 420) block = new Scaffolding();
 
 
 			else
@@ -638,5 +647,4 @@ namespace MiNET.Blocks
 	//		}
 	//	}
 	//}
-
 }

@@ -24,7 +24,6 @@
 #endregion
 
 using System;
-using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,7 +33,6 @@ using System.IO.Compression;
 using System.Linq;
 using fNbt;
 using log4net;
-using Microsoft.IO;
 using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
@@ -43,7 +41,7 @@ namespace MiNET.Worlds
 {
 	public class ChunkColumn : ICloneable, IEnumerable<ChunkBase>
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkColumn));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ChunkColumn));
 
 		public bool isAllAir = false;
 		public bool isNew = true;
@@ -85,7 +83,7 @@ namespace MiNET.Worlds
 		public int GetBlock(int bx, int by, int bz)
 		{
 			var chunk = GetChunk(by);
-			return chunk.GetBlock(bx, by - 16*(by >> 4), bz);
+			return chunk.GetBlock(bx, by - 16 * (by >> 4), bz);
 		}
 
 		public ChunkBase this[int chunkIndex]
@@ -117,7 +115,7 @@ namespace MiNET.Worlds
 		public void SetBlock(int bx, int by, int bz, int bid)
 		{
 			var chunk = GetChunk(by);
-			chunk.SetBlock(bx, by - 16*(by >> 4), bz, bid);
+			chunk.SetBlock(bx, by - 16 * (by >> 4), bz, bid);
 			SetDirty();
 		}
 
@@ -146,39 +144,39 @@ namespace MiNET.Worlds
 		public byte GetBlocklight(int bx, int by, int bz)
 		{
 			var chunk = GetChunk(by);
-			return chunk.GetBlocklight(bx, by - 16*(by >> 4), bz);
+			return chunk.GetBlocklight(bx, by - 16 * (by >> 4), bz);
 		}
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
 			var chunk = GetChunk(by);
-			chunk.SetBlocklight(bx, by - 16*(by >> 4), bz, data);
+			chunk.SetBlocklight(bx, by - 16 * (by >> 4), bz, data);
 			//SetDirty();
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
 		{
 			var chunk = GetChunk(by);
-			return chunk.GetMetadata(bx, by - 16*(by >> 4), bz);
+			return chunk.GetMetadata(bx, by - 16 * (by >> 4), bz);
 		}
 
 		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
 			var chunk = GetChunk(by);
-			chunk.SetMetadata(bx, by - 16*(by >> 4), bz, data);
+			chunk.SetMetadata(bx, by - 16 * (by >> 4), bz, data);
 			SetDirty();
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
 		{
 			var chunk = GetChunk(by);
-			return chunk.GetSkylight(bx, by - 16*(by >> 4), bz);
+			return chunk.GetSkylight(bx, by - 16 * (by >> 4), bz);
 		}
 
 		public void SetSkyLight(int bx, int by, int bz, byte data)
 		{
 			var chunk = GetChunk(by);
-			chunk.SetSkylight(bx, by - 16*(by >> 4), bz, data);
+			chunk.SetSkylight(bx, by - 16 * (by >> 4), bz, data);
 			//SetDirty();
 		}
 
@@ -208,14 +206,16 @@ namespace MiNET.Worlds
 		/// <summary>Blends the specified colors together.</summary>
 		/// <param name="color">Color to blend onto the background color.</param>
 		/// <param name="backColor">Color to blend the other color onto.</param>
-		/// <param name="amount">How much of <paramref name="color"/> to keep,
-		/// “on top of” <paramref name="backColor"/>.</param>
+		/// <param name="amount">
+		///     How much of <paramref name="color" /> to keep,
+		///     “on top of” <paramref name="backColor" />.
+		/// </param>
 		/// <returns>The blended colors.</returns>
 		public static Color Blend(Color color, Color backColor, double amount)
 		{
-			byte r = (byte) ((color.R*amount) + backColor.R*(1 - amount));
-			byte g = (byte) ((color.G*amount) + backColor.G*(1 - amount));
-			byte b = (byte) ((color.B*amount) + backColor.B*(1 - amount));
+			byte r = (byte) ((color.R * amount) + backColor.R * (1 - amount));
+			byte g = (byte) ((color.G * amount) + backColor.G * (1 - amount));
+			byte b = (byte) ((color.B * amount) + backColor.B * (1 - amount));
 			return Color.FromArgb(r, g, b);
 		}
 
@@ -302,7 +302,7 @@ namespace MiNET.Worlds
 			// set the initial array value
 			Array.Copy(value, destinationArray, value.Length);
 
-			int arrayToFillHalfLength = destinationArray.Length/2;
+			int arrayToFillHalfLength = destinationArray.Length / 2;
 			int copyLength;
 
 			for (copyLength = value.Length; copyLength < arrayToFillHalfLength; copyLength <<= 1)
@@ -496,27 +496,17 @@ namespace MiNET.Worlds
 
 				stream.Write(biomeId, 0, biomeId.Length);
 
-				//short extraSize = 0;
-				//writer.Write(extraSize); // No extra data
-
-				// Count = SignedVarInt (zigzag)
-				// Each entry
-				// - Hash SignedVarint x << 12, z << 8, y
-				// - Block data short
-
-				stream.WriteByte((byte) 0); // Border blocks - nope
-
-				VarInt.WriteSInt32(stream, 0); // Block extradata count
-				//VarInt.WriteSInt32(stream, 2);
-				//VarInt.WriteSInt32(stream, 1 << 12 | 1 << 8 | 4);
-				//writer.Write((byte)31);
-				//writer.Write((byte)0);
+				stream.WriteByte(0); // Border blocks - nope
 
 				if (BlockEntities.Count != 0)
 				{
 					foreach (NbtCompound blockEntity in BlockEntities.Values.ToArray())
 					{
-						NbtFile file = new NbtFile(blockEntity) {BigEndian = false, UseVarInt = true};
+						NbtFile file = new NbtFile(blockEntity)
+						{
+							BigEndian = false,
+							UseVarInt = true
+						};
 						file.SaveToStream(stream, NbtCompression.None);
 					}
 				}
@@ -572,7 +562,7 @@ namespace MiNET.Worlds
 	{
 		public static T[] Create(int size, T initialValue)
 		{
-			T[] array = (T[]) Array.CreateInstance(typeof (T), size);
+			T[] array = (T[]) Array.CreateInstance(typeof(T), size);
 			for (int i = 0; i < array.Length; i++)
 				array[i] = initialValue;
 			return array;
@@ -580,7 +570,7 @@ namespace MiNET.Worlds
 
 		public static T[] Create(int size)
 		{
-			T[] array = (T[]) Array.CreateInstance(typeof (T), size);
+			T[] array = (T[]) Array.CreateInstance(typeof(T), size);
 			for (int i = 0; i < array.Length; i++)
 				array[i] = new T();
 			return array;

@@ -852,6 +852,7 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Global | 1 |
 |World Interaction | 2 |
 |Creative | 3 |
+|Crafting | 10 |
 |Unspecified | 99999 |
 
 #### Normal Action constants

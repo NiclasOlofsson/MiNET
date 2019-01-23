@@ -3513,6 +3513,7 @@ namespace MiNET.Net
 			Global = 1,
 			WorldInteraction = 2,
 			Creative = 3,
+			Crafting = 100,
 			Unspecified = 99999,
 		}
 		public enum NormalAction

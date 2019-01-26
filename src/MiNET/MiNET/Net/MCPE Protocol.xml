@@ -463,7 +463,7 @@
 			<enum id="Global" value="1" />
 			<enum id="World interaction" value="2" />
 			<enum id="Creative" value="3" />
-			<enum id="Crafting" value="10" />
+			<enum id="Crafting" value="100" />
 			<enum id="Unspecified" value="99999" />
 		</enums>
 		<enums id="Normal action">

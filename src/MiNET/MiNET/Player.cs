@@ -2282,7 +2282,6 @@ namespace MiNET
 									break;
 								case 1:
 									oldItemSlots = Inventory.Chest;
-									Inventory.Chest = newItem;
 									break;
 								case 2:
 									oldItemSlots = Inventory.Leggings;

@@ -93,51 +93,60 @@ namespace MiNET.Plugins
 
 				foreach (string pluginPath in pluginPaths)
 				{
-					Assembly newAssembly = Assembly.LoadFile(pluginPath);
-
 					try
 					{
-						Type[] types = newAssembly.GetExportedTypes();
-						foreach (Type type in types)
+						Assembly newAssembly = Assembly.LoadFile(pluginPath);
+
+						try
 						{
-							try
+							Type[] types = newAssembly.GetExportedTypes();
+							foreach (Type type in types)
 							{
-								// If no PluginAttribute and does not implement IPlugin interface, not a valid plugin
-								if (!type.IsDefined(typeof(PluginAttribute), true) && !typeof(IPlugin).IsAssignableFrom(type)) continue;
-
-								// If plugin is already loaded don't load it again
-								if (_plugins.Any(l => l.GetType().AssemblyQualifiedName == type.AssemblyQualifiedName))
+								try
 								{
-									Log.Error($"Tried to load duplicate plugin: {type}");
-									continue;
-								}
+									// If no PluginAttribute and does not implement IPlugin interface, not a valid plugin
+									if (!type.IsDefined(typeof(PluginAttribute), true) && !typeof(IPlugin).IsAssignableFrom(type))
+										continue;
 
-								if (type.IsDefined(typeof(PluginAttribute), true))
-								{
-									PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof(PluginAttribute), true) as PluginAttribute;
-									if (pluginAttribute != null)
+									// If plugin is already loaded don't load it again
+									if (_plugins.Any(l => l.GetType().AssemblyQualifiedName == type.AssemblyQualifiedName))
 									{
-										if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true)) continue;
+										Log.Error($"Tried to load duplicate plugin: {type}");
+										continue;
+									}
+
+									if (type.IsDefined(typeof(PluginAttribute), true))
+									{
+										PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof(PluginAttribute), true) as PluginAttribute;
+										if (pluginAttribute != null)
+										{
+											if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true))
+												continue;
+										}
+									}
+									var ctor = type.GetConstructor(Type.EmptyTypes);
+									if (ctor != null)
+									{
+										var plugin = ctor.Invoke(null);
+										LoadPlugin(plugin, type);
 									}
 								}
-								var ctor = type.GetConstructor(Type.EmptyTypes);
-								if (ctor != null)
+								catch (Exception ex)
 								{
-									var plugin = ctor.Invoke(null);
-									LoadPlugin(plugin, type);
+									Log.WarnFormat("Failed loading plugin type {0} as a plugin.", type);
+									Log.Debug("Plugin loader caught exception, but is moving on.", ex);
 								}
 							}
-							catch (Exception ex)
-							{
-								Log.WarnFormat("Failed loading plugin type {0} as a plugin.", type);
-								Log.Debug("Plugin loader caught exception, but is moving on.", ex);
-							}
+						}
+						catch (Exception e)
+						{
+							Log.WarnFormat("Failed loading exported types for assembly {0} as a plugin.", newAssembly.FullName);
+							Log.Debug("Plugin loader caught exception, but is moving on.", e);
 						}
 					}
 					catch (Exception e)
 					{
-						Log.WarnFormat("Failed loading exported types for assembly {0} as a plugin.", newAssembly.FullName);
-						Log.Debug("Plugin loader caught exception, but is moving on.", e);
+						Log.Debug($"Failed loading assembly at path \"{pluginPath}\": {e}");
 					}
 				}
 			}

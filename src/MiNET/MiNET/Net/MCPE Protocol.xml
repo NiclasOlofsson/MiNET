@@ -842,11 +842,11 @@
 
 	<pdu id="0x52" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
 		<field name="Package ID" type="string" />
-		<field name="Max Chunk Size " type="uint" />
-		<field name="Chunk Count " type="uint" />
-		<field name="Compressed Package Size " type="ulong" />
+		<field name="Max Chunk Size" type="uint" />
+		<field name="Chunk Count" type="uint" />
+		<field name="Compressed Package Size" type="ulong" />
 		<!-- SHA256 -->
-		<field name="Hash " type="string" />
+		<field name="Hash" type="ByteArray" />
 	</pdu>
 
 	<pdu id="0x53" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">

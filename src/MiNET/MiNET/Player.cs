@@ -2191,7 +2191,7 @@ namespace MiNET
 			{
 				case McpeInventoryTransaction.ItemReleaseAction.Release:
 				{
-					if (_itemUseTimer <= 0) return;
+					if (_itemUseTimer <= 0) break;
 
 					itemInHand.Release(Level, this, transaction.FromPosition, Level.TickTime - _itemUseTimer);
 

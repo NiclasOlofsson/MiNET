@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 313;
-		public const string GameVersion = "1.8.0";
+		public const int ProtocolVersion = 332;
+		public const string GameVersion = "1.9.0";
 	}
 
 	public interface IMcpeMessageHandler
@@ -94,6 +94,8 @@ namespace MiNET.Net
 		void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message);
 		void HandleMcpeLabTable(McpeLabTable message);
 		void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message);
+		void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message);
+		void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message);
 		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
 	}
 
@@ -196,13 +198,13 @@ namespace MiNET.Net
 		void HandleMcpeMoveEntityDelta(McpeMoveEntityDelta message);
 		void HandleMcpeSetScoreboardIdentityPacket(McpeSetScoreboardIdentityPacket message);
 		void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message);
-		void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message);
 		void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message);
 		void HandleMcpeSpawnParticleEffect(McpeSpawnParticleEffect message);
 		void HandleMcpeAvailableEntityIdentifiers(McpeAvailableEntityIdentifiers message);
-		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
+		void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message);
 		void HandleMcpeNetworkChunkPublisherUpdate(McpeNetworkChunkPublisherUpdate message);
 		void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message);
+		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
 
@@ -315,13 +317,13 @@ namespace MiNET.Net
 			else if (typeof(McpeMoveEntityDelta) == message.GetType()) _messageHandler.HandleMcpeMoveEntityDelta((McpeMoveEntityDelta) message);
 			else if (typeof(McpeSetScoreboardIdentityPacket) == message.GetType()) _messageHandler.HandleMcpeSetScoreboardIdentityPacket((McpeSetScoreboardIdentityPacket) message);
 			else if (typeof(McpeUpdateSoftEnumPacket) == message.GetType()) _messageHandler.HandleMcpeUpdateSoftEnumPacket((McpeUpdateSoftEnumPacket) message);
-			else if (typeof(McpeNetworkStackLatencyPacket) == message.GetType()) _messageHandler.HandleMcpeNetworkStackLatencyPacket((McpeNetworkStackLatencyPacket) message);
 			else if (typeof(McpeScriptCustomEventPacket) == message.GetType()) _messageHandler.HandleMcpeScriptCustomEventPacket((McpeScriptCustomEventPacket) message);
 			else if (typeof(McpeSpawnParticleEffect) == message.GetType()) _messageHandler.HandleMcpeSpawnParticleEffect((McpeSpawnParticleEffect) message);
 			else if (typeof(McpeAvailableEntityIdentifiers) == message.GetType()) _messageHandler.HandleMcpeAvailableEntityIdentifiers((McpeAvailableEntityIdentifiers) message);
-			else if (typeof(McpeLevelSoundEvent) == message.GetType()) _messageHandler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent) message);
+			else if (typeof(McpeLevelSoundEventV2) == message.GetType()) _messageHandler.HandleMcpeLevelSoundEventV2((McpeLevelSoundEventV2) message);
 			else if (typeof(McpeNetworkChunkPublisherUpdate) == message.GetType()) _messageHandler.HandleMcpeNetworkChunkPublisherUpdate((McpeNetworkChunkPublisherUpdate) message);
 			else if (typeof(McpeBiomeDefinitionList) == message.GetType()) _messageHandler.HandleMcpeBiomeDefinitionList((McpeBiomeDefinitionList) message);
+			else if (typeof(McpeLevelSoundEvent) == message.GetType()) _messageHandler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent) message);
 			else if (typeof(FtlCreatePlayer) == message.GetType()) _messageHandler.HandleFtlCreatePlayer((FtlCreatePlayer) message);
 			else return false;
 
@@ -889,7 +891,7 @@ namespace MiNET.Net
 						packet.Decode(buffer);
 						return packet;
 					case 0x78:
-						packet = McpeLevelSoundEvent.CreateObject();
+						packet = McpeLevelSoundEventV2.CreateObject();
 						packet.Decode(buffer);
 						return packet;
 					case 0x79:
@@ -898,6 +900,10 @@ namespace MiNET.Net
 						return packet;
 					case 0x7a:
 						packet = McpeBiomeDefinitionList.CreateObject();
+						packet.Decode(buffer);
+						return packet;
+					case 0x7b:
+						packet = McpeLevelSoundEvent.CreateObject();
 						packet.Decode(buffer);
 						return packet;
 				}
@@ -2065,6 +2071,7 @@ namespace MiNET.Net
 	{
 
 		public bool mustAccept; // = null;
+		public bool hasScripts; // = null;
 		public ResourcePackInfos behahaviorpackinfos; // = null;
 		public ResourcePackInfos resourcepackinfos; // = null;
 
@@ -2081,6 +2088,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(mustAccept);
+			Write(hasScripts);
 			Write(behahaviorpackinfos);
 			Write(resourcepackinfos);
 
@@ -2097,6 +2105,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			mustAccept = ReadBool();
+			hasScripts = ReadBool();
 			behahaviorpackinfos = ReadResourcePackInfos();
 			resourcepackinfos = ReadResourcePackInfos();
 
@@ -2111,6 +2120,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			mustAccept=default(bool);
+			hasScripts=default(bool);
 			behahaviorpackinfos=default(ResourcePackInfos);
 			resourcepackinfos=default(ResourcePackInfos);
 		}
@@ -2249,6 +2259,7 @@ namespace MiNET.Net
 			System = 6,
 			Whisper = 7,
 			Announcement = 8,
+			Json = 9,
 		}
 
 		public byte type; // = null;
@@ -2366,21 +2377,18 @@ namespace MiNET.Net
 		public bool hasEduFeaturesEnabled; // = null;
 		public float rainLevel; // = null;
 		public float lightningLevel; // = null;
+		public bool hasConfirmedPlatformLockedContent; // = null;
 		public bool isMultiplayer; // = null;
 		public bool broadcastToLan; // = null;
-		public bool broadcastToXbl; // = null;
+		public int xboxLiveBroadcastMode; // = null;
+		public int platformBroadcastMode; // = null;
 		public bool enableCommands; // = null;
 		public bool isTexturepacksRequired; // = null;
 		public GameRules gamerules; // = null;
 		public bool bonusChest; // = null;
 		public bool mapEnabled; // = null;
-		public bool trustPlayers; // = null;
 		public int permissionLevel; // = null;
-		public int gamePublishSetting; // = null;
 		public int serverChunkTickRange; // = null;
-		public bool hasPlatformBroadcast; // = null;
-		public int platformBroadcastMode; // = null;
-		public bool xboxLiveBroadcastIntent; // = null;
 		public bool hasLockedBehaviorPack; // = null;
 		public bool hasLockedResourcePack; // = null;
 		public bool isFromLockedWorldTemplate; // = null;
@@ -2427,21 +2435,18 @@ namespace MiNET.Net
 			Write(hasEduFeaturesEnabled);
 			Write(rainLevel);
 			Write(lightningLevel);
+			Write(hasConfirmedPlatformLockedContent);
 			Write(isMultiplayer);
 			Write(broadcastToLan);
-			Write(broadcastToXbl);
+			WriteVarInt(xboxLiveBroadcastMode);
+			WriteVarInt(platformBroadcastMode);
 			Write(enableCommands);
 			Write(isTexturepacksRequired);
 			Write(gamerules);
 			Write(bonusChest);
 			Write(mapEnabled);
-			Write(trustPlayers);
 			WriteSignedVarInt(permissionLevel);
-			WriteSignedVarInt(gamePublishSetting);
 			Write(serverChunkTickRange);
-			Write(hasPlatformBroadcast);
-			WriteSignedVarInt(platformBroadcastMode);
-			Write(xboxLiveBroadcastIntent);
 			Write(hasLockedBehaviorPack);
 			Write(hasLockedResourcePack);
 			Write(isFromLockedWorldTemplate);
@@ -2488,21 +2493,18 @@ namespace MiNET.Net
 			hasEduFeaturesEnabled = ReadBool();
 			rainLevel = ReadFloat();
 			lightningLevel = ReadFloat();
+			hasConfirmedPlatformLockedContent = ReadBool();
 			isMultiplayer = ReadBool();
 			broadcastToLan = ReadBool();
-			broadcastToXbl = ReadBool();
+			xboxLiveBroadcastMode = ReadVarInt();
+			platformBroadcastMode = ReadVarInt();
 			enableCommands = ReadBool();
 			isTexturepacksRequired = ReadBool();
 			gamerules = ReadGameRules();
 			bonusChest = ReadBool();
 			mapEnabled = ReadBool();
-			trustPlayers = ReadBool();
 			permissionLevel = ReadSignedVarInt();
-			gamePublishSetting = ReadSignedVarInt();
 			serverChunkTickRange = ReadInt();
-			hasPlatformBroadcast = ReadBool();
-			platformBroadcastMode = ReadSignedVarInt();
-			xboxLiveBroadcastIntent = ReadBool();
 			hasLockedBehaviorPack = ReadBool();
 			hasLockedResourcePack = ReadBool();
 			isFromLockedWorldTemplate = ReadBool();
@@ -2547,21 +2549,18 @@ namespace MiNET.Net
 			hasEduFeaturesEnabled=default(bool);
 			rainLevel=default(float);
 			lightningLevel=default(float);
+			hasConfirmedPlatformLockedContent=default(bool);
 			isMultiplayer=default(bool);
 			broadcastToLan=default(bool);
-			broadcastToXbl=default(bool);
+			xboxLiveBroadcastMode=default(int);
+			platformBroadcastMode=default(int);
 			enableCommands=default(bool);
 			isTexturepacksRequired=default(bool);
 			gamerules=default(GameRules);
 			bonusChest=default(bool);
 			mapEnabled=default(bool);
-			trustPlayers=default(bool);
 			permissionLevel=default(int);
-			gamePublishSetting=default(int);
 			serverChunkTickRange=default(int);
-			hasPlatformBroadcast=default(bool);
-			platformBroadcastMode=default(int);
-			xboxLiveBroadcastIntent=default(bool);
 			hasLockedBehaviorPack=default(bool);
 			hasLockedResourcePack=default(bool);
 			isFromLockedWorldTemplate=default(bool);
@@ -8401,6 +8400,8 @@ namespace MiNET.Net
 	public partial class McpeNetworkStackLatencyPacket : Packet<McpeNetworkStackLatencyPacket>
 	{
 
+		public long timestamp; // = null;
+		public bool needResponse; // = null;
 
 		public McpeNetworkStackLatencyPacket()
 		{
@@ -8414,6 +8415,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(timestamp);
+			Write(needResponse);
 
 			AfterEncode();
 		}
@@ -8427,6 +8430,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			timestamp = ReadLong();
+			needResponse = ReadBool();
 
 			AfterDecode();
 		}
@@ -8438,6 +8443,8 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+			timestamp=default(long);
+			needResponse=default(bool);
 		}
 
 	}
@@ -8498,6 +8505,7 @@ namespace MiNET.Net
 	{
 
 		public byte dimensionId; // = null;
+		public long entityId; // = null;
 		public Vector3 position; // = null;
 		public string particleName; // = null;
 
@@ -8514,6 +8522,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(dimensionId);
+			WriteUnsignedVarLong(entityId);
 			Write(position);
 			Write(particleName);
 
@@ -8530,6 +8539,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			dimensionId = ReadByte();
+			entityId = ReadUnsignedVarLong();
 			position = ReadVector3();
 			particleName = ReadString();
 
@@ -8544,6 +8554,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			dimensionId=default(byte);
+			entityId=default(long);
 			position=default(Vector3);
 			particleName=default(string);
 		}
@@ -8598,7 +8609,7 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeLevelSoundEvent : Packet<McpeLevelSoundEvent>
+	public partial class McpeLevelSoundEventV2 : Packet<McpeLevelSoundEventV2>
 	{
 
 		public byte soundId; // = null;
@@ -8608,7 +8619,7 @@ namespace MiNET.Net
 		public bool isBabyMob; // = null;
 		public bool isGlobal; // = null;
 
-		public McpeLevelSoundEvent()
+		public McpeLevelSoundEventV2()
 		{
 			Id = 0x78;
 			IsMcpe = true;
@@ -8762,6 +8773,74 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			namedtag=default(Nbt);
+		}
+
+	}
+
+	public partial class McpeLevelSoundEvent : Packet<McpeLevelSoundEvent>
+	{
+
+		public uint soundId; // = null;
+		public Vector3 position; // = null;
+		public int blockId; // = null;
+		public string entityType; // = null;
+		public bool isBabyMob; // = null;
+		public bool isGlobal; // = null;
+
+		public McpeLevelSoundEvent()
+		{
+			Id = 0x7b;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteUnsignedVarInt(soundId);
+			Write(position);
+			WriteSignedVarInt(blockId);
+			Write(entityType);
+			Write(isBabyMob);
+			Write(isGlobal);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			soundId = ReadUnsignedVarInt();
+			position = ReadVector3();
+			blockId = ReadSignedVarInt();
+			entityType = ReadString();
+			isBabyMob = ReadBool();
+			isGlobal = ReadBool();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			soundId=default(uint);
+			position=default(Vector3);
+			blockId=default(int);
+			entityType=default(string);
+			isBabyMob=default(bool);
+			isGlobal=default(bool);
 		}
 
 	}

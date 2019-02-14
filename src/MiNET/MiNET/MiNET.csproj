@@ -26,11 +26,15 @@
 
 	<ItemGroup>
 		<None Remove="Blocks\blockstates.json" />
+		<None Remove="Blocks\legacy_id_map.json" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="Blocks\blockstates.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Blocks\legacy_id_map.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</EmbeddedResource>
 	</ItemGroup>
 

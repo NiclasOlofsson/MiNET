@@ -105,6 +105,7 @@ namespace MiNET.Entities
 		Evoker = 104,
 		Vex = 105,
 		Drowned = 110,
+		Pillager = 114,
 
 		Chicken = 10,
 		Cow = 11,
@@ -247,7 +248,8 @@ namespace MiNET.Entities
 			{ EntityType.Agent, "minecraft:agent" },
 			{ EntityType.IceBomb, "minecraft:ice_bomb" },
 			{ EntityType.Phantom, "minecraft:phantom" },
-			{ EntityType.Camera, "minecraft:tripod_camera" }
+			{ EntityType.Camera, "minecraft:tripod_camera" },
+			{ EntityType.Pillager, "minecraft:pillager" },
 		};
 
 		public static TStore Store<TStore>(this Entity entity) where TStore : new()

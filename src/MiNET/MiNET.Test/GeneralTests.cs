@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -115,6 +115,18 @@ namespace MiNET.Test
 			Dictionary<int, Blockstate> blockstates = new Dictionary<int, Blockstate>();
 
 			var assembly = Assembly.GetAssembly(typeof(Block));
+			var legacyIdMap = new Dictionary<string, int>();
+			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".legacy_id_map.json"))
+			using (StreamReader reader = new StreamReader(stream))
+			{
+				var result = JObject.Parse(reader.ReadToEnd());
+
+				foreach (var obj in result)
+				{
+					legacyIdMap.Add(obj.Key, (int) obj.Value);
+				}
+			}
+
 			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
 			using (StreamReader reader = new StreamReader(stream))
 			{
@@ -125,8 +137,12 @@ namespace MiNET.Test
 				{
 					try
 					{
-						blockstates.Add(runtimeId, new Blockstate() {Id = (int) obj.id, Data = (short) obj.data, Name = (string) obj.name, RuntimeId = runtimeId});
-						runtimeId++;
+						var name = (string) obj.name;
+						if(legacyIdMap.TryGetValue(name, out var id))
+						{
+							blockstates.Add(runtimeId, new Blockstate() { Id = id, Data = (short) obj.data, Name = (string) obj.name, RuntimeId = runtimeId });
+							runtimeId++;
+						}
 					}
 					catch (Exception e)
 					{

@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -55,6 +55,18 @@ namespace MiNET
 			new Item(5, 5, 1),
 			new Item(139, 0, 1),
 			new Item(139, 1, 1),
+			new Item(139, 2, 1),
+			new Item(139, 3, 1),
+			new Item(139, 4, 1),
+			new Item(139, 5, 1),
+			new Item(139, 12, 1),
+			new Item(139, 7, 1),
+			new Item(139, 8, 1),
+			new Item(139, 6, 1),
+			new Item(139, 9, 1),
+			new Item(139, 13, 1),
+			new Item(139, 10, 1),
+			new Item(139, 11, 1),
 			new Item(85, 0, 1),
 			new Item(85, 1, 1),
 			new Item(85, 2, 1),
@@ -68,19 +80,33 @@ namespace MiNET
 			new Item(185, 0, 1),
 			new Item(187, 0, 1),
 			new Item(186, 0, 1),
+			new Item(-180, 0, 1),
 			new Item(67, 0, 1),
+			new Item(-179, 0, 1),
 			new Item(53, 0, 1),
 			new Item(134, 0, 1),
 			new Item(135, 0, 1),
 			new Item(136, 0, 1),
 			new Item(163, 0, 1),
 			new Item(164, 0, 1),
-			new Item(108, 0, 1),
 			new Item(109, 0, 1),
-			new Item(114, 0, 1),
+			new Item(-175, 0, 1),
 			new Item(128, 0, 1),
+			new Item(-177, 0, 1),
 			new Item(180, 0, 1),
+			new Item(-176, 0, 1),
+			new Item(-169, 0, 1),
+			new Item(-172, 0, 1),
+			new Item(-170, 0, 1),
+			new Item(-173, 0, 1),
+			new Item(-171, 0, 1),
+			new Item(-174, 0, 1),
+			new Item(108, 0, 1),
+			new Item(114, 0, 1),
+			new Item(-184, 0, 1),
+			new Item(-178, 0, 1),
 			new Item(156, 0, 1),
+			new Item(-185, 0, 1),
 			new Item(203, 0, 1),
 			new Item(-2, 0, 1),
 			new Item(-3, 0, 1),
@@ -135,20 +161,37 @@ namespace MiNET
 			new Item(160, 2, 1),
 			new Item(160, 6, 1),
 			new Item(65, 0, 1),
+			new Item(-165, 0, 1),
 			new Item(44, 0, 1),
+			new Item(-166, 2, 1),
 			new Item(44, 3, 1),
+			new Item(182, 5, 1),
 			new Item(158, 0, 1),
 			new Item(158, 1, 1),
 			new Item(158, 2, 1),
 			new Item(158, 3, 1),
 			new Item(158, 4, 1),
 			new Item(158, 5, 1),
-			new Item(44, 4, 1),
 			new Item(44, 5, 1),
-			new Item(44, 7, 1),
+			new Item(-166, 0, 1),
 			new Item(44, 1, 1),
+			new Item(-166, 3, 1),
+			new Item(182, 6, 1),
 			new Item(182, 0, 1),
+			new Item(-166, 4, 1),
+			new Item(-162, 1, 1),
+			new Item(-162, 6, 1),
+			new Item(-162, 7, 1),
+			new Item(-162, 4, 1),
+			new Item(-162, 5, 1),
+			new Item(-162, 3, 1),
+			new Item(-162, 2, 1),
+			new Item(44, 4, 1),
+			new Item(44, 7, 1),
+			new Item(182, 7, 1),
+			new Item(-162, 0, 1),
 			new Item(44, 6, 1),
+			new Item(-166, 1, 1),
 			new Item(182, 1, 1),
 			new Item(182, 2, 1),
 			new Item(182, 3, 1),
@@ -162,12 +205,15 @@ namespace MiNET
 			new Item(168, 2, 1),
 			new Item(4, 0, 1),
 			new Item(48, 0, 1),
+			new Item(-183, 0, 1),
 			new Item(24, 0, 1),
 			new Item(24, 1, 1),
 			new Item(24, 2, 1),
+			new Item(24, 3, 1),
 			new Item(179, 0, 1),
 			new Item(179, 1, 1),
 			new Item(179, 2, 1),
+			new Item(179, 3, 1),
 			new Item(173, 0, 1),
 			new Item(-139, 0, 1),
 			new Item(41, 0, 1),
@@ -178,6 +224,7 @@ namespace MiNET
 			new Item(155, 0, 1),
 			new Item(155, 2, 1),
 			new Item(155, 1, 1),
+			new Item(155, 3, 1),
 			new Item(168, 0, 1),
 			new Item(168, 1, 1),
 			new Item(165, 0, 1),
@@ -372,6 +419,8 @@ namespace MiNET
 			new Item(-134, 2, 1),
 			new Item(-134, 0, 1),
 			new Item(-134, 4, 1),
+			new Item(335, 0, 1),
+			new Item(-130, 0, 1),
 			new Item(37, 0, 1),
 			new Item(38, 0, 1),
 			new Item(38, 1, 1),
@@ -382,13 +431,17 @@ namespace MiNET
 			new Item(38, 6, 1),
 			new Item(38, 7, 1),
 			new Item(38, 8, 1),
+			new Item(38, 9, 1),
+			new Item(38, 10, 1),
 			new Item(175, 0, 1),
 			new Item(175, 1, 1),
 			new Item(175, 4, 1),
 			new Item(175, 5, 1),
+			new Item(351, 19, 1),
 			new Item(351, 7, 1),
 			new Item(351, 8, 1),
-			new Item(351, 0, 1),
+			new Item(351, 16, 1),
+			new Item(351, 17, 1),
 			new Item(351, 1, 1),
 			new Item(351, 14, 1),
 			new Item(351, 11, 1),
@@ -396,17 +449,18 @@ namespace MiNET
 			new Item(351, 2, 1),
 			new Item(351, 6, 1),
 			new Item(351, 12, 1),
-			new Item(351, 4, 1),
+			new Item(351, 18, 1),
 			new Item(351, 5, 1),
 			new Item(351, 13, 1),
 			new Item(351, 9, 1),
-			new Item(351, 15, 1),
+			new Item(351, 0, 1),
 			new Item(351, 3, 1),
+			new Item(351, 4, 1),
+			new Item(351, 15, 1),
 			new Item(106, 0, 1),
 			new Item(111, 0, 1),
-			new Item(335, 0, 1),
-			new Item(-130, 0, 1),
 			new Item(32, 0, 1),
+			new Item(-163, 0, 1),
 			new Item(80, 0, 1),
 			new Item(79, 0, 1),
 			new Item(174, 0, 1),
@@ -450,6 +504,7 @@ namespace MiNET
 			new Item(383, 14, 1),
 			new Item(383, 28, 1),
 			new Item(383, 22, 1),
+			new Item(383, 75, 1),
 			new Item(383, 16, 1),
 			new Item(383, 19, 1),
 			new Item(383, 30, 1),
@@ -466,6 +521,7 @@ namespace MiNET
 			new Item(383, 109, 1),
 			new Item(383, 31, 1),
 			new Item(383, 74, 1),
+			new Item(383, 113, 1),
 			new Item(383, 33, 1),
 			new Item(383, 38, 1),
 			new Item(383, 39, 1),
@@ -599,6 +655,8 @@ namespace MiNET
 			new Item(262, 38, 1),
 			new Item(262, 39, 1),
 			new Item(262, 40, 1),
+			new Item(262, 41, 1),
+			new Item(262, 42, 1),
 			new Item(366, 0, 1),
 			new Item(320, 0, 1),
 			new Item(364, 0, 1),
@@ -676,6 +734,8 @@ namespace MiNET
 			new Item(373, 37, 1),
 			new Item(373, 38, 1),
 			new Item(373, 39, 1),
+			new Item(373, 40, 1),
+			new Item(373, 41, 1),
 			new Item(438, 0, 1),
 			new Item(438, 1, 1),
 			new Item(438, 2, 1),
@@ -716,6 +776,8 @@ namespace MiNET
 			new Item(438, 37, 1),
 			new Item(438, 38, 1),
 			new Item(438, 39, 1),
+			new Item(438, 40, 1),
+			new Item(438, 41, 1),
 			new Item(441, 0, 1),
 			new Item(441, 1, 1),
 			new Item(441, 2, 1),
@@ -756,6 +818,8 @@ namespace MiNET
 			new Item(441, 37, 1),
 			new Item(441, 38, 1),
 			new Item(441, 39, 1),
+			new Item(441, 40, 1),
+			new Item(441, 41, 1),
 			new Item(280, 0, 1),
 			new Item(355, 0, 1),
 			new Item(355, 8, 1),
@@ -787,7 +851,7 @@ namespace MiNET
 			new Item(54, 0, 1),
 			new Item(146, 0, 1),
 			new Item(130, 0, 1),
-			new Item(205, 16, 1),
+			new Item(205, 0, 1),
 			new Item(218, 0, 1),
 			new Item(218, 8, 1),
 			new Item(218, 7, 1),
@@ -824,6 +888,11 @@ namespace MiNET
 			new Item(123, 0, 1),
 			new Item(169, 0, 1),
 			new Item(323, 0, 1),
+			new Item(472, 0, 1),
+			new Item(473, 0, 1),
+			new Item(474, 0, 1),
+			new Item(475, 0, 1),
+			new Item(476, 0, 1),
 			new Item(321, 0, 1),
 			new Item(389, 0, 1),
 			new Item(390, 0, 1),
@@ -863,6 +932,7 @@ namespace MiNET
 			new Item(465, 0, 1),
 			new Item(467, 0, 1),
 			new Item(468, 0, 1),
+			new Item(470, 0, 1),
 			new Item(287, 0, 1),
 			new Item(288, 0, 1),
 			new Item(318, 0, 1),
@@ -887,1322 +957,100 @@ namespace MiNET
 			new Item(339, 0, 1),
 			new Item(340, 0, 1),
 			new Item(386, 0, 1),
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 0),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 0),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 0),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 0),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 1),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 1),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 1),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 1),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 2),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 2),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 2),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 2),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 3),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 3),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 3),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 3),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 4),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 4),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 4),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 4),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 5),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 5),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 5),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 6),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 6),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 6),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 7),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 7),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 7),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 8),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 9),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 9),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 9),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 9),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 9),
-							new NbtShort("lvl", 5)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 10),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 10),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 10),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 10),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 10),
-							new NbtShort("lvl", 5)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 11),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 11),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 11),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 11),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 11),
-							new NbtShort("lvl", 5)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 12),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 12),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 13),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 13),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 14),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 14),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 14),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 15),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 15),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 15),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 15),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 15),
-							new NbtShort("lvl", 5)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 16),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 17),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 17),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 17),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 18),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 18),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 18),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 19),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 19),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 19),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 19),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 19),
-							new NbtShort("lvl", 5)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 20),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 20),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 21),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 22),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 23),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 23),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 23),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 24),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 24),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 24),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 25),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 25),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 26),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 29),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 29),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 29),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 29),
-							new NbtShort("lvl", 4)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 29),
-							new NbtShort("lvl", 5)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 30),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 30),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 30),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 31),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 31),
-							new NbtShort("lvl", 2)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 31),
-							new NbtShort("lvl", 3)
-						}
-					}
-				}
-			},
-			new Item(403, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtList("ench")
-					{
-						new NbtCompound
-						{
-							new NbtShort("id", 32),
-							new NbtShort("lvl", 1)
-						}
-					}
-				}
-			},
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 1), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 1), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 1), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 1), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 2), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 2), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 2), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 2), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 3), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 3), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 3), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 3), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 4), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 4), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 4), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 4), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 5), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 5), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 5), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 6), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 6), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 6), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 7), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 7), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 7), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 8), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 5) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 10), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 10), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 10), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 10), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 10), new NbtShort("lvl", 5) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 11), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 11), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 11), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 11), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 11), new NbtShort("lvl", 5) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 12), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 12), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 13), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 13), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 14), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 14), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 14), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 15), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 15), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 15), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 15), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 15), new NbtShort("lvl", 5) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 16), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 17), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 17), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 17), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 18), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 18), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 18), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 19), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 19), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 19), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 19), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 19), new NbtShort("lvl", 5) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 20), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 20), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 21), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 22), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 23), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 23), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 23), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 24), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 24), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 24), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 25), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 25), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 26), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 29), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 29), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 29), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 29), new NbtShort("lvl", 4) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 29), new NbtShort("lvl", 5) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 30), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 30), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 30), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 31), new NbtShort("lvl", 1) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 31), new NbtShort("lvl", 2) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 31), new NbtShort("lvl", 3) } } } },
+			new Item(403, 0, 1){ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 32), new NbtShort("lvl", 1) } } } },
 			new Item(333, 0, 1),
 			new Item(333, 1, 1),
 			new Item(333, 2, 1),
@@ -2265,353 +1113,23 @@ namespace MiNET
 			new Item(446, 10, 1),
 			new Item(446, 2, 1),
 			new Item(446, 6, 1),
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions", NbtTagType.Compound),
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {0}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {8}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {7}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {15}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {12}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {14}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {1}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {4}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {5}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {13}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {9}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {3}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {11}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {10}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {2}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
-			new Item(401, 0, 1)
-			{
-				ExtraData = new NbtCompound
-				{
-					new NbtCompound("Fireworks")
-					{
-						new NbtList("Explosions")
-						{
-							new NbtCompound
-							{
-								new NbtByteArray("FireworkColor", new byte[] {6}),
-								new NbtByteArray("FireworkFade", new byte[0]),
-								new NbtByte("FireworkFlicker", 0),
-								new NbtByte("FireworkTrail", 0),
-								new NbtByte("FireworkType", 0)
-							}
-						},
-						new NbtByte("Flight", 1)
-					}
-				}
-			},
+			new Item(401, 0, 1){ExtraData = new NbtCompound {new NbtCompound("Fireworks") {new NbtList("Explosions", NbtTagType.Compound), new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{0}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{8}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{7}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{15}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{12}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{14}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{1}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{4}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{5}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{13}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{9}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{3}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{11}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{10}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{2}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
+			new Item(401, 0, 1){ExtraData = new NbtCompound { new NbtCompound("Fireworks") { new NbtList("Explosions") { new NbtCompound { new NbtByteArray("FireworkColor", new byte[]{6}), new NbtByteArray("FireworkFade", new byte[0]), new NbtByte("FireworkFlicker", 0), new NbtByte("FireworkTrail", 0), new NbtByte("FireworkType", 0)  } }, new NbtByte("Flight", 1) } } },
 		};
 	}
 }

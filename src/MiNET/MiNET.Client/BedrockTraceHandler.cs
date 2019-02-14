@@ -950,6 +950,15 @@ namespace MiNET.Client
 
 		public override void HandleMcpeAvailableEntityIdentifiers(McpeAvailableEntityIdentifiers message)
 		{
+			foreach (var entity in message.namedtag.NbtFile.RootTag["idlist"] as NbtList)
+			{
+				var id = (entity["id"] as NbtString).Value;
+				var rid = (entity["rid"] as NbtInt).Value;
+				if(!Enum.IsDefined(typeof(EntityType), rid))
+				{
+					Console.WriteLine($"{{ (EntityType) {rid}, \"{id}\" }},");
+				}
+			}
 		}
 
 		public override void HandleMcpeNetworkChunkPublisherUpdate(McpeNetworkChunkPublisherUpdate message)
@@ -961,6 +970,10 @@ namespace MiNET.Client
 		}
 
 		public override void HandleFtlCreatePlayer(FtlCreatePlayer message)
+		{
+		}
+
+		public override void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
 		{
 		}
 	}

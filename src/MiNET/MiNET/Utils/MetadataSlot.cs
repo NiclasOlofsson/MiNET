@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -70,10 +70,11 @@ namespace MiNET.Utils
 			if (metadata == short.MaxValue) metadata = -1;
 			byte count = (byte) (tmp & 0xff);
 			Item stack = ItemFactory.GetItem((short) id, metadata, count);
-			int nbtLen = reader.ReadInt16(); // NbtLen
-			if (nbtLen > 0)
+
+			ushort nbtLen = reader.ReadUInt16(); // NbtLen
+			if (nbtLen == 0xffff && reader.ReadByte() == 1)
 			{
-				stack.ExtraData = Packet.ReadNbt(reader.BaseStream, false).NbtFile.RootTag;
+				stack.ExtraData = Packet.ReadNbt(reader.BaseStream).NbtFile.RootTag;
 			}
 
 			var canPlace = ReadSignedVarInt(reader.BaseStream);
@@ -114,7 +115,8 @@ namespace MiNET.Utils
 			if (stack.ExtraData != null)
 			{
 				byte[] bytes = Packet.GetNbtData(stack.ExtraData);
-				stream.Write((short) bytes.Length);
+				stream.Write((ushort) 0xffff);
+				stream.Write((byte) 0x01);
 				stream.Write(bytes);
 			}
 			else

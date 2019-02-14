@@ -77,6 +77,19 @@ namespace MiNET.Blocks
 			}
 
 			var assembly = Assembly.GetAssembly(typeof(Block));
+
+			var legacyIdMap = new Dictionary<string, int>();
+			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".legacy_id_map.json"))
+			using (StreamReader reader = new StreamReader(stream))
+			{
+				var result = JObject.Parse(reader.ReadToEnd());
+
+				foreach (var obj in result)
+				{
+					legacyIdMap.Add(obj.Key, (int)obj.Value);
+				}
+			}
+
 			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
 			using (StreamReader reader = new StreamReader(stream))
 			{
@@ -85,16 +98,19 @@ namespace MiNET.Blocks
 				int runtimeId = 0;
 				foreach (var obj in result)
 				{
-					LegacyToRuntimeId[((int) obj.id << 4) | (int) obj.data] = (int) runtimeId;
-					Blockstates.Add(runtimeId, new Blockstate()
+					var name = (string) obj.name;
+					if (legacyIdMap.TryGetValue(name, out var id))
 					{
-						Id = (int) obj.id,
-						Data = (short) obj.data,
-						Name = (string) obj.name,
-						RuntimeId = runtimeId
-					});
-
-					runtimeId++;
+						LegacyToRuntimeId[((int) id << 4) | (int) obj.data] = (int) runtimeId;
+						Blockstates.Add(runtimeId, new Blockstate()
+						{
+							Id = id,
+							Data = (short) obj.data,
+							Name = name,
+							RuntimeId = runtimeId
+						});
+						runtimeId++;
+					}
 				}
 			}
 		}
@@ -576,9 +592,35 @@ namespace MiNET.Blocks
 			else if (blockId == 414) block = new TurtleEgg();
 			else if (blockId == 415) block = new BubbleColumn();
 			else if (blockId == 416) block = new Barrier();
+			else if (blockId == 417) block = new StoneSlab3();
 			else if (blockId == 418) block = new Bamboo();
 			else if (blockId == 419) block = new BambooSapling();
 			else if (blockId == 420) block = new Scaffolding();
+			else if (blockId == 421) block = new StoneSlab4();
+			else if (blockId == 422) block = new DoubleStoneSlab3();
+			else if (blockId == 423) block = new DoubleStoneSlab4();
+			else if (blockId == 436) block = new SpruceStandingSign();
+			else if (blockId == 437) block = new SpruceWallSign();
+			else if (blockId == 438) block = new SmoothStone();
+			else if (blockId == 441) block = new BirchStandingSign();
+			else if (blockId == 442) block = new BirchWallSign();
+			else if (blockId == 443) block = new JungleStandingSign();
+			else if (blockId == 444) block = new JungleWallSign();
+			else if (blockId == 445) block = new AcaciaStandingSign();
+			else if (blockId == 446) block = new AcaciaWallSign();
+			else if (blockId == 447) block = new DarkoakStandingSign();
+			else if (blockId == 448) block = new DarkoakWallSign();
+			else if (blockId == 450) block = new Grindstone();
+			else if (blockId == 451) block = new BlastFurnace();
+			else if (blockId == 453) block = new Smoker();
+			else if (blockId == 455) block = new CartographyTable();
+			else if (blockId == 456) block = new FletchingTable();
+			else if (blockId == 457) block = new SmithingTable();
+			else if (blockId == 458) block = new Barrel();
+			else if (blockId == 461) block = new Bell();
+			else if (blockId == 463) block = new Lantern();
+			else if (blockId == 465) block = new LavaCauldron();
+
 
 
 			else

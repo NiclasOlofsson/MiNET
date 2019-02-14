@@ -318,6 +318,7 @@ namespace MiNET.Client
 		public abstract void HandleMcpeAvailableEntityIdentifiers(McpeAvailableEntityIdentifiers message);
 		public abstract void HandleMcpeNetworkChunkPublisherUpdate(McpeNetworkChunkPublisherUpdate message);
 		public abstract void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message);
+		public abstract void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message);
 
 		public abstract void HandleFtlCreatePlayer(FtlCreatePlayer message);
 

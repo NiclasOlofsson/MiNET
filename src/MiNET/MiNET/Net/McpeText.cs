@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -48,6 +48,7 @@ namespace MiNET.Net
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:
 				case ChatTypes.System:
+				case ChatTypes.Json:
 					Write(message);
 					break;
 				case ChatTypes.Popup:
@@ -97,6 +98,7 @@ namespace MiNET.Net
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:
 				case ChatTypes.System:
+				case ChatTypes.Json:
 					message = ReadString();
 					break;
 

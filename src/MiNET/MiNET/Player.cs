@@ -2780,15 +2780,12 @@ namespace MiNET
 			startGame.lightningLevel = 0;
 			startGame.isMultiplayer = true;
 			startGame.broadcastToLan = true;
-			startGame.broadcastToXbl = true;
 			startGame.enableCommands = EnableCommands;
 			startGame.isTexturepacksRequired = false;
 			startGame.gamerules = Level.GetGameRules();
 			startGame.bonusChest = false;
 			startGame.mapEnabled = false;
-			startGame.trustPlayers = false;
 			startGame.permissionLevel = (int) PermissionLevel;
-			startGame.gamePublishSetting = 3;
 			startGame.levelId = "1m0AAMIFIgA=";
 			startGame.worldName = Level.LevelName;
 			startGame.premiumWorldTemplateId = "";
@@ -3684,6 +3681,14 @@ namespace MiNET
 		protected virtual void OnTicked(PlayerEventArgs e)
 		{
 			Ticked?.Invoke(this, e);
+		}
+
+		public void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
+		{
+		}
+
+		public void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
+		{
 		}
 	}
 

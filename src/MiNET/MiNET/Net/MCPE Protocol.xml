@@ -1036,7 +1036,7 @@
 	<pdu id="0x72" online="false" client="false" server="true" name="MCPE_UPDATE_SOFT_ENUM_PACKET">
 	</pdu>
 
-	<pdu id="0x73" online="false" client="true" server="false" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
+	<pdu id="0x73" online="false" client="true" server="true" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
 		<field name="Timestamp" type="long" />
 		<field name="Need Response" type="bool" />
 	</pdu>

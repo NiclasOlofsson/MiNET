@@ -2330,7 +2330,7 @@ Wiki: [Update Soft Enum Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 ### Network Stack Latency Packet (0x73)
 Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkStackLatencyPacket)
 
-**Sent from server:** false  
+**Sent from server:** true  
 **Sent from client:** true
 
 

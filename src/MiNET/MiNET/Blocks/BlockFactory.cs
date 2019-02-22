@@ -99,18 +99,21 @@ namespace MiNET.Blocks
 				foreach (var obj in result)
 				{
 					var name = (string) obj.name;
-					if (legacyIdMap.TryGetValue(name, out var id))
+
+					int id = -1;
+					if (legacyIdMap.TryGetValue(name, out id))
 					{
 						LegacyToRuntimeId[((int) id << 4) | (int) obj.data] = (int) runtimeId;
-						Blockstates.Add(runtimeId, new Blockstate()
-						{
-							Id = id,
-							Data = (short) obj.data,
-							Name = name,
-							RuntimeId = runtimeId
-						});
-						runtimeId++;
 					}
+
+					Blockstates.Add(runtimeId, new Blockstate()
+					{
+						Id = id,
+						Data = (short) obj.data,
+						Name = name,
+						RuntimeId = runtimeId
+					});
+					runtimeId++;
 				}
 			}
 		}

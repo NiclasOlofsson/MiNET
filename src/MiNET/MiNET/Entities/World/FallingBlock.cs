@@ -99,7 +99,7 @@ namespace MiNET.Entities.World
 			{
 				McpeUpdateBlockSynced updateBlock = McpeUpdateBlockSynced.CreateObject();
 				updateBlock.coordinates = _original.Coordinates;
-				updateBlock.blockRuntimeId = 0;
+				updateBlock.blockRuntimeId = new Air().GetRuntimeId();
 				updateBlock.blockPriority = 3;
 				updateBlock.dataLayerId = 0;
 				updateBlock.unknown0 = EntityId;

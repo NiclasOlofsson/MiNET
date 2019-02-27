@@ -260,7 +260,7 @@ namespace MiNET
 			try
 			{
 				Log.Info("Disabling plugins...");
-				PluginManager.DisablePlugins();
+				PluginManager?.DisablePlugins();
 
 				Log.Info("Shutting down...");
 				if (_listener == null) return true; // Already stopped. It's ok.

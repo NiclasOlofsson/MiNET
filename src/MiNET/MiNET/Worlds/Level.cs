@@ -673,8 +673,10 @@ namespace MiNET.Worlds
 
 				Parallel.ForEach(players, (player, state) =>
 				{
-					var session = (PlayerNetworkSession) player.NetworkHandler;
-					session?.SendQueue();
+					if (player.NetworkHandler is PlayerNetworkSession session)
+					{
+						session.SendQueue();
+					}
 				});
 
 

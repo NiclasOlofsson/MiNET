@@ -290,26 +290,41 @@ namespace MiNET
 		}
 
 		public void RemoveItems(short id, byte count)
-		{
-			if (count <= 0) return;
+        {
+            if (count <= 0)
+            {
+                return;
+            }
+            for (int i = 0; i < Slots.Count; i++)
+            {
+                Item slot = Slots[i];
+                if (slot.Id == id)
+                {
+                    if (count <= Slots[i].Count)
+                    {
+                        slot.Count -= count;
+                    }
+                    else
+                    {
+                        slot.Count = 0;
+                        count -= Slots[i].Count;
+                    }
+                    if (slot.Count == 0)
+                    {
+                        Slots[i] = new ItemAir();
+                    }
 
-			for (byte i = 0; i < Slots.Count; i++)
-			{
-				var slot = Slots[i];
-				if (slot.Id == id)
-				{
-					slot.Count--;
-					if (slot.Count == 0)
-					{
-						Slots[i] = new ItemAir();
-					}
+                    SendSetSlot(i);
 
-					SendSetSlot(i);
+                    count--;
 
-					if (--count <= 0) return;
-				}
-			}
-		}
+                    if (count <= 0)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
 
 		public virtual void SendSetSlot(int slot)
 		{

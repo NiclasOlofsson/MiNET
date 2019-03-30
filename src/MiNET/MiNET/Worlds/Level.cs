@@ -59,7 +59,7 @@ namespace MiNET.Worlds
 		public static readonly BlockCoordinates East = new BlockCoordinates(1, 0, 0);
 		public static readonly BlockCoordinates West = new BlockCoordinates(-1, 0, 0);
 
-		public IWorldProvider WorldProvider { get; protected set; }
+		public IWorldProvider WorldProvider { get; set; }
 
 		private int _worldDayCycleTime = 24000;
 

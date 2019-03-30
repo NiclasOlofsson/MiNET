@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 332;
-		public const string GameVersion = "1.9.0";
+		public const int ProtocolVersion = 340;
+		public const string GameVersion = "1.10.0";
 	}
 
 	public interface IMcpeMessageHandler

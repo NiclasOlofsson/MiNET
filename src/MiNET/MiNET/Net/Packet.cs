@@ -788,6 +788,7 @@ namespace MiNET.Net
 					Write(trans.Item);
 					Write(trans.FromPosition);
 					Write(trans.ClickPosition);
+					WriteUnsignedVarInt(trans.BlockRuntimeId);
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
 					WriteVarLong(trans.EntityId);
@@ -879,6 +880,7 @@ namespace MiNET.Net
 					trans.Item = ReadItem();
 					trans.FromPosition = ReadVector3();
 					trans.ClickPosition = ReadVector3();
+					trans.BlockRuntimeId = ReadUnsignedVarInt();
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
 					trans.EntityId = ReadVarLong();

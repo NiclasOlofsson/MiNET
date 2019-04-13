@@ -1713,6 +1713,7 @@ namespace MiNET.Worlds
 			rules.Add(new GameRule<bool>(GameRulesEnum.NaturalRegeneration, NaturalRegeneration));
 			rules.Add(new GameRule<bool>(GameRulesEnum.TntExplodes, TntExplodes));
 			rules.Add(new GameRule<bool>(GameRulesEnum.SendCommandfeedback, SendCommandfeedback));
+			rules.Add(new GameRule<bool>(GameRulesEnum.ExperimentalGameplay, true));
 			return rules;
 		}
 	}

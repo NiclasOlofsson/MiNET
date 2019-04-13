@@ -3261,36 +3261,10 @@ namespace MiNET
 		public override MetadataDictionary GetMetadata()
 		{
 			var metadata = base.GetMetadata();
-			metadata[4] = new MetadataString(NameTag ?? Username);
-			metadata[39] = new MetadataString(ButtonText ?? string.Empty);
-
-			//MetadataDictionary metadata = new MetadataDictionary();
-			//metadata[0] = new MetadataLong(GetDataValue()); // 10000000000000011000000000000000
-			//metadata[1] = new MetadataInt(1);
-			//metadata[2] = new MetadataInt(0);
-			//metadata[3] = new MetadataByte(0);
-			//metadata[4] = new MetadataString(NameTag ?? Username);
-			//metadata[5] = new MetadataLong(1);
-			//metadata[7] = new MetadataShort(400);
-			//metadata[8] = new MetadataInt(0);
-			//metadata[9] = new MetadataByte(0);
-			metadata[27] = new MetadataByte((byte) (IsSleeping ? 0b10 : 0));
-			//metadata[28] = new MetadataInt(1);
+			metadata[(int) MetadataFlags.NameTag] = new MetadataString(NameTag ?? Username);
+			metadata[(int) MetadataFlags.ButtonText] = new MetadataString(ButtonText ?? string.Empty);
+			metadata[(int) MetadataFlags.PlayerFlags] = new MetadataByte((byte) (IsSleeping ? 0b10 : 0));
 			metadata[(int) MetadataFlags.BedPosition] = new MetadataIntCoordinates((int) SpawnPosition.X, (int) SpawnPosition.Y, (int) SpawnPosition.Z);
-			//metadata[38] = new MetadataLong(0);
-			//metadata[39] = new MetadataFloat(1f);
-			//metadata[40] = new MetadataString(ButtonText ?? string.Empty);
-			//metadata[41] = new MetadataLong(0);
-			//metadata[44] = new MetadataShort(400);
-			//metadata[45] = new MetadataInt(0);
-			//metadata[46] = new MetadataByte(0);
-			//metadata[47] = new MetadataInt(0);
-			//metadata[53] = new MetadataFloat(0.8f);
-			//metadata[54] = new MetadataFloat(1.8f);
-			//metadata[56] = new MetadataVector3(10, 50, 10);
-			//metadata[57] = new MetadataByte(0);
-			//metadata[58] = new MetadataFloat(0f);
-			//metadata[59] = new MetadataFloat(0f);
 
 			return metadata;
 		}

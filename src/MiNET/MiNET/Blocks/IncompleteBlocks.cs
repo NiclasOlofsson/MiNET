@@ -4025,31 +4025,6 @@ namespace MiNET.Blocks
 		}
 	}
 
-	public class Netherreactor : Block
-	{
-		public Netherreactor() : base(247)
-		{
-			Name = "minecraft:netherreactor";
-			// runtime id: 2081 0x821, data: 0
-		}
-	}
-
-	public class Pistonarmcollision : Block
-	{
-		public Pistonarmcollision() : base(34)
-		{
-			Name = "minecraft:pistonArmCollision";
-			// runtime id: 252 0xFC, data: 0
-			// runtime id: 253 0xFD, data: 1
-			// runtime id: 254 0xFE, data: 2
-			// runtime id: 255 0xFF, data: 3
-			// runtime id: 256 0x100, data: 4
-			// runtime id: 257 0x101, data: 5
-			// runtime id: 258 0x102, data: 6
-			// runtime id: 259 0x103, data: 7
-		}
-	}
-
 	public class Scaffolding : Block
 	{
 		public Scaffolding() : base(420)
@@ -4487,4 +4462,119 @@ namespace MiNET.Blocks
 			// runtime id: 4508 0x119C, data: 15
 		}
 	}
+	public class Campfire : Block
+	{
+		public Campfire() : base(464)
+		{
+			Name = "minecraft:campfire";
+			// runtime id: 1564 0x61C, data: 0
+		}
+	}
+	public class Composter : Block
+	{
+		public Composter() : base(468)
+		{
+			Name = "minecraft:composter";
+			// runtime id: 1532 0x5FC, data: 0
+			// runtime id: 787 0x313, data: 1
+			// runtime id: 1945 0x799, data: 2
+			// runtime id: 2105 0x839, data: 3
+			// runtime id: 1515 0x5EB, data: 4
+			// runtime id: 485 0x1E5, data: 5
+			// runtime id: 2374 0x946, data: 6
+			// runtime id: 413 0x19D, data: 7
+		}
+	}
+	public class Jigsaw : Block
+	{
+		public Jigsaw() : base(466)
+		{
+			Name = "minecraft:jigsaw";
+			// runtime id: 2882 0xB42, data: 0
+			// runtime id: 863 0x35F, data: 1
+			// runtime id: 2427 0x97B, data: 2
+			// runtime id: 2025 0x7E9, data: 3
+			// runtime id: 2460 0x99C, data: 4
+			// runtime id: 595 0x253, data: 5
+			// runtime id: 46 0x2E, data: 6
+			// runtime id: 1776 0x6F0, data: 7
+		}
+	}
+	public class Lectern : Block
+	{
+		public Lectern() : base(449)
+		{
+			Name = "minecraft:lectern";
+			// runtime id: 587 0x24B, data: 0
+			// runtime id: 1413 0x585, data: 1
+			// runtime id: 1017 0x3F9, data: 2
+			// runtime id: 2306 0x902, data: 3
+		}
+	}
+	public class Loom : Block
+	{
+		public Loom() : base(459)
+		{
+			Name = "minecraft:loom";
+			// runtime id: 1110 0x456, data: 0
+			// runtime id: 1636 0x664, data: 1
+			// runtime id: 178 0xB2, data: 2
+			// runtime id: 2910 0xB5E, data: 3
+		}
+	}
+
+	public class StonecutterBlock : Block
+	{
+		public StonecutterBlock() : base(452)
+		{
+			Name = "minecraft:stonecutter_block";
+			// runtime id: 377 0x179, data: 0
+			// runtime id: 335 0x14F, data: 1
+			// runtime id: 400 0x190, data: 2
+			// runtime id: 1738 0x6CA, data: 3
+			// runtime id: 2746 0xABA, data: 4
+			// runtime id: 1586 0x632, data: 5
+			// runtime id: 867 0x363, data: 6
+			// runtime id: 2213 0x8A5, data: 7
+		}
+	}
+	public class SweetBerryBush : Block
+	{
+		public SweetBerryBush() : base(462)
+		{
+			Name = "minecraft:sweet_berry_bush";
+			// runtime id: 2729 0xAA9, data: 0
+			// runtime id: 606 0x25E, data: 1
+			// runtime id: 2429 0x97D, data: 2
+			// runtime id: 530 0x212, data: 3
+			// runtime id: 782 0x30E, data: 4
+			// runtime id: 592 0x250, data: 5
+			// runtime id: 2631 0xA47, data: 6
+			// runtime id: 1254 0x4E6, data: 7
+		}
+	}
+	public class Wood : Block
+	{
+		public Wood() : base(467)
+		{
+			Name = "minecraft:wood";
+			// runtime id: 764 0x2FC, data: 0
+			// runtime id: 2568 0xA08, data: 1
+			// runtime id: 1435 0x59B, data: 2
+			// runtime id: 963 0x3C3, data: 3
+			// runtime id: 1416 0x588, data: 4
+			// runtime id: 2212 0x8A4, data: 5
+			// runtime id: 2707 0xA93, data: 6
+			// runtime id: 348 0x15C, data: 7
+			// runtime id: 1994 0x7CA, data: 8
+			// runtime id: 1412 0x584, data: 9
+			// runtime id: 230 0xE6, data: 10
+			// runtime id: 2518 0x9D6, data: 11
+			// runtime id: 2113 0x841, data: 12
+			// runtime id: 2517 0x9D5, data: 13
+			// runtime id: 1914 0x77A, data: 14
+			// runtime id: 1759 0x6DF, data: 15
+		}
+	}
+
 }

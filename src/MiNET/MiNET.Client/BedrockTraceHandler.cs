@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using fNbt;
@@ -40,6 +41,7 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Newtonsoft.Json.Linq;
 
 namespace MiNET.Client
 {
@@ -144,11 +146,26 @@ namespace MiNET.Client
 			{
 				Log.Warn($"Writing new blocks to filename:\n{fileName}");
 
+				var legacyIdMap = new Dictionary<string, int>();
+				var assembly = Assembly.GetAssembly(typeof(Block));
+				using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".legacy_id_map.json"))
+				using (StreamReader reader = new StreamReader(stream))
+				{
+					var result = JObject.Parse(reader.ReadToEnd());
+
+					foreach (var obj in result)
+					{
+						legacyIdMap.Add(obj.Key, (int) obj.Value);
+					}
+				}
+
 				IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
 
 				writer.WriteLine($"namespace MiNET.Blocks");
 				writer.WriteLine($"{{");
 				writer.Indent++;
+
+				List<(int, string)> blocks = new List<(int, string)>();
 
 				foreach (IGrouping<string, KeyValuePair<int, Blockstate>> blockstate in message.blockstates.OrderBy(kvp => kvp.Value.Name).ThenBy(kvp => kvp.Value.Data).GroupBy(kvp => kvp.Value.Name))
 				{
@@ -161,16 +178,24 @@ namespace MiNET.Client
 
 					if (id == 0 && !value.Name.Contains("air"))
 					{
+						if (legacyIdMap.TryGetValue(value.Name, out id))
+						{
+							value.Id = id;
+						}
+
+
 						string blockName = Client.CodeName(value.Name.Replace("minecraft:", ""), true);
+
+						blocks.Add((value.Id, blockName));
 
 						writer.WriteLine($"public class {blockName}: Block");
 						writer.WriteLine($"{{");
 						writer.Indent++;
 
-						writer.WriteLine($"public {blockName}() : base({value.Id}, {value.RuntimeId})");
+						writer.WriteLine($"public {blockName}() : base({value.Id})");
 						writer.WriteLine($"{{");
 						writer.Indent++;
-						writer.WriteLine($"Name {{get; set;}} = {value.Name}");
+						writer.WriteLine($"Name = \"{value.Name}\";");
 
 						do
 						{
@@ -186,6 +211,12 @@ namespace MiNET.Client
 				}
 				writer.Indent--;
 				writer.WriteLine($"}}");
+
+				foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
+				{
+					writer.WriteLine($"else if (blockId == {block.Item1}) block = new {block.Item2}();");
+				}
+
 				writer.Flush();
 			}
 
@@ -209,6 +240,9 @@ namespace MiNET.Client
 			//	secret: {message.levelId}	
 			//	worldName: {message.worldName}	
 			//");
+
+			LogGamerules(message.gamerules);
+
 
 			Client.LevelInfo.LevelName = "Default";
 			Client.LevelInfo.Version = 19133;
@@ -554,7 +588,11 @@ namespace MiNET.Client
 			Log.Info("Writing recipes to filename: " + fileName);
 			FileStream file = File.OpenWrite(fileName);
 
-			IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
+			IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file), "\t");
+
+			writer.WriteLine();
+			writer.Indent++;
+			writer.Indent++;
 
 			writer.WriteLine("static RecipeManager()");
 			writer.WriteLine("{");
@@ -626,10 +664,10 @@ namespace MiNET.Client
 				}
 			}
 
+			writer.Indent--;
 			writer.WriteLine("};");
 			writer.Indent--;
 			writer.WriteLine("}");
-			writer.Indent--;
 
 			writer.Flush();
 			file.Close();
@@ -746,6 +784,11 @@ namespace MiNET.Client
 		public override void HandleMcpeGameRulesChanged(McpeGameRulesChanged message)
 		{
 			GameRules rules = message.rules;
+			LogGamerules(rules);
+		}
+
+		private static void LogGamerules(GameRules rules)
+		{
 			foreach (var rule in rules)
 			{
 				if (rule is GameRule<bool>)
@@ -754,15 +797,15 @@ namespace MiNET.Client
 				}
 				else if (rule is GameRule<int>)
 				{
-					Log.Debug($"Rule: {rule}={(GameRule<int>) rule}");
+					Log.Debug($"Rule: {rule.Name}={(GameRule<int>) rule}");
 				}
 				else if (rule is GameRule<float>)
 				{
-					Log.Debug($"Rule: {rule}={(GameRule<float>) rule}");
+					Log.Debug($"Rule: {rule.Name}={(GameRule<float>) rule}");
 				}
 				else
 				{
-					Log.Warn($"Rule: {rule}={rule}");
+					Log.Warn($"Rule: {rule.Name}={rule}");
 				}
 			}
 		}

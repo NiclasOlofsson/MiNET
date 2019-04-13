@@ -213,7 +213,7 @@ namespace MiNET.Blocks
 			else if (blockId == 31) block = new TallGrass();
 			else if (blockId == 32) block = new DeadBush();
 			else if (blockId == 33) block = new Piston();
-			else if (blockId == 34) block = new PistonHead();
+			else if (blockId == 34) block = new PistonArmCollision();
 			else if (blockId == 35) block = new Wool();
 			else if (blockId == 37) block = new YellowFlower();
 			else if (blockId == 38) block = new RedFlower();
@@ -411,10 +411,9 @@ namespace MiNET.Blocks
 			else if (blockId == 244) block = new Beetroot();
 			else if (blockId == 245) block = new Stonecutter();
 			else if (blockId == 246) block = new GlowingObsidian();
-			else if (blockId == 247) block = new NetherReactorCore();
+			else if (blockId == 247) block = new Netherreactor();
 			else if (blockId == 251) block = new Observer();
 
-			else if (blockId == 34) block = new Pistonarmcollision();
 			else if (blockId == 36) block = new Element0();
 			else if (blockId == 137) block = new CommandBlock();
 			else if (blockId == 166) block = new GlowStick();
@@ -624,7 +623,14 @@ namespace MiNET.Blocks
 			else if (blockId == 463) block = new Lantern();
 			else if (blockId == 465) block = new LavaCauldron();
 
-
+			else if (blockId == 449) block = new Lectern();
+			else if (blockId == 452) block = new StonecutterBlock();
+			else if (blockId == 459) block = new Loom();
+			else if (blockId == 462) block = new SweetBerryBush();
+			else if (blockId == 464) block = new Campfire();
+			else if (blockId == 466) block = new Jigsaw();
+			else if (blockId == 467) block = new Wood();
+			else if (blockId == 468) block = new Composter();
 
 			else
 			{

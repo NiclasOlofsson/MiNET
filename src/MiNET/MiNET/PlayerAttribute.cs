@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -55,24 +55,32 @@ namespace MiNET
 
 	public enum GameRulesEnum
 	{
-		DrowningDamage,
 		CommandblockOutput,
-		DoTiledrops,
-		DoMobloot,
-		KeepInventory,
 		DoDaylightcycle,
-		DoMobspawning,
 		DoEntitydrops,
 		DoFiretick,
+		DoMobloot,
+		DoMobspawning,
+		DoTiledrops,
 		DoWeathercycle,
-		Pvp,
+		DrowningDamage,
 		Falldamage,
 		Firedamage,
+		KeepInventory,
 		Mobgriefing,
+		Pvp,
 		ShowCoordinates,
 		NaturalRegeneration,
 		TntExplodes,
-		SendCommandfeedback
+		SendCommandfeedback,
+		ExperimentalGameplay,
+		// int,
+		DoInsomnia,
+		CommandblocksEnabled,
+		// int,
+		DoImmediateRespawn,
+		ShowDeathmessages,
+		// int,
 	}
 
 	public abstract class GameRule

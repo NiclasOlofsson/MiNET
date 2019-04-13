@@ -270,6 +270,7 @@ namespace MiNET
 							}
 							else if (validationKey != null && validationKey.Equals(x5u, StringComparison.InvariantCultureIgnoreCase))
 							{
+								data.ExtraData.Identity = Guid.NewGuid().ToString();
 								_playerInfo.CertificateData = data;
 							}
 							else
@@ -283,6 +284,7 @@ namespace MiNET
 									data.ExtraData.Xuid = null;
 								}
 
+								data.ExtraData.Identity = Guid.NewGuid().ToString();
 								_playerInfo.CertificateData = data;
 							}
 						}

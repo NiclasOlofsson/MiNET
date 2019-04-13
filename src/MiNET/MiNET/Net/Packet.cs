@@ -930,6 +930,12 @@ namespace MiNET.Net
 
 			WriteSignedVarInt(0);
 			WriteSignedVarInt(0);
+
+			if (stack.Id == 513) // shield
+			{
+				WriteSignedVarInt(0); // something about tick, crap code
+			}
+
 		}
 
 		public Item ReadItem()
@@ -961,6 +967,11 @@ namespace MiNET.Net
 			for (int i = 0; i < canBreak; i++)
 			{
 				ReadString();
+			}
+
+			if(id == 513) // shield
+			{
+				ReadSignedVarInt(); // something about tick, crap code
 			}
 
 			return stack;

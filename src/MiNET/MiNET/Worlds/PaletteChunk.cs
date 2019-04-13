@@ -194,9 +194,9 @@ namespace MiNET.Worlds
 			_isDirty = false;
 		}
 
-		~PaletteChunk()
-		{
-			Log.Error($"Unexpected dispose chunk");
-		}
+		//~PaletteChunk()
+		//{
+		//	Log.Error($"Unexpected dispose chunk");
+		//}
 	}
 }

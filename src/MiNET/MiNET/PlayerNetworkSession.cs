@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -457,6 +457,11 @@ namespace MiNET
 			else if (typeof(McpeSetLocalPlayerAsInitializedPacket) == message.GetType())
 			{
 				handler.HandleMcpeSetLocalPlayerAsInitializedPacket((McpeSetLocalPlayerAsInitializedPacket) message);
+			}
+
+			else if (typeof(McpeScriptCustomEventPacket) == message.GetType())
+			{
+				handler.HandleMcpeScriptCustomEventPacket((McpeScriptCustomEventPacket) message);
 			}
 
 			else if (typeof(McpeUpdateBlock) == message.GetType())

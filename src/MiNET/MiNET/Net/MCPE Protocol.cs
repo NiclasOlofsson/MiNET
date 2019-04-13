@@ -95,6 +95,7 @@ namespace MiNET.Net
 		void HandleMcpeLabTable(McpeLabTable message);
 		void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message);
 		void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message);
+		void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message);
 		void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message);
 		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
 	}

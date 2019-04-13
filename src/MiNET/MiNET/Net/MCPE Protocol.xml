@@ -1042,7 +1042,7 @@
 		<field name="Need Response" type="bool" />
 	</pdu>
 
-	<pdu id="0x75" online="false" client="false" server="true" name="MCPE_SCRIPT_CUSTOM_EVENT_PACKET">
+	<pdu id="0x75" online="false" client="true" server="true" name="MCPE_SCRIPT_CUSTOM_EVENT_PACKET">
 		<field name="Event Name" type="string" />
 		<field name="Event Data" type="string" />
 	</pdu>

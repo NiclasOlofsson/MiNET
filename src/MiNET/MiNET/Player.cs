@@ -142,6 +142,11 @@ namespace MiNET
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
+		public virtual void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
+		{
+
+		}
+
 		public virtual void HandleMcpeCommandBlockUpdate(McpeCommandBlockUpdate message)
 		{
 		}
@@ -167,11 +172,11 @@ namespace MiNET
 			SendPacket(chunkData);
 		}
 
-		public void HandleMcpePurchaseReceipt(McpePurchaseReceipt message)
+		public virtual void HandleMcpePurchaseReceipt(McpePurchaseReceipt message)
 		{
 		}
 
-		public void HandleMcpePlayerSkin(McpePlayerSkin message)
+		public virtual void HandleMcpePlayerSkin(McpePlayerSkin message)
 		{
 		}
 
@@ -362,7 +367,7 @@ namespace MiNET
 			Log.Debug($"Player input: x={message.motionX}, z={message.motionZ}, jumping={message.jumping}, sneaking={message.sneaking}");
 		}
 
-		public void HandleMcpeRiderJump(McpeRiderJump message)
+		public virtual void HandleMcpeRiderJump(McpeRiderJump message)
 		{
 			if (IsRiding && Vehicle > 0)
 			{
@@ -475,7 +480,7 @@ namespace MiNET
 			}
 		}
 
-		public void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
+		public virtual void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
 		{
 			Level.RelayBroadcast((McpeSetEntityMotion) message.Clone());
 		}
@@ -3656,11 +3661,11 @@ namespace MiNET
 			Ticked?.Invoke(this, e);
 		}
 
-		public void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
+		public virtual void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
 		{
 		}
 
-		public void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
+		public virtual void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
 		{
 		}
 	}

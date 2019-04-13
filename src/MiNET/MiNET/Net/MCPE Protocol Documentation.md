@@ -2348,7 +2348,7 @@ Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wik
 Wiki: [Script Custom Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ScriptCustomEventPacket)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 

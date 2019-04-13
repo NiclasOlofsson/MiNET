@@ -619,6 +619,10 @@ namespace MiNET
 		public void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
 		{
 		}
+
+		public void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
+		{
+		}
 	}
 
 	public interface IServerManager

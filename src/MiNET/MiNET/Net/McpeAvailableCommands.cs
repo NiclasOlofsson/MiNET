@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -173,6 +173,7 @@ namespace MiNET.Net
 							}
 
 							bool optional = ReadBool();
+							ReadByte();
 							Log.Debug($"{commandName}, {parameterCount}, {commandParamName}, 0x{tmp1:X4}, {isEnum}, {commandParamType}, {commandParamEnumIndex}, {commandParamPostfixIndex}, {optional}");
 						}
 					}
@@ -411,6 +412,7 @@ namespace MiNET.Net
 							}
 
 							Write(parameter.Optional); // optional
+							Write((byte) 0);
 						}
 					}
 				}
@@ -432,8 +434,8 @@ namespace MiNET.Net
 			if (type == "operator") return 0x05;
 			if (type == "target") return 0x06;
 
-			if (type == "string") return 0xF;
-			if (type == "blockpos") return 0x10;
+			if (type == "string") return 0x1b;
+			if (type == "blockpos") return 0x1d;
 
 			return 0x0;
 		}

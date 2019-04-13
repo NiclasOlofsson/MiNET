@@ -295,18 +295,28 @@ namespace MiNET
 
 			for (byte i = 0; i < Slots.Count; i++)
 			{
+				if (count <= 0) break;
+
 				var slot = Slots[i];
 				if (slot.Id == id)
 				{
-					slot.Count--;
+					if (Slots[i].Count >= count)
+					{
+						Slots[i].Count -= count;
+						count = 0;
+					}
+					else
+					{
+						count -= Slots[i].Count;
+						Slots[i].Count = 0;
+					}
+
 					if (slot.Count == 0)
 					{
 						Slots[i] = new ItemAir();
 					}
 
 					SendSetSlot(i);
-
-					if (--count <= 0) return;
 				}
 			}
 		}

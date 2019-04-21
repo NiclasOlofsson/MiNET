@@ -158,7 +158,7 @@ namespace MiNET
 					if (Endpoint == null)
 					{
 						var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));
-						int port = Config.GetProperty("port", 19132);
+						int port = Config.GetProperty("port", DefaultPort);
 						Endpoint = new IPEndPoint(ip, port);
 					}
 				}

@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -40,15 +40,20 @@ namespace MiNET.Worlds
 			//Interlocked.Add(ref touches, 1);
 
 			Queue<BlockCoordinates> lightBfsQueue = new Queue<BlockCoordinates>();
+			Queue<BlockCoordinates> potentialSource = new Queue<BlockCoordinates>();
 
 			lightBfsQueue.Enqueue(blockCoordinates);
 			while (lightBfsQueue.Count > 0)
 			{
-				ProcessNode(level, lightBfsQueue.Dequeue(), lightBfsQueue);
+				ProcessNode(level, lightBfsQueue.Dequeue(), lightBfsQueue, potentialSource);
+			}
+			while (potentialSource.Count > 0)
+			{
+				ProcessNode(level, potentialSource.Dequeue(), potentialSource, new Queue<BlockCoordinates>());
 			}
 		}
 
-		private static void ProcessNode(Level level, BlockCoordinates coord, Queue<BlockCoordinates> lightBfsQueue)
+		private static void ProcessNode(Level level, BlockCoordinates coord, Queue<BlockCoordinates> lightBfsQueue, Queue<BlockCoordinates> potentialSource)
 		{
 			//Log.Debug($"Setting light on block {block.Id} with LightLevel={block.LightLevel} and BlockLight={block.Blocklight}");
 			ChunkColumn chunk = GetChunk(level, coord);
@@ -56,12 +61,12 @@ namespace MiNET.Worlds
 
 			int lightLevel = chunk.GetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f);
 
-			Test(level, coord, coord.BlockUp(), lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord.BlockDown(), lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord.BlockWest(), lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord.BlockEast(), lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord.BlockSouth(), lightBfsQueue, chunk, lightLevel);
-			Test(level, coord, coord.BlockNorth(), lightBfsQueue, chunk, lightLevel);
+			Test(level, coord, coord.BlockUp(), lightBfsQueue, potentialSource, chunk, lightLevel);
+			Test(level, coord, coord.BlockDown(), lightBfsQueue, potentialSource, chunk, lightLevel);
+			Test(level, coord, coord.BlockWest(), lightBfsQueue, potentialSource, chunk, lightLevel);
+			Test(level, coord, coord.BlockEast(), lightBfsQueue, potentialSource, chunk, lightLevel);
+			Test(level, coord, coord.BlockSouth(), lightBfsQueue, potentialSource, chunk, lightLevel);
+			Test(level, coord, coord.BlockNorth(), lightBfsQueue, potentialSource, chunk, lightLevel);
 
 			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.Down, chunk), lightLevel);
 			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.West, chunk), lightLevel);
@@ -86,7 +91,7 @@ namespace MiNET.Worlds
 
 		public static long touches = 0;
 
-		private static void Test(Level level, BlockCoordinates coord, BlockCoordinates newCoord, Queue<BlockCoordinates> lightBfsQueue, ChunkColumn chunk, int lightLevel)
+		private static void Test(Level level, BlockCoordinates coord, BlockCoordinates newCoord, Queue<BlockCoordinates> lightBfsQueue, Queue<BlockCoordinates> potentialSource, ChunkColumn chunk, int lightLevel)
 		{
 			//Interlocked.Add(ref touches, 1);
 
@@ -109,17 +114,19 @@ namespace MiNET.Worlds
 				//}
 				//else
 				{
-					SetLightLevel(chunk, lightBfsQueue, level.GetBlock(newCoord, chunk), lightLevel);
+					SetLightLevel(chunk, lightBfsQueue, potentialSource, level.GetBlock(newCoord, chunk), lightLevel);
 				}
 			}
 		}
 
-		private static void SetLightLevel(ChunkColumn chunk, Queue<BlockCoordinates> lightBfsQueue, Block b1, int lightLevel)
+		private static void SetLightLevel(ChunkColumn chunk, Queue<BlockCoordinates> lightBfsQueue, Queue<BlockCoordinates> potentialSource, Block b1, int lightLevel)
 		{
 			if (b1.LightLevel > 0)
 			{
 				if (b1.LightLevel >= lightLevel)
 				{
+					if (b1.LightLevel >= lightLevel + 2)
+						potentialSource.Enqueue(b1.Coordinates);
 					return;
 				}
 
@@ -137,9 +144,15 @@ namespace MiNET.Worlds
 
 		private static void SetLightLevel(ChunkColumn chunk, Queue<BlockCoordinates> lightBfsQueue, BlockCoordinates coord, int lightLevel)
 		{
-			if (chunk.GetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f) + 2 <= lightLevel)
+			var _lightLevel = chunk.GetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f);
+			if (_lightLevel + 2 <= lightLevel)
 			{
 				chunk.SetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f, (byte) (lightLevel - 1));
+				lightBfsQueue.Enqueue(coord);
+			}
+			else if(_lightLevel - 2 >= lightLevel)
+			{
+				chunk.SetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f, 0); //reset
 				lightBfsQueue.Enqueue(coord);
 			}
 		}

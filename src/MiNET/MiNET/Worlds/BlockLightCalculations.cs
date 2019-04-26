@@ -47,7 +47,7 @@ namespace MiNET.Worlds
 			{
 				ProcessNode(level, lightBfsQueue.Dequeue(), lightBfsQueue, potentialSource);
 			}
-			while (potentialSource.Count > 0)
+			while (potentialSource.Count > 0) //relighting
 			{
 				ProcessNode(level, potentialSource.Dequeue(), potentialSource, new Queue<BlockCoordinates>());
 			}
@@ -125,7 +125,7 @@ namespace MiNET.Worlds
 			{
 				if (b1.LightLevel >= lightLevel)
 				{
-					if (b1.LightLevel >= lightLevel + 2)
+					if (b1.LightLevel >= lightLevel + 2 && !potentialSource.Contains(b1.Coordinates))
 						potentialSource.Enqueue(b1.Coordinates);
 					return;
 				}
@@ -134,11 +134,20 @@ namespace MiNET.Worlds
 				chunk.SetBlocklight(b1.Coordinates.X & 0x0f, b1.Coordinates.Y & 0xff, b1.Coordinates.Z & 0x0f, (byte) b1.BlockLight);
 			}
 
-			if ((!b1.IsSolid || b1.IsTransparent) && b1.BlockLight + 2 <= lightLevel)
+			if ((!b1.IsSolid || b1.IsTransparent))
 			{
-				b1.BlockLight = (byte) (lightLevel - 1);
-				chunk.SetBlocklight(b1.Coordinates.X & 0x0f, b1.Coordinates.Y & 0xff, b1.Coordinates.Z & 0x0f, (byte) b1.BlockLight);
-				lightBfsQueue.Enqueue(b1.Coordinates);
+				if (b1.BlockLight + 2 <= lightLevel)
+				{
+					b1.BlockLight = (byte) (lightLevel - 1);
+					chunk.SetBlocklight(b1.Coordinates.X & 0x0f, b1.Coordinates.Y & 0xff, b1.Coordinates.Z & 0x0f, (byte) b1.BlockLight);
+					lightBfsQueue.Enqueue(b1.Coordinates);
+				}
+				else if(lightLevel == 0 && b1.BlockLight > 0)
+				{
+					b1.BlockLight = 0;
+					chunk.SetBlocklight(b1.Coordinates.X & 0x0f, b1.Coordinates.Y & 0xff, b1.Coordinates.Z & 0x0f, 0); //reset
+					lightBfsQueue.Enqueue(b1.Coordinates);
+				}
 			}
 		}
 
@@ -150,7 +159,7 @@ namespace MiNET.Worlds
 				chunk.SetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f, (byte) (lightLevel - 1));
 				lightBfsQueue.Enqueue(coord);
 			}
-			else if(_lightLevel - 2 >= lightLevel)
+			else if(lightLevel == 0 && _lightLevel > 0)
 			{
 				chunk.SetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f, 0); //reset
 				lightBfsQueue.Enqueue(coord);

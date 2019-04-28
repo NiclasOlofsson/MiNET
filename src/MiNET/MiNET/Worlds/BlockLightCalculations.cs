@@ -138,8 +138,11 @@ namespace MiNET.Worlds
 			{
 				if (b1.LightLevel >= lightLevel)
 				{
-					if (lightLevel == 0 && !potentialSource.Contains(b1.Coordinates))
+					if (b1.LightLevel >= lightLevel + 2 && !potentialSource.Contains(b1.Coordinates))
+					{
+                        chunk.SetBlocklight(b1.Coordinates.X & 0x0f, b1.Coordinates.Y & 0xff, b1.Coordinates.Z & 0x0f, (byte)b1.LightLevel);
 						potentialSource.Enqueue(b1.Coordinates);
+					}
 					return;
 				}
 

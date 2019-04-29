@@ -124,9 +124,10 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Script Custom Event Packet | 0x75 | 117 |   
 | Spawn Particle Effect | 0x76 | 118 |   
 | Available Entity Identifiers | 0x77 | 119 |   
-| Level Sound Event | 0x78 | 120 |   
+| Level Sound Event V2 | 0x78 | 120 |   
 | Network Chunk Publisher Update | 0x79 | 121 |   
 | Biome Definition List | 0x7a | 122 |   
+| Level Sound Event | 0x7b | 123 |   
 
 
 ## Data types
@@ -290,6 +291,7 @@ Wiki: [Resource Packs Info](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Must accept | bool |  |
+|Has scripts | bool |  |
 |BehahaviorPackInfos | ResourcePackInfos |  |
 |ResourcePackInfos | ResourcePackInfos |  |
 -----------------------------------------------------------------------
@@ -357,6 +359,7 @@ Wiki: [Text](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Text)
 |System | 6 |
 |Whisper | 7 |
 |Announcement | 8 |
+|Json | 9 |
 
 
 #### Fields
@@ -412,21 +415,18 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Has EDU features enabled | bool |  |
 |Rain level | float |  |
 |Lightning level | float |  |
+|Has Confirmed Platform Locked Content | bool |  |
 |Is Multiplayer | bool |  |
 |Broadcast To LAN | bool |  |
-|Broadcast To XBL | bool |  |
+|Xbox Live Broadcast Mode | VarInt |  |
+|Platform Broadcast Mode | VarInt |  |
 |Enable commands | bool |  |
 |Is texturepacks required | bool |  |
 |GameRules | GameRules |  |
 |Bonus Chest | bool |  |
 |Map Enabled | bool |  |
-|Trust Players | bool |  |
 |Permission Level | SignedVarInt |  |
-|Game Publish Setting | SignedVarInt |  |
 |Server Chunk Tick Range | int |  |
-|Has Platform Broadcast | bool |  |
-|Platform Broadcast Mode | SignedVarInt |  |
-|Xbox Live Broadcast Intent | bool |  |
 |Has Locked Behavior Pack | bool |  |
 |Has Locked Resource Pack | bool |  |
 |Is From Locked World Template | bool |  |
@@ -852,6 +852,7 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Global | 1 |
 |World Interaction | 2 |
 |Creative | 3 |
+|Crafting | 100 |
 |Unspecified | 99999 |
 
 #### Normal Action constants
@@ -1782,10 +1783,10 @@ Wiki: [Resource Pack Data Info](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Package ID | string |  |
-|Max Chunk Size  | uint |  |
-|Chunk Count  | uint |  |
-|Compressed Package Size  | ulong |  |
-|Hash  | string |  |
+|Max Chunk Size | uint |  |
+|Chunk Count | uint |  |
+|Compressed Package Size | ulong |  |
+|Hash | ByteArray |  |
 -----------------------------------------------------------------------
 ### Resource Pack Chunk Data (0x53)
 Wiki: [Resource Pack Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackChunkData)
@@ -2331,7 +2332,7 @@ Wiki: [Update Soft Enum Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkStackLatencyPacket)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 
@@ -2340,12 +2341,14 @@ Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wik
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Timestamp | long |  |
+|Need Response | bool |  |
 -----------------------------------------------------------------------
 ### Script Custom Event Packet (0x75)
 Wiki: [Script Custom Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ScriptCustomEventPacket)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 
@@ -2371,6 +2374,7 @@ Wiki: [Spawn Particle Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Dimension ID | byte |  |
+|Entity ID | UnsignedVarLong |  |
 |Position | Vector3 |  |
 |Particle name | string |  |
 -----------------------------------------------------------------------
@@ -2389,8 +2393,8 @@ Wiki: [Available Entity Identifiers](https://github.com/NiclasOlofsson/MiNET/wik
 |:-----|:-----|:-----|
 |NamedTag | Nbt |  |
 -----------------------------------------------------------------------
-### Level Sound Event (0x78)
-Wiki: [Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEvent)
+### Level Sound Event V2 (0x78)
+Wiki: [Level Sound Event V2](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEventV2)
 
 **Sent from server:** true  
 **Sent from client:** true
@@ -2439,6 +2443,26 @@ Wiki: [Biome Definition List](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |NamedTag | Nbt |  |
+-----------------------------------------------------------------------
+### Level Sound Event (0x7b)
+Wiki: [Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEvent)
+
+**Sent from server:** true  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Sound ID | UnsignedVarInt |  |
+|Position | Vector3 |  |
+|Block Id | SignedVarInt |  |
+|Entity Type | string |  |
+|Is baby mob | bool |  |
+|Is global | bool |  |
 -----------------------------------------------------------------------
 
 

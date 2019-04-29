@@ -260,7 +260,7 @@ namespace MiNET
 			try
 			{
 				Log.Info("Disabling plugins...");
-				PluginManager.DisablePlugins();
+				PluginManager?.DisablePlugins();
 
 				Log.Info("Shutting down...");
 				if (_listener == null) return true; // Already stopped. It's ok.
@@ -817,10 +817,10 @@ namespace MiNET
 						var data = new Dictionary<string, string>
 						{
 							{"splitnum", "" + (char) 128},
-							{"hostname", "Minecraft PE Server"},
+							{"hostname", Config.GetProperty("motd", "MiNET: MCPE Server")},
 							{"gametype", "SMP"},
 							{"game_id", "MINECRAFTPE"},
-							{"version", "0.15.0"},
+							{"version", McpeProtocolInfo.GameVersion},
 							{"server_engine", "MiNET v1.0.0"},
 							{"plugins", "MiNET v1.0.0"},
 							{"map", "world"},

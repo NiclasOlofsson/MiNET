@@ -270,6 +270,8 @@ namespace MiNET
 							}
 							else if (validationKey != null && validationKey.Equals(x5u, StringComparison.InvariantCultureIgnoreCase))
 							{
+								//TODO: Remove. Just there to be able to join with same XBL multiple times without crashing the server.
+								data.ExtraData.Identity = Guid.NewGuid().ToString();
 								_playerInfo.CertificateData = data;
 							}
 							else
@@ -283,6 +285,8 @@ namespace MiNET
 									data.ExtraData.Xuid = null;
 								}
 
+								//TODO: Remove. Just there to be able to join with same XBL multiple times without crashing the server.
+								data.ExtraData.Identity = Guid.NewGuid().ToString();
 								_playerInfo.CertificateData = data;
 							}
 						}
@@ -605,6 +609,18 @@ namespace MiNET
 		}
 
 		public void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message)
+		{
+		}
+
+		public void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
+		{
+		}
+
+		public void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
+		{
+		}
+
+		public void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
 		{
 		}
 	}

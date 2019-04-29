@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.8.0" protocolVersion="313">
+<protocol gameVersion="1.10.0" protocolVersion="340">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -151,6 +151,7 @@
 
 	<pdu id="0x06" online="false" client="false" server="true" name="MCPE_RESOURCE_PACKS_INFO">
 		<field name="Must accept" type="bool" />
+		<field name="Has scripts" type="bool" />
 		<field name="BehahaviorPackInfos" type="ResourcePackInfos" />
 		<field name="ResourcePackInfos" type="ResourcePackInfos" />
 	</pdu>
@@ -185,6 +186,7 @@
 			<enum id="System" value="6" />
 			<enum id="Whisper" value="7" />
 			<enum id="Announcement" value="8" />
+			<enum id="Json" value="9" />
 		</enums>
 
 		<field name="Type" type="byte" />
@@ -215,21 +217,18 @@
 		<field name="Has EDU features enabled" type="bool" />
 		<field name="Rain level" type="float" />
 		<field name="Lightning level" type="float" />
+		<field name="Has Confirmed Platform Locked Content" type="bool" />
 		<field name="Is Multiplayer" type="bool" />
 		<field name="Broadcast To LAN" type="bool" />
-		<field name="Broadcast To XBL" type="bool" />
+		<field name="Xbox Live Broadcast Mode" type="VarInt" />
+		<field name="Platform Broadcast Mode" type="VarInt" />
 		<field name="Enable commands" type="bool" />
 		<field name="Is texturepacks required" type="bool" />
 		<field name="GameRules" type="GameRules" />
 		<field name="Bonus Chest" type="bool" />
 		<field name="Map Enabled" type="bool" />
-		<field name="Trust Players" type="bool" />
 		<field name="Permission Level" type="SignedVarInt" />
-		<field name="Game Publish Setting" type="SignedVarInt" />
 		<field name="Server Chunk Tick Range" type="int" />
-		<field name="Has Platform Broadcast" type="bool" />
-		<field name="Platform Broadcast Mode" type="SignedVarInt" />
-		<field name="Xbox Live Broadcast Intent" type="bool" />
 
 		<field name="Has Locked Behavior Pack" type="bool" />
 		<field name="Has Locked Resource Pack" type="bool" />
@@ -463,6 +462,7 @@
 			<enum id="Global" value="1" />
 			<enum id="World interaction" value="2" />
 			<enum id="Creative" value="3" />
+			<enum id="Crafting" value="100" />
 			<enum id="Unspecified" value="99999" />
 		</enums>
 		<enums id="Normal action">
@@ -842,11 +842,11 @@
 
 	<pdu id="0x52" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
 		<field name="Package ID" type="string" />
-		<field name="Max Chunk Size " type="uint" />
-		<field name="Chunk Count " type="uint" />
-		<field name="Compressed Package Size " type="ulong" />
+		<field name="Max Chunk Size" type="uint" />
+		<field name="Chunk Count" type="uint" />
+		<field name="Compressed Package Size" type="ulong" />
 		<!-- SHA256 -->
-		<field name="Hash " type="string" />
+		<field name="Hash" type="ByteArray" />
 	</pdu>
 
 	<pdu id="0x53" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
@@ -1037,16 +1037,19 @@
 	<pdu id="0x72" online="false" client="false" server="true" name="MCPE_UPDATE_SOFT_ENUM_PACKET">
 	</pdu>
 
-	<pdu id="0x73" online="false" client="false" server="true" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
+	<pdu id="0x73" online="false" client="true" server="true" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
+		<field name="Timestamp" type="long" />
+		<field name="Need Response" type="bool" />
 	</pdu>
 
-	<pdu id="0x75" online="false" client="false" server="true" name="MCPE_SCRIPT_CUSTOM_EVENT_PACKET">
+	<pdu id="0x75" online="false" client="true" server="true" name="MCPE_SCRIPT_CUSTOM_EVENT_PACKET">
 		<field name="Event Name" type="string" />
 		<field name="Event Data" type="string" />
 	</pdu>
 	
 	<pdu id="0x76" online="false" client="false" server="true" name="MCPE_SPAWN_PARTICLE_EFFECT">
 		<field name="Dimension ID" type="byte" />
+		<field name="Entity ID" type="UnsignedVarLong" />
 		<field name="Position" type="Vector3" />
 		<field name="Particle name" type="string" />
 	</pdu>
@@ -1055,7 +1058,7 @@
 		<field name="NamedTag" type="Nbt" />
 	</pdu>
 	
-	<pdu id="0x78" online="false" client="true" server="true" name="MCPE_LEVEL_SOUND_EVENT">
+	<pdu id="0x78" online="false" client="true" server="true" name="MCPE_LEVEL_SOUND_EVENT_V2">
 		<field name="Sound ID" type="byte" />
 		<field name="Position" type="Vector3" />
 		<field name="Block Id" type="SignedVarInt" />
@@ -1071,6 +1074,15 @@
 
 	<pdu id="0x7a" online="false" client="false" server="true" name="MCPE_BIOME_DEFINITION_LIST">
 		<field name="NamedTag" type="Nbt" />
+	</pdu>
+
+	<pdu id="0x7b" online="false" client="true" server="true" name="MCPE_LEVEL_SOUND_EVENT">
+		<field name="Sound ID" type="UnsignedVarInt" />
+		<field name="Position" type="Vector3" />
+		<field name="Block Id" type="SignedVarInt" />
+		<field name="Entity Type" type="string" />
+		<field name="Is baby mob" type="bool" />
+		<field name="Is global" type="bool" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">

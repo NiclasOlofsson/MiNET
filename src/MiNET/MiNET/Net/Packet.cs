@@ -664,15 +664,15 @@ namespace MiNET.Net
 
 		public Nbt ReadNbt()
 		{
-			return ReadNbt(_reader.BaseStream, this is McpeBlockEntityData || this is McpeUpdateEquipment);
+			return ReadNbt(_reader.BaseStream);
 		}
 
-		public static Nbt ReadNbt(Stream stream, bool useVarInt)
+		public static Nbt ReadNbt(Stream stream)
 		{
 			Nbt nbt = new Nbt();
 			NbtFile file = new NbtFile();
 			file.BigEndian = false;
-			file.UseVarInt = useVarInt;
+			file.UseVarInt = true;
 			nbt.NbtFile = file;
 			file.LoadFromStream(stream, NbtCompression.None);
 
@@ -788,6 +788,7 @@ namespace MiNET.Net
 					Write(trans.Item);
 					Write(trans.FromPosition);
 					Write(trans.ClickPosition);
+					WriteUnsignedVarInt(trans.BlockRuntimeId);
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
 					WriteVarLong(trans.EntityId);
@@ -849,6 +850,7 @@ namespace MiNET.Net
 						};
 						break;
 					case McpeInventoryTransaction.InventorySourceType.Unspecified:
+					case McpeInventoryTransaction.InventorySourceType.Crafting:
 						record = new CraftTransactionRecord()
 						{
 							Source = sourceType,
@@ -879,6 +881,7 @@ namespace MiNET.Net
 					trans.Item = ReadItem();
 					trans.FromPosition = ReadVector3();
 					trans.ClickPosition = ReadVector3();
+					trans.BlockRuntimeId = ReadUnsignedVarInt();
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
 					trans.EntityId = ReadVarLong();
@@ -917,7 +920,8 @@ namespace MiNET.Net
 			if (stack.ExtraData != null)
 			{
 				byte[] bytes = GetNbtData(stack.ExtraData);
-				_writer.Write((short) bytes.Length);
+				Write((ushort)0xffff);//(short) bytes.Length
+				Write((byte) 0x01);
 				Write(bytes);
 			}
 			else
@@ -927,6 +931,12 @@ namespace MiNET.Net
 
 			WriteSignedVarInt(0);
 			WriteSignedVarInt(0);
+
+			if (stack.Id == 513) // shield
+			{
+				WriteSignedVarInt(0); // something about tick, crap code
+			}
+
 		}
 
 		public Item ReadItem()
@@ -943,8 +953,8 @@ namespace MiNET.Net
 			byte count = (byte) (tmp & 0xff);
 			Item stack = ItemFactory.GetItem((short) id, metadata, count);
 
-			int nbtLen = _reader.ReadInt16(); // NbtLen
-			if (nbtLen > 0)
+			ushort nbtLen = _reader.ReadUInt16(); // NbtLen
+			if (nbtLen == 0xffff && ReadByte() == 1)
 			{
 				stack.ExtraData = ReadNbt().NbtFile.RootTag;
 			}
@@ -960,6 +970,11 @@ namespace MiNET.Net
 				ReadString();
 			}
 
+			if(id == 513) // shield
+			{
+				ReadSignedVarInt(); // something about tick, crap code
+			}
+
 			return stack;
 		}
 
@@ -969,6 +984,7 @@ namespace MiNET.Net
 			nbtCompound.Name = string.Empty;
 			var file = new NbtFile(nbtCompound);
 			file.BigEndian = false;
+			file.UseVarInt = true;
 
 			return file.SaveToBuffer(NbtCompression.None);
 		}
@@ -1232,6 +1248,7 @@ namespace MiNET.Net
 				Write(""); //TODO: encryption key
 				Write(""); //TODO: subpack name
 				Write(""); //TODO: content identity
+				Write(info.HasScripts);
 			}
 		}
 
@@ -1250,12 +1267,14 @@ namespace MiNET.Net
 				var encryptionKey = ReadString();
 				var subpackName = ReadString();
 				var contentIdentity = ReadString();
+				var hasScripts = ReadBool();
 				info.PackIdVersion = new PackIdVersion
 				{
 					Id = id,
-					Version = version
+					Version = version,
 				};
 				info.Size = size;
+				info.HasScripts = hasScripts;
 				packInfos.Add(info);
 			}
 

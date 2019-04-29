@@ -142,6 +142,11 @@ namespace MiNET
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
+		public virtual void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
+		{
+
+		}
+
 		public virtual void HandleMcpeCommandBlockUpdate(McpeCommandBlockUpdate message)
 		{
 		}
@@ -167,11 +172,11 @@ namespace MiNET
 			SendPacket(chunkData);
 		}
 
-		public void HandleMcpePurchaseReceipt(McpePurchaseReceipt message)
+		public virtual void HandleMcpePurchaseReceipt(McpePurchaseReceipt message)
 		{
 		}
 
-		public void HandleMcpePlayerSkin(McpePlayerSkin message)
+		public virtual void HandleMcpePlayerSkin(McpePlayerSkin message)
 		{
 		}
 
@@ -289,7 +294,7 @@ namespace MiNET
 				dataInfo.maxChunkSize = 1048576;
 				dataInfo.chunkCount = 1;
 				dataInfo.compressedPackageSize = 359901; // Lenght of data
-				dataInfo.hash = "9&\r2'ëX•;\u001bð—Ð‹\u0006´6\u0007TÞ/[Üx…x*\u0005h\u0002à\u0012"; //TODO: Fix encoding for this. Right now, must be Default :-(
+				dataInfo.hash = new byte[] { 57, 38, 13, 50, 39, 63, 88, 63, 59, 27, 63, 63, 63, 63, 6, 63, 54, 7, 84, 63, 47, 91, 63, 120, 63, 120, 42, 5, 104, 2, 63, 18 };
 				SendPacket(dataInfo);
 				return;
 			}
@@ -362,7 +367,7 @@ namespace MiNET
 			Log.Debug($"Player input: x={message.motionX}, z={message.motionZ}, jumping={message.jumping}, sneaking={message.sneaking}");
 		}
 
-		public void HandleMcpeRiderJump(McpeRiderJump message)
+		public virtual void HandleMcpeRiderJump(McpeRiderJump message)
 		{
 			if (IsRiding && Vehicle > 0)
 			{
@@ -475,7 +480,7 @@ namespace MiNET
 			}
 		}
 
-		public void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
+		public virtual void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
 		{
 			Level.RelayBroadcast((McpeSetEntityMotion) message.Clone());
 		}
@@ -2191,7 +2196,7 @@ namespace MiNET
 			{
 				case McpeInventoryTransaction.ItemReleaseAction.Release:
 				{
-					if (_itemUseTimer <= 0) return;
+					if (_itemUseTimer <= 0) break;
 
 					itemInHand.Release(Level, this, transaction.FromPosition, Level.TickTime - _itemUseTimer);
 
@@ -2282,7 +2287,6 @@ namespace MiNET
 									break;
 								case 1:
 									oldItemSlots = Inventory.Chest;
-									Inventory.Chest = newItem;
 									break;
 								case 2:
 									oldItemSlots = Inventory.Leggings;
@@ -2780,15 +2784,12 @@ namespace MiNET
 			startGame.lightningLevel = 0;
 			startGame.isMultiplayer = true;
 			startGame.broadcastToLan = true;
-			startGame.broadcastToXbl = true;
 			startGame.enableCommands = EnableCommands;
 			startGame.isTexturepacksRequired = false;
 			startGame.gamerules = Level.GetGameRules();
 			startGame.bonusChest = false;
 			startGame.mapEnabled = false;
-			startGame.trustPlayers = false;
 			startGame.permissionLevel = (int) PermissionLevel;
-			startGame.gamePublishSetting = 3;
 			startGame.levelId = "1m0AAMIFIgA=";
 			startGame.worldName = Level.LevelName;
 			startGame.premiumWorldTemplateId = "";
@@ -3264,36 +3265,10 @@ namespace MiNET
 		public override MetadataDictionary GetMetadata()
 		{
 			var metadata = base.GetMetadata();
-			metadata[4] = new MetadataString(NameTag ?? Username);
-			metadata[39] = new MetadataString(ButtonText ?? string.Empty);
-
-			//MetadataDictionary metadata = new MetadataDictionary();
-			//metadata[0] = new MetadataLong(GetDataValue()); // 10000000000000011000000000000000
-			//metadata[1] = new MetadataInt(1);
-			//metadata[2] = new MetadataInt(0);
-			//metadata[3] = new MetadataByte(0);
-			//metadata[4] = new MetadataString(NameTag ?? Username);
-			//metadata[5] = new MetadataLong(1);
-			//metadata[7] = new MetadataShort(400);
-			//metadata[8] = new MetadataInt(0);
-			//metadata[9] = new MetadataByte(0);
-			metadata[27] = new MetadataByte((byte) (IsSleeping ? 0b10 : 0));
-			//metadata[28] = new MetadataInt(1);
+			metadata[(int) MetadataFlags.NameTag] = new MetadataString(NameTag ?? Username);
+			metadata[(int) MetadataFlags.ButtonText] = new MetadataString(ButtonText ?? string.Empty);
+			metadata[(int) MetadataFlags.PlayerFlags] = new MetadataByte((byte) (IsSleeping ? 0b10 : 0));
 			metadata[(int) MetadataFlags.BedPosition] = new MetadataIntCoordinates((int) SpawnPosition.X, (int) SpawnPosition.Y, (int) SpawnPosition.Z);
-			//metadata[38] = new MetadataLong(0);
-			//metadata[39] = new MetadataFloat(1f);
-			//metadata[40] = new MetadataString(ButtonText ?? string.Empty);
-			//metadata[41] = new MetadataLong(0);
-			//metadata[44] = new MetadataShort(400);
-			//metadata[45] = new MetadataInt(0);
-			//metadata[46] = new MetadataByte(0);
-			//metadata[47] = new MetadataInt(0);
-			//metadata[53] = new MetadataFloat(0.8f);
-			//metadata[54] = new MetadataFloat(1.8f);
-			//metadata[56] = new MetadataVector3(10, 50, 10);
-			//metadata[57] = new MetadataByte(0);
-			//metadata[58] = new MetadataFloat(0f);
-			//metadata[59] = new MetadataFloat(0f);
 
 			return metadata;
 		}
@@ -3684,6 +3659,14 @@ namespace MiNET
 		protected virtual void OnTicked(PlayerEventArgs e)
 		{
 			Ticked?.Invoke(this, e);
+		}
+
+		public virtual void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
+		{
+		}
+
+		public virtual void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
+		{
 		}
 	}
 

@@ -1029,7 +1029,6 @@ namespace MiNET.Client
 			StringBuilder sb = new StringBuilder();
 
 			sb.AppendLine();
-			sb.AppendLine("MetadataDictionary metadata = new MetadataDictionary();");
 
 			foreach (var kvp in metadata._entries)
 			{
@@ -1098,6 +1097,7 @@ namespace MiNET.Client
 						break;
 					}
 				}
+				sb.Append($" // {(Entity.MetadataFlags) idx}");
 				sb.AppendLine();
 			}
 
@@ -1132,7 +1132,7 @@ namespace MiNET.Client
 
 		public string CodeName(string name, bool firstUpper = false)
 		{
-			name = name.ToLowerInvariant();
+			//name = name.ToLowerInvariant();
 
 			bool upperCase = firstUpper;
 

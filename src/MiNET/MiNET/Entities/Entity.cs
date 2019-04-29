@@ -121,6 +121,7 @@ namespace MiNET.Entities
 			EatingHaystack = 16,
 			FireworksType = 16,
 			MaybeAge = 24,
+			PlayerFlags = 26,
 			BedPosition = 28,
 			Scale = 38,
 			MaxAir = 42,
@@ -134,6 +135,10 @@ namespace MiNET.Entities
 			RiderRotationLocked = 57,
 			RiderMaxRotation = 58,
 			RiderMinRotation = 59,
+
+			EntityFlags2 = 91, // same treatment as 0 flags, perhaps
+
+			ButtonText = 99,
 		}
 
 		public virtual MetadataDictionary GetMetadata()
@@ -147,12 +152,12 @@ namespace MiNET.Entities
 			metadata[(int) MetadataFlags.PotionColor] = new MetadataInt(PotionColor);
 			metadata[(int) MetadataFlags.Scale] = new MetadataFloat(Scale); // Scale
 			metadata[(int) MetadataFlags.MaxAir] = new MetadataShort(HealthManager.MaxAir);
+			metadata[(int) MetadataFlags.CollisionBoxWidth] = new MetadataFloat(Width); // Collision box height
+			metadata[(int) MetadataFlags.CollisionBoxHeight] = new MetadataFloat(Height); // Collision box width
 			metadata[(int) MetadataFlags.RiderSeatPosition] = new MetadataVector3(RiderSeatPosition);
 			metadata[(int) MetadataFlags.RiderRotationLocked] = new MetadataByte(RiderRotationLocked);
 			metadata[(int) MetadataFlags.RiderMaxRotation] = new MetadataFloat(RiderMaxRotation);
 			metadata[(int) MetadataFlags.RiderMinRotation] = new MetadataFloat(RiderMinRotation);
-			metadata[(int) MetadataFlags.CollisionBoxHeight] = new MetadataFloat(Height); // Collision box width
-			metadata[(int) MetadataFlags.CollisionBoxWidth] = new MetadataFloat(Width); // Collision box height
 			return metadata;
 		}
 

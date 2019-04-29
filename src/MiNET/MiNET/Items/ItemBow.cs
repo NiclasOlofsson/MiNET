@@ -50,7 +50,7 @@ namespace MiNET.Items
 				case ItemDamageReason.ItemUse:
 				{
 					Metadata++;
-					return Metadata >= GetMaxUses() - 1;
+					return Metadata >= GetMaxUses();
 				}
 				default:
 					return false;

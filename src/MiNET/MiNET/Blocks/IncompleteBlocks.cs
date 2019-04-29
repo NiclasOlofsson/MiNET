@@ -4025,31 +4025,6 @@ namespace MiNET.Blocks
 		}
 	}
 
-	public class Netherreactor : Block
-	{
-		public Netherreactor() : base(247)
-		{
-			Name = "minecraft:netherreactor";
-			// runtime id: 2081 0x821, data: 0
-		}
-	}
-
-	public class Pistonarmcollision : Block
-	{
-		public Pistonarmcollision() : base(34)
-		{
-			Name = "minecraft:pistonArmCollision";
-			// runtime id: 252 0xFC, data: 0
-			// runtime id: 253 0xFD, data: 1
-			// runtime id: 254 0xFE, data: 2
-			// runtime id: 255 0xFF, data: 3
-			// runtime id: 256 0x100, data: 4
-			// runtime id: 257 0x101, data: 5
-			// runtime id: 258 0x102, data: 6
-			// runtime id: 259 0x103, data: 7
-		}
-	}
-
 	public class Scaffolding : Block
 	{
 		public Scaffolding() : base(420)
@@ -4073,4 +4048,533 @@ namespace MiNET.Blocks
 			// runtime id: 4516 0x11A4, data: 15
 		}
 	}
+
+	public class AcaciaStandingSign : Block
+	{
+		public AcaciaStandingSign() : base(445)
+		{
+			Name = "minecraft:acacia_standing_sign";
+			// runtime id: 72 0x48, data: 0
+			// runtime id: 73 0x49, data: 1
+			// runtime id: 80 0x50, data: 2
+			// runtime id: 81 0x51, data: 3
+			// runtime id: 82 0x52, data: 4
+			// runtime id: 83 0x53, data: 5
+			// runtime id: 84 0x54, data: 6
+			// runtime id: 85 0x55, data: 7
+			// runtime id: 86 0x56, data: 8
+			// runtime id: 87 0x57, data: 9
+			// runtime id: 74 0x4A, data: 10
+			// runtime id: 75 0x4B, data: 11
+			// runtime id: 76 0x4C, data: 12
+			// runtime id: 77 0x4D, data: 13
+			// runtime id: 78 0x4E, data: 14
+			// runtime id: 79 0x4F, data: 15
+		}
+	}
+	public class AcaciaWallSign : Block
+	{
+		public AcaciaWallSign() : base(446)
+		{
+			Name = "minecraft:acacia_wall_sign";
+			// runtime id: 104 0x68, data: 0
+			// runtime id: 105 0x69, data: 1
+			// runtime id: 106 0x6A, data: 2
+			// runtime id: 107 0x6B, data: 3
+			// runtime id: 108 0x6C, data: 4
+			// runtime id: 109 0x6D, data: 5
+			// runtime id: 110 0x6E, data: 6
+			// runtime id: 111 0x6F, data: 7
+		}
+	}
+	public class Barrel : Block
+	{
+		public Barrel() : base(458)
+		{
+			Name = "minecraft:barrel";
+			// runtime id: 185 0xB9, data: 0
+			// runtime id: 186 0xBA, data: 1
+			// runtime id: 187 0xBB, data: 2
+			// runtime id: 188 0xBC, data: 3
+			// runtime id: 189 0xBD, data: 4
+			// runtime id: 190 0xBE, data: 5
+			// runtime id: 191 0xBF, data: 6
+			// runtime id: 192 0xC0, data: 7
+		}
+	}
+	public class Bell : Block
+	{
+		public Bell() : base(461)
+		{
+			Name = "minecraft:bell";
+			// runtime id: 221 0xDD, data: 0
+			// runtime id: 222 0xDE, data: 1
+			// runtime id: 223 0xDF, data: 2
+			// runtime id: 224 0xE0, data: 3
+		}
+	}
+	public class BirchStandingSign : Block
+	{
+		public BirchStandingSign() : base(441)
+		{
+			Name = "minecraft:birch_standing_sign";
+			// runtime id: 297 0x129, data: 0
+			// runtime id: 298 0x12A, data: 1
+			// runtime id: 305 0x131, data: 2
+			// runtime id: 306 0x132, data: 3
+			// runtime id: 307 0x133, data: 4
+			// runtime id: 308 0x134, data: 5
+			// runtime id: 309 0x135, data: 6
+			// runtime id: 310 0x136, data: 7
+			// runtime id: 311 0x137, data: 8
+			// runtime id: 312 0x138, data: 9
+			// runtime id: 299 0x12B, data: 10
+			// runtime id: 300 0x12C, data: 11
+			// runtime id: 301 0x12D, data: 12
+			// runtime id: 302 0x12E, data: 13
+			// runtime id: 303 0x12F, data: 14
+			// runtime id: 304 0x130, data: 15
+		}
+	}
+	public class BirchWallSign : Block
+	{
+		public BirchWallSign() : base(442)
+		{
+			Name = "minecraft:birch_wall_sign";
+			// runtime id: 329 0x149, data: 0
+			// runtime id: 330 0x14A, data: 1
+			// runtime id: 331 0x14B, data: 2
+			// runtime id: 332 0x14C, data: 3
+			// runtime id: 333 0x14D, data: 4
+			// runtime id: 334 0x14E, data: 5
+			// runtime id: 335 0x14F, data: 6
+			// runtime id: 336 0x150, data: 7
+		}
+	}
+	public class BlastFurnace : Block
+	{
+		public BlastFurnace() : base(451)
+		{
+			Name = "minecraft:blast_furnace";
+			// runtime id: 345 0x159, data: 0
+			// runtime id: 346 0x15A, data: 1
+			// runtime id: 347 0x15B, data: 2
+			// runtime id: 348 0x15C, data: 3
+			// runtime id: 349 0x15D, data: 4
+			// runtime id: 350 0x15E, data: 5
+			// runtime id: 351 0x15F, data: 6
+			// runtime id: 352 0x160, data: 7
+		}
+	}
+	public class CartographyTable : Block
+	{
+		public CartographyTable() : base(455)
+		{
+			Name = "minecraft:cartography_table";
+			// runtime id: 471 0x1D7, data: 0
+		}
+	}
+	public class DarkoakStandingSign : Block
+	{
+		public DarkoakStandingSign() : base(447)
+		{
+			Name = "minecraft:darkoak_standing_sign";
+			// runtime id: 876 0x36C, data: 0
+			// runtime id: 877 0x36D, data: 1
+			// runtime id: 884 0x374, data: 2
+			// runtime id: 885 0x375, data: 3
+			// runtime id: 886 0x376, data: 4
+			// runtime id: 887 0x377, data: 5
+			// runtime id: 888 0x378, data: 6
+			// runtime id: 889 0x379, data: 7
+			// runtime id: 890 0x37A, data: 8
+			// runtime id: 891 0x37B, data: 9
+			// runtime id: 878 0x36E, data: 10
+			// runtime id: 879 0x36F, data: 11
+			// runtime id: 880 0x370, data: 12
+			// runtime id: 881 0x371, data: 13
+			// runtime id: 882 0x372, data: 14
+			// runtime id: 883 0x373, data: 15
+		}
+	}
+	public class DarkoakWallSign : Block
+	{
+		public DarkoakWallSign() : base(448)
+		{
+			Name = "minecraft:darkoak_wall_sign";
+			// runtime id: 892 0x37C, data: 0
+			// runtime id: 893 0x37D, data: 1
+			// runtime id: 894 0x37E, data: 2
+			// runtime id: 895 0x37F, data: 3
+			// runtime id: 896 0x380, data: 4
+			// runtime id: 897 0x381, data: 5
+			// runtime id: 898 0x382, data: 6
+			// runtime id: 899 0x383, data: 7
+		}
+	}
+	public class DoubleStoneSlab3 : Block
+	{
+		public DoubleStoneSlab3() : base(422)
+		{
+			Name = "minecraft:double_stone_slab3";
+			// runtime id: 1009 0x3F1, data: 0
+			// runtime id: 1010 0x3F2, data: 1
+			// runtime id: 1017 0x3F9, data: 2
+			// runtime id: 1018 0x3FA, data: 3
+			// runtime id: 1019 0x3FB, data: 4
+			// runtime id: 1020 0x3FC, data: 5
+			// runtime id: 1021 0x3FD, data: 6
+			// runtime id: 1022 0x3FE, data: 7
+			// runtime id: 1023 0x3FF, data: 8
+			// runtime id: 1024 0x400, data: 9
+			// runtime id: 1011 0x3F3, data: 10
+			// runtime id: 1012 0x3F4, data: 11
+			// runtime id: 1013 0x3F5, data: 12
+			// runtime id: 1014 0x3F6, data: 13
+			// runtime id: 1015 0x3F7, data: 14
+			// runtime id: 1016 0x3F8, data: 15
+		}
+	}
+	public class DoubleStoneSlab4 : Block
+	{
+		public DoubleStoneSlab4() : base(423)
+		{
+			Name = "minecraft:double_stone_slab4";
+			// runtime id: 1025 0x401, data: 0
+			// runtime id: 1026 0x402, data: 1
+			// runtime id: 1033 0x409, data: 2
+			// runtime id: 1034 0x40A, data: 3
+			// runtime id: 1035 0x40B, data: 4
+			// runtime id: 1036 0x40C, data: 5
+			// runtime id: 1037 0x40D, data: 6
+			// runtime id: 1038 0x40E, data: 7
+			// runtime id: 1039 0x40F, data: 8
+			// runtime id: 1040 0x410, data: 9
+			// runtime id: 1027 0x403, data: 10
+			// runtime id: 1028 0x404, data: 11
+			// runtime id: 1029 0x405, data: 12
+			// runtime id: 1030 0x406, data: 13
+			// runtime id: 1031 0x407, data: 14
+			// runtime id: 1032 0x408, data: 15
+		}
+	}
+	public class FletchingTable : Block
+	{
+		public FletchingTable() : base(456)
+		{
+			Name = "minecraft:fletching_table";
+			// runtime id: 3082 0xC0A, data: 0
+		}
+	}
+	public class Grindstone : Block
+	{
+		public Grindstone() : base(450)
+		{
+			Name = "minecraft:grindstone";
+			// runtime id: 3201 0xC81, data: 0
+			// runtime id: 3202 0xC82, data: 1
+			// runtime id: 3203 0xC83, data: 2
+			// runtime id: 3204 0xC84, data: 3
+		}
+	}
+	public class JungleStandingSign : Block
+	{
+		public JungleStandingSign() : base(443)
+		{
+			Name = "minecraft:jungle_standing_sign";
+			// runtime id: 3400 0xD48, data: 0
+			// runtime id: 3401 0xD49, data: 1
+			// runtime id: 3408 0xD50, data: 2
+			// runtime id: 3409 0xD51, data: 3
+			// runtime id: 3410 0xD52, data: 4
+			// runtime id: 3411 0xD53, data: 5
+			// runtime id: 3412 0xD54, data: 6
+			// runtime id: 3413 0xD55, data: 7
+			// runtime id: 3414 0xD56, data: 8
+			// runtime id: 3415 0xD57, data: 9
+			// runtime id: 3402 0xD4A, data: 10
+			// runtime id: 3403 0xD4B, data: 11
+			// runtime id: 3404 0xD4C, data: 12
+			// runtime id: 3405 0xD4D, data: 13
+			// runtime id: 3406 0xD4E, data: 14
+			// runtime id: 3407 0xD4F, data: 15
+		}
+	}
+	public class JungleWallSign : Block
+	{
+		public JungleWallSign() : base(444)
+		{
+			Name = "minecraft:jungle_wall_sign";
+			// runtime id: 3432 0xD68, data: 0
+			// runtime id: 3433 0xD69, data: 1
+			// runtime id: 3434 0xD6A, data: 2
+			// runtime id: 3435 0xD6B, data: 3
+			// runtime id: 3436 0xD6C, data: 4
+			// runtime id: 3437 0xD6D, data: 5
+			// runtime id: 3438 0xD6E, data: 6
+			// runtime id: 3439 0xD6F, data: 7
+		}
+	}
+	public class Lantern : Block
+	{
+		public Lantern() : base(463)
+		{
+			Name = "minecraft:lantern";
+			// runtime id: 3464 0xD88, data: 0
+			// runtime id: 3465 0xD89, data: 1
+		}
+	}
+	public class LavaCauldron : Block
+	{
+		public LavaCauldron() : base(465)
+		{
+			Name = "minecraft:lava_cauldron";
+			// runtime id: 3484 0xD9C, data: 0
+			// runtime id: 3485 0xD9D, data: 1
+			// runtime id: 3492 0xDA4, data: 2
+			// runtime id: 3493 0xDA5, data: 3
+			// runtime id: 3494 0xDA6, data: 4
+			// runtime id: 3495 0xDA7, data: 5
+			// runtime id: 3496 0xDA8, data: 6
+			// runtime id: 3497 0xDA9, data: 7
+			// runtime id: 3498 0xDAA, data: 8
+			// runtime id: 3499 0xDAB, data: 9
+			// runtime id: 3486 0xD9E, data: 10
+			// runtime id: 3487 0xD9F, data: 11
+			// runtime id: 3488 0xDA0, data: 12
+			// runtime id: 3489 0xDA1, data: 13
+			// runtime id: 3490 0xDA2, data: 14
+			// runtime id: 3491 0xDA3, data: 15
+		}
+	}
+	public class SmithingTable : Block
+	{
+		public SmithingTable() : base(457)
+		{
+			Name = "minecraft:smithing_table";
+			// runtime id: 4167 0x1047, data: 0
+		}
+	}
+	public class Smoker : Block
+	{
+		public Smoker() : base(453)
+		{
+			Name = "minecraft:smoker";
+			// runtime id: 4168 0x1048, data: 0
+			// runtime id: 4169 0x1049, data: 1
+			// runtime id: 4170 0x104A, data: 2
+			// runtime id: 4171 0x104B, data: 3
+			// runtime id: 4172 0x104C, data: 4
+			// runtime id: 4173 0x104D, data: 5
+			// runtime id: 4174 0x104E, data: 6
+			// runtime id: 4175 0x104F, data: 7
+		}
+	}
+	public class SmoothStone : Block
+	{
+		public SmoothStone() : base(438)
+		{
+			Name = "minecraft:smooth_stone";
+			// runtime id: 4200 0x1068, data: 0
+		}
+	}
+	public class SpruceStandingSign : Block
+	{
+		public SpruceStandingSign() : base(436)
+		{
+			Name = "minecraft:spruce_standing_sign";
+			// runtime id: 4293 0x10C5, data: 0
+			// runtime id: 4294 0x10C6, data: 1
+			// runtime id: 4301 0x10CD, data: 2
+			// runtime id: 4302 0x10CE, data: 3
+			// runtime id: 4303 0x10CF, data: 4
+			// runtime id: 4304 0x10D0, data: 5
+			// runtime id: 4305 0x10D1, data: 6
+			// runtime id: 4306 0x10D2, data: 7
+			// runtime id: 4307 0x10D3, data: 8
+			// runtime id: 4308 0x10D4, data: 9
+			// runtime id: 4295 0x10C7, data: 10
+			// runtime id: 4296 0x10C8, data: 11
+			// runtime id: 4297 0x10C9, data: 12
+			// runtime id: 4298 0x10CA, data: 13
+			// runtime id: 4299 0x10CB, data: 14
+			// runtime id: 4300 0x10CC, data: 15
+		}
+	}
+	public class SpruceWallSign : Block
+	{
+		public SpruceWallSign() : base(437)
+		{
+			Name = "minecraft:spruce_wall_sign";
+			// runtime id: 4325 0x10E5, data: 0
+			// runtime id: 4326 0x10E6, data: 1
+			// runtime id: 4327 0x10E7, data: 2
+			// runtime id: 4328 0x10E8, data: 3
+			// runtime id: 4329 0x10E9, data: 4
+			// runtime id: 4330 0x10EA, data: 5
+			// runtime id: 4331 0x10EB, data: 6
+			// runtime id: 4332 0x10EC, data: 7
+		}
+	}
+	public class StoneSlab3 : Block
+	{
+		public StoneSlab3() : base(417)
+		{
+			Name = "minecraft:stone_slab3";
+			// runtime id: 4485 0x1185, data: 0
+			// runtime id: 4486 0x1186, data: 1
+			// runtime id: 4493 0x118D, data: 2
+			// runtime id: 4494 0x118E, data: 3
+			// runtime id: 4495 0x118F, data: 4
+			// runtime id: 4496 0x1190, data: 5
+			// runtime id: 4497 0x1191, data: 6
+			// runtime id: 4498 0x1192, data: 7
+			// runtime id: 4499 0x1193, data: 8
+			// runtime id: 4500 0x1194, data: 9
+			// runtime id: 4487 0x1187, data: 10
+			// runtime id: 4488 0x1188, data: 11
+			// runtime id: 4489 0x1189, data: 12
+			// runtime id: 4490 0x118A, data: 13
+			// runtime id: 4491 0x118B, data: 14
+			// runtime id: 4492 0x118C, data: 15
+		}
+	}
+	public class StoneSlab4 : Block
+	{
+		public StoneSlab4() : base(421)
+		{
+			Name = "minecraft:stone_slab4";
+			// runtime id: 4501 0x1195, data: 0
+			// runtime id: 4502 0x1196, data: 1
+			// runtime id: 4509 0x119D, data: 2
+			// runtime id: 4510 0x119E, data: 3
+			// runtime id: 4511 0x119F, data: 4
+			// runtime id: 4512 0x11A0, data: 5
+			// runtime id: 4513 0x11A1, data: 6
+			// runtime id: 4514 0x11A2, data: 7
+			// runtime id: 4515 0x11A3, data: 8
+			// runtime id: 4516 0x11A4, data: 9
+			// runtime id: 4503 0x1197, data: 10
+			// runtime id: 4504 0x1198, data: 11
+			// runtime id: 4505 0x1199, data: 12
+			// runtime id: 4506 0x119A, data: 13
+			// runtime id: 4507 0x119B, data: 14
+			// runtime id: 4508 0x119C, data: 15
+		}
+	}
+	public class Campfire : Block
+	{
+		public Campfire() : base(464)
+		{
+			Name = "minecraft:campfire";
+			// runtime id: 1564 0x61C, data: 0
+		}
+	}
+	public class Composter : Block
+	{
+		public Composter() : base(468)
+		{
+			Name = "minecraft:composter";
+			// runtime id: 1532 0x5FC, data: 0
+			// runtime id: 787 0x313, data: 1
+			// runtime id: 1945 0x799, data: 2
+			// runtime id: 2105 0x839, data: 3
+			// runtime id: 1515 0x5EB, data: 4
+			// runtime id: 485 0x1E5, data: 5
+			// runtime id: 2374 0x946, data: 6
+			// runtime id: 413 0x19D, data: 7
+		}
+	}
+	public class Jigsaw : Block
+	{
+		public Jigsaw() : base(466)
+		{
+			Name = "minecraft:jigsaw";
+			// runtime id: 2882 0xB42, data: 0
+			// runtime id: 863 0x35F, data: 1
+			// runtime id: 2427 0x97B, data: 2
+			// runtime id: 2025 0x7E9, data: 3
+			// runtime id: 2460 0x99C, data: 4
+			// runtime id: 595 0x253, data: 5
+			// runtime id: 46 0x2E, data: 6
+			// runtime id: 1776 0x6F0, data: 7
+		}
+	}
+	public class Lectern : Block
+	{
+		public Lectern() : base(449)
+		{
+			Name = "minecraft:lectern";
+			// runtime id: 587 0x24B, data: 0
+			// runtime id: 1413 0x585, data: 1
+			// runtime id: 1017 0x3F9, data: 2
+			// runtime id: 2306 0x902, data: 3
+		}
+	}
+	public class Loom : Block
+	{
+		public Loom() : base(459)
+		{
+			Name = "minecraft:loom";
+			// runtime id: 1110 0x456, data: 0
+			// runtime id: 1636 0x664, data: 1
+			// runtime id: 178 0xB2, data: 2
+			// runtime id: 2910 0xB5E, data: 3
+		}
+	}
+
+	public class StonecutterBlock : Block
+	{
+		public StonecutterBlock() : base(452)
+		{
+			Name = "minecraft:stonecutter_block";
+			// runtime id: 377 0x179, data: 0
+			// runtime id: 335 0x14F, data: 1
+			// runtime id: 400 0x190, data: 2
+			// runtime id: 1738 0x6CA, data: 3
+			// runtime id: 2746 0xABA, data: 4
+			// runtime id: 1586 0x632, data: 5
+			// runtime id: 867 0x363, data: 6
+			// runtime id: 2213 0x8A5, data: 7
+		}
+	}
+	public class SweetBerryBush : Block
+	{
+		public SweetBerryBush() : base(462)
+		{
+			Name = "minecraft:sweet_berry_bush";
+			// runtime id: 2729 0xAA9, data: 0
+			// runtime id: 606 0x25E, data: 1
+			// runtime id: 2429 0x97D, data: 2
+			// runtime id: 530 0x212, data: 3
+			// runtime id: 782 0x30E, data: 4
+			// runtime id: 592 0x250, data: 5
+			// runtime id: 2631 0xA47, data: 6
+			// runtime id: 1254 0x4E6, data: 7
+		}
+	}
+	public class Wood : Block
+	{
+		public Wood() : base(467)
+		{
+			Name = "minecraft:wood";
+			// runtime id: 764 0x2FC, data: 0
+			// runtime id: 2568 0xA08, data: 1
+			// runtime id: 1435 0x59B, data: 2
+			// runtime id: 963 0x3C3, data: 3
+			// runtime id: 1416 0x588, data: 4
+			// runtime id: 2212 0x8A4, data: 5
+			// runtime id: 2707 0xA93, data: 6
+			// runtime id: 348 0x15C, data: 7
+			// runtime id: 1994 0x7CA, data: 8
+			// runtime id: 1412 0x584, data: 9
+			// runtime id: 230 0xE6, data: 10
+			// runtime id: 2518 0x9D6, data: 11
+			// runtime id: 2113 0x841, data: 12
+			// runtime id: 2517 0x9D5, data: 13
+			// runtime id: 1914 0x77A, data: 14
+			// runtime id: 1759 0x6DF, data: 15
+		}
+	}
+
 }

@@ -59,7 +59,7 @@ namespace MiNET.Worlds
 		public static readonly BlockCoordinates East = new BlockCoordinates(1, 0, 0);
 		public static readonly BlockCoordinates West = new BlockCoordinates(-1, 0, 0);
 
-		public IWorldProvider WorldProvider { get; protected set; }
+		public IWorldProvider WorldProvider { get; set; }
 
 		private int _worldDayCycleTime = 24000;
 
@@ -673,8 +673,10 @@ namespace MiNET.Worlds
 
 				Parallel.ForEach(players, (player, state) =>
 				{
-					var session = (PlayerNetworkSession) player.NetworkHandler;
-					session?.SendQueue();
+					if (player.NetworkHandler is PlayerNetworkSession session)
+					{
+						session.SendQueue();
+					}
 				});
 
 
@@ -1713,6 +1715,7 @@ namespace MiNET.Worlds
 			rules.Add(new GameRule<bool>(GameRulesEnum.NaturalRegeneration, NaturalRegeneration));
 			rules.Add(new GameRule<bool>(GameRulesEnum.TntExplodes, TntExplodes));
 			rules.Add(new GameRule<bool>(GameRulesEnum.SendCommandfeedback, SendCommandfeedback));
+			rules.Add(new GameRule<bool>(GameRulesEnum.ExperimentalGameplay, true));
 			return rules;
 		}
 	}

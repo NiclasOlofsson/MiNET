@@ -36,6 +36,37 @@ namespace MiNET.Test
 
 		//	Thread.Sleep(1000);
 		//}
+		[TestMethod]
+		public void CheckStateDecodingForPalette()
+		{
+			//uint word = 0b0011_1000_1110_0011_1000_1110_0011_1000;
+			uint word = 0b11111111111111001001001001001001;
+			int position = 1; // 111 111 111 111 11
+			int bitsPerBlock = 3;
+			int blocksPerWord = 10;
+
+			int wordCount = (int) Math.Ceiling(4096d / blocksPerWord);
+			Assert.AreEqual(410, wordCount);
+
+			int mask = (1 << bitsPerBlock) - 1;
+			Assert.AreEqual(0b111, mask, "wrong mask");
+			//long state = (word >> ((position % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1);
+			int state = (int) ((word >> ((position % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1));
+			Assert.AreEqual(0b111, state, "Wrong index");
+
+			//state = (word >> ((position++ % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1);
+			//Assert.AreEqual(0b111, state);
+
+			// 2019-05-05 00:56:15,666 [DedicatedThreadPool-095cc122-3d6d-4f0b-8eab-4b4797f555a2_1] ERROR MiNET.Worlds.LevelDbProvider -
+			// Got wrong state=7 from word. bitsPerBlock=3, blocksPerWord=10, Word=4294742601
+
+			//2019-05-05 01:09:55,892 [DedicatedThreadPool-095cc122-3d6d-4f0b-8eab-4b4797f555a2_4] ERROR MiNET.Worlds.LevelDbProvider -
+			// Got wrong state=7 from word. bitsPerBlock=3, blocksPerWord=10, Word=4294742601
+
+
+
+		}
+
 
 		[TestMethod]
 		public void NbtCheckPerformanceTests()

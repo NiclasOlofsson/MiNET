@@ -40,9 +40,9 @@ namespace MiNET.Worlds
 		private bool _isAllAir = true;
 
 		private short[] _blocks = new short[4096];
-		private byte[] _metadata = new byte[4096];
+		private NibbleArray _metadata = new NibbleArray(16 * 16 * 16);
 		private short[] _loggedBlocks = new short[4096];
-		private byte[] _loggedMetadata = new byte[4096];
+		private NibbleArray _loggedMetadata = new NibbleArray(16 * 16 * 16);
 
 		private byte[] _cache;
 		private bool _isDirty;
@@ -65,7 +65,7 @@ namespace MiNET.Worlds
 
 		private static int GetIndex(int bx, int by, int bz)
 		{
-			return (bx * 256) + (bz * 16) + by;
+			return (bx << 8) | (bz << 4) | by;
 		}
 
 		public override int GetBlock(int bx, int by, int bz)
@@ -218,9 +218,9 @@ namespace MiNET.Worlds
 			cc._isDirty = _isDirty;
 
 			_blocks.CopyTo(cc._blocks, 0);
-			_metadata.CopyTo(cc._metadata, 0);
+			_metadata.Data.CopyTo(cc._metadata.Data, 0);
 			_loggedBlocks.CopyTo(cc._loggedBlocks, 0);
-			_loggedMetadata.CopyTo(cc._loggedMetadata, 0);
+			_loggedMetadata.Data.CopyTo(cc._loggedMetadata.Data, 0);
 			blocklight.Data.CopyTo(cc.blocklight.Data, 0);
 			skylight.Data.CopyTo(cc.skylight.Data, 0);
 
@@ -249,9 +249,9 @@ namespace MiNET.Worlds
 		{
 			_isAllAir = true;
 			Array.Clear(_blocks, 0, _blocks.Length);
-			Array.Clear(_metadata, 0, _metadata.Length);
+			Array.Clear(_metadata.Data, 0, _metadata.Data.Length);
 			Array.Clear(_loggedBlocks, 0, _blocks.Length);
-			Array.Clear(_loggedMetadata, 0, _metadata.Length);
+			Array.Clear(_loggedMetadata.Data, 0, _metadata.Data.Length);
 			Array.Clear(blocklight.Data, 0, blocklight.Data.Length);
 			Array.Fill<byte>(skylight.Data, 0xff);
 			_cache = null;

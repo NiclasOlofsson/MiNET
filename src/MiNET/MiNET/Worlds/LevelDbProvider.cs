@@ -111,25 +111,7 @@ namespace MiNET.Worlds
 			var version = _db.Get(versionKey);
 
 			ChunkColumn chunkColumn = null;
-			if (version == null || version.First() != 10)
-			{
-				if (version != null)
-					Log.Error($"Expected other version, but got version={version.First()}");
-
-				chunkColumn = generator?.GenerateChunkColumn(coordinates);
-				if (chunkColumn != null)
-				{
-					if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
-					{
-						SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunkColumn);
-						new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
-					}
-
-					chunkColumn.isDirty = false;
-					chunkColumn.NeedSave = false;
-				}
-			}
-			else
+			if (version != null && version.First() == 10)
 			{
 				chunkColumn = new ChunkColumn();
 				chunkColumn.x = coordinates.X;
@@ -142,7 +124,7 @@ namespace MiNET.Worlds
 
 					if (sectionBytes == null) break;
 
-					chunkColumn[y] = ParseSection(sectionBytes);
+					ParseSection((PaletteChunk) chunkColumn[y], sectionBytes);
 				}
 
 				// Biomes
@@ -171,12 +153,31 @@ namespace MiNET.Worlds
 				}
 			}
 
+			if (chunkColumn == null)
+			{
+				if (version != null)
+					Log.Error($"Expected other version, but got version={version.First()}");
+
+				chunkColumn = generator?.GenerateChunkColumn(coordinates);
+				if (chunkColumn != null)
+				{
+					if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
+					{
+						var blockAccess = new SkyLightBlockAccess(this, chunkColumn);
+						new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
+					}
+
+					chunkColumn.isDirty = false;
+					chunkColumn.NeedSave = false;
+				}
+			}
+
 			chunkColumn?.RecalcHeight();
 
 			return chunkColumn;
 		}
 
-		private PaletteChunk ParseSection(ReadOnlySpan<byte> data)
+		private void ParseSection(PaletteChunk section, ReadOnlySpan<byte> data)
 		{
 			var reader = new SpanReader();
 
@@ -184,7 +185,6 @@ namespace MiNET.Worlds
 			if (version != 8) throw new Exception("Wrong chunk version");
 
 			var storageSize = reader.ReadByte(data);
-			var section = PaletteChunk.CreateObject();
 			for (int storage = 0; storage < storageSize; storage++)
 			{
 				byte paletteAndFlag = reader.ReadByte(data);
@@ -256,8 +256,6 @@ namespace MiNET.Worlds
 				}
 				reader.Position = nextStore;
 			}
-
-			return section;
 		}
 
 		public Vector3 GetSpawnPoint()

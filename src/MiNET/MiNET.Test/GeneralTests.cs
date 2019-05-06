@@ -47,9 +47,9 @@ namespace MiNET.Test
 		[TestMethod]
 		public void IndexShiftTest()
 		{
-			byte bx = 16;
-			byte bz = 16;
-			byte by = 16;
+			byte bx = 15;
+			byte bz = 15;
+			byte by = 15;
 
 			int a = (bx * 256) + (bz * 16) + by;
 			int b = (bx << 8) | (bz << 4) | by;
@@ -57,7 +57,7 @@ namespace MiNET.Test
 			Assert.AreEqual(a, b);
 
 			int c = by - 16 * (by >> 4);
-			int d = by - (16 * (by >> 4));
+			int d = by & 0xf;
 
 			int y6 = 0b0000_0000_0000_0011; // 144
 			int y7 = 0b0000_0000_1001_0000; // 144

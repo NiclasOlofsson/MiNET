@@ -83,7 +83,7 @@ namespace MiNET.Worlds
 		public int GetBlock(int bx, int by, int bz)
 		{
 			var chunk = GetChunk(by);
-			return chunk.GetBlock(bx, by - 16 * (by >> 4), bz);
+			return chunk.GetBlock(bx, by & 0xf, bz);
 		}
 
 		public ChunkBase this[int chunkIndex]

@@ -343,13 +343,7 @@ namespace MiNET.Client
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
 					{
 						UnconnectedPong incoming = (UnconnectedPong) message;
-						Log.Warn($"MOTD: {incoming.serverName}");
-						if (!HaveServer)
-						{
-							ServerEndpoint = senderEndpoint;
-							HaveServer = true;
-							SendOpenConnectionRequest1();
-						}
+						OnUnconnectedPong(incoming, senderEndpoint);
 
 						break;
 					}
@@ -551,6 +545,16 @@ namespace MiNET.Client
 		}
 
 
+		protected virtual void OnUnconnectedPong(UnconnectedPong packet, IPEndPoint senderEndpoint)
+		{
+			if (!HaveServer)
+			{
+				ServerEndpoint = senderEndpoint;
+				HaveServer = true;
+				SendOpenConnectionRequest1();
+			}
+		}
+		
 		private void OnOpenConnectionReply2(OpenConnectionReply2 message)
 		{
 			Log.Warn("MTU Size: " + message.mtuSize);

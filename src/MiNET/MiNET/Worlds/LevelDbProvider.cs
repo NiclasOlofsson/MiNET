@@ -122,7 +122,15 @@ namespace MiNET.Worlds
 					var chunkDataKey = index.Concat(new byte[] {0x2f, y}).ToArray();
 					var sectionBytes = _db.Get(chunkDataKey);
 
-					if (sectionBytes == null) break;
+					if (sectionBytes == null)
+					{
+						for (; y < 16; y++)
+						{
+							chunkColumn[y]?.PutPool();
+							chunkColumn[y] = null;
+						}
+						break;
+					}
 
 					ParseSection((PaletteChunk) chunkColumn[y], sectionBytes);
 				}
@@ -200,7 +208,7 @@ namespace MiNET.Worlds
 
 				int paletteSize = reader.ReadInt32(data);
 
-				var palette = new Dictionary<int, (int, byte)>();
+				var palette = new Dictionary<int, (short, byte)>();
 				for (int j = 0; j < paletteSize; j++)
 				{
 					var file = new NbtFile {BigEndian = false, UseVarInt = false};
@@ -211,10 +219,10 @@ namespace MiNET.Worlds
 					var tag = file.RootTag;
 					string blockName = tag["name"].StringValue;
 					Block block = BlockFactory.GetBlockByName(blockName);
-					int blockId = 0;
+					short blockId = 0;
 					if (block != null)
 					{
-						blockId = block.Id;
+						blockId = (short) block.Id;
 					}
 					else
 					{
@@ -241,15 +249,17 @@ namespace MiNET.Worlds
 						int z = (position >> 4) & 0xF;
 						if (state > palette.Count)
 							Log.Error($"Got wrong state={state} from word. bitsPerBlock={bitsPerBlock}, blocksPerWord={blocksPerWord}, Word={word}");
+						short bid = palette[state].Item1;
+						byte metadata = palette[state].Item2;
 						if (storage == 0)
 						{
-							section.SetBlock(x, y, z, palette[state].Item1);
-							section.SetMetadata(x, y, z, palette[state].Item2);
+							section.SetBlock(x, y, z, bid);
+							section.SetMetadata(x, y, z, metadata);
 						}
 						else
 						{
-							section.SetLoggedBlock(x, y, z, palette[state].Item1);
-							section.SetLoggedMetadata(x, y, z, palette[state].Item2);
+							section.SetLoggedBlock(x, y, z, bid);
+							section.SetLoggedMetadata(x, y, z, metadata);
 						}
 						position++;
 					}

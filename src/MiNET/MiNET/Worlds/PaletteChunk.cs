@@ -40,7 +40,9 @@ namespace MiNET.Worlds
 		private bool _isAllAir = true;
 
 		private short[] _blocks = new short[4096];
-		private byte[] _metadata = new byte[4096];
+		private NibbleArray _metadata = new NibbleArray(16 * 16 * 16);
+		private short[] _loggedBlocks = new short[4096];
+		private NibbleArray _loggedMetadata = new NibbleArray(16 * 16 * 16);
 
 		private byte[] _cache;
 		private bool _isDirty;
@@ -63,7 +65,7 @@ namespace MiNET.Worlds
 
 		private static int GetIndex(int bx, int by, int bz)
 		{
-			return (bx * 256) + (bz * 16) + by;
+			return (bx << 8) | (bz << 4) | by;
 		}
 
 		public override int GetBlock(int bx, int by, int bz)
@@ -74,6 +76,18 @@ namespace MiNET.Worlds
 		public override void SetBlock(int bx, int by, int bz, int bid)
 		{
 			_blocks[GetIndex(bx, by, bz)] = (short) bid;
+			_cache = null;
+			_isDirty = true;
+		}
+
+		public int GetLoggedBlock(int bx, int by, int bz)
+		{
+			return _loggedBlocks[GetIndex(bx, @by, bz)];
+		}
+
+		public void SetLoggedBlock(int bx, int by, int bz, int bid)
+		{
+			_loggedBlocks[GetIndex(bx, by, bz)] = (short) bid;
 			_cache = null;
 			_isDirty = true;
 		}
@@ -90,6 +104,18 @@ namespace MiNET.Worlds
 			_isDirty = true;
 		}
 
+		public byte GetLoggedMetadata(int bx, int by, int bz)
+		{
+			return _loggedMetadata[GetIndex(bx, by, bz)];
+		}
+
+		public void SetLoggedMetadata(int bx, int by, int bz, byte data)
+		{
+			_loggedMetadata[GetIndex(bx, by, bz)] = data;
+			_cache = null;
+			_isDirty = true;
+		}
+
 		public override byte[] GetBytes(Stream instream)
 		{
 			if (_cache != null)
@@ -102,12 +128,11 @@ namespace MiNET.Worlds
 			{
 				stream.WriteByte(8); // version
 
-				int numberOfStores = 1;
+				int numberOfStores = 2;
 				stream.WriteByte((byte) numberOfStores); // storage size
 
-				List<uint> palette = new List<uint>(10);
+				var palette = new List<uint>(10);
 				byte[] indexes = new byte[_blocks.Length];
-				for (int i = 0; i < numberOfStores; i++)
 				{
 					palette.Clear();
 
@@ -117,8 +142,43 @@ namespace MiNET.Worlds
 					uint prevHash = uint.MaxValue;
 					for (int b = 0; b < _blocks.Length; b++)
 					{
-						byte bid = (byte) _blocks[b];
+						short bid = _blocks[b];
 						byte data = _metadata[b];
+						uint hash = BlockFactory.GetRuntimeId(bid, data);
+						if (hash != prevHash)
+						{
+							index = palette.IndexOf(hash);
+							if (index == -1)
+							{
+								palette.Add(hash);
+							}
+							index = palette.IndexOf(hash);
+						}
+
+						indexes[b] = (byte) index;
+						prevHash = hash;
+					}
+
+					stream.Write(indexes, 0, indexes.Length);
+
+					VarInt.WriteSInt32(stream, palette.Count); // count
+					foreach (var val in palette)
+					{
+						VarInt.WriteSInt32(stream, (int) val);
+					}
+				}
+
+				{
+					palette.Clear();
+
+					stream.WriteByte((8 << 1) | 1); // version
+
+					int index = 0;
+					uint prevHash = uint.MaxValue;
+					for (int b = 0; b < _loggedBlocks.Length; b++)
+					{
+						short bid = _loggedBlocks[b];
+						byte data = _loggedMetadata[b];
 						uint hash = BlockFactory.GetRuntimeId(bid, data);
 						if (hash != prevHash)
 						{
@@ -158,7 +218,9 @@ namespace MiNET.Worlds
 			cc._isDirty = _isDirty;
 
 			_blocks.CopyTo(cc._blocks, 0);
-			_metadata.CopyTo(cc._metadata, 0);
+			_metadata.Data.CopyTo(cc._metadata.Data, 0);
+			_loggedBlocks.CopyTo(cc._loggedBlocks, 0);
+			_loggedMetadata.Data.CopyTo(cc._loggedMetadata.Data, 0);
 			blocklight.Data.CopyTo(cc.blocklight.Data, 0);
 			skylight.Data.CopyTo(cc.skylight.Data, 0);
 
@@ -187,7 +249,9 @@ namespace MiNET.Worlds
 		{
 			_isAllAir = true;
 			Array.Clear(_blocks, 0, _blocks.Length);
-			Array.Clear(_metadata, 0, _metadata.Length);
+			Array.Clear(_metadata.Data, 0, _metadata.Data.Length);
+			Array.Clear(_loggedBlocks, 0, _blocks.Length);
+			Array.Clear(_loggedMetadata.Data, 0, _metadata.Data.Length);
 			Array.Clear(blocklight.Data, 0, blocklight.Data.Length);
 			Array.Fill<byte>(skylight.Data, 0xff);
 			_cache = null;

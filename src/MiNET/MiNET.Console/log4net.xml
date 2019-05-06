@@ -22,6 +22,11 @@
 				<acceptOnMatch value="false" />
 			</filter>-->
 
+		<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.LevelDB" />
+			<acceptOnMatch value="false" />
+		</filter>
+
 		<filter type="log4net.Filter.LevelRangeFilter">
 			<levelMin value="WARN" />
 			<levelMax value="FATAL" />
@@ -40,9 +45,13 @@
 		</layout>
 
 		<!--<filter type="log4net.Filter.LoggerMatchFilter">
-				<loggerToMatch value="MiNET.Net.Datagram" />
+				<loggerToMatch value="MiNET.LevelDB" />
 				<acceptOnMatch value="false" />
 			</filter>-->
+		<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.LevelDB" />
+			<acceptOnMatch value="false" />
+		</filter>
 
 		<!--<filter type="log4net.Filter.LoggerMatchFilter">
 				<loggerToMatch value="MiNET.ServerInfo" />

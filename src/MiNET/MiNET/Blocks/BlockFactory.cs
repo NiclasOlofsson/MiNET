@@ -100,10 +100,9 @@ namespace MiNET.Blocks
 				{
 					var name = (string) obj.name;
 
-					int id = -1;
-					if (legacyIdMap.TryGetValue(name, out id))
+					if (legacyIdMap.TryGetValue(name, out int id))
 					{
-						LegacyToRuntimeId[((int) id << 4) | (int) obj.data] = (int) runtimeId;
+						LegacyToRuntimeId[(id << 4) | (byte) obj.data] = runtimeId;
 					}
 
 					Blockstates.Add(runtimeId, new Blockstate()

@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -58,6 +58,9 @@ namespace MiNET
 
 				switch (Config.GetProperty("WorldProvider", "anvil").ToLower().Trim())
 				{
+					case "leveldb":
+						worldProvider = new LevelDbProvider();
+						break;
 					case "cool":
 						worldProvider = new CoolWorldProvider();
 						break;

@@ -1,17 +1,39 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2019 Niclas Olofsson.
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
 using MiNET.Items;
-using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json.Linq;
 
@@ -21,6 +43,32 @@ namespace MiNET.Test
 	public class GeneralTests
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GeneralTests));
+
+		[TestMethod]
+		public void IndexShiftTest()
+		{
+			byte bx = 15;
+			byte bz = 15;
+			byte by = 15;
+
+			int a = (bx * 256) + (bz * 16) + by;
+			int b = (bx << 8) | (bz << 4) | by;
+
+			Assert.AreEqual(a, b);
+
+			int c = by - 16 * (by >> 4);
+			int d = by & 0xf;
+
+			int y6 = 0b0000_0000_0000_0011; // 144
+			int y7 = 0b0000_0000_1001_0000; // 144
+			int y1 = 0b0000_0000_1001_0011; // 147
+			int y3 = 0b0000_0000_1111_1111; // 255
+			int v6 = 0b0000_0001_0000_1111; // 15
+			int y2 = 0b0000_0001_0000_0000; // 256
+			int v5 = 0b0000_0001_0001_0000; // 16
+
+			Assert.AreEqual(c, d);
+		}
 
 		//[TestMethod]
 		//public void TimerDisposeTest()
@@ -36,6 +84,34 @@ namespace MiNET.Test
 
 		//	Thread.Sleep(1000);
 		//}
+		//[TestMethod]
+		//public void CheckStateDecodingForPalette()
+		//{
+		//	//uint word = 0b0011_1000_1110_0011_1000_1110_0011_1000;
+		//	uint word = 0b11111111111111001001001001001001;
+		//	int position = 1; // 111 111 111 111 11
+		//	int bitsPerBlock = 3;
+		//	int blocksPerWord = 10;
+
+		//	int wordCount = (int) Math.Ceiling(4096d / blocksPerWord);
+		//	Assert.AreEqual(410, wordCount);
+
+		//	int mask = (1 << bitsPerBlock) - 1;
+		//	Assert.AreEqual(0b111, mask, "wrong mask");
+		//	//long state = (word >> ((position % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1);
+		//	int state = (int) ((word >> ((position % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1));
+		//	Assert.AreEqual(0b111, state, "Wrong index");
+
+		//	//state = (word >> ((position++ % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1);
+		//	//Assert.AreEqual(0b111, state);
+
+		//	// 2019-05-05 00:56:15,666 [DedicatedThreadPool-095cc122-3d6d-4f0b-8eab-4b4797f555a2_1] ERROR MiNET.Worlds.LevelDbProvider -
+		//	// Got wrong state=7 from word. bitsPerBlock=3, blocksPerWord=10, Word=4294742601
+
+		//	//2019-05-05 01:09:55,892 [DedicatedThreadPool-095cc122-3d6d-4f0b-8eab-4b4797f555a2_4] ERROR MiNET.Worlds.LevelDbProvider -
+		//	// Got wrong state=7 from word. bitsPerBlock=3, blocksPerWord=10, Word=4294742601
+		//}
+
 
 		[TestMethod]
 		public void NbtCheckPerformanceTests()
@@ -90,7 +166,7 @@ namespace MiNET.Test
 				Flight = 2
 			});
 
-			for(var i = 0; i < 10000; i++)
+			for (var i = 0; i < 10000; i++)
 				Assert.AreEqual(firework.Equals(firework), true);
 		}
 
@@ -108,10 +184,10 @@ namespace MiNET.Test
 			Array.Fill<byte>(array, 0xff);
 			Console.WriteLine($"Core fill {sw.ElapsedMilliseconds}ms");
 		}
+
 		[TestMethod]
 		public void GenerateClassesForBlocks()
 		{
-
 			Dictionary<int, Blockstate> blockstates = new Dictionary<int, Blockstate>();
 
 			var assembly = Assembly.GetAssembly(typeof(Block));
@@ -138,9 +214,9 @@ namespace MiNET.Test
 					try
 					{
 						var name = (string) obj.name;
-						if(legacyIdMap.TryGetValue(name, out var id))
+						if (legacyIdMap.TryGetValue(name, out var id))
 						{
-							blockstates.Add(runtimeId, new Blockstate() { Id = id, Data = (short) obj.data, Name = (string) obj.name, RuntimeId = runtimeId });
+							blockstates.Add(runtimeId, new Blockstate() {Id = id, Data = (short) obj.data, Name = (string) obj.name, RuntimeId = runtimeId});
 							runtimeId++;
 						}
 					}
@@ -150,7 +226,6 @@ namespace MiNET.Test
 						throw;
 					}
 				}
-
 			}
 
 
@@ -215,8 +290,6 @@ namespace MiNET.Test
 
 				writer.Flush();
 			}
-
-
 		}
 
 
@@ -250,6 +323,5 @@ namespace MiNET.Test
 			result = result.Replace(@"[]", "s");
 			return result;
 		}
-
 	}
 }

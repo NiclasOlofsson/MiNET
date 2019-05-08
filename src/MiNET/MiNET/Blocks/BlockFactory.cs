@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2019 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -26,7 +26,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using log4net;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MiNET.Blocks
@@ -47,7 +49,7 @@ namespace MiNET.Blocks
 		public static Dictionary<string, int> NameToId { get; private set; }
 		public static Blockstates Blockstates { get; set; } = new Blockstates();
 
-		private static int[] LegacyToRuntimeId = new int[65536];
+		public static int[] LegacyToRuntimeId = new int[65536];
 
 		//public static Dictionary<(int, int), int> BlockStates = new Dictionary<(int, int), int>();
 
@@ -80,20 +82,20 @@ namespace MiNET.Blocks
 
 			var legacyIdMap = new Dictionary<string, int>();
 			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".legacy_id_map.json"))
-			using (StreamReader reader = new StreamReader(stream))
+			using (var reader = new JsonTextReader(new StreamReader(stream)))
 			{
-				var result = JObject.Parse(reader.ReadToEnd());
+				var result = JObject.Load(reader);
 
 				foreach (var obj in result)
 				{
-					legacyIdMap.Add(obj.Key, (int)obj.Value);
+					legacyIdMap.Add(obj.Key, (int) obj.Value);
 				}
 			}
 
 			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
-			using (StreamReader reader = new StreamReader(stream))
+			using (var reader = new JsonTextReader(new StreamReader(stream)))
 			{
-				dynamic result = JArray.Parse(reader.ReadToEnd());
+				dynamic result = JArray.Load(reader);
 
 				int runtimeId = 0;
 				foreach (var obj in result)
@@ -105,13 +107,7 @@ namespace MiNET.Blocks
 						LegacyToRuntimeId[(id << 4) | (byte) obj.data] = runtimeId;
 					}
 
-					Blockstates.Add(runtimeId, new Blockstate()
-					{
-						Id = id,
-						Data = (short) obj.data,
-						Name = name,
-						RuntimeId = runtimeId
-					});
+					Blockstates.Add(runtimeId, new Blockstate() {Id = id, Data = (short) obj.data, Name = name, RuntimeId = runtimeId});
 					runtimeId++;
 				}
 			}
@@ -650,6 +646,7 @@ namespace MiNET.Blocks
 			return block;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static uint GetRuntimeId(int blockId, byte metadata)
 		{
 			int idx = TryGetRuntimeId(blockId, metadata);
@@ -659,17 +656,17 @@ namespace MiNET.Blocks
 			}
 
 			//block found with bad metadata, try getting with zero
-			idx = TryGetRuntimeId(blockId, 0);
-			if (idx != -1)
+			int idx2 = TryGetRuntimeId(blockId, 0);
+			if (idx2 != -1)
 			{
-				return (uint) idx;
+				return (uint) idx2;
 			}
 
-			Log.Warn($"Trying to get runtime ID failed for {blockId} and data {metadata}");
 			return (uint) TryGetRuntimeId(248, 0); //legacy id for info_update block (for unknown block)
 		}
 
-		private static int TryGetRuntimeId(int blockId, byte metadata)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static int TryGetRuntimeId(int blockId, byte metadata)
 		{
 			return LegacyToRuntimeId[(blockId << 4) | metadata];
 		}

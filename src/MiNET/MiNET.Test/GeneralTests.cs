@@ -45,6 +45,140 @@ namespace MiNET.Test
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GeneralTests));
 
 		[TestMethod]
+		public void EncodePalettedChunk()
+		{
+			//PaletteChunk chunk = new PaletteChunk();
+			//chunk.GetBytes()
+
+			uint waste = BlockFactory.GetRuntimeId(0, 0);
+			int[] legacyToRuntimeId = BlockFactory.LegacyToRuntimeId;
+
+			short[] blocks = new short[4096];
+			Random random = new Random();
+			for (int i = 0; i < blocks.Length; i++)
+			{
+				blocks[i] = (short) random.Next(8);
+			}
+			//blocks[0] = 0b000;
+			//blocks[1] = 0b111;
+			//blocks[2] = 0b111;
+			//blocks[3] = 0b111;
+			//blocks[4] = 0b111;
+			//blocks[5] = 0b111;
+			//blocks[6] = 0b111;
+			//blocks[7] = 0b001;
+			//blocks[8] = 0b010;
+			//blocks[9] = 0b011;
+			//blocks[10] = 0b100;
+			//blocks[11] = 0b101;
+			byte[] metas = new byte[4096];
+
+			int count = 10_000;
+			var sw = Stopwatch.StartNew();
+			for (int c = 0; c < count; c++)
+			{
+				for (int sc = 0; sc < 8; sc++)
+				{
+					var palette = new Dictionary<uint, byte>();
+					uint prevHash = uint.MaxValue;
+					for (int i = 0; i < 4096; i++)
+					{
+						uint hash = (uint) blocks[i] << 4 | metas[i];
+						if (hash == prevHash) continue;
+
+						prevHash = hash;
+						palette[hash] = 0;
+					}
+
+					// log2(number of entries) => bits needed to store them
+					//Assert.AreEqual(0, Math.Ceiling(Math.Log(1, 2)));
+					//Assert.AreEqual(1, Math.Ceiling(Math.Log(2, 2)));
+					//Assert.AreEqual(2, Math.Ceiling(Math.Log(3, 2)));
+					//Assert.AreEqual(2, Math.Ceiling(Math.Log(4, 2)));
+					//Assert.AreEqual(3, Math.Ceiling(Math.Log(5, 2)));
+					//Assert.AreEqual(3, Math.Ceiling(Math.Log(palette.Count, 2)));
+					//Assert.AreEqual(3, Math.Ceiling(Math.Log(8, 2)));
+					//Assert.AreEqual(4, Math.Ceiling(Math.Log(9, 2)));
+					//Assert.AreEqual(4, Math.Ceiling(Math.Log(16, 2)));
+					//Assert.AreEqual(5, Math.Ceiling(Math.Log(17, 2)));
+					//Assert.AreEqual(5, Math.Ceiling(Math.Log(32, 2)));
+					//Assert.AreEqual(6, Math.Ceiling(Math.Log(33, 2)));
+					//Assert.AreEqual(6, Math.Ceiling(Math.Log(64, 2)));
+					//Assert.AreEqual(7, Math.Ceiling(Math.Log(65, 2)));
+					//Assert.AreEqual(7, Math.Ceiling(Math.Log(128, 2)));
+					//Assert.AreEqual(8, Math.Ceiling(Math.Log(129, 2)));
+					//Assert.AreEqual(8, Math.Ceiling(Math.Log(256, 2)));
+					//Assert.AreEqual(16, Math.Ceiling(Math.Log(ushort.MaxValue, 2)));
+
+					int bitsPerBlock = (int) Math.Ceiling(Math.Log(palette.Count, 2));
+
+					switch (bitsPerBlock)
+					{
+						case 1:
+						case 2:
+						case 3:
+						case 4:
+						case 5:
+						case 6:
+							//Paletted1 = 1,   // 32 blocks per word
+							//Paletted2 = 2,   // 16 blocks per word
+							//Paletted3 = 3,   // 10 blocks and 2 bits of padding per word
+							//Paletted4 = 4,   // 8 blocks per word
+							//Paletted5 = 5,   // 6 blocks and 2 bits of padding per word
+							//Paletted6 = 6,   // 5 blocks and 2 bits of padding per word
+							break;
+						case 7:
+						case 8:
+							//Paletted8 = 8,  // 4 blocks per word
+							bitsPerBlock = 8;
+							break;
+						case int i when i > 8:
+							//Paletted16 = 16, // 2 blocks per word
+							bitsPerBlock = 16;
+							break;
+						default:
+							break;
+					}
+
+					int blocksPerWord = (int) Math.Floor(32f / bitsPerBlock); // Floor to remove padding bits
+					int wordsPerChunk = (int) Math.Ceiling(4096f / blocksPerWord);
+
+					Assert.AreEqual(10, blocksPerWord);
+
+					byte t = 0;
+					foreach (var b in palette.ToArray())
+					{
+						palette[b.Key] = t++;
+					}
+
+					uint[] indexes = new uint[wordsPerChunk];
+
+					int position = 0;
+					for (int w = 0; w < wordsPerChunk; w++)
+					{
+						uint word = 0;
+						for (int block = 0; block < blocksPerWord; block++)
+						{
+							if (position >= 4096) continue;
+
+							uint state = palette[(uint) blocks[position] << 4 | metas[position]];
+							word |= state << (bitsPerBlock * block);
+
+							//string bin = Convert.ToString(word, 2);
+							//bin = new string('0', 32 - bin.Length) + bin;
+							//Console.WriteLine($"{bin}");
+
+							position++;
+						}
+						indexes[w] = word;
+					}
+				}
+			}
+			Console.WriteLine($"time={sw.ElapsedMilliseconds}");
+		}
+
+
+		[TestMethod]
 		public void IndexShiftTest()
 		{
 			byte bx = 15;
@@ -70,20 +204,6 @@ namespace MiNET.Test
 			Assert.AreEqual(c, d);
 		}
 
-		//[TestMethod]
-		//public void TimerDisposeTest()
-		//{
-		//	int count = 0;
-		//	HighPrecisionTimer timer = null;
-		//	timer = new HighPrecisionTimer(2, o =>
-		//	{
-		//		Console.WriteLine(".. tick ..");
-		//		if (count++ == 10) new Task(() => timer?.Dispose()).Start();
-		//		//if (count++ == 10) timer?.Dispose();
-		//	}, false, false);
-
-		//	Thread.Sleep(1000);
-		//}
 		//[TestMethod]
 		//public void CheckStateDecodingForPalette()
 		//{

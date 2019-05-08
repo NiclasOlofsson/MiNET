@@ -141,15 +141,16 @@ namespace MiNET.Worlds
 
 			if (WorldProvider.IsCaching)
 			{
-				Stopwatch chunkLoading = new Stopwatch();
-				chunkLoading.Start();
+				Stopwatch chunkLoading = Stopwatch.StartNew();
+
 				// Pre-cache chunks for spawn coordinates
 				int i = 0;
 				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<ChunkCoordinates, McpeWrapper>(), ViewDistance))
 				{
 					if (chunk != null) i++;
 				}
-				Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
+
+				Log.Info($"World pre-cache {i} chunks completed in {chunkLoading.ElapsedMilliseconds}ms");
 			}
 
 			if (Dimension == Dimension.Overworld)

@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2019 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -130,76 +130,12 @@ namespace MiNET.Worlds
 
 				int numberOfStores = 2;
 				stream.WriteByte((byte) numberOfStores); // storage size
-
-				var palette = new List<uint>(10);
-				byte[] indexes = new byte[_blocks.Length];
 				{
-					palette.Clear();
-
-					stream.WriteByte((8 << 1) | 1); // version
-
-					int index = 0;
-					uint prevHash = uint.MaxValue;
-					for (int b = 0; b < _blocks.Length; b++)
+					WriteStore(stream, _blocks, _metadata);
+					if (!WriteStore(stream, _loggedBlocks, _loggedMetadata))
 					{
-						short bid = _blocks[b];
-						byte data = _metadata[b];
-						uint hash = BlockFactory.GetRuntimeId(bid, data);
-						if (hash != prevHash)
-						{
-							index = palette.IndexOf(hash);
-							if (index == -1)
-							{
-								palette.Add(hash);
-							}
-							index = palette.IndexOf(hash);
-						}
-
-						indexes[b] = (byte) index;
-						prevHash = hash;
-					}
-
-					stream.Write(indexes, 0, indexes.Length);
-
-					VarInt.WriteSInt32(stream, palette.Count); // count
-					foreach (var val in palette)
-					{
-						VarInt.WriteSInt32(stream, (int) val);
-					}
-				}
-
-				{
-					palette.Clear();
-
-					stream.WriteByte((8 << 1) | 1); // version
-
-					int index = 0;
-					uint prevHash = uint.MaxValue;
-					for (int b = 0; b < _loggedBlocks.Length; b++)
-					{
-						short bid = _loggedBlocks[b];
-						byte data = _loggedMetadata[b];
-						uint hash = BlockFactory.GetRuntimeId(bid, data);
-						if (hash != prevHash)
-						{
-							index = palette.IndexOf(hash);
-							if (index == -1)
-							{
-								palette.Add(hash);
-							}
-							index = palette.IndexOf(hash);
-						}
-
-						indexes[b] = (byte) index;
-						prevHash = hash;
-					}
-
-					stream.Write(indexes, 0, indexes.Length);
-
-					VarInt.WriteSInt32(stream, palette.Count); // count
-					foreach (var val in palette)
-					{
-						VarInt.WriteSInt32(stream, (int) val);
+						stream.Position = 1;
+						stream.WriteByte(1); // storage size
 					}
 				}
 
@@ -209,6 +145,104 @@ namespace MiNET.Worlds
 			}
 
 			return _cache;
+		}
+
+		private static bool WriteStore(MemoryStream stream, short[] blocks, NibbleArray metadata)
+		{
+			var palette = new Dictionary<uint, byte>();
+			uint prevHash = uint.MaxValue;
+			for (int i = 0; i < 4096; i++)
+			{
+				uint hash = (uint) blocks[i] << 4 | metadata[i]; // 1.7
+				if (hash == prevHash)
+					continue;
+
+				prevHash = hash;
+				palette[hash] = 0;
+			}
+
+			// log2(number of entries) => bits needed to store them
+			int bitsPerBlock = (int) Math.Ceiling(Math.Log(palette.Count, 2));
+
+			switch (bitsPerBlock)
+			{
+				case 0:
+					if (palette[0] == 0) return false;
+					bitsPerBlock = 1;
+					break;
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+					//Paletted1 = 1,   // 32 blocks per word
+					//Paletted2 = 2,   // 16 blocks per word
+					//Paletted3 = 3,   // 10 blocks and 2 bits of padding per word
+					//Paletted4 = 4,   // 8 blocks per word
+					//Paletted5 = 5,   // 6 blocks and 2 bits of padding per word
+					//Paletted6 = 6,   // 5 blocks and 2 bits of padding per word
+					break;
+				case 7:
+				case 8:
+					//Paletted8 = 8,  // 4 blocks per word
+					bitsPerBlock = 8;
+					break;
+				case int i when i > 8:
+					//Paletted16 = 16, // 2 blocks per word
+					bitsPerBlock = 16;
+					break;
+				default:
+					break;
+			}
+
+			stream.WriteByte((byte) ((bitsPerBlock << 1) | 1)); // version
+
+			int blocksPerWord = (int) Math.Floor(32f / bitsPerBlock); // Floor to remove padding bits
+			int wordsPerChunk = (int) Math.Ceiling(4096f / blocksPerWord);
+
+			byte t = 0;
+			foreach (var b in palette.ToArray())
+			{
+				palette[b.Key] = t++;
+			}
+
+			uint[] indexes = new uint[wordsPerChunk];
+
+			int position = 0;
+			for (int w = 0; w < wordsPerChunk; w++)
+			{
+				uint word = 0;
+				for (int block = 0; block < blocksPerWord; block++)
+				{
+					if (position >= 4096)
+						continue;
+
+					uint state = palette[(uint) blocks[position] << 4 | metadata[position]];
+					word |= state << (bitsPerBlock * block);
+
+					//string bin = Convert.ToString(word, 2);
+					//bin = new string('0', 32 - bin.Length) + bin;
+					//Console.WriteLine($"{bin}");
+
+					position++;
+				}
+				indexes[w] = word;
+			}
+
+			byte[] ba = new byte[indexes.Length * 4];
+			Buffer.BlockCopy(indexes, 0, ba, 0, indexes.Length * 4);
+			stream.Write(ba, 0, ba.Length);
+
+			int[] legacyToRuntimeId = BlockFactory.LegacyToRuntimeId;
+
+			VarInt.WriteSInt32(stream, palette.Count); // count
+			foreach (var val in palette)
+			{
+				VarInt.WriteSInt32(stream, legacyToRuntimeId[val.Key]);
+			}
+
+			return true;
 		}
 
 		public override object Clone()

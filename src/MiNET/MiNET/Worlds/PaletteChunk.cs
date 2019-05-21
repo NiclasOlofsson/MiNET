@@ -167,7 +167,7 @@ namespace MiNET.Worlds
 			switch (bitsPerBlock)
 			{
 				case 0:
-					if (palette.Count == 1 && palette[0] == 0) return false;
+					if (palette.ContainsKey(0)) return false;
 					bitsPerBlock = 1;
 					break;
 				case 1:

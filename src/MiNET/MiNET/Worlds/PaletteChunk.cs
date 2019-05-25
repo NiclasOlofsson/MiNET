@@ -37,6 +37,8 @@ namespace MiNET.Worlds
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(PaletteChunk));
 
+		private bool _useAlexChunks = true;
+
 		private bool _isAllAir = true;
 
 		private short[] _blocks = new short[4096];
@@ -47,8 +49,9 @@ namespace MiNET.Worlds
 		private byte[] _cache;
 		private bool _isDirty;
 
-		public PaletteChunk()
+		public PaletteChunk(bool useAlexChunks = false)
 		{
+			_useAlexChunks = useAlexChunks;
 		}
 
 		public override bool IsDirty => _isDirty;
@@ -137,6 +140,14 @@ namespace MiNET.Worlds
 						stream.Position = 1;
 						stream.WriteByte(1); // storage size
 					}
+				}
+
+				// Special implementation for the Alex client by Kennyvv. Will send
+				// block and skylight to the client so that we can test our implementations
+				if(_useAlexChunks)
+				{
+					stream.Write(skylight.Data);
+					stream.Write(blocklight.Data);
 				}
 
 				var bytes = stream.ToArray();
@@ -266,7 +277,7 @@ namespace MiNET.Worlds
 			return cc;
 		}
 
-		private static readonly ChunkPool<PaletteChunk> Pool = new ChunkPool<PaletteChunk>(() => new PaletteChunk());
+		private static readonly ChunkPool<PaletteChunk> Pool = new ChunkPool<PaletteChunk>(() => new PaletteChunk(Config.GetProperty("UseAlexChunks", false)));
 
 		public static PaletteChunk CreateObject()
 		{

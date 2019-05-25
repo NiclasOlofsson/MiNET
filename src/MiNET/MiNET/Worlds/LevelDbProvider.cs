@@ -47,6 +47,7 @@ namespace MiNET.Worlds
 		private ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 		private Database _db;
 
+		public string BasePath { get; private set; }
 		public LevelInfoBedrock LevelInfo { get; private set; }
 		public bool IsCaching { get; } = true;
 		public bool Locked { get; set; } = false;
@@ -60,16 +61,15 @@ namespace MiNET.Worlds
 
 		public void Initialize()
 		{
-			string newDirPath = Path.Combine(Path.GetTempPath(), "My World.mcworld");
-			var directory = new DirectoryInfo(Path.Combine(newDirPath, "db"));
+			BasePath = BasePath ?? Config.GetProperty("LevelDBWorldFolder", "World").Trim();
 
-			NbtFile file = new NbtFile();
-			file.BigEndian = false;
-			file.UseVarInt = false;
-			var levelFileName = Path.Combine(newDirPath, "level.dat");
+			var directory = new DirectoryInfo(Path.Combine(BasePath, "db"));
+
+			var levelFileName = Path.Combine(BasePath, "level.dat");
 			Log.Debug($"Loading level.dat from {levelFileName}");
 			if (File.Exists(levelFileName))
 			{
+				var file = new NbtFile {BigEndian = false, UseVarInt = false};
 				var levelStream = File.OpenRead(levelFileName);
 				levelStream.Seek(8, SeekOrigin.Begin);
 				file.LoadFromStream(levelStream, NbtCompression.None);

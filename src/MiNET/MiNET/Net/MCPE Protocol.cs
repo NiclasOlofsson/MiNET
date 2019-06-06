@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 340;
-		public const string GameVersion = "1.10.0";
+		public const int ProtocolVersion = 354;
+		public const string GameVersion = "1.11.4";
 	}
 
 	public interface IMcpeMessageHandler
@@ -2406,6 +2406,7 @@ namespace MiNET.Net
 		public int enchantmentSeed; // = null;
 		public Blockstates blockstates; // = null;
 		public string multiplayerCorrelationId; // = null;
+		public byte unknown2; // = null;
 
 		public McpeStartGame()
 		{
@@ -2464,6 +2465,7 @@ namespace MiNET.Net
 			WriteSignedVarInt(enchantmentSeed);
 			Write(blockstates);
 			Write(multiplayerCorrelationId);
+			Write(unknown2);
 
 			AfterEncode();
 		}
@@ -2522,6 +2524,7 @@ namespace MiNET.Net
 			enchantmentSeed = ReadSignedVarInt();
 			blockstates = ReadBlockstates();
 			multiplayerCorrelationId = ReadString();
+			unknown2 = ReadByte();
 
 			AfterDecode();
 		}
@@ -2578,6 +2581,7 @@ namespace MiNET.Net
 			enchantmentSeed=default(int);
 			blockstates=default(Blockstates);
 			multiplayerCorrelationId=default(string);
+			unknown2=default(byte);
 		}
 
 	}

@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -36,6 +36,7 @@ namespace MiNET.Crafting
 	public abstract class Recipe
 	{
 		public UUID Id { get; set; }
+		public string Block { get; set; }
 	}
 
 	public class MultiRecipe : Recipe
@@ -89,10 +90,11 @@ namespace MiNET.Crafting
 		{
 		}
 
-		public SmeltingRecipe(Item result, Item input) : this()
+		public SmeltingRecipe(Item result, Item input, string block = null) : this()
 		{
 			Result = result;
 			Input = input;
+			Block = block;
 		}
 	}
 }

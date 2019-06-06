@@ -441,6 +441,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Enchantment Seed | SignedVarInt |  |
 |Blockstates | Blockstates |  |
 |Multiplayer Correlation ID | string |  |
+|Unknown2 | byte |  |
 -----------------------------------------------------------------------
 ### Add Player (0x0c)
 Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPlayer)

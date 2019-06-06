@@ -1414,6 +1414,7 @@ namespace MiNET.Net
 					WriteVarInt(1);
 					Write(rec.Result);
 					Write(new UUID(Guid.NewGuid().ToString()));
+					Write(rec.Block);
 				}
 				else if (recipe is ShapedRecipe)
 				{
@@ -1433,6 +1434,7 @@ namespace MiNET.Net
 					WriteVarInt(1);
 					Write(rec.Result);
 					Write(new UUID(Guid.NewGuid().ToString()));
+					Write(rec.Block);
 				}
 				else if (recipe is SmeltingRecipe)
 				{
@@ -1441,6 +1443,7 @@ namespace MiNET.Net
 					WriteSignedVarInt(rec.Input.Id);
 					if (rec.Input.Metadata != 0) WriteSignedVarInt(rec.Input.Metadata);
 					Write(rec.Result);
+					Write(rec.Block);
 				}
 				else if (recipe is MultiRecipe)
 				{
@@ -1483,6 +1486,7 @@ namespace MiNET.Net
 					ReadVarInt(); // 1?
 					recipe.Result = ReadItem();
 					recipe.Id = ReadUUID(); // Id
+					recipe.Block = ReadString(); // block?
 					recipes.Add(recipe);
 					//Log.Error("Read shapeless recipe");
 				}
@@ -1506,6 +1510,7 @@ namespace MiNET.Net
 						recipe.Result = ReadItem();
 					}
 					recipe.Id = ReadUUID(); // Id
+					recipe.Block = ReadString(); // block?
 					recipes.Add(recipe);
 					//Log.Error("Read shaped recipe");
 				}
@@ -1515,6 +1520,7 @@ namespace MiNET.Net
 					//short meta = (short) ReadVarInt(); // input (with metadata) 
 					short id = (short) ReadSignedVarInt(); // input (with metadata) 
 					Item result = ReadItem(); // Result
+					recipe.Block = ReadString(); // block?
 					recipe.Input = ItemFactory.GetItem(id, 0);
 					recipe.Result = result;
 					recipes.Add(recipe);
@@ -1528,6 +1534,7 @@ namespace MiNET.Net
 					short id = (short) ReadSignedVarInt(); // input (with metadata) 
 					short meta = (short) ReadSignedVarInt(); // input (with metadata) 
 					Item result = ReadItem(); // Result
+					recipe.Block = ReadString(); // block?
 					recipe.Input = ItemFactory.GetItem(id, meta);
 					recipe.Result = result;
 					recipes.Add(recipe);
@@ -1556,6 +1563,7 @@ namespace MiNET.Net
 					}
 
 					ReadUUID();
+					ReadString(); // block?
 				}
 				else if (recipeType == ShapedChemistry)
 				{
@@ -1577,6 +1585,7 @@ namespace MiNET.Net
 					}
 
 					ReadUUID(); // Id
+					ReadString(); // block?
 				}
 				else
 				{
@@ -1598,7 +1607,8 @@ namespace MiNET.Net
 		{
 			WriteSignedVarLong(map.MapId);
 			WriteUnsignedVarInt((uint) map.UpdateType);
-			Write((byte) 0);
+			Write((byte) 0); // dimension
+			Write(false);  // Locked
 
 			//if ((map.UpdateType & BITFLAG_ENTITY_UPDATE) == BITFLAG_ENTITY_UPDATE)
 			//{
@@ -1670,6 +1680,7 @@ namespace MiNET.Net
 			map.MapId = ReadSignedVarLong();
 			map.UpdateType = (byte) ReadUnsignedVarInt();
 			ReadByte(); // Dimension (waste)
+			ReadBool(); // Locked (waste)
 
 			if ((map.UpdateType & BITFLAG_ENTITY_UPDATE) == BITFLAG_ENTITY_UPDATE)
 			{

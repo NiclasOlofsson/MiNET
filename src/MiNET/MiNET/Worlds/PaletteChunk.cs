@@ -131,24 +131,28 @@ namespace MiNET.Worlds
 			{
 				stream.WriteByte(8); // version
 
-				int numberOfStores = 2;
+				int numberOfStores = 0;
 				stream.WriteByte((byte) numberOfStores); // storage size
+
+				if (WriteStore(stream, _blocks, _metadata, false))
 				{
-					WriteStore(stream, _blocks, _metadata);
-					if (!WriteStore(stream, _loggedBlocks, _loggedMetadata))
+					numberOfStores++;
+					if (WriteStore(stream, _loggedBlocks, _loggedMetadata, false))
 					{
-						stream.Position = 1;
-						stream.WriteByte(1); // storage size
+						numberOfStores++;
 					}
 				}
 
 				// Special implementation for the Alex client by Kennyvv. Will send
 				// block and skylight to the client so that we can test our implementations
-				if(_useAlexChunks)
+				if (_useAlexChunks)
 				{
 					stream.Write(skylight.Data);
 					stream.Write(blocklight.Data);
 				}
+
+				stream.Position = 1;
+				stream.WriteByte((byte) numberOfStores); // storage size
 
 				var bytes = stream.ToArray();
 				instream.Write(bytes);
@@ -158,7 +162,7 @@ namespace MiNET.Worlds
 			return _cache;
 		}
 
-		private static bool WriteStore(MemoryStream stream, short[] blocks, NibbleArray metadata)
+		private static bool WriteStore(MemoryStream stream, short[] blocks, NibbleArray metadata, bool forceWrite)
 		{
 			var palette = new Dictionary<uint, byte>();
 			uint prevHash = uint.MaxValue;
@@ -178,7 +182,7 @@ namespace MiNET.Worlds
 			switch (bitsPerBlock)
 			{
 				case 0:
-					if (palette.ContainsKey(0)) return false;
+					if (!forceWrite && palette.ContainsKey(0)) return false;
 					bitsPerBlock = 1;
 					break;
 				case 1:

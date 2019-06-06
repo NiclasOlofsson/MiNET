@@ -137,7 +137,10 @@ namespace MiNET.Worlds
 
 				// Biomes
 				var flatDataBytes = _db.Get(index.Concat(new byte[] {0x2D}).ToArray());
-				chunkColumn.biomeId = flatDataBytes.AsSpan().Slice(512, 256).ToArray();
+				if(flatDataBytes != null)
+				{
+					chunkColumn.biomeId = flatDataBytes.AsSpan().Slice(512, 256).ToArray();
+				}
 
 				// Block entities
 				var blockEntityBytes = _db.Get(index.Concat(new byte[] {0x31}).ToArray());

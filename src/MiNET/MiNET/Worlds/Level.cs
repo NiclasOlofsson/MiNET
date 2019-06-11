@@ -1390,7 +1390,7 @@ namespace MiNET.Worlds
 
 				player.Inventory.DamageItemInHand(ItemDamageReason.BlockBreak, null, block);
 				player.HungerManager.IncreaseExhaustion(0.025f);
-				player.AddExperience(block.GetExperiencePoints());
+				player.ExperienceManager.AddExperience(block.GetExperiencePoints());
 			}
 		}
 

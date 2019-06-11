@@ -331,8 +331,7 @@ namespace MiNET.Plugins.Commands
 				foreach (var p in player.Players)
 				{
 					names.Add(p.Username);
-					p.AddExperience(experience);
-					p.SendUpdateAttributes();
+					p.ExperienceManager.AddExperience(experience);
 				}
 
 				body = string.Join(", ", names);

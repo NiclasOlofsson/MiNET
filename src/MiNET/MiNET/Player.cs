@@ -84,12 +84,11 @@ namespace MiNET
 
 		public Skin Skin { get; set; }
 
-		public float ExperienceLevel { get; set; } = 0f;
-		public float Experience { get; set; } = 0f;
 		public float MovementSpeed { get; set; } = 0.1f;
 		public ConcurrentDictionary<EffectType, Effect> Effects { get; set; } = new ConcurrentDictionary<EffectType, Effect>();
 
 		public HungerManager HungerManager { get; set; }
+		public ExperienceManager ExperienceManager { get; set; }
 
 		public bool IsFalling { get; set; }
 		public bool IsFlyingHorizontally { get; set; }
@@ -110,6 +109,7 @@ namespace MiNET
 
 			Inventory = new PlayerInventory(this);
 			HungerManager = new HungerManager(this);
+			ExperienceManager = new ExperienceManager(this);
 
 			IsSpawned = false;
 			IsConnected = endPoint != null; // Can't connect if there is no endpoint
@@ -2744,7 +2744,7 @@ namespace MiNET
 			switch (message.eventId)
 			{
 				case 34:
-					RemoveExperienceLevels(message.data);
+					ExperienceManager.RemoveExperienceLevels(message.data);
 					break;
 				case 57:
 					var data = message.data;
@@ -3018,81 +3018,14 @@ namespace MiNET
 				Value = 16,
 				Default = 16,
 			};
-			attributes["minecraft:player.experience"] = new PlayerAttribute
-			{
-				Name = "minecraft:player.experience",
-				MinValue = 0,
-				MaxValue = 1,
-				Value = CalculateXp(),
-				Default = 0,
-			};
-			attributes["minecraft:player.level"] = new PlayerAttribute
-			{
-				Name = "minecraft:player.level",
-				MinValue = 0,
-				MaxValue = 24791,
-				Value = ExperienceLevel,
-				Default = 0,
-			};
-
 			// Workaround, bad design.
 			attributes = HungerManager.AddHungerAttributes(attributes);
+			attributes = ExperienceManager.AddExperienceAttributes(attributes);
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
 			attributesPackate.runtimeEntityId = EntityManager.EntityIdSelf;
 			attributesPackate.attributes = attributes;
 			SendPacket(attributesPackate);
-		}
-
-		private float CalculateXp()
-		{
-			var xpToNextLevel = GetXpToNextLevel();
-
-			return Experience / xpToNextLevel;
-		}
-
-		public void RemoveExperienceLevels(float levels)
-		{
-			var currentXp = CalculateXp();
-			ExperienceLevel = Experience - Math.Abs(levels);
-			var xpToNextLevel = GetXpToNextLevel();
-			Experience = xpToNextLevel * currentXp;
-		}
-
-		public void AddExperience(float xp, bool send = true)
-		{
-			var xpToNextLevel = GetXpToNextLevel();
-
-			if (xpToNextLevel - (xp + Experience) > 0)
-			{
-				Experience += xp;
-			}
-			else
-			{
-				ExperienceLevel++;
-				AddExperience(Experience + xp - xpToNextLevel, false);
-			}
-
-			if (send) SendUpdateAttributes();
-		}
-
-		private float GetXpToNextLevel()
-		{
-			float xpToNextLevel = 0;
-			if (ExperienceLevel >= 0 && ExperienceLevel <= 15)
-			{
-				xpToNextLevel = 2 * ExperienceLevel + 7;
-			}
-			else if (ExperienceLevel > 15 && ExperienceLevel <= 30)
-			{
-				xpToNextLevel = 5 * ExperienceLevel - 38;
-			}
-			else if (ExperienceLevel > 30)
-			{
-				xpToNextLevel = 9 * ExperienceLevel - 158;
-			}
-
-			return xpToNextLevel;
 		}
 
 		public virtual void SendForm(Form form)

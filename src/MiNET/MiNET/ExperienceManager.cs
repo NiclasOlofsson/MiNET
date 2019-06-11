@@ -25,14 +25,15 @@ namespace MiNET
 			}
 			else
 			{
+				var expDiff = Experience + xp - xpToNextLevel;
 				ExperienceLevel++;
-				AddExperience(Experience + xp - xpToNextLevel, false);
+				Experience = 0;
+				AddExperience(expDiff, false);
 			}
 
 			if (send)
 			{
 				SendAttributes();
-				// Player.SendUpdateAttributes();
 			}
 		}
 

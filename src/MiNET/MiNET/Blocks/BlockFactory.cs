@@ -610,6 +610,8 @@ namespace MiNET.Blocks
 			else if (blockId == 450) block = new Grindstone();
 			else if (blockId == 451) block = new BlastFurnace();
 			else if (blockId == 453) block = new Smoker();
+			else if (blockId == 454) block = new LitSmoker();
+			else if (blockId == 469) block = new LitBlastFurnace();
 			else if (blockId == 455) block = new CartographyTable();
 			else if (blockId == 456) block = new FletchingTable();
 			else if (blockId == 457) block = new SmithingTable();

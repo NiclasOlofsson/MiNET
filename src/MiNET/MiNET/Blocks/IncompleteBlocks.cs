@@ -4577,4 +4577,35 @@ namespace MiNET.Blocks
 		}
 	}
 
+	public class LitBlastFurnace : Block
+	{
+		public LitBlastFurnace() : base(469)
+		{
+			Name = "minecraft:lit_blast_furnace";
+			// runtime id: 1844 0x734, data: 0
+			// runtime id: 1845 0x735, data: 1
+			// runtime id: 1846 0x736, data: 2
+			// runtime id: 1847 0x737, data: 3
+			// runtime id: 1848 0x738, data: 4
+			// runtime id: 1849 0x739, data: 5
+			// runtime id: 1850 0x73A, data: 6
+			// runtime id: 1851 0x73B, data: 7
+		}
+	}
+
+	public class LitSmoker : Block
+	{
+		public LitSmoker() : base(454)
+		{
+			Name = "minecraft:lit_smoker";
+			// runtime id: 1866 0x74A, data: 0
+			// runtime id: 1867 0x74B, data: 1
+			// runtime id: 1868 0x74C, data: 2
+			// runtime id: 1869 0x74D, data: 3
+			// runtime id: 1870 0x74E, data: 4
+			// runtime id: 1871 0x74F, data: 5
+			// runtime id: 1872 0x750, data: 6
+			// runtime id: 1873 0x751, data: 7
+		}
+	}
 }

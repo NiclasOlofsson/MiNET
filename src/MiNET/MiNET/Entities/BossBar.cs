@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Worlds;
 
@@ -37,9 +38,12 @@ namespace MiNET.Entities
 			{
 			}
 
+			public override void TakeHit(Entity source, Item tool, int damage = 1, DamageCause cause = DamageCause.Unknown)
+			{
+			}
+
 			public override void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
 			{
-				//base.TakeHit(source, 0, cause);
 			}
 
 			public override void OnTick()
@@ -60,6 +64,8 @@ namespace MiNET.Entities
 
 			HideNameTag = true;
 			IsAlwaysShowName = false;
+			IsInvisible = true;
+			IsSilent = true;
 			HealthManager = new NoDamageHealthManager(this);
 
 			KnownPosition = level.SpawnPoint;
@@ -70,7 +76,11 @@ namespace MiNET.Entities
 		{
 			NameTag = nameTag;
 
-			BroadcastSetEntityData();
+			var bossEvent = McpeBossEvent.CreateObject();
+			bossEvent.bossEntityId = EntityId;
+			bossEvent.title = NameTag;
+			bossEvent.eventType = 5;
+			Level?.RelayBroadcast(bossEvent);
 		}
 
 		[Wired]
@@ -79,45 +89,22 @@ namespace MiNET.Entities
 			if (progress != Int32.MinValue) Progress = progress;
 			if (maxProgress != Int32.MinValue) MaxProgress = maxProgress;
 
-			SendAttributes();
-
 			var bossEvent = McpeBossEvent.CreateObject();
 			bossEvent.bossEntityId = EntityId;
-			bossEvent.eventType = (uint) (IsVisible ? 0 : 2);
+			bossEvent.healthPercent = (float) Progress / MaxProgress;
+			bossEvent.eventType = 4;
 			Level?.RelayBroadcast(bossEvent);
-		}
-
-		private void SendAttributes()
-		{
-			if (Progress == 0) Progress = 1;
-
-			var attributes = new PlayerAttributes
-			{
-				["minecraft:health"] = new PlayerAttribute
-				{
-					Name = "minecraft:health",
-					MinValue = 0,
-					MaxValue = MaxProgress,
-					Value = Progress,
-					Default = MaxProgress
-				}
-			};
-
-			var attributesPackate = McpeUpdateAttributes.CreateObject();
-			attributesPackate.runtimeEntityId = EntityId;
-			attributesPackate.attributes = attributes;
-			Level?.RelayBroadcast(attributesPackate);
 		}
 
 		public override void SpawnToPlayers(Player[] players)
 		{
 			base.SpawnToPlayers(players);
 
-			SendAttributes();
-
 			var bossEvent = McpeBossEvent.CreateObject();
 			bossEvent.bossEntityId = EntityId;
 			bossEvent.eventType = (uint) (IsVisible ? 0 : 2);
+			bossEvent.title = NameTag;
+			bossEvent.healthPercent = (float)Progress / MaxProgress;
 			Level?.RelayBroadcast(players, bossEvent);
 		}
 

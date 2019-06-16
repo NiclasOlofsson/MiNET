@@ -88,6 +88,19 @@ namespace TestPlugin
 		{
 		}
 
+		[Command(Name = "bossbar")]
+		public void BossbarCommand(Player player )
+		{
+			var bossBar = new BossBar(player.Level)
+			{
+				Animate = false,
+				MaxProgress = 10,
+				Progress = 10,
+				NameTag = $"{ChatColors.Gold}You are playing on a {ChatColors.Gold}MiNET{ChatColors.Gold} server"
+			};
+			bossBar.SpawnEntity();
+		}
+
 		[Command(Name = "pe", Description = "Particle effects!")]
 		public void ParticleEffect(Player player, string particle)
 		{

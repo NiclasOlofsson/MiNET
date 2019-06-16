@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -28,6 +28,8 @@ namespace MiNET.Net
 	public partial class McpeBossEvent
 	{
 		public ushort unknown6;
+		public string title;
+		public float healthPercent;
 
 		partial void AfterEncode()
 		{
@@ -39,14 +41,16 @@ namespace MiNET.Net
 					break;
 				case 4:
 					// float
+					Write(healthPercent);
 					break;
 				case 5:
 					// string
+					Write(title);
 					break;
 				case 0:
-					// string
-					// float
-					break;
+					Write(title);
+					Write(healthPercent);
+					goto case 6;
 				case 6:
 					// ushort?
 					Write(unknown6);

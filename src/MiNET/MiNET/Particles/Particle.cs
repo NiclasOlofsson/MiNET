@@ -81,7 +81,7 @@ namespace MiNET.Particles
 		public Vector3 Position { get; set; }
 		protected int Data { get; set; }
 
-		protected Particle(ParticleType particleType, Level level) : this((int) particleType, level)
+		public Particle(ParticleType particle, Level level): this((int)particle, level)
 		{
 		}
 

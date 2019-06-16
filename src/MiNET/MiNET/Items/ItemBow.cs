@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -90,16 +90,17 @@ namespace MiNET.Items
 			float force = CalculateForce(timeUsed);
 			if (force < 0.1D) return;
 
-			Arrow arrow = new Arrow(player, world, 2, !(force < 1.0));
+			var arrow = new Arrow(player, world, 2, !(force < 1.0));
 			arrow.PowerLevel = this.GetEnchantingLevel(EnchantingType.Power);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			arrow.KnownPosition.Y += 1.62f;
 
-			arrow.Velocity = arrow.KnownPosition.GetHeadDirection() * (force * 2.0f * 1.5f);
+			arrow.Velocity = arrow.KnownPosition.GetHeadDirection().Normalize() * (force * 3);
 			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
 			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
 			arrow.BroadcastMovement = true;
 			arrow.DespawnOnImpact = false;
+
 			arrow.SpawnEntity();
 			player.Inventory.DamageItemInHand(ItemDamageReason.ItemUse, player, null);
 		}

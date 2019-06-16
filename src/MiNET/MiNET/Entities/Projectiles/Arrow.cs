@@ -23,6 +23,10 @@
 
 #endregion
 
+using System;
+using MiNET.Blocks;
+using MiNET.Net;
+using MiNET.Sounds;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Projectiles
@@ -44,5 +48,24 @@ namespace MiNET.Entities.Projectiles
 			Ttl = 1200;
 			DespawnOnImpact = false;
 		}
+
+		protected override void OnHitBlock(Block blockCollided)
+		{
+			IsCritical = false;
+			BroadcastSetEntityData();
+
+			McpeEntityEvent entityEvent = McpeEntityEvent.CreateObject();
+			entityEvent.runtimeEntityId = EntityId;
+			entityEvent.eventId = 39;
+			entityEvent.data = 14;
+			Level.RelayBroadcast(entityEvent);
+		}
+
+		protected override void OnHitEntity(Entity entityCollided)
+		{
+			IsCritical = false;
+			BroadcastSetEntityData();
+		}
+
 	}
 }

@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2019 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -94,7 +94,7 @@ namespace MiNET.Entities.Projectiles
 		{
 			//base.OnTick();
 
-			if (KnownPosition.Y <= 0
+			if (KnownPosition.Y <= -16
 				|| (Velocity.Length() <= 0 && DespawnOnImpact)
 				|| (Velocity.Length() <= 0 && !DespawnOnImpact && Ttl <= 0))
 			{
@@ -102,14 +102,6 @@ namespace MiNET.Entities.Projectiles
 				{
 					DespawnEntity();
 					return;
-				}
-				else
-				{
-					if (IsCritical)
-					{
-						IsCritical = false;
-						BroadcastSetEntityData();
-					}
 				}
 
 				return;
@@ -122,6 +114,7 @@ namespace MiNET.Entities.Projectiles
 			Entity entityCollided = CheckEntityCollide(KnownPosition, Velocity);
 
 			bool collided = false;
+			Block collidedWithBlock = null;
 			if (entityCollided != null)
 			{
 				double speed = Math.Sqrt(Velocity.X * Velocity.X + Velocity.Y * Velocity.Y + Velocity.Z * Velocity.Z);
@@ -152,6 +145,7 @@ namespace MiNET.Entities.Projectiles
 				entityCollided.HealthManager.TakeHit(this, (int) damage, DamageCause.Projectile);
 				entityCollided.HealthManager.LastDamageSource = Shooter;
 
+				OnHitEntity(entityCollided);
 				DespawnEntity();
 				return;
 			}
@@ -175,6 +169,7 @@ namespace MiNET.Entities.Projectiles
 					if (collided)
 					{
 						SetIntersectLocation(block.GetBoundingBox(), KnownPosition.ToVector3());
+						collidedWithBlock = block;
 						break;
 					}
 				}
@@ -207,15 +202,24 @@ namespace MiNET.Entities.Projectiles
 
 				BroadcastMoveAndMotion();
 			}
+
+			if (collided)
+			{
+				OnHitBlock(collidedWithBlock);
+			}
+		}
+
+		protected virtual void OnHitBlock(Block blockCollided)
+		{
+		}
+
+		protected virtual void OnHitEntity(Entity entityCollided)
+		{
 		}
 
 		private Entity CheckEntityCollide(Vector3 position, Vector3 direction)
 		{
-			Ray2 ray = new Ray2
-			{
-				x = position,
-				d = Vector3.Normalize(direction)
-			};
+			Ray2 ray = new Ray2 {x = position, d = Vector3.Normalize(direction)};
 
 			var entities = Level.Entities.Values.Concat(Level.GetSpawnedPlayers()).OrderBy(entity => Vector3.Distance(position, entity.KnownPosition.ToVector3()));
 			foreach (Entity entity in entities)

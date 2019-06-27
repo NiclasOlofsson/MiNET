@@ -62,7 +62,7 @@ namespace MiNET.Entities.World
 			//HasCollision = false;
 			//IsAffectedByGravity = false;
 
-			NoAi = true;
+			NoAi = false;
 			HasCollision = false;
 			IsAffectedByGravity = false;
 		}

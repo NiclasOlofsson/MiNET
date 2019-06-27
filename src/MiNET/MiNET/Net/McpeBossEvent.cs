@@ -33,28 +33,29 @@ namespace MiNET.Net
 		{
 			switch (eventType)
 			{
-				case 1:
-				case 3:
-					// Entity Unique ID
+				case BossEvent.Add:
+					Write(bossName);
+					Write(bossHealthPercent);
+					Write(darkenScreen);
+					WriteUnsignedVarInt(color);
+					WriteUnsignedVarInt(overlay);
 					break;
-				case 4:
-					// float
+				case BossEvent.PlayerAdded:
+				case BossEvent.PlayerRemoved:
+					WriteSignedVarLong(playerId);
 					break;
-				case 5:
-					// string
+				case BossEvent.UpdatePercent:
+					Write(bossHealthPercent);
 					break;
-				case 0:
-					// string
-					// float
+				case BossEvent.UpdateName:
+					Write(bossName);
 					break;
-				case 6:
-					// ushort?
-					Write(unknown6);
-					goto case 7;
-				case 7:
-					// NOOP
-					WriteUnsignedVarInt(0xff00ff00);
-					WriteUnsignedVarInt(0xff00ff00);
+				case BossEvent.UpdateProperties:
+					Write(darkenScreen);
+					goto case BossEvent.UpdateStyle;
+				case BossEvent.UpdateStyle:
+					WriteUnsignedVarInt(color);
+					WriteUnsignedVarInt(overlay);
 					break;
 			}
 		}
@@ -68,33 +69,29 @@ namespace MiNET.Net
 		{
 			switch (eventType)
 			{
-				case 1:
-				case 3:
-					// Entity Unique ID
-					ReadSignedVarLong();
+				case BossEvent.Add:
+					bossName = ReadString();
+					bossHealthPercent = ReadFloat();
+					darkenScreen = ReadUshort();
+					color = ReadUnsignedVarInt();
+					overlay = ReadUnsignedVarInt();
 					break;
-				case 4:
-					// float
-					ReadFloat();
+				case BossEvent.PlayerAdded:
+				case BossEvent.PlayerRemoved:
+					playerId = ReadSignedVarLong();
 					break;
-				case 5:
-					// string
-					ReadString();
+				case BossEvent.UpdatePercent:
+					bossHealthPercent = ReadFloat();
 					break;
-				case 0:
-					// string
-					ReadString();
-					// float
-					ReadFloat();
-					goto case 6;
-				case 6:
-					// ushort?
-					ReadShort();
-					goto case 7;
-				case 7:
-					// NOOP
-					ReadUnsignedVarInt();
-					ReadUnsignedVarInt();
+				case BossEvent.UpdateName:
+					bossName = ReadString();
+					break;
+				case BossEvent.UpdateProperties:
+					darkenScreen = ReadUshort();
+					goto case BossEvent.UpdateStyle;
+				case BossEvent.UpdateStyle:
+					color = ReadUnsignedVarInt();
+					overlay = ReadUnsignedVarInt();
 					break;
 			}
 		}

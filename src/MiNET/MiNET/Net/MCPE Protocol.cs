@@ -6187,9 +6187,27 @@ namespace MiNET.Net
 
 	public partial class McpeBossEvent : Packet<McpeBossEvent>
 	{
+		public enum BossEvent : uint
+		{
+			Add = 0,
+			PlayerAdded = 1,
+			Remove = 2,
+			PlayerRemoved = 3,
+			UpdatePercent = 4,
+			UpdateName = 5,
+			UpdateProperties = 6,
+			UpdateStyle = 7,
+		}
 
 		public long bossEntityId; // = null;
-		public uint eventType; // = null;
+		public BossEvent eventType = BossEvent.Add;
+		public string bossName = "";
+		public float bossHealthPercent = 1.0f; // from 0 to 1.0
+		public ushort darkenScreen = 12; // forgot what is it
+		public uint color = 5; // forgot what is it
+		public uint overlay = 0; // forgot what is it
+		public long playerId = -1;
+
 
 		public McpeBossEvent()
 		{
@@ -6204,7 +6222,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			WriteSignedVarLong(bossEntityId);
-			WriteUnsignedVarInt(eventType);
+			WriteUnsignedVarInt((uint) eventType);
 
 			AfterEncode();
 		}
@@ -6219,7 +6237,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			bossEntityId = ReadSignedVarLong();
-			eventType = ReadUnsignedVarInt();
+			eventType = (BossEvent) ReadUnsignedVarInt();
 
 			AfterDecode();
 		}

@@ -233,11 +233,30 @@ namespace MiNET
 			{
 				Item existingItem = Slots[si];
 
-				if (existingItem is ItemAir || existingItem.Id == 0 || existingItem.Id == -1)
+				if (existingItem is ItemAir || existingItem.Id == 0 || existingItem.Id == -1 || (existingItem.Count < existingItem.MaxStackSize && existingItem.Equals(item)))
 				{
-					Slots[si] = item;
-					if (update) SendSetSlot(si);
-					return true;
+					if (existingItem.Id == item.Id)
+					{
+						if (existingItem.Count + item.Count <= item.MaxStackSize)
+						{
+							existingItem.Count += item.Count;
+							if (update) SendSetSlot(si);
+							return true;
+						}
+						else
+						{
+							byte diff = (byte) (item.MaxStackSize - existingItem.Count);
+							existingItem.Count += diff;
+							item.Count -= diff;
+							if (update) SendSetSlot(si);
+						}
+					}
+					else
+					{
+						Slots[si] = item;
+						if (update) SendSetSlot(si);
+						return true;
+					}
 				}
 			}
 

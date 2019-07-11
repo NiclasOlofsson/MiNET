@@ -3381,16 +3381,24 @@ namespace MiNET
 		///     Very important litle method. This does all the sending of packets for
 		///     the player class. Treat with respect!
 		/// </summary>
-		public void SendPacket(Packet packet)
+		public virtual void SendPacket(Packet packet)
 		{
-			if (NetworkHandler == null)
+			if (BeforeSendPacket(packet))
 			{
-				packet.PutPool();
+				if (NetworkHandler == null)
+				{
+					packet.PutPool();
+				}
+				else
+				{
+					NetworkHandler?.SendPacket(packet);
+				}
 			}
-			else
-			{
-				NetworkHandler?.SendPacket(packet);
-			}
+		}
+
+		protected virtual bool BeforeSendPacket(Packet packet)
+		{
+			return true;
 		}
 
 		private object _sendMoveListSync = new object();

@@ -63,6 +63,8 @@ namespace MiNET.Entities
 
 		public string NameTag { get; set; }
 
+		public bool IsPanicking { get; set; }
+
 		public bool NoAi { get; set; }
 		public bool HideNameTag { get; set; } = true;
 		public bool Silent { get; set; }

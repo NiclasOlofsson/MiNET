@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -25,12 +25,15 @@
 
 using System;
 using System.Numerics;
+using log4net;
 using MiNET.Entities.Passive;
 
 namespace MiNET.Entities.Behaviors
 {
 	public class JumpAttackBehavior : BehaviorBase
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(JumpAttackBehavior));
+
 		private readonly Wolf _wolf;
 		private readonly double _leapHeight;
 
@@ -52,20 +55,32 @@ namespace MiNET.Entities.Behaviors
 
 		public override bool CanContinue()
 		{
+			if (_wolf.Target == null)
+				return false;
+			if (_wolf.Target.HealthManager.IsDead)
+				return false;
+
 			return !_wolf.IsOnGround;
 		}
 
 		public override void OnTick(Entity[] entities)
 		{
-			var direction = (Vector3) _wolf.Target.KnownPosition - _wolf.KnownPosition;
-			var distance = _wolf.DistanceTo(_wolf.Target);
+			Entity wolfTarget = _wolf.Target;
+			if (wolfTarget == null || wolfTarget.HealthManager.IsDead) return;
+
+			var direction = (Vector3) wolfTarget.KnownPosition - _wolf.KnownPosition;
+			var distance = _wolf.DistanceTo(wolfTarget);
 
 			var velocity = _wolf.Velocity;
 			var x = direction.X / distance * 0.5D * 0.8 + velocity.X * 0.2;
 			var z = direction.Z / distance * 0.5D * 0.8 + velocity.Z * 0.2;
 			var y = _leapHeight;
 
+			if (wolfTarget.HealthManager.IsDead) return;
+
 			_wolf.Velocity += new Vector3((float) x, (float) y, (float) z);
+			if(_wolf.Velocity.Length() > 1) Log.Warn($"Wolf velocity too big {velocity}"); 
+
 		}
 	}
 }

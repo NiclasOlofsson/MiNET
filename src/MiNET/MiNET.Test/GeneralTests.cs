@@ -34,6 +34,7 @@ using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
 using MiNET.Items;
+using MiNET.Net;
 using MiNET.Worlds;
 using Newtonsoft.Json.Linq;
 
@@ -43,6 +44,19 @@ namespace MiNET.Test
 	public class GeneralTests
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GeneralTests));
+
+		[TestMethod]
+		public void DeltaEncodeTest()
+		{
+			float curr = 0.34453f;
+			float prev = -3.7989f;
+
+			int delta = McpeMoveEntityDelta.ToIntDelta(curr, prev);
+
+			float result = BitConverter.Int32BitsToSingle(BitConverter.SingleToInt32Bits((float) Math.Round(prev, 2)) + delta);
+
+			Assert.AreEqual(Math.Round(curr, 2), Math.Round(result, 2));
+		}
 
 		[TestMethod]
 		public void EncodePalettedChunk()

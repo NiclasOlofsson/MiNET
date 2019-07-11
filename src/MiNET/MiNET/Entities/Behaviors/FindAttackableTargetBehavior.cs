@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Linq;
 using System.Numerics;
 using MiNET.Worlds;
@@ -132,4 +133,97 @@ namespace MiNET.Entities.Behaviors
 			_entity.SetTarget(null);
 		}
 	}
+
+	public class FindAttackableEntityTargetBehavior<TEntity> : BehaviorBase, ITargetingBehavior where TEntity : Entity
+	{
+		private readonly Mob _entity;
+		private readonly double _targetDistance;
+		private readonly int _attackChance;
+		private int _targetUnseenTicks = 0;
+
+		public FindAttackableEntityTargetBehavior(Mob entity, double targetDistance = 16, int attackChance = 10)
+		{
+			_entity = entity;
+			_targetDistance = targetDistance;
+			_attackChance = attackChance;
+		}
+
+		public override bool ShouldStart()
+		{
+			if (_entity.Level.Random.Next(_attackChance) != 0)
+			{
+				return false;
+			}
+
+			var target = _entity.Level.Entities
+				.OrderBy(p => Vector3.Distance(_entity.KnownPosition, p.Value.KnownPosition))
+				.FirstOrDefault(p =>
+					p.Value != _entity
+					&& p.Value is TEntity
+					&& !p.Value.HealthManager.IsDead
+					&& _entity.DistanceTo(p.Value) < _targetDistance).Value as TEntity;
+
+			if (target == null)
+			{
+				_entity.SetTarget(null);
+				return false;
+			}
+
+			_entity.SetTarget(target);
+
+			return true;
+		}
+
+		public override void OnStart()
+		{
+			_targetUnseenTicks = 0;
+		}
+
+		public override bool CanContinue()
+		{
+			// Give the poor entity a chance to survive
+			// Also makes it let go of unreachable targets
+			if (_entity.Level.Random.Next(_attackChance) == 0)
+			{
+				return false;
+			}
+
+			var target = _entity.Target;
+
+			if (target == null)
+				return false;
+
+			if (target.HealthManager.IsDead)
+				return false;
+
+
+			if (_entity.DistanceTo(target) > _targetDistance)
+			{
+				return false;
+			}
+
+			if (_entity.CanSee(target))
+			{
+				_targetUnseenTicks = 0;
+			}
+			else if (_targetUnseenTicks++ > 60)
+			{
+				return false;
+			}
+
+			_entity.SetTarget(target); // This makes sense when we to attacked by targeting
+
+			return true;
+		}
+
+		public override void OnTick(Entity[] entities)
+		{
+		}
+
+		public override void OnEnd()
+		{
+			_entity.SetTarget(null);
+		}
+	}
+
 }

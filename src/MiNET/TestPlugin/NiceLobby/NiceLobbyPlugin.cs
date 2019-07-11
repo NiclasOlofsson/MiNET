@@ -403,6 +403,9 @@ namespace TestPlugin.NiceLobby
 
 
 			int idx = 0;
+			//player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Sheep) {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Wolf) {Count = 64};
+
 			//player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};

@@ -214,10 +214,9 @@ namespace MiNET
 
 			var velocity = new Vector3((float) motX, (float) motY + 0.0f, (float) motZ);
 
-			Player player = source as Player;
-			if (player != null)
+			if (tool != null)
 			{
-				var knockback = player.DamageCalculator.CalculateKnockback(tool);
+				var knockback = tool.GetEnchantingLevel(EnchantingType.Knockback);
 				velocity += Vector3.Normalize(velocity) * new Vector3(knockback * 0.5f, 0.1f, knockback * 0.5f);
 			}
 

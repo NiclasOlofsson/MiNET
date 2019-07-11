@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -42,6 +42,8 @@ namespace MiNET.Entities.Behaviors
 		private readonly int _chance;
 		private Path _currentPath;
 
+		protected Vector3? _direction;
+
 		public WanderBehavior(Mob entity, double speedMultiplier, int chance = 120)
 		{
 			_entity = entity;
@@ -53,7 +55,7 @@ namespace MiNET.Entities.Behaviors
 		{
 			if (_entity.Level.Random.Next(_chance) != 0) return false;
 
-			BlockCoordinates? pos = FindRandomTargetBlock(_entity, 10, 7);
+			BlockCoordinates? pos = FindRandomTargetBlock(_entity, 10, 7, _direction);
 
 			if (!pos.HasValue) return false;
 
@@ -68,16 +70,16 @@ namespace MiNET.Entities.Behaviors
 
 		public override bool CanContinue()
 		{
-			//BlockCoordinates currPos = (BlockCoordinates) _entity.KnownPosition;
-			//if (currPos == _lastPosition)
-			//{
-			//	if (_stallTime++ > 100) return false;
-			//}
-			//else
-			//{
-			//	_stallTime = 0;
-			//	_lastPosition = currPos;
-			//}
+			var currPos = (BlockCoordinates) _entity.KnownPosition;
+			if (currPos == _lastPosition)
+			{
+				if (_stallTime++ > 100) return false;
+			}
+			else
+			{
+				_stallTime = 0;
+				_lastPosition = currPos;
+			}
 
 			return _currentPath.HavePath();
 		}
@@ -107,11 +109,15 @@ namespace MiNET.Entities.Behaviors
 			_stallTime = 0;
 		}
 
-		private static BlockCoordinates? FindRandomTargetBlock(Entity entity, int dxz, int dy, Vector3? targetDirectinon = null)
+		protected static BlockCoordinates? FindRandomTargetBlock(Entity entity, int dxz, int dy, Vector3? targetDirection = null)
 		{
 			Random random = entity.Level.Random;
 
 			BlockCoordinates coords = (BlockCoordinates) entity.KnownPosition;
+			if (targetDirection.HasValue)
+			{
+				coords = coords + (BlockCoordinates) (targetDirection.Value.Normalize() * (float) Math.Ceiling(dxz / 3f));
+			}
 
 			double currentWeight = double.MinValue;
 			Block currentBlock = null;

@@ -47,7 +47,7 @@ namespace MiNET.Entities.Passive
 			var d = random.NextDouble();
 			_color = (byte) (d < 0.81 ? 0 : d < 0.86 ? 8 : d < 0.91 ? 7 : d < 0.96 ? 15 : d < 0.99 ? 12 : 6);
 
-			Behaviors.Add(new PanicBehavior(this, 60, Speed, 1.25));
+			Behaviors.Add(new PanicBehaviorNew(this, 60, 1.25));
 			Behaviors.Add(new TemptedBehavior(this, typeof(ItemWheat), 10, 1.1));
 			Behaviors.Add(new EatBlockBehavior(this));
 			Behaviors.Add(new WanderBehavior(this, 1.0));

@@ -696,8 +696,9 @@ namespace MiNET.Client
 			Log.DebugFormat("NBT:\n{0}", message.namedtag.NbtFile.RootTag);
 		}
 
-		public override void HandleMcpeFullChunkData(McpeFullChunkData message)
+		public override void HandleMcpeLevelChunk(McpeLevelChunk message)
 		{
+			// TODO doesn't work anymore I guess
 			if (Client.IsEmulator) return;
 
 			if (Client._chunks.TryAdd(new Tuple<int, int>(message.chunkX, message.chunkZ), true))
@@ -1019,6 +1020,50 @@ namespace MiNET.Client
 		}
 
 		public override void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
+		{
+		}
+
+		public override void HandleMcpeLevelEventGeneric(McpeLevelEventGeneric message)
+		{
+		}
+
+		public override void HandleMcpeLecternUpdate(McpeLecternUpdate message)
+		{
+		}
+
+		public override void HandleMcpeVideoStreamConnect(McpeVideoStreamConnect message)
+		{
+		}
+
+		public override void HandleMcpeClientCacheStatus(McpeClientCacheStatus message)
+		{
+		}
+
+		public override void HandleMcpeOnScreenTextureAnimation(McpeOnScreenTextureAnimation message)
+		{
+		}
+
+		public override void HandleMcpeMapCreateLockedCopy(McpeMapCreateLockedCopy message)
+		{
+		}
+
+		public override void HandleMcpeStructureTemplateDataExportRequest(McpeStructureTemplateDataExportRequest message)
+		{
+		}
+
+		public override void HandleMcpeStructureTemplateDataExportResponse(McpeStructureTemplateDataExportResponse message)
+		{
+		}
+
+		public override void HandleMcpeUpdateBlockProperties(McpeUpdateBlockProperties message)
+		{
+		}
+
+		public override void HandleMcpeClientCacheBlobStatus(McpeClientCacheBlobStatus message)
+		{
+		}
+
+		public override void HandleMcpeClientCacheMissResponse(McpeClientCacheMissResponse message)
 		{
 		}
 	}

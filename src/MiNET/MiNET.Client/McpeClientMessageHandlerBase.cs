@@ -219,7 +219,7 @@ namespace MiNET.Client
 		}
 
 		public abstract void HandleMcpeBlockEntityData(McpeBlockEntityData message);
-		public abstract void HandleMcpeFullChunkData(McpeFullChunkData message);
+		public abstract void HandleMcpeLevelChunk(McpeLevelChunk message);
 		public abstract void HandleMcpeSetCommandsEnabled(McpeSetCommandsEnabled message);
 		public abstract void HandleMcpeSetDifficulty(McpeSetDifficulty message);
 
@@ -322,5 +322,18 @@ namespace MiNET.Client
 
 		public abstract void HandleFtlCreatePlayer(FtlCreatePlayer message);
 
+		public abstract void HandleMcpeLevelEventGeneric(McpeLevelEventGeneric message);
+		public abstract void HandleMcpeLecternUpdate(McpeLecternUpdate message);
+
+		public abstract void HandleMcpeVideoStreamConnect(McpeVideoStreamConnect message);
+
+		public abstract void HandleMcpeClientCacheStatus(McpeClientCacheStatus message);
+		public abstract void HandleMcpeOnScreenTextureAnimation(McpeOnScreenTextureAnimation message);
+		public abstract void HandleMcpeMapCreateLockedCopy(McpeMapCreateLockedCopy message);
+		public abstract void HandleMcpeStructureTemplateDataExportRequest(McpeStructureTemplateDataExportRequest message);
+		public abstract void HandleMcpeStructureTemplateDataExportResponse(McpeStructureTemplateDataExportResponse message);
+		public abstract void HandleMcpeUpdateBlockProperties(McpeUpdateBlockProperties message);
+		public abstract void HandleMcpeClientCacheBlobStatus(McpeClientCacheBlobStatus message);
+		public abstract void HandleMcpeClientCacheMissResponse(McpeClientCacheMissResponse message);
 	}
 }

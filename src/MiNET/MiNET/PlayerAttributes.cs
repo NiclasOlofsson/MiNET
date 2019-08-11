@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -25,6 +25,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace MiNET
 {
@@ -46,6 +48,18 @@ namespace MiNET
 
 	public class Blockstates : Dictionary<int, Blockstate>
 	{
+		public static Blockstates FromJson(string json)
+		{
+			return JsonConvert.DeserializeObject<Blockstates>(json);
+		}
+	}
+
+	public class Itemstates : Dictionary<int, Itemstate>
+	{
+		public static Itemstates FromJson(string json)
+		{
+			return JsonConvert.DeserializeObject<Itemstates>(json);
+		}
 	}
 
 	public class Blockstate
@@ -54,5 +68,12 @@ namespace MiNET
 		public int RuntimeId { get; set; }
 		public string Name { get; set; }
 		public short Data { get; set; }
+	}
+
+	public class Itemstate
+	{
+		public short Id { get; set; }
+		public string Name { get; set; }
+		public int RuntimeId { get; set; }
 	}
 }

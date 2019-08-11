@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,10 +23,12 @@
 
 #endregion
 
+using System;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using log4net;
+using MiNET.Utils;
 
 namespace MiNET
 {
@@ -34,7 +36,7 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ServerInfo));
 
-		private LevelManager _levelManager;
+		private readonly LevelManager _levelManager;
 		public ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> PlayerSessions { get; private set; }
 
 		public int NumberOfPlayers { get; set; }
@@ -75,7 +77,7 @@ namespace MiNET
 			_levelManager = levelManager;
 			PlayerSessions = playerSessions;
 			{
-				ThroughPut = new Timer(delegate(object state)
+				ThroughPut = new Timer(delegate (object state)
 				{
 					NumberOfPlayers = PlayerSessions.Count;
 
@@ -92,7 +94,7 @@ namespace MiNET
 					ThreadPool.GetAvailableThreads(out threads, out portThreads);
 					double kbitPerSecondOut = Interlocked.Exchange(ref TotalPacketSizeOut, 0) * 8 / 1000000D;
 					double kbitPerSecondIn = Interlocked.Exchange(ref TotalPacketSizeIn, 0) * 8 / 1000000D;
-					Log.InfoFormat("{5} Pl(s) Pkt(#/s) (Out={0} In={2}) ACK/NAK/RESD/FTO(#/s) ({1}-{14})/{11}/{12}/{13} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
+					var message = string.Format("{5} Pl(s) Pkt(#/s) (Out={0} In={2}) ACK/NAK/RESD/FTO(#/s) ({1}-{14})/{11}/{12}/{13} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
 						Interlocked.Exchange(ref NumberOfPacketsOutPerSecond, 0),
 						Interlocked.Exchange(ref NumberOfAckReceive, 0),
 						Interlocked.Exchange(ref NumberOfPacketsInPerSecond, 0),
@@ -107,8 +109,16 @@ namespace MiNET
 						Interlocked.Exchange(ref NumberOfNakReceive, 0),
 						Interlocked.Exchange(ref NumberOfResends, 0),
 						Interlocked.Exchange(ref NumberOfFails, 0),
-						Interlocked.Exchange(ref NumberOfAckSent, 0)
-					);
+						Interlocked.Exchange(ref NumberOfAckSent, 0));
+
+					if (Config.GetProperty("ServerInfoInTitle", false))
+					{
+						Console.Title = message;
+					}
+					else
+					{
+						Log.InfoFormat(message);
+					}
 
 					Interlocked.Exchange(ref NumberOfDeniedConnectionRequestsPerSecond, 0);
 				}, null, 1000, 1000);

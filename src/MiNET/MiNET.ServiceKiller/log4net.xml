@@ -10,11 +10,37 @@
 		</filter>
 	</appender>
 
-	<appender name="Console" type="log4net.Appender.ConsoleAppender">
+	<appender name="Console" type="log4net.Appender.ManagedColoredConsoleAppender">
+		<mapping>
+			<level value="FATAL" />
+			<foreColor value="White" />
+			<backColor value="DarkRed" />
+		</mapping>
+
+		<mapping>
+			<level value="ERROR" />
+			<foreColor value="Red" />
+		</mapping>
+
+		<mapping>
+			<level value="INFO" />
+			<foreColor value="Green" />
+		</mapping>
+
+		<mapping>
+			<level value="WARN" />
+			<foreColor value="Yellow" />
+		</mapping>
+
+		<mapping>
+			<level value="DEBUG" />
+			<foreColor value="White" />
+		</mapping>
+
 		<layout type="log4net.Layout.PatternLayout">
 			<!-- Pattern to output the caller's file name and line number -->
 			<!--<conversionPattern value="%5level [%thread] (%file:%line) - %message%newline" />-->
-			<conversionPattern value="%5level [%.10class] - %message%newline" />
+			<conversionPattern value="%5level [%logger{1}] - %message%newline" />
 		</layout>
 
 		<!--<filter type="log4net.Filter.LoggerMatchFilter">
@@ -22,8 +48,13 @@
 				<acceptOnMatch value="false" />
 			</filter>-->
 
+		<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.LevelDB" />
+			<acceptOnMatch value="false" />
+		</filter>
+
 		<filter type="log4net.Filter.LevelRangeFilter">
-			<levelMin value="WARN" />
+			<levelMin value="INFO" />
 			<levelMax value="FATAL" />
 		</filter>
 
@@ -40,9 +71,13 @@
 		</layout>
 
 		<!--<filter type="log4net.Filter.LoggerMatchFilter">
-				<loggerToMatch value="MiNET.Net.Datagram" />
+				<loggerToMatch value="MiNET.LevelDB" />
 				<acceptOnMatch value="false" />
 			</filter>-->
+		<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.LevelDB" />
+			<acceptOnMatch value="false" />
+		</filter>
 
 		<!--<filter type="log4net.Filter.LoggerMatchFilter">
 				<loggerToMatch value="MiNET.ServerInfo" />
@@ -57,8 +92,8 @@
 	</appender>
 
 	<root>
-		<level value="ERROR" />
-		<!--<appender-ref ref="Console"/>-->
+		<level value="DEBUG" />
+		<appender-ref ref="Console" />
 		<appender-ref ref="RollingFile" />
 		<!--<appender-ref ref="DebuggerAppender"/>-->
 	</root>

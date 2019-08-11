@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.11.4" protocolVersion="354">
+<protocol gameVersion="1.12.0" protocolVersion="361">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -237,6 +237,7 @@
 		<field name="Use MSA Gamertags Only" type="bool" />
 		<field name="Is From World Template" type="bool" />
 		<field name="Is World Template Option Locked" type="bool" />
+		<field name="Only Spawn V1 Villagers" type="bool" />
 
 		<field name="Level ID" type="string" />
 		<field name="World name" type="string" />
@@ -246,8 +247,9 @@
 		<field name="Enchantment Seed" type="SignedVarInt" />
 
 		<field name="Blockstates" type="Blockstates" />
+		<field name="Itemstates" type="Itemstates" />
+		
 		<field name="Multiplayer Correlation ID" type="string" />
-		<field name="Unknown2" type="byte" />
 	</pdu>
 
 	<pdu id="0x0c" online="false" client="false" server="true" name="MCPE_ADD_PLAYER">
@@ -714,9 +716,11 @@
 		<field name="Sneaking" type="bool" />
 	</pdu>
 
-	<pdu id="0x3a" online="false" client="false" server="true" name="MCPE_FULL_CHUNK_DATA">
+	<pdu id="0x3a" online="false" client="false" server="true" name="MCPE_LEVEL_CHUNK">
 		<field name="Chunk X" type="SignedVarInt" />
 		<field name="Chunk Z" type="SignedVarInt" />
+		<field name="Sub Chunk Count" type="UnsignedVarInt" />
+		<field name="Cache Enabled" type="bool" />
 		<field name="Chunk Data" type="ByteArray" />
 	</pdu>
 
@@ -848,6 +852,8 @@
 		<field name="Compressed Package Size" type="ulong" />
 		<!-- SHA256 -->
 		<field name="Hash" type="ByteArray" />
+		<field name="Is Premium" type="bool" />
+		<field name="Pack Type" type="byte" />
 	</pdu>
 
 	<pdu id="0x53" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
@@ -1084,6 +1090,44 @@
 		<field name="Entity Type" type="string" />
 		<field name="Is baby mob" type="bool" />
 		<field name="Is global" type="bool" />
+	</pdu>
+
+	<pdu id="0x7c" online="false" client="false" server="true" name="MCPE_LEVEL_EVENT_GENERIC">
+	</pdu>
+
+	<pdu id="0x7d" online="false" client="false" server="true" name="MCPE_LECTERN_UPDATE">
+	</pdu>
+
+	<pdu id="0x7e" online="false" client="false" server="true" name="MCPE_VIDEO_STREAM_CONNECT">
+		<field name="Server URI" type="string" />
+		<field name="Frame Send Frequency" type="float" />
+		<field name="Action" type="byte" />
+		<field name="Resolution X" type="int" />
+		<field name="Resolution Y" type="int" />
+	</pdu>
+
+	<pdu id="0x81" online="false" client="false" server="true" name="MCPE_CLIENT_CACHE_STATUS">
+	</pdu>
+
+	<pdu id="0x82" online="false" client="false" server="true" name="MCPE_ON_SCREEN_TEXTURE_ANIMATION">
+	</pdu>
+
+	<pdu id="0x83" online="false" client="false" server="true" name="MCPE_MAP_CREATE_LOCKED_COPY">
+	</pdu>
+
+	<pdu id="0x84" online="false" client="false" server="true" name="MCPE_STRUCTURE_TEMPLATE_DATA_EXPORT_REQUEST">
+	</pdu>
+	
+	<pdu id="0x85" online="false" client="false" server="true" name="MCPE_STRUCTURE_TEMPLATE_DATA_EXPORT_RESPONSE">
+	</pdu>
+	
+	<pdu id="0x86" online="false" client="false" server="true" name="MCPE_UPDATE_BLOCK_PROPERTIES">
+	</pdu>
+	
+	<pdu id="0x87" online="false" client="false" server="true" name="MCPE_CLIENT_CACHE_BLOB_STATUS">
+	</pdu>
+	
+	<pdu id="0x88" online="false" client="false" server="true" name="MCPE_CLIENT_CACHE_MISS_RESPONSE">
 	</pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">

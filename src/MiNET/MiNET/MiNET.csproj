@@ -27,6 +27,7 @@
 	<ItemGroup>
 		<None Remove="Blocks\blockstates.json" />
 		<None Remove="Blocks\legacy_id_map.json" />
+		<None Remove="Items\itemstates.json" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -34,6 +35,9 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</EmbeddedResource>
 		<EmbeddedResource Include="Blocks\legacy_id_map.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Items\itemstates.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</EmbeddedResource>
 	</ItemGroup>

@@ -2578,6 +2578,8 @@ namespace MiNET
 			};
 			jsonSerializerSettings.Converters.Add(new NbtIntConverter());
 			jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+			jsonSerializerSettings.Converters.Add(new IPAddressConverter());
+			jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
 
 			return JsonConvert.SerializeObject(obj, jsonSerializerSettings);
 		}
@@ -2798,6 +2800,7 @@ namespace MiNET
 			startGame.enchantmentSeed = 123456;
 
 			startGame.blockstates = BlockFactory.Blockstates;
+			startGame.itemstates = ItemFactory.Itemstates;
 
 			SendPacket(startGame);
 		}
@@ -2849,10 +2852,12 @@ namespace MiNET
 				{
 					for (int z = -1; z <= 1; z++)
 					{
-						McpeFullChunkData chunk = new McpeFullChunkData();
+						var chunk = new McpeLevelChunk();
 						chunk.chunkX = chunkPosition.X + x;
 						chunk.chunkZ = chunkPosition.Z + z;
 						chunk.chunkData = new byte[0];
+						chunk.cacheEnabled = false;
+						chunk.subChunkCount = 0;
 						SendPacket(chunk);
 					}
 				}

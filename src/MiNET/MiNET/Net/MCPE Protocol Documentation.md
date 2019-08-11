@@ -63,7 +63,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Adventure Settings | 0x37 | 55 |   
 | Block Entity Data | 0x38 | 56 |   
 | Player Input | 0x39 | 57 |   
-| Full Chunk Data | 0x3a | 58 |   
+| Level Chunk | 0x3a | 58 |   
 | Set Commands Enabled | 0x3b | 59 |   
 | Set Difficulty | 0x3c | 60 |   
 | Change Dimension | 0x3d | 61 |   
@@ -128,6 +128,17 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Network Chunk Publisher Update | 0x79 | 121 |   
 | Biome Definition List | 0x7a | 122 |   
 | Level Sound Event | 0x7b | 123 |   
+| Level Event Generic | 0x7c | 124 |   
+| Lectern Update | 0x7d | 125 |   
+| Video Stream Connect | 0x7e | 126 |   
+| Client Cache Status | 0x81 | 129 |   
+| On Screen Texture Animation | 0x82 | 130 |   
+| Map Create Locked Copy | 0x83 | 131 |   
+| Structure Template Data Export Request | 0x84 | 132 |   
+| Structure Template Data Export Response | 0x85 | 133 |   
+| Update Block Properties | 0x86 | 134 |   
+| Client Cache Blob Status | 0x87 | 135 |   
+| Client Cache Miss Response | 0x88 | 136 |   
 
 
 ## Data types
@@ -149,6 +160,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | IPEndPoint[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-IPEndPoint[]) |
 | Item [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Item) |
 | ItemStacks [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ItemStacks) |
+| Itemstates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Itemstates) |
 | Links [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Links) |
 | long [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-long) |
 | MapInfo [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-MapInfo) |
@@ -433,6 +445,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Use MSA Gamertags Only | bool |  |
 |Is From World Template | bool |  |
 |Is World Template Option Locked | bool |  |
+|Only Spawn V1 Villagers | bool |  |
 |Level ID | string |  |
 |World name | string |  |
 |Premium World Template Id | string |  |
@@ -440,8 +453,8 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Current Tick | long |  |
 |Enchantment Seed | SignedVarInt |  |
 |Blockstates | Blockstates |  |
+|Itemstates | Itemstates |  |
 |Multiplayer Correlation ID | string |  |
-|Unknown2 | byte |  |
 -----------------------------------------------------------------------
 ### Add Player (0x0c)
 Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPlayer)
@@ -1385,8 +1398,8 @@ Wiki: [Player Input](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Play
 |Jumping | bool |  |
 |Sneaking | bool |  |
 -----------------------------------------------------------------------
-### Full Chunk Data (0x3a)
-Wiki: [Full Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-FullChunkData)
+### Level Chunk (0x3a)
+Wiki: [Level Chunk](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelChunk)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1400,6 +1413,8 @@ Wiki: [Full Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-F
 |:-----|:-----|:-----|
 |Chunk X | SignedVarInt |  |
 |Chunk Z | SignedVarInt |  |
+|Sub Chunk Count | UnsignedVarInt |  |
+|Cache Enabled | bool |  |
 |Chunk Data | ByteArray |  |
 -----------------------------------------------------------------------
 ### Set Commands Enabled (0x3b)
@@ -1788,6 +1803,8 @@ Wiki: [Resource Pack Data Info](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 |Chunk Count | uint |  |
 |Compressed Package Size | ulong |  |
 |Hash | ByteArray |  |
+|Is Premium | bool |  |
+|Pack Type | byte |  |
 -----------------------------------------------------------------------
 ### Resource Pack Chunk Data (0x53)
 Wiki: [Resource Pack Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackChunkData)
@@ -2464,6 +2481,165 @@ Wiki: [Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol
 |Entity Type | string |  |
 |Is baby mob | bool |  |
 |Is global | bool |  |
+-----------------------------------------------------------------------
+### Level Event Generic (0x7c)
+Wiki: [Level Event Generic](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelEventGeneric)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Lectern Update (0x7d)
+Wiki: [Lectern Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LecternUpdate)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Video Stream Connect (0x7e)
+Wiki: [Video Stream Connect](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-VideoStreamConnect)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Server URI | string |  |
+|Frame Send Frequency | float |  |
+|Action | byte |  |
+|Resolution X | int |  |
+|Resolution Y | int |  |
+-----------------------------------------------------------------------
+### Client Cache Status (0x81)
+Wiki: [Client Cache Status](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientCacheStatus)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### On Screen Texture Animation (0x82)
+Wiki: [On Screen Texture Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-OnScreenTextureAnimation)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Map Create Locked Copy (0x83)
+Wiki: [Map Create Locked Copy](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MapCreateLockedCopy)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Structure Template Data Export Request (0x84)
+Wiki: [Structure Template Data Export Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StructureTemplateDataExportRequest)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Structure Template Data Export Response (0x85)
+Wiki: [Structure Template Data Export Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StructureTemplateDataExportResponse)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Update Block Properties (0x86)
+Wiki: [Update Block Properties](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateBlockProperties)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Client Cache Blob Status (0x87)
+Wiki: [Client Cache Blob Status](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientCacheBlobStatus)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Client Cache Miss Response (0x88)
+Wiki: [Client Cache Miss Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientCacheMissResponse)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
 -----------------------------------------------------------------------
 
 

@@ -80,36 +80,15 @@ namespace MiNET.Blocks
 
 			var assembly = Assembly.GetAssembly(typeof(Block));
 
-			var legacyIdMap = new Dictionary<string, int>();
-			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".legacy_id_map.json"))
-			using (var reader = new JsonTextReader(new StreamReader(stream)))
+			using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
+			using (var reader = new StreamReader(stream))
 			{
-				var result = JObject.Load(reader);
-
-				foreach (var obj in result)
-				{
-					legacyIdMap.Add(obj.Key, (int) obj.Value);
-				}
+				Blockstates = Blockstates.FromJson(reader.ReadToEnd());
 			}
 
-			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
-			using (var reader = new JsonTextReader(new StreamReader(stream)))
+			foreach (var bs in Blockstates)
 			{
-				dynamic result = JArray.Load(reader);
-
-				int runtimeId = 0;
-				foreach (var obj in result)
-				{
-					var name = (string) obj.name;
-
-					if (legacyIdMap.TryGetValue(name, out int id))
-					{
-						LegacyToRuntimeId[(id << 4) | (byte) obj.data] = runtimeId;
-					}
-
-					Blockstates.Add(runtimeId, new Blockstate() {Id = id, Data = (short) obj.data, Name = name, RuntimeId = runtimeId});
-					runtimeId++;
-				}
+				LegacyToRuntimeId[(bs.Value.Id << 4) | (byte) bs.Value.Data] = bs.Key;
 			}
 		}
 

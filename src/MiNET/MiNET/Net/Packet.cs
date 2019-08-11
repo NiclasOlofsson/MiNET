@@ -1140,6 +1140,40 @@ namespace MiNET.Net
 			return attributes;
 		}
 
+		public Itemstates ReadItemstates()
+		{
+			var result = new Itemstates();
+			uint count = ReadUnsignedVarInt();
+			for (int runtimeId = 0; runtimeId < count; runtimeId++)
+			{
+				var name = ReadString();
+				var legacyId = ReadShort();
+				result.Add(runtimeId, new Itemstate
+				{
+					Id = legacyId,
+					RuntimeId = runtimeId,
+					Name = name
+				});
+			}
+
+			return result;
+		}
+
+		public void Write(Itemstates itemstates)
+		{
+			if(itemstates == null)
+			{
+				WriteUnsignedVarInt(0);
+				return;
+			}
+			WriteUnsignedVarInt((uint) itemstates.Count);
+			foreach (var itemstate in itemstates.OrderBy(kvp => kvp.Key))
+			{
+				Write(itemstate.Value.Name);
+				Write(itemstate.Value.Id);
+			}
+		}
+
 		public Blockstates ReadBlockstates()
 		{
 			var result = new Blockstates();
@@ -1148,9 +1182,10 @@ namespace MiNET.Net
 			{
 				var name = ReadString();
 				var data = ReadShort();
+				var legacyId = ReadShort();
 				result.Add(runtimeId, new Blockstate
 				{
-					Id = -1,
+					Id = legacyId,
 					RuntimeId = runtimeId,
 					Name = name,
 					Data = data
@@ -1162,11 +1197,17 @@ namespace MiNET.Net
 
 		public void Write(Blockstates blockstates)
 		{
+			if (blockstates == null)
+			{
+				WriteUnsignedVarInt(0);
+				return;
+			}
 			WriteUnsignedVarInt((uint) blockstates.Count);
 			foreach (var blockstate in blockstates.OrderBy(kvp => kvp.Key))
 			{
 				Write(blockstate.Value.Name);
 				Write(blockstate.Value.Data);
+				Write((short) blockstate.Value.Id);
 			}
 		}
 
@@ -2078,6 +2119,8 @@ namespace MiNET.Net
 			};
 			jsonSerializerSettings.Converters.Add(new NbtIntConverter());
 			jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+			jsonSerializerSettings.Converters.Add(new IPAddressConverter());
+			jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
 
 			return JsonConvert.SerializeObject(message, jsonSerializerSettings);
 		}

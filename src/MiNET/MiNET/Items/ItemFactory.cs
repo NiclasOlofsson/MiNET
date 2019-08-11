@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -25,6 +25,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using log4net;
 using MiNET.Blocks;
 
@@ -48,10 +50,18 @@ namespace MiNET.Items
 		public static ICustomBlockItemFactory CustomBlockItemFactory { get; set; }
 
 		public static Dictionary<string, short> NameToId { get; private set; }
+		public static Itemstates Itemstates { get; set; } = new Itemstates();
 
 		static ItemFactory()
 		{
 			NameToId = BuildNameToId();
+
+			var assembly = Assembly.GetAssembly(typeof(Item));
+			using (var stream = assembly.GetManifestResourceStream(typeof(Item).Namespace + ".itemstates.json"))
+			using (var reader = new StreamReader(stream))
+			{
+				Itemstates = Itemstates.FromJson(reader.ReadToEnd());
+			}
 		}
 
 		private static Dictionary<string, short> BuildNameToId()

@@ -423,10 +423,28 @@ namespace MiNET.Worlds
 
 				ClearCache();
 
+				#region HACK, should probably be rewritten
+				int topEmpty = 16;
+				for (int ci = 15; ci >= 0; ci--)
+				{
+					if (_chunks[ci] == null || _chunks[ci].IsAllAir())
+					{
+						topEmpty = ci;
+						_chunks[ci]?.PutPool();
+						_chunks[ci] = null;
+					}
+					else
+					{
+						break;
+					}
+				}
+				#endregion
 
-				McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
+				var fullChunkData = McpeLevelChunk.CreateObject();
 				fullChunkData.chunkX = x;
 				fullChunkData.chunkZ = z;
+				fullChunkData.cacheEnabled = false;
+				fullChunkData.subChunkCount = (uint) topEmpty;
 
 				var chunkData = GetBytes();
 
@@ -480,7 +498,7 @@ namespace MiNET.Worlds
 					}
 				}
 
-				stream.WriteByte((byte) topEmpty);
+				//stream.WriteByte((byte) topEmpty);
 
 				int sent = 0;
 				for (int ci = 0; ci < topEmpty; ci++)
@@ -491,7 +509,7 @@ namespace MiNET.Worlds
 
 				byte[] ba = new byte[512];
 				Buffer.BlockCopy(height, 0, ba, 0, 512);
-				stream.Write(ba, 0, ba.Length);
+				//stream.Write(ba, 0, ba.Length);
 
 				stream.Write(biomeId, 0, biomeId.Length);
 

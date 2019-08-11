@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -1108,6 +1108,8 @@ namespace MiNET
 					};
 					jsonSerializerSettings.Converters.Add(new NbtIntConverter());
 					jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+					jsonSerializerSettings.Converters.Add(new IPAddressConverter());
+					jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
 
 					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
 					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
@@ -1177,6 +1179,8 @@ namespace MiNET
 					};
 					jsonSerializerSettings.Converters.Add(new NbtIntConverter());
 					jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+					jsonSerializerSettings.Converters.Add(new IPAddressConverter());
+					jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
 
 					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
 					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");

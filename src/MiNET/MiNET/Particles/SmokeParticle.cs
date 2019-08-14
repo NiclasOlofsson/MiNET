@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class SmokeParticle : Particle
+	public class SmokeParticle : LegacyParticle
 	{
 		public SmokeParticle(Level level) : base(ParticleType.Smoke, level)
 		{

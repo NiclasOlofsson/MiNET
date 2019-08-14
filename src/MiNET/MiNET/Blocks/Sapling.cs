@@ -64,7 +64,7 @@ namespace MiNET.Blocks
 				var random = new Random();
 				for (int i = 0; i < 3; i++)
 				{
-					var particle = new Particle((int) ParticleType.VillagerHappy, level)
+					var particle = new LegacyParticle((int) ParticleType.VillagerHappy, level)
 					{
 						Position = (Vector3) Coordinates
 									+ (new Vector3(0.5f, 0.5f, 0.5f)

@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class EntityFlameParticle : Particle
+	public class EntityFlameParticle : LegacyParticle
 	{
 		public EntityFlameParticle(Level level) : base(ParticleType.MobFlame, level)
 		{

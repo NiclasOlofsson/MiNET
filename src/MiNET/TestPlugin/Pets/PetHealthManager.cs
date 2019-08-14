@@ -73,7 +73,7 @@ namespace TestPlugin.Pets
 						return;
 					}
 
-					Particle particle = new HeartParticle(pet.Level, size);
+					LegacyParticle particle = new HeartParticle(pet.Level, size);
 					particle.Position = Entity.KnownPosition.ToVector3() + new Vector3(0, (float) (Entity.Height + 0.85d), 0);
 					particle.Spawn();
 				}

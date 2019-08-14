@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class BubbleParticle : Particle
+	public class BubbleParticle : LegacyParticle
 	{
 		public BubbleParticle(Level level) : base(ParticleType.Bubble, level)
 		{

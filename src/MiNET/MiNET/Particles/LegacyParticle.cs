@@ -23,25 +23,92 @@
 
 #endregion
 
+using System.Numerics;
 using MiNET.Net;
 using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class SpawnParticle : LegacyParticle
+	public enum ParticleType
 	{
-		public SpawnParticle(Level level, int height, int width) : base(0, level)
+		Bubble = 1,
+		Critical = 3,
+		BlockForceField,
+		Smoke,
+		Explode,
+		WhiteSmoke,
+		Flame,
+		Lava,
+		LargeSmoke,
+		Redstone,
+		RisingRedDust,
+		ItemBreak,
+		SnowballPoof,
+		LargeExplode,
+		HugeExplode,
+		MobFlame,
+		Heart,
+		Terrain,
+		TownAura,
+		Portal,
+		WaterSplash = 23,
+		WaterWake = 25,
+		DripWater,
+		DripLava,
+		Dust,
+		MobSpell,
+		MobSpellAmbient,
+		MobSpellInstantaneous,
+		Ink,
+		Slime,
+		RainSplash,
+		VillagerAngry,
+		VillagerHappy,
+		EnchantmentTable,
+		TrackingEmitter,
+		Note,
+		WitchSpell,
+		Carrot,
+		Unknown39,
+		EndRod,
+		DragonsBreath,
+		Spit,
+		Totem,
+		Food,
+		FireworksStarter,
+		FireworksSpark,
+		FireworksOverlay,
+		BalloonGas,
+		ColoredFlame,
+		Sparkler,
+		Conduit,
+		BubbleColumnUp,
+		BubbleColumnDown,
+		Sneeze
+	}
+
+	public class LegacyParticle : Particle
+	{
+		public int Id { get; private set; }
+		protected int Data { get; set; }
+
+		public LegacyParticle(ParticleType particle, Level level): this((int)particle, level)
 		{
-			Data = (width & 0xff) + ((height & 0xff) << 8);
 		}
 
-		public override void Spawn()
+		public LegacyParticle(int id, Level level) : base(level)
 		{
-			McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
-			particleEvent.eventId = 2004;
+			Id = id;
+			Level = level;
+		}
+
+		public override void Spawn(Player[] players)
+		{
+			var particleEvent = McpeLevelEvent.CreateObject();
+			particleEvent.eventId = (short) (0x4000 | Id);
 			particleEvent.position = Position;
 			particleEvent.data = Data;
-			Level.RelayBroadcast(particleEvent);
+			Level.RelayBroadcast(players, particleEvent);
 		}
 	}
 }

@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class HeartParticle : Particle
+	public class HeartParticle : LegacyParticle
 	{
 		public HeartParticle(Level level, int scale = 0) : base(ParticleType.Heart, level)
 		{

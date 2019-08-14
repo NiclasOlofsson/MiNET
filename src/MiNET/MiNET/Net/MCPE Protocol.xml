@@ -1056,7 +1056,7 @@
 	
 	<pdu id="0x76" online="false" client="false" server="true" name="MCPE_SPAWN_PARTICLE_EFFECT">
 		<field name="Dimension ID" type="byte" />
-		<field name="Entity ID" type="UnsignedVarLong" />
+		<field name="Entity ID" type="SignedVarLong" />
 		<field name="Position" type="Vector3" />
 		<field name="Particle name" type="string" />
 	</pdu>

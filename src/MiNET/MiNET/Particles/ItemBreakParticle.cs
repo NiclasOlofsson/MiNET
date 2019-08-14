@@ -28,7 +28,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class ItemBreakParticle : Particle
+	public class ItemBreakParticle : LegacyParticle
 	{
 		public ItemBreakParticle(Level level, Item item) : base(ParticleType.ItemBreak, level)
 		{

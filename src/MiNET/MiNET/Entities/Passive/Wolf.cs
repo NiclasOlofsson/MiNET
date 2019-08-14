@@ -103,7 +103,7 @@ namespace MiNET.Entities.Passive
 
 						for (int i = 0; i < 7; ++i)
 						{
-							Particle particle = new HeartParticle(Level, random.Next(3));
+							LegacyParticle particle = new HeartParticle(Level, random.Next(3));
 							particle.Position = KnownPosition + new Vector3(0, (float) (Height + 0.85d), 0);
 							particle.Spawn();
 						}
@@ -115,7 +115,7 @@ namespace MiNET.Entities.Passive
 					{
 						for (int i = 0; i < 7; ++i)
 						{
-							Particle particle = new SmokeParticle(Level);
+							LegacyParticle particle = new SmokeParticle(Level);
 							particle.Position = KnownPosition + new Vector3(0, (float) (Height + 0.85d), 0);
 							particle.Spawn();
 						}

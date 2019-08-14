@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class PortalParticle : Particle
+	public class PortalParticle : LegacyParticle
 	{
 		public PortalParticle(Level level) : base(ParticleType.Portal, level)
 		{

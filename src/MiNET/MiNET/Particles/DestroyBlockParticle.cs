@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class DestroyBlockParticle : Particle
+	public class DestroyBlockParticle : LegacyParticle
 	{
 		public DestroyBlockParticle(Level level, Block block) : base(0, level)
 		{

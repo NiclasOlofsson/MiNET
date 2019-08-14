@@ -29,9 +29,11 @@ namespace MiNET.Particles
 {
 	public class RedstoneParticle : Particle
 	{
-		public RedstoneParticle(Level level, int lifetime = 1) : base(ParticleType.Redstone, level)
+		public RedstoneParticle(Level level, int lifetime = 1) : base("minecraft:redstone_ore_dust_particle", level)
 		{
-			Data = lifetime;
+			// unfortunately there's no data field in the new particle packet
+			// rip giant redstone particles :(
+			// Data = lifetime;
 		}
 	}
 }

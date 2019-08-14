@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class TownAuraParticle : Particle
+	public class TownAuraParticle : LegacyParticle
 	{
 		public TownAuraParticle(Level level) : base(ParticleType.TownAura, level)
 		{

@@ -8616,7 +8616,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(dimensionId);
-			WriteUnsignedVarLong(entityId);
+			WriteSignedVarLong(entityId);
 			Write(position);
 			Write(particleName);
 
@@ -8633,7 +8633,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			dimensionId = ReadByte();
-			entityId = ReadUnsignedVarLong();
+			entityId = ReadSignedVarLong();
 			position = ReadVector3();
 			particleName = ReadString();
 

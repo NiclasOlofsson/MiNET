@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class LavaDripParticle : Particle
+	public class LavaDripParticle : LegacyParticle
 	{
 		public LavaDripParticle(Level level) : base(ParticleType.DripLava, level)
 		{

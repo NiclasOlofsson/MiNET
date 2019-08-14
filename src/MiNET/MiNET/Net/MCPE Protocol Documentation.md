@@ -2392,7 +2392,7 @@ Wiki: [Spawn Particle Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Dimension ID | byte |  |
-|Entity ID | UnsignedVarLong |  |
+|Entity ID | SignedVarLong |  |
 |Position | Vector3 |  |
 |Particle name | string |  |
 -----------------------------------------------------------------------

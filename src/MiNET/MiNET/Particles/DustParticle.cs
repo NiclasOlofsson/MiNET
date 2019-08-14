@@ -28,7 +28,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class DustParticle : Particle
+	public class DustParticle : LegacyParticle
 	{
 		public DustParticle(Level level, Color color) : base(ParticleType.Dust, level)
 		{

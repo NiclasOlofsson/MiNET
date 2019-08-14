@@ -28,7 +28,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class TerrainParticle : Particle
+	public class TerrainParticle : LegacyParticle
 	{
 		public TerrainParticle(Level level, Block block) : base(ParticleType.Terrain, level)
 		{

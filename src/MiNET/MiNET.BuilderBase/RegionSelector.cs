@@ -207,8 +207,8 @@ namespace MiNET.BuilderBase
 
 									if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
 
-									//var particle = new Particle(particleId, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
-									//var particle = new Particle(particleId, Player.Level) { Position = new Vector3(x, y, z) };
+									//var particle = new LegacyParticle(particleId, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+									//var particle = new LegacyParticle(particleId, Player.Level) { Position = new Vector3(x, y, z) };
 									//particle.Spawn(new[] { Player });
 
 									McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
@@ -229,8 +229,8 @@ namespace MiNET.BuilderBase
 						//		{
 						//			if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
 
-						//			//var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
-						//			var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z)};
+						//			//var particle = new LegacyParticle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+						//			var particle = new LegacyParticle(10, Player.Level) {Position = new Vector3(x, y, z)};
 						//			particle.Spawn(new[] {Player});
 						//		}
 						//	}
@@ -250,8 +250,8 @@ namespace MiNET.BuilderBase
 
 									if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
 
-									//var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
-									//var particle = new Particle(10, Player.Level) { Position = new Vector3(x, y, z) };
+									//var particle = new LegacyParticle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+									//var particle = new LegacyParticle(10, Player.Level) { Position = new Vector3(x, y, z) };
 									//particle.Spawn(new[] { Player });
 
 									McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();

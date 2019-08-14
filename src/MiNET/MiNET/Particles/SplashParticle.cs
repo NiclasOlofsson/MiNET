@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class SplashParticle : Particle
+	public class SplashParticle : LegacyParticle
 	{
 		public SplashParticle(Level level) : base(ParticleType.WaterSplash, level)
 		{

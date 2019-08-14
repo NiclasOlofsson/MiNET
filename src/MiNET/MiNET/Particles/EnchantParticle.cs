@@ -29,7 +29,7 @@ namespace MiNET.Particles
 {
 	public class EnchantParticle : Particle
 	{
-		public EnchantParticle(Level level) : base(ParticleType.MobSpell, level)
+		public EnchantParticle(Level level) : base("minecraft:enchanting_table_particle", level)
 		{
 		}
 	}

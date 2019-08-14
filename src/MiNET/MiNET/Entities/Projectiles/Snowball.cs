@@ -49,7 +49,7 @@ namespace MiNET.Entities.Projectiles
 		{
 			for (int i = 0; i < 6; i++)
 			{
-				var particle = new Particle(ParticleType.SnowballPoof, Level) { Position = KnownPosition };
+				var particle = new LegacyParticle(ParticleType.SnowballPoof, Level) { Position = KnownPosition };
 				particle.Spawn();
 			}
 

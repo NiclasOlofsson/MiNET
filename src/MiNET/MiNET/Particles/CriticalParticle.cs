@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class CriticalParticle : Particle
+	public class CriticalParticle : LegacyParticle
 	{
 		public CriticalParticle(Level level, int scale = 2) : base(ParticleType.Critical, level)
 		{

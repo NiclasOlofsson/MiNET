@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class ExplosionParticle : Particle
+	public class ExplosionParticle : LegacyParticle
 	{
 		public ExplosionParticle(Level level) : base(ParticleType.Explode, level)
 		{

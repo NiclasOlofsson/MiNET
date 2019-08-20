@@ -3307,6 +3307,7 @@ namespace MiNET
 				int levels = 0;
 				foreach (var effect in Effects.Values)
 				{
+					if(!effect.Particles) continue;
 					var color = effect.ParticleColor;
 					int level = effect.Level + 1;
 					r += color.R * level;
@@ -3315,11 +3316,18 @@ namespace MiNET
 					levels += level;
 				}
 
-				r /= levels;
-				g /= levels;
-				b /= levels;
+				if (levels == 0)
+				{
+					PotionColor = 0;
+				}
+				else
+				{
+					r /= levels;
+					g /= levels;
+					b /= levels;
 
-				PotionColor = (int) (0xff000000 | (r << 16) | (g << 8) | b);
+					PotionColor = (int) (0xff000000 | (r << 16) | (g << 8) | b);
+				}
 			}
 
 			BroadcastSetEntityData();

@@ -93,90 +93,94 @@ namespace MiNET.Entities.World
 
 		public override void OnTick(Entity[] entities)
 		{
-			if (Velocity == Vector3.Zero)
+			if (!NoAi)
 			{
-				// Object was resting and now someone removed the block on which it was resting
-				// or someone places a block over it.
-				if (IsMobInGround(KnownPosition))
+				if (Velocity == Vector3.Zero)
 				{
-					Velocity += new Vector3(0, (float) Gravity, 0);
-				}
-				else
-				{
-					bool onGround = IsMobOnGround(KnownPosition);
-					if (!onGround) Velocity -= new Vector3(0, (float) Gravity, 0);
-				}
-			}
-
-			if (Velocity.Length() > 0.01)
-			{
-				bool onGroundBefore = IsMobOnGround(KnownPosition);
-
-				if (IsMobInGround(KnownPosition))
-				{
-					Velocity += new Vector3(0, (float) Gravity, 0);
-					KnownPosition.X += Velocity.X;
-					KnownPosition.Y += Velocity.Y;
-					KnownPosition.Z += Velocity.Z;
-					BroadcastMove();
-					BroadcastMotion();
-					return;
-				}
-
-				Vector3 adjustedVelocity = GetAdjustedLengthFromCollision(Velocity);
-
-				KnownPosition.X += adjustedVelocity.X;
-				KnownPosition.Y += adjustedVelocity.Y;
-				KnownPosition.Z += adjustedVelocity.Z;
-
-				BroadcastMove();
-				BroadcastMotion();
-
-				bool adjustAngle = adjustedVelocity != Velocity;
-				if (adjustAngle)
-				{
-					CheckBlockAhead();
-				}
-
-				bool onGround = IsMobOnGround(KnownPosition);
-
-				if (!onGroundBefore && onGround)
-				{
-					float ff = 0.6f * 0.98f;
-					Velocity *= new Vector3(ff, 0, ff);
-				}
-				else
-				{
-					Velocity *= (float) (1.0 - Drag);
-
-					if (!onGround)
+					// Object was resting and now someone removed the block on which it was resting
+					// or someone places a block over it.
+					if (IsMobInGround(KnownPosition))
 					{
-						Velocity -= new Vector3(0, (float) Gravity, 0);
+						Velocity += new Vector3(0, (float) Gravity, 0);
 					}
 					else
+					{
+						bool onGround = IsMobOnGround(KnownPosition);
+						if (!onGround) Velocity -= new Vector3(0, (float) Gravity, 0);
+					}
+				}
+
+				if (Velocity.Length() > 0.01)
+				{
+					bool onGroundBefore = IsMobOnGround(KnownPosition);
+
+					if (IsMobInGround(KnownPosition))
+					{
+						Velocity += new Vector3(0, (float) Gravity, 0);
+						KnownPosition.X += Velocity.X;
+						KnownPosition.Y += Velocity.Y;
+						KnownPosition.Z += Velocity.Z;
+						BroadcastMove();
+						BroadcastMotion();
+						return;
+					}
+
+					Vector3 adjustedVelocity = GetAdjustedLengthFromCollision(Velocity);
+
+					KnownPosition.X += adjustedVelocity.X;
+					KnownPosition.Y += adjustedVelocity.Y;
+					KnownPosition.Z += adjustedVelocity.Z;
+
+					BroadcastMove();
+					BroadcastMotion();
+
+					bool adjustAngle = adjustedVelocity != Velocity;
+					if (adjustAngle)
+					{
+						CheckBlockAhead();
+					}
+
+					bool onGround = IsMobOnGround(KnownPosition);
+
+					if (!onGroundBefore && onGround)
 					{
 						float ff = 0.6f * 0.98f;
 						Velocity *= new Vector3(ff, 0, ff);
 					}
-				}
-			}
-			else if (Velocity != Vector3.Zero)
-			{
-				KnownPosition.X += (float) Velocity.X;
-				KnownPosition.Y += (float) Velocity.Y;
-				KnownPosition.Z += (float) Velocity.Z;
+					else
+					{
+						Velocity *= (float) (1.0 - Drag);
 
-				Velocity = Vector3.Zero;
-				LastUpdatedTime = DateTime.UtcNow;
-				NoAi = true;
-				BroadcastMove(true);
-				BroadcastMotion(true);
+						if (!onGround)
+						{
+							Velocity -= new Vector3(0, (float) Gravity, 0);
+						}
+						else
+						{
+							float ff = 0.6f * 0.98f;
+							Velocity *= new Vector3(ff, 0, ff);
+						}
+					}
+				}
+				else if (Velocity != Vector3.Zero)
+				{
+					KnownPosition.X += (float) Velocity.X;
+					KnownPosition.Y += (float) Velocity.Y;
+					KnownPosition.Z += (float) Velocity.Z;
+
+					Velocity = Vector3.Zero;
+					LastUpdatedTime = DateTime.UtcNow;
+					//NoAi = true;
+					BroadcastMove(true);
+					BroadcastMotion(true);
+				}
 			}
 
 			TimeToLive--;
-			PickupDelay--;
+			if(PickupDelay > 0)
+				PickupDelay--;
 
-			if (TimeToLive <= 0)
+			if (TimeToLive <= 0 || KnownPosition.Y < 0)
 			{
 				DespawnEntity();
 				return;
@@ -185,14 +189,14 @@ namespace MiNET.Entities.World
 			// Motion
 
 
-			if (PickupDelay > 0) return;
+			if (PickupDelay > 0 || PickupDelay == -1) return;
 
 			var bbox = GetBoundingBox();
 
 			var players = Level.GetSpawnedPlayers();
 			foreach (var player in players)
 			{
-				if (player.GameMode != GameMode.Spectator && bbox.Intersects(player.GetBoundingBox() + 1))
+				if (player.GameMode != GameMode.Spectator && !player.HealthManager.IsDead && bbox.Intersects(player.GetBoundingBox() + 1))
 				{
 					if (player.Inventory.SetFirstEmptySlot(Item, true))
 					{

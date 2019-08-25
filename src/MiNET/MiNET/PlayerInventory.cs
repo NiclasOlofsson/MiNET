@@ -47,6 +47,8 @@ namespace MiNET
 		public List<Item> Slots { get; }
 		public int InHandSlot { get; set; }
 
+		public Item LeftHand { get; set; } = new ItemAir();
+
 		public Item Cursor { get; set; } = new ItemAir();
 
 		// Armour
@@ -336,6 +338,10 @@ namespace MiNET
 			{
 				if (Slots[i] == null || Slots[i].Id != 0) Slots[i] = new ItemAir();
 			}
+
+			if (LeftHand.Id != 0) LeftHand = new ItemAir();
+
+			//if (Cursor.Id != 0) Cursor = new ItemAir();
 
 			if (Helmet.Id != 0) Helmet = new ItemAir();
 			if (Chest.Id != 0) Chest = new ItemAir();

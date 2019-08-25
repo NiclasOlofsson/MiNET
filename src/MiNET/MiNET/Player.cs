@@ -1669,10 +1669,21 @@ namespace MiNET
 			inventoryContent.input = Inventory.GetSlots();
 			SendPacket(inventoryContent);
 
+			McpeInventoryContent leftHandContent = McpeInventoryContent.CreateObject();
+			leftHandContent.inventoryId = 0x77;
+			leftHandContent.input = new ItemStacks() { Inventory.LeftHand };
+			SendPacket(leftHandContent);
+
 			McpeInventoryContent armorContent = McpeInventoryContent.CreateObject();
 			armorContent.inventoryId = 0x78;
 			armorContent.input = Inventory.GetArmor();
 			SendPacket(armorContent);
+
+			// BUG!
+			//McpeInventoryContent cursorContent = McpeInventoryContent.CreateObject();
+			//cursorContent.inventoryId = 0x7c;
+			//cursorContent.input = new ItemStacks() { Inventory.Cursor };
+			//SendPacket(cursorContent);
 
 			McpeMobEquipment mobEquipment = McpeMobEquipment.CreateObject();
 			mobEquipment.runtimeEntityId = EntityManager.EntityIdSelf;
@@ -2281,6 +2292,9 @@ namespace MiNET
 						case 0:
 							oldItemSlots = Inventory.Slots[trans.Slot];
 							break;
+						case 119:
+							oldItemSlots = Inventory.LeftHand;
+							break;
 						case 124:
 							oldItemSlots = Inventory.Cursor;
 							break;
@@ -2396,6 +2410,11 @@ namespace MiNET
 						// Player inventory
 						//if (!oldItem.Equals(Inventory.Slots[trans.Slot])) Log.Warn($"Inventory mismatch. Client reported old item as {oldItem} and it did not match existing the item {Inventory.Slots[trans.Slot]}");
 						Inventory.Slots[trans.Slot] = newItem;
+					}
+					else if (invId == 119)
+					{
+						// Left hand
+						Inventory.LeftHand = newItem;
 					}
 					else if (invId == 120)
 					{

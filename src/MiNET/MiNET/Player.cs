@@ -671,6 +671,11 @@ namespace MiNET
 					Log.Debug($"Got PlayerAction.SetEnchantmentSeed with data={message.face} at {message.coordinates}");
 					break;
 				}
+				case PlayerAction.InteractBlock:
+				{
+					Log.Debug($"Got PlayerAction.InteractBlock with data1={message.face}, data2={message.runtimeEntityId} at {message.coordinates}");
+					break;
+				}
 				default:
 				{
 					Log.Warn($"Unhandled action ID={message.actionId}");

@@ -507,8 +507,8 @@ namespace MiNET.Worlds
 					sent++;
 				}
 
-				byte[] ba = new byte[512];
-				Buffer.BlockCopy(height, 0, ba, 0, 512);
+				//byte[] ba = new byte[512];
+				//Buffer.BlockCopy(height, 0, ba, 0, 512);
 				//stream.Write(ba, 0, ba.Length);
 
 				stream.Write(biomeId, 0, biomeId.Length);

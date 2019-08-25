@@ -46,14 +46,21 @@ namespace MiNET.Crafting
 	public class ShapelessRecipe : Recipe
 	{
 		public List<Item> Input { get; private set; }
-		public Item Result { get; set; }
+		public List<Item> Result { get; set; }
 
 		public ShapelessRecipe()
 		{
 			Input = new List<Item>();
+			Result = new List<Item>();
 		}
 
 		public ShapelessRecipe(Item result, List<Item> input) : this()
+		{
+			Result = new List<Item>() { result };
+			Input = input;
+		}
+
+		public ShapelessRecipe(List<Item> result, List<Item> input) : this()
 		{
 			Result = result;
 			Input = input;
@@ -65,16 +72,23 @@ namespace MiNET.Crafting
 		public int Width { get; set; }
 		public int Height { get; set; }
 		public Item[] Input { get; set; }
-		public Item Result { get; set; }
+		public List<Item> Result { get; set; }
 
 		public ShapedRecipe(int width, int height)
 		{
 			Width = width;
 			Height = height;
 			Input = new Item[Width * height];
+			Result = new List<Item>();
 		}
 
 		public ShapedRecipe(int width, int height, Item result, Item[] input) : this(width, height)
+		{
+			Result = new List<Item>() { result };
+			Input = input;
+		}
+
+		public ShapedRecipe(int width, int height, List<Item> result, Item[] input) : this(width, height)
 		{
 			Result = result;
 			Input = input;

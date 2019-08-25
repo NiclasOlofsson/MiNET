@@ -201,7 +201,7 @@
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Player Gamemode" type="SignedVarInt" />
 		<field name="Spawn" type="Vector3" />
-		<field name="Unknown 1" type="Vector2" />
+		<field name="Rotation" type="Vector2" />
 		<!-- Level Settings -->
 		<field name="Seed" type="SignedVarInt" />
 		<field name="Dimension" type="SignedVarInt" />

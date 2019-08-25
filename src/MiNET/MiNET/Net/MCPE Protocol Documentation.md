@@ -412,7 +412,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Runtime Entity ID | UnsignedVarLong |  |
 |Player Gamemode | SignedVarInt |  |
 |Spawn | Vector3 |  |
-|Unknown 1 | Vector2 |  |
+|Rotation | Vector2 |  |
 |Seed | SignedVarInt |  |
 |Dimension | SignedVarInt |  |
 |Generator | SignedVarInt |  |

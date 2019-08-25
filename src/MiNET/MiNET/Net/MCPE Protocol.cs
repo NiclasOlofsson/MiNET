@@ -2431,7 +2431,7 @@ namespace MiNET.Net
 		public long runtimeEntityId; // = null;
 		public int playerGamemode; // = null;
 		public Vector3 spawn; // = null;
-		public Vector2 unknown1; // = null;
+		public Vector2 rotation; // = null;
 		public int seed; // = null;
 		public int dimension; // = null;
 		public int generator; // = null;
@@ -2491,7 +2491,7 @@ namespace MiNET.Net
 			WriteUnsignedVarLong(runtimeEntityId);
 			WriteSignedVarInt(playerGamemode);
 			Write(spawn);
-			Write(unknown1);
+			Write(rotation);
 			WriteSignedVarInt(seed);
 			WriteSignedVarInt(dimension);
 			WriteSignedVarInt(generator);
@@ -2551,7 +2551,7 @@ namespace MiNET.Net
 			runtimeEntityId = ReadUnsignedVarLong();
 			playerGamemode = ReadSignedVarInt();
 			spawn = ReadVector3();
-			unknown1 = ReadVector2();
+			rotation = ReadVector2();
 			seed = ReadSignedVarInt();
 			dimension = ReadSignedVarInt();
 			generator = ReadSignedVarInt();
@@ -2609,7 +2609,7 @@ namespace MiNET.Net
 			runtimeEntityId=default(long);
 			playerGamemode=default(int);
 			spawn=default(Vector3);
-			unknown1=default(Vector2);
+			rotation=default(Vector2);
 			seed=default(int);
 			dimension=default(int);
 			generator=default(int);

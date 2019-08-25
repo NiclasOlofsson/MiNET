@@ -860,7 +860,8 @@ namespace MiNET.Client
 					}
 				}
 				{
-					ItemStacks slotData = new ItemStacks {recipe.Result};
+					ItemStacks slotData = new ItemStacks();
+					slotData.AddRange(recipe.Result);
 					crafting.result = slotData;
 				}
 

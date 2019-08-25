@@ -137,7 +137,7 @@ namespace MiNET.Client
 			Client.EntityId = message.runtimeEntityId;
 			Client.NetworkEntityId = message.entityIdSelf;
 			Client.SpawnPoint = message.spawn;
-			Client.CurrentLocation = new PlayerLocation(Client.SpawnPoint, message.unknown1.X, message.unknown1.X, message.unknown1.Y);
+			Client.CurrentLocation = new PlayerLocation(Client.SpawnPoint, message.rotation.X, message.rotation.X, message.rotation.Y);
 
 			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");
 
@@ -606,9 +606,20 @@ namespace MiNET.Client
 				ShapelessRecipe shapelessRecipe = recipe as ShapelessRecipe;
 				if (shapelessRecipe != null)
 				{
-					writer.WriteLine($"new ShapelessRecipe(new Item({shapelessRecipe.Result.Id}, {shapelessRecipe.Result.Metadata}, {shapelessRecipe.Result.Count}),");
+					if (shapelessRecipe.Result.Count == 1)
+						writer.WriteLine($"new ShapelessRecipe(new Item({shapelessRecipe.Result.First().Id}, {shapelessRecipe.Result.First().Metadata}, {shapelessRecipe.Result.First().Count}),");
+					else
+					{
+						writer.WriteLine($"new ShapelessRecipe(new List<Item>() {{");
+						foreach (var resultItem in shapelessRecipe.Result)
+						{
+							writer.WriteLine($"new Item({resultItem.Id}, {resultItem.Metadata}, {resultItem.Count}),");
+						}
+						writer.Indent -= 2;
+						writer.WriteLine("},");
+					}
 					writer.Indent++;
-					writer.WriteLine($"Block = \"{recipe.Block}\";");
+					writer.WriteLine();
 					writer.WriteLine("new List<Item>");
 					writer.WriteLine("{");
 					writer.Indent++;
@@ -617,7 +628,7 @@ namespace MiNET.Client
 						writer.WriteLine($"new Item({itemStack.Id}, {itemStack.Metadata}, {itemStack.Count}),");
 					}
 					writer.Indent--;
-					writer.WriteLine("}),");
+					writer.WriteLine($"}}) {{ Block = \"{shapelessRecipe.Block}\" }},");
 					writer.Indent--;
 
 					continue;
@@ -626,7 +637,7 @@ namespace MiNET.Client
 				ShapedRecipe shapedRecipe = recipe as ShapedRecipe;
 				if (shapedRecipe != null && Client._recipeToSend == null)
 				{
-					if (shapedRecipe.Result.Id == 5 && shapedRecipe.Result.Count == 4 && shapedRecipe.Result.Metadata == 0)
+					if (shapedRecipe.Result.First().Id == 5 && shapedRecipe.Result.First().Count == 4 && shapedRecipe.Result.First().Metadata == 0)
 					{
 						Log.Error("Setting recipe! " + shapedRecipe.Id);
 						Client._recipeToSend = shapedRecipe;
@@ -634,9 +645,19 @@ namespace MiNET.Client
 				}
 				if (shapedRecipe != null)
 				{
-					writer.WriteLine($"new ShapedRecipe({shapedRecipe.Width}, {shapedRecipe.Height}, new Item({shapedRecipe.Result.Id}, {shapedRecipe.Result.Metadata}, {shapedRecipe.Result.Count}),");
+					if (shapedRecipe.Result.Count == 1)
+						writer.WriteLine($"new ShapedRecipe({shapedRecipe.Width}, {shapedRecipe.Height}, new Item({shapedRecipe.Result.First().Id}, {shapedRecipe.Result.First().Metadata}, {shapedRecipe.Result.First().Count}),");
+					else
+					{
+						writer.WriteLine($"new ShapedRecipe({shapedRecipe.Width}, {shapedRecipe.Height}, new List<Item>() {{");
+						foreach (var resultItem in shapedRecipe.Result)
+						{
+							writer.WriteLine($"new Item({resultItem.Id}, {resultItem.Metadata}, {resultItem.Count}),");
+						}
+						writer.Indent -= 2;
+						writer.WriteLine("},");
+					}
 					writer.Indent++;
-					writer.WriteLine($"Block = \"{recipe.Block}\";");
 					writer.WriteLine("new Item[]");
 					writer.WriteLine("{");
 					writer.Indent++;
@@ -645,7 +666,7 @@ namespace MiNET.Client
 						writer.WriteLine($"new Item({item.Id}, {item.Metadata}),");
 					}
 					writer.Indent--;
-					writer.WriteLine("}),");
+					writer.WriteLine($"}}) {{ Block = \"{shapedRecipe.Block}\" }},");
 					writer.Indent--;
 
 					continue;
@@ -654,7 +675,7 @@ namespace MiNET.Client
 				SmeltingRecipe smeltingRecipe = recipe as SmeltingRecipe;
 				if (smeltingRecipe != null)
 				{
-					writer.WriteLine($"new SmeltingRecipe(new Item({smeltingRecipe.Result.Id}, {smeltingRecipe.Result.Metadata}, {smeltingRecipe.Result.Count}), new Item({smeltingRecipe.Input.Id}, {smeltingRecipe.Input.Metadata}), {smeltingRecipe.Block}),");
+					writer.WriteLine($"new SmeltingRecipe(new Item({smeltingRecipe.Result.Id}, {smeltingRecipe.Result.Metadata}, {smeltingRecipe.Result.Count}), new Item({smeltingRecipe.Input.Id}, {smeltingRecipe.Input.Metadata}), \"{smeltingRecipe.Block}\"),");
 					continue;
 				}
 

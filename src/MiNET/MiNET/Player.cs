@@ -2505,8 +2505,8 @@ namespace MiNET
 			}
 
 			Log.Debug($"Looking for matching recipes with the result {result}");
-			var recipes = RecipeManager.Recipes.Where(r => r is ShapedRecipe).Where(r => ((ShapedRecipe) r).Result.Id == result.Id && ((ShapedRecipe) r).Result.Metadata == result.Metadata).ToList();
-			recipes.AddRange(RecipeManager.Recipes.Where(r => r is ShapelessRecipe).Where(r => ((ShapelessRecipe) r).Result.Id == result.Id && ((ShapelessRecipe) r).Result.Metadata == result.Metadata).ToList());
+			var recipes = RecipeManager.Recipes.Where(r => r is ShapedRecipe).Where(r => ((ShapedRecipe) r).Result.Count == 1 && ((ShapedRecipe) r).Result.First().Id == result.Id && ((ShapedRecipe) r).Result.First().Metadata == result.Metadata && ((ShapedRecipe) r).Result.First().Count == result.Count).ToList(); //HOTFIX
+			recipes.AddRange(RecipeManager.Recipes.Where(r => r is ShapelessRecipe).Where(r => ((ShapelessRecipe) r).Result.Count == 1 && ((ShapelessRecipe) r).Result.First().Id == result.Id && ((ShapelessRecipe) r).Result.First().Metadata == result.Metadata && ((ShapelessRecipe) r).Result.First().Count == result.Count).ToList()); //HOTFIX
 			Log.Debug($"Found {recipes.Count} matching recipes with the result {result}");
 			foreach (var r in recipes)
 			{
@@ -2771,7 +2771,7 @@ namespace MiNET
 			startGame.runtimeEntityId = EntityManager.EntityIdSelf;
 			startGame.playerGamemode = (int) GameMode;
 			startGame.spawn = SpawnPosition;
-			startGame.unknown1 = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
+			startGame.rotation = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
 			startGame.seed = 12345;
 			startGame.dimension = 0;
 			startGame.generator = 1;

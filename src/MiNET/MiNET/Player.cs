@@ -879,6 +879,8 @@ namespace MiNET
 
 				SendAvailableEntityIdentifiers();
 
+				SendBiomeDefinitionList();
+
 				BroadcastSetEntityData();
 
 				if (ChunkRadius == -1) ChunkRadius = 5;
@@ -942,6 +944,23 @@ namespace MiNET
 			};
 
 			var pk = McpeAvailableEntityIdentifiers.CreateObject();
+			pk.namedtag = nbt;
+			SendPacket(pk);
+		}
+
+		public virtual void SendBiomeDefinitionList()
+		{
+			var nbt = new Nbt
+			{
+				NbtFile = new NbtFile
+				{
+					BigEndian = false,
+					UseVarInt = true,
+					RootTag = BiomeUtils.GenerateDefinitionList(),
+				}
+			};
+
+			var pk = McpeBiomeDefinitionList.CreateObject();
 			pk.namedtag = nbt;
 			SendPacket(pk);
 		}

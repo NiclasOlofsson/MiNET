@@ -7330,6 +7330,7 @@ namespace MiNET.Net
 		public byte[] capeData; // = null;
 		public string geometryModel; // = null;
 		public string geometryData; // = null;
+		public bool isBought; // = null;
 
 		public McpePlayerSkin()
 		{
@@ -7351,6 +7352,7 @@ namespace MiNET.Net
 			WriteByteArray(capeData);
 			Write(geometryModel);
 			Write(geometryData);
+			Write(isBought);
 
 			AfterEncode();
 		}
@@ -7372,6 +7374,7 @@ namespace MiNET.Net
 			capeData = ReadByteArray();
 			geometryModel = ReadString();
 			geometryData = ReadString();
+			isBought = ReadBool();
 
 			AfterDecode();
 		}
@@ -7391,6 +7394,7 @@ namespace MiNET.Net
 			capeData=default(byte[]);
 			geometryModel=default(string);
 			geometryData=default(string);
+			isBought=default(bool);
 		}
 
 	}

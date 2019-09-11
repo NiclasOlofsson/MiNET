@@ -1990,6 +1990,7 @@ Wiki: [Player Skin](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Playe
 |Cape Data | ByteArray |  |
 |Geometry Model | string |  |
 |Geometry Data | string |  |
+|Is Bought | bool |  |
 -----------------------------------------------------------------------
 ### Sub Client Login (0x5e)
 Wiki: [Sub Client Login](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SubClientLogin)

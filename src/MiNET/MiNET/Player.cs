@@ -178,6 +178,23 @@ namespace MiNET
 
 		public virtual void HandleMcpePlayerSkin(McpePlayerSkin message)
 		{
+			var msg = McpePlayerSkin.CreateObject();
+			msg.uuid = ClientUuid;
+			msg.skinId = message.skinId;
+			msg.skinName = message.skinName;
+			msg.oldSkinName = message.oldSkinName;
+			msg.skinData = message.skinData;
+			msg.capeData = message.capeData;
+			msg.geometryModel = message.geometryModel;
+			msg.geometryData = message.geometryData;
+			msg.isBought = message.isBought;
+			Level.RelayBroadcast(msg);
+
+			Skin.SkinId = message.skinId;
+			Skin.SkinData = message.skinData;
+			Skin.CapeData = message.capeData;
+			Skin.SkinGeometryName = message.geometryModel;
+			Skin.SkinGeometry = message.geometryData;
 		}
 
 		public virtual void HandleMcpePhotoTransfer(McpePhotoTransfer message)

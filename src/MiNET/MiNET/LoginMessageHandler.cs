@@ -36,6 +36,7 @@ using log4net;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
+using MiNET.Worlds;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Agreement;
@@ -270,8 +271,6 @@ namespace MiNET
 							}
 							else if (validationKey != null && validationKey.Equals(x5u, StringComparison.InvariantCultureIgnoreCase))
 							{
-								//TODO: Remove. Just there to be able to join with same XBL multiple times without crashing the server.
-								data.ExtraData.Identity = Guid.NewGuid().ToString();
 								_playerInfo.CertificateData = data;
 							}
 							else
@@ -284,9 +283,6 @@ namespace MiNET
 									Log.Warn("Received fake XUID from " + data.ExtraData.DisplayName);
 									data.ExtraData.Xuid = null;
 								}
-
-								//TODO: Remove. Just there to be able to join with same XBL multiple times without crashing the server.
-								data.ExtraData.Identity = Guid.NewGuid().ToString();
 								_playerInfo.CertificateData = data;
 							}
 						}
@@ -296,7 +292,30 @@ namespace MiNET
 						}
 					}
 
-					//TODO: Implement disconnect here
+					// maybe not best solution
+					if (_playerInfo.CertificateData.ExtraData.Xuid != null)
+					{
+						foreach (Level level in _session.Server.LevelManager.Levels)
+						{
+							foreach (Player player in level.Players.Values)
+							{
+								if (player.PlayerInfo.CertificateData.ExtraData.Xuid == _playerInfo.CertificateData.ExtraData.Xuid)
+								{
+									_session.CryptoContext = new CryptoContext
+									{
+										UseEncryption = false,
+									};
+
+									var disconnect = McpeDisconnect.CreateObject();
+									disconnect.NoBatch = true;
+									disconnect.message = "Player with same XUID already connected.";
+									_session.SendDirectPacket(disconnect);
+									_session.Close();
+									return;
+								}
+							}
+						}
+					}
 
 					{
 						_playerInfo.Username = _playerInfo.CertificateData.ExtraData.DisplayName;

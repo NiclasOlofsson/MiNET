@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MiNET.Items;
 using MiNET.Net;
@@ -36,20 +37,30 @@ namespace MiNET.Crafting
 	public abstract class Recipe
 	{
 		public UUID Id { get; set; }
-		public string Block { get; set; }
+	}
+
+	public abstract class TaggedRecipe : Recipe
+	{
+		public string Tag { get; set; }
 	}
 
 	public class MultiRecipe : Recipe
 	{
+		public MultiRecipe()
+		{
+			Id = new UUID(Guid.NewGuid().ToString());
+		}
 	}
 
-	public class ShapelessRecipe : Recipe
+	public class ShapelessRecipe : TaggedRecipe
 	{
 		public List<Item> Input { get; private set; }
 		public Item Result { get; set; }
 
 		public ShapelessRecipe()
 		{
+			Id = new UUID(Guid.NewGuid().ToString());
+			Tag = "crafting_table";
 			Input = new List<Item>();
 		}
 
@@ -60,7 +71,7 @@ namespace MiNET.Crafting
 		}
 	}
 
-	public class ShapedRecipe : Recipe
+	public class ShapedRecipe : TaggedRecipe
 	{
 		public int Width { get; set; }
 		public int Height { get; set; }
@@ -69,6 +80,8 @@ namespace MiNET.Crafting
 
 		public ShapedRecipe(int width, int height)
 		{
+			Id = new UUID(Guid.NewGuid().ToString());
+			Tag = "crafting_table";
 			Width = width;
 			Height = height;
 			Input = new Item[Width * height];
@@ -81,20 +94,21 @@ namespace MiNET.Crafting
 		}
 	}
 
-	public class SmeltingRecipe : Recipe
+	public class SmeltingRecipe : TaggedRecipe
 	{
 		public Item Input { get; set; }
 		public Item Result { get; set; }
 
 		public SmeltingRecipe()
 		{
+			Tag = "furnace";
 		}
 
-		public SmeltingRecipe(Item result, Item input, string block = null) : this()
+		public SmeltingRecipe(Item result, Item input, string tag = null) : this()
 		{
 			Result = result;
 			Input = input;
-			Block = block;
+			Tag = string.IsNullOrEmpty(tag) ? "furnace" : tag;
 		}
 	}
 }

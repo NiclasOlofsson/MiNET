@@ -1444,52 +1444,54 @@ namespace MiNET.Net
 			{
 				if (recipe is ShapelessRecipe)
 				{
-					WriteSignedVarInt(0); // Type
-
+					WriteSignedVarInt(Shapeless); // Type
 					ShapelessRecipe rec = (ShapelessRecipe) recipe;
+					Write("recipe" + rec.Id.ToString());
 					WriteVarInt(rec.Input.Count);
 					foreach (Item stack in rec.Input)
 					{
-						Write(stack);
+						WriteRecipeIngredient(stack);
 					}
 					WriteVarInt(1);
 					Write(rec.Result);
-					Write(new UUID(Guid.NewGuid().ToString()));
-					Write(rec.Block);
+					Write(rec.Id);
+					Write(rec.Tag);
+					WriteSignedVarInt(0); // priority
 				}
 				else if (recipe is ShapedRecipe)
 				{
-					WriteSignedVarInt(1); // Type
-
+					WriteSignedVarInt(Shaped); // Type
 					ShapedRecipe rec = (ShapedRecipe) recipe;
+					Write("recipe" + rec.Id.ToString());
 					WriteSignedVarInt(rec.Width);
 					WriteSignedVarInt(rec.Height);
-
 					for (int w = 0; w < rec.Width; w++)
 					{
 						for (int h = 0; h < rec.Height; h++)
 						{
-							Write(rec.Input[(h * rec.Width) + w]);
+							WriteRecipeIngredient(rec.Input[(h * rec.Width) + w]);
 						}
 					}
 					WriteVarInt(1);
 					Write(rec.Result);
-					Write(new UUID(Guid.NewGuid().ToString()));
-					Write(rec.Block);
+					Write(rec.Id);
+					Write(rec.Tag);
+					WriteSignedVarInt(0); // priority
 				}
 				else if (recipe is SmeltingRecipe)
 				{
 					SmeltingRecipe rec = (SmeltingRecipe) recipe;
-					WriteSignedVarInt(rec.Input.Metadata == 0 ? 2 : 3); // Type
+					WriteSignedVarInt(rec.Input.Metadata == 0 ? Furnace : FurnaceData); // Type
 					WriteSignedVarInt(rec.Input.Id);
 					if (rec.Input.Metadata != 0) WriteSignedVarInt(rec.Input.Metadata);
 					Write(rec.Result);
-					Write(rec.Block);
+					Write(rec.Tag);
 				}
 				else if (recipe is MultiRecipe)
 				{
+					MultiRecipe rec = (MultiRecipe) recipe;
 					WriteSignedVarInt(Multi); // Type
-					Write(recipe.Id);
+					Write(rec.Id);
 				}
 			}
 
@@ -1519,20 +1521,22 @@ namespace MiNET.Net
 				if (recipeType == Shapeless || recipeType == ShulkerBox)
 				{
 					ShapelessRecipe recipe = new ShapelessRecipe();
+					ReadString(); // some unique id
 					int ingrediensCount = ReadVarInt(); // 
 					for (int j = 0; j < ingrediensCount; j++)
 					{
-						recipe.Input.Add(ReadItem());
+						recipe.Input.Add(ReadRecipeIngredient());
 					}
 					ReadVarInt(); // 1?
 					recipe.Result = ReadItem();
 					recipe.Id = ReadUUID(); // Id
-					recipe.Block = ReadString(); // block?
+					recipe.Tag = ReadString();
 					recipes.Add(recipe);
 					//Log.Error("Read shapeless recipe");
 				}
 				else if (recipeType == Shaped)
 				{
+					ReadString(); // some unique id
 					int width = ReadSignedVarInt(); // Width
 					int height = ReadSignedVarInt(); // Height
 					ShapedRecipe recipe = new ShapedRecipe(width, height);
@@ -1541,7 +1545,7 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < height; h++)
 						{
-							recipe.Input[(h * width) + w] = ReadItem();
+							recipe.Input[(h * width) + w] = ReadRecipeIngredient();
 						}
 					}
 
@@ -1551,7 +1555,7 @@ namespace MiNET.Net
 						recipe.Result = ReadItem();
 					}
 					recipe.Id = ReadUUID(); // Id
-					recipe.Block = ReadString(); // block?
+					recipe.Tag = ReadString();
 					recipes.Add(recipe);
 					//Log.Error("Read shaped recipe");
 				}
@@ -1561,7 +1565,7 @@ namespace MiNET.Net
 					//short meta = (short) ReadVarInt(); // input (with metadata) 
 					short id = (short) ReadSignedVarInt(); // input (with metadata) 
 					Item result = ReadItem(); // Result
-					recipe.Block = ReadString(); // block?
+					recipe.Tag = ReadString();
 					recipe.Input = ItemFactory.GetItem(id, 0);
 					recipe.Result = result;
 					recipes.Add(recipe);
@@ -1575,7 +1579,7 @@ namespace MiNET.Net
 					short id = (short) ReadSignedVarInt(); // input (with metadata) 
 					short meta = (short) ReadSignedVarInt(); // input (with metadata) 
 					Item result = ReadItem(); // Result
-					recipe.Block = ReadString(); // block?
+					recipe.Tag = ReadString();
 					recipe.Input = ItemFactory.GetItem(id, meta);
 					recipe.Result = result;
 					recipes.Add(recipe);
@@ -1638,6 +1642,34 @@ namespace MiNET.Net
 			ReadByte(); // Clean (1) or update (0)
 
 			return recipes;
+		}
+
+		public void WriteRecipeIngredient(Item stack)
+		{
+			if (stack == null || stack.Id == 0)
+			{
+				WriteSignedVarInt(0);
+			}
+			else
+			{
+				WriteSignedVarInt(stack.Id);
+				WriteSignedVarInt(stack.Metadata);
+				WriteSignedVarInt(stack.Count);
+			}
+		}
+
+		public Item ReadRecipeIngredient()
+		{
+			short id = (short) ReadSignedVarInt();
+			if (id == 0)
+			{
+				return new ItemAir();
+			}
+
+			short metadata = (short) ReadSignedVarInt();
+			int count = ReadSignedVarInt();
+
+			return ItemFactory.GetItem(id, metadata, count);
 		}
 
 		const int BITFLAG_TEXTURE_UPDATE = 0x02;

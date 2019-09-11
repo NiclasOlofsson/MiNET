@@ -608,7 +608,7 @@ namespace MiNET.Client
 				{
 					writer.WriteLine($"new ShapelessRecipe(new Item({shapelessRecipe.Result.Id}, {shapelessRecipe.Result.Metadata}, {shapelessRecipe.Result.Count}),");
 					writer.Indent++;
-					writer.WriteLine($"Block = \"{recipe.Block}\";");
+					writer.WriteLine($"Tag = \"{shapelessRecipe.Tag}\";");
 					writer.WriteLine("new List<Item>");
 					writer.WriteLine("{");
 					writer.Indent++;
@@ -636,7 +636,7 @@ namespace MiNET.Client
 				{
 					writer.WriteLine($"new ShapedRecipe({shapedRecipe.Width}, {shapedRecipe.Height}, new Item({shapedRecipe.Result.Id}, {shapedRecipe.Result.Metadata}, {shapedRecipe.Result.Count}),");
 					writer.Indent++;
-					writer.WriteLine($"Block = \"{recipe.Block}\";");
+					writer.WriteLine($"Tag = \"{shapedRecipe.Tag}\";");
 					writer.WriteLine("new Item[]");
 					writer.WriteLine("{");
 					writer.Indent++;
@@ -654,7 +654,7 @@ namespace MiNET.Client
 				SmeltingRecipe smeltingRecipe = recipe as SmeltingRecipe;
 				if (smeltingRecipe != null)
 				{
-					writer.WriteLine($"new SmeltingRecipe(new Item({smeltingRecipe.Result.Id}, {smeltingRecipe.Result.Metadata}, {smeltingRecipe.Result.Count}), new Item({smeltingRecipe.Input.Id}, {smeltingRecipe.Input.Metadata}), {smeltingRecipe.Block}),");
+					writer.WriteLine($"new SmeltingRecipe(new Item({smeltingRecipe.Result.Id}, {smeltingRecipe.Result.Metadata}, {smeltingRecipe.Result.Count}), new Item({smeltingRecipe.Input.Id}, {smeltingRecipe.Input.Metadata}), {smeltingRecipe.Tag}),");
 					continue;
 				}
 

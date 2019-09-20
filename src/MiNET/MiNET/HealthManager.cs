@@ -158,7 +158,7 @@ namespace MiNET
 			}
 
 			Health -= damage * 10;
-			if (Health < 0)
+			if (Health <= 0)
 			{
 				OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
 				Health = 0;

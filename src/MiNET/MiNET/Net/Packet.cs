@@ -1391,15 +1391,39 @@ namespace MiNET.Net
 
 		public void Write(Skin skin, string xuid = null)
 		{
-			//skin.SkinGeometryName = "gurun";
-			//skin.SkinGeometry = Encoding.UTF8.GetBytes(File.ReadAllText(@"D:\Temp\humanoid.json"));
-
 			Write(skin.SkinId);
-			WriteByteArray(skin.SkinData);
-			WriteByteArray(skin.CapeData);
-			Write(skin.SkinGeometryName);
-			Write(skin.SkinGeometry);
-			Write(xuid);
+			Write(skin.ResourcePatch);
+			Write(skin.Width);
+			Write(skin.Height);
+			Write(skin.Data);
+
+			if (skin.Animations?.Count > 0)
+			{
+				Write(skin.Animations.Count);
+				foreach (Animation animation in skin.Animations)
+				{
+					Write(animation.ImageWidth);
+					Write(animation.ImageHeight);
+					Write(animation.Image);
+					Write(animation.Type);
+					Write(animation.FrameCount);
+				}
+			}
+			else
+			{
+				Write(0);
+			}
+
+			Write(skin.Cape.ImageWidth);
+			Write(skin.Cape.ImageHeight);
+			Write(skin.Cape.Data);
+			Write(skin.GeometryData);
+			Write(skin.AnimationData);
+			Write(skin.IsPremiumSkin);
+			Write(skin.IsPersonaSkin);
+			Write(skin.Cape.OnClassicSkin);
+			Write(skin.Cape.Id);
+			Write(skin.SkinId + skin.GeometryName + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()); // some unique skin id
 		}
 
 		public Skin ReadSkin()
@@ -1407,22 +1431,43 @@ namespace MiNET.Net
 			Skin skin = new Skin();
 
 			skin.SkinId = ReadString();
+			skin.ResourcePatch = ReadString();
+			skin.Width = ReadInt();
+			skin.Height = ReadInt();
+			skin.Data = ReadByteArray(false);
+
+			int animationCount = ReadInt();
+			for (int i = 0; i < animationCount; i++)
+			{
+				skin.Animations.Add(
+					new Animation()
+					{
+						ImageWidth = ReadInt(),
+						ImageHeight = ReadInt(),
+						Image = ReadString(),
+						Type = ReadInt(),
+						FrameCount = ReadFloat(),
+					}
+				);
+			}
+
+			skin.Cape.ImageWidth = ReadInt();
+			skin.Cape.ImageHeight = ReadInt();
+			skin.Cape.Data = ReadByteArray(false);
+			skin.GeometryData = ReadString();
+			skin.AnimationData = ReadString();
+			skin.IsPremiumSkin = ReadBool();
+			skin.IsPersonaSkin = ReadBool();
+			skin.Cape.OnClassicSkin = ReadBool();
+			skin.Cape.Id = ReadString();
+			ReadString(); // some unique skin id
+
 			Log.Debug($"SkinId={skin.SkinId}");
-
-			skin.SkinData = ReadByteArray(false);
-			Log.Debug($"SkinData lenght={skin.SkinData.Length}");
-
-			skin.CapeData = ReadByteArray(false);
-			Log.Debug($"CapeData lenght={skin.CapeData.Length}");
-			Log.Debug("\n" + HexDump(skin.CapeData));
-
-			skin.SkinGeometryName = ReadString();
-			Log.Debug($"SkinGeometryName={skin.SkinGeometryName}");
-
-			skin.SkinGeometry = ReadString();
-			Log.Debug($"SkinGeometry lenght={skin.SkinGeometry.Length}");
-
-			Log.Debug("XUID=" + ReadString());
+			Log.Debug($"SkinData lenght={skin.Data.Length}");
+			Log.Debug($"CapeData lenght={skin.Cape.Data.Length}");
+			Log.Debug("\n" + HexDump(skin.Cape.Data));
+			Log.Debug($"SkinGeometryName={skin.GeometryName}");
+			Log.Debug($"SkinGeometry lenght={skin.GeometryData.Length}");
 
 			return skin;
 		}

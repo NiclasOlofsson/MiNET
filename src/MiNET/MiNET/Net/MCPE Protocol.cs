@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 361;
-		public const string GameVersion = "1.12.0";
+		public const int ProtocolVersion = 388;
+		public const string GameVersion = "1.13.0";
 	}
 
 	public interface IMcpeMessageHandler
@@ -7323,13 +7323,9 @@ namespace MiNET.Net
 	{
 
 		public UUID uuid; // = null;
-		public string skinId; // = null;
+		public Skin skin; // = null;
 		public string skinName; // = null;
 		public string oldSkinName; // = null;
-		public byte[] skinData; // = null;
-		public byte[] capeData; // = null;
-		public string geometryModel; // = null;
-		public string geometryData; // = null;
 
 		public McpePlayerSkin()
 		{
@@ -7344,13 +7340,9 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(uuid);
-			Write(skinId);
+			Write(skin);
 			Write(skinName);
 			Write(oldSkinName);
-			WriteByteArray(skinData);
-			WriteByteArray(capeData);
-			Write(geometryModel);
-			Write(geometryData);
 
 			AfterEncode();
 		}
@@ -7365,13 +7357,9 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			uuid = ReadUUID();
-			skinId = ReadString();
+			skin = ReadSkin();
 			skinName = ReadString();
 			oldSkinName = ReadString();
-			skinData = ReadByteArray();
-			capeData = ReadByteArray();
-			geometryModel = ReadString();
-			geometryData = ReadString();
 
 			AfterDecode();
 		}
@@ -7384,13 +7372,9 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			uuid=default(UUID);
-			skinId=default(string);
+			skin=default(Skin);
 			skinName=default(string);
 			oldSkinName=default(string);
-			skinData=default(byte[]);
-			capeData=default(byte[]);
-			geometryModel=default(string);
-			geometryData=default(string);
 		}
 
 	}

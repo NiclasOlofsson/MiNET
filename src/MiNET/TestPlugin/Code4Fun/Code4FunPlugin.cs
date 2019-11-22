@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -58,16 +58,16 @@ namespace TestPlugin.Code4Fun
 			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 
 			var skin = player.Skin;
-			if (skin.SkinGeometry == null || skin.SkinGeometry.Length == 0)
+			if (skin.GeometryData == null || skin.GeometryData.Length == 0)
 			{
 				string skinString = File.ReadAllText(Path.Combine(pluginDirectory, "geometry.json"));
-				skin.SkinGeometry = skinString;
+				skin.GeometryData = skinString;
 			}
 			else
 			{
-				string fileName = $"{Path.GetTempPath()}Skin_{player.Username}_{skin.SkinGeometryName}.txt";
+				string fileName = $"{Path.GetTempPath()}Skin_{player.Username}_{skin.GeometryName}.txt";
 				Log.Info($"Writing geometry to filename: {fileName}");
-				File.WriteAllText(fileName, skin.SkinGeometry);
+				File.WriteAllText(fileName, skin.GeometryData);
 			}
 
 			//GravityGeometryBehavior state = new GravityGeometryBehavior
@@ -108,10 +108,10 @@ namespace TestPlugin.Code4Fun
 				{
 					SkinId = "testing",
 					Slim = false,
-					SkinData = bytes,
-					CapeData = new byte[0],
-					SkinGeometryName = newName,
-					SkinGeometry = skinString
+					Data = bytes,
+					Cape = new Cape(),
+					GeometryName = newName,
+					GeometryData = skinString
 				},
 				KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, 0, 0)
 				//KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw + 180f, coordinates.Yaw + 180f)
@@ -140,7 +140,7 @@ namespace TestPlugin.Code4Fun
 			{
 				Mob = mob;
 				CurrentModel = currentModel;
-				var geometry = CurrentModel.CollapseToDerived(CurrentModel.FindGeometry(mob.Skin.SkinGeometryName));
+				var geometry = CurrentModel.CollapseToDerived(CurrentModel.FindGeometry(mob.Skin.GeometryName));
 				geometry.Subdivide(true, false);
 
 				SetVelocity(geometry, new Random());
@@ -262,33 +262,25 @@ namespace TestPlugin.Code4Fun
 							McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
 							updateSkin.NoBatch = true;
 							updateSkin.uuid = mob.ClientUuid;
-							updateSkin.skinId = skin.SkinId;
-							updateSkin.skinData = skin.SkinData;
-							updateSkin.capeData = skin.CapeData;
-							updateSkin.geometryModel = skin.SkinGeometryName;
-							updateSkin.geometryData = skin.SkinGeometry;
+							updateSkin.skin = skin;
 							mob.Level.RelayBroadcast(updateSkin);
 						}
 					}
 					else
 					{
 						Skin skin = mob.Skin;
-						var geometry = CurrentModel.FindGeometry(skin.SkinGeometryName);
+						var geometry = CurrentModel.FindGeometry(skin.GeometryName);
 						geometry.Name = $"geometry.{DateTime.UtcNow.Ticks}.{mob.ClientUuid}";
 
 						CurrentModel.Clear();
 						CurrentModel.Add(geometry.Name, geometry);
 
-						skin.SkinGeometryName = geometry.Name;
+						skin.GeometryName = geometry.Name;
 
 						McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
 						updateSkin.NoBatch = true;
 						updateSkin.uuid = mob.ClientUuid;
-						updateSkin.skinId = skin.SkinId;
-						updateSkin.skinData = skin.SkinData;
-						updateSkin.capeData = skin.CapeData;
-						updateSkin.geometryModel = skin.SkinGeometryName;
-						updateSkin.geometryData = Skin.ToJson(CurrentModel);
+						updateSkin.skin = skin;
 						mob.Level.RelayBroadcast(updateSkin);
 					}
 				}

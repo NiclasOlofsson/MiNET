@@ -1637,7 +1637,7 @@ namespace TestPlugin
 
 				var skin = new Skin
 				{
-					SkinData = Skin.GetTextureFromFile("../../../../TestPlugin/" + size + ".png")
+					Data = Skin.GetTextureFromFile("../../../../TestPlugin/" + size + ".png")
 				};
 
 				var playerMob = new PlayerMob("0x" + size, player.Level)
@@ -1647,7 +1647,7 @@ namespace TestPlugin
 				};
 				playerMob.SpawnEntity();
 
-				Skin.SaveTextureToFile(size + "_saved.png", skin.SkinData);
+				Skin.SaveTextureToFile(size + "_saved.png", skin.Data);
 			}
 		}
 	}

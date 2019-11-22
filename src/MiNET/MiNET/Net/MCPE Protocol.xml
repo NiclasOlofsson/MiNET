@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.12.0" protocolVersion="361">
+<protocol gameVersion="1.13.0" protocolVersion="388">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -919,13 +919,9 @@
 
 	<pdu id="0x5d" online="false" client="true" server="true" name="MCPE_PLAYER_SKIN">
 		<field name="UUID" type="UUID" />
-		<field name="Skin ID" type="string" />
+		<field name="Skin" type="Skin" />
 		<field name="Skin Name" type="string" />
 		<field name="Old Skin Name" type="string" />
-		<field name="Skin Data" type="ByteArray" />
-		<field name="Cape Data" type="ByteArray" />
-		<field name="Geometry Model" type="string" />
-		<field name="Geometry Data" type="string" />
 	</pdu>
 
 	<pdu id="0x5e" online="false" client="false" server="true" name="MCPE_SUB_CLIENT_LOGIN">

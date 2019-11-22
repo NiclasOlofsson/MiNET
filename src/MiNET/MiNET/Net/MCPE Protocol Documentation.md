@@ -1983,13 +1983,9 @@ Wiki: [Player Skin](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Playe
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |UUID | UUID |  |
-|Skin ID | string |  |
+|Skin | Skin |  |
 |Skin Name | string |  |
 |Old Skin Name | string |  |
-|Skin Data | ByteArray |  |
-|Cape Data | ByteArray |  |
-|Geometry Model | string |  |
-|Geometry Data | string |  |
 -----------------------------------------------------------------------
 ### Sub Client Login (0x5e)
 Wiki: [Sub Client Login](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SubClientLogin)

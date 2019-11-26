@@ -3412,10 +3412,6 @@ namespace MiNET
 			// problem packets (game crash)
 			if (packet is McpeCraftingData)
 				return;
-			if (packet is McpeUpdateAttributes)
-				return;
-			if (packet is McpeAvailableCommands)
-				return;
 			if (packet is McpeWrapper) // chunks
 				return;
 

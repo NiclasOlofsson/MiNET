@@ -3412,8 +3412,6 @@ namespace MiNET
 			// problem packets (game crash)
 			if (packet is McpeCraftingData)
 				return;
-			if (packet is McpeMoveEntityDelta)
-				return;
 			if (packet is McpeUpdateAttributes)
 				return;
 			if (packet is McpeAvailableCommands)

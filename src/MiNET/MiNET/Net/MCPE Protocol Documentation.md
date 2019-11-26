@@ -2292,7 +2292,7 @@ Wiki: [Move Entity Delta](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
-|Flags | byte |  |
+|Flags | ushort |  |
 -----------------------------------------------------------------------
 ### Set Scoreboard Identity Packet (0x70)
 Wiki: [Set Scoreboard Identity Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetScoreboardIdentityPacket)

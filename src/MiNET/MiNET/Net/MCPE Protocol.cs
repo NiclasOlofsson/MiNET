@@ -8294,7 +8294,7 @@ namespace MiNET.Net
 	{
 
 		public long runtimeEntityId; // = null;
-		public byte flags; // = null;
+		public ushort flags; // = null;
 
 		public McpeMoveEntityDelta()
 		{
@@ -8324,7 +8324,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			runtimeEntityId = ReadUnsignedVarLong();
-			flags = ReadByte();
+			flags = ReadUshort();
 
 			AfterDecode();
 		}
@@ -8337,7 +8337,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			runtimeEntityId=default(long);
-			flags=default(byte);
+			flags=default(ushort);
 		}
 
 	}

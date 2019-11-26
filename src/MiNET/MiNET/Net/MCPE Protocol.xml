@@ -1026,7 +1026,7 @@
 
 	<pdu id="0x6f" online="false" client="false" server="true" name="MCPE_MOVE_ENTITY_DELTA">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Flags" type="byte" />
+		<field name="Flags" type="ushort" />
 	</pdu>
 
 	<pdu id="0x70" online="false" client="false" server="true" name="MCPE_SET_SCOREBOARD_IDENTITY_PACKET">

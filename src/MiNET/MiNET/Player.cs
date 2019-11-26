@@ -3412,8 +3412,6 @@ namespace MiNET
 			// problem packets (game crash)
 			if (packet is McpeCraftingData)
 				return;
-			if (packet is McpeWrapper) // chunks
-				return;
 
 			if (NetworkHandler == null)
 			{

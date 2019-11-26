@@ -459,8 +459,12 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
+					Write(record.PlayerInfo.CertificateData?.ExtraData?.Xuid ?? String.Empty);
 					Write(record.PlayerInfo.PlatformChatId);
+					Write(record.PlayerInfo.DeviceOS);
+					Write(record.Skin);
+					Write(false); // is teacher
+					Write(false); // is host
 				}
 			}
 			else if (records is PlayerRemoveRecords)
@@ -491,8 +495,13 @@ namespace MiNET.Net
 						player.ClientUuid = ReadUUID();
 						player.EntityId = ReadSignedVarLong();
 						player.DisplayName = ReadString();
+						ReadString(); // TODO: xuid
+						var platformChatId = ReadString(); // TODO: platform chat ID
+						ReadInt(); // TODO: device os
 						player.Skin = ReadSkin();
-						var platformChatId = ReadString(); //TODO: platform chat ID
+						ReadBool(); // is teacher
+						ReadBool(); // is host
+
 						records.Add(player);
 						Log.Warn($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', {platformChatId}");
 					}
@@ -1380,13 +1389,13 @@ namespace MiNET.Net
 			return ids;
 		}
 
-		public void Write(Skin skin, string xuid = null)
+		public void Write(Skin skin)
 		{
 			Write(skin.SkinId);
 			Write(skin.ResourcePatch);
 			Write(skin.Width);
 			Write(skin.Height);
-			Write(skin.Data);
+			WriteByteArray(skin.Data);
 
 			if (skin.Animations?.Count > 0)
 			{
@@ -1395,7 +1404,7 @@ namespace MiNET.Net
 				{
 					Write(animation.ImageWidth);
 					Write(animation.ImageHeight);
-					Write(animation.Image);
+					WriteByteArray(animation.Image);
 					Write(animation.Type);
 					Write(animation.FrameCount);
 				}
@@ -1407,14 +1416,14 @@ namespace MiNET.Net
 
 			Write(skin.Cape.ImageWidth);
 			Write(skin.Cape.ImageHeight);
-			Write(skin.Cape.Data);
+			WriteByteArray(skin.Cape.Data);
 			Write(skin.GeometryData);
 			Write(skin.AnimationData);
 			Write(skin.IsPremiumSkin);
 			Write(skin.IsPersonaSkin);
 			Write(skin.Cape.OnClassicSkin);
 			Write(skin.Cape.Id);
-			Write(skin.SkinId + skin.GeometryName + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()); // some unique skin id
+			Write(skin.SkinId + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()); // some unique skin id
 		}
 
 		public Skin ReadSkin()
@@ -1435,7 +1444,7 @@ namespace MiNET.Net
 					{
 						ImageWidth = ReadInt(),
 						ImageHeight = ReadInt(),
-						Image = ReadString(),
+						Image = ReadByteArray(false),
 						Type = ReadInt(),
 						FrameCount = ReadFloat(),
 					}

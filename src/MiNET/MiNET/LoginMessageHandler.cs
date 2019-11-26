@@ -235,7 +235,7 @@ namespace MiNET
 								OnClassicSkin = payload.CapeOnClassicSkin,
 							},
 							SkinId = payload.SkinId,
-							ResourcePatch = payload.SkinResourcePatch,
+							ResourcePatch = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinResourcePatch ?? string.Empty)),
 							Width = payload.SkinImageWidth,
 							Height = payload.SkinImageHeight,
 							Data = Convert.FromBase64String((string) payload.SkinData ?? string.Empty),
@@ -247,7 +247,7 @@ namespace MiNET
 							_playerInfo.Skin.Animations.Add(
 								new Animation()
 								{
-									Image = animationData.Image,
+									Image = Convert.FromBase64String((string) animationData.Image ?? string.Empty),
 									ImageHeight = animationData.ImageHeight,
 									ImageWidth = animationData.ImageWidth,
 									FrameCount = animationData.Frames,

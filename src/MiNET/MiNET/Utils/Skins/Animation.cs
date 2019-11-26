@@ -11,7 +11,7 @@ namespace MiNET.Utils.Skins
 
 	public class Animation : ICloneable
 	{
-		public string Image { get; set; }
+		public byte[] Image { get; set; }
 		public int ImageWidth { get; set; }
 		public int ImageHeight { get; set; }
 		public float FrameCount { get; set; }

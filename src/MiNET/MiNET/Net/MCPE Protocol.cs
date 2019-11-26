@@ -2477,7 +2477,7 @@ namespace MiNET.Net
 		public bool isServerSideMovementEnabled; // = null;
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
-		public BlockPallet blockpallet; // = null;
+		public BlockPallet blockPallet; // = null;
 		public Itemstates itemstates; // = null;
 		public string multiplayerCorrelationId; // = null;
 
@@ -2539,7 +2539,7 @@ namespace MiNET.Net
 			Write(isServerSideMovementEnabled);
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
-			Write(blockpallet);
+			Write(blockPallet);
 			Write(itemstates);
 			Write(multiplayerCorrelationId);
 
@@ -2601,7 +2601,7 @@ namespace MiNET.Net
 			isServerSideMovementEnabled = ReadBool();
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
-			blockpallet = ReadBlockPallet();
+			blockPallet = ReadBlockPallet();
 			itemstates = ReadItemstates();
 			multiplayerCorrelationId = ReadString();
 
@@ -2661,7 +2661,7 @@ namespace MiNET.Net
 			isServerSideMovementEnabled=default(bool);
 			currentTick=default(long);
 			enchantmentSeed=default(int);
-			blockpallet=default(BlockPallet);
+			blockPallet=default(BlockPallet);
 			itemstates=default(Itemstates);
 			multiplayerCorrelationId=default(string);
 		}
@@ -5124,6 +5124,9 @@ namespace MiNET.Net
 	{
 
 		public Recipes recipes; // = null;
+		public uint someArraySize; // = null;
+		public uint someArraySize2; // = null;
+		public bool isClean; // = null;
 
 		public McpeCraftingData()
 		{
@@ -5138,6 +5141,9 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(recipes);
+			WriteUnsignedVarInt(someArraySize);
+			WriteUnsignedVarInt(someArraySize2);
+			Write(isClean);
 
 			AfterEncode();
 		}
@@ -5152,6 +5158,9 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			recipes = ReadRecipes();
+			someArraySize = ReadUnsignedVarInt();
+			someArraySize2 = ReadUnsignedVarInt();
+			isClean = ReadBool();
 
 			AfterDecode();
 		}
@@ -5164,6 +5173,9 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			recipes=default(Recipes);
+			someArraySize=default(uint);
+			someArraySize2=default(uint);
+			isClean=default(bool);
 		}
 
 	}

@@ -250,7 +250,7 @@
 		<field name="Current Tick" type="long" />
 		<field name="Enchantment Seed" type="SignedVarInt" />
 
-		<field name="BlockPallet" type="BlockPallet" />
+		<field name="Block Pallet" type="BlockPallet" />
 		<field name="Itemstates" type="Itemstates" />
 		
 		<field name="Multiplayer Correlation ID" type="string" />
@@ -637,6 +637,9 @@
 
 	<pdu id="0x34" online="false" client="false" server="true" name="MCPE_CRAFTING_DATA">
 		<field name="Recipes" type="Recipes" />
+		<field name="Some Array Size" type="UnsignedVarInt" />
+		<field name="Some Array Size 2" type="UnsignedVarInt" />
+		<field name="Is Clean" type="bool" />
 	</pdu>
 
 	<pdu id="0x35" online="false" client="true" server="true" name="MCPE_CRAFTING_EVENT">

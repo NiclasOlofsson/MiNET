@@ -2820,7 +2820,7 @@ namespace MiNET
 			startGame.gameVersion = "";
 			startGame.isServerSideMovementEnabled = false;
 
-			startGame.blockpallet = BlockFactory.BlockPallet;
+			startGame.blockPallet = BlockFactory.BlockPallet;
 			startGame.itemstates = ItemFactory.Itemstates;
 
 			SendPacket(startGame);
@@ -3409,10 +3409,6 @@ namespace MiNET
 		/// </summary>
 		public void SendPacket(Packet packet)
 		{
-			// problem packets (game crash)
-			if (packet is McpeCraftingData)
-				return;
-
 			if (NetworkHandler == null)
 			{
 				packet.PutPool();

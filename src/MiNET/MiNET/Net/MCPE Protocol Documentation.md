@@ -455,7 +455,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Is Server Side movement enabled | bool |  |
 |Current Tick | long |  |
 |Enchantment Seed | SignedVarInt |  |
-|BlockPallet | BlockPallet |  |
+|Block Pallet | BlockPallet |  |
 |Itemstates | Itemstates |  |
 |Multiplayer Correlation ID | string |  |
 -----------------------------------------------------------------------
@@ -1300,6 +1300,9 @@ Wiki: [Crafting Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Cra
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Recipes | Recipes |  |
+|Some Array Size | UnsignedVarInt |  |
+|Some Array Size 2 | UnsignedVarInt |  |
+|Is Clean | bool |  |
 -----------------------------------------------------------------------
 ### Crafting Event (0x35)
 Wiki: [Crafting Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CraftingEvent)

@@ -167,7 +167,7 @@ namespace MiNET.Client
 
 				List<(int, string)> blocks = new List<(int, string)>();
 
-				foreach (IGrouping<string, BlockRecord> blockstate in message.blockpallet.OrderBy(record => record.Name).ThenBy(record => record.Data).GroupBy(record => record.Name))
+				foreach (IGrouping<string, BlockRecord> blockstate in message.blockPallet.OrderBy(record => record.Name).ThenBy(record => record.Data).GroupBy(record => record.Name))
 				{
 					var enumerator = blockstate.GetEnumerator();
 					enumerator.MoveNext();

@@ -8491,7 +8491,7 @@ namespace MiNET.Net
 	{
 
 		public long timestamp; // = null;
-		public bool needResponse; // = null;
+		public bool isfromserver; // = null;
 
 		public McpeNetworkStackLatencyPacket()
 		{
@@ -8506,7 +8506,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(timestamp);
-			Write(needResponse);
+			Write(isfromserver);
 
 			AfterEncode();
 		}
@@ -8521,7 +8521,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			timestamp = ReadLong();
-			needResponse = ReadBool();
+			isfromserver = ReadBool();
 
 			AfterDecode();
 		}
@@ -8534,7 +8534,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			timestamp=default(long);
-			needResponse=default(bool);
+			isfromserver=default(bool);
 		}
 
 	}

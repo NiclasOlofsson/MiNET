@@ -3626,6 +3626,10 @@ namespace MiNET
 
 		public virtual void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
 		{
+			var packet = McpeNetworkStackLatencyPacket.CreateObject();
+			packet.timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+			packet.isfromserver = true;
+			SendPacket(packet);
 		}
 
 		public virtual void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)

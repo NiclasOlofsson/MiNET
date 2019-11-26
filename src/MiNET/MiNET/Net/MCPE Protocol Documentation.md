@@ -2359,7 +2359,7 @@ Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wik
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Timestamp | long |  |
-|Need Response | bool |  |
+|IsFromServer | bool |  |
 -----------------------------------------------------------------------
 ### Script Custom Event Packet (0x75)
 Wiki: [Script Custom Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ScriptCustomEventPacket)

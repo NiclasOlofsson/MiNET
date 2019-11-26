@@ -3028,15 +3028,6 @@ namespace MiNET
 				Value = 0,
 				Default = 0,
 			};
-			// not exists in 1.13
-			//attributes["minecraft:fall_damage"] = new PlayerAttribute
-			//{
-			//	Name = "minecraft:fall_damage",
-			//	MinValue = 0,
-			//	MaxValue = float.MaxValue,
-			//	Value = 1,
-			//	Default = 1,
-			//};
 			attributes["minecraft:follow_range"] = new PlayerAttribute
 			{
 				Name = "minecraft:follow_range",

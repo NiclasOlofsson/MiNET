@@ -879,6 +879,8 @@ namespace MiNET
 
 				SendAvailableEntityIdentifiers();
 
+				SendBiomeDefinitionList();
+
 				BroadcastSetEntityData();
 
 				if (ChunkRadius == -1) ChunkRadius = 5;
@@ -942,6 +944,23 @@ namespace MiNET
 			};
 
 			var pk = McpeAvailableEntityIdentifiers.CreateObject();
+			pk.namedtag = nbt;
+			SendPacket(pk);
+		}
+
+		public virtual void SendBiomeDefinitionList()
+		{
+			var nbt = new Nbt
+			{
+				NbtFile = new NbtFile
+				{
+					BigEndian = false,
+					UseVarInt = true,
+					RootTag = BiomeUtils.GenerateDefinitionList(),
+				}
+			};
+
+			var pk = McpeBiomeDefinitionList.CreateObject();
 			pk.namedtag = nbt;
 			SendPacket(pk);
 		}
@@ -2771,7 +2790,7 @@ namespace MiNET
 			startGame.runtimeEntityId = EntityManager.EntityIdSelf;
 			startGame.playerGamemode = (int) GameMode;
 			startGame.spawn = SpawnPosition;
-			startGame.unknown1 = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
+			startGame.rotation = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
 			startGame.seed = 12345;
 			startGame.dimension = 0;
 			startGame.generator = 1;
@@ -2781,7 +2800,7 @@ namespace MiNET
 			startGame.z = (int) SpawnPosition.Z;
 			startGame.hasAchievementsDisabled = true;
 			startGame.dayCycleStopTime = (int) Level.WorldTime;
-			startGame.eduMode = PlayerInfo.Edition == 1;
+			startGame.eduOffer = PlayerInfo.Edition == 1 ? 1 : 0;
 			startGame.rainLevel = 0;
 			startGame.lightningLevel = 0;
 			startGame.isMultiplayer = true;
@@ -2798,8 +2817,10 @@ namespace MiNET
 			startGame.isTrial = false;
 			startGame.currentTick = Level.TickTime;
 			startGame.enchantmentSeed = 123456;
+			startGame.gameVersion = "";
+			startGame.isServerSideMovementEnabled = false;
 
-			startGame.blockstates = BlockFactory.Blockstates;
+			startGame.blockpallet = BlockFactory.BlockPallet;
 			startGame.itemstates = ItemFactory.Itemstates;
 
 			SendPacket(startGame);
@@ -3007,14 +3028,15 @@ namespace MiNET
 				Value = 0,
 				Default = 0,
 			};
-			attributes["minecraft:fall_damage"] = new PlayerAttribute
-			{
-				Name = "minecraft:fall_damage",
-				MinValue = 0,
-				MaxValue = float.MaxValue,
-				Value = 1,
-				Default = 1,
-			};
+			// not exists in 1.13
+			//attributes["minecraft:fall_damage"] = new PlayerAttribute
+			//{
+			//	Name = "minecraft:fall_damage",
+			//	MinValue = 0,
+			//	MaxValue = float.MaxValue,
+			//	Value = 1,
+			//	Default = 1,
+			//};
 			attributes["minecraft:follow_range"] = new PlayerAttribute
 			{
 				Name = "minecraft:follow_range",
@@ -3396,6 +3418,18 @@ namespace MiNET
 		/// </summary>
 		public void SendPacket(Packet packet)
 		{
+			// problem packets (game crash)
+			if (packet is McpeCraftingData)
+				return;
+			if (packet is McpeMoveEntityDelta)
+				return;
+			if (packet is McpeUpdateAttributes)
+				return;
+			if (packet is McpeAvailableCommands)
+				return;
+			if (packet is McpeWrapper) // chunks
+				return;
+
 			if (NetworkHandler == null)
 			{
 				packet.PutPool();

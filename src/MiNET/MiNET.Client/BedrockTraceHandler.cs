@@ -137,7 +137,7 @@ namespace MiNET.Client
 			Client.EntityId = message.runtimeEntityId;
 			Client.NetworkEntityId = message.entityIdSelf;
 			Client.SpawnPoint = message.spawn;
-			Client.CurrentLocation = new PlayerLocation(Client.SpawnPoint, message.unknown1.X, message.unknown1.X, message.unknown1.Y);
+			Client.CurrentLocation = new PlayerLocation(Client.SpawnPoint, message.rotation.X, message.rotation.X, message.rotation.Y);
 
 			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");
 
@@ -167,11 +167,11 @@ namespace MiNET.Client
 
 				List<(int, string)> blocks = new List<(int, string)>();
 
-				foreach (IGrouping<string, KeyValuePair<int, Blockstate>> blockstate in message.blockstates.OrderBy(kvp => kvp.Value.Name).ThenBy(kvp => kvp.Value.Data).GroupBy(kvp => kvp.Value.Name))
+				foreach (IGrouping<string, BlockRecord> blockstate in message.blockpallet.OrderBy(record => record.Name).ThenBy(record => record.Data).GroupBy(record => record.Name))
 				{
 					var enumerator = blockstate.GetEnumerator();
 					enumerator.MoveNext();
-					var value = enumerator.Current.Value;
+					var value = enumerator.Current;
 					if (value == null) continue;
 					Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
 					int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
@@ -199,7 +199,7 @@ namespace MiNET.Client
 
 						do
 						{
-							writer.WriteLine($"// runtime id: {enumerator.Current.Value.RuntimeId} 0x{enumerator.Current.Value.RuntimeId:X}, data: {enumerator.Current.Value.Data}");
+							writer.WriteLine($"// runtime id: {enumerator.Current.RuntimeId} 0x{enumerator.Current.RuntimeId:X}, data: {enumerator.Current.Data}");
 						} while (enumerator.MoveNext());
 
 						writer.Indent--;

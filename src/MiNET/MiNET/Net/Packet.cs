@@ -1174,41 +1174,32 @@ namespace MiNET.Net
 			}
 		}
 
-		public Blockstates ReadBlockstates()
+		public BlockPallet ReadBlockPallet()
 		{
-			var result = new Blockstates();
-			uint count = ReadUnsignedVarInt();
-			for (int runtimeId = 0; runtimeId < count; runtimeId++)
-			{
-				var name = ReadString();
-				var data = ReadShort();
-				var legacyId = ReadShort();
-				result.Add(runtimeId, new Blockstate
-				{
-					Id = legacyId,
-					RuntimeId = runtimeId,
-					Name = name,
-					Data = data
-				});
-			}
+			// don't know how to do it without changes in fNbt
+
+			var result = new BlockPallet();
+			//uint count = ReadUnsignedVarInt();
+			//for (int runtimeId = 0; runtimeId < count; runtimeId++)
+			//{
+			//	var name = ReadString();
+			//	var data = ReadShort();
+			//	var legacyId = ReadShort();
+			//	result.Add(runtimeId, new Blockstate
+			//	{
+			//		Id = legacyId,
+			//		RuntimeId = runtimeId,
+			//		Name = name,
+			//		Data = data
+			//	});
+			//}
 
 			return result;
 		}
 
-		public void Write(Blockstates blockstates)
+		public void Write(BlockPallet blockPallet)
 		{
-			if (blockstates == null)
-			{
-				WriteUnsignedVarInt(0);
-				return;
-			}
-			WriteUnsignedVarInt((uint) blockstates.Count);
-			foreach (var blockstate in blockstates.OrderBy(kvp => kvp.Key))
-			{
-				Write(blockstate.Value.Name);
-				Write(blockstate.Value.Data);
-				Write((short) blockstate.Value.Id);
-			}
+			Write((byte[]) blockPallet);
 		}
 
 		public void Write(Links links)

@@ -161,6 +161,7 @@
 		<field name="BehaviorPackIdVersions" type="ResourcePackIdVersions" />
 		<field name="ResourcePackIdVersions" type="ResourcePackIdVersions" />
 		<field name="Is experimental" type="bool" />
+		<field name="Game Version" type="string" />
 	</pdu>
 
 	<pdu id="0x08" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CLIENT_RESPONSE">
@@ -201,7 +202,7 @@
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Player Gamemode" type="SignedVarInt" />
 		<field name="Spawn" type="Vector3" />
-		<field name="Unknown 1" type="Vector2" />
+		<field name="Rotation" type="Vector2" />
 		<!-- Level Settings -->
 		<field name="Seed" type="SignedVarInt" />
 		<field name="Dimension" type="SignedVarInt" />
@@ -213,7 +214,7 @@
 		<field name="Z" type="SignedVarInt" />
 		<field name="Has achievements disabled" type="bool" />
 		<field name="Day cycle stop time" type="SignedVarInt" />
-		<field name="EDU mode" type="bool" />
+		<field name="EDU offer" type="SignedVarInt" />
 		<field name="Has EDU features enabled" type="bool" />
 		<field name="Rain level" type="float" />
 		<field name="Lightning level" type="float" />
@@ -238,15 +239,18 @@
 		<field name="Is From World Template" type="bool" />
 		<field name="Is World Template Option Locked" type="bool" />
 		<field name="Only Spawn V1 Villagers" type="bool" />
+		<field name="Game Version" type="string" />
+		<!-- Level Settings End -->
 
 		<field name="Level ID" type="string" />
 		<field name="World name" type="string" />
 		<field name="Premium World Template Id" type="string" />
 		<field name="Is Trial" type="bool" />
+		<field name="Is Server Side movement enabled" type="bool" />
 		<field name="Current Tick" type="long" />
 		<field name="Enchantment Seed" type="SignedVarInt" />
 
-		<field name="Blockstates" type="Blockstates" />
+		<field name="BlockPallet" type="BlockPallet" />
 		<field name="Itemstates" type="Itemstates" />
 		
 		<field name="Multiplayer Correlation ID" type="string" />

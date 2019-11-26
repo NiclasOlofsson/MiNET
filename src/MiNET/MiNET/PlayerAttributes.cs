@@ -46,28 +46,12 @@ namespace MiNET
 	{
 	}
 
-	public class Blockstates : Dictionary<int, Blockstate>
-	{
-		public static Blockstates FromJson(string json)
-		{
-			return JsonConvert.DeserializeObject<Blockstates>(json);
-		}
-	}
-
 	public class Itemstates : Dictionary<int, Itemstate>
 	{
 		public static Itemstates FromJson(string json)
 		{
 			return JsonConvert.DeserializeObject<Itemstates>(json);
 		}
-	}
-
-	public class Blockstate
-	{
-		public int Id { get; set; }
-		public int RuntimeId { get; set; }
-		public string Name { get; set; }
-		public short Data { get; set; }
 	}
 
 	public class Itemstate

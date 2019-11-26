@@ -2203,6 +2203,7 @@ namespace MiNET.Net
 		public ResourcePackIdVersions behaviorpackidversions; // = null;
 		public ResourcePackIdVersions resourcepackidversions; // = null;
 		public bool isExperimental; // = null;
+		public string gameVersion; // = null;
 
 		public McpeResourcePackStack()
 		{
@@ -2220,6 +2221,7 @@ namespace MiNET.Net
 			Write(behaviorpackidversions);
 			Write(resourcepackidversions);
 			Write(isExperimental);
+			Write(gameVersion);
 
 			AfterEncode();
 		}
@@ -2237,6 +2239,7 @@ namespace MiNET.Net
 			behaviorpackidversions = ReadResourcePackIdVersions();
 			resourcepackidversions = ReadResourcePackIdVersions();
 			isExperimental = ReadBool();
+			gameVersion = ReadString();
 
 			AfterDecode();
 		}
@@ -2252,6 +2255,7 @@ namespace MiNET.Net
 			behaviorpackidversions=default(ResourcePackIdVersions);
 			resourcepackidversions=default(ResourcePackIdVersions);
 			isExperimental=default(bool);
+			gameVersion=default(string);
 		}
 
 	}
@@ -2431,7 +2435,7 @@ namespace MiNET.Net
 		public long runtimeEntityId; // = null;
 		public int playerGamemode; // = null;
 		public Vector3 spawn; // = null;
-		public Vector2 unknown1; // = null;
+		public Vector2 rotation; // = null;
 		public int seed; // = null;
 		public int dimension; // = null;
 		public int generator; // = null;
@@ -2442,7 +2446,7 @@ namespace MiNET.Net
 		public int z; // = null;
 		public bool hasAchievementsDisabled; // = null;
 		public int dayCycleStopTime; // = null;
-		public bool eduMode; // = null;
+		public int eduOffer; // = null;
 		public bool hasEduFeaturesEnabled; // = null;
 		public float rainLevel; // = null;
 		public float lightningLevel; // = null;
@@ -2465,13 +2469,15 @@ namespace MiNET.Net
 		public bool isFromWorldTemplate; // = null;
 		public bool isWorldTemplateOptionLocked; // = null;
 		public bool onlySpawnV1Villagers; // = null;
+		public string gameVersion; // = null;
 		public string levelId; // = null;
 		public string worldName; // = null;
 		public string premiumWorldTemplateId; // = null;
 		public bool isTrial; // = null;
+		public bool isServerSideMovementEnabled; // = null;
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
-		public Blockstates blockstates; // = null;
+		public BlockPallet blockpallet; // = null;
 		public Itemstates itemstates; // = null;
 		public string multiplayerCorrelationId; // = null;
 
@@ -2491,7 +2497,7 @@ namespace MiNET.Net
 			WriteUnsignedVarLong(runtimeEntityId);
 			WriteSignedVarInt(playerGamemode);
 			Write(spawn);
-			Write(unknown1);
+			Write(rotation);
 			WriteSignedVarInt(seed);
 			WriteSignedVarInt(dimension);
 			WriteSignedVarInt(generator);
@@ -2502,7 +2508,7 @@ namespace MiNET.Net
 			WriteSignedVarInt(z);
 			Write(hasAchievementsDisabled);
 			WriteSignedVarInt(dayCycleStopTime);
-			Write(eduMode);
+			WriteSignedVarInt(eduOffer);
 			Write(hasEduFeaturesEnabled);
 			Write(rainLevel);
 			Write(lightningLevel);
@@ -2525,13 +2531,15 @@ namespace MiNET.Net
 			Write(isFromWorldTemplate);
 			Write(isWorldTemplateOptionLocked);
 			Write(onlySpawnV1Villagers);
+			Write(gameVersion);
 			Write(levelId);
 			Write(worldName);
 			Write(premiumWorldTemplateId);
 			Write(isTrial);
+			Write(isServerSideMovementEnabled);
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
-			Write(blockstates);
+			Write(blockpallet);
 			Write(itemstates);
 			Write(multiplayerCorrelationId);
 
@@ -2551,7 +2559,7 @@ namespace MiNET.Net
 			runtimeEntityId = ReadUnsignedVarLong();
 			playerGamemode = ReadSignedVarInt();
 			spawn = ReadVector3();
-			unknown1 = ReadVector2();
+			rotation = ReadVector2();
 			seed = ReadSignedVarInt();
 			dimension = ReadSignedVarInt();
 			generator = ReadSignedVarInt();
@@ -2562,7 +2570,7 @@ namespace MiNET.Net
 			z = ReadSignedVarInt();
 			hasAchievementsDisabled = ReadBool();
 			dayCycleStopTime = ReadSignedVarInt();
-			eduMode = ReadBool();
+			eduOffer = ReadSignedVarInt();
 			hasEduFeaturesEnabled = ReadBool();
 			rainLevel = ReadFloat();
 			lightningLevel = ReadFloat();
@@ -2585,13 +2593,15 @@ namespace MiNET.Net
 			isFromWorldTemplate = ReadBool();
 			isWorldTemplateOptionLocked = ReadBool();
 			onlySpawnV1Villagers = ReadBool();
+			gameVersion = ReadString();
 			levelId = ReadString();
 			worldName = ReadString();
 			premiumWorldTemplateId = ReadString();
 			isTrial = ReadBool();
+			isServerSideMovementEnabled = ReadBool();
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
-			blockstates = ReadBlockstates();
+			blockpallet = ReadBlockPallet();
 			itemstates = ReadItemstates();
 			multiplayerCorrelationId = ReadString();
 
@@ -2609,7 +2619,7 @@ namespace MiNET.Net
 			runtimeEntityId=default(long);
 			playerGamemode=default(int);
 			spawn=default(Vector3);
-			unknown1=default(Vector2);
+			rotation=default(Vector2);
 			seed=default(int);
 			dimension=default(int);
 			generator=default(int);
@@ -2620,7 +2630,7 @@ namespace MiNET.Net
 			z=default(int);
 			hasAchievementsDisabled=default(bool);
 			dayCycleStopTime=default(int);
-			eduMode=default(bool);
+			eduOffer=default(int);
 			hasEduFeaturesEnabled=default(bool);
 			rainLevel=default(float);
 			lightningLevel=default(float);
@@ -2643,13 +2653,15 @@ namespace MiNET.Net
 			isFromWorldTemplate=default(bool);
 			isWorldTemplateOptionLocked=default(bool);
 			onlySpawnV1Villagers=default(bool);
+			gameVersion=default(string);
 			levelId=default(string);
 			worldName=default(string);
 			premiumWorldTemplateId=default(string);
 			isTrial=default(bool);
+			isServerSideMovementEnabled=default(bool);
 			currentTick=default(long);
 			enchantmentSeed=default(int);
-			blockstates=default(Blockstates);
+			blockpallet=default(BlockPallet);
 			itemstates=default(Itemstates);
 			multiplayerCorrelationId=default(string);
 		}

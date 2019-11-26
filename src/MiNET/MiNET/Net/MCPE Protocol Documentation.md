@@ -146,7 +146,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Data type | 
 |:--- |
 | BlockCoordinates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockCoordinates) |
-| Blockstates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Blockstates) |
+| BlockPallet [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockPallet) |
 | bool [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-bool) |
 | byte [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte) |
 | byte[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte[]) |
@@ -324,6 +324,7 @@ Wiki: [Resource Pack Stack](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 |BehaviorPackIdVersions | ResourcePackIdVersions |  |
 |ResourcePackIdVersions | ResourcePackIdVersions |  |
 |Is experimental | bool |  |
+|Game Version | string |  |
 -----------------------------------------------------------------------
 ### Resource Pack Client Response (0x08)
 Wiki: [Resource Pack Client Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackClientResponse)
@@ -412,7 +413,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Runtime Entity ID | UnsignedVarLong |  |
 |Player Gamemode | SignedVarInt |  |
 |Spawn | Vector3 |  |
-|Unknown 1 | Vector2 |  |
+|Rotation | Vector2 |  |
 |Seed | SignedVarInt |  |
 |Dimension | SignedVarInt |  |
 |Generator | SignedVarInt |  |
@@ -423,7 +424,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Z | SignedVarInt |  |
 |Has achievements disabled | bool |  |
 |Day cycle stop time | SignedVarInt |  |
-|EDU mode | bool |  |
+|EDU offer | SignedVarInt |  |
 |Has EDU features enabled | bool |  |
 |Rain level | float |  |
 |Lightning level | float |  |
@@ -446,13 +447,15 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Is From World Template | bool |  |
 |Is World Template Option Locked | bool |  |
 |Only Spawn V1 Villagers | bool |  |
+|Game Version | string |  |
 |Level ID | string |  |
 |World name | string |  |
 |Premium World Template Id | string |  |
 |Is Trial | bool |  |
+|Is Server Side movement enabled | bool |  |
 |Current Tick | long |  |
 |Enchantment Seed | SignedVarInt |  |
-|Blockstates | Blockstates |  |
+|BlockPallet | BlockPallet |  |
 |Itemstates | Itemstates |  |
 |Multiplayer Correlation ID | string |  |
 -----------------------------------------------------------------------

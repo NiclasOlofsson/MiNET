@@ -1045,7 +1045,7 @@
 	</pdu>
 
 	<pdu id="0x73" online="false" client="true" server="true" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
-		<field name="Timestamp" type="long" />
+		<field name="Timestamp" type="ulong" />
 		<field name="IsFromServer" type="bool" />
 	</pdu>
 

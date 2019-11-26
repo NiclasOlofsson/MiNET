@@ -8490,7 +8490,7 @@ namespace MiNET.Net
 	public partial class McpeNetworkStackLatencyPacket : Packet<McpeNetworkStackLatencyPacket>
 	{
 
-		public long timestamp; // = null;
+		public ulong timestamp; // = null;
 		public bool isfromserver; // = null;
 
 		public McpeNetworkStackLatencyPacket()
@@ -8520,7 +8520,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			timestamp = ReadLong();
+			timestamp = ReadUlong();
 			isfromserver = ReadBool();
 
 			AfterDecode();
@@ -8533,7 +8533,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			timestamp=default(long);
+			timestamp=default(ulong);
 			isfromserver=default(bool);
 		}
 

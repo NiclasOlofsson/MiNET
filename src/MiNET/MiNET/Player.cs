@@ -3627,7 +3627,7 @@ namespace MiNET
 		public virtual void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
 		{
 			var packet = McpeNetworkStackLatencyPacket.CreateObject();
-			packet.timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+			packet.timestamp = message.timestamp; // don't know what is it
 			packet.isfromserver = true;
 			SendPacket(packet);
 		}

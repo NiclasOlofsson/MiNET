@@ -522,6 +522,8 @@
 			<enum id="Left click" value="2" />
 			<enum id="Leave cehicle" value="3" />
 			<enum id="Mouse over" value="4" />
+			<enum id="Open NPC" value="5" />
+			<enum id="Open inventory" value="6" />
 		</enums>
 
 		<field name="Action ID" type="byte" />

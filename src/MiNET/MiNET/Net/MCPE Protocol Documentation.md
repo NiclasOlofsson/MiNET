@@ -969,6 +969,8 @@ Wiki: [Interact](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Interact
 |Left Click | 2 |
 |Leave Cehicle | 3 |
 |Mouse Over | 4 |
+|Open Npc | 5 |
+|Open Inventory | 6 |
 
 
 #### Fields

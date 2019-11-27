@@ -4079,6 +4079,8 @@ namespace MiNET.Net
 			LeftClick = 2,
 			LeaveCehicle = 3,
 			MouseOver = 4,
+			OpenNpc = 5,
+			OpenInventory = 6,
 		}
 
 		public byte actionId; // = null;

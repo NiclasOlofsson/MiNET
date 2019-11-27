@@ -289,6 +289,8 @@ namespace MiNET
 				mcpeRespawn.x = player.SpawnPosition.X;
 				mcpeRespawn.y = player.SpawnPosition.Y;
 				mcpeRespawn.z = player.SpawnPosition.Z;
+				mcpeRespawn.state = (byte) McpeRespawn.RespawnState.Search;
+				mcpeRespawn.runtimeEntityId = player.EntityId;
 				player.SendPacket(mcpeRespawn);
 			}
 			else

@@ -2695,6 +2695,7 @@ namespace MiNET.Net
 		public long userId; // = null;
 		public Links links; // = null;
 		public string deviceId; // = null;
+		public int deviceOs; // = null;
 
 		public McpeAddPlayer()
 		{
@@ -2732,6 +2733,7 @@ namespace MiNET.Net
 			Write(userId);
 			Write(links);
 			Write(deviceId);
+			Write(deviceOs);
 
 			AfterEncode();
 		}
@@ -2769,6 +2771,7 @@ namespace MiNET.Net
 			userId = ReadLong();
 			links = ReadLinks();
 			deviceId = ReadString();
+			deviceOs = ReadInt();
 
 			AfterDecode();
 		}
@@ -2804,6 +2807,7 @@ namespace MiNET.Net
 			userId=default(long);
 			links=default(Links);
 			deviceId=default(string);
+			deviceOs=default(int);
 		}
 
 	}
@@ -4740,10 +4744,18 @@ namespace MiNET.Net
 
 	public partial class McpeRespawn : Packet<McpeRespawn>
 	{
+		public enum RespawnState
+		{
+			Search = 0,
+			Ready = 1,
+			ClientReady = 2,
+		}
 
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
+		public byte state; // = null;
+		public long runtimeEntityId; // = null;
 
 		public McpeRespawn()
 		{
@@ -4760,6 +4772,8 @@ namespace MiNET.Net
 			Write(x);
 			Write(y);
 			Write(z);
+			Write(state);
+			WriteUnsignedVarLong(runtimeEntityId);
 
 			AfterEncode();
 		}
@@ -4776,6 +4790,8 @@ namespace MiNET.Net
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
+			state = ReadByte();
+			runtimeEntityId = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}
@@ -4790,6 +4806,8 @@ namespace MiNET.Net
 			x=default(float);
 			y=default(float);
 			z=default(float);
+			state=default(byte);
+			runtimeEntityId=default(long);
 		}
 
 	}

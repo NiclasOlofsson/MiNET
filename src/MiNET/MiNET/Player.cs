@@ -599,11 +599,11 @@ namespace MiNET
 
 					break;
 				}
-				case PlayerAction.Respawn:
-				{
-					MiNetServer.FastThreadPool.QueueUserWorkItem(HandleMcpeRespawn);
-					break;
-				}
+				//case PlayerAction.Respawn:
+				//{
+				//	MiNetServer.FastThreadPool.QueueUserWorkItem(HandleMcpeRespawn);
+				//	break;
+				//}
 				case PlayerAction.Jump:
 				{
 					HungerManager.IncreaseExhaustion(IsSprinting ? 0.8f : 0.2f);
@@ -1057,57 +1057,66 @@ namespace MiNET
 			OnPlayerJoin(new PlayerEventArgs(this));
 		}
 
-		public virtual void HandleMcpeRespawn()
-		{
-			HandleMcpeRespawn(null);
-		}
+		//public virtual void HandleMcpeRespawn()
+		//{
+		//	HandleMcpeRespawn(null);
+		//}
 
 		public virtual void HandleMcpeRespawn(McpeRespawn message)
 		{
-			HealthManager.ResetHealth();
+			if (message.state == (byte) McpeRespawn.RespawnState.ClientReady)
+			{
+				HealthManager.ResetHealth();
 
-			HungerManager.ResetHunger();
+				HungerManager.ResetHunger();
 
-			BroadcastSetEntityData();
+				BroadcastSetEntityData();
 
-			SendUpdateAttributes();
+				SendUpdateAttributes();
 
-			SendSetSpawnPosition();
+				SendSetSpawnPosition();
 
-			SendAdventureSettings();
+				SendAdventureSettings();
 
-			SendPlayerInventory();
+				SendPlayerInventory();
 
-			CleanCache();
+				CleanCache();
 
-			ForcedSendChunk(SpawnPosition);
+				ForcedSendChunk(SpawnPosition);
 
-			// send teleport to spawn
-			SetPosition(SpawnPosition);
+				// send teleport to spawn
+				SetPosition(SpawnPosition);
 
-			Level.SpawnToAll(this);
+				Level.SpawnToAll(this);
 
-			IsSpawned = true;
+				IsSpawned = true;
 
-			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+				Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
-			SendSetTime();
+				SendSetTime();
 
-			MiNetServer.FastThreadPool.QueueUserWorkItem(() => ForcedSendChunks());
+				MiNetServer.FastThreadPool.QueueUserWorkItem(() => ForcedSendChunks());
 
-			//SendPlayerStatus(3);
+				//SendPlayerStatus(3);
 
-			//McpeRespawn mcpeRespawn = McpeRespawn.CreateObject();
-			//mcpeRespawn.x = SpawnPosition.X;
-			//mcpeRespawn.y = SpawnPosition.Y;
-			//mcpeRespawn.z = SpawnPosition.Z;
-			//SendPackage(mcpeRespawn);
+				var mcpeRespawn = McpeRespawn.CreateObject();
+				mcpeRespawn.x = SpawnPosition.X;
+				mcpeRespawn.y = SpawnPosition.Y;
+				mcpeRespawn.z = SpawnPosition.Z;
+				mcpeRespawn.state = (byte) McpeRespawn.RespawnState.Ready;
+				mcpeRespawn.runtimeEntityId = EntityId;
+				SendPacket(mcpeRespawn);
 
-			////send time again
-			//SendSetTime();
-			//IsSpawned = true;
-			//LastUpdatedTime = DateTime.UtcNow;
-			//_haveJoined = true;
+				////send time again
+				//SendSetTime();
+				//IsSpawned = true;
+				//LastUpdatedTime = DateTime.UtcNow;
+				//_haveJoined = true;
+			}
+			else
+			{
+				Log.Warn($"Unhandled respawn state = {message.state}");
+			}
 		}
 
 		[Wired]
@@ -3511,6 +3520,8 @@ namespace MiNET
 			mcpeAddPlayer.actionPermissions = (uint) ActionPermissions;
 			mcpeAddPlayer.permissionLevel = (uint) PermissionLevel;
 			mcpeAddPlayer.userId = -1;
+			mcpeAddPlayer.deviceId = PlayerInfo.DeviceId;
+			mcpeAddPlayer.deviceOs = PlayerInfo.DeviceOS;
 
 			int[] a = new int[5];
 

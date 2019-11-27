@@ -496,6 +496,7 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |User Id | long |  |
 |Links | Links |  |
 |Device ID | string |  |
+|Device OS | int |  |
 -----------------------------------------------------------------------
 ### Add Entity (0x0d)
 Wiki: [Add Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddEntity)
@@ -1179,6 +1180,14 @@ Wiki: [Respawn](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Respawn)
 
 
 
+#### Respawn State constants
+
+| Name | Value |
+|:-----|:-----|
+|Search | 0 |
+|Ready | 1 |
+|Client Ready | 2 |
+
 
 #### Fields
 
@@ -1187,6 +1196,8 @@ Wiki: [Respawn](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Respawn)
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
+|State | byte |  |
+|Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Container Open (0x2e)
 Wiki: [Container Open](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ContainerOpen)

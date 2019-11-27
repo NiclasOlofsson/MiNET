@@ -1090,6 +1090,7 @@ namespace MiNET
 		public string DeviceModel { get; set; }
 		public string GameVersion { get; set; }
 		public int DeviceOS { get; set; }
+		public string DeviceId { get; set; }
 		public int GuiScale { get; set; }
 		public int UIProfile { get; set; }
 		public int Edition { get; set; }

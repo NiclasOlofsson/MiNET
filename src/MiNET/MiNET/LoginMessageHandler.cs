@@ -200,13 +200,12 @@ namespace MiNET
 						//-------------------------- SkinAnimationData
 						//-------------------------- AnimatedImageData
 
+						//-------------------------- DeviceId
+						
 						// --------------------------------------------------------------
 
-
-
-
+						// Unused
 						//-------------------------- SelfSignedId
-						//-------------------------- DeviceId
 						//-------------------------- ThirdPartyNameOnly
 						//-------------------------- PlatformOfflineId
 
@@ -223,6 +222,7 @@ namespace MiNET
 						_playerInfo.UIProfile = payload.UIProfile;
 						_playerInfo.ThirdPartyName = payload.ThirdPartyName;
 						_playerInfo.TenantId = payload.TenantId;
+						_playerInfo.DeviceId = payload.DeviceId;
 
 						_playerInfo.Skin = new Skin()
 						{

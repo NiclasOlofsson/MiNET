@@ -282,6 +282,7 @@
 		<field name="User Id" type="long" />
 		<field name="Links" type="Links" />
 		<field name="Device ID" type="string" />
+		<field name="Device OS" type="int" />
 	</pdu>
 
 
@@ -598,9 +599,16 @@
 	</pdu>
 
 	<pdu id="0x2d" online="false" client="true" server="true" name="MCPE_RESPAWN">
+		<enums id="Respawn State">
+			<enum id="Search" value="0" />
+			<enum id="Ready" value="1" />
+			<enum id="Client Ready" value="2" />
+		</enums>
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
+		<field name="State" type="byte" />
+		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x2e" online="false" client="false" server="true" name="MCPE_CONTAINER_OPEN">

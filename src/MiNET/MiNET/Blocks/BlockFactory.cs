@@ -89,6 +89,7 @@ namespace MiNET.Blocks
 			int palletSize = BlockPallet.Count;
 			for (int i = 0; i < palletSize; i++)
 			{
+				if (BlockPallet[i].Data > 15) continue; // TODO: figure out why pallet contains blocks with meta more than 15
 				LegacyToRuntimeId[(BlockPallet[i].Id << 4) | (byte) BlockPallet[i].Data] = i;
 			}
 		}

@@ -36,13 +36,8 @@ namespace MiNET.Crafting
 
 	public abstract class Recipe
 	{
-		public UUID Id { get; set; }
+		public UUID Id { get; set; } = new UUID(Guid.NewGuid().ToString());
 		public string Block { get; set; }
-
-		public Recipe()
-		{
-			Id = new UUID(Guid.NewGuid().ToString());
-		}
 	}
 
 	public class MultiRecipe : Recipe
@@ -54,7 +49,7 @@ namespace MiNET.Crafting
 		public List<Item> Input { get; private set; }
 		public Item Result { get; set; }
 
-		public ShapelessRecipe() : base()
+		public ShapelessRecipe()
 		{
 			Input = new List<Item>();
 		}
@@ -74,7 +69,7 @@ namespace MiNET.Crafting
 		public Item[] Input { get; set; }
 		public Item Result { get; set; }
 
-		public ShapedRecipe(int width, int height) : base()
+		public ShapedRecipe(int width, int height)
 		{
 			Width = width;
 			Height = height;
@@ -94,7 +89,7 @@ namespace MiNET.Crafting
 		public Item Input { get; set; }
 		public Item Result { get; set; }
 
-		public SmeltingRecipe() : base()
+		public SmeltingRecipe()
 		{
 			Block = "furnace";
 		}

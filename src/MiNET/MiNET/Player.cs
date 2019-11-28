@@ -2214,6 +2214,7 @@ namespace MiNET
 			Log.Warn($"Transaction mismatch");
 		}
 
+		private bool _startConsuming;
 		private long _itemUseTimer;
 
 		protected virtual void HandleItemReleaseTransactions(Transaction transaction)
@@ -2226,6 +2227,8 @@ namespace MiNET
 				{
 					if (_itemUseTimer <= 0) break;
 
+					if (_startConsuming) _startConsuming = false;
+
 					itemInHand.Release(Level, this, transaction.FromPosition, Level.TickTime - _itemUseTimer);
 
 					_itemUseTimer = 0;
@@ -2234,21 +2237,21 @@ namespace MiNET
 				}
 				case McpeInventoryTransaction.ItemReleaseAction.Use:
 				{
-					if (GameMode == GameMode.Survival)
-					{
-						if (itemInHand is FoodItem)
-						{
-							FoodItem foodItem = (FoodItem) Inventory.GetItemInHand();
-							foodItem.Consume(this);
-							foodItem.Count--;
-						}
-						else if (itemInHand is ItemPotion)
-						{
-							ItemPotion potion = (ItemPotion) Inventory.GetItemInHand();
-							potion.Consume(this);
-							potion.Count--;
-						}
-					}
+					//if (GameMode == GameMode.Survival)
+					//{
+					//	if (itemInHand is FoodItem)
+					//	{
+					//		FoodItem foodItem = (FoodItem) Inventory.GetItemInHand();
+					//		foodItem.Consume(this);
+					//		foodItem.Count--;
+					//	}
+					//	else if (itemInHand is ItemPotion)
+					//	{
+					//		ItemPotion potion = (ItemPotion) Inventory.GetItemInHand();
+					//		potion.Consume(this);
+					//		potion.Count--;
+					//	}
+					//}
 
 					break;
 				}
@@ -2268,17 +2271,47 @@ namespace MiNET
 				case McpeInventoryTransaction.ItemUseAction.Place:
 					Level.Interact(this, itemInHand, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
 					break;
+
 				case McpeInventoryTransaction.ItemUseAction.Use:
+					if (_startConsuming && TryConsumeItem(itemInHand)) break;
+
 					_itemUseTimer = Level.TickTime;
 					itemInHand.UseItem(Level, this, transaction.Position);
 					//Inventory.UpdateInventorySlot(transaction.Slot, transaction.Item);
 					break;
+
 				case McpeInventoryTransaction.ItemUseAction.Destroy:
 					Level.BreakBlock(this, transaction.Position);
 					break;
 			}
 
 			HandleNormalTransactions(transaction);
+		}
+
+		protected virtual bool TryConsumeItem(Item item)
+		{
+			if ((GameMode == GameMode.Survival || GameMode == GameMode.Adventure) && item is FoodItem foodItem)
+			{
+				foodItem.Consume(this);
+				foodItem.Count--;
+				_startConsuming = false;
+				Inventory.SendSetSlot(Inventory.InHandSlot);
+				return true;
+			}
+
+			if (item is ItemPotion potion)
+			{
+				potion.Consume(this);
+				_startConsuming = false;
+				if (GameMode == GameMode.Survival || GameMode == GameMode.Adventure)
+				{
+					Inventory.ClearInventorySlot((byte) Inventory.InHandSlot);
+					Inventory.SetFirstEmptySlot(ItemFactory.GetItem(374), true);
+				}
+				return true;
+			}
+
+			return false;
 		}
 
 		private List<Item> _craftingInput = new List<Item>(new Item[9]);
@@ -2776,7 +2809,9 @@ namespace MiNET
 				case 34:
 					ExperienceManager.RemoveExperienceLevels(message.data);
 					break;
+
 				case 57:
+					if (!_startConsuming) _startConsuming = true;
 					var data = message.data;
 					if (data != 0) BroadcastEntityEvent(57, data);
 					break;

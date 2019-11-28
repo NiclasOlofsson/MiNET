@@ -585,32 +585,32 @@ namespace TestPlugin.NiceLobby
 						timeReset.time = (int) level.WorldTime;
 						level.RelayBroadcast(timeDay);
 
-						Thread.Sleep(200);
+						//Thread.Sleep(200);
 
-						{
-							var mcpeExplode = McpeExplode.CreateObject();
-							mcpeExplode.position = point1.ToVector3();
-							mcpeExplode.radius = 100;
-							mcpeExplode.records = new Records();
-							level.RelayBroadcast(mcpeExplode);
-						}
+						//{
+						//	var mcpeExplode = McpeExplode.CreateObject();
+						//	mcpeExplode.position = point1.ToVector3();
+						//	mcpeExplode.radius = 100;
+						//	mcpeExplode.records = new Records();
+						//	level.RelayBroadcast(mcpeExplode);
+						//}
 
-						Thread.Sleep(250);
-						{
-							var mcpeExplode = McpeExplode.CreateObject();
-							mcpeExplode.position = point2.ToVector3();
-							mcpeExplode.radius = 100;
-							mcpeExplode.records = new Records();
-							level.RelayBroadcast(mcpeExplode);
-						}
-						Thread.Sleep(250);
-						{
-							var mcpeExplode = McpeExplode.CreateObject();
-							mcpeExplode.position = point3.ToVector3();
-							mcpeExplode.radius = 100;
-							mcpeExplode.records = new Records();
-							level.RelayBroadcast(mcpeExplode);
-						}
+						//Thread.Sleep(250);
+						//{
+						//	var mcpeExplode = McpeExplode.CreateObject();
+						//	mcpeExplode.position = point2.ToVector3();
+						//	mcpeExplode.radius = 100;
+						//	mcpeExplode.records = new Records();
+						//	level.RelayBroadcast(mcpeExplode);
+						//}
+						//Thread.Sleep(250);
+						//{
+						//	var mcpeExplode = McpeExplode.CreateObject();
+						//	mcpeExplode.position = point3.ToVector3();
+						//	mcpeExplode.radius = 100;
+						//	mcpeExplode.records = new Records();
+						//	level.RelayBroadcast(mcpeExplode);
+						//}
 					});
 				}
 

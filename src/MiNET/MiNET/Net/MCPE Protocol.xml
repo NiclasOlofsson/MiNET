@@ -410,10 +410,9 @@
 		<field name="Title" type="string" />
 	</pdu>
 
-	<pdu id="0x17" online="false" client="false" server="true" name="MCPE_EXPLODE">
-		<field name="Position" type="Vector3" />
-		<field name="Radius" type="SignedVarInt" />
-		<field name="Records" type="Records" />
+	<pdu id="0x17" online="false" client="false" server="true" name="MCPE_TICK_SYNC">
+		<field name="Request Time" type="long" />
+		<field name="Response Time" type="long" />
 	</pdu>
 
 	<pdu id="0x18" online="false" client="true" server="true" name="MCPE_LEVEL_SOUND_EVENT_OLD">

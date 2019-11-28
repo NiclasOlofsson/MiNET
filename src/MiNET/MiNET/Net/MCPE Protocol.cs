@@ -120,7 +120,7 @@ namespace MiNET.Net
 		void HandleMcpeRiderJump(McpeRiderJump message);
 		void HandleMcpeUpdateBlock(McpeUpdateBlock message);
 		void HandleMcpeAddPainting(McpeAddPainting message);
-		void HandleMcpeExplode(McpeExplode message);
+		void HandleMcpeTickSync(McpeTickSync message);
 		void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message);
 		void HandleMcpeLevelEvent(McpeLevelEvent message);
 		void HandleMcpeBlockEvent(McpeBlockEvent message);
@@ -251,7 +251,7 @@ namespace MiNET.Net
 			else if (typeof(McpeRiderJump) == message.GetType()) _messageHandler.HandleMcpeRiderJump((McpeRiderJump) message);
 			else if (typeof(McpeUpdateBlock) == message.GetType()) _messageHandler.HandleMcpeUpdateBlock((McpeUpdateBlock) message);
 			else if (typeof(McpeAddPainting) == message.GetType()) _messageHandler.HandleMcpeAddPainting((McpeAddPainting) message);
-			else if (typeof(McpeExplode) == message.GetType()) _messageHandler.HandleMcpeExplode((McpeExplode) message);
+			else if (typeof(McpeTickSync) == message.GetType()) _messageHandler.HandleMcpeTickSync((McpeTickSync) message);
 			else if (typeof(McpeLevelSoundEventOld) == message.GetType()) _messageHandler.HandleMcpeLevelSoundEventOld((McpeLevelSoundEventOld) message);
 			else if (typeof(McpeLevelEvent) == message.GetType()) _messageHandler.HandleMcpeLevelEvent((McpeLevelEvent) message);
 			else if (typeof(McpeBlockEvent) == message.GetType()) _messageHandler.HandleMcpeBlockEvent((McpeBlockEvent) message);
@@ -532,7 +532,7 @@ namespace MiNET.Net
 						packet.Decode(buffer);
 						return packet;
 					case 0x17:
-						packet = McpeExplode.CreateObject();
+						packet = McpeTickSync.CreateObject();
 						packet.Decode(buffer);
 						return packet;
 					case 0x18:
@@ -3442,14 +3442,13 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeExplode : Packet<McpeExplode>
+	public partial class McpeTickSync : Packet<McpeTickSync>
 	{
 
-		public Vector3 position; // = null;
-		public int radius; // = null;
-		public Records records; // = null;
+		public long requestTime; // = null;
+		public long responseTime; // = null;
 
-		public McpeExplode()
+		public McpeTickSync()
 		{
 			Id = 0x17;
 			IsMcpe = true;
@@ -3461,9 +3460,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(position);
-			WriteSignedVarInt(radius);
-			Write(records);
+			Write(requestTime);
+			Write(responseTime);
 
 			AfterEncode();
 		}
@@ -3477,9 +3475,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			position = ReadVector3();
-			radius = ReadSignedVarInt();
-			records = ReadRecords();
+			requestTime = ReadLong();
+			responseTime = ReadLong();
 
 			AfterDecode();
 		}
@@ -3491,9 +3488,8 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			position=default(Vector3);
-			radius=default(int);
-			records=default(Records);
+			requestTime=default(long);
+			responseTime=default(long);
 		}
 
 	}

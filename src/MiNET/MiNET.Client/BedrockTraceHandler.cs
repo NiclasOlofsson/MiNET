@@ -443,7 +443,7 @@ namespace MiNET.Client
 		{
 		}
 
-		public override void HandleMcpeExplode(McpeExplode message)
+		public override void HandleMcpeTickSync(McpeTickSync message)
 		{
 		}
 

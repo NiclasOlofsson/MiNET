@@ -28,7 +28,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Rider Jump | 0x14 | 20 |   
 | Update Block | 0x15 | 21 |   
 | Add Painting | 0x16 | 22 |   
-| Explode | 0x17 | 23 |   
+| Tick Sync | 0x17 | 23 |   
 | Level Sound Event Old | 0x18 | 24 |   
 | Level Event | 0x19 | 25 |   
 | Block Event | 0x1a | 26 |   
@@ -171,7 +171,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | PlayerLocation [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PlayerLocation) |
 | PlayerRecords [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PlayerRecords) |
 | Recipes [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Recipes) |
-| Records [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Records) |
 | ResourcePackIds [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIds) |
 | ResourcePackIdVersions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIdVersions) |
 | ResourcePackInfos [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackInfos) |
@@ -720,8 +719,8 @@ Wiki: [Add Painting](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddP
 |Direction | SignedVarInt |  |
 |Title | string |  |
 -----------------------------------------------------------------------
-### Explode (0x17)
-Wiki: [Explode](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Explode)
+### Tick Sync (0x17)
+Wiki: [Tick Sync](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TickSync)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -733,9 +732,8 @@ Wiki: [Explode](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Explode)
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Position | Vector3 |  |
-|Radius | SignedVarInt |  |
-|Records | Records |  |
+|Request Time | long |  |
+|Response Time | long |  |
 -----------------------------------------------------------------------
 ### Level Sound Event Old (0x18)
 Wiki: [Level Sound Event Old](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEventOld)

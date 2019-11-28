@@ -1841,7 +1841,7 @@ Wiki: [Resource Pack Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//P
 |Package ID | string |  |
 |Chunk Index | uint |  |
 |Progress | ulong |  |
-|Length | uint |  |
+|Length | UnsignedVarInt |  |
 |Payload | byte[] | (int) length |
 -----------------------------------------------------------------------
 ### Resource Pack Chunk Request (0x54)

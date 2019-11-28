@@ -6855,7 +6855,7 @@ namespace MiNET.Net
 			Write(packageId);
 			Write(chunkIndex);
 			Write(progress);
-			Write(length);
+			WriteUnsignedVarInt(length);
 			Write(payload);
 
 			AfterEncode();
@@ -6873,7 +6873,7 @@ namespace MiNET.Net
 			packageId = ReadString();
 			chunkIndex = ReadUint();
 			progress = ReadUlong();
-			length = ReadUint();
+			length = ReadUnsignedVarInt();
 			payload = ReadBytes((int) length);
 
 			AfterDecode();

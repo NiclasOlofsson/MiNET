@@ -877,7 +877,7 @@
 		<field name="Package ID" type="string" />
 		<field name="Chunk Index" type="uint" />
 		<field name="Progress" type="ulong" />
-		<field name="Length" type="uint" />
+		<field name="Length" type="UnsignedVarInt" />
 		<field name="Payload" type="byte[]" size="(int) length" />
 	</pdu>
 

@@ -520,7 +520,7 @@
 		<enums id="Actions">
 			<enum id="Right click" value="1" />
 			<enum id="Left click" value="2" />
-			<enum id="Leave cehicle" value="3" />
+			<enum id="Leave vehicle" value="3" />
 			<enum id="Mouse over" value="4" />
 			<enum id="Open NPC" value="5" />
 			<enum id="Open inventory" value="6" />
@@ -876,8 +876,7 @@
 		<field name="Package ID" type="string" />
 		<field name="Chunk Index" type="uint" />
 		<field name="Progress" type="ulong" />
-		<field name="Length" type="UnsignedVarInt" />
-		<field name="Payload" type="byte[]" size="(int) length" />
+		<field name="Payload" type="ByteArray" />
 	</pdu>
 
 	<pdu id="0x54" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
@@ -1058,7 +1057,7 @@
 
 	<pdu id="0x73" online="false" client="true" server="true" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
 		<field name="Timestamp" type="ulong" />
-		<field name="IsFromServer" type="bool" />
+		<field name="Unknown Flag" type="bool" />
 	</pdu>
 
 	<pdu id="0x75" online="false" client="true" server="true" name="MCPE_SCRIPT_CUSTOM_EVENT_PACKET">

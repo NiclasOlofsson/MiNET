@@ -29,7 +29,7 @@ namespace MiNET.Net
 	{
 		partial void AfterDecode()
 		{
-			if (actionId == (int) Actions.MouseOver || actionId == (int) Actions.LeaveCehicle)
+			if (actionId == (int) Actions.MouseOver || actionId == (int) Actions.LeaveVehicle)
 			{
 				// TODO: Something useful with this value
 				ReadVector3();

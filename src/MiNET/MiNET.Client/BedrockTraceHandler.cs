@@ -872,7 +872,6 @@ namespace MiNET.Client
 			Log.Debug($"packageId={message.packageId}");
 			Log.Debug($"unknown1={message.chunkIndex}");
 			Log.Debug($"unknown3={message.progress}");
-			Log.Debug($"Reported Lenght={message.length}");
 			Log.Debug($"Actual Lenght={message.payload.Length}");
 
 			base.HandleMcpeResourcePackChunkData(message);

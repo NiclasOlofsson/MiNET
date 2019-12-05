@@ -966,7 +966,7 @@ Wiki: [Interact](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Interact
 |:-----|:-----|
 |Right Click | 1 |
 |Left Click | 2 |
-|Leave Cehicle | 3 |
+|Leave Vehicle | 3 |
 |Mouse Over | 4 |
 |Open Npc | 5 |
 |Open Inventory | 6 |
@@ -1839,8 +1839,7 @@ Wiki: [Resource Pack Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//P
 |Package ID | string |  |
 |Chunk Index | uint |  |
 |Progress | ulong |  |
-|Length | UnsignedVarInt |  |
-|Payload | byte[] | (int) length |
+|Payload | ByteArray |  |
 -----------------------------------------------------------------------
 ### Resource Pack Chunk Request (0x54)
 Wiki: [Resource Pack Chunk Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackChunkRequest)
@@ -2373,7 +2372,7 @@ Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wik
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Timestamp | ulong |  |
-|IsFromServer | bool |  |
+|Unknown Flag | bool |  |
 -----------------------------------------------------------------------
 ### Script Custom Event Packet (0x75)
 Wiki: [Script Custom Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ScriptCustomEventPacket)

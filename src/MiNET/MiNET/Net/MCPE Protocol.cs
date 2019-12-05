@@ -4077,7 +4077,7 @@ namespace MiNET.Net
 		{
 			RightClick = 1,
 			LeftClick = 2,
-			LeaveCehicle = 3,
+			LeaveVehicle = 3,
 			MouseOver = 4,
 			OpenNpc = 5,
 			OpenInventory = 6,
@@ -6833,7 +6833,6 @@ namespace MiNET.Net
 		public string packageId; // = null;
 		public uint chunkIndex; // = null;
 		public ulong progress; // = null;
-		public uint length; // = null;
 		public byte[] payload; // = null;
 
 		public McpeResourcePackChunkData()
@@ -6851,8 +6850,7 @@ namespace MiNET.Net
 			Write(packageId);
 			Write(chunkIndex);
 			Write(progress);
-			WriteUnsignedVarInt(length);
-			Write(payload);
+			WriteByteArray(payload);
 
 			AfterEncode();
 		}
@@ -6869,8 +6867,7 @@ namespace MiNET.Net
 			packageId = ReadString();
 			chunkIndex = ReadUint();
 			progress = ReadUlong();
-			length = ReadUnsignedVarInt();
-			payload = ReadBytes((int) length);
+			payload = ReadByteArray();
 
 			AfterDecode();
 		}
@@ -6885,7 +6882,6 @@ namespace MiNET.Net
 			packageId=default(string);
 			chunkIndex=default(uint);
 			progress=default(ulong);
-			length=default(uint);
 			payload=default(byte[]);
 		}
 
@@ -8519,7 +8515,7 @@ namespace MiNET.Net
 	{
 
 		public ulong timestamp; // = null;
-		public bool isfromserver; // = null;
+		public bool unknownFlag; // = null;
 
 		public McpeNetworkStackLatencyPacket()
 		{
@@ -8534,7 +8530,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(timestamp);
-			Write(isfromserver);
+			Write(unknownFlag);
 
 			AfterEncode();
 		}
@@ -8549,7 +8545,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			timestamp = ReadUlong();
-			isfromserver = ReadBool();
+			unknownFlag = ReadBool();
 
 			AfterDecode();
 		}
@@ -8562,7 +8558,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			timestamp=default(ulong);
-			isfromserver=default(bool);
+			unknownFlag=default(bool);
 		}
 
 	}

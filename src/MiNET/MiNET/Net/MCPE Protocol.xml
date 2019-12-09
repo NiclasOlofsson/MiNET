@@ -807,6 +807,16 @@
 	</pdu>
 
 	<pdu id="0x4a" online="false" client="false" server="true" name="MCPE_BOSS_EVENT">
+		<enums id="Type">
+			<enum id="Add Boss" value="0" />
+			<enum id="Add Player" value="1" />
+			<enum id="Remove boss" value="2" />
+			<enum id="Remove Player" value="3" />
+			<enum id="Update Progress" value="4" />
+			<enum id="Update Name" value="5" />
+			<enum id="Update Options" value="6" />
+			<enum id="Update Style" value="7" />
+		</enums>
 		<field name="Boss Entity ID" type="SignedVarLong" />
 		<field name="Event Type" type="UnsignedVarInt" />
 	</pdu>

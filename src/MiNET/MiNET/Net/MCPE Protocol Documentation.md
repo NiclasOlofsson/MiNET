@@ -1673,6 +1673,19 @@ Wiki: [Boss Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BossEv
 
 
 
+#### Type constants
+
+| Name | Value |
+|:-----|:-----|
+|Add Boss | 0 |
+|Add Player | 1 |
+|Remove Boss | 2 |
+|Remove Player | 3 |
+|Update Progress | 4 |
+|Update Name | 5 |
+|Update Options | 6 |
+|Update Style | 7 |
+
 
 #### Fields
 

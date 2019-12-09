@@ -6305,6 +6305,17 @@ namespace MiNET.Net
 
 	public partial class McpeBossEvent : Packet<McpeBossEvent>
 	{
+		public enum Type
+		{
+			AddBoss = 0,
+			AddPlayer = 1,
+			RemoveBoss = 2,
+			RemovePlayer = 3,
+			UpdateProgress = 4,
+			UpdateName = 5,
+			UpdateOptions = 6,
+			UpdateStyle = 7,
+		}
 
 		public long bossEntityId; // = null;
 		public uint eventType; // = null;

@@ -239,8 +239,10 @@ namespace MiNET
 							Width = payload.SkinImageWidth,
 							Height = payload.SkinImageHeight,
 							Data = Convert.FromBase64String((string) payload.SkinData ?? string.Empty),
-							GeometryData = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinGeometry ?? string.Empty)),
+							GeometryData = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinGeometryData ?? string.Empty)),
 							AnimationData = payload.SkinAnimationData,
+							IsPremiumSkin = payload.PremiumSkin,
+							IsPersonaSkin = payload.PersonaSkin,
 						};
 						foreach (dynamic animationData in payload.AnimatedImageData)
 						{

@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -36,12 +37,25 @@ namespace MiNET.Utils.Skins
 	public class Skin : ICloneable
 	{
 		public bool Slim { get; set; }
+		public bool IsPersonaSkin { get; set; }
+		public bool IsPremiumSkin { get; set; }
 
-		public byte[] CapeData { get; set; }
+		public Cape Cape { get; set; }
 		public string SkinId { get; set; }
-		public byte[] SkinData { get; set; }
-		public string SkinGeometryName { get; set; }
-		public string SkinGeometry { get; set; }
+		public string ResourcePatch { get; set; }  // contains GeometryName
+		public int Height { get; set; }
+		public int Width { get; set; }
+		public byte[] Data { get; set; }
+		public string GeometryName { get; set; }
+		public string GeometryData { get; set; }
+		public string AnimationData { get; set; }
+		public List<Animation> Animations { get; set; }
+
+		public Skin()
+		{
+			Cape = new Cape();
+			Animations = new List<Animation>();
+		}
 
 		public static byte[] GetTextureFromFile(string filename)
 		{
@@ -130,28 +144,35 @@ namespace MiNET.Utils.Skins
 		public object Clone()
 		{
 			byte[] clonedSkinData = null;
-			byte[] clonedCapeData = null;
 
-			if (SkinData != null)
+			if (Data != null)
 			{
-				clonedSkinData = new byte[SkinData.Length];
-				SkinData.CopyTo(clonedSkinData, 0);
-			}
-			if (CapeData != null)
-			{
-				clonedCapeData = new byte[CapeData.Length];
-				CapeData.CopyTo(clonedCapeData, 0);
+				clonedSkinData = new byte[Data.Length];
+				Data.CopyTo(clonedSkinData, 0);
 			}
 
-			return new Skin
+			var clonedSkin = new Skin
 			{
 				SkinId = SkinId,
-				SkinGeometry = SkinGeometry,
-				SkinGeometryName = SkinGeometryName,
+				GeometryData = GeometryData,
 				Slim = Slim,
-				SkinData = clonedSkinData,
-				CapeData = clonedCapeData
+				Data = clonedSkinData,
+				Cape = Cape == null ? null : (Cape)Cape.Clone(),
+				IsPersonaSkin = IsPersonaSkin,
+				IsPremiumSkin = IsPremiumSkin,
+				ResourcePatch = ResourcePatch,
+				Height = Height,
+				Width = Width,
+				GeometryName = GeometryName,
+				AnimationData = AnimationData,
 			};
+
+			foreach (Animation animation in Animations)
+			{
+				clonedSkin.Animations.Add((Animation)animation.Clone());
+			}
+
+			return clonedSkin;
 		}
 	}
 }

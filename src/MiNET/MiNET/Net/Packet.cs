@@ -459,8 +459,12 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
+					Write(record.PlayerInfo.CertificateData?.ExtraData?.Xuid ?? String.Empty);
 					Write(record.PlayerInfo.PlatformChatId);
+					Write(record.PlayerInfo.DeviceOS);
+					Write(record.Skin);
+					Write(false); // is teacher
+					Write(false); // is host
 				}
 			}
 			else if (records is PlayerRemoveRecords)
@@ -491,8 +495,13 @@ namespace MiNET.Net
 						player.ClientUuid = ReadUUID();
 						player.EntityId = ReadSignedVarLong();
 						player.DisplayName = ReadString();
+						ReadString(); // TODO: xuid
+						var platformChatId = ReadString(); // TODO: platform chat ID
+						ReadInt(); // TODO: device os
 						player.Skin = ReadSkin();
-						var platformChatId = ReadString(); //TODO: platform chat ID
+						ReadBool(); // is teacher
+						ReadBool(); // is host
+
 						records.Add(player);
 						Log.Warn($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', {platformChatId}");
 					}
@@ -1174,41 +1183,32 @@ namespace MiNET.Net
 			}
 		}
 
-		public Blockstates ReadBlockstates()
+		public BlockPallet ReadBlockPallet()
 		{
-			var result = new Blockstates();
-			uint count = ReadUnsignedVarInt();
-			for (int runtimeId = 0; runtimeId < count; runtimeId++)
-			{
-				var name = ReadString();
-				var data = ReadShort();
-				var legacyId = ReadShort();
-				result.Add(runtimeId, new Blockstate
-				{
-					Id = legacyId,
-					RuntimeId = runtimeId,
-					Name = name,
-					Data = data
-				});
-			}
+			// don't know how to do it without changes in fNbt
+
+			var result = new BlockPallet();
+			//uint count = ReadUnsignedVarInt();
+			//for (int runtimeId = 0; runtimeId < count; runtimeId++)
+			//{
+			//	var name = ReadString();
+			//	var data = ReadShort();
+			//	var legacyId = ReadShort();
+			//	result.Add(runtimeId, new Blockstate
+			//	{
+			//		Id = legacyId,
+			//		RuntimeId = runtimeId,
+			//		Name = name,
+			//		Data = data
+			//	});
+			//}
 
 			return result;
 		}
 
-		public void Write(Blockstates blockstates)
+		public void Write(BlockPallet blockPallet)
 		{
-			if (blockstates == null)
-			{
-				WriteUnsignedVarInt(0);
-				return;
-			}
-			WriteUnsignedVarInt((uint) blockstates.Count);
-			foreach (var blockstate in blockstates.OrderBy(kvp => kvp.Key))
-			{
-				Write(blockstate.Value.Name);
-				Write(blockstate.Value.Data);
-				Write((short) blockstate.Value.Id);
-			}
+			Write((byte[]) blockPallet);
 		}
 
 		public void Write(Links links)
@@ -1389,17 +1389,41 @@ namespace MiNET.Net
 			return ids;
 		}
 
-		public void Write(Skin skin, string xuid = null)
+		public void Write(Skin skin)
 		{
-			//skin.SkinGeometryName = "gurun";
-			//skin.SkinGeometry = Encoding.UTF8.GetBytes(File.ReadAllText(@"D:\Temp\humanoid.json"));
-
 			Write(skin.SkinId);
-			WriteByteArray(skin.SkinData);
-			WriteByteArray(skin.CapeData);
-			Write(skin.SkinGeometryName);
-			Write(skin.SkinGeometry);
-			Write(xuid);
+			Write(skin.ResourcePatch);
+			Write(skin.Width);
+			Write(skin.Height);
+			WriteByteArray(skin.Data);
+
+			if (skin.Animations?.Count > 0)
+			{
+				Write(skin.Animations.Count);
+				foreach (Animation animation in skin.Animations)
+				{
+					Write(animation.ImageWidth);
+					Write(animation.ImageHeight);
+					WriteByteArray(animation.Image);
+					Write(animation.Type);
+					Write(animation.FrameCount);
+				}
+			}
+			else
+			{
+				Write(0);
+			}
+
+			Write(skin.Cape.ImageWidth);
+			Write(skin.Cape.ImageHeight);
+			WriteByteArray(skin.Cape.Data);
+			Write(skin.GeometryData);
+			Write(skin.AnimationData);
+			Write(skin.IsPremiumSkin);
+			Write(skin.IsPersonaSkin);
+			Write(skin.Cape.OnClassicSkin);
+			Write(skin.Cape.Id);
+			Write(skin.SkinId + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()); // some unique skin id
 		}
 
 		public Skin ReadSkin()
@@ -1407,22 +1431,43 @@ namespace MiNET.Net
 			Skin skin = new Skin();
 
 			skin.SkinId = ReadString();
+			skin.ResourcePatch = ReadString();
+			skin.Width = ReadInt();
+			skin.Height = ReadInt();
+			skin.Data = ReadByteArray(false);
+
+			int animationCount = ReadInt();
+			for (int i = 0; i < animationCount; i++)
+			{
+				skin.Animations.Add(
+					new Animation()
+					{
+						ImageWidth = ReadInt(),
+						ImageHeight = ReadInt(),
+						Image = ReadByteArray(false),
+						Type = ReadInt(),
+						FrameCount = ReadFloat(),
+					}
+				);
+			}
+
+			skin.Cape.ImageWidth = ReadInt();
+			skin.Cape.ImageHeight = ReadInt();
+			skin.Cape.Data = ReadByteArray(false);
+			skin.GeometryData = ReadString();
+			skin.AnimationData = ReadString();
+			skin.IsPremiumSkin = ReadBool();
+			skin.IsPersonaSkin = ReadBool();
+			skin.Cape.OnClassicSkin = ReadBool();
+			skin.Cape.Id = ReadString();
+			ReadString(); // some unique skin id
+
 			Log.Debug($"SkinId={skin.SkinId}");
-
-			skin.SkinData = ReadByteArray(false);
-			Log.Debug($"SkinData lenght={skin.SkinData.Length}");
-
-			skin.CapeData = ReadByteArray(false);
-			Log.Debug($"CapeData lenght={skin.CapeData.Length}");
-			Log.Debug("\n" + HexDump(skin.CapeData));
-
-			skin.SkinGeometryName = ReadString();
-			Log.Debug($"SkinGeometryName={skin.SkinGeometryName}");
-
-			skin.SkinGeometry = ReadString();
-			Log.Debug($"SkinGeometry lenght={skin.SkinGeometry.Length}");
-
-			Log.Debug("XUID=" + ReadString());
+			Log.Debug($"SkinData lenght={skin.Data.Length}");
+			Log.Debug($"CapeData lenght={skin.Cape.Data.Length}");
+			Log.Debug("\n" + HexDump(skin.Cape.Data));
+			Log.Debug($"SkinGeometryName={skin.GeometryName}");
+			Log.Debug($"SkinGeometry lenght={skin.GeometryData.Length}");
 
 			return skin;
 		}
@@ -1444,24 +1489,27 @@ namespace MiNET.Net
 			{
 				if (recipe is ShapelessRecipe)
 				{
-					WriteSignedVarInt(0); // Type
+					WriteSignedVarInt(Shapeless); // Type
 
 					ShapelessRecipe rec = (ShapelessRecipe) recipe;
+					Write(rec.Id.ToString());
 					WriteVarInt(rec.Input.Count);
 					foreach (Item stack in rec.Input)
 					{
-						Write(stack);
+						WriteRecipeIngredient(stack);
 					}
 					WriteVarInt(1);
 					Write(rec.Result);
-					Write(new UUID(Guid.NewGuid().ToString()));
+					Write(rec.Id);
 					Write(rec.Block);
+					WriteSignedVarInt(0); // priority
 				}
 				else if (recipe is ShapedRecipe)
 				{
-					WriteSignedVarInt(1); // Type
+					WriteSignedVarInt(Shaped); // Type
 
 					ShapedRecipe rec = (ShapedRecipe) recipe;
+					Write(rec.Id.ToString());
 					WriteSignedVarInt(rec.Width);
 					WriteSignedVarInt(rec.Height);
 
@@ -1469,18 +1517,19 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < rec.Height; h++)
 						{
-							Write(rec.Input[(h * rec.Width) + w]);
+							WriteRecipeIngredient(rec.Input[(h * rec.Width) + w]);
 						}
 					}
 					WriteVarInt(1);
 					Write(rec.Result);
-					Write(new UUID(Guid.NewGuid().ToString()));
+					Write(rec.Id);
 					Write(rec.Block);
+					WriteSignedVarInt(0); // priority
 				}
 				else if (recipe is SmeltingRecipe)
 				{
 					SmeltingRecipe rec = (SmeltingRecipe) recipe;
-					WriteSignedVarInt(rec.Input.Metadata == 0 ? 2 : 3); // Type
+					WriteSignedVarInt(rec.Input.Metadata == 0 ? Furnace : FurnaceData); // Type
 					WriteSignedVarInt(rec.Input.Id);
 					if (rec.Input.Metadata != 0) WriteSignedVarInt(rec.Input.Metadata);
 					Write(rec.Result);
@@ -1492,8 +1541,6 @@ namespace MiNET.Net
 					Write(recipe.Id);
 				}
 			}
-
-			Write((byte) 1);
 		}
 
 		public Recipes ReadRecipes()
@@ -1506,7 +1553,7 @@ namespace MiNET.Net
 
 			for (int i = 0; i < count; i++)
 			{
-				int recipeType = (int) ReadSignedVarInt();
+				int recipeType = ReadSignedVarInt();
 
 				//Log.Error($"Read recipe no={i} type={recipeType}");
 
@@ -1519,20 +1566,23 @@ namespace MiNET.Net
 				if (recipeType == Shapeless || recipeType == ShulkerBox)
 				{
 					ShapelessRecipe recipe = new ShapelessRecipe();
+					ReadString(); // some unique id
 					int ingrediensCount = ReadVarInt(); // 
 					for (int j = 0; j < ingrediensCount; j++)
 					{
-						recipe.Input.Add(ReadItem());
+						recipe.Input.Add(ReadRecipeIngredient());
 					}
 					ReadVarInt(); // 1?
 					recipe.Result = ReadItem();
 					recipe.Id = ReadUUID(); // Id
 					recipe.Block = ReadString(); // block?
 					recipes.Add(recipe);
+					ReadSignedVarInt(); // priority
 					//Log.Error("Read shapeless recipe");
 				}
 				else if (recipeType == Shaped)
 				{
+					ReadString(); // some unique id
 					int width = ReadSignedVarInt(); // Width
 					int height = ReadSignedVarInt(); // Height
 					ShapedRecipe recipe = new ShapedRecipe(width, height);
@@ -1541,7 +1591,7 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < height; h++)
 						{
-							recipe.Input[(h * width) + w] = ReadItem();
+							recipe.Input[(h * width) + w] = ReadRecipeIngredient();
 						}
 					}
 
@@ -1553,6 +1603,7 @@ namespace MiNET.Net
 					recipe.Id = ReadUUID(); // Id
 					recipe.Block = ReadString(); // block?
 					recipes.Add(recipe);
+					ReadSignedVarInt(); // priority
 					//Log.Error("Read shaped recipe");
 				}
 				else if (recipeType == Furnace)
@@ -1635,9 +1686,34 @@ namespace MiNET.Net
 				}
 			}
 
-			ReadByte(); // Clean (1) or update (0)
-
 			return recipes;
+		}
+
+		public void WriteRecipeIngredient(Item stack)
+		{
+			if (stack == null || stack.Id == 0)
+			{
+				WriteSignedVarInt(0);
+				return;
+			}
+
+			WriteSignedVarInt(stack.Id);
+			WriteSignedVarInt(stack.Metadata);
+			WriteSignedVarInt(stack.Count);
+		}
+
+		public Item ReadRecipeIngredient()
+		{
+			short id = (short) ReadSignedVarInt();
+			if (id == 0)
+			{
+				return new ItemAir();
+			}
+
+			short metadata = (short) ReadSignedVarInt();
+			int count = ReadSignedVarInt();
+
+			return ItemFactory.GetItem(id, metadata, count);
 		}
 
 		const int BITFLAG_TEXTURE_UPDATE = 0x02;

@@ -35,6 +35,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json.Linq;
 
@@ -322,13 +323,13 @@ namespace MiNET.Test
 		[TestMethod]
 		public void GenerateClassesForBlocks()
 		{
-			Dictionary<int, Blockstate> blockstates = null;
+			BlockPallet pallet = null;
 
 			var assembly = Assembly.GetAssembly(typeof(Block));
 			using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
 			using (var reader = new StreamReader(stream))
 			{
-				blockstates = Blockstates.FromJson(reader.ReadToEnd());
+				pallet = BlockPallet.FromJson(reader.ReadToEnd());
 			}
 
 			List<(int, string)> blocks = new List<(int, string)>();
@@ -345,11 +346,11 @@ namespace MiNET.Test
 				writer.Indent++;
 
 
-				foreach (IGrouping<string, KeyValuePair<int, Blockstate>> blockstate in blockstates.OrderBy(kvp => kvp.Value.Name).ThenBy(kvp => kvp.Value.Data).GroupBy(kvp => kvp.Value.Name))
+				foreach (IGrouping<string, BlockRecord> blockstate in pallet.OrderBy(r => r.Name).ThenBy(r => r.Data).GroupBy(r => r.Name))
 				{
 					var enumerator = blockstate.GetEnumerator();
 					enumerator.MoveNext();
-					var value = enumerator.Current.Value;
+					var value = enumerator.Current;
 					if (value == null) continue;
 					Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
 					int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
@@ -372,7 +373,7 @@ namespace MiNET.Test
 
 						do
 						{
-							writer.WriteLine($"// runtime id: {enumerator.Current.Value.RuntimeId} 0x{enumerator.Current.Value.RuntimeId:X}, data: {enumerator.Current.Value.Data}");
+							writer.WriteLine($"// runtime id: {enumerator.Current.RuntimeId} 0x{enumerator.Current.RuntimeId:X}, data: {enumerator.Current.Data}");
 						} while (enumerator.MoveNext());
 
 						writer.Indent--;

@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MiNET.Items;
 using MiNET.Net;
@@ -35,7 +36,7 @@ namespace MiNET.Crafting
 
 	public abstract class Recipe
 	{
-		public UUID Id { get; set; }
+		public UUID Id { get; set; } = new UUID(Guid.NewGuid().ToString());
 		public string Block { get; set; }
 	}
 
@@ -57,6 +58,7 @@ namespace MiNET.Crafting
 		{
 			Result = result;
 			Input = input;
+			Block = "crafting_table";
 		}
 	}
 
@@ -72,6 +74,7 @@ namespace MiNET.Crafting
 			Width = width;
 			Height = height;
 			Input = new Item[Width * height];
+			Block = "crafting_table";
 		}
 
 		public ShapedRecipe(int width, int height, Item result, Item[] input) : this(width, height)
@@ -88,13 +91,14 @@ namespace MiNET.Crafting
 
 		public SmeltingRecipe()
 		{
+			Block = "furnace";
 		}
 
 		public SmeltingRecipe(Item result, Item input, string block = null) : this()
 		{
 			Result = result;
 			Input = input;
-			Block = block;
+			Block = string.IsNullOrWhiteSpace(block) ? "furnace" : block;
 		}
 	}
 }

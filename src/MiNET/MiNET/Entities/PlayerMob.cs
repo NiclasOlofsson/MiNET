@@ -55,7 +55,7 @@ namespace MiNET.Entities
 			Skin = new Skin
 			{
 				Slim = false,
-				SkinData = Encoding.Default.GetBytes(new string('Z', 8192))
+				Data = Encoding.Default.GetBytes(new string('Z', 8192))
 			};
 
 			ItemInHand = new ItemAir();

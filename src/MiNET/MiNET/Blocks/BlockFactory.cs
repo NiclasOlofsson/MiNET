@@ -28,6 +28,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using log4net;
+using MiNET.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -47,7 +48,7 @@ namespace MiNET.Blocks
 		public static readonly byte[] TransparentBlocks = new byte[500];
 		public static readonly byte[] LuminousBlocks = new byte[500];
 		public static Dictionary<string, int> NameToId { get; private set; }
-		public static Blockstates Blockstates { get; set; } = new Blockstates();
+		public static BlockPallet BlockPallet { get; set; } = new BlockPallet();
 
 		public static int[] LegacyToRuntimeId = new int[65536];
 
@@ -83,12 +84,13 @@ namespace MiNET.Blocks
 			using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
 			using (var reader = new StreamReader(stream))
 			{
-				Blockstates = Blockstates.FromJson(reader.ReadToEnd());
+				BlockPallet = BlockPallet.FromJson(reader.ReadToEnd());
 			}
-
-			foreach (var bs in Blockstates)
+			int palletSize = BlockPallet.Count;
+			for (int i = 0; i < palletSize; i++)
 			{
-				LegacyToRuntimeId[(bs.Value.Id << 4) | (byte) bs.Value.Data] = bs.Key;
+				if (BlockPallet[i].Data > 15) continue; // TODO: figure out why pallet contains blocks with meta more than 15
+				LegacyToRuntimeId[(BlockPallet[i].Id << 4) | (byte) BlockPallet[i].Data] = i;
 			}
 		}
 

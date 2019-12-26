@@ -150,6 +150,7 @@ namespace MiNET
 					//	"SkinGeometryName": "geometry.humanoid.custom",
 					//	"SkinId": "c18e65aa-7b21-4637-9b63-8ad63622ef01_Custom",
 					//	"UIProfile": 0
+
 					//}
 
 					//	"CapeData": "////AAFHif8BMmH/ASNE/wEjRP8BI0T/ASNE/wEjRP8BI0T/ATJh/wFHif8BDhz/AQ4c/wEOHP8BDhz/AQ4c/wEOHP8BDhz/AQ4c/wEOHP8BDhz/////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAEjRP8BR4n/AW3N/wFHif8BMmH/ATJh/wEyYf8BR4n/AUeJ/wFtzf8BR4n/ASNE/wEWK/8BFiv/ARYr/wEWK/8BFiv/ARYr/wEWK/8BFiv/ARYr/wEWK/////8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wABI0T/ATJh/wFHif8Bbc3/AV6x/wFesf8BXrH/AV6x/wFtzf8BR4n/ATJh/wEjRP8BFiv/ARYr/wEWK/8BFiv/ARYr/wEWK/8BFiv/ARYr/wEWK/8BFiv/////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8AASNE/wE2af8BI0T/ASNE/wEjRP8BMmH/ATJh/wEyYf8BI0T/ASNE/wE2af8BI0T/ARYr/wEWK/8BFiv/ARYr/wEWK/8BFiv/ARYr/wEWK/8BFiv/ARYr/////wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAEjRP8BR4n/ATJh/wEjRP8BI0T/ASNE/wEyYf8BNmn/ATZp/wEyYf8BNmn/ASNE/wEWK/8BFiv/ARYr/wEWK/8BFiv/ARYr/wEWK/8BFiv/ARYr/wEWK/////8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wABI0T/AUeJ/wEyYf8BNmn/ATJh/7aAGv9sWDT/AUeJ/wFHif8BMmH/AUeJ/wEjRP8BFiv/ARYr/wEWK/8BFiv/ARYr/wEdOf8BFiv/ARYr/wEWK/8BFiv/////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8AASNE/wFHif8BMmH/toAa//m7Ff/5uxX/+bsV//m7Ff+2gBr/ATJh/wFHif8BI0T/ARYr/wEWK/8BFiv/ARYr/wEWK/8BHTn/ARYr/wEWK/8BFiv/ARYr/////wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAEjRP8BR4n/toAa//m7Ff+2gBr/bFg0/2xYNP+2gBr/+bsV/7aAGv8BR4n/ASNE/wEWK/8BFiv/ARYr/wEWK/8BFiv/AR05/wEWK/8BFiv/ARYr/wEWK/////8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wABI0T/ATZp//m7Ff9sWDT/ATZp/7aAGv9sWDT/AW3N/2xYNP/5uxX/AUeJ/wEjRP8BFiv/ARYr/wEWK/8BFiv/ARYr/wEdOf8BHTn/ARYr/wEWK/8BFiv/////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8AASNE/wE2af8BMmH/AUeJ/wFHif/5uxX/toAa/wFtzf8BR4n/ATZp/wFHif8BI0T/ARYr/wEWK/8BFiv/AR05/wEWK/8BHTn/AR05/wEWK/8BFiv/ARYr/////wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAEjRP8BMmH/ATZp/wFHif8BR4n/+bsV/7aAGv8Oju//AW3N/wE2af8BNmn/ASNE/wEWK/8BFiv/ARYr/wEdOf8BFiv/AR05/wEdOf8BFiv/ARYr/wEWK/////8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wABI0T/ATJh/wE2af8Bbc3/AUeJ//m7Ff+2gBr/Do7v/wFtzf8BNmn/ATZp/wEjRP8BFiv/AR05/wEWK/8BHTn/ARYr/wEdOf8BHTn/ARYr/wEWK/8BFiv/////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8AASNE/wEyYf8BR4n/AW3N/wFHif/5uxX/toAa/w6O7/8Bbc3/AUeJ/wE2af8BI0T/ARYr/wEdOf8BFiv/AR05/wEdOf8BHTn/AR05/wEWK/8BFiv/ARYr/////wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAEjRP8BMmH/AW3N/w6O7/8Bbc3/+bsV/7aAGv8Oju//AW3N/wFHif8BNmn/ASNE/wEWK/8BHTn/ARYr/wEdOf8BHTn/AR05/wEdOf8BHTn/ARYr/wEWK/////8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wABI0T/ATZp/wFtzf8Oju//Do7v/wFtzf8Oju//Do7v/w6O7/8BR4n/ATZp/wEjRP8BFiv/AR05/wEdOf8BHTn/AR05/wEdOf8BHTn/AR05/wEWK/8BFiv/////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8AASNE/wE2af8Oju//Do7v/w6O7/8Bbc3/Do7v/w6O7/8Oju//AW3N/wE2af8BI0T/ARYr/wEdOf8BHTn/AR05/wEdOf8BHTn/AR05/wEdOf8BFiv/ARYr/////wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AAEjRP8BR4n/Do7v/w6O7/8Oju//AW3N/w6O7/8Oju//Do7v/wFtzf8BR4n/ASNE/wEWK/8BHTn/AR05/wEdOf8BHTn/AR05/wEdOf8BHTn/AR05/wEWK/////8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wA=",
@@ -160,6 +161,54 @@ namespace MiNET
 
 					try
 					{
+						//foreach (var x in payload)
+						//{
+						//	if (((string)x.Name).StartsWith("AnimatedImageData") || x.Name == "PersonaSkin" || x.Name == "PremiumSkin")
+						//	{
+						//		System.Console.WriteLine("-------------------------- {0}", x.Name);
+						//		System.Console.WriteLine(x.Value);
+						//	}
+						//}
+
+						//-------------------------- ClientRandomId
+						//-------------------------- CurrentInputMode
+						//-------------------------- DefaultInputMode
+						//-------------------------- DeviceModel
+						//-------------------------- DeviceOS
+						//-------------------------- GameVersion
+						//-------------------------- GuiScale
+						//-------------------------- LanguageCode
+						//-------------------------- PlatformOnlineId
+						//-------------------------- ServerAddress
+						//-------------------------- UIProfile
+						//-------------------------- ThirdPartyName
+
+						//-------------------------- CapeId
+						//-------------------------- CapeData
+						//-------------------------- CapeImageHeight
+						//-------------------------- CapeImageWidth
+						//-------------------------- CapeOnClassicSkin
+
+						//-------------------------- SkinId
+						//-------------------------- SkinResourcePatch [base64][json] contains GeometryName
+						//-------------------------- SkinImageHeight
+						//-------------------------- SkinImageWidth
+						//-------------------------- SkinData
+						//-------------------------- SkinGeometryData
+						//-------------------------- PremiumSkin
+						//-------------------------- PersonaSkin
+						//-------------------------- SkinAnimationData
+						//-------------------------- AnimatedImageData
+
+						//-------------------------- DeviceId
+						
+						// --------------------------------------------------------------
+
+						// Unused
+						//-------------------------- SelfSignedId
+						//-------------------------- ThirdPartyNameOnly
+						//-------------------------- PlatformOfflineId
+
 						_playerInfo.ClientId = payload.ClientRandomId;
 						_playerInfo.CurrentInputMode = payload.CurrentInputMode;
 						_playerInfo.DefaultInputMode = payload.DefaultInputMode;
@@ -168,21 +217,47 @@ namespace MiNET
 						_playerInfo.GameVersion = payload.GameVersion;
 						_playerInfo.GuiScale = payload.GuiScale;
 						_playerInfo.LanguageCode = payload.LanguageCode;
-						_playerInfo.PlatformChatId = payload.PlatformChatId;
+						_playerInfo.PlatformChatId = payload.PlatformOnlineId;
 						_playerInfo.ServerAddress = payload.ServerAddress;
 						_playerInfo.UIProfile = payload.UIProfile;
 						_playerInfo.ThirdPartyName = payload.ThirdPartyName;
 						_playerInfo.TenantId = payload.TenantId;
+						_playerInfo.DeviceId = payload.DeviceId;
 
 						_playerInfo.Skin = new Skin()
 						{
-							CapeData = Convert.FromBase64String((string) payload.CapeData ?? string.Empty),
+							Cape = new Cape()
+							{
+								Data = Convert.FromBase64String((string) payload.CapeData ?? string.Empty),
+								Id = payload.CapeId,
+								ImageHeight = payload.CapeImageHeight,
+								ImageWidth = payload.CapeImageWidth,
+								OnClassicSkin = payload.CapeOnClassicSkin,
+							},
 							SkinId = payload.SkinId,
-							SkinData = Convert.FromBase64String((string) payload.SkinData ?? string.Empty),
-							SkinGeometryName = payload.SkinGeometryName,
-							SkinGeometry = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinGeometry ?? string.Empty)),
+							ResourcePatch = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinResourcePatch ?? string.Empty)),
+							Width = payload.SkinImageWidth,
+							Height = payload.SkinImageHeight,
+							Data = Convert.FromBase64String((string) payload.SkinData ?? string.Empty),
+							GeometryData = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinGeometryData ?? string.Empty)),
+							AnimationData = payload.SkinAnimationData,
+							IsPremiumSkin = payload.PremiumSkin,
+							IsPersonaSkin = payload.PersonaSkin,
 						};
-						Log.Warn($"Cape data lenght={_playerInfo.Skin.CapeData.Length}");
+						foreach (dynamic animationData in payload.AnimatedImageData)
+						{
+							_playerInfo.Skin.Animations.Add(
+								new Animation()
+								{
+									Image = Convert.FromBase64String((string) animationData.Image ?? string.Empty),
+									ImageHeight = animationData.ImageHeight,
+									ImageWidth = animationData.ImageWidth,
+									FrameCount = animationData.Frames,
+									Type = animationData.Type,
+								}
+							);
+						}
+						Log.Warn($"Cape data lenght={_playerInfo.Skin.Cape.Data.Length}");
 					}
 					catch (Exception e)
 					{

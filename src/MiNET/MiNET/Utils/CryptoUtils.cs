@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -210,11 +210,11 @@ namespace MiNET.Utils
 			Skin skin = new Skin
 			{
 				Slim = false,
-				SkinData = Encoding.Default.GetBytes(new string('Z', 8192)),
+				Data = Encoding.Default.GetBytes(new string('Z', 8192)),
 				SkinId = "Standard_Custom"
 			};
 
-			string skin64 = Convert.ToBase64String(skin.SkinData);
+			string skin64 = Convert.ToBase64String(skin.Data);
 
 
 			//{

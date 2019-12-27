@@ -49,13 +49,11 @@ namespace MiNET.Entities.World
 
 		public override MetadataDictionary GetMetadata()
 		{
-			MetadataDictionary metadata = new MetadataDictionary
+			return new MetadataDictionary
 			{
-				[0] = new MetadataLong(GetDataValue()),
-				[56] = new MetadataInt(Fuse)
+				[(int) MetadataFlags.EntityFlags] = new MetadataLong(GetDataValue()),
+				[(int) MetadataFlags.DataFuseLength] = new MetadataInt(Fuse)
 			};
-
-			return metadata;
 		}
 
 		public override void SpawnEntity()

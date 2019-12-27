@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -100,10 +100,10 @@ namespace TestPlugin.Code4Fun
 						{
 							SkinId = "testing" + new Guid(),
 							Slim = false,
-							SkinData = skinBytes,
-							CapeData = new byte[0],
-							SkinGeometryName = skinGeometryName,
-							SkinGeometry = Skin.ToJson(model),
+							Data = skinBytes,
+							Cape = new Cape(),
+							GeometryName = skinGeometryName,
+							GeometryData = Skin.ToJson(model),
 						},
 						KnownPosition = new PlayerLocation(coordinates.X + direction.X + (x * 4), coordinates.Y + (y * 4), coordinates.Z + direction.Z, 0, 0)
 					};
@@ -141,16 +141,14 @@ namespace TestPlugin.Code4Fun
 						{
 							var bytes = NiceLobbyPlugin.BitmapToBytes(bitmap, true);
 
-							var skin = mob.Skin;
-							skin.SkinData = bytes;
+							mob.Skin.Data = bytes;
+
+							var skin = (Skin)mob.Skin.Clone();
+							skin.SkinId += new Guid();
 
 							McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
 							updateSkin.uuid = mob.ClientUuid;
-							updateSkin.skinId = skin.SkinId + new Guid();
-							updateSkin.skinData = skin.SkinData;
-							updateSkin.capeData = skin.CapeData;
-							updateSkin.geometryModel = skin.SkinGeometryName;
-							updateSkin.geometryData = skin.SkinGeometry;
+							updateSkin.skin = skin;
 							mob.Level.RelayBroadcast(updateSkin);
 						}
 

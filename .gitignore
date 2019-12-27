@@ -9,6 +9,7 @@
 # User-specific server config
 server.*.conf
 !server.nicke_000.conf
+!server.nicke.conf
 
 # Build results
 [Dd]ebug/

@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -24,6 +24,7 @@
 #endregion
 
 using System.Linq;
+using fNbt;
 
 namespace MiNET.Worlds
 {
@@ -31,6 +32,7 @@ namespace MiNET.Worlds
 	{
 		public int Id;
 		public string Name;
+		public string DefinitionName;
 		public float Temperature;
 		public float Downfall;
 		public int Grass; // r,g,b, NOT multiplied by alpha
@@ -45,6 +47,7 @@ namespace MiNET.Worlds
 			{
 				Id = 0,
 				Name = "Ocean",
+				DefinitionName = "ocean",
 				Temperature = 0.5f,
 				Downfall = 0.5f
 			}, // default values of temp and rain
@@ -52,6 +55,7 @@ namespace MiNET.Worlds
 			{
 				Id = 1,
 				Name = "Plains",
+				DefinitionName = "plains",
 				Temperature = 0.8f,
 				Downfall = 0.4f
 			},
@@ -59,6 +63,7 @@ namespace MiNET.Worlds
 			{
 				Id = 2,
 				Name = "Desert",
+				DefinitionName = "desert",
 				Temperature = 2.0f,
 				Downfall = 0.0f
 			},
@@ -66,6 +71,7 @@ namespace MiNET.Worlds
 			{
 				Id = 3,
 				Name = "Extreme Hills",
+				DefinitionName = "extreme_hills",
 				Temperature = 0.2f,
 				Downfall = 0.3f
 			},
@@ -73,6 +79,7 @@ namespace MiNET.Worlds
 			{
 				Id = 4,
 				Name = "Forest",
+				DefinitionName = "forest",
 				Temperature = 0.7f,
 				Downfall = 0.8f
 			},
@@ -80,20 +87,23 @@ namespace MiNET.Worlds
 			{
 				Id = 5,
 				Name = "Taiga",
-				Temperature = 0.05f,
+				DefinitionName = "taiga",
+				Temperature = 0.25f,
 				Downfall = 0.8f
 			},
 			new Biome
 			{
 				Id = 6,
 				Name = "Swampland",
+				DefinitionName = "swampland",
 				Temperature = 0.8f,
-				Downfall = 0.9f
+				Downfall = 0.5f
 			},
 			new Biome
 			{
 				Id = 7,
 				Name = "River",
+				DefinitionName = "river",
 				Temperature = 0.5f,
 				Downfall = 0.5f
 			}, // default values of temp and rain
@@ -101,6 +111,7 @@ namespace MiNET.Worlds
 			{
 				Id = 8,
 				Name = "Nether",
+				DefinitionName = "hell",
 				Temperature = 2.0f,
 				Downfall = 0.0f
 			},
@@ -108,6 +119,7 @@ namespace MiNET.Worlds
 			{
 				Id = 9,
 				Name = "End",
+				DefinitionName = "the_end",
 				Temperature = 0.5f,
 				Downfall = 0.5f
 			}, // default values of temp and rain
@@ -115,6 +127,7 @@ namespace MiNET.Worlds
 			{
 				Id = 10,
 				Name = "Frozen Ocean",
+				DefinitionName = "frozen_ocean",
 				Temperature = 0.0f,
 				Downfall = 0.5f
 			},
@@ -122,6 +135,7 @@ namespace MiNET.Worlds
 			{
 				Id = 11,
 				Name = "Frozen River",
+				DefinitionName = "frozen_river",
 				Temperature = 0.0f,
 				Downfall = 0.5f
 			},
@@ -129,13 +143,15 @@ namespace MiNET.Worlds
 			{
 				Id = 12,
 				Name = "Ice Plains",
+				DefinitionName = "ice_plains",
 				Temperature = 0.0f,
-				Downfall = 0.5f
+				Downfall = 1.0f
 			},
 			new Biome
 			{
 				Id = 13,
 				Name = "Ice Mountains",
+				DefinitionName = "ice_mountains",
 				Temperature = 0.0f,
 				Downfall = 0.5f
 			},
@@ -143,6 +159,7 @@ namespace MiNET.Worlds
 			{
 				Id = 14,
 				Name = "Mushroom Island",
+				DefinitionName = "mushroom_island",
 				Temperature = 0.9f,
 				Downfall = 1.0f
 			},
@@ -150,6 +167,7 @@ namespace MiNET.Worlds
 			{
 				Id = 15,
 				Name = "Mushroom Island Shore",
+				DefinitionName = "mushroom_island_shore",
 				Temperature = 0.9f,
 				Downfall = 1.0f
 			},
@@ -157,6 +175,7 @@ namespace MiNET.Worlds
 			{
 				Id = 16,
 				Name = "Beach",
+				DefinitionName = "beach",
 				Temperature = 0.8f,
 				Downfall = 0.4f
 			},
@@ -164,6 +183,7 @@ namespace MiNET.Worlds
 			{
 				Id = 17,
 				Name = "Desert Hills",
+				DefinitionName = "desert_hills",
 				Temperature = 2.0f,
 				Downfall = 0.0f
 			},
@@ -171,6 +191,7 @@ namespace MiNET.Worlds
 			{
 				Id = 18,
 				Name = "Forest Hills",
+				DefinitionName = "forest_hills",
 				Temperature = 0.7f,
 				Downfall = 0.8f
 			},
@@ -178,13 +199,15 @@ namespace MiNET.Worlds
 			{
 				Id = 19,
 				Name = "Taiga Hills",
-				Temperature = 0.2f,
-				Downfall = 0.7f
+				DefinitionName = "taiga_hills",
+				Temperature = 0.25f,
+				Downfall = 0.8f
 			},
 			new Biome
 			{
 				Id = 20,
 				Name = "Extreme Hills Edge",
+				DefinitionName = "extreme_hills_edge",
 				Temperature = 0.2f,
 				Downfall = 0.3f
 			},
@@ -192,20 +215,23 @@ namespace MiNET.Worlds
 			{
 				Id = 21,
 				Name = "Jungle",
-				Temperature = 1.2f,
+				DefinitionName = "jungle",
+				Temperature = 0.95f,
 				Downfall = 0.9f
 			},
 			new Biome
 			{
 				Id = 22,
 				Name = "Jungle Hills",
-				Temperature = 1.2f,
+				DefinitionName = "jungle_hills",
+				Temperature = 0.95f,
 				Downfall = 0.9f
 			},
 			new Biome
 			{
 				Id = 23,
 				Name = "Jungle Edge",
+				DefinitionName = "jungle_edge",
 				Temperature = 0.95f,
 				Downfall = 0.8f
 			},
@@ -213,6 +239,7 @@ namespace MiNET.Worlds
 			{
 				Id = 24,
 				Name = "Deep Ocean",
+				DefinitionName = "deep_ocean",
 				Temperature = 0.5f,
 				Downfall = 0.5f
 			},
@@ -220,6 +247,7 @@ namespace MiNET.Worlds
 			{
 				Id = 25,
 				Name = "Stone Beach",
+				DefinitionName = "stone_beach",
 				Temperature = 0.2f,
 				Downfall = 0.3f
 			},
@@ -227,6 +255,7 @@ namespace MiNET.Worlds
 			{
 				Id = 26,
 				Name = "Cold ",
+				DefinitionName = "cold_beach",
 				Temperature = 0.05f,
 				Downfall = 0.3f
 			},
@@ -234,6 +263,7 @@ namespace MiNET.Worlds
 			{
 				Id = 27,
 				Name = "Birch Forest",
+				DefinitionName = "birch_forest",
 				Temperature = 0.6f,
 				Downfall = 0.6f
 			},
@@ -241,6 +271,7 @@ namespace MiNET.Worlds
 			{
 				Id = 28,
 				Name = "Birch Forest Hills",
+				DefinitionName = "birch_forest_hills",
 				Temperature = 0.6f,
 				Downfall = 0.6f
 			},
@@ -248,6 +279,7 @@ namespace MiNET.Worlds
 			{
 				Id = 29,
 				Name = "Roofed Forest",
+				DefinitionName = "roofed_forest",
 				Temperature = 0.7f,
 				Downfall = 0.8f
 			},
@@ -255,6 +287,7 @@ namespace MiNET.Worlds
 			{
 				Id = 30,
 				Name = "Cold Taiga",
+				DefinitionName = "cold_taiga",
 				Temperature = -0.5f,
 				Downfall = 0.4f
 			},
@@ -262,6 +295,7 @@ namespace MiNET.Worlds
 			{
 				Id = 31,
 				Name = "Cold Taiga Hills",
+				DefinitionName = "cold_taiga_hills",
 				Temperature = -0.5f,
 				Downfall = 0.4f
 			},
@@ -269,6 +303,7 @@ namespace MiNET.Worlds
 			{
 				Id = 32,
 				Name = "Mega Taiga",
+				DefinitionName = "mega_taiga",
 				Temperature = 0.3f,
 				Downfall = 0.8f
 			},
@@ -276,6 +311,7 @@ namespace MiNET.Worlds
 			{
 				Id = 33,
 				Name = "Mega Taiga Hills",
+				DefinitionName = "mega_taiga_hills",
 				Temperature = 0.3f,
 				Downfall = 0.8f
 			},
@@ -283,6 +319,7 @@ namespace MiNET.Worlds
 			{
 				Id = 34,
 				Name = "Extreme Hills+",
+				DefinitionName = "extreme_hills_plus_trees",
 				Temperature = 0.2f,
 				Downfall = 0.3f
 			},
@@ -290,6 +327,7 @@ namespace MiNET.Worlds
 			{
 				Id = 35,
 				Name = "Savanna",
+				DefinitionName = "savanna",
 				Temperature = 1.2f,
 				Downfall = 0.0f
 			},
@@ -297,6 +335,7 @@ namespace MiNET.Worlds
 			{
 				Id = 36,
 				Name = "Savanna Plateau",
+				DefinitionName = "savanna_plateau",
 				Temperature = 1.0f,
 				Downfall = 0.0f
 			},
@@ -304,6 +343,7 @@ namespace MiNET.Worlds
 			{
 				Id = 37,
 				Name = "Mesa",
+				DefinitionName = "mesa",
 				Temperature = 2.0f,
 				Downfall = 0.0f
 			},
@@ -311,6 +351,7 @@ namespace MiNET.Worlds
 			{
 				Id = 38,
 				Name = "Mesa Plateau F",
+				DefinitionName = "mesa_plateau_stone",
 				Temperature = 2.0f,
 				Downfall = 0.0f
 			},
@@ -318,20 +359,71 @@ namespace MiNET.Worlds
 			{
 				Id = 39,
 				Name = "Mesa Plateau",
+				DefinitionName = "mesa_plateau",
 				Temperature = 2.0f,
 				Downfall = 0.0f
 			},
 			new Biome
 			{
-				Id = 127,
-				Name = "The Void",
-				Temperature = 0.8f,
-				Downfall = 0.4f
+				Id = 44,
+				Name = "Warm Ocean",
+				DefinitionName = "warm_ocean",
+				Temperature = 0.5f,
+				Downfall = 0.5f
 			},
 			new Biome
 			{
-				Id = 128,
-				Name = "Unknown Biome",
+				Id = 45,
+				Name = "Lukewarm Ocean",
+				DefinitionName = "lukewarm_ocean",
+				Temperature = 0.5f,
+				Downfall = 0.5f
+			},
+			new Biome
+			{
+				Id = 46,
+				Name = "Cold Ocean",
+				DefinitionName = "cold_ocean",
+				Temperature = 0.5f,
+				Downfall = 0.5f
+			},
+			new Biome
+			{
+				Id = 47,
+				Name = "Deep Warm Ocean",
+				DefinitionName = "deep_warm_ocean",
+				Temperature = 0.5f,
+				Downfall = 0.5f
+			},
+			new Biome
+			{
+				Id = 48,
+				Name = "Deep Lukewarm Ocean",
+				DefinitionName = "deep_lukewarm_ocean",
+				Temperature = 0.5f,
+				Downfall = 0.5f
+			},
+			new Biome
+			{
+				Id = 49,
+				Name = "Deep Cold Ocean",
+				DefinitionName = "deep_cold_ocean",
+				Temperature = 0.5f,
+				Downfall = 0.5f
+			},
+			new Biome
+			{
+				Id = 50,
+				Name = "Deep Frozen Ocean",
+				DefinitionName = "deep_frozen_ocean",
+				Temperature = 0.0f,
+				Downfall = 0.5f
+			},
+			new Biome // doesn't exists in BE
+			{
+				Id = 127,
+				Name = "The Void",
+				DefinitionName = "",
 				Temperature = 0.8f,
 				Downfall = 0.4f
 			},
@@ -339,6 +431,7 @@ namespace MiNET.Worlds
 			{
 				Id = 129,
 				Name = "Sunflower Plains",
+				DefinitionName = "sunflower_plains",
 				Temperature = 0.8f,
 				Downfall = 0.4f
 			},
@@ -346,6 +439,7 @@ namespace MiNET.Worlds
 			{
 				Id = 130,
 				Name = "Desert M",
+				DefinitionName = "desert_mutated",
 				Temperature = 2.0f,
 				Downfall = 0.0f
 			},
@@ -353,6 +447,7 @@ namespace MiNET.Worlds
 			{
 				Id = 131,
 				Name = "Extreme Hills M",
+				DefinitionName = "extreme_hills_mutated",
 				Temperature = 0.2f,
 				Downfall = 0.3f
 			},
@@ -360,6 +455,7 @@ namespace MiNET.Worlds
 			{
 				Id = 132,
 				Name = "Flower Forest",
+				DefinitionName = "flower_forest",
 				Temperature = 0.7f,
 				Downfall = 0.8f
 			},
@@ -367,41 +463,39 @@ namespace MiNET.Worlds
 			{
 				Id = 133,
 				Name = "Taiga M",
-				Temperature = 0.05f,
+				DefinitionName = "taiga_mutated",
+				Temperature = 0.25f,
 				Downfall = 0.8f
 			},
 			new Biome
 			{
 				Id = 134,
 				Name = "Swampland M",
+				DefinitionName = "swampland_mutated",
 				Temperature = 0.8f,
-				Downfall = 0.9f
+				Downfall = 0.5f
 			},
 			new Biome
 			{
 				Id = 140,
 				Name = "Ice Plains Spikes",
+				DefinitionName = "ice_plains_spikes",
 				Temperature = 0.0f,
-				Downfall = 0.5f
+				Downfall = 1.0f
 			},
 			new Biome
 			{
 				Id = 149,
 				Name = "Jungle M",
-				Temperature = 1.2f,
+				DefinitionName = "jungle_mutated",
+				Temperature = 0.95f,
 				Downfall = 0.9f
-			},
-			new Biome
-			{
-				Id = 150,
-				Name = "Unknown Biome",
-				Temperature = 0.8f,
-				Downfall = 0.4f
 			},
 			new Biome
 			{
 				Id = 151,
 				Name = "JungleEdge M",
+				DefinitionName = "jungle_edge_mutated",
 				Temperature = 0.95f,
 				Downfall = 0.8f
 			},
@@ -409,20 +503,23 @@ namespace MiNET.Worlds
 			{
 				Id = 155,
 				Name = "Birch Forest M",
-				Temperature = 0.6f,
-				Downfall = 0.6f
+				DefinitionName = "birch_forest_mutated",
+				Temperature = 0.7f,
+				Downfall = 0.8f
 			},
 			new Biome
 			{
 				Id = 156,
 				Name = "Birch Forest Hills M",
-				Temperature = 0.6f,
-				Downfall = 0.6f
+				DefinitionName = "birch_forest_hills_mutated",
+				Temperature = 0.7f,
+				Downfall = 0.8f
 			},
 			new Biome
 			{
 				Id = 157,
 				Name = "Roofed Forest M",
+				DefinitionName = "roofed_forest_mutated",
 				Temperature = 0.7f,
 				Downfall = 0.8f
 			},
@@ -430,6 +527,7 @@ namespace MiNET.Worlds
 			{
 				Id = 158,
 				Name = "Cold Taiga M",
+				DefinitionName = "cold_taiga_mutated",
 				Temperature = -0.5f,
 				Downfall = 0.4f
 			},
@@ -437,6 +535,7 @@ namespace MiNET.Worlds
 			{
 				Id = 160,
 				Name = "Mega Spruce Taiga",
+				DefinitionName = "redwood_taiga_mutated",
 				Temperature = 0.25f,
 				Downfall = 0.8f
 			}, // special exception, temperature not 0.3
@@ -444,6 +543,7 @@ namespace MiNET.Worlds
 			{
 				Id = 161,
 				Name = "Mega Spruce Taiga Hills",
+				DefinitionName = "redwood_taiga_hills_mutated",
 				Temperature = 0.3f,
 				Downfall = 0.8f
 			},
@@ -451,6 +551,7 @@ namespace MiNET.Worlds
 			{
 				Id = 162,
 				Name = "Extreme Hills+ M",
+				DefinitionName = "extreme_hills_plus_trees_mutated",
 				Temperature = 0.2f,
 				Downfall = 0.3f
 			},
@@ -458,20 +559,23 @@ namespace MiNET.Worlds
 			{
 				Id = 163,
 				Name = "Savanna M",
-				Temperature = 1.2f,
-				Downfall = 0.0f
+				DefinitionName = "savanna_mutated",
+				Temperature = 1.1f,
+				Downfall = 0.5f
 			},
 			new Biome
 			{
 				Id = 164,
 				Name = "Savanna Plateau M",
+				DefinitionName = "savanna_plateau_mutated",
 				Temperature = 1.0f,
-				Downfall = 0.0f
+				Downfall = 0.5f
 			},
 			new Biome
 			{
 				Id = 165,
 				Name = "Mesa (Bryce)",
+				DefinitionName = "mesa_bryce",
 				Temperature = 2.0f,
 				Downfall = 0.0f
 			},
@@ -479,6 +583,7 @@ namespace MiNET.Worlds
 			{
 				Id = 166,
 				Name = "Mesa Plateau F M",
+				DefinitionName = "mesa_plateau_stone_mutated",
 				Temperature = 2.0f,
 				Downfall = 0.0f
 			},
@@ -486,8 +591,25 @@ namespace MiNET.Worlds
 			{
 				Id = 167,
 				Name = "Mesa Plateau M",
+				DefinitionName = "mesa_plateau_mutated",
 				Temperature = 2.0f,
 				Downfall = 0.0f
+			},
+			new Biome
+			{
+				Id = 168,
+				Name = " Bamboo Jungle",
+				DefinitionName = "bamboo_jungle",
+				Temperature = 0.95f,
+				Downfall = 0.9f
+			},
+			new Biome
+			{
+				Id = 169,
+				Name = " Bamboo Jungle Hills",
+				DefinitionName = "bamboo_jungle_hills",
+				Temperature = 0.95f,
+				Downfall = 0.9f
 			},
 		};
 
@@ -702,6 +824,24 @@ namespace MiNET.Worlds
 			color = (r << 16) | (g << 8) | b;
 
 			return color;
+		}
+
+		public static NbtCompound GenerateDefinitionList()
+		{
+			NbtCompound list = new NbtCompound("");
+			foreach (Biome biome in Biomes)
+			{
+				if (string.IsNullOrEmpty(biome.DefinitionName))
+					continue;
+				list.Add(
+					new NbtCompound(biome.DefinitionName)
+					{
+						new NbtFloat("downfall", biome.Downfall),
+						new NbtFloat("temperature", biome.Temperature),
+					}
+				);
+			}
+			return list;
 		}
 	}
 }

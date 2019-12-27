@@ -527,13 +527,6 @@ namespace MiNET.Entities
 				MaxValue = 1024,
 				Value = 0
 			};
-			attributes["minecraft:fall_damage"] = new EntityAttribute
-			{
-				Name = "minecraft:fall_damage",
-				MinValue = 0,
-				MaxValue = float.MaxValue,
-				Value = 0
-			};
 			attributes["minecraft:follow_range"] = new EntityAttribute
 			{
 				Name = "minecraft:follow_range",

@@ -660,6 +660,11 @@ namespace MiNET
 				handler.HandleMcpeNpcRequest((McpeNpcRequest) message);
 			}
 
+			else if (typeof(McpeNetworkStackLatencyPacket) == message.GetType())
+			{
+				handler.HandleMcpeNetworkStackLatencyPacket((McpeNetworkStackLatencyPacket) message);
+			}
+
 			else
 			{
 				Log.Error($"Unhandled packet: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");
@@ -1085,6 +1090,7 @@ namespace MiNET
 		public string DeviceModel { get; set; }
 		public string GameVersion { get; set; }
 		public int DeviceOS { get; set; }
+		public string DeviceId { get; set; }
 		public int GuiScale { get; set; }
 		public int UIProfile { get; set; }
 		public int Edition { get; set; }

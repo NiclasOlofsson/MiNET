@@ -189,6 +189,21 @@ namespace MiNET.Net
 					Log.Debug($"Soft Enum: {ReadString()}={ReadBool()}");
 				}
 			}
+
+			{
+				// constraints
+				uint count = ReadUnsignedVarInt();
+				Log.Debug($"Constraints {count}");
+				for (int i = 0; i < count; i++)
+				{
+					Log.Debug($"Constraint: {ReadInt()} _ {ReadInt()}");
+					uint someCount = ReadUnsignedVarInt();
+					for (int j = 0; j < someCount; j++)
+					{
+						Log.Debug($"\tUnknown byte: {ReadByte()}");
+					}
+				}
+			}
 		}
 
 		partial void AfterEncode()
@@ -198,6 +213,7 @@ namespace MiNET.Net
 				if (CommandSet == null || CommandSet.Count == 0)
 				{
 					Log.Warn("No commands to send");
+					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
@@ -418,6 +434,7 @@ namespace MiNET.Net
 				}
 
 				WriteUnsignedVarInt(0); //TODO: soft enums
+				WriteUnsignedVarInt(0); //TODO: constraints
 			}
 			catch (Exception e)
 			{

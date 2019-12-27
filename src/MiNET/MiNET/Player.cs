@@ -167,7 +167,6 @@ namespace MiNET
 			chunkData.packageId = "5abdb963-4f3f-4d97-8482-88e2049ab149";
 			chunkData.chunkIndex = 0; // Package index ?
 			chunkData.progress = 0; // Long, maybe timestamp?
-			chunkData.length = (uint) content.Length;
 			chunkData.payload = content;
 			SendPacket(chunkData);
 		}
@@ -599,11 +598,11 @@ namespace MiNET
 
 					break;
 				}
-				case PlayerAction.Respawn:
-				{
-					MiNetServer.FastThreadPool.QueueUserWorkItem(HandleMcpeRespawn);
-					break;
-				}
+				//case PlayerAction.Respawn:
+				//{
+				//	MiNetServer.FastThreadPool.QueueUserWorkItem(HandleMcpeRespawn);
+				//	break;
+				//}
 				case PlayerAction.Jump:
 				{
 					HungerManager.IncreaseExhaustion(IsSprinting ? 0.8f : 0.2f);
@@ -879,6 +878,8 @@ namespace MiNET
 
 				SendAvailableEntityIdentifiers();
 
+				SendBiomeDefinitionList();
+
 				BroadcastSetEntityData();
 
 				if (ChunkRadius == -1) ChunkRadius = 5;
@@ -942,6 +943,23 @@ namespace MiNET
 			};
 
 			var pk = McpeAvailableEntityIdentifiers.CreateObject();
+			pk.namedtag = nbt;
+			SendPacket(pk);
+		}
+
+		public virtual void SendBiomeDefinitionList()
+		{
+			var nbt = new Nbt
+			{
+				NbtFile = new NbtFile
+				{
+					BigEndian = false,
+					UseVarInt = true,
+					RootTag = BiomeUtils.GenerateDefinitionList(),
+				}
+			};
+
+			var pk = McpeBiomeDefinitionList.CreateObject();
 			pk.namedtag = nbt;
 			SendPacket(pk);
 		}
@@ -1038,57 +1056,66 @@ namespace MiNET
 			OnPlayerJoin(new PlayerEventArgs(this));
 		}
 
-		public virtual void HandleMcpeRespawn()
-		{
-			HandleMcpeRespawn(null);
-		}
+		//public virtual void HandleMcpeRespawn()
+		//{
+		//	HandleMcpeRespawn(null);
+		//}
 
 		public virtual void HandleMcpeRespawn(McpeRespawn message)
 		{
-			HealthManager.ResetHealth();
+			if (message.state == (byte) McpeRespawn.RespawnState.ClientReady)
+			{
+				HealthManager.ResetHealth();
 
-			HungerManager.ResetHunger();
+				HungerManager.ResetHunger();
 
-			BroadcastSetEntityData();
+				BroadcastSetEntityData();
 
-			SendUpdateAttributes();
+				SendUpdateAttributes();
 
-			SendSetSpawnPosition();
+				SendSetSpawnPosition();
 
-			SendAdventureSettings();
+				SendAdventureSettings();
 
-			SendPlayerInventory();
+				SendPlayerInventory();
 
-			CleanCache();
+				CleanCache();
 
-			ForcedSendChunk(SpawnPosition);
+				ForcedSendChunk(SpawnPosition);
 
-			// send teleport to spawn
-			SetPosition(SpawnPosition);
+				// send teleport to spawn
+				SetPosition(SpawnPosition);
 
-			Level.SpawnToAll(this);
+				Level.SpawnToAll(this);
 
-			IsSpawned = true;
+				IsSpawned = true;
 
-			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+				Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
-			SendSetTime();
+				SendSetTime();
 
-			MiNetServer.FastThreadPool.QueueUserWorkItem(() => ForcedSendChunks());
+				MiNetServer.FastThreadPool.QueueUserWorkItem(() => ForcedSendChunks());
 
-			//SendPlayerStatus(3);
+				//SendPlayerStatus(3);
 
-			//McpeRespawn mcpeRespawn = McpeRespawn.CreateObject();
-			//mcpeRespawn.x = SpawnPosition.X;
-			//mcpeRespawn.y = SpawnPosition.Y;
-			//mcpeRespawn.z = SpawnPosition.Z;
-			//SendPackage(mcpeRespawn);
+				var mcpeRespawn = McpeRespawn.CreateObject();
+				mcpeRespawn.x = SpawnPosition.X;
+				mcpeRespawn.y = SpawnPosition.Y;
+				mcpeRespawn.z = SpawnPosition.Z;
+				mcpeRespawn.state = (byte) McpeRespawn.RespawnState.Ready;
+				mcpeRespawn.runtimeEntityId = EntityId;
+				SendPacket(mcpeRespawn);
 
-			////send time again
-			//SendSetTime();
-			//IsSpawned = true;
-			//LastUpdatedTime = DateTime.UtcNow;
-			//_haveJoined = true;
+				////send time again
+				//SendSetTime();
+				//IsSpawned = true;
+				//LastUpdatedTime = DateTime.UtcNow;
+				//_haveJoined = true;
+			}
+			else
+			{
+				Log.Warn($"Unhandled respawn state = {message.state}");
+			}
 		}
 
 		[Wired]
@@ -2186,6 +2213,7 @@ namespace MiNET
 			Log.Warn($"Transaction mismatch");
 		}
 
+		private bool _startConsuming;
 		private long _itemUseTimer;
 
 		protected virtual void HandleItemReleaseTransactions(Transaction transaction)
@@ -2198,6 +2226,8 @@ namespace MiNET
 				{
 					if (_itemUseTimer <= 0) break;
 
+					if (_startConsuming) _startConsuming = false;
+
 					itemInHand.Release(Level, this, transaction.FromPosition, Level.TickTime - _itemUseTimer);
 
 					_itemUseTimer = 0;
@@ -2206,21 +2236,21 @@ namespace MiNET
 				}
 				case McpeInventoryTransaction.ItemReleaseAction.Use:
 				{
-					if (GameMode == GameMode.Survival)
-					{
-						if (itemInHand is FoodItem)
-						{
-							FoodItem foodItem = (FoodItem) Inventory.GetItemInHand();
-							foodItem.Consume(this);
-							foodItem.Count--;
-						}
-						else if (itemInHand is ItemPotion)
-						{
-							ItemPotion potion = (ItemPotion) Inventory.GetItemInHand();
-							potion.Consume(this);
-							potion.Count--;
-						}
-					}
+					//if (GameMode == GameMode.Survival)
+					//{
+					//	if (itemInHand is FoodItem)
+					//	{
+					//		FoodItem foodItem = (FoodItem) Inventory.GetItemInHand();
+					//		foodItem.Consume(this);
+					//		foodItem.Count--;
+					//	}
+					//	else if (itemInHand is ItemPotion)
+					//	{
+					//		ItemPotion potion = (ItemPotion) Inventory.GetItemInHand();
+					//		potion.Consume(this);
+					//		potion.Count--;
+					//	}
+					//}
 
 					break;
 				}
@@ -2240,17 +2270,47 @@ namespace MiNET
 				case McpeInventoryTransaction.ItemUseAction.Place:
 					Level.Interact(this, itemInHand, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
 					break;
+
 				case McpeInventoryTransaction.ItemUseAction.Use:
+					if (_startConsuming && TryConsumeItem(itemInHand)) break;
+
 					_itemUseTimer = Level.TickTime;
 					itemInHand.UseItem(Level, this, transaction.Position);
 					//Inventory.UpdateInventorySlot(transaction.Slot, transaction.Item);
 					break;
+
 				case McpeInventoryTransaction.ItemUseAction.Destroy:
 					Level.BreakBlock(this, transaction.Position);
 					break;
 			}
 
 			HandleNormalTransactions(transaction);
+		}
+
+		protected virtual bool TryConsumeItem(Item item)
+		{
+			if ((GameMode == GameMode.Survival || GameMode == GameMode.Adventure) && item is FoodItem foodItem)
+			{
+				foodItem.Consume(this);
+				foodItem.Count--;
+				_startConsuming = false;
+				Inventory.SendSetSlot(Inventory.InHandSlot);
+				return true;
+			}
+
+			if (item is ItemPotion potion)
+			{
+				potion.Consume(this);
+				_startConsuming = false;
+				if (GameMode == GameMode.Survival || GameMode == GameMode.Adventure)
+				{
+					Inventory.ClearInventorySlot((byte) Inventory.InHandSlot);
+					Inventory.SetFirstEmptySlot(ItemFactory.GetItem(374), true);
+				}
+				return true;
+			}
+
+			return false;
 		}
 
 		private List<Item> _craftingInput = new List<Item>(new Item[9]);
@@ -2748,7 +2808,9 @@ namespace MiNET
 				case 34:
 					ExperienceManager.RemoveExperienceLevels(message.data);
 					break;
+
 				case 57:
+					if (!_startConsuming) _startConsuming = true;
 					var data = message.data;
 					if (data != 0) BroadcastEntityEvent(57, data);
 					break;
@@ -2771,7 +2833,7 @@ namespace MiNET
 			startGame.runtimeEntityId = EntityManager.EntityIdSelf;
 			startGame.playerGamemode = (int) GameMode;
 			startGame.spawn = SpawnPosition;
-			startGame.unknown1 = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
+			startGame.rotation = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
 			startGame.seed = 12345;
 			startGame.dimension = 0;
 			startGame.generator = 1;
@@ -2781,7 +2843,7 @@ namespace MiNET
 			startGame.z = (int) SpawnPosition.Z;
 			startGame.hasAchievementsDisabled = true;
 			startGame.dayCycleStopTime = (int) Level.WorldTime;
-			startGame.eduMode = PlayerInfo.Edition == 1;
+			startGame.eduOffer = PlayerInfo.Edition == 1 ? 1 : 0;
 			startGame.rainLevel = 0;
 			startGame.lightningLevel = 0;
 			startGame.isMultiplayer = true;
@@ -2798,8 +2860,10 @@ namespace MiNET
 			startGame.isTrial = false;
 			startGame.currentTick = Level.TickTime;
 			startGame.enchantmentSeed = 123456;
+			startGame.gameVersion = "";
+			startGame.isServerSideMovementEnabled = false;
 
-			startGame.blockstates = BlockFactory.Blockstates;
+			startGame.blockPallet = BlockFactory.BlockPallet;
 			startGame.itemstates = ItemFactory.Itemstates;
 
 			SendPacket(startGame);
@@ -3006,14 +3070,6 @@ namespace MiNET
 				MaxValue = 1024,
 				Value = 0,
 				Default = 0,
-			};
-			attributes["minecraft:fall_damage"] = new PlayerAttribute
-			{
-				Name = "minecraft:fall_damage",
-				MinValue = 0,
-				MaxValue = float.MaxValue,
-				Value = 1,
-				Default = 1,
 			};
 			attributes["minecraft:follow_range"] = new PlayerAttribute
 			{
@@ -3312,6 +3368,7 @@ namespace MiNET
 				int levels = 0;
 				foreach (var effect in Effects.Values)
 				{
+					if(!effect.Particles) continue;
 					var color = effect.ParticleColor;
 					int level = effect.Level + 1;
 					r += color.R * level;
@@ -3320,11 +3377,18 @@ namespace MiNET
 					levels += level;
 				}
 
-				r /= levels;
-				g /= levels;
-				b /= levels;
+				if (levels == 0)
+				{
+					PotionColor = 0;
+				}
+				else
+				{
+					r /= levels;
+					g /= levels;
+					b /= levels;
 
-				PotionColor = (int) (0xff000000 | (r << 16) | (g << 8) | b);
+					PotionColor = (int) (0xff000000 | (r << 16) | (g << 8) | b);
+				}
 			}
 
 			BroadcastSetEntityData();
@@ -3490,6 +3554,8 @@ namespace MiNET
 			mcpeAddPlayer.actionPermissions = (uint) ActionPermissions;
 			mcpeAddPlayer.permissionLevel = (uint) PermissionLevel;
 			mcpeAddPlayer.userId = -1;
+			mcpeAddPlayer.deviceId = PlayerInfo.DeviceId;
+			mcpeAddPlayer.deviceOs = PlayerInfo.DeviceOS;
 
 			int[] a = new int[5];
 
@@ -3601,6 +3667,10 @@ namespace MiNET
 
 		public virtual void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
 		{
+			var packet = McpeNetworkStackLatencyPacket.CreateObject();
+			packet.timestamp = message.timestamp; // don't know what is it
+			packet.unknownFlag = false;
+			SendPacket(packet);
 		}
 
 		public virtual void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)

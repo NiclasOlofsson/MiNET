@@ -601,10 +601,10 @@ namespace MiNET.Entities
 				{
 					SkinId = "testing" + new Guid(),
 					Slim = false,
-					SkinData = skinBytes,
-					CapeData = new byte[0],
-					SkinGeometryName = skinGeometryName,
-					SkinGeometry = Skin.ToJson(model),
+					Data = skinBytes,
+					Cape = new Cape(),
+					GeometryName = skinGeometryName,
+					GeometryData = Skin.ToJson(model),
 				},
 				KnownPosition = new PlayerLocation(coordinates)
 			};

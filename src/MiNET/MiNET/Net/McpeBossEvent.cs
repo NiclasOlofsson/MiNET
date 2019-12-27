@@ -30,35 +30,37 @@ namespace MiNET.Net
 		public ushort unknown6;
 		public string title;
 		public float healthPercent;
+		public long playerId;
+		public uint color = 0xff00ff00;
+		public uint overlay = 0xff00ff00;
 
 		partial void AfterEncode()
 		{
-			switch (eventType)
+			switch ((McpeBossEvent.Type)eventType)
 			{
-				case 1:
-				case 3:
-					// Entity Unique ID
+				case Type.AddPlayer:
+				case Type.RemovePlayer:
+					WriteSignedVarLong(playerId);
 					break;
-				case 4:
-					// float
+
+				case Type.UpdateProgress:
 					Write(healthPercent);
 					break;
-				case 5:
-					// string
+
+				case Type.UpdateName:
 					Write(title);
 					break;
-				case 0:
+
+				case Type.AddBoss:
 					Write(title);
 					Write(healthPercent);
-					goto case 6;
-				case 6:
-					// ushort?
+					goto case Type.UpdateOptions;
+				case Type.UpdateOptions:
 					Write(unknown6);
-					goto case 7;
-				case 7:
-					// NOOP
-					WriteUnsignedVarInt(0xff00ff00);
-					WriteUnsignedVarInt(0xff00ff00);
+					goto case Type.UpdateStyle;
+				case Type.UpdateStyle:
+					WriteUnsignedVarInt(color);
+					WriteUnsignedVarInt(overlay);
 					break;
 			}
 		}
@@ -70,32 +72,32 @@ namespace MiNET.Net
 
 		partial void AfterDecode()
 		{
-			switch (eventType)
+			switch ((McpeBossEvent.Type) eventType)
 			{
-				case 1:
-				case 3:
+				case Type.AddPlayer:
+				case Type.RemovePlayer:
 					// Entity Unique ID
 					ReadSignedVarLong();
 					break;
-				case 4:
+				case Type.UpdateProgress:
 					// float
 					ReadFloat();
 					break;
-				case 5:
+				case Type.UpdateName:
 					// string
 					ReadString();
 					break;
-				case 0:
+				case Type.AddBoss:
 					// string
 					ReadString();
 					// float
 					ReadFloat();
-					goto case 6;
-				case 6:
+					goto case Type.UpdateOptions;
+				case Type.UpdateOptions:
 					// ushort?
 					ReadShort();
-					goto case 7;
-				case 7:
+					goto case Type.UpdateStyle;
+				case Type.UpdateStyle:
 					// NOOP
 					ReadUnsignedVarInt();
 					ReadUnsignedVarInt();

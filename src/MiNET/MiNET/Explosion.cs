@@ -156,14 +156,14 @@ namespace MiNET
 				records.Add(block.Coordinates - _centerCoordinates);
 			}
 
-			new Task(() =>
-			{
-				var mcpeExplode = McpeExplode.CreateObject();
-				mcpeExplode.position = _centerCoordinates;
-				mcpeExplode.radius = (int) (_size * 32);
-				mcpeExplode.records = records;
-				_world.RelayBroadcast(mcpeExplode);
-			}).Start();
+			//new Task(() =>
+			//{
+			//	var mcpeExplode = McpeExplode.CreateObject();
+			//	mcpeExplode.position = _centerCoordinates;
+			//	mcpeExplode.radius = (int) (_size * 32);
+			//	mcpeExplode.records = records;
+			//	_world.RelayBroadcast(mcpeExplode);
+			//}).Start();
 
 			foreach (Block block in _afectedBlocks.Values)
 			{

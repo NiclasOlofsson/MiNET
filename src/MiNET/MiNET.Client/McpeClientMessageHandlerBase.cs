@@ -179,7 +179,7 @@ namespace MiNET.Client
 		public abstract void HandleMcpeRiderJump(McpeRiderJump message);
 		public abstract void HandleMcpeUpdateBlock(McpeUpdateBlock message);
 		public abstract void HandleMcpeAddPainting(McpeAddPainting message);
-		public abstract void HandleMcpeExplode(McpeExplode message);
+		public abstract void HandleMcpeTickSync(McpeTickSync message);
 		public abstract void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
 		public abstract void HandleMcpeLevelEvent(McpeLevelEvent message);
 		public abstract void HandleMcpeBlockEvent(McpeBlockEvent message);

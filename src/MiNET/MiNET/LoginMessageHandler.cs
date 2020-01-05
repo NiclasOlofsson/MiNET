@@ -346,7 +346,7 @@ namespace MiNET
 							else if (validationKey != null && validationKey.Equals(x5u, StringComparison.InvariantCultureIgnoreCase))
 							{
 								//TODO: Remove. Just there to be able to join with same XBL multiple times without crashing the server.
-								data.ExtraData.Identity = Guid.NewGuid().ToString();
+								//data.ExtraData.Identity = Guid.NewGuid().ToString();
 								_playerInfo.CertificateData = data;
 							}
 							else
@@ -361,7 +361,7 @@ namespace MiNET
 								}
 
 								//TODO: Remove. Just there to be able to join with same XBL multiple times without crashing the server.
-								data.ExtraData.Identity = Guid.NewGuid().ToString();
+								//data.ExtraData.Identity = Guid.NewGuid().ToString();
 								_playerInfo.CertificateData = data;
 							}
 						}

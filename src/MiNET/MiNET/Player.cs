@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -144,7 +144,6 @@ namespace MiNET
 
 		public virtual void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
 		{
-
 		}
 
 		public virtual void HandleMcpeCommandBlockUpdate(McpeCommandBlockUpdate message)
@@ -293,7 +292,7 @@ namespace MiNET
 				dataInfo.maxChunkSize = 1048576;
 				dataInfo.chunkCount = 1;
 				dataInfo.compressedPackageSize = 359901; // Lenght of data
-				dataInfo.hash = new byte[] { 57, 38, 13, 50, 39, 63, 88, 63, 59, 27, 63, 63, 63, 63, 6, 63, 54, 7, 84, 63, 47, 91, 63, 120, 63, 120, 42, 5, 104, 2, 63, 18 };
+				dataInfo.hash = new byte[] {57, 38, 13, 50, 39, 63, 88, 63, 59, 27, 63, 63, 63, 63, 6, 63, 54, 7, 84, 63, 47, 91, 63, 120, 63, 120, 42, 5, 104, 2, 63, 18};
 				SendPacket(dataInfo);
 				return;
 			}
@@ -948,10 +947,7 @@ namespace MiNET
 				{
 					BigEndian = false,
 					UseVarInt = true,
-					RootTag = new NbtCompound("")
-					{
-						EntityHelpers.GenerateEntityIdentifiers()
-					}
+					RootTag = new NbtCompound("") {EntityHelpers.GenerateEntityIdentifiers()}
 				}
 			};
 
@@ -2240,7 +2236,7 @@ namespace MiNET
 		{
 			Item itemInHand = Inventory.GetItemInHand();
 
-			switch ((McpeInventoryTransaction.ItemReleaseAction) transaction.ActionType)
+			switch (transaction.ActionType)
 			{
 				case McpeInventoryTransaction.ItemReleaseAction.Release:
 				{
@@ -2253,7 +2249,7 @@ namespace MiNET
 					_itemUseTimer = 0;
 					_currentlyUsedItem = null;
 
-						break;
+					break;
 				}
 				case McpeInventoryTransaction.ItemReleaseAction.Use:
 				{
@@ -2411,10 +2407,10 @@ namespace MiNET
 								// slot 1,2,3 == anvil
 
 								if (slot > Inventory.CursorInventory.Slots.Count - 1)
-									Log.Error($"Requested slot {slot} was bigger than the size {Inventory.CursorInventory.Slots.Count -1} of the inventory ");
+									Log.Error($"Requested slot {slot} was bigger than the size {Inventory.CursorInventory.Slots.Count - 1} of the inventory ");
 
 								Item existingItem = Inventory.CursorInventory.Slots[slot];
-								if (!oldItem.Equals(existingItem)) 
+								if (!oldItem.Equals(existingItem))
 									Log.Warn($"Cursor mismatch. Client reported old item in slot {slot} as {oldItem} and it did not match existing the item {existingItem}");
 
 								if (slot == 0)
@@ -2602,7 +2598,6 @@ namespace MiNET
 			var jsonSerializerSettings = new JsonSerializerSettings
 			{
 				PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
-
 				Formatting = Formatting.Indented,
 			};
 			jsonSerializerSettings.Converters.Add(new NbtIntConverter());
@@ -2939,7 +2934,7 @@ namespace MiNET
 		{
 			var pk = McpeNetworkChunkPublisherUpdate.CreateObject();
 			pk.coordinates = KnownPosition.GetCoordinates3D();
-			pk.radius = (uint)(MaxViewDistance * 16);
+			pk.radius = (uint) (MaxViewDistance * 16);
 			SendPacket(pk);
 		}
 
@@ -3380,7 +3375,8 @@ namespace MiNET
 				int levels = 0;
 				foreach (var effect in Effects.Values)
 				{
-					if(!effect.Particles) continue;
+					if (!effect.Particles) continue;
+
 					var color = effect.ParticleColor;
 					int level = effect.Level + 1;
 					r += color.R * level;

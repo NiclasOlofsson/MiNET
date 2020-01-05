@@ -43,19 +43,10 @@ namespace MiNET.Utils
 			{
 				BigEndian = false,
 				UseVarInt = true,
-				RootTag = new NbtCompound("")
-				{
-					(NbtList) pallet
-				}
+				RootTag = (NbtList) pallet
 			};
 			byte[] nbtBinary = nbt.SaveToBuffer(NbtCompression.None);
-			if (nbtBinary.Length > 3) // 0a0000 - empty compound with empty name
-			{
-				byte[] result = new byte[nbtBinary.Length - 3];
-				Array.Copy(nbtBinary, 2, result, 0, result.Length);
-				return result;
-			}
-			return new byte[0];
+			return nbtBinary;
 		}
 	}
 

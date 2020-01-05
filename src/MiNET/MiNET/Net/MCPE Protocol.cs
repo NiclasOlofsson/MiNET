@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 388;
-		public const string GameVersion = "1.13.0";
+		public const int ProtocolVersion = 389;
+		public const string GameVersion = "1.14.1";
 	}
 
 	public interface IMcpeMessageHandler
@@ -57,6 +57,7 @@ namespace MiNET.Net
 		void HandleMcpeMoveEntity(McpeMoveEntity message);
 		void HandleMcpeMovePlayer(McpeMovePlayer message);
 		void HandleMcpeRiderJump(McpeRiderJump message);
+		void HandleMcpeTickSync(McpeTickSync message);
 		void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message);
 		void HandleMcpeEntityEvent(McpeEntityEvent message);
 		void HandleMcpeInventoryTransaction(McpeInventoryTransaction message);
@@ -98,6 +99,7 @@ namespace MiNET.Net
 		void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message);
 		void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message);
 		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
+		void HandleMcpeClientCacheStatus(McpeClientCacheStatus message);
 	}
 
 	public interface IMcpeClientMessageHandler
@@ -218,6 +220,7 @@ namespace MiNET.Net
 		void HandleMcpeUpdateBlockProperties(McpeUpdateBlockProperties message);
 		void HandleMcpeClientCacheBlobStatus(McpeClientCacheBlobStatus message);
 		void HandleMcpeClientCacheMissResponse(McpeClientCacheMissResponse message);
+		void HandleMcpeNetworkSettingsPacket(McpeNetworkSettingsPacket message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
 
@@ -349,6 +352,7 @@ namespace MiNET.Net
 			else if (typeof(McpeUpdateBlockProperties) == message.GetType()) _messageHandler.HandleMcpeUpdateBlockProperties((McpeUpdateBlockProperties) message);
 			else if (typeof(McpeClientCacheBlobStatus) == message.GetType()) _messageHandler.HandleMcpeClientCacheBlobStatus((McpeClientCacheBlobStatus) message);
 			else if (typeof(McpeClientCacheMissResponse) == message.GetType()) _messageHandler.HandleMcpeClientCacheMissResponse((McpeClientCacheMissResponse) message);
+			else if (typeof(McpeNetworkSettingsPacket) == message.GetType()) _messageHandler.HandleMcpeNetworkSettingsPacket((McpeNetworkSettingsPacket) message);
 			else if (typeof(FtlCreatePlayer) == message.GetType()) _messageHandler.HandleFtlCreatePlayer((FtlCreatePlayer) message);
 			else return false;
 
@@ -973,6 +977,10 @@ namespace MiNET.Net
 						return packet;
 					case 0x88:
 						packet = McpeClientCacheMissResponse.CreateObject();
+						packet.Decode(buffer);
+						return packet;
+					case 0x8f:
+						packet = McpeNetworkSettingsPacket.CreateObject();
 						packet.Decode(buffer);
 						return packet;
 				}
@@ -3869,16 +3877,20 @@ namespace MiNET.Net
 			Crafting = 100,
 			Unspecified = 99999,
 		}
-		public enum NormalAction
+		public enum CraftingAction
 		{
-			PutSlot = -2,
-			GetSlot = -3,
-			GetResult = -4,
-			CraftUse = -5,
+			CraftAddIngredient = -2,
+			CraftRemoveIngredient = -3,
+			CraftResult = -4,
+			CraftUseIngredient = -5,
+			AnvilInput = -10,
+			AnvilMaterial = -11,
+			AnvilResult = -12,
+			AnvilOutput = -13,
 			EnchantItem = -15,
 			EnchantLapis = -16,
 			EnchantResult = -17,
-			Drop = 199,
+			Drop = -100,
 		}
 		public enum ItemReleaseAction
 		{
@@ -3887,8 +3899,8 @@ namespace MiNET.Net
 		}
 		public enum ItemUseAction
 		{
-			Place = 0,
-			Use = 1,
+			Place,Clickblock = 0,
+			Use,Clickair = 1,
 			Destroy = 2,
 		}
 		public enum ItemUseOnEntityAction
@@ -5140,8 +5152,8 @@ namespace MiNET.Net
 	{
 
 		public Recipes recipes; // = null;
-		public uint someArraySize; // = null;
-		public uint someArraySize2; // = null;
+		public PotionTypeRecipe[] potionTypeRecipes; // = null;
+		public PotionContainerChangeRecipe[] potionContainerRecipes; // = null;
 		public bool isClean; // = null;
 
 		public McpeCraftingData()
@@ -5157,8 +5169,8 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(recipes);
-			WriteUnsignedVarInt(someArraySize);
-			WriteUnsignedVarInt(someArraySize2);
+			Write(potionTypeRecipes);
+			Write(potionContainerRecipes);
 			Write(isClean);
 
 			AfterEncode();
@@ -5174,8 +5186,8 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			recipes = ReadRecipes();
-			someArraySize = ReadUnsignedVarInt();
-			someArraySize2 = ReadUnsignedVarInt();
+			potionTypeRecipes = ReadPotionTypeRecipes();
+			potionContainerRecipes = ReadPotionContainerChangeRecipes();
 			isClean = ReadBool();
 
 			AfterDecode();
@@ -5189,8 +5201,8 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			recipes=default(Recipes);
-			someArraySize=default(uint);
-			someArraySize2=default(uint);
+			potionTypeRecipes=default(PotionTypeRecipe[]);
+			potionContainerRecipes=default(PotionContainerChangeRecipe[]);
 			isClean=default(bool);
 		}
 
@@ -5858,9 +5870,9 @@ namespace MiNET.Net
 	public partial class McpeTelemetryEvent : Packet<McpeTelemetryEvent>
 	{
 
-		public long entityIdSelf; // = null;
-		public int unk1; // = null;
-		public byte unk2; // = null;
+		public long runtimeEntityId; // = null;
+		public int eventData; // = null;
+		public byte eventType; // = null;
 
 		public McpeTelemetryEvent()
 		{
@@ -5874,9 +5886,9 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteSignedVarLong(entityIdSelf);
-			WriteSignedVarInt(unk1);
-			Write(unk2);
+			WriteUnsignedVarLong(runtimeEntityId);
+			WriteSignedVarInt(eventData);
+			Write(eventType);
 
 			AfterEncode();
 		}
@@ -5890,9 +5902,9 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityIdSelf = ReadSignedVarLong();
-			unk1 = ReadSignedVarInt();
-			unk2 = ReadByte();
+			runtimeEntityId = ReadUnsignedVarLong();
+			eventData = ReadSignedVarInt();
+			eventType = ReadByte();
 
 			AfterDecode();
 		}
@@ -5904,9 +5916,9 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			entityIdSelf=default(long);
-			unk1=default(int);
-			unk2=default(byte);
+			runtimeEntityId=default(long);
+			eventData=default(int);
+			eventType=default(byte);
 		}
 
 	}
@@ -9470,6 +9482,59 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+		}
+
+	}
+
+	public partial class McpeNetworkSettingsPacket : Packet<McpeNetworkSettingsPacket>
+	{
+		public enum Compression
+		{
+			Nothing = 0,
+			Everything = 1,
+		}
+
+		public short compressionThreshold; // = null;
+
+		public McpeNetworkSettingsPacket()
+		{
+			Id = 0x8f;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(compressionThreshold);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			compressionThreshold = ReadShort();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			compressionThreshold=default(short);
 		}
 
 	}

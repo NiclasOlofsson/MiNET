@@ -103,6 +103,7 @@ namespace MiNET.Blocks
 			}
 
 			UpdateBlocks(world);
+			world.BroadcastSound(Coordinates, LevelSoundEventType.BreakBlock, Id);
 		}
 
 		protected void UpdateBlocks(Level world)

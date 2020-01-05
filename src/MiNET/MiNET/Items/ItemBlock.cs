@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -26,6 +26,7 @@
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
+using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
@@ -80,6 +81,14 @@ namespace MiNET.Items
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
+
+			world.BroadcastSound(targetCoordinates, LevelSoundEventType.Place, block.Id);
 		}
+
+		public override string ToString()
+		{
+			return $"{GetType().Name}(Id={Id}, Meta={Metadata})[{Block?.GetType().Name}] Count={Count}, NBT={ExtraData}";
+		}
+
 	}
 }

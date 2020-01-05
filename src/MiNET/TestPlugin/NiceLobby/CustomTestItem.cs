@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace TestPlugin.NiceLobby
 {
-	public class CustomTestItem : ItemApple
+	public class CustomTestItem : ItemWoodenAxe
 	{
 		public uint SomeVariable { get; set; }
 

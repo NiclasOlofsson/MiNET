@@ -42,17 +42,18 @@ namespace MiNET.Client
 
 		private static object _chunkRead = new object();
 
-		public static ChunkColumn DecocedChunkColumn(byte[] buffer)
+		public static ChunkColumn DecocedChunkColumn(int subChunkCount, byte[] buffer)
 		{
 			lock (_chunkRead)
 			{
-				MemoryStream stream = new MemoryStream(buffer);
+				var stream = new MemoryStream(buffer);
 				{
-					NbtBinaryReader defStream = new NbtBinaryReader(stream, true);
+					var defStream = new NbtBinaryReader(stream, true);
 
 					Log.Debug("New chunk column");
 
-					int count = defStream.ReadByte();
+					int count = subChunkCount;
+					//int count = defStream.ReadByte();
 					if (count < 1)
 					{
 						Log.Warn("Nothing to read");
@@ -61,7 +62,7 @@ namespace MiNET.Client
 
 					Log.Debug($"Reading {count} sections");
 
-					ChunkColumn chunkColumn = new ChunkColumn();
+					var chunkColumn = new ChunkColumn();
 
 					for (int s = 0; s < count; s++)
 					{
@@ -73,7 +74,7 @@ namespace MiNET.Client
 							int bitsPerBlock = defStream.ReadByte() >> 1;
 							int noBlocksPerWord = (int) Math.Floor(32f / bitsPerBlock);
 							int wordCount = (int) Math.Ceiling(4096f / noBlocksPerWord);
-							Log.Warn($"New section {s}, " +
+							Log.Debug($"New section {s}, " +
 									$"version={version}, " +
 									$"storageSize={storageSize}, " +
 									$"bitsPerBlock={bitsPerBlock}, " +
@@ -100,10 +101,10 @@ namespace MiNET.Client
 
 					//if (stream.Position >= stream.Length - 1) continue;
 
-					byte[] ba = new byte[512];
-					if (defStream.Read(ba, 0, 256 * 2) != 256 * 2) Log.Error($"Out of data height");
+					//byte[] ba = new byte[512];
+					//if (defStream.Read(ba, 0, 256 * 2) != 256 * 2) Log.Error($"Out of data height");
 
-					Buffer.BlockCopy(ba, 0, chunkColumn.height, 0, 512);
+					//Buffer.BlockCopy(ba, 0, chunkColumn.height, 0, 512);
 					//Log.Debug($"Heights:\n{Package.HexDump(ba)}");
 
 					//if (stream.Position >= stream.Length - 1) continue;
@@ -190,8 +191,9 @@ namespace MiNET.Client
 		{
 			var nbt = new NbtFile();
 
-			NbtCompound levelTag = new NbtCompound("Level");
-			nbt.RootTag.Add(levelTag);
+			var levelTag = new NbtCompound("Level");
+			var rootTag = (NbtCompound) nbt.RootTag;
+			rootTag.Add(levelTag);
 
 			levelTag.Add(new NbtInt("xPos", chunk.x));
 			levelTag.Add(new NbtInt("zPos", chunk.z));

@@ -47,7 +47,7 @@ namespace MiNET
 		public List<Item> Slots { get; }
 		public int InHandSlot { get; set; }
 
-		public Item Cursor { get; set; } = new ItemAir();
+		public CursorInventory CursorInventory { get; set; } = new CursorInventory();
 
 		// Armour
 		public Item Boots { get; set; } = new ItemAir();

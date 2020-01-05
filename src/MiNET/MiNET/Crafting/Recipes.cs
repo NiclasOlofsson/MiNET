@@ -47,19 +47,28 @@ namespace MiNET.Crafting
 	public class ShapelessRecipe : Recipe
 	{
 		public List<Item> Input { get; private set; }
-		public Item Result { get; set; }
+		public List<Item> Result { get; private set; }
 
 		public ShapelessRecipe()
 		{
 			Input = new List<Item>();
+			Result = new List<Item>();
 		}
 
-		public ShapelessRecipe(Item result, List<Item> input) : this()
+		public ShapelessRecipe(List<Item> result, List<Item> input, string block = null) : this()
 		{
 			Result = result;
 			Input = input;
-			Block = "crafting_table";
+			Block = block;
 		}
+
+		public ShapelessRecipe(Item result, List<Item> input, string block = null) : this()
+		{
+			Result.Add(result);
+			Input = input;
+			Block = block;
+		}
+
 	}
 
 	public class ShapedRecipe : Recipe
@@ -67,21 +76,30 @@ namespace MiNET.Crafting
 		public int Width { get; set; }
 		public int Height { get; set; }
 		public Item[] Input { get; set; }
-		public Item Result { get; set; }
+		public List<Item> Result { get; set; }
 
 		public ShapedRecipe(int width, int height)
 		{
 			Width = width;
 			Height = height;
 			Input = new Item[Width * height];
-			Block = "crafting_table";
+			Result = new List<Item>();
 		}
 
-		public ShapedRecipe(int width, int height, Item result, Item[] input) : this(width, height)
+		public ShapedRecipe(int width, int height, Item result, Item[] input, string block = null) : this(width, height)
+		{
+			Result.Add(result);
+			Input = input;
+			Block = block;
+		}
+
+		public ShapedRecipe(int width, int height, List<Item> result, Item[] input, string block = null) : this(width, height)
 		{
 			Result = result;
 			Input = input;
+			Block = block;
 		}
+
 	}
 
 	public class SmeltingRecipe : Recipe
@@ -91,14 +109,28 @@ namespace MiNET.Crafting
 
 		public SmeltingRecipe()
 		{
-			Block = "furnace";
 		}
 
 		public SmeltingRecipe(Item result, Item input, string block = null) : this()
 		{
 			Result = result;
 			Input = input;
-			Block = string.IsNullOrWhiteSpace(block) ? "furnace" : block;
+			Block = block;
 		}
 	}
+
+	public class PotionContainerChangeRecipe
+	{
+		public int InputItemId { get; set; }
+		public int IngredientItemId { get; set; }
+		public int OutputItemId { get; set; }
+	}
+
+	public class PotionTypeRecipe
+	{
+		public int InputPotionType { get; set; }
+		public int IngredientItemId { get; set; }
+		public int OutputPotionType { get; set; }
+	}
+
 }

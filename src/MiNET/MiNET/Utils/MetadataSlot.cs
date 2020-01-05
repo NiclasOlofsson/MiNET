@@ -24,6 +24,7 @@
 #endregion
 
 using System.IO;
+using fNbt;
 using MiNET.Items;
 using MiNET.Net;
 
@@ -74,7 +75,7 @@ namespace MiNET.Utils
 			ushort nbtLen = reader.ReadUInt16(); // NbtLen
 			if (nbtLen == 0xffff && reader.ReadByte() == 1)
 			{
-				stack.ExtraData = Packet.ReadNbt(reader.BaseStream).NbtFile.RootTag;
+				stack.ExtraData = (NbtCompound) Packet.ReadNbt(reader.BaseStream).NbtFile.RootTag;
 			}
 
 			var canPlace = ReadSignedVarInt(reader.BaseStream);

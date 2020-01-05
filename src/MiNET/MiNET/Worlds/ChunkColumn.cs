@@ -423,28 +423,14 @@ namespace MiNET.Worlds
 
 				ClearCache();
 
-				#region HACK, should probably be rewritten
-				int topEmpty = 16;
-				for (int ci = 15; ci >= 0; ci--)
-				{
-					if (_chunks[ci] == null || _chunks[ci].IsAllAir())
-					{
-						topEmpty = ci;
-						_chunks[ci]?.PutPool();
-						_chunks[ci] = null;
-					}
-					else
-					{
-						break;
-					}
-				}
-				#endregion
-
 				var fullChunkData = McpeLevelChunk.CreateObject();
 				fullChunkData.chunkX = x;
 				fullChunkData.chunkZ = z;
-				fullChunkData.cacheEnabled = false;
+
+				int topEmpty = GetTopEmpty();
 				fullChunkData.subChunkCount = (uint) topEmpty;
+
+				fullChunkData.cacheEnabled = false;
 
 				var chunkData = GetBytes();
 
@@ -481,24 +467,11 @@ namespace MiNET.Worlds
 
 		public byte[] GetBytes()
 		{
-			using (MemoryStream stream = new MemoryStream())
+			using (var stream = new MemoryStream())
 			{
-				int topEmpty = 16;
-				for (int ci = 15; ci >= 0; ci--)
-				{
-					if (_chunks[ci] == null || _chunks[ci].IsAllAir())
-					{
-						topEmpty = ci;
-						_chunks[ci]?.PutPool();
-						_chunks[ci] = null;
-					}
-					else
-					{
-						break;
-					}
-				}
 
-				//stream.WriteByte((byte) topEmpty);
+				//TODO: Expensive since already done outside this method.
+				int topEmpty = GetTopEmpty();
 
 				int sent = 0;
 				for (int ci = 0; ci < topEmpty; ci++)
@@ -519,13 +492,32 @@ namespace MiNET.Worlds
 				{
 					foreach (NbtCompound blockEntity in BlockEntities.Values.ToArray())
 					{
-						NbtFile file = new NbtFile(blockEntity) {BigEndian = false, UseVarInt = true};
+						var file = new NbtFile(blockEntity) {BigEndian = false, UseVarInt = true};
 						file.SaveToStream(stream, NbtCompression.None);
 					}
 				}
 
 				return stream.ToArray();
 			}
+		}
+
+		private int GetTopEmpty()
+		{
+			int topEmpty = 16;
+			for (int ci = 15; ci >= 0; ci--)
+			{
+				if (_chunks[ci] == null || _chunks[ci].IsAllAir())
+				{
+					topEmpty = ci;
+					_chunks[ci]?.PutPool();
+					_chunks[ci] = null;
+				}
+				else
+				{
+					break;
+				}
+			}
+			return topEmpty;
 		}
 
 		public object Clone()

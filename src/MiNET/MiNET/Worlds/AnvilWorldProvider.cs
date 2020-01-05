@@ -770,7 +770,8 @@ namespace MiNET.Worlds
 
 			NbtFile file = new NbtFile();
 			NbtTag dataTag = new NbtCompound("Data");
-			file.RootTag.Add(dataTag);
+			NbtCompound rootTag = (NbtCompound) file.RootTag;
+			rootTag.Add(dataTag);
 			level.SaveToNbt(dataTag);
 			file.SaveToFile(leveldat, NbtCompression.GZip);
 		}
@@ -965,8 +966,9 @@ namespace MiNET.Worlds
 		{
 			var nbt = new NbtFile();
 
-			NbtCompound levelTag = new NbtCompound("Level");
-			nbt.RootTag.Add(levelTag);
+			var levelTag = new NbtCompound("Level");
+			var rootTag = (NbtCompound) nbt.RootTag;
+			rootTag.Add(levelTag);
 
 			levelTag.Add(new NbtByte("MCPE BID", 1)); // Indicate that the chunks contain PE block ID's.
 

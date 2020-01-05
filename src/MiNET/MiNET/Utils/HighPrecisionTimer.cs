@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -84,7 +84,7 @@ namespace MiNET.Utils
 			//
 			// HERE BE DRAGONS!
 #if !LINUX
-			//WinApi.TimeBeginPeriod(1);
+			WinApi.TimeBeginPeriod(1);
 			// END IS HERE. SAFE AGAIN ...
 #endif
 			Avarage = interval;

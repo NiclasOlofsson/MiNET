@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -47,6 +47,11 @@ namespace MiNET
 		{
 			Player = player;
 			ResetHunger();
+		}
+
+		public virtual bool CanEat()
+		{
+			return Hunger < MaxHunger;
 		}
 
 		public virtual void IncreaseFoodAndSaturation(Item item, int foodPoints, double saturationRestore)

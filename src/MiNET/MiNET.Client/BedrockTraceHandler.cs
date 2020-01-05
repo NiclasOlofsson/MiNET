@@ -149,7 +149,7 @@ namespace MiNET.Client
 				var legacyIdMap = new Dictionary<string, int>();
 				var assembly = Assembly.GetAssembly(typeof(Block));
 				using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".legacy_id_map.json"))
-				using (StreamReader reader = new StreamReader(stream))
+				using (var reader = new StreamReader(stream))
 				{
 					var result = JObject.Parse(reader.ReadToEnd());
 
@@ -159,13 +159,13 @@ namespace MiNET.Client
 					}
 				}
 
-				IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
+				var writer = new IndentedTextWriter(new StreamWriter(file));
 
 				writer.WriteLine($"namespace MiNET.Blocks");
 				writer.WriteLine($"{{");
 				writer.Indent++;
 
-				List<(int, string)> blocks = new List<(int, string)>();
+				var blocks = new List<(int, string)>();
 
 				foreach (IGrouping<string, BlockRecord> blockstate in message.blockPallet.OrderBy(record => record.Name).ThenBy(record => record.Data).GroupBy(record => record.Name))
 				{
@@ -182,7 +182,6 @@ namespace MiNET.Client
 						{
 							value.Id = id;
 						}
-
 
 						string blockName = Client.CodeName(value.Name.Replace("minecraft:", ""), true);
 
@@ -360,7 +359,7 @@ namespace MiNET.Client
 					//		transaction.transaction = new Transaction()
 					//		{
 					//			TransactionType = McpeInventoryTransaction.TransactionType.ItemUseOnEntity,
-					//			Transactions = new List<TransactionRecord>(),
+					//			TransactionRecords = new List<TransactionRecord>(),
 					//			EntityId = id,
 					//			ActionType = 0,
 					//			Slot = 0,
@@ -390,16 +389,14 @@ namespace MiNET.Client
 					{
 						Log.Warn("Sending transaction for horse");
 
-						McpeInventoryTransaction transaction = McpeInventoryTransaction.CreateObject();
-						transaction.transaction = new Transaction()
+						var transaction = McpeInventoryTransaction.CreateObject();
+						transaction.transaction = new ItemUseOnEntityTransaction()
 						{
-							TransactionType = McpeInventoryTransaction.TransactionType.ItemUseOnEntity,
-							Transactions = new List<TransactionRecord>(),
+							TransactionRecords = new List<TransactionRecord>(),
 							EntityId = id,
 							ActionType = 0,
 							Slot = 0,
 							Item = new ItemAir(),
-							Position = BlockCoordinates.Zero,
 							FromPosition = Client.CurrentLocation,
 							ClickPosition = pos,
 						};
@@ -603,12 +600,22 @@ namespace MiNET.Client
 
 			foreach (Recipe recipe in message.recipes)
 			{
-				ShapelessRecipe shapelessRecipe = recipe as ShapelessRecipe;
+				var shapelessRecipe = recipe as ShapelessRecipe;
 				if (shapelessRecipe != null)
 				{
-					writer.WriteLine($"new ShapelessRecipe(new Item({shapelessRecipe.Result.Id}, {shapelessRecipe.Result.Metadata}, {shapelessRecipe.Result.Count}),");
+					writer.WriteLine($"new ShapelessRecipe(");
 					writer.Indent++;
-					writer.WriteLine($"Block = \"{recipe.Block}\";");
+
+					writer.WriteLine("new List<Item>");
+					writer.WriteLine("{");
+					writer.Indent++;
+					foreach (var itemStack in shapelessRecipe.Result)
+					{
+						writer.WriteLine($"new Item({itemStack.Id}, {itemStack.Metadata}, {itemStack.Count}),");
+					}
+					writer.Indent--;
+					writer.WriteLine($"}},");
+
 					writer.WriteLine("new List<Item>");
 					writer.WriteLine("{");
 					writer.Indent++;
@@ -617,26 +624,37 @@ namespace MiNET.Client
 						writer.WriteLine($"new Item({itemStack.Id}, {itemStack.Metadata}, {itemStack.Count}),");
 					}
 					writer.Indent--;
-					writer.WriteLine("}),");
-					writer.Indent--;
+					writer.WriteLine($"}}, \"{shapelessRecipe.Block}\"),");
 
+					writer.Indent--;
 					continue;
 				}
 
-				ShapedRecipe shapedRecipe = recipe as ShapedRecipe;
-				if (shapedRecipe != null && Client._recipeToSend == null)
-				{
-					if (shapedRecipe.Result.Id == 5 && shapedRecipe.Result.Count == 4 && shapedRecipe.Result.Metadata == 0)
-					{
-						Log.Error("Setting recipe! " + shapedRecipe.Id);
-						Client._recipeToSend = shapedRecipe;
-					}
-				}
+				var shapedRecipe = recipe as ShapedRecipe;
+				//if (shapedRecipe != null && Client._recipeToSend == null)
+				//{
+				//	if (shapedRecipe.Result.Id == 5 && shapedRecipe.Result.Count == 4 && shapedRecipe.Result.Metadata == 0)
+				//	{
+				//		Log.Error("Setting recipe! " + shapedRecipe.Id);
+				//		Client._recipeToSend = shapedRecipe;
+				//	}
+				//}
+
 				if (shapedRecipe != null)
 				{
-					writer.WriteLine($"new ShapedRecipe({shapedRecipe.Width}, {shapedRecipe.Height}, new Item({shapedRecipe.Result.Id}, {shapedRecipe.Result.Metadata}, {shapedRecipe.Result.Count}),");
+					writer.WriteLine($"new ShapedRecipe({shapedRecipe.Width}, {shapedRecipe.Height},");
 					writer.Indent++;
-					writer.WriteLine($"Block = \"{recipe.Block}\";");
+
+					writer.WriteLine("new List<Item>");
+					writer.WriteLine("{");
+					writer.Indent++;
+					foreach (Item item in shapedRecipe.Result)
+					{
+						writer.WriteLine($"new Item({item.Id}, {item.Metadata}),");
+					}
+					writer.Indent--;
+					writer.WriteLine($"}},");
+
 					writer.WriteLine("new Item[]");
 					writer.WriteLine("{");
 					writer.Indent++;
@@ -645,20 +663,21 @@ namespace MiNET.Client
 						writer.WriteLine($"new Item({item.Id}, {item.Metadata}),");
 					}
 					writer.Indent--;
-					writer.WriteLine("}),");
+					writer.WriteLine($"}}, \"{shapedRecipe.Block}\"),");
+
 					writer.Indent--;
 
 					continue;
 				}
 
-				SmeltingRecipe smeltingRecipe = recipe as SmeltingRecipe;
+				var smeltingRecipe = recipe as SmeltingRecipe;
 				if (smeltingRecipe != null)
 				{
-					writer.WriteLine($"new SmeltingRecipe(new Item({smeltingRecipe.Result.Id}, {smeltingRecipe.Result.Metadata}, {smeltingRecipe.Result.Count}), new Item({smeltingRecipe.Input.Id}, {smeltingRecipe.Input.Metadata}), {smeltingRecipe.Block}),");
+					writer.WriteLine($"new SmeltingRecipe(new Item({smeltingRecipe.Result.Id}, {smeltingRecipe.Result.Metadata}, {smeltingRecipe.Result.Count}), new Item({smeltingRecipe.Input.Id}, {smeltingRecipe.Input.Metadata}), \"{smeltingRecipe.Block}\"),");
 					continue;
 				}
 
-				MultiRecipe multiRecipe = recipe as MultiRecipe;
+				var multiRecipe = recipe as MultiRecipe;
 				if (multiRecipe != null)
 				{
 					writer.WriteLine($"new MultiRecipe() {{ Id = new UUID(\"{recipe.Id}\") }}, // {recipe.Id}");
@@ -707,7 +726,7 @@ namespace MiNET.Client
 
 				try
 				{
-					ChunkColumn chunk = ClientUtils.DecocedChunkColumn(message.chunkData);
+					ChunkColumn chunk = ClientUtils.DecocedChunkColumn((int) message.subChunkCount, message.chunkData);
 					if (chunk != null)
 					{
 						chunk.x = message.chunkX;
@@ -1011,6 +1030,10 @@ namespace MiNET.Client
 		}
 
 		public override void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message)
+		{
+		}
+
+		public override void HandleMcpeNetworkSettingsPacket(McpeNetworkSettingsPacket message)
 		{
 		}
 

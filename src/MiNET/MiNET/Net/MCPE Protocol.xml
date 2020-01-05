@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.13.0" protocolVersion="388">
+<protocol gameVersion="1.14.1" protocolVersion="389">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -410,7 +410,7 @@
 		<field name="Title" type="string" />
 	</pdu>
 
-	<pdu id="0x17" online="false" client="false" server="true" name="MCPE_TICK_SYNC">
+	<pdu id="0x17" online="false" client="true" server="true" name="MCPE_TICK_SYNC">
 		<field name="Request Time" type="long" />
 		<field name="Response Time" type="long" />
 	</pdu>
@@ -472,7 +472,7 @@
 			<enum id="Crafting" value="100" />
 			<enum id="Unspecified" value="99999" />
 		</enums>
-		<enums id="Normal action">
+		<enums id="Crafting action">
 			<enum id="Put slot" value="-2" />
 			<enum id="Get slot" value="-3" />
 			<enum id="Get result" value="-4" />
@@ -487,8 +487,8 @@
 			<enum id="Use" value="1" />
 		</enums>
 		<enums id="Item use action">
-			<enum id="Place" value="0" />
-			<enum id="Use" value="1" />
+			<enum id="Place, ClickBlock" value="0" />
+			<enum id="Use, ClickAir" value="1" />
 			<enum id="Destroy" value="2" />
 		</enums>
 		<enums id="Item use on entity action">
@@ -646,8 +646,8 @@
 
 	<pdu id="0x34" online="false" client="false" server="true" name="MCPE_CRAFTING_DATA">
 		<field name="Recipes" type="Recipes" />
-		<field name="Some Array Size" type="UnsignedVarInt" />
-		<field name="Some Array Size 2" type="UnsignedVarInt" />
+		<field name="Potion type recipes" type="PotionTypeRecipe[]" />
+		<field name="potion container recipes" type="PotionContainerChangeRecipe[]" />
 		<field name="Is Clean" type="bool" />
 	</pdu>
 
@@ -767,9 +767,9 @@
 	</pdu>
 
 	<pdu id="0x41" online="false" client="false" server="true" name="MCPE_TELEMETRY_EVENT">
-		<field name="Entity ID Self" type="SignedVarLong" />
-		<field name="Unk1" type="SignedVarInt" />
-		<field name="Unk2" type="byte" />
+		<field name="Runtime Entity ID" type="UnsignedVarLong" />
+		<field name="Event data" type="SignedVarInt" />
+		<field name="Event type" type="byte" />
 	</pdu>
 
 	<pdu id="0x42" online="false" client="false" server="true" name="MCPE_SPAWN_EXPERIENCE_ORB">
@@ -1127,7 +1127,7 @@
 		<field name="Resolution Y" type="int" />
 	</pdu>
 
-	<pdu id="0x81" online="false" client="false" server="true" name="MCPE_CLIENT_CACHE_STATUS">
+	<pdu id="0x81" online="false" client="true" server="true" name="MCPE_CLIENT_CACHE_STATUS">
 	</pdu>
 
 	<pdu id="0x82" online="false" client="false" server="true" name="MCPE_ON_SCREEN_TEXTURE_ANIMATION">
@@ -1150,6 +1150,16 @@
 	
 	<pdu id="0x88" online="false" client="false" server="true" name="MCPE_CLIENT_CACHE_MISS_RESPONSE">
 	</pdu>
+
+	<pdu id="0x8f" online="false" client="false" server="true" name="MCPE_NETWORK_SETTINGS_PACKET">
+		<enums id="Compression">
+			<enum id="Nothing" value="0" />
+			<enum id="Everything" value="1" />
+		</enums>
+
+		<field name="Compression threshold" type="short" />
+	</pdu>
+
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">
 		<field name="Payload" type="byte[]" size="0, true" />

@@ -159,7 +159,7 @@ namespace MiNET.Worlds
 						int y = blockEntityTag["y"].IntValue;
 						int z = blockEntityTag["z"].IntValue;
 
-						chunkColumn.SetBlockEntity(new BlockCoordinates(x, y, z), file.RootTag);
+						chunkColumn.SetBlockEntity(new BlockCoordinates(x, y, z), (NbtCompound) file.RootTag);
 					} while (position < data.Length);
 				}
 			}

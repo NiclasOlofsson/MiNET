@@ -878,6 +878,47 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void CraftingKit(Player player)
+		{
+			PlayerInventory inventory = player.Inventory;
+
+			byte slot = 0;
+			inventory.Slots[slot++] = new ItemBlock(new CraftingTable()) { Count = 64 };
+			inventory.Slots[slot++] = new ItemBlock(new Anvil()) { Count = 64 };
+			inventory.Slots[slot++] = new ItemBlock(new EnchantingTable()) { Count = 64 };
+
+			slot = 9;
+			inventory.Slots[slot++] = new ItemDye() { Metadata = 4, Count = 64 };
+			inventory.Slots[slot++] = new ItemBook() { Count = 64 };
+			inventory.Slots[slot++] = new ItemEnchantedBook()
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound
+						{
+							new NbtShort("id", (short) EnchantingType.Knockback),
+							new NbtShort("lvl", 1)
+						}
+					}
+				}
+			};
+
+			inventory.Slots[slot++] = new ItemIronSword() { Count = 1 };
+			inventory.Slots[slot++] = new ItemIronSword() { Count = 1 };
+			inventory.Slots[slot++] = new ItemIronSword() { Count = 1 };
+			inventory.Slots[slot++] = new ItemIronSword() { Count = 1 };
+
+
+			player.SendPlayerInventory();
+			SendEquipmentForPlayer(player);
+			SendArmorForPlayer(player);
+
+			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
+		}
+
+		[Command]
 		public void FarmingKit(Player player)
 		{
 			var inventory = player.Inventory;
@@ -1219,6 +1260,13 @@ namespace TestPlugin
 		[Command]
 		public void EnumTest2(Player player, EnchantEnum enchant, EffectEnum effect)
 		{
+		}
+
+		[Command]
+		public void Hunger(Player player, int level)
+		{
+			player.HungerManager.Hunger = level;
+			player.HungerManager.SendHungerAttributes();
 		}
 
 		[Command(Description = "Fly command")]

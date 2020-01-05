@@ -320,6 +320,8 @@ namespace MiNET.Client
 		public abstract void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message);
 		public abstract void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message);
 
+		public abstract void HandleMcpeNetworkSettingsPacket(McpeNetworkSettingsPacket message);
+
 		public abstract void HandleFtlCreatePlayer(FtlCreatePlayer message);
 
 		public abstract void HandleMcpeLevelEventGeneric(McpeLevelEventGeneric message);

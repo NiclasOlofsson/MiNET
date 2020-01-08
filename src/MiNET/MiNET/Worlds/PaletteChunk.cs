@@ -236,10 +236,6 @@ namespace MiNET.Worlds
 					uint state = palette[(uint) blocks[position] << 4 | metadata[position]];
 					word |= state << (bitsPerBlock * block);
 
-					//string bin = Convert.ToString(word, 2);
-					//bin = new string('0', 32 - bin.Length) + bin;
-					//Console.WriteLine($"{bin}");
-
 					position++;
 				}
 				indexes[w] = word;

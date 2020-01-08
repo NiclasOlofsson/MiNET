@@ -1211,8 +1211,8 @@ namespace MiNET.Net
 		{
 			var result = new BlockPallet();
 
-			Nbt nbt = new Nbt();
-			NbtFile file = new NbtFile();
+			var nbt = new Nbt();
+			var file = new NbtFile();
 			file.BigEndian = false;
 			file.UseVarInt = true;
 			file.AllowAlternativeRootTag = true;
@@ -1229,13 +1229,14 @@ namespace MiNET.Net
 
 				var blockTag = (NbtCompound) tag["block"];
 				record.Name = blockTag["name"].StringValue;
+				if(blockTag.Contains("data")) record.Data = blockTag["data"].ShortValue;
 
 				record.States = new List<BlockState>();
 				var states = (NbtCompound) blockTag["states"];
 				foreach (NbtTag stateTag in states)
 				{
 					var state = new BlockState();
-					state.Name = tag.Name;
+					state.Name = stateTag.Name;
 					switch (stateTag.TagType)
 					{
 						case NbtTagType.Byte:

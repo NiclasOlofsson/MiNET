@@ -1129,6 +1129,7 @@ namespace MiNET.Worlds
 		public ChunkColumn GetChunk(ChunkCoordinates chunkCoordinates, bool cacheOnly = false)
 		{
 			var chunk = WorldProvider.GenerateChunkColumn(chunkCoordinates, cacheOnly);
+			if(chunk == null) Log.Error($"Got <null> chunk at {chunkCoordinates}");
 			return chunk;
 		}
 

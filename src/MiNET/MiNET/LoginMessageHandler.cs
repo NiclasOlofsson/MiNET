@@ -386,9 +386,6 @@ namespace MiNET
 							UseEncryption = Config.GetProperty("UseEncryptionForAll", false) || (Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(_playerInfo.CertificateData.ExtraData.Xuid)),
 						};
 
-#if LINUX
-						_session.CryptoContext.UseEncryption = false;
-#else
 						if (_session.CryptoContext.UseEncryption)
 						{
 							// Use bouncy to parse the DER key
@@ -473,7 +470,6 @@ namespace MiNET
 
 							if (Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {_session.Username}");
 						}
-#endif
 					}
 				}
 				if (!_session.CryptoContext.UseEncryption)

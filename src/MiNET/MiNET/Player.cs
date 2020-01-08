@@ -3677,7 +3677,7 @@ namespace MiNET
 		{
 			var packet = McpeNetworkStackLatencyPacket.CreateObject();
 			packet.timestamp = message.timestamp; // don't know what is it
-			packet.unknownFlag = false;
+			packet.unknownFlag = 1;
 			SendPacket(packet);
 		}
 

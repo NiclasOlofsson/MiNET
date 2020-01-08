@@ -1186,7 +1186,7 @@ namespace MiNET.Client
 
 		private int _numberOfChunks = 0;
 
-		public ConcurrentDictionary<Tuple<int, int>, bool> _chunks = new ConcurrentDictionary<Tuple<int, int>, bool>();
+		public ConcurrentDictionary<Tuple<int, int>, ChunkColumn> _chunks = new ConcurrentDictionary<Tuple<int, int>, ChunkColumn>();
 		public IndentedTextWriter _mobWriter;
 
 		public virtual void HandleBatch(McpeWrapper batch)

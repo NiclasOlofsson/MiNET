@@ -473,14 +473,18 @@
 			<enum id="Unspecified" value="99999" />
 		</enums>
 		<enums id="Crafting action">
-			<enum id="Put slot" value="-2" />
-			<enum id="Get slot" value="-3" />
-			<enum id="Get result" value="-4" />
-			<enum id="Craft use" value="-5" />
+			<enum id="Craft Add Ingredient" value="-2" />
+			<enum id="Craft Remove Ingredient" value="-3" />
+			<enum id="Craft Result" value="-4" />
+			<enum id="Craft Use Ingredient" value="-5" />
+			<enum id="Anvil Input" value="-10" />
+			<enum id="Anvil Material" value="-11" />
+			<enum id="Anvil Result" value="-12" />
+			<enum id="Anvil Output" value="-13" />
 			<enum id="Enchant item" value="-15" />
 			<enum id="Enchant lapis" value="-16" />
 			<enum id="Enchant result" value="-17" />
-			<enum id="Drop" value="199" />
+			<enum id="Drop" value="-100" />
 		</enums>
 		<enums id="Item release action">
 			<enum id="Release" value="0" />
@@ -1067,7 +1071,7 @@
 
 	<pdu id="0x73" online="false" client="true" server="true" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
 		<field name="Timestamp" type="ulong" />
-		<field name="Unknown Flag" type="bool" />
+		<field name="Unknown Flag" type="byte" />
 	</pdu>
 
 	<pdu id="0x75" online="false" client="true" server="true" name="MCPE_SCRIPT_CUSTOM_EVENT_PACKET">

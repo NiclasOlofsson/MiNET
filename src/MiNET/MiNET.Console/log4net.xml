@@ -43,6 +43,11 @@
 			<conversionPattern value="%5level [%logger{1}] - %message%newline" />
 		</layout>
 
+		<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.Client" />
+			<acceptOnMatch value="false" />
+		</filter>
+
 		<!--<filter type="log4net.Filter.LoggerMatchFilter">
 				<loggerToMatch value="MiNET.ServerInfo" />
 				<acceptOnMatch value="false" />
@@ -70,12 +75,22 @@
 			<conversionPattern value="%date [%thread] %-5level %logger - %message%newline" />
 		</layout>
 
-		<!--<filter type="log4net.Filter.LoggerMatchFilter">
-				<loggerToMatch value="MiNET.LevelDB" />
-				<acceptOnMatch value="false" />
-			</filter>-->
 		<filter type="log4net.Filter.LoggerMatchFilter">
 			<loggerToMatch value="MiNET.LevelDB" />
+			<acceptOnMatch value="false" />
+		</filter>
+
+		<!--<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.Client.ClientUtils" />
+			<acceptOnMatch value="true" />
+		</filter>-->
+
+		<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.Client" />
+			<acceptOnMatch value="false" />
+		</filter>
+		<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.Net.McpeAvailableCommands" />
 			<acceptOnMatch value="false" />
 		</filter>
 

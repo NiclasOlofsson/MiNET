@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netcoreapp2.1</TargetFramework>
+		<TargetFramework>netcoreapp3.0</TargetFramework>
 
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>MiNET</PackageId>
@@ -54,6 +54,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
 		<PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
 		<PackageReference Include="SharpAvi" Version="2.1.1" />
+		<PackageReference Include="System.Net.Sockets" Version="4.3.0" />
 		<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.5.0" />
 	</ItemGroup>
 

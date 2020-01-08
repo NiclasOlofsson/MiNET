@@ -221,19 +221,20 @@ namespace MiNET
 
 		private void SendTick(object obj)
 		{
-			Parallel.ForEach(_playerSessions.Values, (session, state) => { session.SendTick(null); });
+			foreach (var session in _playerSessions.Values) session.SendTick(null);
+			//Parallel.ForEach(_playerSessions.Values, (session, state) => { session.SendTick(null); });
 		}
 
 		private UdpClient CreateListener()
 		{
-			var listener = new UdpClient(Endpoint);
+			var listener = new UdpClient();
 
 			//_listener.Client.ReceiveBufferSize = 1600*40000;
 			listener.Client.ReceiveBufferSize = int.MaxValue;
 			//_listener.Client.SendBufferSize = 1600*40000;
 			listener.Client.SendBufferSize = int.MaxValue;
 			listener.DontFragment = false;
-			listener.EnableBroadcast = false;
+			listener.EnableBroadcast = true;
 
 			if (Environment.OSVersion.Platform != PlatformID.Unix && Environment.OSVersion.Platform != PlatformID.MacOSX)
 			{
@@ -253,6 +254,8 @@ namespace MiNET
 			}
 
 			//_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
+
+			listener.Client.Bind(Endpoint);
 			return listener;
 		}
 

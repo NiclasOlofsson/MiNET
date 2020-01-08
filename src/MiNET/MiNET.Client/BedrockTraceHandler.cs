@@ -720,13 +720,13 @@ namespace MiNET.Client
 			// TODO doesn't work anymore I guess
 			if (Client.IsEmulator) return;
 
-			if (Client._chunks.TryAdd(new Tuple<int, int>(message.chunkX, message.chunkZ), true))
+			if (Client._chunks.TryAdd(new Tuple<int, int>(message.chunkX, message.chunkZ), null))
 			{
 				Log.Debug($"Chunk X={message.chunkX}, Z={message.chunkZ}, size={message.chunkData.Length}, Count={Client._chunks.Count}");
 
 				try
 				{
-					ChunkColumn chunk = ClientUtils.DecocedChunkColumn((int) message.subChunkCount, message.chunkData);
+					ChunkColumn chunk = ClientUtils.DecodeChunkColumn((int) message.subChunkCount, message.chunkData);
 					if (chunk != null)
 					{
 						chunk.x = message.chunkX;
@@ -995,11 +995,7 @@ namespace MiNET.Client
 		public override void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message)
 		{
 		}
-
-		public override void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
-		{
-		}
-
+		
 		public override void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
 		{
 		}

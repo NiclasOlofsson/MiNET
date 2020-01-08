@@ -192,6 +192,41 @@ namespace MiNET.Test
 			Console.WriteLine($"time={sw.ElapsedMilliseconds}");
 		}
 
+		[TestMethod]
+		public void StateShiftTest()
+		{
+
+			int position = 0;
+			int blocksPerWord = 8;
+			int bitsPerBlock = 4;
+
+			uint word = 0;
+			uint idx = 0;
+			for (int block = 0; block < blocksPerWord; block++)
+			{
+				if (position >= 4096)
+					continue;
+
+				uint state = idx++;
+				word |= state << (bitsPerBlock * block);
+
+				position++;
+			}
+
+			position = 0;
+			idx = 0;
+			for (int block = 0; block < blocksPerWord; block++)
+			{
+				if (position >= 4096)
+					continue;
+				
+				uint state = (uint) ((word >> ((position % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1));
+				Assert.AreEqual(idx++, state);
+				position++;
+			}
+
+		}
+
 
 		[TestMethod]
 		public void IndexShiftTest()

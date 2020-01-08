@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,15 +18,18 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using fNbt;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -42,7 +45,7 @@ namespace MiNET.Client
 
 		private static object _chunkRead = new object();
 
-		public static ChunkColumn DecocedChunkColumn(int subChunkCount, byte[] buffer)
+		public static ChunkColumn DecodeChunkColumn(int subChunkCount, byte[] buffer, BlockPallet bedrockPallet = null, HashSet<BlockRecord> internalBlockPallet = null)
 		{
 			lock (_chunkRead)
 			{
@@ -50,69 +53,94 @@ namespace MiNET.Client
 				{
 					var defStream = new NbtBinaryReader(stream, true);
 
-					Log.Debug("New chunk column");
-
-					int count = subChunkCount;
-					//int count = defStream.ReadByte();
-					if (count < 1)
+					if (subChunkCount < 1)
 					{
 						Log.Warn("Nothing to read");
 						return null;
 					}
 
-					Log.Debug($"Reading {count} sections");
+					Log.Debug($"Reading {subChunkCount} sections");
 
 					var chunkColumn = new ChunkColumn();
 
-					for (int s = 0; s < count; s++)
+					for (int chunkIndex = 0; chunkIndex < subChunkCount; chunkIndex++)
 					{
 						int version = defStream.ReadByte();
 						int storageSize = defStream.ReadByte();
 
-						for (int i = 0; i < storageSize; i++)
+						var section = (PaletteChunk) chunkColumn[chunkIndex];
+
+						for (int storageIndex = 0; storageIndex < storageSize; storageIndex++)
 						{
 							int bitsPerBlock = defStream.ReadByte() >> 1;
-							int noBlocksPerWord = (int) Math.Floor(32f / bitsPerBlock);
-							int wordCount = (int) Math.Ceiling(4096f / noBlocksPerWord);
-							Log.Debug($"New section {s}, " +
+							int blocksPerWord = (int) Math.Floor(32f / bitsPerBlock);
+							int wordsPerChunk = (int) Math.Ceiling(4096f / blocksPerWord);
+							Log.Debug($"New section {chunkIndex}, " +
 									$"version={version}, " +
 									$"storageSize={storageSize}, " +
 									$"bitsPerBlock={bitsPerBlock}, " +
-									$"noBlocksPerWord={noBlocksPerWord}, " +
-									$"wordCount={wordCount}, " +
+									$"noBlocksPerWord={blocksPerWord}, " +
+									$"wordCount={wordsPerChunk}, " +
 									$"");
-							defStream.ReadBytes(wordCount * 4);
-							int paletteCount = VarInt.ReadSInt32(stream);
-							//Log.Warn($"New section {s}, " +
-							//		$"version={version}, " +
-							//		$"storageSize={storageSize}, " +
-							//		$"bitsPerBlock={bitsPerBlock}, " +
-							//		$"noBlocksPerWord={noBlocksPerWord}, " +
-							//		$"wordCount={wordCount}, " +
-							//		$"paletteCount={paletteCount}" +
-							//		$"");
 
+							long jumpPos = stream.Position;
+							stream.Seek(wordsPerChunk * 4, SeekOrigin.Current);
+
+							int paletteCount = VarInt.ReadSInt32(stream);
+							var palette = new uint[paletteCount];
 							for (int j = 0; j < paletteCount; j++)
 							{
-								VarInt.ReadSInt32(stream);
+								palette[j] = GetHashRuntimeId(bedrockPallet, internalBlockPallet, VarInt.ReadSInt32(stream));
 							}
+
+							long afterPos = stream.Position;
+							stream.Position = jumpPos;
+							int position = 0;
+							for (int w = 0; w < wordsPerChunk; w++)
+							{
+								uint word = defStream.ReadUInt32();
+								for (int block = 0; block < blocksPerWord; block++)
+								{
+									if (position >= 4096)
+										continue;
+
+									uint state = (uint) ((word >> ((position % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1));
+
+									int x = (position >> 8) & 0xF;
+									int y = position & 0xF;
+									int z = (position >> 4) & 0xF;
+
+									uint hash = palette[state];
+
+									int bid = (int) (hash >> 4);
+									if (BlockFactory.GetBlockById(bid).GetType() == typeof(Block))
+									{
+										//Log.Error($"No block for bid={bid}");
+										bid = 0;
+									}
+
+									if (storageIndex == 0)
+									{
+										section.SetBlock(x, y, z, bid);
+										section.SetMetadata(x, y, z, (byte) (hash & 0xf));
+									}
+									else
+									{
+										section.SetLoggedBlock(x, y, z, bid);
+										section.SetLoggedMetadata(x, y, z, (byte) (hash & 0xf));
+									}
+
+									position++;
+								}
+							}
+							stream.Position = afterPos;
 						}
 					}
-
-					//if (stream.Position >= stream.Length - 1) continue;
-
-					//byte[] ba = new byte[512];
-					//if (defStream.Read(ba, 0, 256 * 2) != 256 * 2) Log.Error($"Out of data height");
-
-					//Buffer.BlockCopy(ba, 0, chunkColumn.height, 0, 512);
-					//Log.Debug($"Heights:\n{Package.HexDump(ba)}");
-
-					//if (stream.Position >= stream.Length - 1) continue;
 
 					if (defStream.Read(chunkColumn.biomeId, 0, 256) != 256) Log.Error($"Out of data biomeId");
 					//Log.Debug($"biomeId:\n{Package.HexDump(chunk.biomeId)}");
 
-					if (stream.Position >= stream.Length - 1) return chunkColumn;
+					//if (stream.Position >= stream.Length - 1) return chunkColumn;
 
 					int borderBlock = VarInt.ReadSInt32(stream);
 					if (borderBlock != 0)
@@ -131,8 +159,6 @@ namespace MiNET.Client
 
 					if (stream.Position < stream.Length - 1)
 					{
-						//Log.Debug($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
-
 						while (stream.Position < stream.Length)
 						{
 							NbtFile file = new NbtFile()
@@ -142,6 +168,13 @@ namespace MiNET.Client
 							};
 
 							file.LoadFromStream(stream, NbtCompression.None);
+
+							var blockEntityTag = file.RootTag;
+							int x = blockEntityTag["x"].IntValue;
+							int y = blockEntityTag["y"].IntValue;
+							int z = blockEntityTag["z"].IntValue;
+
+							chunkColumn.SetBlockEntity(new BlockCoordinates(x, y, z), (NbtCompound) file.RootTag);
 
 							Log.Debug($"Blockentity: {file.RootTag}");
 						}
@@ -154,6 +187,21 @@ namespace MiNET.Client
 					return chunkColumn;
 				}
 			}
+		}
+
+		private static uint GetHashRuntimeId(BlockPallet bedrockPallet, HashSet<BlockRecord> internalBlockPallet, int runtimeId)
+		{
+			if (runtimeId < 0 || runtimeId >= bedrockPallet.Count) Log.Error($"RuntimeId = {runtimeId}");
+
+			var record = bedrockPallet[runtimeId];
+
+			if (!internalBlockPallet.TryGetValue(record, out BlockRecord internalRecord))
+			{
+				Log.Error($"Did not find {record.Id}");
+				return 0; // air
+			}
+			uint hash = (uint) ((internalRecord.Id << 4) | (byte) internalRecord.Data);
+			return hash;
 		}
 
 		private static void SetNibble4(byte[] arr, int index, byte value)

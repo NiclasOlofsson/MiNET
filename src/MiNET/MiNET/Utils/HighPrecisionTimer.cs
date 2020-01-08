@@ -34,7 +34,6 @@ using log4net;
 
 namespace MiNET.Utils
 {
-#if !LINUX
 	public static class WinApi
 	{
 		/// <summary>TimeBeginPeriod(). See the Windows API documentation for details.</summary>
@@ -47,7 +46,6 @@ namespace MiNET.Utils
 		[DllImport("winmm.dll", EntryPoint = "timeEndPeriod", SetLastError = true)]
 		public static extern uint TimeEndPeriod(uint uMilliseconds);
 	}
-#endif
 
 	public class HighPrecisionTimer : IDisposable
 	{
@@ -83,10 +81,12 @@ namespace MiNET.Utils
 			// this, thanks.
 			//
 			// HERE BE DRAGONS!
-#if !LINUX
-			WinApi.TimeBeginPeriod(1);
+			if (Environment.OSVersion.Platform != PlatformID.Unix && Environment.OSVersion.Platform != PlatformID.MacOSX)
+			{
+				WinApi.TimeBeginPeriod(1);
+			}
 			// END IS HERE. SAFE AGAIN ...
-#endif
+
 			Avarage = interval;
 			_action = action;
 

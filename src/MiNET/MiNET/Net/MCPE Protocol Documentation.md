@@ -878,14 +878,18 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 
 | Name | Value |
 |:-----|:-----|
-|Put Slot | -2 |
-|Get Slot | -3 |
-|Get Result | -4 |
-|Craft Use | -5 |
+|Craft Add Ingredient | -2 |
+|Craft Remove Ingredient | -3 |
+|Craft Result | -4 |
+|Craft Use Ingredient | -5 |
+|Anvil Input | -10 |
+|Anvil Material | -11 |
+|Anvil Result | -12 |
+|Anvil Output | -13 |
 |Enchant Item | -15 |
 |Enchant Lapis | -16 |
 |Enchant Result | -17 |
-|Drop | 199 |
+|Drop | -100 |
 
 #### Item Release Action constants
 
@@ -2388,7 +2392,7 @@ Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wik
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Timestamp | ulong |  |
-|Unknown Flag | bool |  |
+|Unknown Flag | byte |  |
 -----------------------------------------------------------------------
 ### Script Custom Event Packet (0x75)
 Wiki: [Script Custom Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ScriptCustomEventPacket)

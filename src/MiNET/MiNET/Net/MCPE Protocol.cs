@@ -8538,7 +8538,7 @@ namespace MiNET.Net
 	{
 
 		public ulong timestamp; // = null;
-		public bool unknownFlag; // = null;
+		public byte unknownFlag; // = null;
 
 		public McpeNetworkStackLatencyPacket()
 		{
@@ -8568,7 +8568,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			timestamp = ReadUlong();
-			unknownFlag = ReadBool();
+			unknownFlag = ReadByte();
 
 			AfterDecode();
 		}
@@ -8581,7 +8581,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			timestamp=default(ulong);
-			unknownFlag=default(bool);
+			unknownFlag=default(byte);
 		}
 
 	}

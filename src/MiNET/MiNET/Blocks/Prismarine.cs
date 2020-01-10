@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Prismarine : Block
+	public partial class Prismarine : Block
 	{
 		public Prismarine() : base(168)
 		{

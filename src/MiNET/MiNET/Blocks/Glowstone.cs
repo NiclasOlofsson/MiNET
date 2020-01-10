@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Glowstone : Block
+	public partial class Glowstone : Block
 	{
 		public Glowstone() : base(89)
 		{

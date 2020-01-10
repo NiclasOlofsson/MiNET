@@ -31,7 +31,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Sand : Block
+	public partial class Sand : Block
 	{
 		private int _tickRate = 1;
 

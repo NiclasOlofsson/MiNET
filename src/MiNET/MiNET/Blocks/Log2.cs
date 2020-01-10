@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Log2 : Block
+	public partial class Log2 : Block
 	{
 		public Log2() : base(162)
 		{

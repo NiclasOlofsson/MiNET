@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class RedstoneBlock : Block
+	public partial class RedstoneBlock : Block
 	{
 		public RedstoneBlock() : base(152)
 		{

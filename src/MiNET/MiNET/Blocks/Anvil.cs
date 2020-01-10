@@ -31,7 +31,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Anvil : Block
+	public partial class Anvil : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Anvil));
 

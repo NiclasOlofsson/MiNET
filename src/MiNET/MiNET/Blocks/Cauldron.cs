@@ -31,7 +31,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Cauldron : Block
+	public partial class Cauldron : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Cauldron));
 

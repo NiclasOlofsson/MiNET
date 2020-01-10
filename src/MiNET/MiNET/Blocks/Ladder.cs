@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Ladder : Block
+	public partial class Ladder : Block
 	{
 		public Ladder() : base(65)
 		{

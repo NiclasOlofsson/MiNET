@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class UnpoweredRepeater : Block
+	public partial class UnpoweredRepeater : Block
 	{
 		public UnpoweredRepeater() : this(93)
 		{

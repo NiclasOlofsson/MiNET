@@ -264,13 +264,11 @@ namespace MiNET.Worlds
 						byte metadata = palette[state].Item2;
 						if (storage == 0)
 						{
-							section.SetBlock(x, y, z, bid);
-							section.SetMetadata(x, y, z, metadata);
+							section.SetBlock(x, y, z, bid, metadata);
 						}
 						else
 						{
-							section.SetLoggedBlock(x, y, z, bid);
-							section.SetLoggedMetadata(x, y, z, metadata);
+							section.SetLoggedBlock(x, y, z, bid, metadata);
 						}
 						position++;
 					}

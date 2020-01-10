@@ -32,7 +32,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Gravel : Block
+	public partial class Gravel : Block
 	{
 		private int _tickRate = 1;
 

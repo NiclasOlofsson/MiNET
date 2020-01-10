@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class DetectorRail : Block
+	public partial class DetectorRail : Block
 	{
 		public DetectorRail() : base(28)
 		{

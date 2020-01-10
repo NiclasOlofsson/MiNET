@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Pumpkin : Block
+	public partial class Pumpkin : Block
 	{
 		public Pumpkin() : base(86)
 		{

@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 		public BoundingBox Size { get; set; }
 	}
 
-	public class Portal : Block
+	public partial class Portal : Block
 	{
 		public Portal() : base(90)
 		{

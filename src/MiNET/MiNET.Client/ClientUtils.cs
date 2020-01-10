@@ -83,6 +83,7 @@ namespace MiNET.Client
 									$"wordCount={wordsPerChunk}, " +
 									$"");
 
+
 							long jumpPos = stream.Position;
 							stream.Seek(wordsPerChunk * 4, SeekOrigin.Current);
 
@@ -90,7 +91,10 @@ namespace MiNET.Client
 							var palette = new uint[paletteCount];
 							for (int j = 0; j < paletteCount; j++)
 							{
-								palette[j] = GetHashRuntimeId(bedrockPallet, internalBlockPallet, VarInt.ReadSInt32(stream));
+								int runtimeId = VarInt.ReadSInt32(stream);
+								if (bedrockPallet == null || internalBlockPallet == null) continue;
+
+								palette[j] = GetHashRuntimeId(bedrockPallet, internalBlockPallet, runtimeId);
 							}
 
 							long afterPos = stream.Position;
@@ -121,13 +125,11 @@ namespace MiNET.Client
 
 									if (storageIndex == 0)
 									{
-										section.SetBlock(x, y, z, bid);
-										section.SetMetadata(x, y, z, (byte) (hash & 0xf));
+										section.SetBlock(x, y, z, bid, (byte) (hash & 0xf));
 									}
 									else
 									{
-										section.SetLoggedBlock(x, y, z, bid);
-										section.SetLoggedMetadata(x, y, z, (byte) (hash & 0xf));
+										section.SetLoggedBlock(x, y, z, bid, (byte) (hash & 0xf));
 									}
 
 									position++;
@@ -176,7 +178,7 @@ namespace MiNET.Client
 
 							chunkColumn.SetBlockEntity(new BlockCoordinates(x, y, z), (NbtCompound) file.RootTag);
 
-							Log.Debug($"Blockentity: {file.RootTag}");
+							Log.Debug($"Blockentity:\n{file.RootTag}");
 						}
 					}
 					if (stream.Position < stream.Length - 1)
@@ -235,73 +237,73 @@ namespace MiNET.Client
 			}
 		}
 
-		private static NbtFile CreateNbtFromChunkColumn(ChunkColumn chunk)
-		{
-			var nbt = new NbtFile();
+		//private static NbtFile CreateNbtFromChunkColumn(ChunkColumn chunk)
+		//{
+		//	var nbt = new NbtFile();
 
-			var levelTag = new NbtCompound("Level");
-			var rootTag = (NbtCompound) nbt.RootTag;
-			rootTag.Add(levelTag);
+		//	var levelTag = new NbtCompound("Level");
+		//	var rootTag = (NbtCompound) nbt.RootTag;
+		//	rootTag.Add(levelTag);
 
-			levelTag.Add(new NbtInt("xPos", chunk.x));
-			levelTag.Add(new NbtInt("zPos", chunk.z));
-			levelTag.Add(new NbtByteArray("Biomes", chunk.biomeId));
+		//	levelTag.Add(new NbtInt("xPos", chunk.x));
+		//	levelTag.Add(new NbtInt("zPos", chunk.z));
+		//	levelTag.Add(new NbtByteArray("Biomes", chunk.biomeId));
 
-			NbtList sectionsTag = new NbtList("Sections");
-			levelTag.Add(sectionsTag);
+		//	NbtList sectionsTag = new NbtList("Sections");
+		//	levelTag.Add(sectionsTag);
 
-			for (int i = 0; i < 8; i++)
-			{
-				NbtCompound sectionTag = new NbtCompound();
-				sectionsTag.Add(sectionTag);
-				sectionTag.Add(new NbtByte("Y", (byte) i));
-				int sy = i * 16;
+		//	for (int i = 0; i < 8; i++)
+		//	{
+		//		NbtCompound sectionTag = new NbtCompound();
+		//		sectionsTag.Add(sectionTag);
+		//		sectionTag.Add(new NbtByte("Y", (byte) i));
+		//		int sy = i * 16;
 
-				byte[] blocks = new byte[4096];
-				byte[] data = new byte[2048];
-				byte[] blockLight = new byte[2048];
-				byte[] skyLight = new byte[2048];
+		//		byte[] blocks = new byte[4096];
+		//		byte[] data = new byte[2048];
+		//		byte[] blockLight = new byte[2048];
+		//		byte[] skyLight = new byte[2048];
 
-				for (int x = 0; x < 16; x++)
-				{
-					for (int z = 0; z < 16; z++)
-					{
-						for (int y = 0; y < 16; y++)
-						{
-							int yi = sy + y;
-							if (yi < 0 || yi >= 256) continue; // ?
+		//		for (int x = 0; x < 16; x++)
+		//		{
+		//			for (int z = 0; z < 16; z++)
+		//			{
+		//				for (int y = 0; y < 16; y++)
+		//				{
+		//					int yi = sy + y;
+		//					if (yi < 0 || yi >= 256) continue; // ?
 
-							int anvilIndex = (y + _waterOffsetY) * 16 * 16 + z * 16 + x;
-							int blockId = chunk.GetBlock(x, yi, z);
+		//					int anvilIndex = (y + _waterOffsetY) * 16 * 16 + z * 16 + x;
+		//					int blockId = chunk.GetBlock(x, yi, z);
 
-							// PE to Anvil friendly converstion
-							if (blockId == 5) blockId = 125;
-							else if (blockId == 158) blockId = 126;
-							else if (blockId == 50) blockId = 75;
-							else if (blockId == 50) blockId = 76;
-							else if (blockId == 89) blockId = 123;
-							else if (blockId == 89) blockId = 124;
-							else if (blockId == 73) blockId = 152;
+		//					// PE to Anvil friendly converstion
+		//					if (blockId == 5) blockId = 125;
+		//					else if (blockId == 158) blockId = 126;
+		//					else if (blockId == 50) blockId = 75;
+		//					else if (blockId == 50) blockId = 76;
+		//					else if (blockId == 89) blockId = 123;
+		//					else if (blockId == 89) blockId = 124;
+		//					else if (blockId == 73) blockId = 152;
 
-							blocks[anvilIndex] = (byte) blockId;
-							SetNibble4(data, anvilIndex, chunk.GetMetadata(x, yi, z));
-							SetNibble4(blockLight, anvilIndex, chunk.GetBlocklight(x, yi, z));
-							SetNibble4(skyLight, anvilIndex, chunk.GetSkylight(x, yi, z));
-						}
-					}
-				}
+		//					blocks[anvilIndex] = (byte) blockId;
+		//					SetNibble4(data, anvilIndex, chunk.GetMetadata(x, yi, z));
+		//					SetNibble4(blockLight, anvilIndex, chunk.GetBlocklight(x, yi, z));
+		//					SetNibble4(skyLight, anvilIndex, chunk.GetSkylight(x, yi, z));
+		//				}
+		//			}
+		//		}
 
-				sectionTag.Add(new NbtByteArray("Blocks", blocks));
-				sectionTag.Add(new NbtByteArray("Data", data));
-				sectionTag.Add(new NbtByteArray("BlockLight", blockLight));
-				sectionTag.Add(new NbtByteArray("SkyLight", skyLight));
-			}
+		//		sectionTag.Add(new NbtByteArray("Blocks", blocks));
+		//		sectionTag.Add(new NbtByteArray("Data", data));
+		//		sectionTag.Add(new NbtByteArray("BlockLight", blockLight));
+		//		sectionTag.Add(new NbtByteArray("SkyLight", skyLight));
+		//	}
 
-			levelTag.Add(new NbtList("Entities", NbtTagType.Compound));
-			levelTag.Add(new NbtList("TileEntities", NbtTagType.Compound));
-			levelTag.Add(new NbtList("TileTicks", NbtTagType.Compound));
+		//	levelTag.Add(new NbtList("Entities", NbtTagType.Compound));
+		//	levelTag.Add(new NbtList("TileEntities", NbtTagType.Compound));
+		//	levelTag.Add(new NbtList("TileTicks", NbtTagType.Compound));
 
-			return nbt;
-		}
+		//	return nbt;
+		//}
 	}
 }

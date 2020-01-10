@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class DoublePlant : Block
+	public partial class DoublePlant : Block
 	{
 		public DoublePlant() : base(175)
 		{

@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class StoneSlab2 : SlabBase
+	public partial class StoneSlab2 : SlabBase
 	{
 		public StoneSlab2() : base(182)
 		{

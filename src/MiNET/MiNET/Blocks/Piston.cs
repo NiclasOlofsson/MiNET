@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Piston : Block
+	public partial class Piston : Block
 	{
 		public Piston() : this(33)
 		{

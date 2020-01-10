@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Concrete : Block
+	public partial class Concrete : Block
 	{
 		public Concrete() : base(236)
 		{

@@ -33,7 +33,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class MobSpawner : Block
+	public partial class MobSpawner : Block
 	{
 		public MobSpawner() : base(52)
 		{

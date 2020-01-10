@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class StonePressurePlate : Block
+	public partial class StonePressurePlate : Block
 	{
 		public StonePressurePlate() : base(70)
 		{

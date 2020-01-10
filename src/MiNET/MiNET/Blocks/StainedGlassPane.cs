@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class StainedGlassPane : Block
+	public partial class StainedGlassPane : Block
 	{
 		public StainedGlassPane() : base(160)
 		{

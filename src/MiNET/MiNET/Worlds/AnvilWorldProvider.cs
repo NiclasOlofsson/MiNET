@@ -515,7 +515,7 @@ namespace MiNET.Worlds
 
 										blockEntityTag["facing"] = new NbtByte("facing", (byte) (meta >> 4));
 
-										chunk.SetMetadata(x & 0x0f, y, z & 0x0f, (byte) (meta - ((byte) (meta >> 4) << 4)));
+										chunk.SetBlock(x & 0x0f, y, z & 0x0f, 218,(byte) (meta - ((byte) (meta >> 4) << 4)));
 									}
 
 									NbtList items = (NbtList) blockEntityTag["Items"];
@@ -660,11 +660,10 @@ namespace MiNET.Worlds
 
 						if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7; // Bedrock under water
 
-						chunk.SetBlock(x, y, z, (byte) blockId);
 						byte metadata = Nibble4(data, anvilIndex);
 						metadata = dataConverter(blockId, metadata);
 
-						chunk.SetMetadata(x, y, z, metadata);
+						chunk.SetBlock(x, y, z, (byte) blockId, metadata);
 						if (ReadBlockLight)
 						{
 							chunk.SetBlocklight(x, y, z, Nibble4(blockLight, anvilIndex));
@@ -684,8 +683,7 @@ namespace MiNET.Worlds
 						if (convertBid && blockId == 3 && metadata == 2)
 						{
 							// Dirt Podzol => (Podzol)
-							chunk.SetBlock(x, y, z, 243);
-							chunk.SetMetadata(x, y, z, 0);
+							chunk.SetBlock(x, y, z, 243, 0);
 							blockId = 243;
 						}
 

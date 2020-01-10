@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Waterlily : Block
+	public partial class Waterlily : Block
 	{
 		public Waterlily() : base(111)
 		{

@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Glass : Block
+	public partial class Glass : Block
 	{
 		public Glass() : this(20)
 		{

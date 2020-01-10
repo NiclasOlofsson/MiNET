@@ -28,7 +28,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class YellowFlower : Block
+	public partial class YellowFlower : Block
 	{
 		public YellowFlower() : base(37)
 		{

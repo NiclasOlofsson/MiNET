@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class DaylightDetectorInverted : Block
+	public partial class DaylightDetectorInverted : Block
 	{
 		public DaylightDetectorInverted() : base(178)
 		{

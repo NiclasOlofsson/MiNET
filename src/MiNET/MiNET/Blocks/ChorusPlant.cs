@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class ChorusPlant : Block
+	public partial class ChorusPlant : Block
 	{
 		public ChorusPlant() : base(240)
 		{

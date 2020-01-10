@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class EndRod : Block
+	public partial class EndRod : Block
 	{
 		public EndRod() : base(208)
 		{

@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Tnt : Block
+	public partial class Tnt : Block
 	{
 		public Tnt() : base(46)
 		{

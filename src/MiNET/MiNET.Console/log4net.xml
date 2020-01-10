@@ -80,10 +80,10 @@
 			<acceptOnMatch value="false" />
 		</filter>
 
-		<!--<filter type="log4net.Filter.LoggerMatchFilter">
+		<filter type="log4net.Filter.LoggerMatchFilter">
 			<loggerToMatch value="MiNET.Client.ClientUtils" />
 			<acceptOnMatch value="true" />
-		</filter>-->
+		</filter>
 
 		<filter type="log4net.Filter.LoggerMatchFilter">
 			<loggerToMatch value="MiNET.Client" />

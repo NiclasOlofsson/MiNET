@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class BrownMushroomBlock : Block
+	public partial class BrownMushroomBlock : Block
 	{
 		public BrownMushroomBlock() : base(99)
 		{

@@ -186,8 +186,7 @@ namespace MiNET.Worlds
 
 					foreach (var layer in layers)
 					{
-						chunk.SetBlock(x, h, z, layer.Id);
-						chunk.SetMetadata(x, h, z, layer.Metadata);
+						chunk.SetBlock(x, h, z, layer.Id, layer.Metadata);
 						h++;
 					}
 

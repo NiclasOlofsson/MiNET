@@ -26,7 +26,7 @@
 
 namespace MiNET.Blocks
 {
-	public class UnpoweredComparator : Block
+	public partial class UnpoweredComparator : Block
 	{
 		public UnpoweredComparator() : this(149)
 		{

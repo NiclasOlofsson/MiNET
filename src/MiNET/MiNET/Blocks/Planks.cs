@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Planks : Block
+	public partial class Planks : Block
 	{
 		public Planks() : base(5)
 		{

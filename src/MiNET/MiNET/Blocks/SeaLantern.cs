@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class SeaLantern : Block
+	public partial class SeaLantern : Block
 	{
 		public SeaLantern() : base(169)
 		{

@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class FrostedIce : Block
+	public partial class FrostedIce : Block
 	{
 		public FrostedIce() : base(207)
 		{

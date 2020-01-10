@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class RedstoneWire : Block
+	public partial class RedstoneWire : Block
 	{
 		public RedstoneWire() : base(55)
 		{

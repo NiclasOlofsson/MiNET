@@ -26,7 +26,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Dropper : Block
+	public partial class Dropper : Block
 	{
 		public Dropper() : base(125)
 		{

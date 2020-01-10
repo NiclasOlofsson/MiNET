@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class MelonBlock : Block
+	public partial class MelonBlock : Block
 	{
 		public MelonBlock() : base(103)
 		{

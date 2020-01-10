@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Bookshelf : Block
+	public partial class Bookshelf : Block
 	{
 		public Bookshelf() : base(47)
 		{

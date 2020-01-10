@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class UnlitRedstoneTorch : Block
+	public partial class UnlitRedstoneTorch : Block
 	{
 		public UnlitRedstoneTorch() : this(75)
 		{

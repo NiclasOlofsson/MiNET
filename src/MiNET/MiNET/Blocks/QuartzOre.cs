@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class QuartzOre : Block
+	public partial class QuartzOre : Block
 	{
 		public QuartzOre() : base(153)
 		{

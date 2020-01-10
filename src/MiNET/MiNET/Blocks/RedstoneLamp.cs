@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class RedstoneLamp : Block
+	public partial class RedstoneLamp : Block
 	{
 		public RedstoneLamp() : this(123)
 		{

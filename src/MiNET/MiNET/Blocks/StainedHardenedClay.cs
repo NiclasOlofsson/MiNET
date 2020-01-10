@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class StainedHardenedClay : Block
+	public partial class StainedHardenedClay : Block
 	{
 		public StainedHardenedClay() : base(159)
 		{

@@ -280,16 +280,14 @@ namespace MiNET.Worlds
 							//Grass
 							if (GetRandomNumber(0, 5) == 1)
 							{
-								chunk.SetBlock(x, y + 1, z, 31);
-								chunk.SetMetadata(x, y + 1, z, 1);
+								chunk.SetBlock(x, y + 1, z, 31, 1);
 							}
 
 							//Flowers
 							if (GetRandomNumber(0, 65) == 1)
 							{
 								int meta = GetRandomNumber(0, 8);
-								chunk.SetBlock(x, y + 1, z, 38);
-								chunk.SetMetadata(x, y + 1, z, (byte) meta);
+								chunk.SetBlock(x, y + 1, z, 38, (byte) meta);
 							}
 
 							//Trees

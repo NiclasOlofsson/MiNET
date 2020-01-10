@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class NetherBrick : Block
+	public partial class NetherBrick : Block
 	{
 		public NetherBrick() : base(112)
 		{

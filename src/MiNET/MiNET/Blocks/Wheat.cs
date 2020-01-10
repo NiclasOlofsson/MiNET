@@ -29,7 +29,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Wheat : Crops
+	public partial class Wheat : Crops
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Wheat));
 

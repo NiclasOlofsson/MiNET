@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class RedstoneTorch : UnlitRedstoneTorch
+	public partial class RedstoneTorch : UnlitRedstoneTorch
 	{
 		public RedstoneTorch() : base(76)
 		{

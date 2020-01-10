@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Sponge : Block
+	public partial class Sponge : Block
 	{
 		public Sponge() : base(19)
 		{

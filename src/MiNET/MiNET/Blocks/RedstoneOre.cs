@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class RedstoneOre : Block
+	public partial class RedstoneOre : Block
 	{
 		public RedstoneOre() : this(73)
 		{

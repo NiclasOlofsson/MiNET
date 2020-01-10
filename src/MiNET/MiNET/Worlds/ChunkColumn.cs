@@ -119,6 +119,19 @@ namespace MiNET.Worlds
 			SetDirty();
 		}
 
+		public void SetBlock(int bx, int by, int bz, int bid, byte metadata)
+		{
+			var chunk = GetChunk(by);
+			chunk.SetBlock(bx, by - 16 * (by >> 4), bz, bid, metadata);
+			SetDirty();
+		}
+
+		public byte GetMetadata(int bx, int by, int bz)
+		{
+			var chunk = GetChunk(by);
+			return chunk.GetMetadata(bx, by - 16 * (by >> 4), bz);
+		}
+
 		public void SetHeight(int bx, int bz, short h)
 		{
 			height[((bz << 4) + (bx))] = h;
@@ -152,19 +165,6 @@ namespace MiNET.Worlds
 			var chunk = GetChunk(by);
 			chunk.SetBlocklight(bx, by - 16 * (by >> 4), bz, data);
 			//SetDirty();
-		}
-
-		public byte GetMetadata(int bx, int by, int bz)
-		{
-			var chunk = GetChunk(by);
-			return chunk.GetMetadata(bx, by - 16 * (by >> 4), bz);
-		}
-
-		public void SetMetadata(int bx, int by, int bz, byte data)
-		{
-			var chunk = GetChunk(by);
-			chunk.SetMetadata(bx, by - 16 * (by >> 4), bz, data);
-			SetDirty();
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)

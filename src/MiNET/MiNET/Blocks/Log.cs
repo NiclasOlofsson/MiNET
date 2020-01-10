@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Log : Block
+	public partial class Log : Block
 	{
 		public Log() : base(17)
 		{

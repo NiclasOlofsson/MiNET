@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class SoulSand : Block
+	public partial class SoulSand : Block
 	{
 		public SoulSand() : base(88)
 		{

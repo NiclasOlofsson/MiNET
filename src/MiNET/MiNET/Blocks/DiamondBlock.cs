@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class DiamondBlock : Block
+	public partial class DiamondBlock : Block
 	{
 		public DiamondBlock() : base(57)
 		{

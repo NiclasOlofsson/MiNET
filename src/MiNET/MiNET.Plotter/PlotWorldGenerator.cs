@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -177,11 +177,7 @@ namespace MiNET.Plotter
 							if (!IsZRoad(z + zOffset, true) && !IsXRoad(x + xOffset, true))
 							{
 								var block = PlotPattern.Next(new BlockCoordinates(x, PlotHeight, z));
-								chunk.SetBlock(x, y, z, block.Id); // grass
-								if (block.Metadata != 0)
-								{
-									chunk.SetMetadata(x, y, z, block.Metadata); // grass
-								}
+								chunk.SetBlock(x, y, z, block.Id, block.Metadata); // grass
 							}
 						}
 						else if (y > PlotHeight - 4)
@@ -209,16 +205,12 @@ namespace MiNET.Plotter
 						var block = RoadPattern.Next(new BlockCoordinates(x, PlotHeight, z));
 						if ((x - i)%PlotAreaWidth == 0)
 						{
-							chunk.SetBlock(x - xOffset, PlotHeight - 1, z - zOffset, block.Id);
-							if (block.Metadata != 0)
-								chunk.SetMetadata(x - xOffset, PlotHeight - 1, z - zOffset, block.Metadata);
+							chunk.SetBlock(x - xOffset, PlotHeight - 1, z - zOffset, block.Id, block.Metadata);
 						}
 
 						if ((z - i)%PlotAreaDepth == 0)
 						{
-							chunk.SetBlock(x - xOffset, PlotHeight - 1, z - zOffset, block.Id);
-							if (block.Metadata != 0)
-								chunk.SetMetadata(x - xOffset, PlotHeight - 1, z - zOffset, block.Metadata);
+							chunk.SetBlock(x - xOffset, PlotHeight - 1, z - zOffset, block.Id, block.Metadata);
 						}
 					}
 

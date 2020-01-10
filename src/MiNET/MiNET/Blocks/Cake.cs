@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Cake : Block
+	public partial class Cake : Block
 	{
 		public Cake() : base(92)
 		{

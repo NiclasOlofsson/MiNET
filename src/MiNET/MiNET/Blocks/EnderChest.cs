@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class EnderChest : Block
+	public partial class EnderChest : Block
 	{
 		public EnderChest() : base(130)
 		{

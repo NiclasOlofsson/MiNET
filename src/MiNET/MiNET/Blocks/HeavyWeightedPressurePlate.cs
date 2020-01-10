@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class HeavyWeightedPressurePlate : Block
+	public partial class HeavyWeightedPressurePlate : Block
 	{
 		public HeavyWeightedPressurePlate() : base(148)
 		{

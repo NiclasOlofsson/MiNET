@@ -26,7 +26,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Observer : Block
+	public partial class Observer : Block
 	{
 		public Observer() : base(251)
 		{

@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class BrewingStand : Block
+	public partial class BrewingStand : Block
 	{
 		public BrewingStand() : base(117)
 		{

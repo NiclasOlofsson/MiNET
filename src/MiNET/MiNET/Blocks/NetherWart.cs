@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class NetherWart : Block
+	public partial class NetherWart : Block
 	{
 		public NetherWart() : base(115)
 		{

@@ -32,7 +32,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Leaves : Block
+	public partial class Leaves : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Leaves));
 

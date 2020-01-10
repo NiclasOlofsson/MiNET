@@ -83,14 +83,18 @@ namespace MiNET.Worlds
 			_isDirty = true;
 		}
 
-		public int GetLoggedBlock(int bx, int by, int bz)
+		public override void SetBlock(int bx, int by, int bz, int bid, byte data)
 		{
-			return _loggedBlocks[GetIndex(bx, @by, bz)];
+			_blocks[GetIndex(bx, by, bz)] = (short) bid;
+			_metadata[GetIndex(bx, by, bz)] = data;
+			_cache = null;
+			_isDirty = true;
 		}
 
-		public void SetLoggedBlock(int bx, int by, int bz, int bid)
+		public void SetLoggedBlock(int bx, int by, int bz, int bid, byte data)
 		{
 			_loggedBlocks[GetIndex(bx, by, bz)] = (short) bid;
+			_loggedMetadata[GetIndex(bx, by, bz)] = data;
 			_cache = null;
 			_isDirty = true;
 		}
@@ -103,18 +107,6 @@ namespace MiNET.Worlds
 		public override void SetMetadata(int bx, int by, int bz, byte data)
 		{
 			_metadata[GetIndex(bx, by, bz)] = data;
-			_cache = null;
-			_isDirty = true;
-		}
-
-		public byte GetLoggedMetadata(int bx, int by, int bz)
-		{
-			return _loggedMetadata[GetIndex(bx, by, bz)];
-		}
-
-		public void SetLoggedMetadata(int bx, int by, int bz, byte data)
-		{
-			_loggedMetadata[GetIndex(bx, by, bz)] = data;
 			_cache = null;
 			_isDirty = true;
 		}

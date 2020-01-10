@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class BirchStairs : BlockStairs
+	public partial class BirchStairs : BlockStairs
 	{
 		public BirchStairs() : base(135)
 		{

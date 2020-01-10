@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class IronBars : Block
+	public partial class IronBars : Block
 	{
 		public IronBars() : base(101)
 		{

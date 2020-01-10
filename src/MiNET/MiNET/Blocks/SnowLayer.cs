@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class SnowLayer : Block
+	public partial class SnowLayer : Block
 	{
 		public SnowLayer() : base(78)
 		{

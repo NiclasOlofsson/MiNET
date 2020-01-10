@@ -31,7 +31,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Beetroot : Crops
+	public partial class Beetroot : Crops
 	{
 		public Beetroot() : base(244)
 		{

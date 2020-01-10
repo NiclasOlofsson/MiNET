@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Netherrack : Block
+	public partial class Netherrack : Block
 	{
 		public Netherrack() : base(87)
 		{

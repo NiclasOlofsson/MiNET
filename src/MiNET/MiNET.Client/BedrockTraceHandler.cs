@@ -26,6 +26,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -42,6 +43,7 @@ using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Crypto.Tls;
 
 namespace MiNET.Client
 {
@@ -174,40 +176,167 @@ namespace MiNET.Client
 					var value = enumerator.Current;
 					if (value == null) continue;
 					Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
-					int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
+					//int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
+					Block blockById = BlockFactory.GetBlockById(value.Id);
+					var existingBlock = blockById.GetType() != typeof(Block);
+					int id = existingBlock ? value.Id : 0;
 
-					if (id == 0 && !value.Name.Contains("air"))
+					if (!(blockById is Air))
 					{
-						if (legacyIdMap.TryGetValue(value.Name, out id))
-						{
-							value.Id = id;
-						}
+						//if (legacyIdMap.TryGetValue(value.Name, out id))
+						//{
+						//	value.Id = id;
+						//}
 
 						string blockName = Client.CodeName(value.Name.Replace("minecraft:", ""), true);
 
 						blocks.Add((value.Id, blockName));
 
-						writer.WriteLine($"public class {blockName}: Block");
+						writer.WriteLine($"");
+
+						writer.WriteLine($"public partial class {blockName} {(existingBlock?"":": Block")} // {id} typeof={blockById.GetType().Name}");
 						writer.WriteLine($"{{");
+						writer.WriteLine($"");
 						writer.Indent++;
 
-						writer.WriteLine($"public {blockName}() : base({value.Id})");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-						writer.WriteLine($"Name = \"{value.Name}\";");
-
-						do
+						foreach (var state in blockstate.First().States)
 						{
-							writer.WriteLine($"// runtime id: {enumerator.Current.RuntimeId} 0x{enumerator.Current.RuntimeId:X}, data: {enumerator.Current.Data}");
-						} while (enumerator.MoveNext());
+							var q = blockstate.SelectMany(c => c.States);
+
+							var values = q.Where(s => s.Name == state.Name).Select(d => d.Value).Distinct().OrderBy(s => s).ToList();
+							if (state.Type == (byte) NbtTagType.Byte)
+							{
+								writer.Write($"[Range({values.Min()}, {values.Max()})] ");
+								writer.WriteLine($"public byte {Client.CodeName(state.Name, true)} {{ get; set; }}");
+							}
+							else if (state.Type == (byte) NbtTagType.Int)
+							{
+								writer.Write($"[Range({values.Min()}, {values.Max()})] ");
+								writer.WriteLine($"public int {Client.CodeName(state.Name, true)} {{ get; set; }}");
+							}
+							else if (state.Type == (byte) NbtTagType.String)
+							{
+								if (values.Count > 1)
+								{
+									writer.WriteLine($"// Convert this attribute to enum");
+									writer.WriteLine($"//[Enum({string.Join(',', values.Select(v => $"\"{v}\""))}]");
+								}
+								writer.WriteLine($"public string {Client.CodeName(state.Name, true)} {{ get; set; }}");
+							}
+						}
+
+						if (id == 0)
+						{
+
+							writer.WriteLine($"");
+
+							writer.WriteLine($"public {blockName}() : base({value.Id})");
+							writer.WriteLine($"{{");
+							writer.Indent++;
+							//writer.WriteLine($"Name = \"{value.Name}\";");
+							writer.Indent--;
+							writer.WriteLine($"}}");
+						}
+
+						writer.WriteLine($"");
+
+						writer.WriteLine($"public void SetStateFromMetadata(byte metadata)");
+						writer.WriteLine($"{{");
+						writer.Indent++;
+
+						writer.WriteLine($"switch(metadata)");
+						writer.WriteLine($"{{");
+						writer.Indent++;
+
+
+						int i = 0;
+						foreach (var record in message.blockPallet.Where(b => b.Id == enumerator.Current.Id).OrderBy(b => b.Data))
+						{
+							writer.WriteLine($"case {i++}:");
+							writer.Indent++;
+
+							foreach (var state in record.States.OrderBy(s => s.Name).ThenBy(s => s.Value))
+							{
+								if (state.Type == (byte) NbtTagType.Byte)
+								{
+									writer.WriteLine($"{Client.CodeName(state.Name, true)}={state.Value};");
+								}
+								else if (state.Type == (byte) NbtTagType.Int)
+								{
+									writer.WriteLine($"{Client.CodeName(state.Name, true)}={state.Value};");
+								}
+								else if (state.Type == (byte) NbtTagType.String)
+								{
+									writer.WriteLine($"{Client.CodeName(state.Name, true)}=\"{state.Value}\";");
+								}
+							}
+
+							writer.WriteLine($"break;");
+							writer.Indent--;
+						}
+
 
 						writer.Indent--;
-						writer.WriteLine($"}}");
+						writer.WriteLine($"}} // switch");
+
 
 						writer.Indent--;
-						writer.WriteLine($"}}");
+						writer.WriteLine($"}} // method");
+
+						writer.WriteLine($"");
+
+						writer.WriteLine($"public byte GetMetadataFromState()");
+						writer.WriteLine($"{{");
+						writer.Indent++;
+
+						writer.WriteLine($"switch(this)");
+						writer.WriteLine($"{{");
+						writer.Indent++;
+
+
+						i = 0;
+						foreach (var record in message.blockPallet.Where(b => b.Id == enumerator.Current.Id).OrderBy(b => b.Data))
+						{
+							//case { } b when b.ButtonPressedBit == 0 && b.FacingDirection == 0:
+							//	return 0;
+
+							writer.Write($"case {{ }} b when true");
+							string retVal = "";
+							foreach (var state in record.States.OrderBy(s => s.Name).ThenBy(s => s.Value))
+							{
+								if (state.Type == (byte) NbtTagType.Byte)
+								{
+									writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
+								}
+								else if (state.Type == (byte) NbtTagType.Int)
+								{
+									writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
+								}
+								else if (state.Type == (byte) NbtTagType.String)
+								{
+									writer.Write($" && b.{Client.CodeName(state.Name, true)} == \"{state.Value}\"");
+								}
+							}
+							writer.WriteLine($":");
+
+							writer.Indent++;
+							writer.WriteLine($"return { i++ };");
+							writer.Indent--;
+						}
+
+						writer.Indent--;
+						writer.WriteLine($"}} // switch");
+
+						writer.WriteLine($"throw new ArithmeticException(\"Invalid state. Unable to convert state to valid metadata\");");
+
+						writer.Indent--;
+						writer.WriteLine($"}} // method");
+
+						writer.Indent--;
+						writer.WriteLine($"}} // class");
 					}
 				}
+
 				writer.Indent--;
 				writer.WriteLine($"}}");
 
@@ -585,7 +714,7 @@ namespace MiNET.Client
 			Log.Info("Writing recipes to filename: " + fileName);
 			FileStream file = File.OpenWrite(fileName);
 
-			IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file), "\t");
+			var writer = new IndentedTextWriter(new StreamWriter(file), "\t");
 
 			writer.WriteLine();
 			writer.Indent++;

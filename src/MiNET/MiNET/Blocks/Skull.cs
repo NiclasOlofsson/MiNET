@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Skull : Block
+	public partial class Skull : Block
 	{
 		public Skull() : base(144)
 		{

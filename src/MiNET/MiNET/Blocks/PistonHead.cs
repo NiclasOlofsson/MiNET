@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class PistonArmCollision : Block
+	public partial class PistonArmCollision : Block
 	{
 		public PistonArmCollision() : base(34)
 		{

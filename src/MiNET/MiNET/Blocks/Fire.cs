@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Fire : Block
+	public partial class Fire : Block
 	{
 		public Fire() : base(51)
 		{

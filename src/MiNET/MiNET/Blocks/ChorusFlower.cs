@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class ChorusFlower : Block
+	public partial class ChorusFlower : Block
 	{
 		public ChorusFlower() : base(200)
 		{

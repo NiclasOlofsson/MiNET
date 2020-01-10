@@ -31,7 +31,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Vine : Block
+	public partial class Vine : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Vine));
 

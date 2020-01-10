@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class MelonStem : Block
+	public partial class MelonStem : Block
 	{
 		public MelonStem() : base(105)
 		{

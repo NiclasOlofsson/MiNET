@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Trapdoor : Block
+	public partial class Trapdoor : Block
 	{
 		public Trapdoor() : this(96)
 		{

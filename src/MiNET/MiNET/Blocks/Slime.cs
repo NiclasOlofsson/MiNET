@@ -26,7 +26,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Slime : Block
+	public partial class Slime : Block
 	{
 		public Slime() : base(165)
 		{

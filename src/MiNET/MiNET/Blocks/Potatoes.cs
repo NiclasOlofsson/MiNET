@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Potatoes : Crops
+	public partial class Potatoes : Crops
 	{
 		public Potatoes() : base(142)
 		{

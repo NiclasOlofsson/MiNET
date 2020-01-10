@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class LitPumpkin : Block
+	public partial class LitPumpkin : Block
 	{
 		public LitPumpkin() : base(91)
 		{

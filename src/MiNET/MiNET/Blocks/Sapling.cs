@@ -33,7 +33,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Sapling : Block
+	public partial class Sapling : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Sapling));
 

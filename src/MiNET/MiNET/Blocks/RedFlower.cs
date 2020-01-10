@@ -28,7 +28,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class RedFlower : Block
+	public partial class RedFlower : Block
 	{
 		public RedFlower() : base(38)
 		{

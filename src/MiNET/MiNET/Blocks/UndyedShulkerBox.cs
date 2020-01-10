@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class UndyedShulkerBox : Block
+	public partial class UndyedShulkerBox : Block
 	{
 		public UndyedShulkerBox() : this(205)
 		{

@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Rail : Block
+	public partial class Rail : Block
 	{
 		public Rail() : base(66)
 		{

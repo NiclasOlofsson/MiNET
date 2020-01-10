@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class DragonEgg : Block
+	public partial class DragonEgg : Block
 	{
 		public DragonEgg() : base(122)
 		{

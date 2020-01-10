@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Wool : Block
+	public partial class Wool : Block
 	{
 		public Wool() : base(35)
 		{

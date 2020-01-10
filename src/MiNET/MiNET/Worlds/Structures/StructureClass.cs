@@ -50,8 +50,7 @@ namespace MiNET.Worlds.Structures
 			{
 				foreach (Block b in Blocks)
 				{
-					chunk.SetBlock(x + b.Coordinates.X, y + b.Coordinates.Y, z + b.Coordinates.Z, b.Id);
-					chunk.SetMetadata(x + b.Coordinates.X, y + b.Coordinates.Y, z + b.Coordinates.Z, b.Metadata);
+					chunk.SetBlock(x + b.Coordinates.X, y + b.Coordinates.Y, z + b.Coordinates.Z, b.Id, b.Metadata);
 				}
 			}
 		}

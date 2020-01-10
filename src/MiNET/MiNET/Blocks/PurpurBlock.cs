@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class PurpurBlock : Block
+	public partial class PurpurBlock : Block
 	{
 		public PurpurBlock() : base(201)
 		{

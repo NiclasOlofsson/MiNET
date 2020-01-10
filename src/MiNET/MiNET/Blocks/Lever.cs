@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Lever : Block
+	public partial class Lever : Block
 	{
 		public Lever() : base(69)
 		{

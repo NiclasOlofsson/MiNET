@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -36,7 +37,14 @@ namespace MiNET.Utils
 		{
 			var ep = (IPEndPoint) value;
 			var jo = new JObject();
-			jo.Add("Address", JToken.FromObject(ep.Address, serializer));
+			if (ep.AddressFamily == AddressFamily.InterNetworkV6)
+			{
+				jo.Add("Address", JToken.FromObject(ep.Address.ScopeId, serializer));
+			}
+			else
+			{
+				jo.Add("Address", JToken.FromObject(ep.Address.ToString(), serializer));
+			}
 			jo.Add("Port", ep.Port);
 			jo.WriteTo(writer);
 		}

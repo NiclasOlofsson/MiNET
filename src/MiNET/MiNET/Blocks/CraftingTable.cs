@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class CraftingTable : Block
+	public partial class CraftingTable : Block
 	{
 		public CraftingTable() : base(58)
 		{

@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class RedMushroom : Block
+	public partial class RedMushroom : Block
 	{
 		public RedMushroom() : base(40)
 		{

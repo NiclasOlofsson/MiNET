@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class EndBricks : Block
+	public partial class EndBricks : Block
 	{
 		public EndBricks() : base(206)
 		{

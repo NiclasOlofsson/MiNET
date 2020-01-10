@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class BrownMushroom : Block
+	public partial class BrownMushroom : Block
 	{
 		public BrownMushroom() : base(39)
 		{

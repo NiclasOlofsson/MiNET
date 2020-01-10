@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class IronDoor : Block
+	public partial class IronDoor : Block
 	{
 		public IronDoor() : base(71)
 		{

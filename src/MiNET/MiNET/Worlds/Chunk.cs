@@ -51,6 +51,8 @@ namespace MiNET.Worlds
 
 		public abstract void SetBlock(int bx, int by, int bz, int bid);
 
+		public abstract void SetBlock(int bx, int @by, int bz, int bid, byte data);
+
 		public abstract byte GetMetadata(int bx, int by, int bz);
 
 		public abstract void SetMetadata(int bx, int by, int bz, byte data);
@@ -87,6 +89,7 @@ namespace MiNET.Worlds
 		{
 			return (bx * 256) + (bz * 16) + by;
 		}
+
 	}
 
 	//public class Chunk : ChunkBase

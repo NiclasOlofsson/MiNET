@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class GlassPane : Block
+	public partial class GlassPane : Block
 	{
 		public GlassPane() : base(102)
 		{

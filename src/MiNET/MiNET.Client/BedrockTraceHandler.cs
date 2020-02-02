@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -26,7 +26,6 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -43,13 +42,13 @@ using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Crypto.Tls;
 
 namespace MiNET.Client
 {
 	public class BedrockTraceHandler : McpeClientMessageHandlerBase
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(BedrockTraceHandler));
+
 
 		public BedrockTraceHandler(MiNetClient client) : base(client)
 		{
@@ -120,9 +119,33 @@ namespace MiNET.Client
 			base.HandleMcpeResourcePackStack(message);
 		}
 
+		//private bool _runningBlockMetadataDiscovery;
+
+		private List<ICommandExecutioner> _executioners = new List<ICommandExecutioner>() {new PlaceAllBlocksExecutioner()};
+
+		private void CallPacketHandlers(Packet packet)
+		{
+			var wantExec = _executioners.Where(e => e is IGenericPacketHandler);
+			List<Task> tasks = new List<Task>();
+			foreach (var commandExecutioner in wantExec)
+			{
+				var executioner = (IGenericPacketHandler) commandExecutioner;
+				tasks.Add(Task.Run(() => executioner.HandlePacket(this, packet)));
+			}
+			Task.WaitAll(tasks.ToArray());
+		}
+
 		public override void HandleMcpeText(McpeText message)
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Text: {message.message}");
+
+			var wantExec = _executioners.Where(e => e.CanExecute(message.message));
+			string text = message.message;
+			foreach (var executioner in wantExec)
+			{
+				Log.Debug($"Executing command handler: {executioner.GetType().FullName}");
+				Task.Run(() => executioner.Execute(this, text));
+			}
 
 			if (message.message.Equals(".do"))
 			{
@@ -130,8 +153,47 @@ namespace MiNET.Client
 			}
 		}
 
-		public override void HandleMcpeSetTime(McpeSetTime message)
+		public override void HandleMcpeInventorySlot(McpeInventorySlot message)
 		{
+			Log.Debug($"Inventory slot: {message.item}");
+		}
+
+		public override void HandleMcpePlayerHotbar(McpePlayerHotbar message)
+		{
+			CallPacketHandlers(message);
+		}
+
+		public override void HandleMcpeInventoryContent(McpeInventoryContent message)
+		{
+			CallPacketHandlers(message);
+
+			Log.Debug($"Set container content on Window ID: 0x{message.inventoryId:x2}, Count: {message.input.Count}");
+
+			if (Client.IsEmulator) return;
+
+			ItemStacks slots = message.input;
+
+			if (message.inventoryId == 0x79)
+			{
+				string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
+				Client.WriteInventoryToFile(fileName, slots);
+			}
+			else if (message.inventoryId == 0x00)
+			{
+				//string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
+				//Client.WriteInventoryToFile(fileName, slots);
+			}
+		}
+
+
+		public override void HandleMcpeAddItemEntity(McpeAddItemEntity message)
+		{
+			CallPacketHandlers(message);
+		}
+
+		public override void HandleMcpeUpdateBlock(McpeUpdateBlock message)
+		{
+			CallPacketHandlers(message);
 		}
 
 		public override void HandleMcpeStartGame(McpeStartGame message)
@@ -140,6 +202,9 @@ namespace MiNET.Client
 			Client.NetworkEntityId = message.entityIdSelf;
 			Client.SpawnPoint = message.spawn;
 			Client.CurrentLocation = new PlayerLocation(Client.SpawnPoint, message.rotation.X, message.rotation.X, message.rotation.Y);
+
+			BlockPalette blockPalette = message.BlockPalette;
+			Client.BlockPalette = blockPalette;
 
 			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");
 
@@ -169,7 +234,7 @@ namespace MiNET.Client
 
 				var blocks = new List<(int, string)>();
 
-				foreach (IGrouping<string, BlockRecord> blockstate in message.blockPallet.OrderBy(record => record.Name).ThenBy(record => record.Data).GroupBy(record => record.Name))
+				foreach (IGrouping<string, BlockStateContainer> blockstate in blockPalette.OrderBy(record => record.Name).ThenBy(record => record.Data).GroupBy(record => record.Name))
 				{
 					var enumerator = blockstate.GetEnumerator();
 					enumerator.MoveNext();
@@ -178,7 +243,7 @@ namespace MiNET.Client
 					Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
 					//int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
 					Block blockById = BlockFactory.GetBlockById(value.Id);
-					var existingBlock = blockById.GetType() != typeof(Block);
+					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
 					int id = existingBlock ? value.Id : 0;
 
 					if (!(blockById is Air))
@@ -192,145 +257,177 @@ namespace MiNET.Client
 
 						blocks.Add((value.Id, blockName));
 
-						writer.WriteLine($"");
+						writer.WriteLineNoTabs($"");
 
-						writer.WriteLine($"public partial class {blockName} {(existingBlock?"":": Block")} // {id} typeof={blockById.GetType().Name}");
+						writer.WriteLine($"public partial class {blockName} {(existingBlock ? "" : ": Block")} // {blockById.Id} typeof={blockById.GetType().Name}");
 						writer.WriteLine($"{{");
-						writer.WriteLine($"");
 						writer.Indent++;
 
+						var bits = new List<BlockStateByte>();
 						foreach (var state in blockstate.First().States)
 						{
 							var q = blockstate.SelectMany(c => c.States);
 
-							var values = q.Where(s => s.Name == state.Name).Select(d => d.Value).Distinct().OrderBy(s => s).ToList();
-							if (state.Type == (byte) NbtTagType.Byte)
+							// If this is on base, skip this property. We need this to implement common functionality.
+							Type baseType = blockById.GetType().BaseType;
+							bool propOverride = baseType != null
+												&& ("Block" != baseType.Name
+													&& baseType.GetProperty(Client.CodeName(state.Name, true)) != null);
+
+							switch (state)
 							{
-								writer.Write($"[Range({values.Min()}, {values.Max()})] ");
-								writer.WriteLine($"public byte {Client.CodeName(state.Name, true)} {{ get; set; }}");
-							}
-							else if (state.Type == (byte) NbtTagType.Int)
-							{
-								writer.Write($"[Range({values.Min()}, {values.Max()})] ");
-								writer.WriteLine($"public int {Client.CodeName(state.Name, true)} {{ get; set; }}");
-							}
-							else if (state.Type == (byte) NbtTagType.String)
-							{
-								if (values.Count > 1)
+								case BlockStateByte blockStateByte:
 								{
-									writer.WriteLine($"// Convert this attribute to enum");
-									writer.WriteLine($"//[Enum({string.Join(',', values.Select(v => $"\"{v}\""))}]");
+									var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateByte) d).Value).Distinct().OrderBy(s => s).ToList();
+									if (values.Min() == 0 && values.Max() == 1)
+									{
+										bits.Add(blockStateByte);
+										writer.Write($"[StateBit] ");
+										writer.WriteLine($"public {(propOverride ? "override" : "")} bool {Client.CodeName(state.Name, true)} {{ get; set; }}");
+									}
+									else
+									{
+										writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
+										writer.WriteLine($"public {(propOverride ? "override" : "")} byte {Client.CodeName(state.Name, true)} {{ get; set; }}");
+									}
+									break;
 								}
-								writer.WriteLine($"public string {Client.CodeName(state.Name, true)} {{ get; set; }}");
+								case BlockStateInt blockStateInt:
+								{
+									var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateInt) d).Value).Distinct().OrderBy(s => s).ToList();
+									writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
+									writer.WriteLine($"public {(propOverride ? "override" : "")} int {Client.CodeName(state.Name, true)} {{ get; set; }}");
+									break;
+								}
+								case BlockStateString blockStateString:
+								{
+									var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateString) d).Value).Distinct().OrderBy(s => s).ToList();
+									if (values.Count > 1)
+									{
+										writer.WriteLine($"[StateEnum({string.Join(',', values.Select(v => $"\"{v}\""))})]");
+									}
+									writer.WriteLine($"public {(propOverride ? "override" : "")} string {Client.CodeName(state.Name, true)} {{ get; set; }}");
+									break;
+								}
+								default:
+									throw new ArgumentOutOfRangeException(nameof(state));
 							}
 						}
 
-						if (id == 0)
+						if (id == 0 || blockById.IsGenerated)
 						{
-
 							writer.WriteLine($"");
 
 							writer.WriteLine($"public {blockName}() : base({value.Id})");
 							writer.WriteLine($"{{");
 							writer.Indent++;
-							//writer.WriteLine($"Name = \"{value.Name}\";");
+							writer.WriteLine($"IsGenerated = true;");
 							writer.Indent--;
 							writer.WriteLine($"}}");
 						}
 
-						writer.WriteLine($"");
-
-						writer.WriteLine($"public void SetStateFromMetadata(byte metadata)");
+						writer.WriteLineNoTabs($"");
+						writer.WriteLine($"public override void SetState(List<IBlockState> states)");
+						writer.WriteLine($"{{");
+						writer.Indent++;
+						writer.WriteLine($"foreach (var state in states)");
+						writer.WriteLine($"{{");
+						writer.Indent++;
+						writer.WriteLine($"switch(state)");
 						writer.WriteLine($"{{");
 						writer.Indent++;
 
-						writer.WriteLine($"switch(metadata)");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-
-
-						int i = 0;
-						foreach (var record in message.blockPallet.Where(b => b.Id == enumerator.Current.Id).OrderBy(b => b.Data))
+						foreach (var state in blockstate.First().States)
 						{
-							writer.WriteLine($"case {i++}:");
+							writer.WriteLine($"case {state.GetType().Name} s when s.Name == \"{state.Name}\":");
 							writer.Indent++;
-
-							foreach (var state in record.States.OrderBy(s => s.Name).ThenBy(s => s.Value))
-							{
-								if (state.Type == (byte) NbtTagType.Byte)
-								{
-									writer.WriteLine($"{Client.CodeName(state.Name, true)}={state.Value};");
-								}
-								else if (state.Type == (byte) NbtTagType.Int)
-								{
-									writer.WriteLine($"{Client.CodeName(state.Name, true)}={state.Value};");
-								}
-								else if (state.Type == (byte) NbtTagType.String)
-								{
-									writer.WriteLine($"{Client.CodeName(state.Name, true)}=\"{state.Value}\";");
-								}
-							}
-
+							writer.WriteLine($"{Client.CodeName(state.Name, true)} = {(bits.Contains(state) ? "Convert.ToBoolean(s.Value)" : "s.Value")};");
 							writer.WriteLine($"break;");
 							writer.Indent--;
 						}
 
-
 						writer.Indent--;
 						writer.WriteLine($"}} // switch");
-
-
+						writer.Indent--;
+						writer.WriteLine($"}} // foreach");
 						writer.Indent--;
 						writer.WriteLine($"}} // method");
 
-						writer.WriteLine($"");
+						//public BlockStateContainer GetState()
+						//{
+						//	var record = new BlockStateContainer();
+						//	record.Name = "";
+						//	record.Id = Id;
+						//	record.States.Add(new BlockStateByte() {Name = "", Value = ButtonPressedBit});
+						//	record.States.Add(new BlockStateInt() {Name = "", Value = FacingDirection});
 
-						writer.WriteLine($"public byte GetMetadataFromState()");
+						//	return record;
+						//}
+
+						writer.WriteLineNoTabs($"");
+						writer.WriteLine($"public override BlockStateContainer GetState()");
 						writer.WriteLine($"{{");
 						writer.Indent++;
-
-						writer.WriteLine($"switch(this)");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-
-
-						i = 0;
-						foreach (var record in message.blockPallet.Where(b => b.Id == enumerator.Current.Id).OrderBy(b => b.Data))
+						writer.WriteLine($"var record = new BlockStateContainer();");
+						writer.WriteLine($"record.Name = \"{blockstate.First().Name}\";");
+						writer.WriteLine($"record.Id = {blockstate.First().Id};");
+						foreach (var state in blockstate.First().States)
 						{
-							//case { } b when b.ButtonPressedBit == 0 && b.FacingDirection == 0:
-							//	return 0;
-
-							writer.Write($"case {{ }} b when true");
-							string retVal = "";
-							foreach (var state in record.States.OrderBy(s => s.Name).ThenBy(s => s.Value))
-							{
-								if (state.Type == (byte) NbtTagType.Byte)
-								{
-									writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
-								}
-								else if (state.Type == (byte) NbtTagType.Int)
-								{
-									writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
-								}
-								else if (state.Type == (byte) NbtTagType.String)
-								{
-									writer.Write($" && b.{Client.CodeName(state.Name, true)} == \"{state.Value}\"");
-								}
-							}
-							writer.WriteLine($":");
-
-							writer.Indent++;
-							writer.WriteLine($"return { i++ };");
-							writer.Indent--;
+							string propName = Client.CodeName(state.Name, true);
+							writer.WriteLine($"record.States.Add(new {state.GetType().Name} {{Name = \"{state.Name}\", Value = {(bits.Contains(state) ? $"Convert.ToByte({propName})" : propName)}}});");
 						}
-
-						writer.Indent--;
-						writer.WriteLine($"}} // switch");
-
-						writer.WriteLine($"throw new ArithmeticException(\"Invalid state. Unable to convert state to valid metadata\");");
-
+						writer.WriteLine($"return record;");
 						writer.Indent--;
 						writer.WriteLine($"}} // method");
+
+						//writer.WriteLine($"");
+
+						//writer.WriteLine($"public byte GetMetadataFromState()");
+						//writer.WriteLine($"{{");
+						//writer.Indent++;
+
+						//writer.WriteLine($"switch(this)");
+						//writer.WriteLine($"{{");
+						//writer.Indent++;
+
+
+						//i = 0;
+						//foreach (var record in message.BlockPalette.Where(b => b.Id == enumerator.Current.Id).OrderBy(b => b.Data))
+						//{
+						//	//case { } b when b.ButtonPressedBit == 0 && b.FacingDirection == 0:
+						//	//	return 0;
+
+						//	writer.Write($"case {{ }} b when true");
+						//	string retVal = "";
+						//	foreach (var state in record.States.OrderBy(s => s.Name).ThenBy(s => s.Value))
+						//	{
+						//		if (state.Type == (byte) NbtTagType.Byte)
+						//		{
+						//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
+						//		}
+						//		else if (state.Type == (byte) NbtTagType.Int)
+						//		{
+						//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
+						//		}
+						//		else if (state.Type == (byte) NbtTagType.String)
+						//		{
+						//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == \"{state.Value}\"");
+						//		}
+						//	}
+						//	writer.WriteLine($":");
+
+						//	writer.Indent++;
+						//	writer.WriteLine($"return { i++ };");
+						//	writer.Indent--;
+						//}
+
+						//writer.Indent--;
+						//writer.WriteLine($"}} // switch");
+
+						//writer.WriteLine($"throw new ArithmeticException(\"Invalid state. Unable to convert state to valid metadata\");");
+
+						//writer.Indent--;
+						//writer.WriteLine($"}} // method");
 
 						writer.Indent--;
 						writer.WriteLine($"}} // class");
@@ -540,43 +637,6 @@ namespace MiNET.Client
 			Client.Entities.TryRemove(message.entityIdSelf, out _);
 		}
 
-		public override void HandleMcpeAddItemEntity(McpeAddItemEntity message)
-		{
-		}
-
-		public override void HandleMcpeTakeItemEntity(McpeTakeItemEntity message)
-		{
-		}
-
-		public override void HandleMcpeMoveEntity(McpeMoveEntity message)
-		{
-		}
-
-		public override void HandleMcpeMovePlayer(McpeMovePlayer message)
-		{
-			base.HandleMcpeMovePlayer(message);
-		}
-
-		public override void HandleMcpeRiderJump(McpeRiderJump message)
-		{
-		}
-
-		public override void HandleMcpeUpdateBlock(McpeUpdateBlock message)
-		{
-		}
-
-		public override void HandleMcpeAddPainting(McpeAddPainting message)
-		{
-		}
-
-		public override void HandleMcpeTickSync(McpeTickSync message)
-		{
-		}
-
-		public override void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
-		{
-		}
-
 		public override void HandleMcpeLevelEvent(McpeLevelEvent message)
 		{
 			int data = message.data;
@@ -588,61 +648,12 @@ namespace MiNET.Client
 			}
 		}
 
-		public override void HandleMcpeBlockEvent(McpeBlockEvent message)
-		{
-		}
-
-		public override void HandleMcpeEntityEvent(McpeEntityEvent message)
-		{
-		}
-
-		public override void HandleMcpeMobEffect(McpeMobEffect message)
-		{
-		}
-
 		public override void HandleMcpeUpdateAttributes(McpeUpdateAttributes message)
 		{
 			foreach (var playerAttribute in message.attributes)
 			{
 				Log.Debug($"Attribute {playerAttribute}");
 			}
-		}
-
-		public override void HandleMcpeInventoryTransaction(McpeInventoryTransaction message)
-		{
-		}
-
-		public override void HandleMcpeMobEquipment(McpeMobEquipment message)
-		{
-		}
-
-		public override void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)
-		{
-		}
-
-		public override void HandleMcpeInteract(McpeInteract message)
-		{
-		}
-
-		public override void HandleMcpeHurtArmor(McpeHurtArmor message)
-		{
-		}
-
-		public override void HandleMcpeSetEntityData(McpeSetEntityData message)
-		{
-			Log.DebugFormat("McpeSetEntityData Entity ID: {0}, Metadata: {1}", message.runtimeEntityId, Client.MetadataToCode(message.metadata));
-		}
-
-		public override void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
-		{
-		}
-
-		public override void HandleMcpeSetEntityLink(McpeSetEntityLink message)
-		{
-		}
-
-		public override void HandleMcpeSetHealth(McpeSetHealth message)
-		{
 		}
 
 		public override void HandleMcpeSetSpawnPosition(McpeSetSpawnPosition message)
@@ -652,58 +663,6 @@ namespace MiNET.Client
 			Client.LevelInfo.SpawnY = (int) Client.SpawnPoint.Y;
 			Client.LevelInfo.SpawnZ = (int) Client.SpawnPoint.Z;
 			Log.Info($"Spawn position: {message.coordinates}");
-		}
-
-		public override void HandleMcpeAnimate(McpeAnimate message)
-		{
-		}
-
-		public override void HandleMcpeRespawn(McpeRespawn message)
-		{
-		}
-
-		public override void HandleMcpeContainerOpen(McpeContainerOpen message)
-		{
-			var stringWriter = new StringWriter();
-			ObjectDumper.Write(message, 1, stringWriter);
-
-			Log.Debug($"Handled chest for {Client.EntityId} 0x{message.Id:x2} {message.GetType().Name}:\n{stringWriter} ");
-		}
-
-		public override void HandleMcpeContainerClose(McpeContainerClose message)
-		{
-		}
-
-		public override void HandleMcpePlayerHotbar(McpePlayerHotbar message)
-		{
-		}
-
-		public override void HandleMcpeInventoryContent(McpeInventoryContent message)
-		{
-			Log.Debug($"Set container content on Window ID: 0x{message.inventoryId:x2}, Count: {message.input.Count}");
-
-			if (Client.IsEmulator) return;
-
-			ItemStacks slots = message.input;
-
-			if (message.inventoryId == 0x79)
-			{
-				string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
-				Client.WriteInventoryToFile(fileName, slots);
-			}
-			else if (message.inventoryId == 0x00)
-			{
-				string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
-				Client.WriteInventoryToFile(fileName, slots);
-			}
-		}
-
-		public override void HandleMcpeInventorySlot(McpeInventorySlot message)
-		{
-		}
-
-		public override void HandleMcpeContainerSetData(McpeContainerSetData message)
-		{
 		}
 
 		public override void HandleMcpeCraftingData(McpeCraftingData message)
@@ -824,18 +783,6 @@ namespace MiNET.Client
 			//Environment.Exit(0);
 		}
 
-		public override void HandleMcpeCraftingEvent(McpeCraftingEvent message)
-		{
-		}
-
-		public override void HandleMcpeGuiDataPickItem(McpeGuiDataPickItem message)
-		{
-		}
-
-		public override void HandleMcpeAdventureSettings(McpeAdventureSettings message)
-		{
-		}
-
 		public override void HandleMcpeBlockEntityData(McpeBlockEntityData message)
 		{
 			Log.DebugFormat("X: {0}", message.coordinates.X);
@@ -849,87 +796,33 @@ namespace MiNET.Client
 			// TODO doesn't work anymore I guess
 			if (Client.IsEmulator) return;
 
-			if (Client._chunks.TryAdd(new Tuple<int, int>(message.chunkX, message.chunkZ), null))
+			Client.Chunks.GetOrAdd(new ChunkCoordinates(message.chunkX, message.chunkZ), coordinates =>
 			{
-				Log.Debug($"Chunk X={message.chunkX}, Z={message.chunkZ}, size={message.chunkData.Length}, Count={Client._chunks.Count}");
+				Log.Debug($"Chunk X={message.chunkX}, Z={message.chunkZ}, size={message.chunkData.Length}, Count={Client.Chunks.Count}");
 
+				ChunkColumn chunk = null;
 				try
 				{
-					ChunkColumn chunk = ClientUtils.DecodeChunkColumn((int) message.subChunkCount, message.chunkData);
+					chunk = ClientUtils.DecodeChunkColumn((int) message.subChunkCount, message.chunkData);
 					if (chunk != null)
 					{
-						chunk.x = message.chunkX;
-						chunk.z = message.chunkZ;
-						Log.DebugFormat("Chunk X={0}, Z={1}", chunk.x, chunk.z);
+						chunk.X = coordinates.X;
+						chunk.Z = coordinates.Z;
+						chunk.RecalcHeight();
+						Log.DebugFormat("Chunk X={0}, Z={1}", chunk.X, chunk.Z);
 						foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntity in chunk.BlockEntities)
 						{
 							Log.Debug($"Blockentity: {blockEntity.Value}");
 						}
-
-						//ClientUtils.SaveChunkToAnvil(chunk);
 					}
 				}
 				catch (Exception e)
 				{
 					Log.Error("Reading chunk", e);
 				}
-			}
-		}
 
-		public override void HandleMcpeSetCommandsEnabled(McpeSetCommandsEnabled message)
-		{
-		}
-
-		public override void HandleMcpeSetDifficulty(McpeSetDifficulty message)
-		{
-		}
-
-		public override void HandleMcpeChangeDimension(McpeChangeDimension message)
-		{
-		}
-
-		public override void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message)
-		{
-		}
-
-		public override void HandleMcpePlayerList(McpePlayerList message)
-		{
-			foreach (var playerRecord in message.records)
-			{
-				Log.Warn($"{playerRecord.GetType()} Player: {playerRecord.DisplayName}, {playerRecord.EntityId}, {playerRecord.ClientUuid}");
-			}
-		}
-
-		public override void HandleMcpeSimpleEvent(McpeSimpleEvent message)
-		{
-		}
-
-		public override void HandleMcpeTelemetryEvent(McpeTelemetryEvent message)
-		{
-		}
-
-		public override void HandleMcpeSpawnExperienceOrb(McpeSpawnExperienceOrb message)
-		{
-		}
-
-		public override void HandleMcpeClientboundMapItemData(McpeClientboundMapItemData message)
-		{
-		}
-
-		public override void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
-		{
-		}
-
-		public override void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
-		{
-		}
-
-		public override void HandleMcpeChunkRadiusUpdate(McpeChunkRadiusUpdate message)
-		{
-		}
-
-		public override void HandleMcpeItemFrameDropItem(McpeItemFrameDropItem message)
-		{
+				return chunk;
+			});
 		}
 
 		public override void HandleMcpeGameRulesChanged(McpeGameRulesChanged message)
@@ -961,18 +854,6 @@ namespace MiNET.Client
 			}
 		}
 
-		public override void HandleMcpeCamera(McpeCamera message)
-		{
-		}
-
-		public override void HandleMcpeBossEvent(McpeBossEvent message)
-		{
-		}
-
-		public override void HandleMcpeShowCredits(McpeShowCredits message)
-		{
-		}
-
 		public override void HandleMcpeAvailableCommands(McpeAvailableCommands message)
 		{
 			//{
@@ -988,22 +869,6 @@ namespace MiNET.Client
 
 			//	//if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
 			//}
-		}
-
-		public override void HandleMcpeCommandOutput(McpeCommandOutput message)
-		{
-		}
-
-		public override void HandleMcpeUpdateTrade(McpeUpdateTrade message)
-		{
-		}
-
-		public override void HandleMcpeUpdateEquipment(McpeUpdateEquipment message)
-		{
-		}
-
-		public override void HandleMcpeResourcePackDataInfo(McpeResourcePackDataInfo message)
-		{
 		}
 
 		public override void HandleMcpeResourcePackChunkData(McpeResourcePackChunkData message)
@@ -1025,193 +890,17 @@ namespace MiNET.Client
 			base.HandleMcpeResourcePackChunkData(message);
 		}
 
-		public override void HandleMcpeTransfer(McpeTransfer message)
-		{
-		}
-
-		public override void HandleMcpePlaySound(McpePlaySound message)
-		{
-		}
-
-		public override void HandleMcpeStopSound(McpeStopSound message)
-		{
-		}
-
-		public override void HandleMcpeSetTitle(McpeSetTitle message)
-		{
-		}
-
-		public override void HandleMcpeAddBehaviorTree(McpeAddBehaviorTree message)
-		{
-		}
-
-		public override void HandleMcpeStructureBlockUpdate(McpeStructureBlockUpdate message)
-		{
-		}
-
-		public override void HandleMcpeShowStoreOffer(McpeShowStoreOffer message)
-		{
-		}
-
-		public override void HandleMcpePlayerSkin(McpePlayerSkin message)
-		{
-		}
-
-		public override void HandleMcpeSubClientLogin(McpeSubClientLogin message)
-		{
-		}
-
-		public override void HandleMcpeInitiateWebSocketConnection(McpeInitiateWebSocketConnection message)
-		{
-		}
-
-		public override void HandleMcpeSetLastHurtBy(McpeSetLastHurtBy message)
-		{
-		}
-
-		public override void HandleMcpeBookEdit(McpeBookEdit message)
-		{
-		}
-
-		public override void HandleMcpeNpcRequest(McpeNpcRequest message)
-		{
-		}
-
-		public override void HandleMcpeModalFormRequest(McpeModalFormRequest message)
-		{
-		}
-
-		public override void HandleMcpeServerSettingsResponse(McpeServerSettingsResponse message)
-		{
-		}
-
-		public override void HandleMcpeShowProfile(McpeShowProfile message)
-		{
-		}
-
-		public override void HandleMcpeSetDefaultGameType(McpeSetDefaultGameType message)
-		{
-		}
-
-		public override void HandleMcpeRemoveObjective(McpeRemoveObjective message)
-		{
-		}
-
-		public override void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message)
-		{
-		}
-
-		public override void HandleMcpeSetScore(McpeSetScore message)
-		{
-		}
-
-		public override void HandleMcpeLabTable(McpeLabTable message)
-		{
-		}
-
-		public override void HandleMcpeUpdateBlockSynced(McpeUpdateBlockSynced message)
-		{
-		}
-
-		public override void HandleMcpeMoveEntityDelta(McpeMoveEntityDelta message)
-		{
-		}
-
-		public override void HandleMcpeSetScoreboardIdentityPacket(McpeSetScoreboardIdentityPacket message)
-		{
-		}
-
-		public override void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message)
-		{
-		}
-		
-		public override void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
-		{
-		}
-
-		public override void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message)
-		{
-		}
-
-		public override void HandleMcpeSpawnParticleEffect(McpeSpawnParticleEffect message)
-		{
-		}
-
 		public override void HandleMcpeAvailableEntityIdentifiers(McpeAvailableEntityIdentifiers message)
 		{
 			foreach (var entity in message.namedtag.NbtFile.RootTag["idlist"] as NbtList)
 			{
 				var id = (entity["id"] as NbtString).Value;
 				var rid = (entity["rid"] as NbtInt).Value;
-				if(!Enum.IsDefined(typeof(EntityType), rid))
+				if (!Enum.IsDefined(typeof(EntityType), rid))
 				{
 					Log.Debug($"{{ (EntityType) {rid}, \"{id}\" }},");
 				}
 			}
-		}
-
-		public override void HandleMcpeNetworkChunkPublisherUpdate(McpeNetworkChunkPublisherUpdate message)
-		{
-		}
-
-		public override void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message)
-		{
-		}
-
-		public override void HandleMcpeNetworkSettingsPacket(McpeNetworkSettingsPacket message)
-		{
-		}
-
-		public override void HandleFtlCreatePlayer(FtlCreatePlayer message)
-		{
-		}
-
-		public override void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
-		{
-		}
-
-		public override void HandleMcpeLevelEventGeneric(McpeLevelEventGeneric message)
-		{
-		}
-
-		public override void HandleMcpeLecternUpdate(McpeLecternUpdate message)
-		{
-		}
-
-		public override void HandleMcpeVideoStreamConnect(McpeVideoStreamConnect message)
-		{
-		}
-
-		public override void HandleMcpeClientCacheStatus(McpeClientCacheStatus message)
-		{
-		}
-
-		public override void HandleMcpeOnScreenTextureAnimation(McpeOnScreenTextureAnimation message)
-		{
-		}
-
-		public override void HandleMcpeMapCreateLockedCopy(McpeMapCreateLockedCopy message)
-		{
-		}
-
-		public override void HandleMcpeStructureTemplateDataExportRequest(McpeStructureTemplateDataExportRequest message)
-		{
-		}
-
-		public override void HandleMcpeStructureTemplateDataExportResponse(McpeStructureTemplateDataExportResponse message)
-		{
-		}
-
-		public override void HandleMcpeUpdateBlockProperties(McpeUpdateBlockProperties message)
-		{
-		}
-
-		public override void HandleMcpeClientCacheBlobStatus(McpeClientCacheBlobStatus message)
-		{
-		}
-
-		public override void HandleMcpeClientCacheMissResponse(McpeClientCacheMissResponse message)
-		{
 		}
 	}
 }

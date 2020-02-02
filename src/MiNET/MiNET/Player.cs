@@ -1345,8 +1345,8 @@ namespace MiNET
 						b &= level.IsBlock(coord.BlockDown(), obsidionId);
 						if (b)
 						{
-							Portal portal = (Portal) level.GetBlock(coord);
-							if (portal.Metadata >= 2)
+							var portal = (Portal) level.GetBlock(coord);
+							if (portal.PortalAxis == "z")
 							{
 								b &= level.IsBlock(coord.BlockNorth(), portalId);
 							}
@@ -1355,7 +1355,7 @@ namespace MiNET
 								b &= level.IsBlock(coord.BlockEast(), portalId);
 							}
 
-							Log.Debug($"Found portal block at {coord}, direction={portal.Metadata}");
+							Log.Debug($"Found portal block at {coord}, axis={portal.PortalAxis}");
 							if (b && coord.DistanceTo(start) < closestDistance)
 							{
 								Log.Debug($"Found a closer portal at {coord}");
@@ -1498,7 +1498,11 @@ namespace MiNET
 							}
 							else
 							{
-								level.SetBlock(new Portal {Coordinates = coordinates});
+								level.SetBlock(new Portal
+								{
+									Coordinates = coordinates,
+									PortalAxis = "x"
+								});
 								if (!haveSetCoordinate)
 								{
 									haveSetCoordinate = true;
@@ -1517,7 +1521,7 @@ namespace MiNET
 								level.SetBlock(new Portal
 								{
 									Coordinates = coordinates,
-									Metadata = 2
+									PortalAxis = "z",
 								});
 								if (!haveSetCoordinate)
 								{
@@ -1547,7 +1551,7 @@ namespace MiNET
 				{
 					for (int y = min.Y; y < max.Y; y++)
 					{
-						//if (z == min.Z) if (!Level.GetBlock(new BlockCoordinates(x, y, z)).IsBuildable) return false;
+						//if (z == min.Z) if (!Level.GetBlockId(new BlockCoordinates(x, y, z)).IsBuildable) return false;
 						if (y == min.Y)
 						{
 							if (!Level.GetBlock(new BlockCoordinates(x, y, z)).IsBuildable) return false;
@@ -2304,7 +2308,8 @@ namespace MiNET
 				}
 				case McpeInventoryTransaction.ItemUseAction.Destroy:
 				{
-					Level.BreakBlock(this, transaction.Position);
+					//TODO: Add face and other parameters to break. For logic in break block.
+					Level.BreakBlock(this, transaction.Position, (BlockFace) transaction.Face);
 					break;
 				}
 			}
@@ -2635,8 +2640,6 @@ namespace MiNET
 				{
 					_openInventory = null;
 
-					if (inventory == null) return;
-
 					// unsubscribe to inventory changes
 					inventory.InventoryChange -= OnInventoryChange;
 					inventory.RemoveObserver(this);
@@ -2727,8 +2730,8 @@ namespace MiNET
 			}
 
 			Block block = Level.GetBlock(message.x, message.y, message.z);
-
-			Item item = ItemFactory.GetItem((short) block.Id, block.Metadata);
+			Item item = block.GetItem();
+			if (item == null) return;
 
 			Inventory.SetInventorySlot(Inventory.InHandSlot, item);
 		}
@@ -2863,7 +2866,7 @@ namespace MiNET
 			startGame.gameVersion = "";
 			startGame.isServerSideMovementEnabled = false;
 
-			startGame.blockPallet = BlockFactory.BlockPallet;
+			startGame.BlockPalette = BlockFactory.BlockPalette;
 			startGame.itemstates = ItemFactory.Itemstates;
 
 			SendPacket(startGame);

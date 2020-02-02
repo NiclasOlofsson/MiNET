@@ -1,12 +1,12 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -77,37 +77,50 @@ namespace MiNET
 				NbtCompound comp = blockEntity.GetCompound();
 
 				Inventory inventory;
-				if (blockEntity is ChestBlockEntity || blockEntity is ShulkerBoxBlockEntity)
+				switch (blockEntity)
 				{
-					inventory = new Inventory(GetInventoryId(), blockEntity, 27, (NbtList) comp["Items"])
+					case ChestBlockEntity _:
+					case ShulkerBoxBlockEntity _:
+						inventory = new Inventory(GetInventoryId(), blockEntity, 27, (NbtList) comp["Items"])
+						{
+							Type = 0,
+							WindowsId = 10,
+						};
+						break;
+					case EnchantingTableBlockEntity _:
+						inventory = new Inventory(GetInventoryId(), blockEntity, 2, (NbtList) comp["Items"])
+						{
+							Type = 3,
+							WindowsId = 12,
+						};
+						break;
+					case FurnaceBlockEntity furnaceBlockEntity:
 					{
-						Type = 0,
-						WindowsId = 10,
-					};
-				}
-				else if (blockEntity is EnchantingTableBlockEntity)
-				{
-					inventory = new Inventory(GetInventoryId(), blockEntity, 2, (NbtList) comp["Items"])
-					{
-						Type = 3,
-						WindowsId = 12,
-					};
-				}
-				else if (blockEntity is FurnaceBlockEntity)
-				{
-					inventory = new Inventory(GetInventoryId(), blockEntity, 3, (NbtList) comp["Items"])
-					{
-						Type = 2,
-						WindowsId = 11,
-					};
+						inventory = new Inventory(GetInventoryId(), furnaceBlockEntity, 3, (NbtList) comp["Items"])
+						{
+							Type = 2,
+							WindowsId = 11,
+						};
 
-					FurnaceBlockEntity furnace = (FurnaceBlockEntity) blockEntity;
-					furnace.Inventory = inventory;
-				}
-				else
-				{
-					if (Log.IsDebugEnabled) Log.Warn($"Block entity did not have a matching inventory {blockEntity}");
-					return null;
+						furnaceBlockEntity.Inventory = inventory;
+						break;
+					}
+					case BlastFurnaceBlockEntity furnaceBlockEntity:
+					{
+						inventory = new Inventory(GetInventoryId(), furnaceBlockEntity, 3, (NbtList) comp["Items"])
+						{
+							Type = 27,
+							WindowsId = 13,
+						};
+
+						furnaceBlockEntity.Inventory = inventory;
+						break;
+					}
+					default:
+					{
+						if (Log.IsDebugEnabled) Log.Warn($"Block entity did not have a matching inventory {blockEntity}");
+						return null;
+					}
 				}
 
 				_cache[inventoryCoord] = inventory;

@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -33,16 +33,24 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(McpeMoveEntityDelta));
 
+		public const int HasX = 0x01;
+		public const int HasY = 0x02;
+		public const int HasZ = 0x04;
+		public const int HasRotX = 0x08;
+		public const int HasRotY = 0x10;
+		public const int HasRotZ = 0x20;
+		public const int OnGround = 0x40;
+
 		public PlayerLocation currentPosition; // = null;
 		public PlayerLocation prevSentPosition; // = null;
 		public bool isOnGround; // = null;
 
-		private int _dX = 0;
-		private int _dY = 0;
-		private int _dZ = 0;
-		private int _dPitch = 0;
-		private int _dYaw = 0;
-		private int _dHeadYaw = 0;
+		private int _dX;
+		private int _dY;
+		private int _dZ;
+		private int _dPitch;
+		private int _dYaw;
+		private int _dHeadYaw;
 
 		partial void BeforeEncode()
 		{
@@ -62,23 +70,21 @@ namespace MiNET.Net
 			_dY = ToIntDelta(currentPosition.Y, prevSentPosition.Y);
 			_dZ = ToIntDelta(currentPosition.Z, prevSentPosition.Z);
 
-			if (_dX != 0) flags |= 0x1;
-			if (_dY != 0) flags |= 0x2;
-			if (_dZ != 0) flags |= 0x4;
+			if (_dX != 0) flags |= HasX;
+			if (_dY != 0) flags |= HasY;
+			if (_dZ != 0) flags |= HasZ;
 
-			if (prevSentPosition.Pitch != currentPosition.Pitch) flags |= 0x8;
-			if (prevSentPosition.Yaw != currentPosition.Yaw) flags |= 0x10;
-			if (prevSentPosition.HeadYaw != currentPosition.HeadYaw) flags |= 0x20;
+			if (prevSentPosition.Pitch != currentPosition.Pitch) flags |= HasRotX;
+			if (prevSentPosition.Yaw != currentPosition.Yaw) flags |= HasRotY;
+			if (prevSentPosition.HeadYaw != currentPosition.HeadYaw) flags |= HasRotZ;
 
-			if (flags != 0 && isOnGround) flags |= 0x40;
+			if (flags != 0 && isOnGround) flags |= OnGround;
 
 			return flags != 0;
 		}
 
 		partial void AfterEncode()
 		{
-			//if (Log.IsDebugEnabled) Log.Debug($"Flags: 0x{flags:X2} {Convert.ToString((byte) flags, 2)}, {currentPosition.X} {currentPosition.Y} {currentPosition.Z}, {_dX} {_dY} {_dZ}");
-
 			// write the values
 			if ((flags & 0x1) != 0)
 			{
@@ -93,8 +99,7 @@ namespace MiNET.Net
 				WriteSignedVarInt(_dZ);
 			}
 
-			var d = 256f / 360f;
-
+			float d = 256f / 360f;
 			if ((flags & 0x8) != 0)
 			{
 				Write((byte) Math.Round(currentPosition.Pitch * d)); // 256/360
@@ -111,41 +116,70 @@ namespace MiNET.Net
 			}
 		}
 
-		public static int ToIntDelta(float a, float b)
+		public static int ToIntDelta(float current, float prev)
 		{
-			return BitConverter.ToInt32(BitConverter.GetBytes((float) Math.Round(a, 2)), 0) - BitConverter.ToInt32(BitConverter.GetBytes((float) Math.Round(b, 2)), 0);
+			return BitConverter.SingleToInt32Bits(current) - BitConverter.SingleToInt32Bits(prev);
+		}
+
+		public static float FromIntDelta(float prev, int delta)
+		{
+			return BitConverter.Int32BitsToSingle(BitConverter.SingleToInt32Bits(prev) + delta);
+		}
+
+		public PlayerLocation GetCurrentPosition(PlayerLocation previousPosition)
+		{
+			if ((flags & HasX) != 0)
+			{
+				currentPosition.X = FromIntDelta(previousPosition.X, _dX);
+			}
+			if ((flags & HasY) != 0)
+			{
+				currentPosition.Y = FromIntDelta(previousPosition.Y, _dY);
+			}
+			if ((flags & HasZ) != 0)
+			{
+				currentPosition.Z = FromIntDelta(previousPosition.Z, _dZ);
+			}
+
+			return currentPosition;
 		}
 
 		partial void AfterDecode()
 		{
-			//Log.Debug($"Flags: 0x{flags:X2} ({flags}) {Convert.ToString((byte) flags, 2)}");
+			currentPosition = new PlayerLocation();
 
-			if ((flags & 0x1) != 0)
+			if ((flags & HasX) != 0)
 			{
-				ReadSignedVarInt();
+				_dX = ReadSignedVarInt();
 			}
-			if ((flags & 0x2) != 0)
+			if ((flags & HasY) != 0)
 			{
-				ReadSignedVarInt();
+				_dY = ReadSignedVarInt();
 			}
-			if ((flags & 0x4) != 0)
+			if ((flags & HasZ) != 0)
 			{
-				ReadSignedVarInt();
-			}
-
-			if ((flags & 0x8) != 0)
-			{
-				ReadByte();
+				_dZ = ReadSignedVarInt();
 			}
 
-			if ((flags & 0x10) != 0)
+			float d = 1f / (256f / 360f);
+			if ((flags & HasRotX) != 0)
 			{
-				ReadByte();
+				currentPosition.Pitch = ReadByte() * d;
 			}
 
-			if ((flags & 0x20) != 0)
+			if ((flags & HasRotY) != 0)
 			{
-				ReadByte();
+				currentPosition.Yaw = ReadByte() * d;
+			}
+
+			if ((flags & HasRotZ) != 0)
+			{
+				currentPosition.HeadYaw = ReadByte() * d;
+			}
+
+			if ((flags & OnGround) != 0)
+			{
+				isOnGround = true;
 			}
 		}
 	}

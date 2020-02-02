@@ -47,6 +47,7 @@ namespace MiNET.BlockEntities
 			else if (blockEntityId == "Chest") blockEntity = new ChestBlockEntity();
 			else if (blockEntityId == "EnchantTable") blockEntity = new EnchantingTableBlockEntity();
 			else if (blockEntityId == "Furnace") blockEntity = new FurnaceBlockEntity();
+			else if (blockEntityId == "BlastFurnace") blockEntity = new BlastFurnaceBlockEntity();
 			else if (blockEntityId == "Skull") blockEntity = new SkullBlockEntity();
 			else if (blockEntityId == "ItemFrame") blockEntity = new ItemFrameBlockEntity();
 			else if (blockEntityId == "Bed") blockEntity = new BedBlockEntity();
@@ -56,6 +57,7 @@ namespace MiNET.BlockEntities
 			else if (blockEntityId == "MobSpawner") blockEntity = new MobSpawnerBlockEntity();
 			else if (blockEntityId == "ChalkboardBlock") blockEntity = new ChalkboardBlockEntity();
 			else if (blockEntityId == "ShulkerBox") blockEntity = new ShulkerBoxBlockEntity();
+			else if (blockEntityId == "StructureBlock") blockEntity = new StructureBlockBlockEntity();
 
 			return blockEntity;
 		}

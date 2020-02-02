@@ -164,6 +164,23 @@ namespace MiNET.Plugins
 		}
 	}
 
+	public class EntityPos
+	{
+		public float X { get; set; }
+		public bool XRelative { get; set; }
+
+		public float Y { get; set; }
+		public bool YRelative { get; set; }
+
+		public float Z { get; set; }
+		public bool ZRelative { get; set; }
+
+		public override string ToString()
+		{
+			return $"X: {X}, XRelative: {XRelative}, Y: {Y}, YRelative: {YRelative}, Z: {Z}, ZRelative: {ZRelative}";
+		}
+	}
+
 	public class Target
 	{
 		public class Rule

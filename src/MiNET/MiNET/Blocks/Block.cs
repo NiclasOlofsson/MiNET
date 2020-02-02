@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,13 +18,13 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Numerics;
 using log4net;
 using MiNET.Items;
@@ -34,16 +34,17 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	/// <summary>
-	///     Blocks are the basic units of structure in Minecraft. Together, they build up the in-game environment and can be
-	///     mined and utilized in various fashions.
-	/// </summary>
 	public class Block : ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Block));
 
+		public bool IsGenerated { get; protected set; } = false;
+
 		public BlockCoordinates Coordinates { get; set; }
+
 		public int Id { get; }
+
+		[Obsolete("Use block states instead.")]
 		public byte Metadata { get; set; }
 
 		public string Name { get; set; }
@@ -54,7 +55,7 @@ namespace MiNET.Blocks
 		public float FrictionFactor { get; protected set; } = 0.6f;
 		public int LightLevel { get; set; } = 0;
 
-		public bool IsReplacible { get; protected set; } = false;
+		public bool IsReplaceable { get; protected set; } = false;
 		public bool IsSolid { get; protected set; } = true;
 		public bool IsBuildable { get; protected set; } = true;
 		public bool IsTransparent { get; protected set; } = false;
@@ -69,9 +70,56 @@ namespace MiNET.Blocks
 		public Block(int id)
 		{
 			Id = id;
+			//IsGeneratede = true;
 		}
 
-		public uint GetRuntimeId() => BlockFactory.GetRuntimeId(Id, Metadata);
+		public virtual void SetState(BlockStateContainer blockstate)
+		{
+			SetState(blockstate.States);
+		}
+
+		public virtual void SetState(List<IBlockState> states)
+		{
+		}
+
+		public virtual BlockStateContainer GetState()
+		{
+			return null;
+		}
+
+		public virtual BlockStateContainer GetGlobalState()
+		{
+			BlockStateContainer currentState = GetState();
+			if (!BlockFactory.BlockStates.TryGetValue(currentState, out var blockstate))
+			{
+				Log.Warn($"Did not find block state for {this}, {currentState}");
+				return null;
+			}
+
+			return blockstate;
+		}
+
+		public int GetRuntimeId()
+		{
+			BlockStateContainer currentState = GetState();
+			if (!BlockFactory.BlockStates.TryGetValue(currentState, out var blockstate))
+			{
+				Log.Warn($"Did not find block state for {this}, {currentState}");
+				return -1;
+			}
+
+			return blockstate.RuntimeId;
+		}
+
+		public virtual Item GetItem()
+		{
+			if (!BlockFactory.BlockStates.TryGetValue(GetState(), out BlockStateContainer stateContainer)) return null;
+
+			ItemPickInstance stateItem = stateContainer.ItemInstance;
+			if (stateItem == null) return null;
+
+			return ItemFactory.GetItem(stateItem.Id, stateItem.Metadata);
+		}
 
 		public bool CanPlace(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)
 		{
@@ -89,16 +137,16 @@ namespace MiNET.Blocks
 				return false;
 			}
 
-			return world.GetBlock(blockCoordinates).IsReplacible;
+			return world.GetBlock(blockCoordinates).IsReplaceable;
 		}
 
-		public virtual void BreakBlock(Level world, bool silent = false)
+		public virtual void BreakBlock(Level world, BlockFace face, bool silent = false)
 		{
 			world.SetAir(Coordinates);
 
 			if (!silent)
 			{
-				DestroyBlockParticle particle = new DestroyBlockParticle(world, this);
+				var particle = new DestroyBlockParticle(world, this);
 				particle.Spawn();
 			}
 
@@ -174,14 +222,10 @@ namespace MiNET.Blocks
 
 		public virtual Item[] GetDrops(Item tool)
 		{
-			// Get a bitmask for drops that need metadata values for variant, but not for runtime data (rotation, etc)
-			int metadataMax = InventoryUtils.GetCreativeMetadataSlots().Where(item => item.Id == Id).Max(item => item.Metadata);
-			for (int i = metadataMax; i != 0; i = i >> 1)
-			{
-				metadataMax |= i;
-			}
+			var item = GetItem();
+			item.Count = 1;
 
-			return new Item[] {new ItemBlock(this, (short) (Metadata & metadataMax)) {Count = 1}};
+			return new[] {item};
 		}
 
 		public virtual Item GetSmelt()
@@ -211,7 +255,39 @@ namespace MiNET.Blocks
 
 		public override string ToString()
 		{
-			return $"Id: {Id}, Metadata: {Metadata}, Coordinates: {Coordinates}";
+			return $"Id: {Id}, Metadata: {GetState()}, Coordinates: {Coordinates}";
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
+	public class StateAttribute : Attribute
+	{
+	}
+
+	[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
+	public class StateBitAttribute : StateAttribute
+	{
+	}
+
+
+	[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
+	public class StateRangeAttribute : StateAttribute
+	{
+		public int Minimum { get; }
+		public int Maximum { get; }
+
+		public StateRangeAttribute(int minimum, int maximum)
+		{
+			Minimum = minimum;
+			Maximum = maximum;
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
+	public class StateEnumAttribute : StateAttribute
+	{
+		public StateEnumAttribute(params string[] validValues)
+		{
 		}
 	}
 }

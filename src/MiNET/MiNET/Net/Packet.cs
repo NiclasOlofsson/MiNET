@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -1207,9 +1208,9 @@ namespace MiNET.Net
 			}
 		}
 
-		public BlockPallet ReadBlockPallet()
+		public BlockPalette ReadBlockPallet()
 		{
-			var result = new BlockPallet();
+			var result = new BlockPalette();
 
 			var nbt = new Nbt();
 			var file = new NbtFile();
@@ -1223,7 +1224,7 @@ namespace MiNET.Net
 			var rootTag = (NbtList) file.RootTag;
 			foreach (NbtTag tag in rootTag)
 			{
-				var record = new BlockRecord();
+				var record = new BlockStateContainer();
 				record.RuntimeId = runtimeId++;
 				record.Id = tag["id"].ShortValue;
 
@@ -1231,25 +1232,33 @@ namespace MiNET.Net
 				record.Name = blockTag["name"].StringValue;
 				if(blockTag.Contains("data")) record.Data = blockTag["data"].ShortValue;
 
-				record.States = new List<BlockState>();
+				record.States = new List<IBlockState>();
 				var states = (NbtCompound) blockTag["states"];
 				foreach (NbtTag stateTag in states)
 				{
-					var state = new BlockState();
-					state.Name = stateTag.Name;
+					IBlockState state = null;
 					switch (stateTag.TagType)
 					{
 						case NbtTagType.Byte:
-							state.Type = (byte) NbtTagType.Byte;
-							state.Value = stateTag.ByteValue.ToString();
+							state = new BlockStateByte()
+							{
+								Name = stateTag.Name,
+								Value = stateTag.ByteValue
+							};
 							break;
 						case NbtTagType.Int:
-							state.Type = (byte) NbtTagType.Int;
-							state.Value = stateTag.IntValue.ToString();
+							state = new BlockStateInt()
+							{
+								Name = stateTag.Name,
+								Value = stateTag.IntValue
+							};
 							break;
 						case NbtTagType.String:
-							state.Type = (byte) NbtTagType.String;
-							state.Value = stateTag.StringValue.ToString();
+							state = new BlockStateString()
+							{
+								Name = stateTag.Name,
+								Value = stateTag.StringValue
+							};
 							break;
 						default:
 							throw new ArgumentOutOfRangeException();
@@ -1263,9 +1272,59 @@ namespace MiNET.Net
 			return result;
 		}
 
-		public void Write(BlockPallet blockPallet)
+		public void Write(BlockPalette palette)
 		{
-			Write((byte[]) blockPallet);
+			var list = new NbtList("", NbtTagType.Compound);
+			foreach (BlockStateContainer record in palette)
+			{
+				var states = new List<NbtTag>();
+				foreach (IBlockState state in record.States)
+				{
+					NbtTag stateTag = null;
+					switch (state)
+					{
+						case BlockStateByte blockStateByte:
+							stateTag = new NbtByte(state.Name, blockStateByte.Value);
+							break;
+						case BlockStateInt blockStateInt:
+							stateTag = new NbtInt(state.Name, blockStateInt.Value);
+							break;
+						case BlockStateString blockStateString:
+							stateTag = new NbtString(state.Name, blockStateString.Value);
+							break;
+						default:
+							throw new ArgumentOutOfRangeException(nameof(state));
+					}
+
+					states.Add(stateTag);
+				}
+
+				var recordTag = new NbtCompound()
+				{
+					new NbtShort("id", (short) record.Data),
+					new NbtShort("data", (short) record.Id),
+					new NbtCompound("block")
+					{
+						new NbtString("name", record.Name),
+						new NbtCompound("states", states),
+						new NbtInt("version", BlockPalette.Version),
+					}
+				};
+
+				list.Add(recordTag);
+			}
+
+			// Get bytes
+			var nbt = new NbtFile()
+			{
+				BigEndian = false,
+				UseVarInt = true,
+				RootTag = list
+			};
+
+			byte[] nbtBinary = nbt.SaveToBuffer(NbtCompression.None);
+
+			Write(nbtBinary);
 		}
 
 		public void Write(Links links)
@@ -2216,6 +2275,7 @@ namespace MiNET.Net
 			ForceClear = false;
 
 			_encodedMessage = null;
+			Bytes = null;
 			_writer.Flush();
 			_buffer.SetLength(0);
 			_buffer.Position = 0;
@@ -2250,6 +2310,9 @@ namespace MiNET.Net
 				_buffer.Position = 0;
 				_encodedMessage = _buffer.ToArray();
 				_isEncoded = true;
+				_buffer.SetLength(0);
+				ResetPacket();
+
 				return _encodedMessage;
 			}
 		}

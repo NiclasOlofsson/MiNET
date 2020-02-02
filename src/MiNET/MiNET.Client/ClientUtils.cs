@@ -26,10 +26,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using fNbt;
 using log4net;
-using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -45,7 +43,7 @@ namespace MiNET.Client
 
 		private static object _chunkRead = new object();
 
-		public static ChunkColumn DecodeChunkColumn(int subChunkCount, byte[] buffer, BlockPallet bedrockPallet = null, HashSet<BlockRecord> internalBlockPallet = null)
+		public static ChunkColumn DecodeChunkColumn(int subChunkCount, byte[] buffer, BlockPalette bedrockPalette = null, HashSet<BlockStateContainer> internalBlockPallet = null)
 		{
 			lock (_chunkRead)
 			{
@@ -61,14 +59,14 @@ namespace MiNET.Client
 
 					Log.Debug($"Reading {subChunkCount} sections");
 
-					var chunkColumn = new ChunkColumn();
+					var chunkColumn = new ChunkColumn(false);
 
 					for (int chunkIndex = 0; chunkIndex < subChunkCount; chunkIndex++)
 					{
 						int version = defStream.ReadByte();
 						int storageSize = defStream.ReadByte();
 
-						var section = (PaletteChunk) chunkColumn[chunkIndex];
+						var subChunk = chunkColumn[chunkIndex];
 
 						for (int storageIndex = 0; storageIndex < storageSize; storageIndex++)
 						{
@@ -78,6 +76,7 @@ namespace MiNET.Client
 							Log.Debug($"New section {chunkIndex}, " +
 									$"version={version}, " +
 									$"storageSize={storageSize}, " +
+									$"storageIndex={storageIndex}, " +
 									$"bitsPerBlock={bitsPerBlock}, " +
 									$"noBlocksPerWord={blocksPerWord}, " +
 									$"wordCount={wordsPerChunk}, " +
@@ -88,13 +87,13 @@ namespace MiNET.Client
 							stream.Seek(wordsPerChunk * 4, SeekOrigin.Current);
 
 							int paletteCount = VarInt.ReadSInt32(stream);
-							var palette = new uint[paletteCount];
+							var palette = new int[paletteCount];
 							for (int j = 0; j < paletteCount; j++)
 							{
 								int runtimeId = VarInt.ReadSInt32(stream);
-								if (bedrockPallet == null || internalBlockPallet == null) continue;
+								if (bedrockPalette == null || internalBlockPallet == null) continue;
 
-								palette[j] = GetHashRuntimeId(bedrockPallet, internalBlockPallet, runtimeId);
+								palette[j] = GetServerRuntimeId(bedrockPalette, internalBlockPallet, runtimeId);
 							}
 
 							long afterPos = stream.Position;
@@ -114,22 +113,15 @@ namespace MiNET.Client
 									int y = position & 0xF;
 									int z = (position >> 4) & 0xF;
 
-									uint hash = palette[state];
-
-									int bid = (int) (hash >> 4);
-									if (BlockFactory.GetBlockById(bid).GetType() == typeof(Block))
-									{
-										//Log.Error($"No block for bid={bid}");
-										bid = 0;
-									}
+									int runtimeId = palette[state];
 
 									if (storageIndex == 0)
 									{
-										section.SetBlock(x, y, z, bid, (byte) (hash & 0xf));
+										subChunk.SetBlockByRuntimeId(x, y, z, (int) runtimeId);
 									}
 									else
 									{
-										section.SetLoggedBlock(x, y, z, bid, (byte) (hash & 0xf));
+										subChunk.SetLoggedBlockByRuntimeId(x, y, z, (int) runtimeId);
 									}
 
 									position++;
@@ -191,19 +183,19 @@ namespace MiNET.Client
 			}
 		}
 
-		private static uint GetHashRuntimeId(BlockPallet bedrockPallet, HashSet<BlockRecord> internalBlockPallet, int runtimeId)
+		private static int GetServerRuntimeId(BlockPalette bedrockPalette, HashSet<BlockStateContainer> internalBlockPallet, int runtimeId)
 		{
-			if (runtimeId < 0 || runtimeId >= bedrockPallet.Count) Log.Error($"RuntimeId = {runtimeId}");
+			if (runtimeId < 0 || runtimeId >= bedrockPalette.Count) Log.Error($"RuntimeId = {runtimeId}");
 
-			var record = bedrockPallet[runtimeId];
+			var record = bedrockPalette[runtimeId];
 
-			if (!internalBlockPallet.TryGetValue(record, out BlockRecord internalRecord))
+			if (!internalBlockPallet.TryGetValue(record, out BlockStateContainer internalRecord))
 			{
 				Log.Error($"Did not find {record.Id}");
 				return 0; // air
 			}
-			uint hash = (uint) ((internalRecord.Id << 4) | (byte) internalRecord.Data);
-			return hash;
+
+			return internalRecord.RuntimeId;
 		}
 
 		private static void SetNibble4(byte[] arr, int index, byte value)
@@ -274,7 +266,7 @@ namespace MiNET.Client
 		//					if (yi < 0 || yi >= 256) continue; // ?
 
 		//					int anvilIndex = (y + _waterOffsetY) * 16 * 16 + z * 16 + x;
-		//					int blockId = chunk.GetBlock(x, yi, z);
+		//					int blockId = chunk.GetBlockId(x, yi, z);
 
 		//					// PE to Anvil friendly converstion
 		//					if (blockId == 5) blockId = 125;

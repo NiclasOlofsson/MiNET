@@ -2485,7 +2485,7 @@ namespace MiNET.Net
 		public bool isServerSideMovementEnabled; // = null;
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
-		public BlockPallet blockPallet; // = null;
+		public BlockPalette BlockPalette; // = null;
 		public Itemstates itemstates; // = null;
 		public string multiplayerCorrelationId; // = null;
 
@@ -2547,7 +2547,7 @@ namespace MiNET.Net
 			Write(isServerSideMovementEnabled);
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
-			Write(blockPallet);
+			Write(BlockPalette);
 			Write(itemstates);
 			Write(multiplayerCorrelationId);
 
@@ -2609,7 +2609,7 @@ namespace MiNET.Net
 			isServerSideMovementEnabled = ReadBool();
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
-			blockPallet = ReadBlockPallet();
+			BlockPalette = ReadBlockPallet();
 			itemstates = ReadItemstates();
 			multiplayerCorrelationId = ReadString();
 
@@ -2669,7 +2669,7 @@ namespace MiNET.Net
 			isServerSideMovementEnabled=default(bool);
 			currentTick=default(long);
 			enchantmentSeed=default(int);
-			blockPallet=default(BlockPallet);
+			BlockPalette=default(BlockPalette);
 			itemstates=default(Itemstates);
 			multiplayerCorrelationId=default(string);
 		}

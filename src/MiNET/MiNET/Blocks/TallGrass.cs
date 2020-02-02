@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class TallGrass : Block
+	public partial class Tallgrass : Block
 	{
 		public enum TallGrassTypes
 		{
@@ -39,13 +39,13 @@ namespace MiNET.Blocks
 			Fern = 2
 		}
 
-		public TallGrass() : base(31)
+		public Tallgrass() : base(31)
 		{
 			BlastResistance = 3;
 			Hardness = 0.6f;
 
 			IsSolid = false;
-			IsReplacible = true;
+			IsReplaceable = true;
 			IsTransparent = true;
 		}
 
@@ -70,7 +70,7 @@ namespace MiNET.Blocks
 		public override Item[] GetDrops(Item tool)
 		{
 			// 50% chance to drop seeds.
-			var rnd = new Random((int) DateTime.UtcNow.Ticks);
+			var rnd = new Random();
 			if (rnd.NextDouble() > 0.5)
 			{
 				return new[] {ItemFactory.GetItem(295)};

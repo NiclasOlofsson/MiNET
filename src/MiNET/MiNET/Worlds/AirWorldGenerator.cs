@@ -37,8 +37,8 @@ namespace MiNET.Worlds
 		{
 			return new ChunkColumn()
 			{
-				x = chunkCoordinates.X,
-				z = chunkCoordinates.Z
+				X = chunkCoordinates.X,
+				Z = chunkCoordinates.Z
 			};
 		}
 	}

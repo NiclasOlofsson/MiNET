@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -152,15 +152,41 @@ namespace MiNET.Client
 			}
 		}
 
-		public abstract void HandleMcpeText(McpeText message);
-		public abstract void HandleMcpeSetTime(McpeSetTime message);
-		public abstract void HandleMcpeStartGame(McpeStartGame message);
-		public abstract void HandleMcpeAddPlayer(McpeAddPlayer message);
-		public abstract void HandleMcpeAddEntity(McpeAddEntity message);
-		public abstract void HandleMcpeRemoveEntity(McpeRemoveEntity message);
-		public abstract void HandleMcpeAddItemEntity(McpeAddItemEntity message);
-		public abstract void HandleMcpeTakeItemEntity(McpeTakeItemEntity message);
-		public abstract void HandleMcpeMoveEntity(McpeMoveEntity message);
+		public virtual void HandleMcpeText(McpeText message)
+		{
+		}
+
+		public virtual void HandleMcpeSetTime(McpeSetTime message)
+		{
+		}
+
+		public virtual void HandleMcpeStartGame(McpeStartGame message)
+		{
+		}
+
+		public virtual void HandleMcpeAddPlayer(McpeAddPlayer message)
+		{
+		}
+
+		public virtual void HandleMcpeAddEntity(McpeAddEntity message)
+		{
+		}
+
+		public virtual void HandleMcpeRemoveEntity(McpeRemoveEntity message)
+		{
+		}
+
+		public virtual void HandleMcpeAddItemEntity(McpeAddItemEntity message)
+		{
+		}
+
+		public virtual void HandleMcpeTakeItemEntity(McpeTakeItemEntity message)
+		{
+		}
+
+		public virtual void HandleMcpeMoveEntity(McpeMoveEntity message)
+		{
+		}
 
 		public virtual void HandleMcpeMovePlayer(McpeMovePlayer message)
 		{
@@ -176,52 +202,151 @@ namespace MiNET.Client
 			Client.SendMcpeMovePlayer();
 		}
 
-		public abstract void HandleMcpeRiderJump(McpeRiderJump message);
-		public abstract void HandleMcpeUpdateBlock(McpeUpdateBlock message);
-		public abstract void HandleMcpeAddPainting(McpeAddPainting message);
-		public abstract void HandleMcpeTickSync(McpeTickSync message);
-		public abstract void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
-		public abstract void HandleMcpeLevelEvent(McpeLevelEvent message);
-		public abstract void HandleMcpeBlockEvent(McpeBlockEvent message);
-		public abstract void HandleMcpeEntityEvent(McpeEntityEvent message);
-		public abstract void HandleMcpeMobEffect(McpeMobEffect message);
-		public abstract void HandleMcpeUpdateAttributes(McpeUpdateAttributes message);
-		public abstract void HandleMcpeInventoryTransaction(McpeInventoryTransaction message);
-		public abstract void HandleMcpeMobEquipment(McpeMobEquipment message);
-		public abstract void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message);
-		public abstract void HandleMcpeInteract(McpeInteract message);
-		public abstract void HandleMcpeHurtArmor(McpeHurtArmor message);
-		public abstract void HandleMcpeSetEntityData(McpeSetEntityData message);
-		public abstract void HandleMcpeSetEntityMotion(McpeSetEntityMotion message);
-		public abstract void HandleMcpeSetEntityLink(McpeSetEntityLink message);
-		public abstract void HandleMcpeSetHealth(McpeSetHealth message);
-		public abstract void HandleMcpeSetSpawnPosition(McpeSetSpawnPosition message);
-		public abstract void HandleMcpeAnimate(McpeAnimate message);
+		public virtual void HandleMcpeRiderJump(McpeRiderJump message)
+		{
+		}
+
+		public virtual void HandleMcpeUpdateBlock(McpeUpdateBlock message)
+		{
+		}
+
+		public virtual void HandleMcpeAddPainting(McpeAddPainting message)
+		{
+		}
+
+		public virtual void HandleMcpeTickSync(McpeTickSync message)
+		{
+		}
+
+		public virtual void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message)
+		{
+		}
+
+		public virtual void HandleMcpeLevelEvent(McpeLevelEvent message)
+		{
+		}
+
+		public virtual void HandleMcpeBlockEvent(McpeBlockEvent message)
+		{
+		}
+
+		public virtual void HandleMcpeEntityEvent(McpeEntityEvent message)
+		{
+		}
+
+		public virtual void HandleMcpeMobEffect(McpeMobEffect message)
+		{
+		}
+
+		public virtual void HandleMcpeUpdateAttributes(McpeUpdateAttributes message)
+		{
+		}
+
+		public virtual void HandleMcpeInventoryTransaction(McpeInventoryTransaction message)
+		{
+		}
+
+		public virtual void HandleMcpeMobEquipment(McpeMobEquipment message)
+		{
+		}
+
+		public virtual void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)
+		{
+		}
+
+		public virtual void HandleMcpeInteract(McpeInteract message)
+		{
+		}
+
+		public virtual void HandleMcpeHurtArmor(McpeHurtArmor message)
+		{
+		}
+
+		public virtual void HandleMcpeSetEntityData(McpeSetEntityData message)
+		{
+		}
+
+		public virtual void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
+		{
+		}
+
+		public virtual void HandleMcpeSetEntityLink(McpeSetEntityLink message)
+		{
+		}
+
+		public virtual void HandleMcpeSetHealth(McpeSetHealth message)
+		{
+		}
+
+		public virtual void HandleMcpeSetSpawnPosition(McpeSetSpawnPosition message)
+		{
+		}
+
+		public virtual void HandleMcpeAnimate(McpeAnimate message)
+		{
+		}
 
 		public virtual void HandleMcpeRespawn(McpeRespawn message)
 		{
 			Client.CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
 		}
 
-		public abstract void HandleMcpeContainerOpen(McpeContainerOpen message);
-		public abstract void HandleMcpeContainerClose(McpeContainerClose message);
-		public abstract void HandleMcpePlayerHotbar(McpePlayerHotbar message);
-		public abstract void HandleMcpeInventoryContent(McpeInventoryContent message);
-		public abstract void HandleMcpeInventorySlot(McpeInventorySlot message);
-		public abstract void HandleMcpeContainerSetData(McpeContainerSetData message);
-		public abstract void HandleMcpeCraftingData(McpeCraftingData message);
-		public abstract void HandleMcpeCraftingEvent(McpeCraftingEvent message);
-		public abstract void HandleMcpeGuiDataPickItem(McpeGuiDataPickItem message);
+		public virtual void HandleMcpeContainerOpen(McpeContainerOpen message)
+		{
+		}
+
+		public virtual void HandleMcpeContainerClose(McpeContainerClose message)
+		{
+		}
+
+		public virtual void HandleMcpePlayerHotbar(McpePlayerHotbar message)
+		{
+		}
+
+		public virtual void HandleMcpeInventoryContent(McpeInventoryContent message)
+		{
+		}
+
+		public virtual void HandleMcpeInventorySlot(McpeInventorySlot message)
+		{
+		}
+
+		public virtual void HandleMcpeContainerSetData(McpeContainerSetData message)
+		{
+		}
+
+		public virtual void HandleMcpeCraftingData(McpeCraftingData message)
+		{
+		}
+
+		public virtual void HandleMcpeCraftingEvent(McpeCraftingEvent message)
+		{
+		}
+
+		public virtual void HandleMcpeGuiDataPickItem(McpeGuiDataPickItem message)
+		{
+		}
 
 		public virtual void HandleMcpeAdventureSettings(McpeAdventureSettings message)
 		{
 			Client.UserPermission = (CommandPermission) message.commandPermission;
 		}
 
-		public abstract void HandleMcpeBlockEntityData(McpeBlockEntityData message);
-		public abstract void HandleMcpeLevelChunk(McpeLevelChunk message);
-		public abstract void HandleMcpeSetCommandsEnabled(McpeSetCommandsEnabled message);
-		public abstract void HandleMcpeSetDifficulty(McpeSetDifficulty message);
+		public virtual void HandleMcpeBlockEntityData(McpeBlockEntityData message)
+		{
+		}
+
+		public virtual void HandleMcpeLevelChunk(McpeLevelChunk message)
+		{
+		}
+
+		public virtual void HandleMcpeSetCommandsEnabled(McpeSetCommandsEnabled message)
+		{
+		}
+
+		public virtual void HandleMcpeSetDifficulty(McpeSetDifficulty message)
+		{
+		}
 
 		public virtual void HandleMcpeChangeDimension(McpeChangeDimension message)
 		{
@@ -232,26 +357,80 @@ namespace MiNET.Client
 			Client.SendPacket(action);
 		}
 
-		public abstract void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message);
-		public abstract void HandleMcpePlayerList(McpePlayerList message);
-		public abstract void HandleMcpeSimpleEvent(McpeSimpleEvent message);
-		public abstract void HandleMcpeTelemetryEvent(McpeTelemetryEvent message);
-		public abstract void HandleMcpeSpawnExperienceOrb(McpeSpawnExperienceOrb message);
-		public abstract void HandleMcpeClientboundMapItemData(McpeClientboundMapItemData message);
-		public abstract void HandleMcpeMapInfoRequest(McpeMapInfoRequest message);
-		public abstract void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message);
-		public abstract void HandleMcpeChunkRadiusUpdate(McpeChunkRadiusUpdate message);
-		public abstract void HandleMcpeItemFrameDropItem(McpeItemFrameDropItem message);
-		public abstract void HandleMcpeGameRulesChanged(McpeGameRulesChanged message);
-		public abstract void HandleMcpeCamera(McpeCamera message);
-		public abstract void HandleMcpeBossEvent(McpeBossEvent message);
-		public abstract void HandleMcpeShowCredits(McpeShowCredits message);
-		public abstract void HandleMcpeAvailableCommands(McpeAvailableCommands message);
-		public abstract void HandleMcpeCommandOutput(McpeCommandOutput message);
-		public abstract void HandleMcpeUpdateTrade(McpeUpdateTrade message);
-		public abstract void HandleMcpeUpdateEquipment(McpeUpdateEquipment message);
+		public virtual void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message)
+		{
+		}
+
+		public virtual void HandleMcpePlayerList(McpePlayerList message)
+		{
+		}
+
+		public virtual void HandleMcpeSimpleEvent(McpeSimpleEvent message)
+		{
+		}
+
+		public virtual void HandleMcpeTelemetryEvent(McpeTelemetryEvent message)
+		{
+		}
+
+		public virtual void HandleMcpeSpawnExperienceOrb(McpeSpawnExperienceOrb message)
+		{
+		}
+
+		public virtual void HandleMcpeClientboundMapItemData(McpeClientboundMapItemData message)
+		{
+		}
+
+		public virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
+		{
+		}
+
+		public virtual void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
+		{
+		}
+
+		public virtual void HandleMcpeChunkRadiusUpdate(McpeChunkRadiusUpdate message)
+		{
+		}
+
+		public virtual void HandleMcpeItemFrameDropItem(McpeItemFrameDropItem message)
+		{
+		}
+
+		public virtual void HandleMcpeGameRulesChanged(McpeGameRulesChanged message)
+		{
+		}
+
+		public virtual void HandleMcpeCamera(McpeCamera message)
+		{
+		}
+
+		public virtual void HandleMcpeBossEvent(McpeBossEvent message)
+		{
+		}
+
+		public virtual void HandleMcpeShowCredits(McpeShowCredits message)
+		{
+		}
+
+		public virtual void HandleMcpeAvailableCommands(McpeAvailableCommands message)
+		{
+		}
+
+		public virtual void HandleMcpeCommandOutput(McpeCommandOutput message)
+		{
+		}
+
+		public virtual void HandleMcpeUpdateTrade(McpeUpdateTrade message)
+		{
+		}
+
+		public virtual void HandleMcpeUpdateEquipment(McpeUpdateEquipment message)
+		{
+		}
 
 		protected Dictionary<string, uint> resourcePackDataInfos = new Dictionary<string, uint>();
+		private IMcpeClientMessageHandler McpeClientMessageHandlerImplementation;
 
 		public virtual void HandleMcpeResourcePackDataInfo(McpeResourcePackDataInfo message)
 		{
@@ -286,31 +465,105 @@ namespace MiNET.Client
 			}
 		}
 
-		public abstract void HandleMcpeTransfer(McpeTransfer message);
-		public abstract void HandleMcpePlaySound(McpePlaySound message);
-		public abstract void HandleMcpeStopSound(McpeStopSound message);
-		public abstract void HandleMcpeSetTitle(McpeSetTitle message);
-		public abstract void HandleMcpeAddBehaviorTree(McpeAddBehaviorTree message);
-		public abstract void HandleMcpeStructureBlockUpdate(McpeStructureBlockUpdate message);
-		public abstract void HandleMcpeShowStoreOffer(McpeShowStoreOffer message);
-		public abstract void HandleMcpePlayerSkin(McpePlayerSkin message);
-		public abstract void HandleMcpeSubClientLogin(McpeSubClientLogin message);
-		public abstract void HandleMcpeInitiateWebSocketConnection(McpeInitiateWebSocketConnection message);
-		public abstract void HandleMcpeSetLastHurtBy(McpeSetLastHurtBy message);
-		public abstract void HandleMcpeBookEdit(McpeBookEdit message);
-		public abstract void HandleMcpeNpcRequest(McpeNpcRequest message);
-		public abstract void HandleMcpeModalFormRequest(McpeModalFormRequest message);
-		public abstract void HandleMcpeServerSettingsResponse(McpeServerSettingsResponse message);
-		public abstract void HandleMcpeShowProfile(McpeShowProfile message);
-		public abstract void HandleMcpeSetDefaultGameType(McpeSetDefaultGameType message);
-		public abstract void HandleMcpeRemoveObjective(McpeRemoveObjective message);
-		public abstract void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message);
-		public abstract void HandleMcpeSetScore(McpeSetScore message);
-		public abstract void HandleMcpeLabTable(McpeLabTable message);
-		public abstract void HandleMcpeUpdateBlockSynced(McpeUpdateBlockSynced message);
-		public abstract void HandleMcpeMoveEntityDelta(McpeMoveEntityDelta message);
-		public abstract void HandleMcpeSetScoreboardIdentityPacket(McpeSetScoreboardIdentityPacket message);
-		public abstract void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message);
+		public virtual void HandleMcpeTransfer(McpeTransfer message)
+		{
+		}
+
+		public virtual void HandleMcpePlaySound(McpePlaySound message)
+		{
+		}
+
+		public virtual void HandleMcpeStopSound(McpeStopSound message)
+		{
+		}
+
+		public virtual void HandleMcpeSetTitle(McpeSetTitle message)
+		{
+		}
+
+		public virtual void HandleMcpeAddBehaviorTree(McpeAddBehaviorTree message)
+		{
+		}
+
+		public virtual void HandleMcpeStructureBlockUpdate(McpeStructureBlockUpdate message)
+		{
+		}
+
+		public virtual void HandleMcpeShowStoreOffer(McpeShowStoreOffer message)
+		{
+		}
+
+		public virtual void HandleMcpePlayerSkin(McpePlayerSkin message)
+		{
+		}
+
+		public virtual void HandleMcpeSubClientLogin(McpeSubClientLogin message)
+		{
+		}
+
+		public virtual void HandleMcpeInitiateWebSocketConnection(McpeInitiateWebSocketConnection message)
+		{
+		}
+
+		public virtual void HandleMcpeSetLastHurtBy(McpeSetLastHurtBy message)
+		{
+		}
+
+		public virtual void HandleMcpeBookEdit(McpeBookEdit message)
+		{
+		}
+
+		public virtual void HandleMcpeNpcRequest(McpeNpcRequest message)
+		{
+		}
+
+		public virtual void HandleMcpeModalFormRequest(McpeModalFormRequest message)
+		{
+		}
+
+		public virtual void HandleMcpeServerSettingsResponse(McpeServerSettingsResponse message)
+		{
+		}
+
+		public virtual void HandleMcpeShowProfile(McpeShowProfile message)
+		{
+		}
+
+		public virtual void HandleMcpeSetDefaultGameType(McpeSetDefaultGameType message)
+		{
+		}
+
+		public virtual void HandleMcpeRemoveObjective(McpeRemoveObjective message)
+		{
+		}
+
+		public virtual void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message)
+		{
+		}
+
+		public virtual void HandleMcpeSetScore(McpeSetScore message)
+		{
+		}
+
+		public virtual void HandleMcpeLabTable(McpeLabTable message)
+		{
+		}
+
+		public virtual void HandleMcpeUpdateBlockSynced(McpeUpdateBlockSynced message)
+		{
+		}
+
+		public virtual void HandleMcpeMoveEntityDelta(McpeMoveEntityDelta message)
+		{
+		}
+
+		public virtual void HandleMcpeSetScoreboardIdentityPacket(McpeSetScoreboardIdentityPacket message)
+		{
+		}
+
+		public virtual void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message)
+		{
+		}
 
 		public virtual void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
 		{
@@ -321,30 +574,84 @@ namespace MiNET.Client
 			Client.SendPacket(packet);
 		}
 
-		public abstract void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message);
-		public abstract void HandleMcpeLevelSoundEventOld(McpeLevelSoundEventOld message);
-		public abstract void HandleMcpeSpawnParticleEffect(McpeSpawnParticleEffect message);
-		public abstract void HandleMcpeAvailableEntityIdentifiers(McpeAvailableEntityIdentifiers message);
-		public abstract void HandleMcpeNetworkChunkPublisherUpdate(McpeNetworkChunkPublisherUpdate message);
-		public abstract void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message);
-		public abstract void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message);
+		public virtual void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
+		{
+		}
 
-		public abstract void HandleMcpeNetworkSettingsPacket(McpeNetworkSettingsPacket message);
+		public virtual void HandleMcpeSpawnParticleEffect(McpeSpawnParticleEffect message)
+		{
+		}
 
-		public abstract void HandleFtlCreatePlayer(FtlCreatePlayer message);
+		public virtual void HandleMcpeAvailableEntityIdentifiers(McpeAvailableEntityIdentifiers message)
+		{
+		}
 
-		public abstract void HandleMcpeLevelEventGeneric(McpeLevelEventGeneric message);
-		public abstract void HandleMcpeLecternUpdate(McpeLecternUpdate message);
+		public virtual void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
+		{
+		}
 
-		public abstract void HandleMcpeVideoStreamConnect(McpeVideoStreamConnect message);
+		public virtual void HandleMcpeNetworkChunkPublisherUpdate(McpeNetworkChunkPublisherUpdate message)
+		{
+		}
 
-		public abstract void HandleMcpeClientCacheStatus(McpeClientCacheStatus message);
-		public abstract void HandleMcpeOnScreenTextureAnimation(McpeOnScreenTextureAnimation message);
-		public abstract void HandleMcpeMapCreateLockedCopy(McpeMapCreateLockedCopy message);
-		public abstract void HandleMcpeStructureTemplateDataExportRequest(McpeStructureTemplateDataExportRequest message);
-		public abstract void HandleMcpeStructureTemplateDataExportResponse(McpeStructureTemplateDataExportResponse message);
-		public abstract void HandleMcpeUpdateBlockProperties(McpeUpdateBlockProperties message);
-		public abstract void HandleMcpeClientCacheBlobStatus(McpeClientCacheBlobStatus message);
-		public abstract void HandleMcpeClientCacheMissResponse(McpeClientCacheMissResponse message);
+		public virtual void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message)
+		{
+		}
+
+		public virtual void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
+		{
+		}
+
+		public virtual void HandleMcpeLevelEventGeneric(McpeLevelEventGeneric message)
+		{
+		}
+
+		public virtual void HandleMcpeLecternUpdate(McpeLecternUpdate message)
+		{
+		}
+
+		public virtual void HandleMcpeVideoStreamConnect(McpeVideoStreamConnect message)
+		{
+		}
+
+		public virtual void HandleMcpeClientCacheStatus(McpeClientCacheStatus message)
+		{
+		}
+
+		public virtual void HandleMcpeOnScreenTextureAnimation(McpeOnScreenTextureAnimation message)
+		{
+		}
+
+		public virtual void HandleMcpeMapCreateLockedCopy(McpeMapCreateLockedCopy message)
+		{
+		}
+
+		public virtual void HandleMcpeStructureTemplateDataExportRequest(McpeStructureTemplateDataExportRequest message)
+		{
+		}
+
+		public virtual void HandleMcpeStructureTemplateDataExportResponse(McpeStructureTemplateDataExportResponse message)
+		{
+		}
+
+		public virtual void HandleMcpeUpdateBlockProperties(McpeUpdateBlockProperties message)
+		{
+		}
+
+		public virtual void HandleMcpeClientCacheBlobStatus(McpeClientCacheBlobStatus message)
+		{
+		}
+
+		public virtual void HandleMcpeClientCacheMissResponse(McpeClientCacheMissResponse message)
+		{
+		}
+
+		public virtual void HandleMcpeNetworkSettingsPacket(McpeNetworkSettingsPacket message)
+		{
+		}
+
+		public virtual void HandleFtlCreatePlayer(FtlCreatePlayer message)
+		{
+		}
 	}
 }

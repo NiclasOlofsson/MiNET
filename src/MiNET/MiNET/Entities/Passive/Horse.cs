@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -51,7 +51,7 @@ namespace MiNET.Entities.Passive
 			Width = Length = 1.4;
 			Height = 1.6;
 
-			var random = rnd ?? new Random((int) DateTime.UtcNow.Ticks);
+			var random = rnd ?? new Random();
 			Variant = random.Next(7);
 			Markings = random.Next(5);
 			Speed = (0.45 + random.NextDouble() * 0.3D + random.NextDouble() * 0.3D + random.NextDouble() * 0.3) * 0.25D;

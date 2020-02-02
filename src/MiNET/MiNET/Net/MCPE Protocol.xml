@@ -250,7 +250,7 @@
 		<field name="Current Tick" type="long" />
 		<field name="Enchantment Seed" type="SignedVarInt" />
 
-		<field name="Block Pallet" type="BlockPallet" />
+		<field name="Block Pallet" type="BlockPalette" />
 		<field name="Itemstates" type="Itemstates" />
 		
 		<field name="Multiplayer Correlation ID" type="string" />

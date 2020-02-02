@@ -91,7 +91,7 @@ namespace MiNET.Console
 
 			int count = 0;
 			ChunkColumn chunk = null;
-			while (count++ < 100 && !_client._chunks.TryGetValue(new Tuple<int, int>(chunkCoordinates.X, chunkCoordinates.Z), out chunk))
+			while (count++ < 100 && !_client.Chunks.TryGetValue(chunkCoordinates, out chunk))
 			{
 				Thread.Sleep(50);
 			}

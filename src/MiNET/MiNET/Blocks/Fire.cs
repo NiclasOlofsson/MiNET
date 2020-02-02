@@ -31,7 +31,7 @@ namespace MiNET.Blocks
 	{
 		public Fire() : base(51)
 		{
-			IsReplacible = true;
+			IsReplaceable = true;
 			IsTransparent = true;
 			LightLevel = 15;
 			IsSolid = false;

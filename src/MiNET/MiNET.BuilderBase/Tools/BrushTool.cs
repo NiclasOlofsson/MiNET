@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -87,7 +87,7 @@ namespace MiNET.BuilderBase.Tools
 				{
 					new NbtCompound("display")
 					{
-						new NbtString("Name", ChatFormatting.Reset + ChatColors.Blue + $"{s} Brush"),
+						new NbtString("Name", ChatFormatting.Reset + ChatColors.Yellow + $"{s} Brush"),
 						new NbtList("Lore")
 						{
 							new NbtString(ChatFormatting.Reset + ChatFormatting.Italic + ChatColors.White + $"A {s.ToLower()} brush."),
@@ -100,6 +100,11 @@ namespace MiNET.BuilderBase.Tools
 			};
 		}
 
+
+		public void UpdateDisplay(Player player)
+		{
+			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
+		}
 
 		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{

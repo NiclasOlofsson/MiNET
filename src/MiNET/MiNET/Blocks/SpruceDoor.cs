@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public partial class SpruceDoor : WoodenDoor
+	public partial class SpruceDoor : DoorBase
 	{
 		public SpruceDoor() : base(193)
 		{

@@ -187,7 +187,7 @@ namespace MiNET.Blocks
 			else if (blockId == 29) block = new StickyPiston();
 			else if (blockId == 30) block = new Web();
 			else if (blockId == 31) block = new TallGrass();
-			else if (blockId == 32) block = new DeadBush();
+			else if (blockId == 32) block = new Deadbush();
 			else if (blockId == 33) block = new Piston();
 			else if (blockId == 34) block = new PistonArmCollision();
 			else if (blockId == 35) block = new Wool();

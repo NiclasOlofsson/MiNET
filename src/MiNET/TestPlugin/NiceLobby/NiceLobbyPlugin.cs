@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -407,18 +407,18 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Sheep) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Wolf) {Count = 64};
 
-			player.Inventory.Slots[idx++] = new ItemDiamondAxe() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemDiamondShovel() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new CraftingTable()) { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new Chest()) { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new Anvil()) { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new EnchantingTable()) { Count = 64 };
+			//player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemBlock(new CraftingTable()) {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemBlock(new Chest()) { Count = 64 };
+			//player.Inventory.Slots[idx++] = new ItemBlock(new Anvil()) { Count = 64 };
+			//player.Inventory.Slots[idx++] = new ItemBlock(new EnchantingTable()) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Sapling()) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Sapling(), 2) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Vine(), 0) { Count = 64 };
-			//player.Inventory.Slots[idx++] = new ItemBlock(new Dirt(), 0) { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new Dirt()) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new SnowLayer()) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBlock(new Dirt()) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new CustomTestItem(0xC0FFEE) { Count = 1 };
 			//player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
@@ -430,7 +430,6 @@ namespace TestPlugin.NiceLobby
 			var fireworks = new ItemFireworks() {Count = 64};
 
 			fireworks.ExtraData = ItemFireworks.ToNbt(new ItemFireworks.FireworksData()
-
 			{
 				Explosions = new List<ItemFireworks.FireworksExplosion>()
 				{
@@ -479,7 +478,7 @@ namespace TestPlugin.NiceLobby
 			});
 
 			//player.Inventory.Slots[idx++] = fireworks;
-			player.Inventory.Slots[idx++] = new ItemBread() { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBread() {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemSnowball() {Count = 16};
 			//player.Inventory.Slots[idx++] = new ItemBow() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemArrow() {Count = 64};
@@ -488,12 +487,16 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemWheat() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemBone() { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemDye() { Metadata=4, Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemDye()
+			{
+				Metadata = 4,
+				Count = 64
+			};
+			player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
 
 			player.Inventory.Helmet = new ItemDiamondHelmet();
 			player.Inventory.Chest = new ItemElytra();
@@ -1183,15 +1186,12 @@ namespace TestPlugin.NiceLobby
 							level.SetBlock(wood);
 
 							BlockCoordinates frambc = new BlockCoordinates(center.X - x, center.Y + height - y - 1, center.Z + 1);
-							ItemFrameBlockEntity itemFrameBlockEntity = new ItemFrameBlockEntity
-							{
-								Coordinates = frambc
-							};
+							ItemFrameBlockEntity itemFrameBlockEntity = new ItemFrameBlockEntity {Coordinates = frambc};
 
 							var itemFrame = new CustomFrame(frames, itemFrameBlockEntity, level, frameTicker)
 							{
 								Coordinates = frambc,
-								Metadata = 3
+								FacingDirection = (int) BlockFace.South
 							};
 							level.SetBlock(itemFrame);
 							level.SetBlockEntity(itemFrameBlockEntity);

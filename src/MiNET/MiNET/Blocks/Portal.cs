@@ -53,7 +53,8 @@ namespace MiNET.Blocks
 			shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockUp()));
 			shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockDown()));
 
-			if (Metadata < 2)
+			//if (Metadata < 2)
+			if (PortalAxis == "x")
 			{
 				shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockWest()));
 				shouldKeep &= IsValid(level.GetBlock(Coordinates.BlockEast()));
@@ -95,7 +96,8 @@ namespace MiNET.Blocks
 
 				level.SetAir(coordinates);
 
-				if (Metadata == 0)
+				//if (Metadata == 0)
+				if (PortalAxis == "x")
 				{
 					visits.Enqueue(coordinates + Level.East);
 					visits.Enqueue(coordinates + Level.West);

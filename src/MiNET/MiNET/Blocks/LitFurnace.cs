@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public partial class LitFurnace : Furnace
+	public partial class LitFurnace : FurnaceBase
 	{
 		public LitFurnace() : base(62)
 		{

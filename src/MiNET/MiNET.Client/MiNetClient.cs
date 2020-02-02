@@ -84,6 +84,9 @@ namespace MiNET.Client
 		private Thread _mainProcessingThread;
 		public int ChunkRadius { get; set; } = 5;
 
+		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
+		public BlockPalette BlockPalette { get; set; } = new BlockPalette();
+
 		public LevelInfo LevelInfo { get; } = new LevelInfo();
 
 		//private long _clientGuid = new Random().Next();
@@ -530,7 +533,7 @@ namespace MiNET.Client
 					}
 					else
 					{
-						if (Log.IsDebugEnabled) Log.Warn($"{Username} - Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+						//if (Log.IsDebugEnabled) Log.Warn($"{Username} - Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
 						WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
 					}
 				}
@@ -548,7 +551,7 @@ namespace MiNET.Client
 		}
 
 
-		protected virtual void OnUnconnectedPong(UnconnectedPong packet, IPEndPoint senderEndpoint)
+		public virtual void OnUnconnectedPong(UnconnectedPong packet, IPEndPoint senderEndpoint)
 		{
 			Log.Warn($"MOTD: {packet.serverName}");
 			Log.Warn($"from server {senderEndpoint}");
@@ -564,8 +567,8 @@ namespace MiNET.Client
 				SendOpenConnectionRequest1();
 			}
 		}
-		
-		private void OnOpenConnectionReply2(OpenConnectionReply2 message)
+
+		public virtual void OnOpenConnectionReply2(OpenConnectionReply2 message)
 		{
 			Log.Warn("MTU Size: " + message.mtuSize);
 			Log.Warn("Client Endpoint: " + message.clientEndpoint);
@@ -578,14 +581,14 @@ namespace MiNET.Client
 		}
 
 
-		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		public virtual void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
 			//Log.Info("Ack");
 		}
 
-		private void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		public virtual void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			Log.Warn("!! WHAT THE FUK NAK NAK NAK");
+			if(Log.IsDebugEnabled) Log.Warn("!! WHAT THE FUK NAK NAK NAK");
 		}
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPacket splitMessage)
@@ -732,7 +735,7 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnNoFreeIncomingConnections(NoFreeIncomingConnections message)
+		public virtual void OnNoFreeIncomingConnections(NoFreeIncomingConnections message)
 		{
 			Log.Error($"No free connections from server {message.serverGuid}");
 			StopClient();
@@ -1142,12 +1145,8 @@ namespace MiNET.Client
 			return sb.ToString();
 		}
 
-		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
-
 		public string CodeName(string name, bool firstUpper = false)
 		{
-			//name = name.ToLowerInvariant();
-
 			bool upperCase = firstUpper;
 
 			var result = string.Empty;
@@ -1186,7 +1185,7 @@ namespace MiNET.Client
 
 		private int _numberOfChunks = 0;
 
-		public ConcurrentDictionary<Tuple<int, int>, ChunkColumn> _chunks = new ConcurrentDictionary<Tuple<int, int>, ChunkColumn>();
+		public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> Chunks { get; } = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 		public IndentedTextWriter _mobWriter;
 
 		public virtual void HandleBatch(McpeWrapper batch)
@@ -1471,7 +1470,7 @@ namespace MiNET.Client
 			SendData(data2);
 		}
 
-		public void SendOpenConnectionRequest2()
+		public virtual void SendOpenConnectionRequest2()
 		{
 			//_clientGuid = new Random().Next() + new Random().Next();
 			var packet = new OpenConnectionRequest2()
@@ -1533,7 +1532,10 @@ namespace MiNET.Client
 		{
 			if (CurrentLocation == null) return;
 
-			McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
+			if(CurrentLocation.Y < 0)
+				CurrentLocation.Y = 64f;
+
+			var movePlayerPacket = McpeMovePlayer.CreateObject();
 			movePlayerPacket.runtimeEntityId = EntityId;
 			movePlayerPacket.x = CurrentLocation.X;
 			movePlayerPacket.y = CurrentLocation.Y;
@@ -1541,6 +1543,8 @@ namespace MiNET.Client
 			movePlayerPacket.yaw = CurrentLocation.Yaw;
 			movePlayerPacket.pitch = CurrentLocation.Pitch;
 			movePlayerPacket.headYaw = CurrentLocation.HeadYaw;
+			movePlayerPacket.mode = 1;
+			movePlayerPacket.onGround = false;
 
 			SendPacket(movePlayerPacket);
 		}

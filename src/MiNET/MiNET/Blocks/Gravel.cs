@@ -76,7 +76,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			var rnd = new Random((int) DateTime.UtcNow.Ticks);
+			var rnd = new Random();
 			if (rnd.NextDouble() <= 0.1)
 			{
 				return new[] {ItemFactory.GetItem(318)};

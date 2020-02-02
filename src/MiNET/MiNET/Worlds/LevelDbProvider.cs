@@ -114,8 +114,8 @@ namespace MiNET.Worlds
 			if (version != null && version.First() == 10)
 			{
 				chunkColumn = new ChunkColumn();
-				chunkColumn.x = coordinates.X;
-				chunkColumn.z = coordinates.Z;
+				chunkColumn.X = coordinates.X;
+				chunkColumn.Z = coordinates.Z;
 
 				for (byte y = 0; y < 16; y++)
 				{
@@ -132,7 +132,7 @@ namespace MiNET.Worlds
 						break;
 					}
 
-					ParseSection((PaletteChunk) chunkColumn[y], sectionBytes);
+					ParseSection((SubChunk) chunkColumn[y], sectionBytes);
 				}
 
 				// Biomes
@@ -178,7 +178,7 @@ namespace MiNET.Worlds
 						new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
 					}
 
-					chunkColumn.isDirty = false;
+					chunkColumn.IsDirty = false;
 					chunkColumn.NeedSave = false;
 				}
 			}
@@ -196,7 +196,7 @@ namespace MiNET.Worlds
 			return chunkColumn;
 		}
 
-		private void ParseSection(PaletteChunk section, ReadOnlySpan<byte> data)
+		private void ParseSection(SubChunk section, ReadOnlySpan<byte> data)
 		{
 			var reader = new SpanReader();
 
@@ -262,13 +262,15 @@ namespace MiNET.Worlds
 							Log.Error($"Got wrong state={state} from word. bitsPerBlock={bitsPerBlock}, blocksPerWord={blocksPerWord}, Word={word}");
 						short bid = palette[state].Item1;
 						byte metadata = palette[state].Item2;
+
+						int runtimeId = (int) BlockFactory.GetRuntimeId(bid, metadata);
 						if (storage == 0)
 						{
-							section.SetBlock(x, y, z, bid, metadata);
+							section.SetBlockByRuntimeId(x, y, z, runtimeId);
 						}
 						else
 						{
-							section.SetLoggedBlock(x, y, z, bid, metadata);
+							section.SetLoggedBlockByRuntimeId(x, y, z, runtimeId);
 						}
 						position++;
 					}

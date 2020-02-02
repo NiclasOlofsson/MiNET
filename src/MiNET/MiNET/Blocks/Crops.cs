@@ -1,12 +1,12 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -36,6 +36,8 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Crops));
 
+		[StateRange(0, 7)] public virtual int Growth { get; set; } = 0;
+
 		protected byte MaxGrowth { get; set; } = 7;
 
 		protected Crops(byte id) : base(id)
@@ -47,10 +49,10 @@ namespace MiNET.Blocks
 		public override bool Interact(Level level, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			var itemInHand = player.Inventory.GetItemInHand();
-			if (Metadata < MaxGrowth && itemInHand is ItemDye && itemInHand.Metadata == 15)
+			if (Growth < MaxGrowth && itemInHand is ItemDye && itemInHand.Metadata == 15)
 			{
-				Metadata += (byte) new Random().Next(2, 6);
-				if (Metadata > MaxGrowth) Metadata = MaxGrowth;
+				Growth += (byte) new Random().Next(2, 6);
+				if (Growth > MaxGrowth) Growth = MaxGrowth;
 
 				level.SetBlock(this);
 
@@ -64,9 +66,9 @@ namespace MiNET.Blocks
 		{
 			if (!isRandom) return;
 
-			if (Metadata < MaxGrowth && CalculateGrowthChance(level, this))
+			if (Growth < MaxGrowth && CalculateGrowthChance(level, this))
 			{
-				Metadata++;
+				Growth++;
 				level.SetBlock(this);
 			}
 		}
@@ -77,40 +79,56 @@ namespace MiNET.Blocks
 			double points = 0;
 
 			// The farmland block the crop is planted in gives 2 points if dry or 4 if hydrated.
-			Block under = level.GetBlock(target.Coordinates.BlockDown());
-			points += under.Metadata == 0 ? 2 : 4;
+			var under = level.GetBlock(target.Coordinates.BlockDown()) as Farmland;
+			if (under == null) return false;
 
-			Block west = level.GetBlock(target.Coordinates.BlockWest());
-			Block east = level.GetBlock(target.Coordinates.BlockEast());
-			Block south = level.GetBlock(target.Coordinates.BlockNorth());
-			Block north = level.GetBlock(target.Coordinates.BlockSouth());
-			Block southWest = level.GetBlock(target.Coordinates.BlockSouthWest());
-			Block southEast = level.GetBlock(target.Coordinates.BlockSouthEast());
-			Block northWest = level.GetBlock(target.Coordinates.BlockNorthWest());
-			Block northEast = level.GetBlock(target.Coordinates.BlockNorthEast());
+			points += under.MoisturizedAmount == 0 ? 2 : 4;
 
-			// For each of the 8 blocks around the block in which the crop is planted, dry farmland gives 0.25 points, and hydrated farmland gives 0.75
-			points += west is Farmland ? west.Metadata == 0 ? 0.25 : 0.75 : 0;
-			points += east is Farmland ? east.Metadata == 0 ? 0.25 : 0.75 : 0;
-			points += south is Farmland ? south.Metadata == 0 ? 0.25 : 0.75 : 0;
-			points += north is Farmland ? north.Metadata == 0 ? 0.25 : 0.75 : 0;
-			points += northWest is Farmland ? northWest.Metadata == 0 ? 0.25 : 0.75 : 0;
-			points += northEast is Farmland ? northEast.Metadata == 0 ? 0.25 : 0.75 : 0;
-			points += southWest is Farmland ? southWest.Metadata == 0 ? 0.25 : 0.75 : 0;
-			points += southEast is Farmland ? southEast.Metadata == 0 ? 0.25 : 0.75 : 0;
+			{
+				var west = level.GetBlock(under.Coordinates.BlockWest()) as Farmland;
+				var east = level.GetBlock(under.Coordinates.BlockEast()) as Farmland;
+				var south = level.GetBlock(under.Coordinates.BlockNorth()) as Farmland;
+				var north = level.GetBlock(under.Coordinates.BlockSouth()) as Farmland;
+				var southWest = level.GetBlock(under.Coordinates.BlockSouthWest()) as Farmland;
+				var southEast = level.GetBlock(under.Coordinates.BlockSouthEast()) as Farmland;
+				var northWest = level.GetBlock(under.Coordinates.BlockNorthWest()) as Farmland;
+				var northEast = level.GetBlock(under.Coordinates.BlockNorthEast()) as Farmland;
 
-			// If any plants of the same type are growing in the eight surrounding blocks, the point total is cut in half unless the crops are arranged in rows.
-			// TODO: Check rows .. muuhhhuu
-			bool cutHalf = false;
-			cutHalf |= west.GetType() == target.GetType();
-			cutHalf |= east.GetType() == target.GetType();
-			cutHalf |= south.GetType() == target.GetType();
-			cutHalf |= north.GetType() == target.GetType();
-			cutHalf |= northEast.GetType() == target.GetType();
-			cutHalf |= northWest.GetType() == target.GetType();
-			cutHalf |= southEast.GetType() == target.GetType();
-			cutHalf |= southWest.GetType() == target.GetType();
-			points /= cutHalf ? 2 : 1;
+				// For each of the 8 blocks around the block in which the crop is planted, dry farmland gives 0.25 points, and hydrated farmland gives 0.75
+				points += west != null ? west.MoisturizedAmount == 0 ? 0.25 : 0.75 : 0;
+				points += east != null ? east.MoisturizedAmount == 0 ? 0.25 : 0.75 : 0;
+				points += south != null ? south.MoisturizedAmount == 0 ? 0.25 : 0.75 : 0;
+				points += north != null ? north.MoisturizedAmount == 0 ? 0.25 : 0.75 : 0;
+				points += northWest != null ? northWest.MoisturizedAmount == 0 ? 0.25 : 0.75 : 0;
+				points += northEast != null ? northEast.MoisturizedAmount == 0 ? 0.25 : 0.75 : 0;
+				points += southWest != null ? southWest.MoisturizedAmount == 0 ? 0.25 : 0.75 : 0;
+				points += southEast != null ? southEast.MoisturizedAmount == 0 ? 0.25 : 0.75 : 0;
+			}
+
+			{
+				// If any plants of the same type are growing in the eight surrounding blocks, the point total is cut in half unless the crops are arranged in rows.
+				// TODO: Check rows .. muuhhhuu
+
+				var west = level.GetBlock(target.Coordinates.BlockWest()) as Crops;
+				var east = level.GetBlock(target.Coordinates.BlockEast()) as Crops;
+				var south = level.GetBlock(target.Coordinates.BlockNorth()) as Crops;
+				var north = level.GetBlock(target.Coordinates.BlockSouth()) as Crops;
+				var southWest = level.GetBlock(target.Coordinates.BlockSouthWest()) as Crops;
+				var southEast = level.GetBlock(target.Coordinates.BlockSouthEast()) as Crops;
+				var northWest = level.GetBlock(target.Coordinates.BlockNorthWest()) as Crops;
+				var northEast = level.GetBlock(target.Coordinates.BlockNorthEast()) as Crops;
+
+				bool cutHalf = false;
+				cutHalf |= west != null && west.GetType() == target.GetType();
+				cutHalf |= east != null && east.GetType() == target.GetType();
+				cutHalf |= south != null && south.GetType() == target.GetType();
+				cutHalf |= north != null && north.GetType() == target.GetType();
+				cutHalf |= northEast != null && northEast.GetType() == target.GetType();
+				cutHalf |= northWest != null && northWest.GetType() == target.GetType();
+				cutHalf |= southEast != null && southEast.GetType() == target.GetType();
+				cutHalf |= southWest != null && southWest.GetType() == target.GetType();
+				points /= cutHalf ? 2 : 1;
+			}
 
 			//1 / (floor(25 / points) + 1)
 

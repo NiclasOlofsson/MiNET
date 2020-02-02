@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			var rnd = new Random((int) DateTime.UtcNow.Ticks);
+			var rnd = new Random();
 			return new[] {ItemFactory.GetItem(348, 0, (byte) (2 + rnd.Next(2)))};
 		}
 	}

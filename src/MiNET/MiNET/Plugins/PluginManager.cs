@@ -496,6 +496,8 @@ namespace MiNET.Plugins
 				value = "target";
 			else if (parameter.ParameterType == typeof(BlockPos))
 				value = "blockpos";
+			else if (parameter.ParameterType == typeof(EntityPos))
+				value = "entitypos";
 			else if (parameter.ParameterType.IsEnum)
 				value = "stringenum";
 			else if (parameter.ParameterType.BaseType == typeof(EnumBase))
@@ -830,7 +832,7 @@ namespace MiNET.Plugins
 					{
 						if (args.Length < i + 3) return false;
 
-						BlockPos blockPos = new BlockPos();
+						var blockPos = new BlockPos();
 
 						string val = args[i++];
 						if (val.StartsWith("~"))
@@ -860,6 +862,46 @@ namespace MiNET.Plugins
 						}
 
 						int.TryParse(val, out var z);
+						blockPos.Z = z;
+
+						objectArgs[k] = blockPos;
+						continue;
+					}
+
+					if (parameter.ParameterType == typeof(EntityPos))
+					{
+						if (args.Length < i + 3) return false;
+
+						var blockPos = new EntityPos();
+
+						string val = args[i++];
+						if (val.StartsWith("~"))
+						{
+							val = val.Substring(1);
+							blockPos.XRelative = true;
+						}
+
+						float.TryParse(val, out var x);
+						blockPos.X = x;
+
+						val = args[i++];
+						if (val.StartsWith("~"))
+						{
+							val = val.Substring(1);
+							blockPos.YRelative = true;
+						}
+
+						float.TryParse(val, out var y);
+						blockPos.Y = y;
+
+						val = args[i++];
+						if (val.StartsWith("~"))
+						{
+							val = val.Substring(1);
+							blockPos.ZRelative = true;
+						}
+
+						float.TryParse(val, out var z);
 						blockPos.Z = z;
 
 						objectArgs[k] = blockPos;

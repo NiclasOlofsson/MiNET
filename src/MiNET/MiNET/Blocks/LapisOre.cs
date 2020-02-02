@@ -41,7 +41,7 @@ namespace MiNET.Blocks
 			if (tool.ItemMaterial < ItemMaterial.Stone) return new Item[0];
 
 			// Random between 4-8
-			var rnd = new Random((int) DateTime.UtcNow.Ticks);
+			var rnd = new Random();
 			var plus = rnd.Next(4);
 			return new[] {ItemFactory.GetItem(351, 4, (byte) (4 + plus))};
 		}

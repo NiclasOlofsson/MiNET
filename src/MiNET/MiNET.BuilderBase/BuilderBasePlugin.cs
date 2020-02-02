@@ -64,9 +64,9 @@ namespace MiNET.BuilderBase
 				Player player = kvp.Key;
 				RegionSelector selector = kvp.Value;
 
-				if (!(player.Inventory.GetItemInHand() is DistanceWand wand)) continue;
+				//if (!(player.Inventory.GetItemInHand() is DistanceWand wand)) continue;
 
-				selector.DisplaySelection();
+				selector.DisplaySelection(forceHide: !(player.Inventory.GetItemInHand() is DistanceWand wand));
 			}
 		}
 

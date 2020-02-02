@@ -103,7 +103,7 @@ namespace MiNET.BlockEntities
 		{
 			if (Inventory == null) return;
 
-			Furnace furnace = level.GetBlock(Coordinates) as Furnace;
+			var furnace = level.GetBlock(Coordinates) as FurnaceBase;
 			if (furnace == null) return;
 
 			if (!(furnace is LitFurnace))
@@ -117,9 +117,8 @@ namespace MiNET.BlockEntities
 					LitFurnace litFurnace = new LitFurnace
 					{
 						Coordinates = furnace.Coordinates,
-						Metadata = furnace.Metadata
 					};
-
+					litFurnace.SetState(furnace.GetState().States);
 					level.SetBlock(litFurnace);
 					furnace = litFurnace;
 
@@ -173,12 +172,11 @@ namespace MiNET.BlockEntities
 					else
 					{
 						// No more fule or nothin more to smelt.
-						Furnace unlitFurnace = new Furnace
+						var unlitFurnace = new Furnace
 						{
 							Coordinates = furnace.Coordinates,
-							Metadata = furnace.Metadata
 						};
-
+						unlitFurnace.SetState(furnace.GetState().States);
 						level.SetBlock(unlitFurnace);
 						FuelEfficiency = 0;
 						BurnTick = 0;

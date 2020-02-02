@@ -22,6 +22,7 @@
 	<PropertyGroup>
 	  <LangVersion>latest</LangVersion>
 	  <NoWarn>1701;1702;1701</NoWarn>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>

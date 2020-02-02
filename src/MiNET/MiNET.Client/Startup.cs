@@ -31,6 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using log4net.Config;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Client
@@ -79,10 +80,25 @@ namespace MiNET.Client
 
 			Task.Run(BotHelpers.DoWaitForSpawn(client))
 				.ContinueWith(t => doSendCommand(t, $"/me says \"I spawned at {client.CurrentLocation}\""))
+				//.ContinueWith(task =>
+				//{
+				//	var request = new McpeCommandRequest();
+				//	request.command = "/setblock ~ ~-1 ~ log 0 replace";
+				//	request.unknownUuid = new UUID(Guid.NewGuid().ToString());
+				//	client.SendPacket(request);
+
+				//	var coord =  (BlockCoordinates) client.CurrentLocation;
+				//	var pick = McpeBlockPickRequest.CreateObject();
+				//	pick.x = coord.X;
+				//	pick.y = coord.Y;
+				//	pick.z = coord.Z;
+				//	client.SendPacket(request);
+				//})
+
 				//.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Cobblestone(), 0) {Count = 64}, 0))
 				//.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
-				.ContinueWith(t => doMoveTo(t, new PlayerLocation(0, 5.62, 0, 180 + 45, 180 + 45, 180)))
+				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(0, 5.62, 0, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(0, 5.62, 0, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))

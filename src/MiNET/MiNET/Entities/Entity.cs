@@ -646,6 +646,20 @@ namespace MiNET.Entities
 			return DirectionByRotationFlat(KnownPosition.Yaw);
 		}
 
+		public enum Direction
+		{
+			South = 0,
+			West = 1,
+			North = 2,
+			East = 3,
+		}
+
+		public Direction GetDirectionEmum()
+		{
+			return (Direction) DirectionByRotationFlat(KnownPosition.Yaw);
+		}
+
+
 		public static byte DirectionByRotationFlat(float yaw)
 		{
 			byte direction = (byte) ((int) Math.Floor((yaw * 4F) / 360F + 0.5D) & 0x03);

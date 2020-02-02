@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -57,7 +57,7 @@ namespace MiNET.BuilderBase.Tools
 				{
 					new NbtCompound("display")
 					{
-						new NbtString("Name", ChatFormatting.Reset + ChatColors.Blue + $"Teleport tool"),
+						new NbtString("Name", ChatFormatting.Reset + ChatColors.Yellow + $"Teleport tool"),
 						new NbtList("Lore")
 						{
 							new NbtString(ChatFormatting.Reset + ChatFormatting.Italic + ChatColors.White + $"Left click to teleport."),

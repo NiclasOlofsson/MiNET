@@ -1,4 +1,4 @@
-using MiNET.Utils;
+﻿using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Masks
@@ -10,6 +10,7 @@ namespace MiNET.BuilderBase.Masks
 		public NotAirBlocksMask(Level level)
 		{
 			_level = level;
+			OriginalMask = "Not air";
 		}
 
 		public override bool Test(BlockCoordinates coordinates)
@@ -25,6 +26,7 @@ namespace MiNET.BuilderBase.Masks
 		public AirBlocksMask(Level level)
 		{
 			_level = level;
+			OriginalMask = "Air";
 		}
 
 		public override bool Test(BlockCoordinates coordinates)

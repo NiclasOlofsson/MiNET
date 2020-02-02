@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			var rnd = new Random((int) DateTime.UtcNow.Ticks);
+			var rnd = new Random();
 			if (rnd.Next(2) > 0) // Note that random.Next EXCLUDES the parameter so this is 50/50
 			{
 				return new Item[] {ItemFactory.GetItem(432, 0, 1)}; // Chorus Fruit

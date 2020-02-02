@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2019 Niclas Olofsson.
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -37,7 +38,6 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
-using Newtonsoft.Json.Linq;
 
 namespace MiNET.Test
 {
@@ -62,14 +62,8 @@ namespace MiNET.Test
 		[TestMethod]
 		public void EncodePalettedChunk()
 		{
-			//PaletteChunk chunk = new PaletteChunk();
-			//chunk.GetBytes()
-
-			uint waste = BlockFactory.GetRuntimeId(0, 0);
-			int[] legacyToRuntimeId = BlockFactory.LegacyToRuntimeId;
-
-			short[] blocks = new short[4096];
-			Random random = new Random();
+			var blocks = new short[4096];
+			var random = new Random();
 			for (int i = 0; i < blocks.Length; i++)
 			{
 				blocks[i] = (short) random.Next(8);
@@ -86,7 +80,7 @@ namespace MiNET.Test
 			//blocks[9] = 0b011;
 			//blocks[10] = 0b100;
 			//blocks[11] = 0b101;
-			byte[] metas = new byte[4096];
+			var metas = new byte[4096];
 
 			int count = 10_000;
 			var sw = Stopwatch.StartNew();
@@ -195,7 +189,6 @@ namespace MiNET.Test
 		[TestMethod]
 		public void StateShiftTest()
 		{
-
 			int position = 0;
 			int blocksPerWord = 8;
 			int bitsPerBlock = 4;
@@ -219,12 +212,11 @@ namespace MiNET.Test
 			{
 				if (position >= 4096)
 					continue;
-				
+
 				uint state = (uint) ((word >> ((position % blocksPerWord) * bitsPerBlock)) & ((1 << bitsPerBlock) - 1));
 				Assert.AreEqual(idx++, state);
 				position++;
 			}
-
 		}
 
 
@@ -343,29 +335,69 @@ namespace MiNET.Test
 		[TestMethod]
 		public void ArrayFillPerformanceTests()
 		{
-			byte[] array = new byte[1000000000];
-			byte b = array[array.Length - 1];
+			byte[] array = new byte[4096];
 
-			var sw = Stopwatch.StartNew();
 			ChunkColumn.Fill<byte>(array, 0xff);
+			var sw = Stopwatch.StartNew();
+			int iterations = 100000;
+			for (int i = 0; i < iterations; i++)
+			{
+				ChunkColumn.Fill<byte>(array, 0xff);
+			}
 			Console.WriteLine($"My fill {sw.ElapsedMilliseconds}ms");
 
-			sw.Restart();
 			Array.Fill<byte>(array, 0xff);
+			sw.Restart();
+			for (int i = 0; i < iterations; i++)
+			{
+				Array.Fill<byte>(array, 0xff);
+			}
 			Console.WriteLine($"Core fill {sw.ElapsedMilliseconds}ms");
+
+			Array.Clear(array, 0, array.Length);
+			sw.Restart();
+			for (int i = 0; i < iterations; i++)
+			{
+				Array.Clear(array, 0, array.Length);
+			}
+			Console.WriteLine($"Core clear {sw.ElapsedMilliseconds}ms");
 		}
 
 		[TestMethod]
 		public void GenerateClassesForBlocks()
 		{
-			BlockPallet pallet = null;
+			BlockPalette palette = null;
 
 			var assembly = Assembly.GetAssembly(typeof(Block));
 			using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
 			using (var reader = new StreamReader(stream))
 			{
-				pallet = BlockPallet.FromJson(reader.ReadToEnd());
+				palette = BlockPalette.FromJson(reader.ReadToEnd());
 			}
+			//Assert.AreEqual(3045, palette.Count);
+			BlockStateContainer stateContainer = palette.First(b => b.Id == 6 && b.Data == 10);
+			Assert.AreEqual(2, stateContainer.States.Count);
+
+			foreach (IBlockState recordState in stateContainer.States)
+			{
+				switch (recordState)
+				{
+					case BlockStateByte blockStateByte:
+						Assert.AreEqual("age_bit", blockStateByte.Name);
+						Assert.AreEqual(1, blockStateByte.Value);
+						break;
+					case BlockStateInt blockStateInt:
+						Assert.AreEqual(0, blockStateInt.Value);
+						break;
+					case BlockStateString blockStateString:
+						Assert.AreEqual("sapling_type", blockStateString.Name);
+						Assert.AreEqual("birch", blockStateString.Value);
+						break;
+					default:
+						throw new ArgumentOutOfRangeException(nameof(recordState));
+				}
+			}
+
 
 			List<(int, string)> blocks = new List<(int, string)>();
 
@@ -381,7 +413,7 @@ namespace MiNET.Test
 				writer.Indent++;
 
 
-				foreach (IGrouping<string, BlockRecord> blockstate in pallet.OrderBy(r => r.Name).ThenBy(r => r.Data).GroupBy(r => r.Name))
+				foreach (IGrouping<string, BlockStateContainer> blockstate in palette.OrderBy(r => r.Name).ThenBy(r => r.Data).GroupBy(r => r.Name))
 				{
 					var enumerator = blockstate.GetEnumerator();
 					enumerator.MoveNext();
@@ -460,6 +492,61 @@ namespace MiNET.Test
 
 			result = result.Replace(@"[]", "s");
 			return result;
+		}
+
+		[TestMethod]
+		public void McpeMoveEntityDelta_encode_decode_tests()
+		{
+			var packet = new McpeMoveEntityDelta();
+			packet.runtimeEntityId = 0x0102030405;
+			packet.flags = 0;
+			var prev = new PlayerLocation(new Vector3(0, 0, 0), 0, 0, 0);
+			packet.prevSentPosition = prev;
+			var current = new PlayerLocation(new Vector3(1, 2, 3), 41, 49, 60);
+			packet.currentPosition = current;
+			packet.isOnGround = true;
+
+			var bytes = packet.Encode();
+
+			packet = new McpeMoveEntityDelta();
+			packet.prevSentPosition = prev;
+			packet.Decode(bytes.AsSpan(1, bytes.Length - 1).ToArray());
+
+			Assert.AreEqual(packet.runtimeEntityId, 0x0102030405);
+
+			Assert.AreEqual(packet.flags & McpeMoveEntityDelta.HasX, McpeMoveEntityDelta.HasX);
+			Assert.AreEqual(packet.flags & McpeMoveEntityDelta.HasY, McpeMoveEntityDelta.HasY);
+			Assert.AreEqual(packet.flags & McpeMoveEntityDelta.HasZ, McpeMoveEntityDelta.HasZ);
+
+			Assert.AreEqual(packet.flags & McpeMoveEntityDelta.HasRotX, McpeMoveEntityDelta.HasRotX);
+			Assert.AreEqual(packet.flags & McpeMoveEntityDelta.HasRotY, McpeMoveEntityDelta.HasRotY);
+			Assert.AreEqual(packet.flags & McpeMoveEntityDelta.HasRotZ, McpeMoveEntityDelta.HasRotZ);
+
+			Assert.AreEqual(packet.flags & McpeMoveEntityDelta.OnGround, McpeMoveEntityDelta.OnGround);
+
+			Assert.AreEqual(new Vector3(1, 2, 3), packet.GetCurrentPosition(prev).ToVector3());
+		}
+
+		[TestMethod]
+		public void DetlaConversionTest()
+		{
+			//int intValue = BitConverter.ToInt32(BitConverter.GetBytes(3f), 0);
+			int intValue = BitConverter.SingleToInt32Bits(3f);
+			Assert.AreEqual(0x40400000, intValue);
+			float singleValue = BitConverter.Int32BitsToSingle(intValue);
+			Assert.AreEqual(3f, singleValue);
+
+
+			float prev = 10.0f;
+			float currentPos = 13.0f;
+
+			int intResult = BitConverter.SingleToInt32Bits(currentPos) - BitConverter.SingleToInt32Bits(prev);
+
+			Assert.AreEqual(0x300000, intResult);
+
+			float converted = BitConverter.Int32BitsToSingle(BitConverter.SingleToInt32Bits(prev) + intResult);
+
+			Assert.AreEqual(13f, converted);
 		}
 	}
 }

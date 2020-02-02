@@ -1,23 +1,47 @@
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
+using fNbt;
 using log4net;
+using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.BuilderBase.Commands;
 using MiNET.Net;
-using MiNET.Particles;
 using MiNET.Utils;
-using MiNET.Worlds;
 
 namespace MiNET.BuilderBase
 {
 	public class RegionSelector
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (RegionSelector));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(RegionSelector));
 
 		public static ConcurrentDictionary<Player, RegionSelector> RegionSelectors = new ConcurrentDictionary<Player, RegionSelector>();
 
@@ -45,7 +69,7 @@ namespace MiNET.BuilderBase
 
 		public BoundingBox GetSelection()
 		{
-			BoundingBox bbox = new BoundingBox(Position1, Position2);
+			var bbox = new BoundingBox(Position1, Position2);
 			return bbox;
 		}
 
@@ -161,126 +185,115 @@ namespace MiNET.BuilderBase
 
 		private object _sync = new object();
 
-		public void DisplaySelection(bool force = false, int particleId = 10)
+		private BoundingBox _currentDisplayedSelection = new BoundingBox();
+		private StructureBlock _structureBlock;
+		private StructureBlockBlockEntity _structureBlockBlockEntity;
+
+		public void DisplaySelection(bool forceDisplay = false, bool forceHide = false)
 		{
-			if (!force && !ShowSelection) return; // don't render at all
+			if (!forceDisplay && _structureBlockBlockEntity != null && (forceHide || _structureBlockBlockEntity.ShowBoundingBox != ShowSelection))
+			{
+				_structureBlockBlockEntity.ShowBoundingBox = !forceHide && ShowSelection;
 
-			if (force && ShowSelection) return; // Will be rendered on regular tick instead
+				var nbt = new Nbt
+				{
+					NbtFile = new NbtFile
+					{
+						BigEndian = false,
+						UseVarInt = true,
+						RootTag = _structureBlockBlockEntity.GetCompound()
+					}
+				};
 
-			Level level = Player.Level;
+				var entityData = McpeBlockEntityData.CreateObject();
+				entityData.namedtag = nbt;
+				entityData.coordinates = _structureBlockBlockEntity.Coordinates;
+				Player.SendPacket(entityData);
+			}
+
+			if (forceHide) return;
+
+			if (!forceDisplay && !ShowSelection) return; // don't render at all
+
+			if (forceDisplay && ShowSelection) return; // Will be rendered on regular tick instead
 
 			if (!Monitor.TryEnter(_sync)) return;
 
 			try
 			{
-				BoundingBox box = GetSelection();
+				BoundingBox box = GetSelection().GetAdjustedBoundingBox();
+				if (!forceDisplay && box == _currentDisplayedSelection) return;
+				_currentDisplayedSelection = box;
 
-				var numberOfParticles = box.Height*box.Width*2 + box.Height*box.Depth*2;
+				int minX = (int) Math.Min(box.Min.X, box.Max.X);
+				int maxX = (int) (Math.Max(box.Min.X, box.Max.X) + 1);
 
-				bool isBig = numberOfParticles > 500;
+				int minY = (int) Math.Max(0, Math.Min(box.Min.Y, box.Max.Y));
+				int maxY = (int) (Math.Min(255, Math.Max(box.Min.Y, box.Max.Y)) + 1);
 
-				List<McpeLevelEvent> packets = new List<McpeLevelEvent>();
+				int minZ = (int) Math.Min(box.Min.Z, box.Max.Z);
+				int maxZ = (int) (Math.Max(box.Min.Z, box.Max.Z) + 1);
 
+				int width = maxX - minX;
+				int height = maxY - minY;
+				int depth = maxZ - minZ;
+
+				if (_structureBlock != null)
 				{
-					//if ((Math.Abs(box.Width) > 0) || (Math.Abs(box.Height) > 0) || (Math.Abs(box.Depth) > 0))
 					{
-						var minX = Math.Min(box.Min.X, box.Max.X);
-						var maxX = Math.Max(box.Min.X, box.Max.X) + 1;
-
-						var minY = Math.Max(0, Math.Min(box.Min.Y, box.Max.Y));
-						var maxY = Math.Min(255, Math.Max(box.Min.Y, box.Max.Y)) + 1;
-
-						var minZ = Math.Min(box.Min.Z, box.Max.Z);
-						var maxZ = Math.Max(box.Min.Z, box.Max.Z) + 1;
-
-						// x/y
-						for (float x = minX; x <= maxX; x++)
-						{
-							for (float y = minY; y <= maxY; y++)
-							{
-								foreach (var z in new float[] {minZ, maxZ})
-								{
-									if (isBig)
-									{
-										if (x != minX && x != maxX && y != minY && y != maxY) continue;
-									}
-
-									if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
-
-									//var particle = new LegacyParticle(particleId, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
-									//var particle = new LegacyParticle(particleId, Player.Level) { Position = new Vector3(x, y, z) };
-									//particle.Spawn(new[] { Player });
-
-									McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
-									particleEvent.eventId = (short)(0x4000 | 10);
-									particleEvent.position = new Vector3(x, y, z);
-									particleEvent.data = 0;
-									packets.Add(particleEvent);
-								}
-							}
-						}
-
-						// x/z
-						//for (float x = minX; x <= maxX; x++)
-						//{
-						//	foreach (var y in new float[] {minY, maxY})
-						//	{
-						//		for (float z = minZ; z <= maxZ; z++)
-						//		{
-						//			if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
-
-						//			//var particle = new LegacyParticle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
-						//			var particle = new LegacyParticle(10, Player.Level) {Position = new Vector3(x, y, z)};
-						//			particle.Spawn(new[] {Player});
-						//		}
-						//	}
-						//}
-
-						// z/y
-						foreach (var x in new float[] {minX, maxX})
-						{
-							for (float y = minY; y <= maxY; y++)
-							{
-								for (float z = minZ; z <= maxZ; z++)
-								{
-									if (isBig)
-									{
-										if (z != minZ && z != maxZ && y != minY && y != maxY) continue;
-									}
-
-									if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
-
-									//var particle = new LegacyParticle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
-									//var particle = new LegacyParticle(10, Player.Level) { Position = new Vector3(x, y, z) };
-									//particle.Spawn(new[] { Player });
-
-									McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
-									particleEvent.eventId = (short)(0x4000 | 10);
-									particleEvent.position = new Vector3(x, y, z);
-									particleEvent.data = 0;
-									packets.Add(particleEvent);
-								}
-							}
-						}
+						var block = Player.Level.GetBlock(_structureBlock.Coordinates);
+						var updateBlock = McpeUpdateBlock.CreateObject();
+						updateBlock.blockRuntimeId = (uint) block.GetRuntimeId();
+						updateBlock.coordinates = _structureBlock.Coordinates;
+						updateBlock.blockPriority = 0xb;
+						Player.SendPacket(updateBlock);
 					}
 
-					if (packets.Count > 500)
-					{
-						if (force) Log.Warn($"Selection size is {numberOfParticles}. Number of particles is {packets.Count} ");
-
-						return; // too many particles
-					}
-
-
-					if (packets.Count > 0)
-					{
-						var packet = BatchUtils.CreateBatchPacket(CompressionLevel.Optimal, packets.ToArray());
-						Player.SendPacket(packet);
-						//level.RelayBroadcast(new[] { Player }, packet);
-					}
+					_structureBlock = null;
+					_structureBlockBlockEntity = null;
 				}
 
+				_structureBlock = new StructureBlock
+				{
+					StructureBlockType = "save",
+					Coordinates = new BlockCoordinates(minX, 255, minZ),
+				};
 
+				{
+					var updateBlock = McpeUpdateBlock.CreateObject();
+					updateBlock.blockRuntimeId = (uint) _structureBlock.GetRuntimeId();
+					updateBlock.coordinates = _structureBlock.Coordinates;
+					updateBlock.blockPriority = 0xb;
+					Player.SendPacket(updateBlock);
+				}
+
+				_structureBlockBlockEntity = new StructureBlockBlockEntity
+				{
+					ShowBoundingBox = true,
+					Coordinates = _structureBlock.Coordinates,
+					Offset = new BlockCoordinates(0, minY - _structureBlock.Coordinates.Y, 0),
+					Size = new BlockCoordinates(width, height, depth)
+				};
+
+				{
+					Log.Debug($"Structure:\n{box}\n{_structureBlockBlockEntity.GetCompound()}");
+					var nbt = new Nbt
+					{
+						NbtFile = new NbtFile
+						{
+							BigEndian = false,
+							UseVarInt = true,
+							RootTag = _structureBlockBlockEntity.GetCompound()
+						}
+					};
+
+					var entityData = McpeBlockEntityData.CreateObject();
+					entityData.namedtag = nbt;
+					entityData.coordinates = _structureBlockBlockEntity.Coordinates;
+					Player.SendPacket(entityData);
+				}
+
+				return;
 			}
 			catch (Exception e)
 			{
@@ -306,7 +319,7 @@ namespace MiNET.BuilderBase
 		{
 			Vector3 max = GetMax();
 			Vector3 min = GetMin();
-			return min + ((max - min)/2f);
+			return min + ((max - min) / 2f);
 		}
 	}
 }

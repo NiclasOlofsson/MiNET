@@ -44,21 +44,21 @@ namespace MiNET.Blocks
 		{
 			byte direction = player.GetDirection();
 
-			switch (direction)
-			{
-				case 1:
-					Metadata = 2;
-					break; // West
-				case 2:
-					Metadata = 5;
-					break; // North
-				case 3:
-					Metadata = 3;
-					break; // East
-				case 0:
-					Metadata = 4;
-					break; // South 
-			}
+			//switch (direction)
+			//{
+			//	case 1:
+			//		Metadata = 2;
+			//		break; // West
+			//	case 2:
+			//		Metadata = 5;
+			//		break; // North
+			//	case 3:
+			//		Metadata = 3;
+			//		break; // East
+			//	case 0:
+			//		Metadata = 4;
+			//		break; // South 
+			//}
 
 			EnchantingTableBlockEntity tableBlockEntity = new EnchantingTableBlockEntity
 			{

@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -101,29 +101,9 @@ namespace TestPlugin.NiceLobby
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			byte direction = player.GetDirection();
+			FacingDirection = (int) face;
 
-			switch (face)
-			{
-				case BlockFace.East: // ok
-					Metadata = 0;
-					break;
-				case BlockFace.West:
-					Metadata = 1;
-					break;
-				case BlockFace.South:
-					Metadata = 2;
-					break;
-				case BlockFace.North: // ok
-					Metadata = 3;
-					break;
-			}
-
-			Log.Warn($"Direction={direction}, face={face}, metadata={Metadata}");
-
-			world.SetBlock(this);
-
-			return true;
+			return false;
 		}
 
 		private int _frame = 0;

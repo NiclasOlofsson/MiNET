@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -38,7 +38,7 @@ namespace MiNET.Entities.Hostile
 		{
 			Width = Length = 1.4;
 			Height = 1.6;
-			var random = new Random((int) DateTime.UtcNow.Ticks);
+			var random = new Random();
 			Variant = random.Next(7);
 		}
 

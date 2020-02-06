@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2019 Niclas Olofsson.
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -29,8 +29,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using log4net;
 using MiNET.Utils;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace MiNET.Blocks
 {
@@ -48,11 +46,10 @@ namespace MiNET.Blocks
 		public static readonly byte[] TransparentBlocks = new byte[500];
 		public static readonly byte[] LuminousBlocks = new byte[500];
 		public static Dictionary<string, int> NameToId { get; private set; }
-		public static BlockPallet BlockPallet { get; set; } = new BlockPallet();
+		public static BlockPalette BlockPalette { get; set; } = null;
+		public static HashSet<BlockStateContainer> BlockStates { get; set; } = null;
 
 		public static int[] LegacyToRuntimeId = new int[65536];
-
-		//public static Dictionary<(int, int), int> BlockStates = new Dictionary<(int, int), int>();
 
 		static BlockFactory()
 		{
@@ -81,18 +78,26 @@ namespace MiNET.Blocks
 
 			var assembly = Assembly.GetAssembly(typeof(Block));
 
-			using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
-			using (var reader = new StreamReader(stream))
+			lock (lockObj)
 			{
-				BlockPallet = BlockPallet.FromJson(reader.ReadToEnd());
+				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
+				using (var reader = new StreamReader(stream))
+				{
+					BlockPalette = BlockPalette.FromJson(reader.ReadToEnd());
+				}
 			}
-			int palletSize = BlockPallet.Count;
+			int palletSize = BlockPalette.Count;
 			for (int i = 0; i < palletSize; i++)
 			{
-				if (BlockPallet[i].Data > 15) continue; // TODO: figure out why pallet contains blocks with meta more than 15
-				LegacyToRuntimeId[(BlockPallet[i].Id << 4) | (byte) BlockPallet[i].Data] = i;
+				if (BlockPalette[i].Data > 15) continue; // TODO: figure out why palette contains blocks with meta more than 15
+				if (BlockPalette[i].Data == -1) continue; // These are blockstates that does not have a metadata mapping
+				LegacyToRuntimeId[(BlockPalette[i].Id << 4) | (byte) BlockPalette[i].Data] = i;
 			}
+
+			BlockStates = new HashSet<BlockStateContainer>(BlockPalette);
 		}
+
+		private static object lockObj = new object();
 
 		private static Dictionary<string, int> BuildNameToId()
 		{
@@ -180,17 +185,18 @@ namespace MiNET.Blocks
 			else if (blockId == 22) block = new LapisBlock();
 			else if (blockId == 23) block = new Dispenser();
 			else if (blockId == 24) block = new Sandstone();
-			else if (blockId == 25) block = new NoteBlock();
+			else if (blockId == 25) block = new Noteblock();
 			else if (blockId == 26) block = new Bed();
 			else if (blockId == 27) block = new GoldenRail();
 			else if (blockId == 28) block = new DetectorRail();
 			else if (blockId == 29) block = new StickyPiston();
 			else if (blockId == 30) block = new Web();
-			else if (blockId == 31) block = new TallGrass();
-			else if (blockId == 32) block = new DeadBush();
+			else if (blockId == 31) block = new Tallgrass();
+			else if (blockId == 32) block = new Deadbush();
 			else if (blockId == 33) block = new Piston();
 			else if (blockId == 34) block = new PistonArmCollision();
 			else if (blockId == 35) block = new Wool();
+			else if (blockId == 36) block = new Element0();
 			else if (blockId == 37) block = new YellowFlower();
 			else if (blockId == 38) block = new RedFlower();
 			else if (blockId == 39) block = new BrownMushroom();
@@ -209,7 +215,6 @@ namespace MiNET.Blocks
 			else if (blockId == 52) block = new MobSpawner();
 			else if (blockId == 53) block = new OakStairs();
 			else if (blockId == 54) block = new Chest();
-
 			else if (blockId == 55) block = new RedstoneWire();
 			else if (blockId == 56) block = new DiamondOre();
 			else if (blockId == 57) block = new DiamondBlock();
@@ -253,7 +258,7 @@ namespace MiNET.Blocks
 			else if (blockId == 95) block = new InvisibleBedrock();
 			else if (blockId == 96) block = new Trapdoor();
 			else if (blockId == 97) block = new MonsterEgg();
-			else if (blockId == 98) block = new StoneBrick();
+			else if (blockId == 98) block = new Stonebrick();
 			else if (blockId == 99) block = new BrownMushroomBlock();
 			else if (blockId == 100) block = new RedMushroomBlock();
 			else if (blockId == 101) block = new IronBars();
@@ -265,7 +270,6 @@ namespace MiNET.Blocks
 			else if (blockId == 107) block = new FenceGate();
 			else if (blockId == 108) block = new BrickStairs();
 			else if (blockId == 109) block = new StoneBrickStairs();
-
 			else if (blockId == 110) block = new Mycelium();
 			else if (blockId == 111) block = new Waterlily();
 			else if (blockId == 112) block = new NetherBrick();
@@ -284,15 +288,16 @@ namespace MiNET.Blocks
 			else if (blockId == 125) block = new Dropper();
 			else if (blockId == 126) block = new ActivatorRail();
 			else if (blockId == 127) block = new Cocoa();
-			else if (blockId == 128) block = new SandStoneStairs();
+			else if (blockId == 128) block = new SandstoneStairs();
 			else if (blockId == 129) block = new EmeraldOre();
 			else if (blockId == 130) block = new EnderChest();
 			else if (blockId == 131) block = new TripwireHook();
-			else if (blockId == 132) block = new Tripwire();
+			else if (blockId == 132) block = new TripWire();
 			else if (blockId == 133) block = new EmeraldBlock();
 			else if (blockId == 134) block = new SpruceStairs();
 			else if (blockId == 135) block = new BirchStairs();
 			else if (blockId == 136) block = new JungleStairs();
+			else if (blockId == 137) block = new CommandBlock();
 			else if (blockId == 138) block = new Beacon();
 			else if (blockId == 139) block = new CobblestoneWall();
 			else if (blockId == 140) block = new FlowerPot();
@@ -320,7 +325,6 @@ namespace MiNET.Blocks
 			else if (blockId == 162) block = new Log2();
 			else if (blockId == 163) block = new AcaciaStairs();
 			else if (blockId == 164) block = new DarkOakStairs();
-
 			else if (blockId == 165) block = new Slime();
 			else if (blockId == 167) block = new IronTrapdoor();
 			else if (blockId == 168) block = new Prismarine();
@@ -343,6 +347,11 @@ namespace MiNET.Blocks
 			else if (blockId == 185) block = new JungleFenceGate();
 			else if (blockId == 186) block = new DarkOakFenceGate();
 			else if (blockId == 187) block = new AcaciaFenceGate();
+			else if (blockId == 188) block = new RepeatingCommandBlock();
+			else if (blockId == 189) block = new ChainCommandBlock();
+			else if (blockId == 190) block = new HardGlassPane();
+			else if (blockId == 191) block = new HardStainedGlassPane();
+			else if (blockId == 192) block = new ChemicalHeat();
 			else if (blockId == 193) block = new SpruceDoor();
 			else if (blockId == 194) block = new BirchDoor();
 			else if (blockId == 195) block = new JungleDoor();
@@ -352,15 +361,19 @@ namespace MiNET.Blocks
 			else if (blockId == 199) block = new Frame();
 			else if (blockId == 200) block = new ChorusFlower();
 			else if (blockId == 201) block = new PurpurBlock();
+			else if (blockId == 202) block = new ColoredTorchRg();
 			else if (blockId == 203) block = new PurpurStairs();
+			else if (blockId == 204) block = new ColoredTorchBp();
 			else if (blockId == 205) block = new UndyedShulkerBox();
 			else if (blockId == 206) block = new EndBricks();
 			else if (blockId == 207) block = new FrostedIce();
 			else if (blockId == 208) block = new EndRod();
 			else if (blockId == 209) block = new EndGateway();
-			else if (blockId == 210) block = new Allow();
-			else if (blockId == 211) block = new Deny();
-			else if (blockId == 212) block = new Border();
+			else if (blockId == 213) block = new Magma();
+			else if (blockId == 214) block = new NetherWartBlock();
+			else if (blockId == 215) block = new RedNetherBrick();
+			else if (blockId == 216) block = new BoneBlock();
+			else if (blockId == 217) block = new StructureVoid();
 			else if (blockId == 218) block = new ShulkerBox();
 			else if (blockId == 219) block = new PurpleGlazedTerracotta();
 			else if (blockId == 220) block = new WhiteGlazedTerracotta();
@@ -373,7 +386,6 @@ namespace MiNET.Blocks
 			else if (blockId == 227) block = new GrayGlazedTerracotta();
 			else if (blockId == 228) block = new SilverGlazedTerracotta();
 			else if (blockId == 229) block = new CyanGlazedTerracotta();
-			else if (blockId == 230) block = new Chalkboard();
 			else if (blockId == 231) block = new BlueGlazedTerracotta();
 			else if (blockId == 232) block = new BrownGlazedTerracotta();
 			else if (blockId == 233) block = new GreenGlazedTerracotta();
@@ -381,39 +393,27 @@ namespace MiNET.Blocks
 			else if (blockId == 235) block = new BlackGlazedTerracotta();
 			else if (blockId == 236) block = new Concrete();
 			else if (blockId == 237) block = new ConcretePowder();
+			else if (blockId == 238) block = new ChemistryTable();
+			else if (blockId == 239) block = new UnderwaterTorch();
 			else if (blockId == 240) block = new ChorusPlant();
 			else if (blockId == 241) block = new StainedGlass();
+			else if (blockId == 242) block = new Camera();
 			else if (blockId == 243) block = new Podzol();
 			else if (blockId == 244) block = new Beetroot();
 			else if (blockId == 245) block = new Stonecutter();
-			else if (blockId == 246) block = new GlowingObsidian();
-			else if (blockId == 247) block = new Netherreactor();
-			else if (blockId == 251) block = new Observer();
-
-			else if (blockId == 36) block = new Element0();
-			else if (blockId == 137) block = new CommandBlock();
-			else if (blockId == 166) block = new GlowStick();
-			else if (blockId == 188) block = new RepeatingCommandBlock();
-			else if (blockId == 189) block = new ChainCommandBlock();
-			else if (blockId == 190) block = new HardGlassPane();
-			else if (blockId == 191) block = new HardStainedGlassPane();
-			else if (blockId == 192) block = new ChemicalHeat();
-			else if (blockId == 202) block = new ColoredTorchRg();
-			else if (blockId == 204) block = new ColoredTorchBp();
-			else if (blockId == 213) block = new Magma();
-			else if (blockId == 214) block = new NetherWartBlock();
-			else if (blockId == 215) block = new RedNetherBrick();
-			else if (blockId == 216) block = new BoneBlock();
-			else if (blockId == 238) block = new ChemistryTable();
-			else if (blockId == 239) block = new UnderwaterTorch();
+			else if (blockId == 246) block = new Glowingobsidian();
 			else if (blockId == 247) block = new Netherreactor();
 			else if (blockId == 248) block = new InfoUpdate();
 			else if (blockId == 249) block = new InfoUpdate2();
-			else if (blockId == 250) block = new Movingblock();
+			else if (blockId == 250) block = new MovingBlock();
+			else if (blockId == 251) block = new Observer();
 			else if (blockId == 252) block = new StructureBlock();
 			else if (blockId == 253) block = new HardGlass();
 			else if (blockId == 254) block = new HardStainedGlass();
 			else if (blockId == 255) block = new Reserved6();
+			else if (blockId == 257) block = new PrismarineStairs();
+			else if (blockId == 258) block = new DarkPrismarineStairs();
+			else if (blockId == 259) block = new PrismarineBricksStairs();
 			else if (blockId == 260) block = new StrippedSpruceLog();
 			else if (blockId == 261) block = new StrippedBirchLog();
 			else if (blockId == 262) block = new StrippedJungleLog();
@@ -577,9 +577,23 @@ namespace MiNET.Blocks
 			else if (blockId == 421) block = new StoneSlab4();
 			else if (blockId == 422) block = new DoubleStoneSlab3();
 			else if (blockId == 423) block = new DoubleStoneSlab4();
+			else if (blockId == 424) block = new GraniteStairs();
+			else if (blockId == 425) block = new DioriteStairs();
+			else if (blockId == 426) block = new AndesiteStairs();
+			else if (blockId == 427) block = new PolishedGraniteStairs();
+			else if (blockId == 428) block = new PolishedDioriteStairs();
+			else if (blockId == 429) block = new PolishedAndesiteStairs();
+			else if (blockId == 430) block = new MossyStoneBrickStairs();
+			else if (blockId == 431) block = new SmoothRedSandstoneStairs();
+			else if (blockId == 432) block = new SmoothSandstoneStairs();
+			else if (blockId == 433) block = new EndBrickStairs();
+			else if (blockId == 434) block = new MossyCobblestoneStairs();
+			else if (blockId == 435) block = new NormalStoneStairs();
 			else if (blockId == 436) block = new SpruceStandingSign();
 			else if (blockId == 437) block = new SpruceWallSign();
 			else if (blockId == 438) block = new SmoothStone();
+			else if (blockId == 439) block = new RedNetherBrickStairs();
+			else if (blockId == 440) block = new SmoothQuartzStairs();
 			else if (blockId == 441) block = new BirchStandingSign();
 			else if (blockId == 442) block = new BirchWallSign();
 			else if (blockId == 443) block = new JungleStandingSign();
@@ -588,27 +602,34 @@ namespace MiNET.Blocks
 			else if (blockId == 446) block = new AcaciaWallSign();
 			else if (blockId == 447) block = new DarkoakStandingSign();
 			else if (blockId == 448) block = new DarkoakWallSign();
+			else if (blockId == 449) block = new Lectern();
 			else if (blockId == 450) block = new Grindstone();
 			else if (blockId == 451) block = new BlastFurnace();
+			else if (blockId == 452) block = new StonecutterBlock();
 			else if (blockId == 453) block = new Smoker();
 			else if (blockId == 454) block = new LitSmoker();
-			else if (blockId == 469) block = new LitBlastFurnace();
 			else if (blockId == 455) block = new CartographyTable();
 			else if (blockId == 456) block = new FletchingTable();
 			else if (blockId == 457) block = new SmithingTable();
 			else if (blockId == 458) block = new Barrel();
-			else if (blockId == 461) block = new Bell();
-			else if (blockId == 463) block = new Lantern();
-			else if (blockId == 465) block = new LavaCauldron();
-
-			else if (blockId == 449) block = new Lectern();
-			else if (blockId == 452) block = new StonecutterBlock();
 			else if (blockId == 459) block = new Loom();
+			else if (blockId == 461) block = new Bell();
 			else if (blockId == 462) block = new SweetBerryBush();
+			else if (blockId == 463) block = new Lantern();
 			else if (blockId == 464) block = new Campfire();
+			else if (blockId == 465) block = new LavaCauldron();
 			else if (blockId == 466) block = new Jigsaw();
 			else if (blockId == 467) block = new Wood();
 			else if (blockId == 468) block = new Composter();
+			else if (blockId == 469) block = new LitBlastFurnace();
+			else if (blockId == 470) block = new LightBlock();
+			else if (blockId == 471) block = new WitherRose();
+			else if (blockId == 472) block = new StickyPistonArmCollision();
+			else if (blockId == 473) block = new BeeNest();
+			else if (blockId == 474) block = new Beehive();
+			else if (blockId == 475) block = new HoneyBlock();
+			else if (blockId == 476) block = new HoneycombBlock();
+
 
 			else
 			{
@@ -649,32 +670,9 @@ namespace MiNET.Blocks
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int TryGetRuntimeId(int blockId, byte metadata)
+		private static int TryGetRuntimeId(int blockId, byte metadata)
 		{
 			return LegacyToRuntimeId[(blockId << 4) | metadata];
 		}
 	}
-
-	//public class BlockStateUtils
-	//{
-	//	public static Dictionary<(int, int), int> BlockStates = new Dictionary<(int, int), int>();
-
-	//	static BlockStateUtils()
-	//	{
-	//		var assembly = Assembly.GetAssembly(typeof(Block));
-	//		using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
-	//		using (StreamReader reader = new StreamReader(stream))
-	//		{
-	//			dynamic result = JArray.Parse(reader.ReadToEnd());
-
-	//			foreach (var obj in result)
-	//			{
-	//				int bid = (int) obj.id;
-	//				int data = (int) obj.data;
-	//				short hash = (short)(bid << 4 | (data & 0x0f));
-	//				BlockStates.Add((bid, data), hash);
-	//			}
-	//		}
-	//	}
-	//}
 }

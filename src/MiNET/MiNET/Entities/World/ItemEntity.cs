@@ -38,7 +38,7 @@ namespace MiNET.Entities.World
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemEntity));
 
-		public Item Item { get; private set; }
+		public Item Item { get; set; }
 		public int PickupDelay { get; set; }
 		public int TimeToLive { get; set; }
 

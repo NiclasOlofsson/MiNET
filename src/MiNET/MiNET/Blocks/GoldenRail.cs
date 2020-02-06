@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class GoldenRail : Block
+	public partial class GoldenRail : Block
 	{
 		public GoldenRail() : base(27)
 		{

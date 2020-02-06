@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class EmeraldOre : Block
+	public partial class EmeraldOre : Block
 	{
 		public EmeraldOre() : base(129)
 		{

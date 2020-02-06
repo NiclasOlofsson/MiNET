@@ -1,12 +1,12 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,13 +18,12 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
 using System.Numerics;
-using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -32,11 +31,13 @@ namespace MiNET.Blocks
 {
 	public abstract class SlabBase : Block
 	{
-		private const byte UpperBit = 0x08; // 8 = 1000
-		private const byte MaterialMask = 0x07; // 7 = 0111
+		private int _doubleSlabId;
 
-		protected SlabBase(byte id) : base(id)
+		[StateBit] public virtual bool TopSlotBit { get; set; } = false;
+
+		protected SlabBase(int id, int doubleSlabId) : base(id)
 		{
+			_doubleSlabId = doubleSlabId;
 		}
 
 		public override BoundingBox GetBoundingBox()
@@ -51,29 +52,28 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			Block targetBlock = world.GetBlock(targetCoordinates);
+			var targetBlock = world.GetBlock(targetCoordinates);
 
-			if (face == BlockFace.Up && faceCoords.Y == 0.5 && targetBlock.Id == Id && (targetBlock.Metadata & MaterialMask) == Metadata)
+			if (targetBlock != null && face == BlockFace.Up && faceCoords.Y == 0.5 && AreSameType(targetBlock))
 			{
 				// Replace with double block
 				SetDoubleSlab(world, targetCoordinates);
 				return true;
 			}
 
-			if (face == BlockFace.Down && faceCoords.Y == 0.5 && (targetBlock.Metadata & MaterialMask) == Metadata)
+			if (targetBlock != null && face == BlockFace.Down && faceCoords.Y == 0.5 && AreSameType(targetBlock))
 			{
 				// Replace with double block
 				SetDoubleSlab(world, targetCoordinates);
 				return true;
 			}
 
-			Block exitstingBlock = world.GetBlock(Coordinates);
-
-			if (exitstingBlock.Id != Id || (exitstingBlock.Metadata & MaterialMask) != Metadata)
+			var existingBlock = world.GetBlock(Coordinates);
+			if (existingBlock == null || !AreSameType(existingBlock))
 			{
 				if (face != BlockFace.Up && faceCoords.Y > 0.5 || (face == BlockFace.Down && faceCoords.Y == 0.0))
 				{
-					Metadata |= UpperBit;
+					TopSlotBit = true;
 				}
 
 				return false;
@@ -86,14 +86,13 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		private static readonly ILog Log = LogManager.GetLogger(typeof(SlabBase));
+		protected abstract bool AreSameType(Block first);
 
-
-		private void SetDoubleSlab(Level world, BlockCoordinates coordinates)
+		protected void SetDoubleSlab(Level world, BlockCoordinates coordinates)
 		{
-			Block slab = BlockFactory.GetBlockById((byte) (Id - 1));
+			Block slab = BlockFactory.GetBlockById(_doubleSlabId);
 			slab.Coordinates = coordinates;
-			slab.Metadata = (byte) Metadata;
+			slab.SetState(GetState().States);
 			world.SetBlock(slab);
 		}
 	}

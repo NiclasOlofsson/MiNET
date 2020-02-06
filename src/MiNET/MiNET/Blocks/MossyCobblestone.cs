@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class MossyCobblestone : Block
+	public partial class MossyCobblestone : Block
 	{
 		public MossyCobblestone() : base(48)
 		{

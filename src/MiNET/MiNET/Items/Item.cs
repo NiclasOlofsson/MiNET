@@ -250,7 +250,7 @@ namespace MiNET.Items
 
 		public override string ToString()
 		{
-			return $"Type={GetType().Name}, Id={Id}, Metadata={Metadata}, Count={Count}, ExtraData={ExtraData}";
+			return $"{GetType().Name}(Id={Id}, Meta={Metadata}) Count={Count}, NBT={ExtraData}";
 		}
 
 		public bool Interact(Level level, Player player, Entity target)

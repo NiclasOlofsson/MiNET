@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -32,7 +32,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Grass : Block
+	public partial class Grass : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Grass));
 
@@ -74,8 +74,7 @@ namespace MiNET.Blocks
 					for (int i = 0; i < 4; i++)
 					{
 						var coordinates = Coordinates + new BlockCoordinates(random.Next(3) - 1, random.Next(5) - 3, random.Next(3) - 1);
-						Block next = level.GetBlock(coordinates);
-						if (next is Dirt && next.Metadata == 0)
+						if (level.GetBlock(coordinates) is Dirt next && next.DirtType == "normal")
 						{
 							Block nextUp = level.GetBlock(coordinates.BlockUp());
 							if (nextUp.IsTransparent && (nextUp.BlockLight >= 4 || nextUp.SkyLight >= 4))

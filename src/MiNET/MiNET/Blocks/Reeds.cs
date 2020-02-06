@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Reeds : Block
+	public partial class Reeds : Block
 	{
 		public Reeds() : base(83)
 		{

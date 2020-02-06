@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Lever : Block
+	public partial class Lever : Block
 	{
 		public Lever() : base(69)
 		{
@@ -46,24 +46,24 @@ namespace MiNET.Blocks
 			switch (face)
 			{
 				case BlockFace.Down:
-					if (direction == 1 || direction == 3) Metadata = 7;
-					else Metadata = 0;
+					if (direction == 1 || direction == 3) LeverDirection = "down_north_south";
+					else LeverDirection = "down_east_west";
 					break;
 				case BlockFace.North:
-					Metadata = 4;
+					LeverDirection = "north";
 					break;
 				case BlockFace.South:
-					Metadata = 3;
+					LeverDirection = "south";
 					break;
 				case BlockFace.West:
-					Metadata = 2;
+					LeverDirection = "west";
 					break;
 				case BlockFace.East:
-					Metadata = 1;
+					LeverDirection = "east";
 					break;
 				case BlockFace.Up:
-					if (direction == 1 || direction == 3) Metadata = 5;
-					else Metadata = 6;
+					if (direction == 1 || direction == 3) LeverDirection = "up_north_south";
+					else LeverDirection = "up_east_west";
 					break;
 			}
 
@@ -72,7 +72,7 @@ namespace MiNET.Blocks
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
-			Metadata ^= 0x08;
+			OpenBit = !OpenBit;
 			world.SetBlock(this);
 
 			return true;

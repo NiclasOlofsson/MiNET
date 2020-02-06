@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Web : Block
+	public partial class Web : Block
 	{
 		public Web() : base(30)
 		{

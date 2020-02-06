@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class EnchantingTable : Block
+	public partial class EnchantingTable : Block
 	{
 		public EnchantingTable() : base(116)
 		{
@@ -44,21 +44,21 @@ namespace MiNET.Blocks
 		{
 			byte direction = player.GetDirection();
 
-			switch (direction)
-			{
-				case 1:
-					Metadata = 2;
-					break; // West
-				case 2:
-					Metadata = 5;
-					break; // North
-				case 3:
-					Metadata = 3;
-					break; // East
-				case 0:
-					Metadata = 4;
-					break; // South 
-			}
+			//switch (direction)
+			//{
+			//	case 1:
+			//		Metadata = 2;
+			//		break; // West
+			//	case 2:
+			//		Metadata = 5;
+			//		break; // North
+			//	case 3:
+			//		Metadata = 3;
+			//		break; // East
+			//	case 0:
+			//		Metadata = 4;
+			//		break; // South 
+			//}
 
 			EnchantingTableBlockEntity tableBlockEntity = new EnchantingTableBlockEntity
 			{

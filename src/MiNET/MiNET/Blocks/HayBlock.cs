@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class HayBlock : Block
+	public partial class HayBlock : Block
 	{
 		public HayBlock() : base(170)
 		{

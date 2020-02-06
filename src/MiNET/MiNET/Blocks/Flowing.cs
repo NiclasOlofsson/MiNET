@@ -1,12 +1,12 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -36,6 +36,8 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Flowing));
 
+		[StateRange(0, 15)] public virtual int LiquidDepth { get; set; } = 0;
+
 		private int _adjacentSources;
 		private int[] _flowCost = new int[4];
 		private bool[] _optimalFlowDirections = new bool[4];
@@ -44,13 +46,13 @@ namespace MiNET.Blocks
 		{
 			IsSolid = false;
 			IsBuildable = false;
-			IsReplacible = true;
+			IsReplaceable = true;
 			IsTransparent = true;
 		}
 
 		public override void BlockAdded(Level level)
 		{
-			if (!CheckForHarden(level, Coordinates.X, Coordinates.Y, Coordinates.Z))
+			if (!CheckForHarden(level, Coordinates))
 			{
 				level.ScheduleBlockTick(this, TickRate());
 			}
@@ -58,7 +60,7 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			if (!CheckForHarden(world, blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z))
+			if (!CheckForHarden(world, blockCoordinates))
 			{
 				world.ScheduleBlockTick(this, TickRate());
 			}
@@ -68,7 +70,7 @@ namespace MiNET.Blocks
 
 		public override void DoPhysics(Level level)
 		{
-			CheckForHarden(level, Coordinates.X, Coordinates.Y, Coordinates.Z);
+			CheckForHarden(level, Coordinates);
 			level.ScheduleBlockTick(this, TickRate());
 		}
 
@@ -76,13 +78,15 @@ namespace MiNET.Blocks
 		{
 			if (isRandom) return;
 
-			Random random = new Random();
+			var random = new Random();
 
 			int x = Coordinates.X;
 			int y = Coordinates.Y;
 			int z = Coordinates.Z;
+			var current = Coordinates;
 
-			int currentDecay = GetFlowDecay(world, x, y, z);
+			//int currentDecay = GetFlowDecay(world, x, y, z);
+			int currentDecay = LiquidDepth;
 			byte multiplier = 1;
 
 			if (this is FlowingLava)
@@ -97,19 +101,19 @@ namespace MiNET.Blocks
 			{
 				int smallestFlowDecay = -100;
 				_adjacentSources = 0;
-				smallestFlowDecay = GetSmallestFlowDecay(world, x - 1, y, z, smallestFlowDecay);
-				smallestFlowDecay = GetSmallestFlowDecay(world, x + 1, y, z, smallestFlowDecay);
-				smallestFlowDecay = GetSmallestFlowDecay(world, x, y, z - 1, smallestFlowDecay);
-				smallestFlowDecay = GetSmallestFlowDecay(world, x, y, z + 1, smallestFlowDecay);
+				smallestFlowDecay = GetSmallestFlowDecay(world, current + BlockCoordinates.Left, smallestFlowDecay);
+				smallestFlowDecay = GetSmallestFlowDecay(world, current + BlockCoordinates.Right, smallestFlowDecay);
+				smallestFlowDecay = GetSmallestFlowDecay(world, current + BlockCoordinates.Backwards, smallestFlowDecay);
+				smallestFlowDecay = GetSmallestFlowDecay(world, current + BlockCoordinates.Forwards, smallestFlowDecay);
 				int newDecay = smallestFlowDecay + multiplier;
 				if (newDecay >= 8 || smallestFlowDecay < 0)
 				{
 					newDecay = -1;
 				}
 
-				if (GetFlowDecay(world, x, y + 1, z) >= 0)
+				if (GetFlowDecay(world, current + BlockCoordinates.Up) >= 0)
 				{
-					int topFlowDecay = GetFlowDecay(world, x, y + 1, z);
+					int topFlowDecay = GetFlowDecay(world, current + BlockCoordinates.Up);
 
 					if (topFlowDecay >= 8)
 					{
@@ -123,11 +127,11 @@ namespace MiNET.Blocks
 
 				if (_adjacentSources >= 2 && this is FlowingWater)
 				{
-					if (world.GetBlock(x, y - 1, z).IsSolid)
+					if (world.GetBlock(current + BlockCoordinates.Down).IsSolid)
 					{
 						newDecay = 0;
 					}
-					else if (IsSameMaterial(world.GetBlock(x, y - 1, z)) && world.GetBlock(x, y - 1, z).Metadata == 0)
+					else if (IsSameMaterial(world.GetBlock(current + BlockCoordinates.Down)) && GetLiquidDepth(world.GetBlock(current + BlockCoordinates.Down)) == 0)
 					{
 						newDecay = 0;
 					}
@@ -144,7 +148,7 @@ namespace MiNET.Blocks
 				{
 					if (flag)
 					{
-						SetToStill(world, x, y, z);
+						SetToStill(world, current);
 					}
 				}
 				else
@@ -152,11 +156,12 @@ namespace MiNET.Blocks
 					currentDecay = newDecay;
 					if (newDecay < 0)
 					{
-						world.SetAir(x, y, z);
+						world.SetAir(current);
 					}
 					else
 					{
-						world.SetData(x, y, z, (byte) newDecay);
+						LiquidDepth = newDecay;
+						world.SetBlock(this);
 						world.ApplyPhysics(x, y, z);
 						world.ScheduleBlockTick(this, tickRate); // Schedule tick
 					}
@@ -164,10 +169,10 @@ namespace MiNET.Blocks
 			}
 			else
 			{
-				SetToStill(world, x, y, z);
+				SetToStill(world, current);
 			}
 
-			if (CanBeFlownInto(world, x, y - 1, z) /* || world.GetBlock(x, y - 1, z) is Flowing*/)
+			if (CanBeFlownInto(world, current + BlockCoordinates.Down) /* || world.GetBlock(x, y - 1, z) is Flowing*/)
 			{
 				if (this is FlowingLava && (world.GetBlock(x, y - 1, z) is FlowingWater || world.GetBlock(x, y - 1, z) is Water))
 				{
@@ -177,11 +182,11 @@ namespace MiNET.Blocks
 
 				if (currentDecay >= 8)
 				{
-					Flow(world, x, y - 1, z, currentDecay);
+					Flow(world, current + BlockCoordinates.Down, currentDecay);
 				}
 				else
 				{
-					Flow(world, x, y - 1, z, currentDecay + 8);
+					Flow(world, current + BlockCoordinates.Down, currentDecay + 8);
 				}
 			}
 			else if (currentDecay >= 0 && (currentDecay == 0 || BlocksFluid(world, x, y - 1, z)))
@@ -201,22 +206,23 @@ namespace MiNET.Blocks
 
 				if (optimalFlowDirections[0])
 				{
-					Flow(world, x - 1, y, z, newDecay);
+					//Flow(world, x - 1, y, z, newDecay);
+					Flow(world, current + BlockCoordinates.Left, newDecay);
 				}
 
 				if (optimalFlowDirections[1])
 				{
-					Flow(world, x + 1, y, z, newDecay);
+					Flow(world, current + BlockCoordinates.Right, newDecay);
 				}
 
 				if (optimalFlowDirections[2])
 				{
-					Flow(world, x, y, z - 1, newDecay);
+					Flow(world, current + BlockCoordinates.Backwards, newDecay);
 				}
 
 				if (optimalFlowDirections[3])
 				{
-					Flow(world, x, y, z + 1, newDecay);
+					Flow(world, current + BlockCoordinates.Forwards, newDecay);
 				}
 			}
 		}
@@ -252,7 +258,7 @@ namespace MiNET.Blocks
 					++z2;
 				}
 
-				if (!BlocksFluid(world, x2, y, z2) && (!IsSameMaterial(world.GetBlock(x2, y, z2)) || world.GetBlock(x2, y, z2).Metadata != 0))
+				if (!BlocksFluid(world, x2, y, z2) && (!IsSameMaterial(world.GetBlock(x2, y, z2)) || GetLiquidDepth(world.GetBlock(x2, y, z2)) != 0))
 				{
 					if (BlocksFluid(world, x2, y - 1, z2))
 					{
@@ -281,6 +287,16 @@ namespace MiNET.Blocks
 			}
 
 			return _optimalFlowDirections;
+		}
+
+		private int GetLiquidDepth(Block block)
+		{
+			return block switch
+			{
+				Flowing flowing => flowing.LiquidDepth,
+				Stationary stationary => stationary.LiquidDepth,
+				_ => -1
+			};
 		}
 
 		private int CalculateFlowCost(Level world, int x, int y, int z, int accumulatedCost, int prevDirection)
@@ -317,7 +333,7 @@ namespace MiNET.Blocks
 						++z2;
 					}
 
-					if (!BlocksFluid(world, x2, y, z2) && (!IsSameMaterial(world.GetBlock(x2, y, z2)) || world.GetBlock(x2, y, z2).Metadata != 0))
+					if (!BlocksFluid(world, x2, y, z2) && (!IsSameMaterial(world.GetBlock(x2, y, z2)) || GetLiquidDepth(world.GetBlock(x2, y, z2)) != 0))
 					{
 						if (!BlocksFluid(world, x2, y - 1, z2))
 						{
@@ -340,9 +356,9 @@ namespace MiNET.Blocks
 			return cost;
 		}
 
-		private void Flow(Level world, int x, int y, int z, int decay)
+		private void Flow(Level world, BlockCoordinates coord, int decay)
 		{
-			if (CanBeFlownInto(world, x, y, z))
+			if (CanBeFlownInto(world, coord))
 			{
 				//Block block = world.GetBlock(x, y, z);
 
@@ -355,17 +371,17 @@ namespace MiNET.Blocks
 				//	block.DoDrop(world, i, j, k, world.getData(i, j, k), 0);
 				//}
 
-				Block newBlock = BlockFactory.GetBlockById(Id);
-				newBlock.Coordinates = new BlockCoordinates(x, y, z);
-				newBlock.Metadata = (byte) decay;
+				Flowing newBlock = (Flowing) BlockFactory.GetBlockById(Id);
+				newBlock.Coordinates = new BlockCoordinates(coord);
+				newBlock.LiquidDepth = decay;
 				world.SetBlock(newBlock, applyPhysics: true);
 				world.ScheduleBlockTick(newBlock, TickRate());
 			}
 		}
 
-		private bool CanBeFlownInto(Level world, int x, int y, int z)
+		private bool CanBeFlownInto(Level world, BlockCoordinates coord)
 		{
-			Block block = world.GetBlock(x, y, z);
+			Block block = world.GetBlock(coord);
 
 			return !IsSameMaterial(block) && (!(block is FlowingLava) && !(block is Lava)) && !BlocksFluid(block);
 		}
@@ -385,19 +401,19 @@ namespace MiNET.Blocks
 		}
 
 
-		private void SetToStill(Level world, int x, int y, int z)
+		private void SetToStill(Level world, BlockCoordinates coord)
 		{
-			byte meta = world.GetBlock(x, y, z).Metadata;
+			var block = (Flowing) world.GetBlock(coord);
 
-			Block stillBlock = BlockFactory.GetBlockById((byte) (Id + 1));
-			stillBlock.Metadata = meta;
-			stillBlock.Coordinates = new BlockCoordinates(x, y, z);
+			var stillBlock = (Stationary) BlockFactory.GetBlockById((byte) (Id + 1));
+			stillBlock.LiquidDepth = block.LiquidDepth;
+			stillBlock.Coordinates = new BlockCoordinates(coord);
 			world.SetBlock(stillBlock, applyPhysics: false);
 		}
 
-		private int GetSmallestFlowDecay(Level world, int x, int y, int z, int decay)
+		private int GetSmallestFlowDecay(Level world, BlockCoordinates coord, int decay)
 		{
-			int blockDecay = GetFlowDecay(world, x, y, z);
+			int blockDecay = GetFlowDecay(world, coord);
 
 			if (blockDecay < 0)
 			{
@@ -417,11 +433,26 @@ namespace MiNET.Blocks
 			return decay >= 0 && blockDecay >= decay ? decay : blockDecay;
 		}
 
-		private int GetFlowDecay(Level world, int x, int y, int z)
+		private int GetFlowDecay(Level world, BlockCoordinates coord)
 		{
-			Block block = world.GetBlock(x, y, z);
-			return IsSameMaterial(block) ? block.Metadata : -1;
+			Block block = world.GetBlock(coord);
+
+			int liquidDepth;
+			switch (block)
+			{
+				case Flowing flowing:
+					liquidDepth = flowing.LiquidDepth;
+					break;
+				case Stationary stationary:
+					liquidDepth = stationary.LiquidDepth;
+					break;
+				default:
+					return -1;
+			}
+
+			return IsSameMaterial(block) ? liquidDepth : -1;
 		}
+
 
 		private bool IsSameMaterial(Block block)
 		{
@@ -436,49 +467,49 @@ namespace MiNET.Blocks
 			return this is FlowingWater ? 5 : (this is FlowingLava ? 30 : 0);
 		}
 
-		private bool CheckForHarden(Level world, int x, int y, int z)
+		private bool CheckForHarden(Level world, BlockCoordinates coord)
 		{
-			Block block = world.GetBlock(x, y, z);
+			var block = world.GetBlock(coord) as Flowing; // This is "this" isn't it?
 
 			bool harden = false;
-			if (block is FlowingLava || block is Lava)
+			if (block is FlowingLava /* || block is Lava*/)
 			{
-				if (IsWater(world, x, y, z - 1))
+				if (IsWater(world, coord + BlockCoordinates.Backwards))
 				{
 					harden = true;
 				}
 
-				if (harden || IsWater(world, x, y, z + 1))
+				if (harden || IsWater(world, coord + BlockCoordinates.Forwards))
 				{
 					harden = true;
 				}
 
-				if (harden || IsWater(world, x - 1, y, z))
+				if (harden || IsWater(world, coord + BlockCoordinates.Left))
 				{
 					harden = true;
 				}
 
-				if (harden || IsWater(world, x + 1, y, z))
+				if (harden || IsWater(world, coord + BlockCoordinates.Right))
 				{
 					harden = true;
 				}
 
-				if (harden || IsWater(world, x, y + 1, z))
+				if (harden || IsWater(world, coord + BlockCoordinates.Up))
 				{
 					harden = true;
 				}
 
 				if (harden)
 				{
-					int meta = block.Metadata;
+					int liquidDepth = block.LiquidDepth;
 
-					if (meta == 0)
+					if (liquidDepth == 0)
 					{
-						world.SetBlock(new Obsidian {Coordinates = new BlockCoordinates(x, y, z)}, true, false);
+						world.SetBlock(new Obsidian {Coordinates = new BlockCoordinates(coord)}, true, false);
 					}
-					else if (meta <= 4)
+					else if (liquidDepth <= 4)
 					{
-						world.SetBlock(new Cobblestone {Coordinates = new BlockCoordinates(x, y, z)}, true, false);
+						world.SetBlock(new Cobblestone {Coordinates = new BlockCoordinates(coord)}, true, false);
 					}
 
 					return true;
@@ -488,9 +519,9 @@ namespace MiNET.Blocks
 			return false;
 		}
 
-		private bool IsWater(Level world, int x, int y, int z)
+		private bool IsWater(Level world, BlockCoordinates coord)
 		{
-			Block block = world.GetBlock(x, y, z);
+			Block block = world.GetBlock(coord);
 			return block is FlowingWater || block is Water;
 		}
 

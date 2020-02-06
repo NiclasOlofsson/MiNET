@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -26,8 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using log4net;
 using MiNET.Plugins;
 
@@ -41,18 +39,18 @@ namespace MiNET.Net
 
 		partial void AfterDecode()
 		{
-			List<string> enumValues = new List<string>();
+			List<string> stringValues = new List<string>();
 			{
 				uint count = ReadUnsignedVarInt();
-				//Log.Warn($"Enum values {count}");
+				Log.Warn($"String values {count}");
 				for (int i = 0; i < count; i++)
 				{
-					string s = ReadString();
-					Log.Debug(s);
-					enumValues.Add(s);
+					string str = ReadString();
+					Log.Debug($"{i} - {str}");
+					stringValues.Add(str);
 				}
 			}
-			int enumValuesCount = enumValues.Count();
+			int stringValuesCount = stringValues.Count();
 
 			{
 				uint count = ReadUnsignedVarInt();
@@ -69,35 +67,21 @@ namespace MiNET.Net
 				Log.Warn($"Enum indexes {count}");
 
 				string last = null;
-				StringBuilder sb = new StringBuilder();
-				sb.AppendLine();
 
 				string clazzType = null;
 				for (int i = 0; i < count; i++)
 				{
-					string s = ReadString();
-					if (s != last)
-					{
-						if (last != null)
-						{
-							clazzType = null;
-							sb.AppendLine("}");
-							sb.AppendLine();
-						}
-						last = s;
-						sb.AppendLine($"public enum {s}{{");
-						if ("Block" == s) clazzType = "MiNET.Blocks.{0}";
-					}
-					uint c = ReadUnsignedVarInt();
-					Log.Debug($"{s}:{c}");
-					for (int j = 0; j < c; j++)
+					string enumName = ReadString();
+					uint enumValueCount = ReadUnsignedVarInt();
+					Log.Debug($"{i} - {enumName}:{enumValueCount}");
+					for (int j = 0; j < enumValueCount; j++)
 					{
 						int idx;
-						if (enumValuesCount <= byte.MaxValue)
+						if (stringValuesCount <= byte.MaxValue)
 						{
 							idx = ReadByte();
 						}
-						else if (enumValuesCount <= short.MaxValue)
+						else if (stringValuesCount <= short.MaxValue)
 						{
 							idx = ReadShort();
 						}
@@ -106,26 +90,8 @@ namespace MiNET.Net
 							idx = ReadInt();
 						}
 
-						Log.Debug($"{s}:{c}:{idx}");
-						string enumValue = enumValues[idx];
-						Type type = null;
-						if (clazzType != null)
-						{
-							var className = string.Format(clazzType, enumValue);
-							className = className.Replace("_", "");
-							type = Assembly.GetExecutingAssembly().GetType(className, false, true);
-							if (type != null)
-							{
-							}
-						}
-						sb.AppendLine($"\t{enumValue}, {(type == null ? "// missing" : "")}");
+						Log.Debug($"{enumName}, {idx} - {stringValues[idx]}");
 					}
-				}
-
-				if (last != null) sb.AppendLine("}");
-				if (Log.IsDebugEnabled)
-				{
-					Log.Debug(sb.ToString());
 				}
 			}
 
@@ -144,16 +110,18 @@ namespace MiNET.Net
 					uint overloadCount = ReadUnsignedVarInt();
 					for (int j = 0; j < overloadCount; j++)
 					{
-						Log.Debug($"{commandName}, {description}, {flags}, {permissions}, {aliasEnumIndex}, {overloadCount}");
 						uint parameterCount = ReadUnsignedVarInt();
+						Log.Debug($"{commandName}, {description}, flags={flags}, {((CommandPermission) permissions)}, alias={aliasEnumIndex}, overloads={overloadCount}, params={parameterCount}");
 						for (int k = 0; k < parameterCount; k++)
 						{
 							string commandParamName = ReadString();
 							int tmp = ReadShort();
 							int tmp1 = ReadShort();
 							bool isEnum = (tmp1 & 0x30) == 0x30;
+							bool isSoftEnum = (tmp1 & 0x0410) == 0x0410;
 							int commandParamType = -1;
 							int commandParamEnumIndex = -1;
+							int commandParamSoftEnumIndex = -1;
 							int commandParamPostfixIndex = -1;
 							if ((tmp1 & 0x30) == 0x30)
 							{
@@ -167,6 +135,10 @@ namespace MiNET.Net
 							{
 								commandParamType = tmp & 0xffff;
 							}
+							else if ((tmp1 & 0x0410) == 0x0410)
+							{
+								commandParamType = tmp & 0xffff;
+							}
 							else
 							{
 								Log.Warn("No parameter style read (enum, valid, postfix)");
@@ -174,7 +146,7 @@ namespace MiNET.Net
 
 							bool optional = ReadBool();
 							byte unknown = ReadByte();
-							Log.Debug($"{commandName}, {parameterCount}, {commandParamName}, 0x{tmp1:X4}, {isEnum}, {commandParamType}, {commandParamEnumIndex}, {commandParamPostfixIndex}, {optional}, {unknown}");
+							Log.Debug($"\t{commandParamName}, 0x{tmp:X4}, 0x{tmp1:X4}, {isEnum}, {isSoftEnum}, {(GetParameterTypeName(commandParamType))}, {commandParamEnumIndex}, {commandParamSoftEnumIndex}, {commandParamPostfixIndex}, {optional}, {unknown}");
 						}
 					}
 				}
@@ -428,7 +400,7 @@ namespace MiNET.Net
 							}
 
 							Write(parameter.Optional); // optional
-							Write((byte)0); // unknown
+							Write((byte) 0); // unknown
 						}
 					}
 				}
@@ -445,16 +417,49 @@ namespace MiNET.Net
 
 		private int GetParameterTypeId(string type)
 		{
-			if (type == "int") return 0x01;
-			if (type == "float") return 0x02;
-			if (type == "value") return 0x03;
-			if (type == "operator") return 0x05;
-			if (type == "target") return 0x06;
+			return type switch
+			{
+				"enum" => -1,
+				"unknown" => 0,
+				"int" => 1,
+				"float" => 2,
+				"value" => 3,
+				"wildcardint" => 4,
+				"operator" => 5,
+				"target" => 6,
+				"string" => 29,
+				"blockpos" => 37,
+				"entitypos" => 38,
+				"message" => 41,
+				"rawtext" => 43,
+				"json" => 47,
+				"command" => 54,
+				_ => 0
+			};
+		}
 
-			if (type == "string") return 0x1b;
-			if (type == "blockpos") return 0x1d;
-
-			return 0x0;
+		private string GetParameterTypeName(int type)
+		{
+			return type switch
+			{
+				-1 => "enum",
+				0 => "unknown",
+				1 => "int",
+				2 => "float",
+				3 => "value",
+				4 => "wildcardint",
+				5 => "operator",
+				6 => "target",
+				14 => "filename",
+				29 => "string",
+				37 => "blockpos",
+				38 => "entitypos",
+				41 => "message", // kick, me, etc
+				43 => "rawtext", // kick, me, etc
+				47 => "son", // give, replace
+				54 => "command",
+				_ => $"undefined({type})"
+			};
 		}
 	}
 }

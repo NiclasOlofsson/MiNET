@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -141,7 +141,7 @@ namespace MiNET.Net
 			_hasSplit = false;
 			while (_buffer.Position < _buffer.Length)
 			{
-				if (_hasSplit) Log.Warn("Reading second split message");
+				//if (_hasSplit) Log.Warn("Reading second split message");
 
 				byte flags = ReadByte();
 				_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
@@ -220,7 +220,7 @@ namespace MiNET.Net
 					splitPartPacket.Message = internalBuffer;
 					Messages.Add(splitPartPacket);
 
-					if (Log.IsDebugEnabled && _buffer.Position < _buffer.Length) Log.Debug($"Got split message, but more to read {_buffer.Length - _buffer.Position}");
+					//if (Log.IsDebugEnabled && _buffer.Position < _buffer.Length) Log.Debug($"Got split message, but more to read {_buffer.Length - _buffer.Position}");
 					continue;
 				}
 
@@ -235,7 +235,7 @@ namespace MiNET.Net
 				//if (!(package is McpeBatch)) Log.Debug($"Raw: {package.DatagramSequenceNumber} {package.ReliableMessageNumber} {package.OrderingIndex} {package.GetType().Name} 0x{package.Id:x2} \n{HexDump(internalBuffer)}");
 
 				Messages.Add(packet);
-				if (Log.IsDebugEnabled && MessageLength != internalBuffer.Length) Log.Debug("Missmatch of requested lenght, and actual read lenght");
+				if (Log.IsDebugEnabled && MessageLength != internalBuffer.Length) Log.Debug("Mismatch of requested length, and actual read length");
 			}
 		}
 

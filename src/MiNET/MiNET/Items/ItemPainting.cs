@@ -1,12 +1,12 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -61,19 +61,15 @@ namespace MiNET.Items
 			new PaintingData("Pointer", 4, 1, 4, 1),
 			new PaintingData("Pigscene", 4, 1, 4, 1),
 			new PaintingData("Flaming Skull", 4, 1, 4, 1),
-
 			new PaintingData("DonkeyKong", 4, 1, 3, 1),
 			new PaintingData("Skeleton", 4, 1, 3, 1),
-
 			new PaintingData("Fighters", 4, 1, 2, 0),
-
 			new PaintingData("Match", 2, 0, 2, 0),
 			new PaintingData("Bust", 2, 0, 2, 0),
 			new PaintingData("Stage", 2, 0, 2, 0),
 			new PaintingData("Void", 2, 0, 2, 0),
 			new PaintingData("SkullAndRoses", 2, 0, 2, 0),
 			new PaintingData("Wither", 2, 0, 2, 0),
-
 			new PaintingData("Wanderer", 1, 0, 2, 0),
 			new PaintingData("Graham", 1, 0, 2, 0),
 			new PaintingData("Pool", 2, 0, 1, 0),
@@ -81,7 +77,6 @@ namespace MiNET.Items
 			new PaintingData("Sunset", 2, 0, 1, 0),
 			new PaintingData("Sea", 2, 0, 1, 0),
 			new PaintingData("Creebet", 2, 0, 1, 0),
-
 			new PaintingData("Kebab", 1, 0, 1, 0),
 			new PaintingData("Aztec", 1, 0, 1, 0),
 			new PaintingData("Alban", 1, 0, 1, 0),
@@ -100,7 +95,7 @@ namespace MiNET.Items
 		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block block = world.GetBlock(targetCoordinates);
-			var emptyCoordinates = block.IsReplacible ? targetCoordinates : GetNewCoordinatesFromFace(targetCoordinates, face);
+			var emptyCoordinates = block.IsReplaceable ? targetCoordinates : GetNewCoordinatesFromFace(targetCoordinates, face);
 			var coordinates = targetCoordinates;
 
 
@@ -248,12 +243,12 @@ namespace MiNET.Items
 
 			level.SetBlock(new StainedGlass()
 			{
-				Metadata = 5,
+				Color = "lime",
 				Coordinates = bbox.Max
 			});
 			level.SetBlock(new StainedGlass()
 			{
-				Metadata = 7,
+				Color = "gray",
 				Coordinates = bbox.Min
 			});
 		}

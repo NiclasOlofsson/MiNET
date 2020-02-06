@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class EndPortalFrame : Block
+	public partial class EndPortalFrame : Block
 	{
 		public EndPortalFrame() : base(120)
 		{

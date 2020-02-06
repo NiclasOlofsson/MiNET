@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class SeaLantern : Block
+	public partial class SeaLantern : Block
 	{
 		public SeaLantern() : base(169)
 		{
@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			var rnd = new Random((int) DateTime.UtcNow.Ticks);
+			var rnd = new Random();
 			return new[] {ItemFactory.GetItem(409, 0, (byte) (rnd.Next(2, 3)))}; //drop prismarine_shard
 		}
 	}

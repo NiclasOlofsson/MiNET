@@ -23,9 +23,11 @@
 
 #endregion
 
+using System;
 using System.Net;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET
 {
@@ -39,16 +41,29 @@ namespace MiNET
 
 		public int NumberOfPlayers { get; set; }
 
+		public long ServerId { get; set; }
+		
+		public string GameMode { get; set; }
+
 		public MotdProvider()
 		{
-			Motd = Config.GetProperty("motd", "MiNET: MCPE Server");
+			byte[] buffer = new byte[8];
+			new Random().NextBytes(buffer);
+			buffer[7] = 0;
+			ServerId = BitConverter.ToInt64(buffer, 0);
+
+			ServerId = Config.GetProperty("serverid", ServerId);
+			Motd = Config.GetProperty("motd", "MiNET Server");
 			SecondLine = Config.GetProperty("motd-2nd", "MiNET");
+			GameMode = Config.GetProperty("gamemode", "Survival");
 		}
 
 		public virtual string GetMotd(ServerInfo serverInfo, IPEndPoint caller, bool eduMotd = false)
 		{
 			NumberOfPlayers = serverInfo.NumberOfPlayers;
 			MaxNumberOfPlayers = serverInfo.MaxNumberOfPlayers;
+
+			ulong serverId = (ulong)ServerId;
 
 			var protocolVersion = McpeProtocolInfo.ProtocolVersion.ToString();
 			var clientVersion = McpeProtocolInfo.GameVersion;
@@ -61,7 +76,8 @@ namespace MiNET
 				edition = "MCEE";
 			}
 
-			return string.Format($"{edition};{Motd};{protocolVersion};{clientVersion};{NumberOfPlayers};{MaxNumberOfPlayers};{Motd.GetHashCode() + caller.Address.Address + caller.Port};{SecondLine};Survival;");
+			// 2019-12-29 20:00:46,672 [DedicatedThreadPool-8631ff8f-0339-4a0d-83c7-222335bdb410_1] WARN  MiNET.Client.MiNetClient - MOTD: MCPE;gurunx;389;1.14.1;1;8;9586953286635751800;My World;Creative;1;53387;53388;
+			return string.Format($"{edition};{Motd};{protocolVersion};{clientVersion};{NumberOfPlayers};{MaxNumberOfPlayers};{serverId};{SecondLine};{GameMode};");
 		}
 	}
 }

@@ -43,6 +43,7 @@ using MiNET.Plugins;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace MiNET
 {
@@ -199,7 +200,7 @@ namespace MiNET
 
 				ServerInfo = new ServerInfo(LevelManager, _playerSessions)
 				{
-					MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000)
+					MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 10)
 				};
 				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
@@ -220,19 +221,20 @@ namespace MiNET
 
 		private void SendTick(object obj)
 		{
-			Parallel.ForEach(_playerSessions.Values, (session, state) => { session.SendTick(null); });
+			foreach (var session in _playerSessions.Values) session.SendTick(null);
+			//Parallel.ForEach(_playerSessions.Values, (session, state) => { session.SendTick(null); });
 		}
 
 		private UdpClient CreateListener()
 		{
-			var listener = new UdpClient(Endpoint);
+			var listener = new UdpClient();
 
 			//_listener.Client.ReceiveBufferSize = 1600*40000;
 			listener.Client.ReceiveBufferSize = int.MaxValue;
 			//_listener.Client.SendBufferSize = 1600*40000;
 			listener.Client.SendBufferSize = int.MaxValue;
 			listener.DontFragment = false;
-			listener.EnableBroadcast = false;
+			listener.EnableBroadcast = true;
 
 			if (Environment.OSVersion.Platform != PlatformID.Unix && Environment.OSVersion.Platform != PlatformID.MacOSX)
 			{
@@ -252,6 +254,8 @@ namespace MiNET
 			}
 
 			//_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
+
+			listener.Client.Bind(Endpoint);
 			return listener;
 		}
 
@@ -442,7 +446,7 @@ namespace MiNET
 
 		private void HandleRakNetMessage(byte[] receiveBytes, IPEndPoint senderEndpoint, byte msgId)
 		{
-			DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
+			var msgIdType = (DefaultMessageIdTypes) msgId;
 
 			// Increase fast, decrease slow on 1s ticks.
 			if (ServerInfo.NumberOfPlayers < ServerInfo.PlayerSessions.Count) ServerInfo.NumberOfPlayers = ServerInfo.PlayerSessions.Count;
@@ -454,9 +458,10 @@ namespace MiNET
 				{
 					var noFree = NoFreeIncomingConnections.CreateObject();
 					var bytes = noFree.Encode();
-					noFree.PutPool();
 
 					TraceSend(noFree);
+					
+					noFree.PutPool();
 
 					SendData(bytes, senderEndpoint);
 					Interlocked.Increment(ref ServerInfo.NumberOfDeniedConnectionRequestsPerSecond);
@@ -528,26 +533,30 @@ namespace MiNET
 			if (IsEdu)
 			{
 				var packet = UnconnectedPong.CreateObject();
-				packet.serverId = senderEndpoint.Address.Address + senderEndpoint.Port;
+				packet.serverId = MotdProvider.ServerId;
 				packet.pingId = incoming.pingId;
 				packet.serverName = MotdProvider.GetMotd(ServerInfo, senderEndpoint, true);
 				var data = packet.Encode();
-				packet.PutPool();
-
+				
 				TraceSend(packet);
+
+				packet.PutPool();
 
 				SendData(data, senderEndpoint);
 			}
 
 			{
+				Log.Debug($"Ping from: {senderEndpoint.Address.ToString()}:{senderEndpoint.Port}");
+
 				var packet = UnconnectedPong.CreateObject();
-				packet.serverId = senderEndpoint.Address.Address + senderEndpoint.Port;
+				packet.serverId = MotdProvider.ServerId;
 				packet.pingId = incoming.pingId;
 				packet.serverName = MotdProvider.GetMotd(ServerInfo, senderEndpoint);
 				var data = packet.Encode();
-				packet.PutPool();
 
 				TraceSend(packet);
+
+				packet.PutPool();
 
 				SendData(data, senderEndpoint);
 			}
@@ -580,13 +589,14 @@ namespace MiNET
 				Log.WarnFormat("New connection from: {0} {1}, MTU: {2}, Ver: {3}", senderEndpoint.Address, senderEndpoint.Port, incoming.mtuSize, incoming.raknetProtocolVersion);
 
 			var packet = OpenConnectionReply1.CreateObject();
-			packet.serverGuid = 12345;
+			packet.serverGuid = MotdProvider.ServerId;
 			packet.mtuSize = incoming.mtuSize;
 			packet.serverHasSecurity = 0;
 			var data = packet.Encode();
-			packet.PutPool();
 
 			TraceSend(packet);
+
+			packet.PutPool();
 
 			SendData(data, senderEndpoint);
 		}
@@ -636,14 +646,16 @@ namespace MiNET
 			session.MessageHandler = new LoginMessageHandler(session);
 
 			var reply = OpenConnectionReply2.CreateObject();
-			reply.serverGuid = 12345;
+			reply.serverGuid = MotdProvider.ServerId;
 			reply.clientEndpoint = senderEndpoint;
 			reply.mtuSize = incoming.mtuSize;
 			reply.doSecurityAndHandshake = new byte[1];
 			var data = reply.Encode();
-			reply.PutPool();
 
 			TraceSend(reply);
+			
+			reply.PutPool();
+
 
 			SendData(data, senderEndpoint);
 		}
@@ -1103,9 +1115,11 @@ namespace MiNET
 					var jsonSerializerSettings = new JsonSerializerSettings
 					{
 						PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
-
+						TypeNameHandling = TypeNameHandling.Auto,
 						Formatting = Formatting.Indented,
 					};
+
+					jsonSerializerSettings.Converters.Add(new StringEnumConverter());
 					jsonSerializerSettings.Converters.Add(new NbtIntConverter());
 					jsonSerializerSettings.Converters.Add(new NbtStringConverter());
 					jsonSerializerSettings.Converters.Add(new IPAddressConverter());
@@ -1174,7 +1188,7 @@ namespace MiNET
 					var jsonSerializerSettings = new JsonSerializerSettings
 					{
 						PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
-
+						TypeNameHandling = TypeNameHandling.Auto,
 						Formatting = Formatting.Indented,
 					};
 					jsonSerializerSettings.Converters.Add(new NbtIntConverter());

@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class MelonBlock : Block
+	public partial class MelonBlock : Block
 	{
 		public MelonBlock() : base(103)
 		{
@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			var rnd = new Random((int) DateTime.UtcNow.Ticks);
+			var rnd = new Random();
 			return new[] {ItemFactory.GetItem(360, 0, (byte) (3 + rnd.Next(5)))};
 		}
 	}

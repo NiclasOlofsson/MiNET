@@ -25,13 +25,9 @@
 
 namespace MiNET.Blocks
 {
-	public class Piston : Block
+	public partial class Piston : Block
 	{
-		public Piston() : this(33)
-		{
-		}
-
-		public Piston(byte id) : base(id)
+		public Piston() : base(33)
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;

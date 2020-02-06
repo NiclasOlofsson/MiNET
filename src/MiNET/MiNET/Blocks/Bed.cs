@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,17 +23,27 @@
 
 #endregion
 
+using System;
 using System.Numerics;
 using log4net;
 using MiNET.BlockEntities;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Bed : Block
+	public partial class Bed : Block
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Bed));
+
+		public byte Color { get; set; }
+
+		//[StateRange(0, 3)] public int Direction { get; set; } = 0;
+		//[StateBit] public bool HeadPieceBit { get; set; } = true;
+		//[StateBit] public bool OccupiedBit { get; set; } = false;
+
 		public Bed() : base(26)
 		{
 			BlastResistance = 1;
@@ -44,68 +54,59 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {ItemFactory.GetItem(355, _color)};
+			return new[] {ItemFactory.GetItem(355, Color)};
 		}
 
 		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
-			_color = Metadata; // from item
-
-			byte direction = player.GetDirection();
-
-			switch (direction)
+			Direction = player.GetDirectionEmum() switch
 			{
-				case 1:
-					Metadata = 0;
-					break; // West
-				case 2:
-					Metadata = 1;
-					break; // North
-				case 3:
-					Metadata = 2;
-					break; // East
-				case 0:
-					Metadata = 3;
-					break; // South 
-			}
+				Entity.Direction.West => 0,
+				Entity.Direction.North => 1,
+				Entity.Direction.East => 2,
+				Entity.Direction.South => 3,
+				_ => throw new ArgumentOutOfRangeException()
+			};
 
-			return world.GetBlock(blockCoordinates).IsReplacible && world.GetBlock(GetOtherPart()).IsReplacible;
+			return world.GetBlock(blockCoordinates).IsReplaceable && world.GetBlock(GetOtherPart()).IsReplaceable;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
+			HeadPieceBit = false;
+			world.SetBlock(new GoldBlock() {Coordinates = Coordinates + BlockCoordinates.Down});
 			world.SetBlockEntity(new BedBlockEntity
 			{
 				Coordinates = Coordinates,
-				Color = _color
+				Color = Color
 			});
 
 			var otherCoord = GetOtherPart();
-
 			Bed blockOther = new Bed
 			{
 				Coordinates = otherCoord,
-				Metadata = (byte) (Metadata | 0x08)
+				Direction = Direction,
+				HeadPieceBit = true,
 			};
-
 			world.SetBlock(blockOther);
+			world.SetBlock(new GoldBlock() {Coordinates = otherCoord + BlockCoordinates.Down});
 			world.SetBlockEntity(new BedBlockEntity
 			{
 				Coordinates = blockOther.Coordinates,
-				Color = _color
+				Color = Color
 			});
 
 			return false;
 		}
 
-		public override void BreakBlock(Level level, bool silent = false)
+		public override void BreakBlock(Level level, BlockFace face, bool silent = false)
 		{
 			if (level.GetBlockEntity(Coordinates) is BedBlockEntity blockEntiy)
 			{
-				_color = blockEntiy.Color;
+				Color = blockEntiy.Color;
 			}
 
-			base.BreakBlock(level, silent);
+			base.BreakBlock(level, face, silent);
 
 			var other = GetOtherPart();
 			level.SetAir(other);
@@ -114,25 +115,16 @@ namespace MiNET.Blocks
 
 		private BlockCoordinates GetOtherPart()
 		{
-			BlockCoordinates direction = new BlockCoordinates();
-			switch (Metadata & 0x07)
+			var direction = Direction switch
 			{
-				case 0:
-					direction = Level.North;
-					break; // West
-				case 1:
-					direction = Level.East;
-					break; // South
-				case 2:
-					direction = Level.South;
-					break; // East
-				case 3:
-					direction = Level.West;
-					break; // North 
-			}
+				0 => Level.North,
+				1 => Level.East,
+				2 => Level.South,
+				3 => Level.West,
+				_ => throw new ArgumentOutOfRangeException()
+			};
 
-			// Remove bed
-			if ((Metadata & 0x08) != 0x08)
+			if (!HeadPieceBit)
 			{
 				direction = direction * -1;
 			}
@@ -140,12 +132,9 @@ namespace MiNET.Blocks
 			return Coordinates + direction;
 		}
 
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Bed));
-		private byte _color;
-
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
-			if ((Metadata & 0x04) == 0x04)
+			if (OccupiedBit)
 			{
 				Log.Debug($"Bed at {Coordinates} is already occupied"); // Send proper message to player
 				return true;
@@ -160,17 +149,25 @@ namespace MiNET.Blocks
 
 		public void SetOccupied(Level world, bool isOccupied)
 		{
-			var other = world.GetBlock(GetOtherPart());
-			if (isOccupied)
-			{
-				world.SetData(Coordinates, (byte) (Metadata | 0x04));
-				world.SetData(other.Coordinates, (byte) (other.Metadata | 0x04));
-			}
-			else
-			{
-				world.SetData(Coordinates, (byte) (Metadata & ~0x04));
-				world.SetData(other.Coordinates, (byte) (other.Metadata & ~0x04));
-			}
+			Bed other = world.GetBlock(GetOtherPart()) as Bed;
+			if (other == null) return;
+
+			OccupiedBit = isOccupied;
+			other.OccupiedBit = isOccupied;
+			world.SetBlock(this);
+			world.SetBlock(other);
+
+			//if (isOccupied)
+			//{
+			//	OccupiedBit = false;
+			//	world.SetData(Coordinates, (byte) (Metadata | 0x04));
+			//	world.SetData(other.Coordinates, (byte) (other.Metadata | 0x04));
+			//}
+			//else
+			//{
+			//	world.SetData(Coordinates, (byte) (Metadata & ~0x04));
+			//	world.SetData(other.Coordinates, (byte) (other.Metadata & ~0x04));
+			//}
 		}
 	}
 }

@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class JungleStairs : BlockStairs
+	public partial class JungleStairs : BlockStairs
 	{
 		public JungleStairs() : base(136)
 		{

@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -25,12 +25,13 @@
 
 namespace MiNET.Blocks
 {
-	public class Dirt : Block
+	public partial class Dirt : Block
 	{
 		public Dirt() : base(3)
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;
+			DirtType = "normal";
 		}
 	}
 }

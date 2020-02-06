@@ -47,7 +47,7 @@ namespace MiNET.Blocks
 
 		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
-			return world.GetBlock(blockCoordinates).IsReplacible;
+			return world.GetBlock(blockCoordinates).IsReplaceable;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
@@ -133,7 +133,7 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override void BreakBlock(Level world, bool silent = false)
+		public override void BreakBlock(Level world, BlockFace face, bool silent = false)
 		{
 			var blockEntity = world.GetBlockEntity(Coordinates) as ChalkboardBlockEntity;
 			if (blockEntity == null)

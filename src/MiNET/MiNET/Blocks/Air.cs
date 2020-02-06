@@ -27,11 +27,11 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Air : Block
+	public partial class Air : Block
 	{
 		public Air() : base(0)
 		{
-			IsReplacible = true;
+			IsReplaceable = true;
 			IsSolid = false;
 			IsBuildable = false;
 			IsTransparent = true;

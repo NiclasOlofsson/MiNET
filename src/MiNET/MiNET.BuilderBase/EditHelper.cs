@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using log4net;
@@ -21,7 +21,7 @@ namespace MiNET.BuilderBase
 		private Mask _mask;
 		private bool _randomizeGeneration = false;
 		private readonly UndoRecorder _undoRecorder;
-		private Random _random = new Random((int) DateTime.UtcNow.Ticks);
+		private Random _random = new Random();
 
 		public EditHelper(Level level, Player player, Mask mask = null, bool randomizeGeneration = false, UndoRecorder undoRecorder = null)
 		{

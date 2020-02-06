@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Cake : Block
+	public partial class Cake : Block
 	{
 		public Cake() : base(92)
 		{
@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			if (Metadata == 0) return new Item[] {ItemFactory.GetItem(354, 0, 1)};
+			if (BiteCounter == 0) return new Item[] {ItemFactory.GetItem(354, 0, 1)};
 			return new Item[0];
 		}
 	}

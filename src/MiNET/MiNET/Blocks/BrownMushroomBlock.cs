@@ -28,7 +28,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class BrownMushroomBlock : Block
+	public partial class BrownMushroomBlock : Block
 	{
 		public BrownMushroomBlock() : base(99)
 		{
@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			var rnd = new Random((int) DateTime.UtcNow.Ticks);
+			var rnd = new Random();
 			var next = rnd.Next(3);
 			if (next > 0)
 			{

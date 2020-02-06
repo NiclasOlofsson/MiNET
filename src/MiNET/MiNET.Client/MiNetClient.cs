@@ -53,6 +53,7 @@ using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -73,7 +74,8 @@ namespace MiNET.Client
 		public IPEndPoint ClientEndpoint { get; private set; }
 		public IPEndPoint ServerEndpoint { get; private set; }
 		private readonly DedicatedThreadPool _threadPool;
-		private short _mtuSize = 1192;
+		//private short _mtuSize = 1192;
+		private short _mtuSize = 1464;
 		private int _reliableMessageNumber = -1;
 		public Vector3 SpawnPoint { get; set; }
 		public long EntityId { get; set; }
@@ -81,6 +83,9 @@ namespace MiNET.Client
 		public PlayerNetworkSession Session { get; set; }
 		private Thread _mainProcessingThread;
 		public int ChunkRadius { get; set; } = 5;
+
+		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
+		public BlockPalette BlockPalette { get; set; } = new BlockPalette();
 
 		public LevelInfo LevelInfo { get; } = new LevelInfo();
 
@@ -103,8 +108,9 @@ namespace MiNET.Client
 
 		public MiNetClient(IPEndPoint endpoint, string username, DedicatedThreadPool threadPool)
 		{
-			Random random = new Random();
-			_clientGuid = 1111111 + random.Next() + random.Next();
+			byte[] buffer = new byte[8];
+			new Random().NextBytes(buffer);
+			_clientGuid = BitConverter.ToInt64(buffer, 0);
 
 			Username = username;
 			ClientId = new Random().Next();
@@ -330,7 +336,7 @@ namespace MiNET.Client
 
 			if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 			{
-				DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
+				var msgIdType = (DefaultMessageIdTypes) msgId;
 
 				Packet message = PacketFactory.Create(msgId, receiveBytes, "raknet");
 
@@ -342,14 +348,14 @@ namespace MiNET.Client
 				{
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
 					{
-						UnconnectedPong incoming = (UnconnectedPong) message;
+						var incoming = (UnconnectedPong) message;
 						OnUnconnectedPong(incoming, senderEndpoint);
 
 						break;
 					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_1:
 					{
-						OpenConnectionReply1 incoming = (OpenConnectionReply1) message;
+						var incoming = (OpenConnectionReply1) message;
 						if (incoming.mtuSize != _mtuSize) Log.Warn("Error, mtu differ from what we sent:" + incoming.mtuSize);
 						Log.Warn($"Server with ID {incoming.serverGuid} security={incoming.serverHasSecurity}");
 						_mtuSize = incoming.mtuSize;
@@ -527,7 +533,7 @@ namespace MiNET.Client
 					}
 					else
 					{
-						if (Log.IsDebugEnabled) Log.Warn($"{Username} - Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+						//if (Log.IsDebugEnabled) Log.Warn($"{Username} - Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
 						WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
 					}
 				}
@@ -545,17 +551,24 @@ namespace MiNET.Client
 		}
 
 
-		protected virtual void OnUnconnectedPong(UnconnectedPong packet, IPEndPoint senderEndpoint)
+		public virtual void OnUnconnectedPong(UnconnectedPong packet, IPEndPoint senderEndpoint)
 		{
+			Log.Warn($"MOTD: {packet.serverName}");
+			Log.Warn($"from server {senderEndpoint}");
+
+			
 			if (!HaveServer)
 			{
+				string[] motdParts = packet.serverName.Split(';');
+				senderEndpoint.Port = int.Parse(motdParts[10]);
+				Log.Debug($"Connecting to {senderEndpoint}");
 				ServerEndpoint = senderEndpoint;
 				HaveServer = true;
 				SendOpenConnectionRequest1();
 			}
 		}
-		
-		private void OnOpenConnectionReply2(OpenConnectionReply2 message)
+
+		public virtual void OnOpenConnectionReply2(OpenConnectionReply2 message)
 		{
 			Log.Warn("MTU Size: " + message.mtuSize);
 			Log.Warn("Client Endpoint: " + message.clientEndpoint);
@@ -568,14 +581,14 @@ namespace MiNET.Client
 		}
 
 
-		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		public virtual void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
 			//Log.Info("Ack");
 		}
 
-		private void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		public virtual void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			Log.Warn("!! WHAT THE FUK NAK NAK NAK");
+			if(Log.IsDebugEnabled) Log.Warn("!! WHAT THE FUK NAK NAK NAK");
 		}
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPacket splitMessage)
@@ -722,9 +735,9 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnNoFreeIncomingConnections(NoFreeIncomingConnections message)
+		public virtual void OnNoFreeIncomingConnections(NoFreeIncomingConnections message)
 		{
-			Log.Error("No free connections from server ");
+			Log.Error($"No free connections from server {message.serverGuid}");
 			StopClient();
 		}
 
@@ -860,7 +873,7 @@ namespace MiNET.Client
 					}
 				}
 				{
-					ItemStacks slotData = new ItemStacks {recipe.Result};
+					ItemStacks slotData = new ItemStacks {recipe.Result.First()};
 					crafting.result = slotData;
 				}
 
@@ -1132,12 +1145,8 @@ namespace MiNET.Client
 			return sb.ToString();
 		}
 
-		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
-
 		public string CodeName(string name, bool firstUpper = false)
 		{
-			//name = name.ToLowerInvariant();
-
 			bool upperCase = firstUpper;
 
 			var result = string.Empty;
@@ -1176,7 +1185,7 @@ namespace MiNET.Client
 
 		private int _numberOfChunks = 0;
 
-		public ConcurrentDictionary<Tuple<int, int>, bool> _chunks = new ConcurrentDictionary<Tuple<int, int>, bool>();
+		public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> Chunks { get; } = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 		public IndentedTextWriter _mobWriter;
 
 		public virtual void HandleBatch(McpeWrapper batch)
@@ -1333,8 +1342,11 @@ namespace MiNET.Client
 
 					Formatting = Formatting.Indented,
 				};
+				jsonSerializerSettings.Converters.Add(new StringEnumConverter());
 				jsonSerializerSettings.Converters.Add(new NbtIntConverter());
 				jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+				jsonSerializerSettings.Converters.Add(new IPAddressConverter());
+				jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
 
 				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
 				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
@@ -1366,7 +1378,33 @@ namespace MiNET.Client
 				return;
 			}
 
-			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+
+			if (verbosity == 0)
+			{
+				Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
+			}
+			else if (verbosity == 1)
+			{
+				var jsonSerializerSettings = new JsonSerializerSettings
+				{
+					PreserveReferencesHandling = PreserveReferencesHandling.All,
+
+					Formatting = Formatting.Indented,
+				};
+				jsonSerializerSettings.Converters.Add(new StringEnumConverter());
+				jsonSerializerSettings.Converters.Add(new NbtIntConverter());
+				jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+				jsonSerializerSettings.Converters.Add(new IPAddressConverter());
+				jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
+
+				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
+				Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+			}
+			else if (verbosity == 2)
+			{
+				Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
+			}
+
 		}
 
 		public void SendUnconnectedPing()
@@ -1374,6 +1412,7 @@ namespace MiNET.Client
 			var packet = new UnconnectedPing
 			{
 				pingId = Stopwatch.GetTimestamp() /*incoming.pingId*/,
+				guid = _clientGuid
 			};
 
 			var data = packet.Encode();
@@ -1427,10 +1466,11 @@ namespace MiNET.Client
 			byte[] data2 = new byte[_mtuSize - data.Length - 10];
 			Buffer.BlockCopy(data, 0, data2, 0, data.Length);
 
+			Log.Debug($"data lenght={data2.Length}");
 			SendData(data2);
 		}
 
-		public void SendOpenConnectionRequest2()
+		public virtual void SendOpenConnectionRequest2()
 		{
 			//_clientGuid = new Random().Next() + new Random().Next();
 			var packet = new OpenConnectionRequest2()
@@ -1492,7 +1532,10 @@ namespace MiNET.Client
 		{
 			if (CurrentLocation == null) return;
 
-			McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
+			if(CurrentLocation.Y < 0)
+				CurrentLocation.Y = 64f;
+
+			var movePlayerPacket = McpeMovePlayer.CreateObject();
 			movePlayerPacket.runtimeEntityId = EntityId;
 			movePlayerPacket.x = CurrentLocation.X;
 			movePlayerPacket.y = CurrentLocation.Y;
@@ -1500,6 +1543,8 @@ namespace MiNET.Client
 			movePlayerPacket.yaw = CurrentLocation.Yaw;
 			movePlayerPacket.pitch = CurrentLocation.Pitch;
 			movePlayerPacket.headYaw = CurrentLocation.HeadYaw;
+			movePlayerPacket.mode = 1;
+			movePlayerPacket.onGround = false;
 
 			SendPacket(movePlayerPacket);
 		}

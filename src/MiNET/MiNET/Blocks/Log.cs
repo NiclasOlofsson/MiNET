@@ -23,11 +23,14 @@
 
 #endregion
 
+using System.Numerics;
 using MiNET.Items;
+using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Log : Block
+	public partial class Log : Block
 	{
 		public Log() : base(17)
 		{
@@ -37,10 +40,17 @@ namespace MiNET.Blocks
 			IsFlammable = true;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			return new[] {ItemFactory.GetItem((short) Id, (short) (Metadata & 0x03), 1)};
+			PillarAxis = ItemBlock.GetPillarAxisFromFace(face).ToString();
+			return false;
 		}
+
+
+		//public override Item[] GetDrops(Item tool)
+		//{
+		//	return new[] {ItemFactory.GetItem((short) Id, (short) (Metadata & 0x03), 1)};
+		//}
 
 		public override Item GetSmelt()
 		{

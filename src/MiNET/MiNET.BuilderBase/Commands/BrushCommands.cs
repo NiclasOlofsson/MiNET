@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -49,6 +49,7 @@ namespace MiNET.BuilderBase.Commands
 			if (brush == null)
 			{
 				brush = new BrushTool();
+				brush.Mask = new AirBlocksMask(player.Level);
 				player.Inventory.AddItem(brush, true);
 				op = "Added";
 			}
@@ -57,7 +58,7 @@ namespace MiNET.BuilderBase.Commands
 			brush.Radius = radius;
 			brush.Pattern = material;
 			brush.Filled = !hollow;
-			brush.Mask = new AirBlocksMask(player.Level);
+			brush.UpdateDisplay(player);
 
 			player.SendMessage($"{op} {(!hollow ? "filling" : "hollow")} sphere brush with radius={radius}");
 		}
@@ -70,6 +71,7 @@ namespace MiNET.BuilderBase.Commands
 			if (brush == null)
 			{
 				brush = new BrushTool();
+				brush.Mask = new AirBlocksMask(player.Level);
 				player.Inventory.AddItem(brush, true);
 				op = "Added";
 			}
@@ -79,7 +81,7 @@ namespace MiNET.BuilderBase.Commands
 			brush.Height = height;
 			brush.Pattern = material;
 			brush.Filled = !hollow;
-			brush.Mask = new AirBlocksMask(player.Level);
+			brush.UpdateDisplay(player);
 
 			player.SendMessage($"{op} {(!hollow ? "filling" : "hollow")} sphere cylinder with radius={radius}");
 		}
@@ -92,13 +94,14 @@ namespace MiNET.BuilderBase.Commands
 			if (brush == null)
 			{
 				brush = new BrushTool();
+				brush.Mask = new AirBlocksMask(player.Level);
 				player.Inventory.AddItem(brush, true);
 				op = "Added";
 			}
 
 			brush.BrushType = 3; // Fill
 			brush.Radius = radius;
-			brush.Mask = new AirBlocksMask(player.Level);
+			brush.UpdateDisplay(player);
 
 			player.SendMessage($"{op} fill brush with radius={radius}");
 		}
@@ -117,6 +120,7 @@ namespace MiNET.BuilderBase.Commands
 
 			brush.BrushType = 2; // Melt
 			brush.Radius = radius;
+			brush.UpdateDisplay(player);
 
 			player.SendMessage($"{op} melt brush with radius={radius}");
 		}
@@ -130,11 +134,15 @@ namespace MiNET.BuilderBase.Commands
 			if (mask == null)
 			{
 				brush.Mask = new AnyBlockMask();
+				brush.UpdateDisplay(player);
+
 				player.SendMessage($"Removed source mask from brush");
 				return;
 			}
 
 			brush.Mask = mask;
+			brush.UpdateDisplay(player);
+
 			player.SendMessage($"Set new brush source mask");
 		}
 
@@ -145,6 +153,8 @@ namespace MiNET.BuilderBase.Commands
 			if (brush == null) return;
 
 			brush.Pattern = material;
+			brush.UpdateDisplay(player);
+
 			player.SendMessage($"Set brush material");
 		}
 
@@ -155,6 +165,7 @@ namespace MiNET.BuilderBase.Commands
 			if (brush == null) return;
 
 			brush.Radius = radius;
+			brush.UpdateDisplay(player);
 
 			player.SendMessage($"Set brush radius to {radius}");
 		}
@@ -166,6 +177,7 @@ namespace MiNET.BuilderBase.Commands
 			if (brush == null) return;
 
 			brush.Range = range;
+			brush.UpdateDisplay(player);
 
 			player.SendMessage($"Set brush range to {range}");
 		}

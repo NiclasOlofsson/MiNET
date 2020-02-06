@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class ActivatorRail : Block
+	public partial class ActivatorRail : Block
 	{
 		public ActivatorRail() : base(126)
 		{

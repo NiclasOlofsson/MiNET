@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class JungleDoor : WoodenDoor
+	public partial class JungleDoor : DoorBase
 	{
 		public JungleDoor() : base(195)
 		{

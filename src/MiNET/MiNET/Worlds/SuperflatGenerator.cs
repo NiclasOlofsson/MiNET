@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -62,12 +62,12 @@ namespace MiNET.Worlds
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
 			ChunkColumn chunk = new ChunkColumn();
-			chunk.x = chunkCoordinates.X;
-			chunk.z = chunkCoordinates.Z;
+			chunk.X = chunkCoordinates.X;
+			chunk.Z = chunkCoordinates.Z;
 
 			PopulateChunk(chunk);
 
-			Random random = new Random((chunk.x * 397) ^ chunk.z);
+			Random random = new Random((chunk.X * 397) ^ chunk.Z);
 			if (random.NextDouble() > 0.99)
 			{
 				GenerateLake(random, chunk, Dimension == Dimension.Overworld ? new Water() : Dimension == Dimension.Nether ? (Block) new Lava() : new Air());
@@ -97,13 +97,13 @@ namespace MiNET.Worlds
 					Vector2 v = new Vector2(x, z);
 					if (random.Next((int) Vector2.DistanceSquared(center, v)) < 1)
 					{
-						chunk.SetBlock(x, BlockLayers.Count - 2, z, new Glowstone().Id);
+						chunk.SetBlock(x, BlockLayers.Count - 2, z, new Glowstone());
 						if (random.NextDouble() > 0.85)
 						{
-							chunk.SetBlock(x, BlockLayers.Count - 3, z, new Glowstone().Id);
+							chunk.SetBlock(x, BlockLayers.Count - 3, z, new Glowstone());
 							if (random.NextDouble() > 0.50)
 							{
-								chunk.SetBlock(x, BlockLayers.Count - 4, z, new Glowstone().Id);
+								chunk.SetBlock(x, BlockLayers.Count - 4, z, new Glowstone());
 							}
 						}
 					}
@@ -128,17 +128,17 @@ namespace MiNET.Worlds
 					{
 						if (Dimension == Dimension.Overworld)
 						{
-							chunk.SetBlock(x, h, z, block.Id);
+							chunk.SetBlock(x, h, z, block);
 						}
 						else if (Dimension == Dimension.Nether)
 						{
-							chunk.SetBlock(x, h, z, block.Id);
+							chunk.SetBlock(x, h, z, block);
 
 							if (random.Next(30) == 0)
 							{
 								for (int i = h; i < BlockLayers.Count - 1; i++)
 								{
-									chunk.SetBlock(x, i, z, block.Id);
+									chunk.SetBlock(x, i, z, block);
 								}
 							}
 						}
@@ -146,13 +146,13 @@ namespace MiNET.Worlds
 						{
 							for (int i = 0; i < BlockLayers.Count; i++)
 							{
-								chunk.SetBlock(x, i, z, 0);
+								chunk.SetBlock(x, i, z, new Air());
 							}
 						}
 					}
 					else if (Dimension == Dimension.TheEnd && random.Next((int) Vector2.DistanceSquared(center, v)) < 15)
 					{
-						chunk.SetBlock(x, h, z, 0);
+						chunk.SetBlock(x, h, z, new Air());
 					}
 				}
 			}
@@ -176,7 +176,7 @@ namespace MiNET.Worlds
 
 		public void PopulateChunk(ChunkColumn chunk)
 		{
-			var layers = BlockLayers;
+			List<Block> layers = BlockLayers;
 
 			for (int x = 0; x < 16; x++)
 			{
@@ -184,10 +184,9 @@ namespace MiNET.Worlds
 				{
 					int h = 0;
 
-					foreach (var layer in layers)
+					foreach (Block layer in layers)
 					{
-						chunk.SetBlock(x, h, z, layer.Id);
-						chunk.SetMetadata(x, h, z, layer.Metadata);
+						chunk.SetBlock(x, h, z, layer);
 						h++;
 					}
 
@@ -240,7 +239,7 @@ namespace MiNET.Worlds
 
 				if (blockAndMeta.Length > 1 && byte.TryParse(blockAndMeta[1], out byte meta))
 				{
-					block.Metadata = meta;
+					block.Metadata = meta; //TODO: Replace with new state-based data from JE patterns.
 				}
 
 				if (block != null)

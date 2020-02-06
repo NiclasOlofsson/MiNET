@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class LitRedstoneOre : RedstoneOre
+	public partial class LitRedstoneOre : RedstoneOre
 	{
 		public LitRedstoneOre() : base(74)
 		{

@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,24 +18,25 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
 using System.Numerics;
+using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Trapdoor : Block
+	public partial class TrapdoorBase : Block
 	{
-		public Trapdoor() : this(96)
-		{
-		}
+		[StateRange(0, 3)] public virtual int Direction { get; set; } = 0;
+		[StateBit] public virtual bool OpenBit { get; set; } = false;
+		[StateBit] public virtual bool UpsideDownBit { get; set; } = false;
 
-		public Trapdoor(byte id) : base(id)
+		protected TrapdoorBase(int id) : base(id)
 		{
 			IsTransparent = true;
 			BlastResistance = 15;
@@ -44,35 +45,63 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			byte direction = player.GetDirection();
+			Direction = ItemBlock.GetDirectionFromEntity(player);
 
-			byte upper = (byte) (faceCoords.Y > 0.5 && face != BlockFace.Up || face == BlockFace.Down ? 0x04 : 0x00);
 
-			switch (direction)
-			{
-				case 0:
-					Metadata = (byte) (1 | upper);
-					break;
-				case 1:
-					Metadata = (byte) (3 | upper);
-					break;
-				case 2:
-					Metadata = (byte) (0 | upper);
-					break;
-				case 3:
-					Metadata = (byte) (2 | upper);
-					break;
-			}
+			UpsideDownBit = faceCoords.Y > 0.5 && face != BlockFace.Up || face == BlockFace.Down;
 
 			return false;
 		}
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
-			Metadata ^= 0x08;
+			OpenBit = !OpenBit;
 			world.SetBlock(this);
 
 			return true;
+		}
+	}
+
+	public partial class Trapdoor : TrapdoorBase
+	{
+		public Trapdoor() : base(96)
+		{
+		}
+	}
+
+
+	public partial class AcaciaTrapdoor : TrapdoorBase
+	{
+		public AcaciaTrapdoor() : base(400)
+		{
+		}
+	}
+
+	public partial class BirchTrapdoor : TrapdoorBase
+	{
+		public BirchTrapdoor() : base(401)
+		{
+		}
+	}
+
+	public partial class DarkOakTrapdoor : TrapdoorBase
+	{
+		public DarkOakTrapdoor() : base(402)
+		{
+		}
+	}
+
+	public partial class JungleTrapdoor : TrapdoorBase
+	{
+		public JungleTrapdoor() : base(403)
+		{
+		}
+	}
+
+	public partial class SpruceTrapdoor : TrapdoorBase
+	{
+		public SpruceTrapdoor() : base(404)
+		{
 		}
 	}
 }

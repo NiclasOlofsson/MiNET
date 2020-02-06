@@ -139,6 +139,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Update Block Properties | 0x86 | 134 |   
 | Client Cache Blob Status | 0x87 | 135 |   
 | Client Cache Miss Response | 0x88 | 136 |   
+| Network Settings Packet | 0x8f | 143 |   
 
 
 ## Data types
@@ -170,6 +171,8 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | PlayerAttributes [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PlayerAttributes) |
 | PlayerLocation [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PlayerLocation) |
 | PlayerRecords [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PlayerRecords) |
+| PotionContainerChangeRecipe[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PotionContainerChangeRecipe[]) |
+| PotionTypeRecipe[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PotionTypeRecipe[]) |
 | Recipes [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Recipes) |
 | ResourcePackIds [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIds) |
 | ResourcePackIdVersions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIdVersions) |
@@ -723,7 +726,7 @@ Wiki: [Add Painting](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddP
 Wiki: [Tick Sync](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TickSync)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 
@@ -871,18 +874,22 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Crafting | 100 |
 |Unspecified | 99999 |
 
-#### Normal Action constants
+#### Crafting Action constants
 
 | Name | Value |
 |:-----|:-----|
-|Put Slot | -2 |
-|Get Slot | -3 |
-|Get Result | -4 |
-|Craft Use | -5 |
+|Craft Add Ingredient | -2 |
+|Craft Remove Ingredient | -3 |
+|Craft Result | -4 |
+|Craft Use Ingredient | -5 |
+|Anvil Input | -10 |
+|Anvil Material | -11 |
+|Anvil Result | -12 |
+|Anvil Output | -13 |
 |Enchant Item | -15 |
 |Enchant Lapis | -16 |
 |Enchant Result | -17 |
-|Drop | 199 |
+|Drop | -100 |
 
 #### Item Release Action constants
 
@@ -895,8 +902,8 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 
 | Name | Value |
 |:-----|:-----|
-|Place | 0 |
-|Use | 1 |
+|Place, Clickblock | 0 |
+|Use, Clickair | 1 |
 |Destroy | 2 |
 
 #### Item Use On Entity Action constants
@@ -1311,8 +1318,8 @@ Wiki: [Crafting Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Cra
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Recipes | Recipes |  |
-|Some Array Size | UnsignedVarInt |  |
-|Some Array Size 2 | UnsignedVarInt |  |
+|Potion type recipes | PotionTypeRecipe[] |  |
+|potion container recipes | PotionContainerChangeRecipe[] |  |
 |Is Clean | bool |  |
 -----------------------------------------------------------------------
 ### Crafting Event (0x35)
@@ -1539,9 +1546,9 @@ Wiki: [Telemetry Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-T
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID Self | SignedVarLong |  |
-|Unk1 | SignedVarInt |  |
-|Unk2 | byte |  |
+|Runtime Entity ID | UnsignedVarLong |  |
+|Event data | SignedVarInt |  |
+|Event type | byte |  |
 -----------------------------------------------------------------------
 ### Spawn Experience Orb (0x42)
 Wiki: [Spawn Experience Orb](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SpawnExperienceOrb)
@@ -2385,7 +2392,7 @@ Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wik
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Timestamp | ulong |  |
-|Unknown Flag | bool |  |
+|Unknown Flag | byte |  |
 -----------------------------------------------------------------------
 ### Script Custom Event Packet (0x75)
 Wiki: [Script Custom Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ScriptCustomEventPacket)
@@ -2558,7 +2565,7 @@ Wiki: [Video Stream Connect](https://github.com/NiclasOlofsson/MiNET/wiki//Proto
 Wiki: [Client Cache Status](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientCacheStatus)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 
@@ -2665,6 +2672,28 @@ Wiki: [Client Cache Miss Response](https://github.com/NiclasOlofsson/MiNET/wiki/
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Network Settings Packet (0x8f)
+Wiki: [Network Settings Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkSettingsPacket)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+#### Compression constants
+
+| Name | Value |
+|:-----|:-----|
+|Nothing | 0 |
+|Everything | 1 |
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Compression threshold | short |  |
 -----------------------------------------------------------------------
 
 

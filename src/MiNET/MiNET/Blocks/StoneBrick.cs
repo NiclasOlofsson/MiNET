@@ -27,9 +27,9 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class StoneBrick : Block
+	public partial class Stonebrick : Block
 	{
-		public StoneBrick() : base(98)
+		public Stonebrick() : base(98)
 		{
 			BlastResistance = 30;
 			Hardness = 1.5f;

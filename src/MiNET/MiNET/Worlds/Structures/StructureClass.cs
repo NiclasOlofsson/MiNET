@@ -46,12 +46,11 @@ namespace MiNET.Worlds.Structures
 
 		public void Create(ChunkColumn chunk, int x, int y, int z)
 		{
-			if (chunk.GetBlock(x, y + MaxHeight, z) == (byte) Material.Air)
+			if (chunk.GetBlockId(x, y + MaxHeight, z) == (byte) Material.Air)
 			{
 				foreach (Block b in Blocks)
 				{
-					chunk.SetBlock(x + b.Coordinates.X, y + b.Coordinates.Y, z + b.Coordinates.Z, b.Id);
-					chunk.SetMetadata(x + b.Coordinates.X, y + b.Coordinates.Y, z + b.Coordinates.Z, b.Metadata);
+					chunk.SetBlock(x + b.Coordinates.X, y + b.Coordinates.Y, z + b.Coordinates.Z, b);
 				}
 			}
 		}

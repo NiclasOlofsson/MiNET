@@ -49,7 +49,7 @@ namespace MiNET.Entities.Passive
 			HasCollision = true;
 			IsAffectedByGravity = true;
 
-			var random = rnd ?? new Random((int) DateTime.UtcNow.Ticks);
+			var random = rnd ?? new Random();
 			_timeUntilLayEgg = 6000 + random.Next(6000);
 
 			Behaviors.Add(new PanicBehavior(this, 60, Speed, 1.4));

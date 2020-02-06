@@ -175,6 +175,38 @@ namespace MiNET.Utils
 			}
 		}
 
+		public static long GetProperty(string property, long defaultValue)
+		{
+			try
+			{
+				var value = ReadString(property);
+				if (value == null)
+					return defaultValue;
+
+				return Convert.ToInt64(value);
+			}
+			catch
+			{
+				return defaultValue;
+			}
+		}
+
+		public static ulong GetProperty(string property, ulong defaultValue)
+		{
+			try
+			{
+				var value = ReadString(property);
+				if (value == null)
+					return defaultValue;
+
+				return Convert.ToUInt64(value);
+			}
+			catch
+			{
+				return defaultValue;
+			}
+		}
+
 		public static Difficulty GetProperty(string property, Difficulty defaultValue)
 		{
 			string df = ReadString(property);

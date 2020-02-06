@@ -91,7 +91,7 @@ namespace MiNET
 		PlayersSleeping = 9800,
 	}
 
-	enum LevelSoundEventType
+	public enum LevelSoundEventType
 	{
 		ItemUseOn = 0,
 		Hit = 1,

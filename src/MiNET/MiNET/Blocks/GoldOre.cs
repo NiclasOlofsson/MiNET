@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class GoldOre : Block
+	public partial class GoldOre : Block
 	{
 		public GoldOre() : base(14)
 		{

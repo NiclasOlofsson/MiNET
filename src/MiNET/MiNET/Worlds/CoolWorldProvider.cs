@@ -28,6 +28,7 @@ using System.Collections.Concurrent;
 using System.Numerics;
 using LibNoise;
 using LibNoise.Primitive;
+using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds.Structures;
 
@@ -127,8 +128,8 @@ namespace MiNET.Worlds
 
 			ChunkColumn chunk = new ChunkColumn
 			{
-				x = chunkCoordinates.X,
-				z = chunkCoordinates.Z
+				X = chunkCoordinates.X,
+				Z = chunkCoordinates.Z
 			};
 
 			PopulateChunk(chunk);
@@ -199,8 +200,8 @@ namespace MiNET.Worlds
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					float ox = x + chunk.x * 16;
-					float oz = z + chunk.z * 16;
+					float ox = x + chunk.X * 16;
+					float oz = z + chunk.Z * 16;
 
 
 					int bottomHeight = (int) ((bottom.Noise(ox, oz, 0.5, 0.5) * bottomsMagnitude) + 64.0);
@@ -214,7 +215,7 @@ namespace MiNET.Worlds
 					{
 						if (y <= 1)
 						{
-							chunk.SetBlock(x, y, z, 7);
+							chunk.SetBlock(x, y, z, new Bedrock());
 							continue;
 						}
 
@@ -222,32 +223,32 @@ namespace MiNET.Worlds
 						{
 							//part where we do the overhangs
 							double density = overhang.Noise(ox, y, oz, 0.5, 0.5);
-							if (density > threshold) chunk.SetBlock(x, y, z, (byte) Material.Stone);
+							if (density > threshold) chunk.SetBlock(x, y, z, new Stone());
 						}
 						else
 						{
-							chunk.SetBlock(x, y, z, (byte) Material.Stone);
+							chunk.SetBlock(x, y, z, new Stone());
 						}
 					}
 
 					//turn the tops into grass
-					chunk.SetBlock(x, bottomHeight, z, (byte) Material.Grass); //the top of the base hills
-					chunk.SetBlock(x, bottomHeight - 1, z, (byte) Material.Dirt);
-					chunk.SetBlock(x, bottomHeight - 2, z, (byte) Material.Dirt);
+					chunk.SetBlock(x, bottomHeight, z, new Grass()); //the top of the base hills
+					chunk.SetBlock(x, bottomHeight - 1, z, new Dirt());
+					chunk.SetBlock(x, bottomHeight - 2, z, new Dirt());
 
 					for (int y = bottomHeight + 1; y > bottomHeight && y < maxHeight && y < 255; y++)
 					{
 						//the overhang
-						int thisblock = chunk.GetBlock(x, y, z);
-						int blockabove = chunk.GetBlock(x, y + 1, z);
+						int thisblock = chunk.GetBlockId(x, y, z);
+						int blockabove = chunk.GetBlockId(x, y + 1, z);
 
 						if (thisblock != (decimal) Material.Air && blockabove == (decimal) Material.Air)
 						{
-							if (chunk.GetBlock(x, y, z) == (byte) Material.Dirt || chunk.GetBlock(x, y, z) == (byte) Material.Air || chunk.GetBlock(x, y, z) == (byte) Material.Stone) chunk.SetBlock(x, y, z, (byte) Material.Grass);
-							if (chunk.GetBlock(x, y - 1, z) != (decimal) Material.Air)
-								chunk.SetBlock(x, y - 1, z, (byte) Material.Dirt);
-							if (chunk.GetBlock(x, y - 2, z) != (decimal) Material.Air)
-								chunk.SetBlock(x, y - 2, z, (byte) Material.Dirt);
+							if (chunk.GetBlockId(x, y, z) == (byte) Material.Dirt || chunk.GetBlockId(x, y, z) == (byte) Material.Air || chunk.GetBlockId(x, y, z) == (byte) Material.Stone) chunk.SetBlock(x, y, z, new Grass());
+							if (chunk.GetBlockId(x, y - 1, z) != (decimal) Material.Air)
+								chunk.SetBlock(x, y - 1, z, new Dirt());
+							if (chunk.GetBlockId(x, y - 2, z) != (decimal) Material.Air)
+								chunk.SetBlock(x, y - 2, z, new Dirt());
 						}
 					}
 
@@ -256,40 +257,39 @@ namespace MiNET.Worlds
 						//Lake generation
 						if (y < WaterLevel)
 						{
-							if (chunk.GetBlock(x, y, z) == (decimal) Material.Grass || chunk.GetBlock(x, y, z) == (decimal) Material.Dirt) //Grass or Dirt?
+							if (chunk.GetBlockId(x, y, z) == (decimal) Material.Grass || chunk.GetBlockId(x, y, z) == (decimal) Material.Dirt) //Grass or Dirt?
 							{
 								if (GetRandomNumber(1, 40) == 1 && y < WaterLevel - 4)
-									chunk.SetBlock(x, y, z, 82); //Clay
+									chunk.SetBlock(x, y, z, new Clay()); //Clay
 								else
-									chunk.SetBlock(x, y, z, 12); //Sand
+									chunk.SetBlock(x, y, z, new Sand()); //Sand
 							}
-							if (chunk.GetBlock(x, y + 1, z) == (decimal) Material.Air)
+							if (chunk.GetBlockId(x, y + 1, z) == (decimal) Material.Air)
 							{
 								if (y < WaterLevel - 3)
-									chunk.SetBlock(x, y + 1, z, 8); //FlowingWater
+									chunk.SetBlock(x, y + 1, z, new FlowingWater()); //FlowingWater
 							}
 						}
 					}
 
 					for (int y = 0; y < 255; y++)
 					{
-						int thisblock = chunk.GetBlock(x, y, z);
-						int blockabove = chunk.GetBlock(x, y + 1, z);
+						int thisblock = chunk.GetBlockId(x, y, z);
+						int blockabove = chunk.GetBlockId(x, y + 1, z);
 						if (thisblock == (decimal) Material.Grass && blockabove == (decimal) Material.Air && y > WaterLevel)
 						{
 							//Grass
 							if (GetRandomNumber(0, 5) == 1)
 							{
-								chunk.SetBlock(x, y + 1, z, 31);
-								chunk.SetMetadata(x, y + 1, z, 1);
+								chunk.SetBlock(x, y + 1, z, new Tallgrass {TallGrassType = "tall"});
 							}
 
 							//Flowers
 							if (GetRandomNumber(0, 65) == 1)
 							{
 								int meta = GetRandomNumber(0, 8);
-								chunk.SetBlock(x, y + 1, z, 38);
-								chunk.SetMetadata(x, y + 1, z, (byte) meta);
+								//chunk.SetBlock(x, y + 1, z, 38, (byte) meta);
+								chunk.SetBlock(x, y + 1, z, new RedFlower());
 							}
 
 							//Trees
@@ -298,7 +298,7 @@ namespace MiNET.Worlds
 								if (treeBasePositions[pos, 0] < 14 && treeBasePositions[pos, 0] > 4 && treeBasePositions[pos, 1] < 14 &&
 									treeBasePositions[pos, 1] > 4)
 								{
-									if (chunk.GetBlock(treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1]) == 2)
+									if (chunk.GetBlockId(treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1]) == 2)
 									{
 										if (y >= bottomHeight)
 											GenerateTree(chunk, treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1], WoodType.Oak);

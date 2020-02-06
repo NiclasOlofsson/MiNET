@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -84,11 +84,6 @@ namespace TestPlugin
 		//    return packet;
 		//}
 
-		[Command(Name = "tc", Description = "Test command")]
-		public void TestCommand(Player player, int param)
-		{
-		}
-
 		[Command(Name = "bossbar")]
 		public void BossbarCommand(Player player)
 		{
@@ -105,12 +100,9 @@ namespace TestPlugin
 		[Command(Name = "tlp", Description = "Test all legacy particles!")]
 		public async void TestLegactParticles(Player player)
 		{
-			for(var i = 0; i <= (int)ParticleType.Sneeze; i++)
+			for (var i = 0; i <= (int) ParticleType.Sneeze; i++)
 			{
-				new LegacyParticle(i, player.Level)
-				{
-					Position = player.KnownPosition
-				}.Spawn();
+				new LegacyParticle(i, player.Level) {Position = player.KnownPosition}.Spawn();
 				player.SendMessage(((ParticleType) i).ToString());
 				await Task.Delay(2000);
 			}
@@ -311,7 +303,7 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void Relight(Player player)
+		public void Relit(Player player)
 		{
 			BlockCoordinates pos = player.KnownPosition.GetCoordinates3D();
 			pos.Y -= 1;
@@ -583,17 +575,6 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void Params(Player player, params string[] args)
-		{
-			player.SendMessage($"Executed command params, got {args.Length} arguments", type: MessageType.Raw);
-			foreach (string s in args)
-			{
-				player.SendMessage($"{s}", type: MessageType.Raw);
-			}
-		}
-
-
-		[Command]
 		public void Plugins(Player player)
 		{
 			StringBuilder sb = new StringBuilder();
@@ -827,7 +808,7 @@ namespace TestPlugin
 		{
 			Level level = player.Level;
 
-			var entity = new Entity((EntityType)entityId, level)
+			var entity = new Entity((EntityType) entityId, level)
 			{
 				KnownPosition = player.KnownPosition,
 			};
@@ -875,6 +856,89 @@ namespace TestPlugin
 		public void Ignite(Player player)
 		{
 			player.HealthManager.Ignite();
+		}
+
+		[Command]
+		public void UtilityKit(Player player)
+		{
+			PlayerInventory inventory = player.Inventory;
+
+			byte slot = 0;
+			inventory.Slots[slot++] = new ItemBed()
+			{
+				Metadata = 3,
+				Count = 64
+			};
+			inventory.Slots[slot++] = new ItemBlock(new CraftingTable()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Anvil()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Furnace()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new BlastFurnace()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Smoker()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Chest()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Barrel()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new CartographyTable()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Cauldron()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new FletchingTable()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Grindstone()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Lectern()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Loom()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new SmithingTable()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new SmithingTable()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Stonecutter()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Stonecutter()) {Count = 64};
+			inventory.Slots[slot++] = new ItemCoal {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new IronOre()) {Count = 64};
+
+			player.SendPlayerInventory();
+			SendEquipmentForPlayer(player);
+			SendArmorForPlayer(player);
+
+			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
+		}
+
+		[Command]
+		public void CraftingKit(Player player)
+		{
+			PlayerInventory inventory = player.Inventory;
+
+			byte slot = 0;
+			inventory.Slots[slot++] = new ItemBlock(new CraftingTable()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Anvil()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new EnchantingTable()) {Count = 64};
+
+			slot = 9;
+			inventory.Slots[slot++] = new ItemDye()
+			{
+				Metadata = 4,
+				Count = 64
+			};
+			inventory.Slots[slot++] = new ItemBook() {Count = 64};
+			inventory.Slots[slot++] = new ItemEnchantedBook()
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound
+						{
+							new NbtShort("id", (short) EnchantingType.Knockback),
+							new NbtShort("lvl", 1)
+						}
+					}
+				}
+			};
+
+			inventory.Slots[slot++] = new ItemIronSword() {Count = 1};
+			inventory.Slots[slot++] = new ItemIronSword() {Count = 1};
+			inventory.Slots[slot++] = new ItemIronSword() {Count = 1};
+			inventory.Slots[slot++] = new ItemIronSword() {Count = 1};
+
+
+			player.SendPlayerInventory();
+			SendEquipmentForPlayer(player);
+			SendArmorForPlayer(player);
+
+			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
 		}
 
 		[Command]
@@ -1067,10 +1131,7 @@ namespace TestPlugin
 				}
 			};
 
-			inventory.Slots[c++] = new ItemIronSword
-			{
-				ExtraData = new NbtCompound {{new NbtCompound("display") {new NbtString("Name", "test")}}}
-			};
+			inventory.Slots[c++] = new ItemIronSword {ExtraData = new NbtCompound {{new NbtCompound("display") {new NbtString("Name", "test")}}}};
 
 			//inventory.Slots[c++] = new ItemEmptyMap { Count = 64 }; // Wooden Sword
 			inventory.Slots[c++] = new ItemStoneAxe();
@@ -1202,23 +1263,10 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void StringTest(Player player, string str1, string str2)
+		public void Hunger(Player player, int level)
 		{
-		}
-
-		[Command]
-		public void OptionalTest(Player player, int x, int y, int z, int rot = 0)
-		{
-		}
-
-		[Command]
-		public void EnumTest(Player player, ItemTypeEnum itemType, EntityTypeEnum entityType, BlockTypeEnum blockType, CommandNameEnum commandName)
-		{
-		}
-
-		[Command]
-		public void EnumTest2(Player player, EnchantEnum enchant, EffectEnum effect)
-		{
+			player.HungerManager.Hunger = level;
+			player.HungerManager.SendHungerAttributes();
 		}
 
 		[Command(Description = "Fly command")]
@@ -1409,16 +1457,12 @@ namespace TestPlugin
 			Chest chest = new Chest
 			{
 				Coordinates = coor,
-				Metadata = 0
 			};
 			player.Level.SetBlock(chest, true);
 
 			// Then we create and set the sign block entity that has all the intersting data
 
-			ChestBlockEntity chestBlockEntity = new ChestBlockEntity
-			{
-				Coordinates = coor
-			};
+			ChestBlockEntity chestBlockEntity = new ChestBlockEntity {Coordinates = coor};
 
 			player.Level.SetBlockEntity(chestBlockEntity, false);
 
@@ -1528,7 +1572,7 @@ namespace TestPlugin
 						}
 
 						var message = McpeUpdateBlock.CreateObject();
-						message.blockRuntimeId = block.GetRuntimeId();
+						message.blockRuntimeId = (uint) block.GetRuntimeId();
 						message.coordinates = block.Coordinates;
 						message.blockPriority = 0xb;
 						level.RelayBroadcast(sendList.ToArray(), message);
@@ -1536,12 +1580,6 @@ namespace TestPlugin
 				}
 			}
 			return $"Added world border with radius of {radius} around {center}";
-		}
-
-		[Command]
-		public string Test()
-		{
-			return "Test";
 		}
 
 		[Command]
@@ -1570,16 +1608,7 @@ namespace TestPlugin
 		{
 			Block block = isStart ? (Block) new DiamondBlock() : isLast ? (Block) new EmeraldBlock() : new GoldBlock();
 
-			int[,] coords = new[,]
-			{
-				{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 0},
-				{1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 5},
-				{2, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {2, 5},
-				{3, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {3, 5},
-				{4, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {4, 5},
-				{5, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {5, 5},
-				{0, 0}, {6, 1}, {6, 2}, {6, 3}, {6, 4}, {6, 5},
-			};
+			int[,] coords = new[,] {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 5}, {2, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {2, 5}, {3, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {3, 5}, {4, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {4, 5}, {5, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {5, 5}, {0, 0}, {6, 1}, {6, 2}, {6, 3}, {6, 4}, {6, 5},};
 
 			for (int i = 0; i < coords.Length / 2; i++)
 			{
@@ -1635,10 +1664,7 @@ namespace TestPlugin
 			{
 				var size = sizes[i].ToString("X4");
 
-				var skin = new Skin
-				{
-					Data = Skin.GetTextureFromFile("../../../../TestPlugin/" + size + ".png")
-				};
+				var skin = new Skin {Data = Skin.GetTextureFromFile("../../../../TestPlugin/" + size + ".png")};
 
 				var playerMob = new PlayerMob("0x" + size, player.Level)
 				{
@@ -1651,7 +1677,6 @@ namespace TestPlugin
 			}
 		}
 	}
-
 
 	internal struct SineWave
 	{

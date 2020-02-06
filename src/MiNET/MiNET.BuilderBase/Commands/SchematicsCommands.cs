@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -59,7 +59,7 @@ namespace MiNET.BuilderBase.Commands
 			if (!File.Exists(filePath)) return $"Sorry, this schematics did not exist <{schematicFile}>";
 
 			NbtFile file = new NbtFile(filePath);
-			NbtCompound schematic = file.RootTag;
+			NbtCompound schematic = (NbtCompound) file.RootTag;
 			var width = schematic["Width"].ShortValue;
 			var length = schematic["Length"].ShortValue;
 			var height = schematic["Height"].ShortValue;

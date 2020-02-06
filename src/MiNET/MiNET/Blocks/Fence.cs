@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Fence : Block
+	public partial class Fence : Block
 	{
 		public Fence() : this(85)
 		{

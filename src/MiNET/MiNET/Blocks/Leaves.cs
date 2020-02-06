@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -32,7 +32,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Leaves : Block
+	public partial class Leaves : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Leaves));
 
@@ -47,33 +47,28 @@ namespace MiNET.Blocks
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
 			// No decay
-			if ((Metadata & 0x04) == 0x04) return;
+			if (PersistentBit) return;
+			if (UpdateBit) return;
 
-			if ((Metadata & 0x08) == 0x08) return;
+			UpdateBit = true;
 
-			Metadata = (byte) (Metadata | 0x08);
 			level.SetBlock(this, false, false, false);
 		}
 
 		public override void OnTick(Level level, bool isRandom)
 		{
-			if ((Metadata & 0x04) == 0x04) return;
-
-			if ((Metadata & 0x08) != 0x08) return;
-
-			//Log.Debug("Checking decay");
+			if (PersistentBit) return;
+			if (!UpdateBit) return;
 
 			if (FindLog(level, Coordinates, new List<BlockCoordinates>(), 0))
 			{
-				Metadata = (byte) (Metadata & 0x07);
+				UpdateBit = false;
 				level.SetBlock(this, false, false, false);
 				return;
 			}
 
-			Log.Debug("Decay leaf");
-
 			var drops = GetDrops(null);
-			BreakBlock(level, drops.Length == 0);
+			BreakBlock(level, BlockFace.None, drops.Length == 0);
 			foreach (var drop in drops)
 			{
 				level.DropItem(Coordinates, drop);
@@ -82,8 +77,8 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			var rnd = new Random((int) DateTime.UtcNow.Ticks);
-			if ((Metadata & 0x03) == 0) // Oak and dark oak drops apple
+			var rnd = new Random();
+			if (OldLeafType == "oak") // Oak and dark oak drops apple
 			{
 				if (rnd.Next(200) == 0)
 				{
@@ -94,7 +89,8 @@ namespace MiNET.Blocks
 			if (rnd.Next(20) == 0)
 			{
 				// Sapling
-				return new Item[] {ItemFactory.GetItem(6, Metadata, 1)};
+				var blockstate = GetState();
+				return new[] {ItemFactory.GetItem(6, blockstate.Data, 1)};
 			}
 
 			return new Item[0];
@@ -112,7 +108,8 @@ namespace MiNET.Blocks
 			if (distance >= 4) return false;
 
 			if (!(block is Leaves)) return false;
-			if ((block.Metadata & 0x07) != (Metadata & 0x07)) return false;
+			var leaves = (Leaves) block;
+			if (leaves.OldLeafType != OldLeafType) return false;
 
 			// check down
 			if (FindLog(level, coord.BlockDown(), visited, distance + 1)) return true;

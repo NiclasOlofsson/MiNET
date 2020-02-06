@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class IronOre : Block
+	public partial class IronOre : Block
 	{
 		public IronOre() : base(15)
 		{

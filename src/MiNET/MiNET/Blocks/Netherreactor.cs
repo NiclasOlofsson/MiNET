@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Netherreactor : Block
+	public partial class Netherreactor : Block
 	{
 		public Netherreactor() : base(247)
 		{

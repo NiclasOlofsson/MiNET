@@ -63,11 +63,11 @@ namespace MiNET.Worlds
 			Test(level, coord, coord.BlockSouth(), lightBfsQueue, chunk, lightLevel);
 			Test(level, coord, coord.BlockNorth(), lightBfsQueue, chunk, lightLevel);
 
-			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.Down, chunk), lightLevel);
-			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.West, chunk), lightLevel);
-			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.East, chunk), lightLevel);
-			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.South, chunk), lightLevel);
-			//SetLightLevel(level, lightBfsQueue, level.GetBlock(coord + BlockCoordinates.North, chunk), lightLevel);
+			//SetLightLevel(level, lightBfsQueue, level.GetBlockId(coord + BlockCoordinates.Down, chunk), lightLevel);
+			//SetLightLevel(level, lightBfsQueue, level.GetBlockId(coord + BlockCoordinates.West, chunk), lightLevel);
+			//SetLightLevel(level, lightBfsQueue, level.GetBlockId(coord + BlockCoordinates.East, chunk), lightLevel);
+			//SetLightLevel(level, lightBfsQueue, level.GetBlockId(coord + BlockCoordinates.South, chunk), lightLevel);
+			//SetLightLevel(level, lightBfsQueue, level.GetBlockId(coord + BlockCoordinates.North, chunk), lightLevel);
 		}
 
 		private static ChunkColumn GetChunk(Level level, BlockCoordinates blockCoordinates)
@@ -91,14 +91,14 @@ namespace MiNET.Worlds
 			//Interlocked.Add(ref touches, 1);
 
 			var newChunkCoord = (ChunkCoordinates) newCoord;
-			if (chunk.x != newChunkCoord.X || chunk.z != newChunkCoord.Z)
+			if (chunk.X != newChunkCoord.X || chunk.Z != newChunkCoord.Z)
 			{
 				chunk = GetChunk(level, newCoord);
 			}
 
 			if (chunk == null) return;
 
-			if (chunk.GetBlock(newCoord.X & 0x0f, newCoord.Y & 0xff, newCoord.Z & 0x0f) == 0)
+			if (chunk.GetBlockId(newCoord.X & 0x0f, newCoord.Y & 0xff, newCoord.Z & 0x0f) == 0)
 			{
 				SetLightLevel(chunk, lightBfsQueue, newCoord, lightLevel);
 			}

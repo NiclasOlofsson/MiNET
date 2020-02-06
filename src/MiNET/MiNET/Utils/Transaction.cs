@@ -30,13 +30,20 @@ using MiNET.Net;
 
 namespace MiNET.Utils
 {
-	public class Transaction
+	public abstract class Transaction
 	{
-		public McpeInventoryTransaction.TransactionType TransactionType { get; set; }
+		public List<TransactionRecord> TransactionRecords { get; set; } = new List<TransactionRecord>();
+	}
 
-		public List<TransactionRecord> Transactions { get; set; } = new List<TransactionRecord>();
-
-		public int ActionType { get; set; }
+	public class NormalTransaction : Transaction
+	{
+	}
+	public class InventoryMismatchTransaction : Transaction
+	{
+	}
+	public class ItemUseTransaction : Transaction
+	{
+		public McpeInventoryTransaction.ItemUseAction ActionType { get; set; }
 		public BlockCoordinates Position { get; set; }
 		public int Face { get; set; }
 		public int Slot { get; set; }
@@ -44,16 +51,26 @@ namespace MiNET.Utils
 		public Vector3 FromPosition { get; set; }
 		public Vector3 ClickPosition { get; set; }
 		public uint BlockRuntimeId { get; set; }
+	}
+	public class ItemUseOnEntityTransaction : Transaction
+	{
 		public long EntityId { get; set; }
-
-		public Transaction()
-		{
-		}
+		public McpeInventoryTransaction.ItemUseOnEntityAction ActionType { get; set; }
+		public int Slot { get; set; }
+		public Item Item { get; set; }
+		public Vector3 FromPosition { get; set; }
+		public Vector3 ClickPosition { get; set; }
+	}
+	public class ItemReleaseTransaction : Transaction
+	{
+		public McpeInventoryTransaction.ItemReleaseAction ActionType { get; set; }
+		public int Slot { get; set; }
+		public Item Item { get; set; }
+		public Vector3 FromPosition { get; set; }
 	}
 
 	public abstract class TransactionRecord
 	{
-		public int Source { get; set; }
 		public int Slot { get; set; }
 		public Item OldItem { get; set; }
 		public Item NewItem { get; set; }
@@ -80,6 +97,6 @@ namespace MiNET.Utils
 
 	public class CraftTransactionRecord : TransactionRecord
 	{
-		public int Action { get; set; }
+		public McpeInventoryTransaction.CraftingAction Action { get; set; }
 	}
 }

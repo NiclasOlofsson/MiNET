@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,14 +18,13 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
 using System;
 using System.Numerics;
-using log4net;
 using MiNET.Items;
 using MiNET.Particles;
 using MiNET.Utils;
@@ -33,10 +32,8 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Sapling : Block
+	public partial class Sapling : Block
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Sapling));
-
 		public Sapling() : base(6)
 		{
 			FuelEfficiency = 5;
@@ -83,6 +80,10 @@ namespace MiNET.Blocks
 			return false;
 		}
 
+		//[StateBit] public bool AgeBit { get; set; } = false;
+		//[StateEnum("oak", "spruce", "birch", "jungle", "acacia", "dark_oak")]
+		//public string SaplingType { get; set; } = "oak";
+
 		public override void OnTick(Level level, bool isRandom)
 		{
 			if (!isRandom) return;
@@ -93,41 +94,38 @@ namespace MiNET.Blocks
 				SmallTreeGenerator generator = null;
 				Block log = null;
 				Block leaves = null;
-				if (Metadata == 0) // Oak
+				switch (SaplingType)
 				{
-					log = new Log() {Metadata = 0};
-					leaves = new Leaves() {Metadata = 0};
-					generator = new SmallTreeGenerator(log, leaves, 4);
-				}
-				else if (Metadata == 1) // Spruce
-				{
-					log = new Log() {Metadata = 1};
-					leaves = new Leaves() {Metadata = 1};
-					//generator = new SmallTreeGenerator(log, leaves, 4);
-				}
-				else if (Metadata == 2) // Birch
-				{
-					log = new Log() {Metadata = 2};
-					leaves = new Leaves() {Metadata = 2};
-					generator = new SmallTreeGenerator(log, leaves, 5);
-				}
-				else if (Metadata == 3) // Jungle
-				{
-					log = new Log() {Metadata = 3};
-					leaves = new Leaves() {Metadata = 3};
-					//generator = new SmallTreeGenerator(log, leaves, 4 + new Random().Next(7));
-				}
-				else if (Metadata == 4) // Acacia
-				{
-					log = new Log2() {Metadata = 0};
-					leaves = new Leaves2() {Metadata = 0};
-					//generator = new SmallTreeGenerator(log, leaves, 5);
-				}
-				else if (Metadata == 5) // Dark oak
-				{
-					log = new Log2() {Metadata = 1};
-					leaves = new Leaves2() {Metadata = 1};
-					//generator = new SmallTreeGenerator(log, leaves, 5);
+					case "oak":
+						log = new Log {OldLogType = SaplingType};
+						leaves = new Leaves {OldLeafType = SaplingType};
+						generator = new SmallTreeGenerator(log, leaves, 4);
+						break;
+					case "spruce":
+						log = new Log {OldLogType = SaplingType};
+						leaves = new Leaves {OldLeafType = SaplingType};
+						//generator = new SmallTreeGenerator(log, leaves, 4);
+						break;
+					case "birch":
+						log = new Log {OldLogType = SaplingType};
+						leaves = new Leaves {OldLeafType = SaplingType};
+						generator = new SmallTreeGenerator(log, leaves, 5);
+						break;
+					case "jungle":
+						log = new Log {OldLogType = SaplingType};
+						leaves = new Leaves {OldLeafType = SaplingType};
+						//generator = new SmallTreeGenerator(log, leaves, 4 + new Random().Next(7));
+						break;
+					case "acacia":
+						log = new Log {OldLogType = SaplingType};
+						leaves = new Leaves {OldLeafType = SaplingType};
+						//generator = new SmallTreeGenerator(log, leaves, 5);
+						break;
+					case "dark_oak":
+						log = new Log {OldLogType = SaplingType};
+						leaves = new Leaves {OldLeafType = SaplingType};
+						//generator = new SmallTreeGenerator(log, leaves, 5);
+						break;
 				}
 
 				if (generator == null) return;
@@ -165,7 +163,7 @@ namespace MiNET.Blocks
 
 		public bool Generate(Level level, BlockCoordinates position)
 		{
-			Random rand = new Random();
+			var rand = new Random();
 			int height = rand.Next(3) + _minTreeHeight;
 
 			bool canGrow = true;

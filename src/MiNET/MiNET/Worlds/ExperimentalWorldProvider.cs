@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Numerics;
+using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -50,8 +51,8 @@ namespace MiNET.Worlds
 			if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
 
 			ChunkColumn chunk = new ChunkColumn();
-			chunk.x = chunkCoordinates.X;
-			chunk.z = chunkCoordinates.Z;
+			chunk.X = chunkCoordinates.X;
+			chunk.Z = chunkCoordinates.Z;
 
 			PopulateChunk(chunk);
 
@@ -126,80 +127,79 @@ namespace MiNET.Worlds
 				for (int z = 0; z < 16; z++)
 				{
 					int stoneHeight = (int) Math.Floor(stoneBaseHeight);
-					stoneHeight += GetNoise(chunk.x * 16 + x, chunk.z * 16 + z, stoneMountainFrequency, (int) Math.Floor(stoneMountainHeight));
+					stoneHeight += GetNoise(chunk.X * 16 + x, chunk.Z * 16 + z, stoneMountainFrequency, (int) Math.Floor(stoneMountainHeight));
 
 					if (stoneHeight < stoneMinHeight)
 						stoneHeight = (int) Math.Floor(stoneMinHeight);
 
-					stoneHeight += GetNoise(chunk.x * 16 + x, chunk.z * 16 + z, stoneBaseNoise, (int) Math.Floor(stoneBaseNoiseHeight));
+					stoneHeight += GetNoise(chunk.X * 16 + x, chunk.Z * 16 + z, stoneBaseNoise, (int) Math.Floor(stoneBaseNoiseHeight));
 
 					int dirtHeight = stoneHeight + (int) Math.Floor(dirtBaseHeight);
-					dirtHeight += GetNoise(chunk.x * 16 + x, chunk.z * 16 + z, dirtNoise, (int) Math.Floor(dirtNoiseHeight));
+					dirtHeight += GetNoise(chunk.X * 16 + x, chunk.Z * 16 + z, dirtNoise, (int) Math.Floor(dirtNoiseHeight));
 
 					for (int y = 0; y < 256; y++)
 					{
 						//float y2 = Get3DNoise(chunk.X*16, y, chunk.Z*16, stoneBaseNoise, (int) Math.Floor(stoneBaseNoiseHeight));
 						if (y <= stoneHeight)
 						{
-							chunk.SetBlock(x, y, z, 1);
+							chunk.SetBlock(x, y, z, new Stone());
 
 							//Diamond ore
 							if (GetRandomNumber(0, 2500) < 5)
 							{
-								chunk.SetBlock(x, y, z, 56);
+								chunk.SetBlock(x, y, z, new DiamondOre());
 							}
 
 							//Coal Ore
 							if (GetRandomNumber(0, 1500) < 50)
 							{
-								chunk.SetBlock(x, y, z, 16);
+								chunk.SetBlock(x, y, z, new CoalOre());
 							}
 
 							//Iron Ore
 							if (GetRandomNumber(0, 2500) < 30)
 							{
-								chunk.SetBlock(x, y, z, 15);
+								chunk.SetBlock(x, y, z, new IronOre());
 							}
 
 							//Gold Ore
 							if (GetRandomNumber(0, 2500) < 20)
 							{
-								chunk.SetBlock(x, y, z, 14);
+								chunk.SetBlock(x, y, z, new GoldOre());
 							}
 						}
 
 						if (y < waterLevel) //FlowingWater :)
 						{
-							if (chunk.GetBlock(x, y, z) == 2 || chunk.GetBlock(x, y, z) == 3) //Grass or Dirt?
+							if (chunk.GetBlockId(x, y, z) == 2 || chunk.GetBlockId(x, y, z) == 3) //Grass or Dirt?
 							{
 								if (GetRandomNumber(1, 40) == 5 && y < waterLevel - 4)
-									chunk.SetBlock(x, y, z, 82); //Clay
+									chunk.SetBlock(x, y, z, new Clay()); //Clay
 								else
-									chunk.SetBlock(x, y, z, 12); //Sand
+									chunk.SetBlock(x, y, z, new Sand()); //Sand
 							}
 							if (y < waterLevel - 3)
-								chunk.SetBlock(x, y + 1, z, 8); //FlowingWater
+								chunk.SetBlock(x, y + 1, z, new FlowingWater()); //FlowingWater
 						}
 
 						if (y <= dirtHeight && y >= stoneHeight)
 						{
-							chunk.SetBlock(x, y, z, 3); //Dirt
-							chunk.SetBlock(x, y + 1, z, 2); //Grass Block
+							chunk.SetBlock(x, y, z, new Dirt()); //Dirt
+							chunk.SetBlock(x, y + 1, z, new Grass()); //Grass Block
 							if (y > waterLevel)
 							{
 								//Grass
 								if (GetRandomNumber(0, 5) == 2)
 								{
-									chunk.SetBlock(x, y + 2, z, 31);
-									chunk.SetMetadata(x, y + 2, z, 1);
+									chunk.SetBlock(x, y + 2, z, new Tallgrass(){TallGrassType = "tall"});
 								}
 
 								//flower
 								if (GetRandomNumber(0, 65) == 8)
 								{
 									int meta = GetRandomNumber(0, 8);
-									chunk.SetBlock(x, y + 2, z, 38);
-									chunk.SetMetadata(x, y + 2, z, (byte) meta);
+									//chunk.SetBlock(x, y + 2, z, 38, (byte) meta);
+									chunk.SetBlock(x, y + 2, z, new RedFlower());
 								}
 
 								for (int pos = 0; pos < trees; pos++)
@@ -209,7 +209,7 @@ namespace MiNET.Worlds
 									{
 										if (y < waterLevel + 2)
 											break;
-										if (chunk.GetBlock(treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1]) == 2)
+										if (chunk.GetBlockId(treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1]) == 2)
 										{
 											if (y == dirtHeight)
 												GenerateTree(chunk, treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1]);
@@ -221,7 +221,7 @@ namespace MiNET.Worlds
 
 						if (y == 0)
 						{
-							chunk.SetBlock(x, y, z, 7);
+							chunk.SetBlock(x, y, z, new Bedrock());
 						}
 					}
 				}
@@ -232,26 +232,26 @@ namespace MiNET.Worlds
 		{
 			int treeheight = GetRandomNumber(4, 5);
 
-			chunk.SetBlock(x, treebase + treeheight + 2, z, 18); //Top leave
+			chunk.SetBlock(x, treebase + treeheight + 2, z, new Leaves()); //Top leave
 
-			chunk.SetBlock(x, treebase + treeheight + 1, z + 1, 18);
-			chunk.SetBlock(x, treebase + treeheight + 1, z - 1, 18);
-			chunk.SetBlock(x + 1, treebase + treeheight + 1, z, 18);
-			chunk.SetBlock(x - 1, treebase + treeheight + 1, z, 18);
+			chunk.SetBlock(x, treebase + treeheight + 1, z + 1, new Leaves());
+			chunk.SetBlock(x, treebase + treeheight + 1, z - 1, new Leaves());
+			chunk.SetBlock(x + 1, treebase + treeheight + 1, z, new Leaves());
+			chunk.SetBlock(x - 1, treebase + treeheight + 1, z, new Leaves());
 
-			chunk.SetBlock(x, treebase + treeheight, z + 1, 18);
-			chunk.SetBlock(x, treebase + treeheight, z - 1, 18);
-			chunk.SetBlock(x + 1, treebase + treeheight, z, 18);
-			chunk.SetBlock(x - 1, treebase + treeheight, z, 18);
+			chunk.SetBlock(x, treebase + treeheight, z + 1, new Leaves());
+			chunk.SetBlock(x, treebase + treeheight, z - 1, new Leaves());
+			chunk.SetBlock(x + 1, treebase + treeheight, z, new Leaves());
+			chunk.SetBlock(x - 1, treebase + treeheight, z, new Leaves());
 
-			chunk.SetBlock(x + 1, treebase + treeheight, z + 1, 18);
-			chunk.SetBlock(x - 1, treebase + treeheight, z - 1, 18);
-			chunk.SetBlock(x + 1, treebase + treeheight, z - 1, 18);
-			chunk.SetBlock(x - 1, treebase + treeheight, z + 1, 18);
+			chunk.SetBlock(x + 1, treebase + treeheight, z + 1, new Leaves());
+			chunk.SetBlock(x - 1, treebase + treeheight, z - 1, new Leaves());
+			chunk.SetBlock(x + 1, treebase + treeheight, z - 1, new Leaves());
+			chunk.SetBlock(x - 1, treebase + treeheight, z + 1, new Leaves());
 
 			for (int i = 0; i <= treeheight; i++)
 			{
-				chunk.SetBlock(x, treebase + i, z, 17);
+				chunk.SetBlock(x, treebase + i, z, new Log());
 			}
 		}
 

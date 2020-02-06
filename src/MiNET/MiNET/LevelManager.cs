@@ -45,6 +45,8 @@ namespace MiNET
 		{
 		}
 
+		public IWorldGenerator Generator { get; set; } = new SuperflatGenerator(Dimension.Overworld);
+
 		public virtual Level GetLevel(Player player, string name)
 		{
 			Level level = Levels.FirstOrDefault(l => l.LevelId.Equals(name, StringComparison.InvariantCultureIgnoreCase));
@@ -73,7 +75,7 @@ namespace MiNET
 					default:
 						worldProvider = new AnvilWorldProvider
 						{
-							MissingChunkProvider = new SuperflatGenerator(Dimension.Overworld),
+							MissingChunkProvider = Generator,
 							ReadSkyLight = !Config.GetProperty("CalculateLights", false),
 							ReadBlockLight = !Config.GetProperty("CalculateLights", false),
 						};

@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public class Hopper : Block
+	public partial class Hopper : Block
 	{
 		public Hopper() : base(154)
 		{

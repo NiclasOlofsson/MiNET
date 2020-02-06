@@ -31,7 +31,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Beacon : Block
+	public partial class Beacon : Block
 	{
 		public Beacon() : base(138)
 		{

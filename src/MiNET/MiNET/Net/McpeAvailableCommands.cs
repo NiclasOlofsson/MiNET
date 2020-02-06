@@ -26,8 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using log4net;
 using MiNET.Plugins;
 
@@ -41,18 +39,18 @@ namespace MiNET.Net
 
 		partial void AfterDecode()
 		{
-			List<string> enumValues = new List<string>();
+			List<string> stringValues = new List<string>();
 			{
 				uint count = ReadUnsignedVarInt();
-				//Log.Warn($"Enum values {count}");
+				Log.Warn($"String values {count}");
 				for (int i = 0; i < count; i++)
 				{
-					string s = ReadString();
-					Log.Debug(s);
-					enumValues.Add(s);
+					string str = ReadString();
+					Log.Debug($"{i} - {str}");
+					stringValues.Add(str);
 				}
 			}
-			int enumValuesCount = enumValues.Count();
+			int stringValuesCount = stringValues.Count();
 
 			{
 				uint count = ReadUnsignedVarInt();
@@ -69,35 +67,21 @@ namespace MiNET.Net
 				Log.Warn($"Enum indexes {count}");
 
 				string last = null;
-				StringBuilder sb = new StringBuilder();
-				sb.AppendLine();
 
 				string clazzType = null;
 				for (int i = 0; i < count; i++)
 				{
-					string s = ReadString();
-					if (s != last)
-					{
-						if (last != null)
-						{
-							clazzType = null;
-							sb.AppendLine("}");
-							sb.AppendLine();
-						}
-						last = s;
-						sb.AppendLine($"public enum {s}{{");
-						if ("Block" == s) clazzType = "MiNET.Blocks.{0}";
-					}
-					uint c = ReadUnsignedVarInt();
-					Log.Debug($"{s}:{c}");
-					for (int j = 0; j < c; j++)
+					string enumName = ReadString();
+					uint enumValueCount = ReadUnsignedVarInt();
+					Log.Debug($"{i} - {enumName}:{enumValueCount}");
+					for (int j = 0; j < enumValueCount; j++)
 					{
 						int idx;
-						if (enumValuesCount <= byte.MaxValue)
+						if (stringValuesCount <= byte.MaxValue)
 						{
 							idx = ReadByte();
 						}
-						else if (enumValuesCount <= short.MaxValue)
+						else if (stringValuesCount <= short.MaxValue)
 						{
 							idx = ReadShort();
 						}
@@ -106,26 +90,8 @@ namespace MiNET.Net
 							idx = ReadInt();
 						}
 
-						Log.Debug($"{s}:{c}:{idx}");
-						string enumValue = enumValues[idx];
-						Type type = null;
-						if (clazzType != null)
-						{
-							var className = string.Format(clazzType, enumValue);
-							className = className.Replace("_", "");
-							type = Assembly.GetExecutingAssembly().GetType(className, false, true);
-							if (type != null)
-							{
-							}
-						}
-						sb.AppendLine($"\t{enumValue}, {(type == null ? "// missing" : "")}");
+						Log.Debug($"{enumName}, {idx} - {stringValues[idx]}");
 					}
-				}
-
-				if (last != null) sb.AppendLine("}");
-				if (Log.IsDebugEnabled)
-				{
-					Log.Debug(sb.ToString());
 				}
 			}
 
@@ -145,15 +111,17 @@ namespace MiNET.Net
 					for (int j = 0; j < overloadCount; j++)
 					{
 						uint parameterCount = ReadUnsignedVarInt();
-						Log.Debug($"{commandName}, {description}, {flags}, {permissions}, {aliasEnumIndex}, {overloadCount}, {parameterCount}");
+						Log.Debug($"{commandName}, {description}, flags={flags}, {((CommandPermission) permissions)}, alias={aliasEnumIndex}, overloads={overloadCount}, params={parameterCount}");
 						for (int k = 0; k < parameterCount; k++)
 						{
 							string commandParamName = ReadString();
 							int tmp = ReadShort();
 							int tmp1 = ReadShort();
 							bool isEnum = (tmp1 & 0x30) == 0x30;
+							bool isSoftEnum = (tmp1 & 0x0410) == 0x0410;
 							int commandParamType = -1;
 							int commandParamEnumIndex = -1;
+							int commandParamSoftEnumIndex = -1;
 							int commandParamPostfixIndex = -1;
 							if ((tmp1 & 0x30) == 0x30)
 							{
@@ -167,6 +135,10 @@ namespace MiNET.Net
 							{
 								commandParamType = tmp & 0xffff;
 							}
+							else if ((tmp1 & 0x0410) == 0x0410)
+							{
+								commandParamType = tmp & 0xffff;
+							}
 							else
 							{
 								Log.Warn("No parameter style read (enum, valid, postfix)");
@@ -174,7 +146,7 @@ namespace MiNET.Net
 
 							bool optional = ReadBool();
 							byte unknown = ReadByte();
-							Log.Debug($"\t{commandParamName}, 0x{tmp1:X4}, {isEnum}, {(GetParameterTypeName(commandParamType))}, {commandParamEnumIndex}, {commandParamPostfixIndex}, {optional}, {unknown}");
+							Log.Debug($"\t{commandParamName}, 0x{tmp:X4}, 0x{tmp1:X4}, {isEnum}, {isSoftEnum}, {(GetParameterTypeName(commandParamType))}, {commandParamEnumIndex}, {commandParamSoftEnumIndex}, {commandParamPostfixIndex}, {optional}, {unknown}");
 						}
 					}
 				}

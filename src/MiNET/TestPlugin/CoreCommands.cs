@@ -84,11 +84,6 @@ namespace TestPlugin
 		//    return packet;
 		//}
 
-		[Command(Name = "tc", Description = "Test command")]
-		public void TestCommand(Player player, int param)
-		{
-		}
-
 		[Command(Name = "bossbar")]
 		public void BossbarCommand(Player player)
 		{
@@ -308,7 +303,7 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void Relight(Player player)
+		public void Relit(Player player)
 		{
 			BlockCoordinates pos = player.KnownPosition.GetCoordinates3D();
 			pos.Y -= 1;
@@ -578,17 +573,6 @@ namespace TestPlugin
 			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetAssembly(typeof(MiNetServer)).Location).ProductVersion;
 			player.SendMessage($"MiNET v{productVersion}", type: MessageType.Raw);
 		}
-
-		[Command]
-		public void Params(Player player, params string[] args)
-		{
-			player.SendMessage($"Executed command params, got {args.Length} arguments", type: MessageType.Raw);
-			foreach (string s in args)
-			{
-				player.SendMessage($"{s}", type: MessageType.Raw);
-			}
-		}
-
 
 		[Command]
 		public void Plugins(Player player)
@@ -880,7 +864,11 @@ namespace TestPlugin
 			PlayerInventory inventory = player.Inventory;
 
 			byte slot = 0;
-			inventory.Slots[slot++] = new ItemBed(){Metadata = 3, Count = 64};
+			inventory.Slots[slot++] = new ItemBed()
+			{
+				Metadata = 3,
+				Count = 64
+			};
 			inventory.Slots[slot++] = new ItemBlock(new CraftingTable()) {Count = 64};
 			inventory.Slots[slot++] = new ItemBlock(new Anvil()) {Count = 64};
 			inventory.Slots[slot++] = new ItemBlock(new Furnace()) {Count = 64};
@@ -899,7 +887,7 @@ namespace TestPlugin
 			inventory.Slots[slot++] = new ItemBlock(new Stonecutter()) {Count = 64};
 			inventory.Slots[slot++] = new ItemBlock(new Stonecutter()) {Count = 64};
 			inventory.Slots[slot++] = new ItemCoal {Count = 64};
-			inventory.Slots[slot++] = new ItemBlock(new IronOre()) { Count = 64 };
+			inventory.Slots[slot++] = new ItemBlock(new IronOre()) {Count = 64};
 
 			player.SendPlayerInventory();
 			SendEquipmentForPlayer(player);
@@ -1275,26 +1263,6 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void StringTest(Player player, string str1, string str2)
-		{
-		}
-
-		[Command]
-		public void OptionalTest(Player player, int x, int y, int z, int rot = 0)
-		{
-		}
-
-		[Command]
-		public void EnumTest(Player player, ItemTypeEnum itemType, EntityTypeEnum entityType, BlockTypeEnum blockType, CommandNameEnum commandName)
-		{
-		}
-
-		[Command]
-		public void EnumTest2(Player player, EnchantEnum enchant, EffectEnum effect)
-		{
-		}
-
-		[Command]
 		public void Hunger(Player player, int level)
 		{
 			player.HungerManager.Hunger = level;
@@ -1615,12 +1583,6 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public string Test()
-		{
-			return "Test";
-		}
-
-		[Command]
 		public void GeneratePath(Player player)
 		{
 			Level level = player.Level;
@@ -1715,7 +1677,6 @@ namespace TestPlugin
 			}
 		}
 	}
-
 
 	internal struct SineWave
 	{

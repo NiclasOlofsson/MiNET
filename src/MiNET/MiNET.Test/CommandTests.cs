@@ -23,7 +23,9 @@
 
 #endregion
 
+using System.Globalization;
 using System.Reflection;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Effects;
 using MiNET.Plugins;
@@ -34,6 +36,13 @@ namespace MiNET.Test
 	[TestClass]
 	public class CommandTests
 	{
+		[TestInitialize]
+		public void Initialize()
+		{
+			// We do this to get the number formatting to work proper under these tests
+			Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+		}
+
 		[TestMethod]
 		public void IntCommandTest()
 		{
@@ -61,7 +70,7 @@ namespace MiNET.Test
 
 			// assert
 			Assert.IsTrue(successful);
-			Assert.AreEqual("1,2, 3,4", result);
+			Assert.AreEqual("1.2, 3.4", result);
 		}
 
 		[TestMethod]
@@ -121,7 +130,7 @@ namespace MiNET.Test
 
 			// assert
 			Assert.IsTrue(successful);
-			Assert.AreEqual("X: 1,2, XRelative: False, Y: 3,4, YRelative: False, Z: 5,6, ZRelative: True", result);
+			Assert.AreEqual("X: 1.2, XRelative: False, Y: 3.4, YRelative: False, Z: 5.6, ZRelative: True", result);
 		}
 
 		[TestMethod]
@@ -136,7 +145,7 @@ namespace MiNET.Test
 
 			// assert
 			Assert.IsTrue(successful);
-			Assert.AreEqual("Value: 1,2, Relative: False, Value: 3,4, Relative: True", result);
+			Assert.AreEqual("Value: 1.2, Relative: False, Value: 3.4, Relative: True", result);
 		}
 
 		private static TestPlugin GetTestPlugin()

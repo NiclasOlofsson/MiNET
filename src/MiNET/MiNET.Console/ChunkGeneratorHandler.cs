@@ -56,7 +56,7 @@ namespace MiNET.Console
 			Client.LevelInfo.Version = 19133;
 			Client.LevelInfo.GameType = message.gamemode;
 
-			BlockPalette = message.BlockPalette;
+			BlockPalette = message.blockPalette;
 
 			_internalStates = new HashSet<BlockStateContainer>(BlockFactory.BlockPalette);
 

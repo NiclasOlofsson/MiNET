@@ -1208,7 +1208,7 @@ namespace MiNET.Net
 			}
 		}
 
-		public BlockPalette ReadBlockPallet()
+		public BlockPalette ReadBlockPalette()
 		{
 			var result = new BlockPalette();
 

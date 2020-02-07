@@ -1,4 +1,5 @@
-﻿#region LICENSE
+﻿
+#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -203,7 +204,7 @@ namespace MiNET.Client
 			Client.SpawnPoint = message.spawn;
 			Client.CurrentLocation = new PlayerLocation(Client.SpawnPoint, message.rotation.X, message.rotation.X, message.rotation.Y);
 
-			BlockPalette blockPalette = message.BlockPalette;
+			BlockPalette blockPalette = message.blockPalette;
 			Client.BlockPalette = blockPalette;
 
 			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");

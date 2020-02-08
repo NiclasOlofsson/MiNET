@@ -39,10 +39,10 @@ namespace MiNET.Net
 
 		partial void AfterDecode()
 		{
-			List<string> stringValues = new List<string>();
+			var stringValues = new List<string>();
 			{
 				uint count = ReadUnsignedVarInt();
-				Log.Warn($"String values {count}");
+				Log.Debug($"String values {count}");
 				for (int i = 0; i < count; i++)
 				{
 					string str = ReadString();
@@ -54,7 +54,7 @@ namespace MiNET.Net
 
 			{
 				uint count = ReadUnsignedVarInt();
-				Log.Warn($"Postfix values {count}");
+				Log.Debug($"Postfix values {count}");
 				for (int i = 0; i < count; i++)
 				{
 					string s = ReadString();
@@ -64,7 +64,7 @@ namespace MiNET.Net
 
 			{
 				uint count = ReadUnsignedVarInt();
-				Log.Warn($"Enum indexes {count}");
+				Log.Debug($"Enum indexes {count}");
 
 				string last = null;
 
@@ -97,7 +97,7 @@ namespace MiNET.Net
 
 			{
 				uint count = ReadUnsignedVarInt();
-				Log.Warn($"Commands definitions {count}");
+				Log.Debug($"Commands definitions {count}");
 				for (int i = 0; i < count; i++)
 				{
 					string commandName = ReadString();

@@ -2866,7 +2866,7 @@ namespace MiNET
 			startGame.gameVersion = "";
 			startGame.isServerSideMovementEnabled = false;
 
-			startGame.BlockPalette = BlockFactory.BlockPalette;
+			startGame.blockPalette = BlockFactory.BlockPalette;
 			startGame.itemstates = ItemFactory.Itemstates;
 
 			SendPacket(startGame);

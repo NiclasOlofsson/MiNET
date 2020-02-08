@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -29,9 +29,11 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using log4net.Config;
 using MiNET.Client;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.ServiceKiller
@@ -48,11 +50,11 @@ namespace MiNET.ServiceKiller
 
 		private const int TimeBetweenSpawns = 0;
 		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(900);
-		private const int NumberOfBots = 20;
-		private const int RanSleepMin = 150;
-		private const int RanSleepMax = 450;
-		private const int RequestChunkRadius = 6;
-		private const bool ConcurrentSpawn = true;
+		private const int NumberOfBots = 400;
+		private const int RanSleepMin = 40;
+		private const int RanSleepMax = 100;
+		private const int RequestChunkRadius = 5;
+		private const bool ConcurrentSpawn = false;
 
 		public AutoResetEvent ConcurrentSpawnWaitHandle = new AutoResetEvent(false);
 
@@ -69,6 +71,12 @@ namespace MiNET.ServiceKiller
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 			XmlConfigurator.Configure(logRepository, new FileInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log4net.xml")));
 
+			Console.ResetColor();
+			Console.BackgroundColor = ConsoleColor.DarkGreen;
+			Console.ForegroundColor = ConsoleColor.White;
+			Console.WriteLine(MiNetServer.MiNET);
+			Console.BackgroundColor = ConsoleColor.Black;
+			Console.ForegroundColor = ConsoleColor.White;
 
 			try
 			{
@@ -86,37 +94,43 @@ namespace MiNET.ServiceKiller
 				//ThreadPool.SetMinThreads(4000, 4000);
 
 				//DedicatedThreadPool threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
-				DedicatedThreadPool threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(4000));
+				var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(4000));
 
-				Emulator emulator = new Emulator {Running = true};
-				Stopwatch watch = new Stopwatch();
-				watch.Start();
-
+				var emulator = new Emulator {Running = true};
 				long start = DateTime.UtcNow.Ticks;
 
 				//IPEndPoint endPoint = new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132);
-				IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 19132);
+				var endPoint = new IPEndPoint(IPAddress.Loopback, 19132);
 
-				var sw = Stopwatch.StartNew();
-				for (int j = 0; j < NumberOfBots; j++)
+				Task.Run(() =>
 				{
-					string playerName = $"TheGrey{j + 1:D3}";
+					var sw = Stopwatch.StartNew();
+					for (int j = 0; j < NumberOfBots; j++)
+					{
+						string playerName = $"TheGrey{j + 1:D3}";
 
-					ClientEmulator client = new ClientEmulator(threadPool, emulator, DurationOfConnection,
-						playerName, (int) (DateTime.UtcNow.Ticks - start), endPoint,
-						RanSleepMin, RanSleepMax, RequestChunkRadius);
+						var client = new ClientEmulator(threadPool,
+							emulator,
+							DurationOfConnection,
+							playerName,
+							(int) (DateTime.UtcNow.Ticks - start),
+							endPoint,
+							RanSleepMin,
+							RanSleepMax,
+							RequestChunkRadius);
 
-					new Thread(o => { client.EmulateClient(); }) {IsBackground = true}.Start();
+						new Thread(o => { client.EmulateClient(); }) {IsBackground = true}.Start();
 
-					if (ConcurrentSpawn) emulator.ConcurrentSpawnWaitHandle.Set();
+						if (ConcurrentSpawn) emulator.ConcurrentSpawnWaitHandle.Set();
 
-					emulator.ConcurrentSpawnWaitHandle.WaitOne();
+						emulator.ConcurrentSpawnWaitHandle.WaitOne();
 
-					long elapsed = sw.ElapsedMilliseconds;
-					if (elapsed < TimeBetweenSpawns) Thread.Sleep((int) (TimeBetweenSpawns - elapsed));
+						long elapsed = sw.ElapsedMilliseconds;
+						if (elapsed < TimeBetweenSpawns) Thread.Sleep((int) (TimeBetweenSpawns - elapsed));
 
-					sw.Restart();
-				}
+						sw.Restart();
+					}
+				});
 
 				Console.WriteLine("Press <enter> to stop all clients.");
 				Console.ReadLine();
@@ -125,6 +139,10 @@ namespace MiNET.ServiceKiller
 			catch (Exception e)
 			{
 				Console.WriteLine(e);
+			}
+			finally
+			{
+				Console.ResetColor();
 			}
 
 			Console.WriteLine("Emulation complete. Press <enter> to exit.");
@@ -178,6 +196,7 @@ namespace MiNET.ServiceKiller
 				Console.WriteLine($"Client {Name} connecting...");
 
 				var client = new MiNetClient(EndPoint, Name, _threadPool);
+				client.MessageDispatcher = new McpeClientMessageDispatcher(new DefaultMessageHandler(client));
 				client.ChunkRadius = ChunkRadius;
 				client.IsEmulator = true;
 				client.ClientId = ClientId;
@@ -195,8 +214,7 @@ namespace MiNET.ServiceKiller
 				Console.CursorLeft = Console.CursorLeft = Console.BufferWidth - $"Client {Name} connected, emulating...".Length;
 				if (client.UdpClient != null) Console.WriteLine($"Client {Name} connected, emulating...");
 
-				Stopwatch watch = new Stopwatch();
-				watch.Start();
+				var runningTime = Stopwatch.StartNew();
 
 				//Thread.Sleep(3000);
 
@@ -217,16 +235,16 @@ namespace MiNET.ServiceKiller
 
 				//Thread.Sleep(3000);
 
-				for (int i = 0; /*i < 10 && */Emulator.Running && watch.Elapsed < TimeToRun; i++)
+				for (int i = 0; /*i < 10 && */Emulator.Running && runningTime.Elapsed < TimeToRun; i++)
 				{
 					if (client.UdpClient == null) break;
 
-					float y = client.LevelInfo.SpawnX + Random.Next(7, 10) + /*24*/ 75;
+					float y = client.LevelInfo.SpawnX + Random.Next(7, 10);
 					float length = Random.Next(5, 20);
 
 					double angle = 0.0;
 					const double angleStepsize = 0.05;
-					float heightStepsize = (float) (Random.NextDouble() / 5);
+					float heightStepSize = (float) (Random.NextDouble() / 5);
 
 					while (angle < 2 * Math.PI && Emulator.Running)
 					{
@@ -234,21 +252,17 @@ namespace MiNET.ServiceKiller
 
 						float x = (float) (length * Math.Cos(angle));
 						float z = (float) (length * Math.Sin(angle));
-						y += heightStepsize;
+						y += heightStepSize;
 
 						x += client.LevelInfo.SpawnX;
 						z += client.LevelInfo.SpawnZ;
 
-						client.CurrentLocation = new PlayerLocation(x, y, z);
+						client.CurrentLocation = new PlayerLocation(x, y, z, (float) angle.ToDegrees(), (float) angle.ToDegrees());
 						client.SendMcpeMovePlayer();
 
-						int timeout;
-						if (RanMax == RanMax)
-							timeout = RanMin;
-						else
-							timeout = Random.Next(RanMin, RanMax);
-
+						int timeout = RanMin == RanMax ? RanMin : Random.Next(RanMin, RanMax);
 						if (timeout > 0) Thread.Sleep(timeout);
+
 						angle += angleStepsize;
 					}
 				}
@@ -260,7 +274,7 @@ namespace MiNET.ServiceKiller
 				}
 
 				client.StopClient();
-				Console.WriteLine($"{watch.ElapsedMilliseconds} Client stopped. {client.UdpClient == null}, {Emulator.Running}");
+				Console.WriteLine($"{runningTime.ElapsedMilliseconds} Client stopped. {client.UdpClient == null}, {Emulator.Running}");
 			}
 			catch (Exception e)
 			{

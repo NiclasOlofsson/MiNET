@@ -299,10 +299,10 @@ namespace MiNET
 				IPEndPoint senderEndpoint = null;
 				try
 				{
-					//var result = listener.ReceiveAsync().Result;
+					byte[] receiveBytes = listener.Receive(ref senderEndpoint);
+					//UdpReceiveResult result = listener.ReceiveAsync().Result;
 					//senderEndpoint = result.RemoteEndPoint;
-					//receiveBytes = result.Buffer;
-					Byte[] receiveBytes = listener.Receive(ref senderEndpoint);
+					//byte[] receiveBytes = result.Buffer;
 
 					Interlocked.Exchange(ref ServerInfo.AvailableBytes, listener.Available);
 					Interlocked.Increment(ref ServerInfo.NumberOfPacketsInPerSecond);
@@ -330,13 +330,11 @@ namespace MiNET
 						continue;
 					}
 				}
-				catch (Exception e)
+				catch (SocketException e)
 				{
-					Log.Error("Unexpected end of transmission?", e);
-					if (listener.Client != null)
-					{
-						continue;
-					}
+					if (e.ErrorCode != 10004) Log.Error("Unexpected end of receive", e);
+
+					if (listener.Client != null) continue;
 
 					return;
 				}

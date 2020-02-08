@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -32,8 +32,9 @@ namespace MiNET.Net
 		partial void AfterDecode()
 		{
 			//mtuSize = (short) (((int) (_buffer.Length - _buffer.Position)) + 18);
-			//mtuSize = (short) (_buffer.Length + 8 + 20);
-			mtuSize = (short) (_buffer.Length);
+			mtuSize = (short) (_buffer.Length + 8 + 20);
+			// DIFF by 28?!
+			//mtuSize = (short) (_buffer.Length);
 			ReadBytes((int) (_buffer.Length - 18));
 		}
 	}

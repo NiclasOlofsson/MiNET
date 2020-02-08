@@ -147,7 +147,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Data type | 
 |:--- |
 | BlockCoordinates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockCoordinates) |
-| BlockPallet [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockPallet) |
+| BlockPalette [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockPalette) |
 | bool [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-bool) |
 | byte [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte) |
 | byte[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte[]) |
@@ -457,7 +457,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Is Server Side movement enabled | bool |  |
 |Current Tick | long |  |
 |Enchantment Seed | SignedVarInt |  |
-|Block Pallet | BlockPallet |  |
+|Block Palette | BlockPalette |  |
 |Itemstates | Itemstates |  |
 |Multiplayer Correlation ID | string |  |
 -----------------------------------------------------------------------
@@ -2574,6 +2574,7 @@ Wiki: [Client Cache Status](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Enabled | bool |  |
 -----------------------------------------------------------------------
 ### On Screen Texture Animation (0x82)
 Wiki: [On Screen Texture Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-OnScreenTextureAnimation)

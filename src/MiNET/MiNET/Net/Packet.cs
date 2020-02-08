@@ -505,7 +505,7 @@ namespace MiNET.Net
 						ReadBool(); // is host
 
 						records.Add(player);
-						Log.Warn($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', {platformChatId}");
+						Log.Debug($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', {platformChatId}");
 					}
 					break;
 				case 1:
@@ -1208,7 +1208,7 @@ namespace MiNET.Net
 			}
 		}
 
-		public BlockPalette ReadBlockPallet()
+		public BlockPalette ReadBlockPalette()
 		{
 			var result = new BlockPalette();
 
@@ -1578,12 +1578,12 @@ namespace MiNET.Net
 			skin.Cape.Id = ReadString();
 			ReadString(); // some unique skin id
 
-			Log.Debug($"SkinId={skin.SkinId}");
-			Log.Debug($"SkinData lenght={skin.Data.Length}");
-			Log.Debug($"CapeData lenght={skin.Cape.Data.Length}");
-			Log.Debug("\n" + HexDump(skin.Cape.Data));
-			Log.Debug($"SkinGeometryName={skin.GeometryName}");
-			Log.Debug($"SkinGeometry lenght={skin.GeometryData.Length}");
+			//Log.Debug($"SkinId={skin.SkinId}");
+			//Log.Debug($"SkinData lenght={skin.Data.Length}");
+			//Log.Debug($"CapeData lenght={skin.Cape.Data.Length}");
+			//Log.Debug("\n" + HexDump(skin.Cape.Data));
+			//Log.Debug($"SkinGeometryName={skin.GeometryName}");
+			//Log.Debug($"SkinGeometry lenght={skin.GeometryData.Length}");
 
 			return skin;
 		}
@@ -1678,8 +1678,6 @@ namespace MiNET.Net
 			var recipes = new Recipes();
 
 			int count = (int) ReadUnsignedVarInt();
-
-			Log.Error($"Reading {count} recipes");
 
 			for (int i = 0; i < count; i++)
 			{
@@ -1862,7 +1860,7 @@ namespace MiNET.Net
 
 		public void Write(PotionContainerChangeRecipe[] recipes)
 		{
-
+			WriteSignedVarInt(0);
 		}
 
 		public PotionContainerChangeRecipe[] ReadPotionContainerChangeRecipes()
@@ -1884,7 +1882,7 @@ namespace MiNET.Net
 
 		public void Write(PotionTypeRecipe[] recipes)
 		{
-
+			WriteSignedVarInt(0);
 		}
 
 		public PotionTypeRecipe[] ReadPotionTypeRecipes()

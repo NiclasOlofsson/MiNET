@@ -1,4 +1,5 @@
-﻿#region LICENSE
+﻿
+#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -203,7 +204,7 @@ namespace MiNET.Client
 			Client.SpawnPoint = message.spawn;
 			Client.CurrentLocation = new PlayerLocation(Client.SpawnPoint, message.rotation.X, message.rotation.X, message.rotation.Y);
 
-			BlockPalette blockPalette = message.BlockPalette;
+			BlockPalette blockPalette = message.blockPalette;
 			Client.BlockPalette = blockPalette;
 
 			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");
@@ -654,15 +655,6 @@ namespace MiNET.Client
 			{
 				Log.Debug($"Attribute {playerAttribute}");
 			}
-		}
-
-		public override void HandleMcpeSetSpawnPosition(McpeSetSpawnPosition message)
-		{
-			Client.SpawnPoint = new Vector3(message.coordinates.X, message.coordinates.Y, message.coordinates.Z);
-			Client.LevelInfo.SpawnX = (int) Client.SpawnPoint.X;
-			Client.LevelInfo.SpawnY = (int) Client.SpawnPoint.Y;
-			Client.LevelInfo.SpawnZ = (int) Client.SpawnPoint.Z;
-			Log.Info($"Spawn position: {message.coordinates}");
 		}
 
 		public override void HandleMcpeCraftingData(McpeCraftingData message)

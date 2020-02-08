@@ -162,15 +162,17 @@ namespace MiNET.Client
 							};
 
 							file.LoadFromStream(stream, NbtCompression.None);
-
 							var blockEntityTag = file.RootTag;
-							int x = blockEntityTag["x"].IntValue;
-							int y = blockEntityTag["y"].IntValue;
-							int z = blockEntityTag["z"].IntValue;
+							if (blockEntityTag.Name != "alex")
+							{
+								int x = blockEntityTag["x"].IntValue;
+								int y = blockEntityTag["y"].IntValue;
+								int z = blockEntityTag["z"].IntValue;
 
-							chunkColumn.SetBlockEntity(new BlockCoordinates(x, y, z), (NbtCompound) file.RootTag);
+								chunkColumn.SetBlockEntity(new BlockCoordinates(x, y, z), (NbtCompound) file.RootTag);
 
-							Log.Debug($"Blockentity:\n{file.RootTag}");
+								Log.Debug($"Blockentity:\n{file.RootTag}");
+							}
 						}
 					}
 					if (stream.Position < stream.Length - 1)

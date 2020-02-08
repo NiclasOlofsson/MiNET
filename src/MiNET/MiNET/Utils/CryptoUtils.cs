@@ -195,9 +195,9 @@ namespace MiNET.Utils
 
 			string val = JWT.Encode(certificateData, signKey, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64Key}});
 
-			Log.Warn(JWT.Payload(val));
+			Log.Debug(JWT.Payload(val));
 
-			Log.Warn(string.Join(";", JWT.Headers(val)));
+			Log.Debug(string.Join(";", JWT.Headers(val)));
 
 			//val = "eyJhbGciOiJFUzM4NCIsIng1dSI6Ik1IWXdFQVlIS29aSXpqMENBUVlGSzRFRUFDSURZZ0FFREVLck5xdk93Y25iV3I5aUtVQ0MyeklFRmZ6Q0VnUEhQdG5Kd3VEdnZ3VjVtd1E3QzNkWmhqd0g0amxWc2RDVTlNdVl2QllQRktCTEJkWU52K09ZeW1MTFJGTU9odVFuSDhuZFRRQVV6VjJXRTF4dHdlVG1wSVFzdXdmVzRIdzAifQo.eyJleHAiOjE0Njc1MDg0NDksImV4dHJhRGF0YSI6eyJkaXNwbGF5TmFtZSI6Imd1cnVueHgiLCJpZGVudGl0eSI6IjRlMDE5OWM2LTdjZmQtMzU1MC1iNjc2LTc0Mzk4ZTBhNWYxYSJ9LCJpZGVudGl0eVB1YmxpY0tleSI6Ik1IWXdFQVlIS29aSXpqMENBUVlGSzRFRUFDSURZZ0FFREVLck5xdk93Y25iV3I5aUtVQ0MyeklFRmZ6Q0VnUEhQdG5Kd3VEdnZ3VjVtd1E3QzNkWmhqd0g0amxWc2RDVTlNdVl2QllQRktCTEJkWU52K09ZeW1MTFJGTU9odVFuSDhuZFRRQVV6VjJXRTF4dHdlVG1wSVFzdXdmVzRIdzAiLCJuYmYiOjE0Njc1MDg0NDh9Cg.jpCqzTo8nNVEW8ArK1NFBaqLx6kyJV6wPF8cAU6UGav6cfMc60o3m5DjwspN-JcyC14AlcNiPdWX8TEm1QFhtScb-bXo4WOJ0dNYXV8iI_eCTCcXMFjX4vgIHpb9xfjv";
 			val = $@"{{ ""chain"": [""{val}""] }}";
@@ -237,7 +237,12 @@ namespace MiNET.Utils
 
 			string skinData = $@"
 {{
+	""AnimatedImageData"": [],
 	""CapeData"": """",
+	""CapeId"": """",
+	""CapeImageHeight"": 0,
+	""CapeImageWidth"": 0,
+	""CapeOnClassicSkin"": false,
 	""ADRole"": 0,
 	""ClientRandomId"": {new Random().Next()},
 	""CurrentInputMode"": 1,
@@ -254,6 +259,11 @@ namespace MiNET.Utils
 	""ServerAddress"": ""yodamine.com:19132"",
 	""SkinData"": ""{skin64}"",
 	""SkinId"": ""{skin.SkinId}"",
+	""SkinImageHeight"": 32,
+	""SkinImageWidth"": 64,
+	""SkinResourcePatch"": ""ewogICAiZ2VvbWV0cnkiIDogewogICAgICAiZGVmYXVsdCIgOiAiZ2VvbWV0cnkuaHVtYW5vaWQuY3VzdG9tU2xpbSIKICAgfQp9Cg=="",
+	""PremiumSkin"": false,
+	""PersonaSkin"": false,
 	""TenantId"": ""38dd6634-1031-4c50-a9b4-d16cd9d97d57"",
 	""ThirdPartyName"": ""{username}"",
 	""UIProfile"": 0

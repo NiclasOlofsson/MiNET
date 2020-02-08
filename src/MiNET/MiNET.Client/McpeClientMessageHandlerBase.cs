@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Threading;
 using Jose;
@@ -50,6 +51,7 @@ namespace MiNET.Client
 		public virtual void HandleMcpePlayStatus(McpePlayStatus message)
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Player status={message.status}");
+
 			Client.PlayerStatus = message.status;
 
 			if (Client.PlayerStatus == 3)
@@ -58,7 +60,6 @@ namespace MiNET.Client
 				if (Client.IsEmulator)
 				{
 					Client.PlayerStatusChangedWaitHandle.Set();
-
 					Client.SendMcpeMovePlayer();
 				}
 			}
@@ -74,7 +75,7 @@ namespace MiNET.Client
 
 			Log.Debug($"JWT payload:\n{JWT.Payload(token)}");
 
-			ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(x5u.DecodeBase64());
+			var remotePublicKey = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(x5u.DecodeBase64());
 
 			var signParam = new ECParameters
 			{
@@ -162,6 +163,23 @@ namespace MiNET.Client
 
 		public virtual void HandleMcpeStartGame(McpeStartGame message)
 		{
+			var client = Client;
+			client.EntityId = message.runtimeEntityId;
+			client.NetworkEntityId = message.entityIdSelf;
+			client.SpawnPoint = message.spawn;
+			client.CurrentLocation = new PlayerLocation(client.SpawnPoint, message.rotation.X, message.rotation.X, message.rotation.Y);
+
+			BlockPalette blockPalette = message.blockPalette;
+			client.BlockPalette = blockPalette;
+			client.LevelInfo.LevelName = message.worldName;
+			client.LevelInfo.Version = 19133;
+			client.LevelInfo.GameType = message.gamemode;
+
+			var packet = McpeRequestChunkRadius.CreateObject();
+			client.ChunkRadius = 5;
+			packet.chunkRadius = client.ChunkRadius;
+
+			client.SendPacket(packet);
 		}
 
 		public virtual void HandleMcpeAddPlayer(McpeAddPlayer message)
@@ -193,13 +211,12 @@ namespace MiNET.Client
 			if (message.runtimeEntityId != Client.EntityId) return;
 
 			Client.CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
-			Log.Debug($"Position: {Client.CurrentLocation}");
 
-			Client.LevelInfo.SpawnX = (int) message.x;
-			Client.LevelInfo.SpawnY = (int) message.y;
-			Client.LevelInfo.SpawnZ = (int) message.z;
+			//Client.LevelInfo.SpawnX = (int) message.x;
+			//Client.LevelInfo.SpawnY = (int) message.y;
+			//Client.LevelInfo.SpawnZ = (int) message.z;
 
-			Client.SendMcpeMovePlayer();
+			//Client.SendMcpeMovePlayer();
 		}
 
 		public virtual void HandleMcpeRiderJump(McpeRiderJump message)
@@ -280,6 +297,10 @@ namespace MiNET.Client
 
 		public virtual void HandleMcpeSetSpawnPosition(McpeSetSpawnPosition message)
 		{
+			Client.SpawnPoint = new Vector3(message.coordinates.X, message.coordinates.Y, message.coordinates.Z);
+			Client.LevelInfo.SpawnX = (int) Client.SpawnPoint.X;
+			Client.LevelInfo.SpawnY = (int) Client.SpawnPoint.Y;
+			Client.LevelInfo.SpawnZ = (int) Client.SpawnPoint.Z;
 		}
 
 		public virtual void HandleMcpeAnimate(McpeAnimate message)
@@ -651,6 +672,13 @@ namespace MiNET.Client
 		}
 
 		public virtual void HandleFtlCreatePlayer(FtlCreatePlayer message)
+		{
+		}
+	}
+
+	public class DefaultMessageHandler : McpeClientMessageHandlerBase
+	{
+		public DefaultMessageHandler(MiNetClient client) : base(client)
 		{
 		}
 	}

@@ -657,15 +657,6 @@ namespace MiNET.Client
 			}
 		}
 
-		public override void HandleMcpeSetSpawnPosition(McpeSetSpawnPosition message)
-		{
-			Client.SpawnPoint = new Vector3(message.coordinates.X, message.coordinates.Y, message.coordinates.Z);
-			Client.LevelInfo.SpawnX = (int) Client.SpawnPoint.X;
-			Client.LevelInfo.SpawnY = (int) Client.SpawnPoint.Y;
-			Client.LevelInfo.SpawnZ = (int) Client.SpawnPoint.Z;
-			Log.Info($"Spawn position: {message.coordinates}");
-		}
-
 		public override void HandleMcpeCraftingData(McpeCraftingData message)
 		{
 			if (Client.IsEmulator) return;

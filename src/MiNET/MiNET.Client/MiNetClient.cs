@@ -116,7 +116,7 @@ namespace MiNET.Client
 			ClientId = new Random().Next();
 			ServerEndpoint = endpoint;
 			_threadPool = threadPool;
-			if (ServerEndpoint != null) Log.Warn("Connecting to: " + ServerEndpoint);
+			if (ServerEndpoint != null) Log.Info("Connecting to: " + ServerEndpoint);
 			ClientEndpoint = new IPEndPoint(IPAddress.Any, 0);
 			MessageDispatcher = new McpeClientMessageDispatcher(new BedrockTraceHandler(this));
 		}
@@ -166,9 +166,7 @@ namespace MiNET.Client
 
 				ClientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;
 
-				Log.InfoFormat("Server open for business for {0}", Username);
-
-				return;
+				Log.InfoFormat("Client open for actions by {0}", Username);
 			}
 			catch (Exception e)
 			{
@@ -210,7 +208,7 @@ namespace MiNET.Client
 		{
 			while (true)
 			{
-				UdpClient listener = (UdpClient) state;
+				var listener = (UdpClient) state;
 
 
 				// Check if we already closed the server
@@ -221,14 +219,13 @@ namespace MiNET.Client
 				// The application should close the socket; it is no longer usable. On a UDP-datagram socket 
 				// this error indicates a previous send operation resulted in an ICMP Port Unreachable message.
 				// Note the spocket settings on creation of the server. It makes us ignore these resets.
-				IPEndPoint senderEndpoint = null;
-				Byte[] receiveBytes = null;
 				try
 				{
 					//var result = listener.ReceiveAsync().Result;
 					//senderEndpoint = result.RemoteEndPoint;
 					//receiveBytes = result.Buffer;
-					receiveBytes = listener.Receive(ref senderEndpoint);
+					IPEndPoint senderEndpoint = null;
+					byte[] receiveBytes = listener.Receive(ref senderEndpoint);
 
 					if (receiveBytes.Length != 0)
 					{
@@ -240,7 +237,7 @@ namespace MiNET.Client
 							}
 							catch (Exception e)
 							{
-								Log.Warn(string.Format("Process message error from: {0}", senderEndpoint.Address), e);
+								Log.Warn($"Process message error from: {senderEndpoint.Address}", e);
 							}
 						});
 					}
@@ -250,13 +247,15 @@ namespace MiNET.Client
 						return;
 					}
 				}
-				catch (Exception e)
+				catch (ObjectDisposedException)
 				{
-					Log.Error("Unexpected end of transmission?", e);
-					if (listener.Client != null)
-					{
-						continue;
-					}
+					return;
+				}
+				catch (SocketException e)
+				{
+					if (e.ErrorCode != 10004) Log.Error("Unexpected end of receive", e);
+
+					if (listener.Client != null) continue;
 
 					return;
 				}
@@ -357,7 +356,7 @@ namespace MiNET.Client
 					{
 						var incoming = (OpenConnectionReply1) message;
 						if (incoming.mtuSize != _mtuSize) Log.Warn("Error, mtu differ from what we sent:" + incoming.mtuSize);
-						Log.Warn($"Server with ID {incoming.serverGuid} security={incoming.serverHasSecurity}");
+						Log.Debug($"Server with ID {incoming.serverGuid} security={incoming.serverHasSecurity}");
 						_mtuSize = incoming.mtuSize;
 						SendOpenConnectionRequest2();
 						break;
@@ -560,7 +559,10 @@ namespace MiNET.Client
 			if (!HaveServer)
 			{
 				string[] motdParts = packet.serverName.Split(';');
-				senderEndpoint.Port = int.Parse(motdParts[10]);
+				if(motdParts.Length >= 11)
+				{
+					senderEndpoint.Port = int.Parse(motdParts[10]);
+				}
 				Log.Debug($"Connecting to {senderEndpoint}");
 				ServerEndpoint = senderEndpoint;
 				HaveServer = true;
@@ -570,8 +572,8 @@ namespace MiNET.Client
 
 		public virtual void OnOpenConnectionReply2(OpenConnectionReply2 message)
 		{
-			Log.Warn("MTU Size: " + message.mtuSize);
-			Log.Warn("Client Endpoint: " + message.clientEndpoint);
+			Log.Debug("MTU Size: " + message.mtuSize);
+			Log.Debug("Client Endpoint: " + message.clientEndpoint);
 
 			//_serverEndpoint = message.clientEndpoint;
 

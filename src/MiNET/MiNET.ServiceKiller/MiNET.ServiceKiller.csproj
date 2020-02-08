@@ -9,11 +9,15 @@
 
   <ItemGroup>
     <None Remove="log4net.xml" />
+    <None Remove="server.conf" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="log4net.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="server.conf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

@@ -42,7 +42,23 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBlock));
 
-		[JsonIgnore] public Block Block { get; protected set; }
+		private Block _block;
+		private short _metadata = 0;
+
+		[JsonIgnore]
+		public Block Block
+		{
+			get
+			{
+				if (Metadata >= 0 && Metadata <= 15 && Metadata != _metadata)
+				{
+					_block.SetState(BlockFactory.BlockPalette[(int) BlockFactory.GetRuntimeId(Id < 0 ? 255 - Id : Id, (byte) Metadata)]);
+					_metadata = Metadata;
+				}
+				return _block;
+			}
+			protected set => _block = value;
+		}
 
 		protected ItemBlock(short id, short metadata = 0) : base(id, metadata)
 		{
@@ -136,7 +152,7 @@ namespace MiNET.Items
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
 
-			world.BroadcastSound(newBlock.Coordinates, LevelSoundEventType.Place, newBlock.Id);
+			world.BroadcastSound(newBlock.Coordinates, LevelSoundEventType.Place, newBlock.GetRuntimeId());
 		}
 
 		public override string ToString()

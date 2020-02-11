@@ -554,12 +554,17 @@ namespace MiNET.Worlds
 				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound) blockEntityPair.Value.Clone());
 			}
 
-			McpeWrapper batch = McpeWrapper.CreateObject();
+			//*cloned chunks cause crash with using this code
+			McpeWrapper batch = McpeWrapper.CreateObject(); 
 			batch.payload = _cachedBatch.payload;
 			batch.Encode();
 			batch.MarkPermanent();
 
 			cc._cachedBatch = batch;
+			//
+
+			//alternative
+			//cc._cachedBatch = _cachedBatch?.Clone<McpeWrapper>(); //doesn't cause crash
 
 			cc._cacheSync = new object();
 

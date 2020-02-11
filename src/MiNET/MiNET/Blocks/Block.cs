@@ -151,7 +151,7 @@ namespace MiNET.Blocks
 			}
 
 			UpdateBlocks(world);
-			world.BroadcastSound(Coordinates, LevelSoundEventType.BreakBlock, Id);
+			world.BroadcastSound(Coordinates, LevelSoundEventType.BreakBlock, GetRuntimeId());
 		}
 
 		protected void UpdateBlocks(Level world)

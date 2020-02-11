@@ -663,6 +663,12 @@ namespace MiNET.Worlds
 						byte metadata = Nibble4(data, anvilIndex);
 						metadata = dataConverter(blockId, metadata);
 
+						if(blockId == 17 && metadata > 11) //minecraft:wood
+						{
+							blockId = 467;
+							metadata -= 12;
+						}
+
 						int runtimeId = (int) BlockFactory.GetRuntimeId(blockId, metadata);
 						subChunk.SetBlockByRuntimeId(x, y, z, runtimeId);
 						if (ReadBlockLight)

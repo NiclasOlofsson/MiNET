@@ -90,7 +90,7 @@ namespace MiNET.Blocks
 			for (int i = 0; i < palletSize; i++)
 			{
 				if (BlockPalette[i].Data > 15) continue; // TODO: figure out why palette contains blocks with meta more than 15
-				if (BlockPalette[i].Data == -1) continue; // These are blockstates that does not have a metadata mapping
+				if (BlockPalette[i].Data == -1)  BlockPalette[i].Data = 0; // These are blockstates that does not have a metadata mapping
 				LegacyToRuntimeId[(BlockPalette[i].Id << 4) | (byte) BlockPalette[i].Data] = i;
 			}
 

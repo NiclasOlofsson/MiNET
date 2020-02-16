@@ -1,12 +1,12 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -31,9 +31,38 @@ using Newtonsoft.Json;
 
 namespace MiNET.Utils.Skins
 {
+	public class Description : ICloneable
+	{
+		public string Identifier { get; set; }
+
+		[JsonProperty(PropertyName = "texture_height")]
+		public int TextureHeight { get; set; }
+
+		[JsonProperty(PropertyName = "texture_width")]
+		public int TextureWidth { get; set; }
+
+		[JsonProperty(PropertyName = "visible_bounds_height")]
+		public int VisibleBoundsHeight { get; set; }
+
+		[JsonProperty(PropertyName = "visible_bounds_offset")]
+		public int[] VisibleBoundsOffset { get; set; }
+
+		[JsonProperty(PropertyName = "visible_bounds_width")]
+		public int VisibleBoundsWidth { get; set; }
+
+		public object Clone()
+		{
+			var clone = (Description) MemberwiseClone();
+			clone.VisibleBoundsOffset = VisibleBoundsOffset?.Clone() as int[];
+			return clone;
+		}
+	}
+
 	public class Geometry : ICloneable
 	{
 		[JsonIgnore] public string Name { get; set; }
+
+		public Description Description { get; set; }
 
 		[JsonIgnore] public string BaseGeometry { get; set; }
 
@@ -68,6 +97,7 @@ namespace MiNET.Utils.Skins
 		public object Clone()
 		{
 			var geometry = (Geometry) MemberwiseClone();
+			geometry.Description = (Description) Description.Clone();
 
 			if (Bones != null)
 			{

@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -32,6 +32,7 @@ namespace MiNET.Utils.Skins
 	public enum BoneName
 	{
 		Unknown,
+		Root,
 		Body,
 		Waist,
 		Head,
@@ -50,6 +51,12 @@ namespace MiNET.Utils.Skins
 		Jacket
 	}
 
+	public class Locators
+	{
+		[JsonProperty(PropertyName = "lead_hold")]
+		public float[] LeadHold { get; set; }
+	}
+
 	public class Bone : ICloneable
 	{
 		public BoneName Name { get; set; }
@@ -59,7 +66,7 @@ namespace MiNET.Utils.Skins
 
 		public string Material { get; set; }
 
-		public string Parent { get; set; }
+		public BoneName Parent { get; set; }
 		public float[] Pivot { get; set; } = new float[3];
 		public float[] Pos { get; set; } = new float[3];
 		public float[] Rotation { get; set; } = new float[3];
@@ -67,6 +74,7 @@ namespace MiNET.Utils.Skins
 		public bool NeverRender { get; set; }
 		public bool Reset { get; set; }
 		public bool Mirror { get; set; }
+		public Locators Locators { get; set; }
 
 		public object Clone()
 		{

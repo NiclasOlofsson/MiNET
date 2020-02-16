@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -58,7 +58,7 @@ namespace TestPlugin.Code4Fun
 			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 
 			var skin = player.Skin;
-			if (skin.GeometryData == null || skin.GeometryData.Length == 0)
+			if (string.IsNullOrEmpty(skin.GeometryData))
 			{
 				string skinString = File.ReadAllText(Path.Combine(pluginDirectory, "geometry.json"));
 				skin.GeometryData = skinString;
@@ -90,38 +90,36 @@ namespace TestPlugin.Code4Fun
 			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 
 			//var bytes = Encoding.Default.GetBytes(new string('Z', 8192));
-			byte[] bytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "test_skin.png"));
-			//byte[] bytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "IMG_0220.png"));
+			//byte[] skinData = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "test_skin.png"));
+			byte[] skinData = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "IMG_0220.png"));
 			string skinString = File.ReadAllText(Path.Combine(pluginDirectory, "geometry.json"));
 
 			var random = new Random();
 			string newName = $"geometry.{DateTime.UtcNow.Ticks}.{random.NextDouble()}";
-			skinString = skinString.Replace("geometry.humanoid", newName);
+			skinString = skinString.Replace("geometry.humanoid.custom", newName);
 			GeometryModel geometryModel = Skin.Parse(skinString);
 
-			var coordinates = player.KnownPosition;
-			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection()) * 1.5f;
+			PlayerLocation coordinates = player.KnownPosition;
+			Vector3 direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection()) * 1.5f;
 
-			PlayerMob fake = new PlayerMob(string.Empty, player.Level)
+			var fake = new PlayerMob(string.Empty, player.Level)
 			{
-				Skin = new Skin
-				{
-					SkinId = "testing",
-					Slim = false,
-					Data = bytes,
-					Cape = new Cape(),
-					GeometryName = newName,
-					GeometryData = skinString
-				},
 				KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, 0, 0)
 				//KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw + 180f, coordinates.Yaw + 180f)
 			};
+
+			fake.Skin.Data = skinData;
+			fake.Skin.SkinResourcePatch = new SkinResourcePatch() {Geometry = new GeometryIdentifier() {Default = newName}};
+			fake.Skin.GeometryName = newName;
+			//fake.Skin.GeometryData = skinString;
+			fake.Skin.GeometryData = Skin.ToJson(geometryModel);
+			;
 
 			fake.SpawnEntity();
 
 			fake.SetPosition(new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, 0, 0), true);
 
-			GravityGeometryBehavior state = new GravityGeometryBehavior(fake, geometryModel);
+			var state = new GravityGeometryBehavior(fake, geometryModel);
 			fake.Ticking += state.FakeMeltTicking;
 		}
 
@@ -145,13 +143,13 @@ namespace TestPlugin.Code4Fun
 
 				SetVelocity(geometry, new Random());
 
-				CurrentModel.Clear();
-				CurrentModel.Add(geometry.Name, geometry);
+				CurrentModel.Geometry.Clear();
+				CurrentModel.Geometry.Add(geometry);
 			}
 
 			private void SetVelocity(GeometryModel model, Random random)
 			{
-				foreach (var geometry in model.Values)
+				foreach (var geometry in model.Geometry)
 				{
 					SetVelocity(geometry, random);
 				}
@@ -189,40 +187,42 @@ namespace TestPlugin.Code4Fun
 				//var dir = _origin - pos;
 				var dir = pos - _origin;
 				float distance = dir.Length();
-				Log.Debug("Position: " + pos);
+				//Log.Debug("Position: " + pos);
 
 				distance = Math.Max(1, distance);
 				distance = distance / (distance * distance);
 				if (distance < 0.1) return;
 
-				Log.Debug("Lenght: " + distance);
+				//Log.Debug("Lenght: " + distance);
 				Vector3 force = new Vector3(distance, distance, distance) * 5;
 				cube.Velocity = Vector3.Reflect(dir.Normalize() * force, Vector3.UnitZ);
 
 				//+ new Vector3((float) random.NextDouble() - 0.5f, (float) random.NextDouble() - 0.5f, (float) random.NextDouble() - 0.5f)*10/distance;
-				Log.Debug("Velocity: " + cube.Velocity);
+				//Log.Debug("Velocity: " + cube.Velocity);
 				//cube.Velocity = dir.Normalize() + new Vector3((float) random.NextDouble(), (float) random.NextDouble(), (float) random.NextDouble()) * distance;
 				//cube.Velocity = new Vector3((float) ((random.NextDouble() - 0.5f)*1.8f), (float) (random.NextDouble()*cube.Origin[1]/10 + 3.8f), (float) ((random.NextDouble() - 0.5f)*1.8f));
 			}
 
 			public void FakeMeltTicking(object sender, PlayerEventArgs playerEventArgs)
 			{
-				Log.Debug("Ticking ... ");
-
-				PlayerMob mob = (PlayerMob) sender;
+				var mob = (PlayerMob) sender;
 
 				//Log.Warn("Done. De-register tick.");
 				//mob.Ticking -= FakeMeltTicking;
 				//return;
 
-				if (CurrentModel == null) return;
+				if (CurrentModel == null)
+				{
+					Log.Warn($"No current model set for mob.");
+					return;
+				}
 
 				try
 				{
 					bool stillMoving = false;
-					foreach (var geometry in CurrentModel.Values)
+					foreach (Geometry geometry in CurrentModel.Geometry)
 					{
-						foreach (var bone in geometry.Bones)
+						foreach (Bone bone in geometry.Bones)
 						{
 							if (bone.NeverRender) continue;
 							if (bone.Cubes == null || bone.Cubes.Count == 0) continue;
@@ -259,9 +259,11 @@ namespace TestPlugin.Code4Fun
 						{
 							Skin skin = mob.Skin;
 
-							McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
+							var updateSkin = McpePlayerSkin.CreateObject();
 							updateSkin.NoBatch = true;
 							updateSkin.uuid = mob.ClientUuid;
+							updateSkin.oldSkinName = mob.Skin.SkinId;
+							updateSkin.skinName = mob.Skin.SkinId;
 							updateSkin.skin = skin;
 							mob.Level.RelayBroadcast(updateSkin);
 						}
@@ -269,17 +271,21 @@ namespace TestPlugin.Code4Fun
 					else
 					{
 						Skin skin = mob.Skin;
-						var geometry = CurrentModel.FindGeometry(skin.GeometryName);
-						geometry.Name = $"geometry.{DateTime.UtcNow.Ticks}.{mob.ClientUuid}";
+						Geometry geometry = CurrentModel.FindGeometry(skin.GeometryName);
+						geometry.Description.Identifier = $"geometry.{DateTime.UtcNow.Ticks}.{mob.ClientUuid}";
+						mob.Skin.SkinResourcePatch = new SkinResourcePatch() {Geometry = new GeometryIdentifier() {Default = geometry.Description.Identifier}};
 
-						CurrentModel.Clear();
-						CurrentModel.Add(geometry.Name, geometry);
+						CurrentModel.Geometry.Clear();
+						CurrentModel.Geometry.Add(geometry);
 
-						skin.GeometryName = geometry.Name;
+						skin.GeometryName = geometry.Description.Identifier;
+						skin.GeometryData = Skin.ToJson(CurrentModel);
 
-						McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
+						var updateSkin = McpePlayerSkin.CreateObject();
 						updateSkin.NoBatch = true;
 						updateSkin.uuid = mob.ClientUuid;
+						updateSkin.oldSkinName = mob.Skin.SkinId;
+						updateSkin.skinName = mob.Skin.SkinId;
 						updateSkin.skin = skin;
 						mob.Level.RelayBroadcast(updateSkin);
 					}

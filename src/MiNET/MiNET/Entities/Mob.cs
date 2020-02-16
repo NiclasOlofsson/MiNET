@@ -481,9 +481,10 @@ namespace MiNET.Entities
 			var skinGeometryName = "geometry.flat." + Guid.NewGuid();
 			GeometryModel model = new GeometryModel()
 			{
-				{
-					skinGeometryName, new Geometry()
+				Geometry = new List<Geometry>() {
+					new Geometry()
 					{
+						Description =  new Description(){Identifier = skinGeometryName},
 						Name = skinGeometryName,
 						TextureHeight = 64,
 						TextureWidth = 64,

@@ -18,6 +18,13 @@
   <ItemGroup>
     <ProjectReference Include="..\MiNET.Client\MiNET.Client.csproj" />
     <ProjectReference Include="..\MiNET\MiNET.csproj" />
+    <ProjectReference Include="..\TestPlugin\TestPlugin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="geometry.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

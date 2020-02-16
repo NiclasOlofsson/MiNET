@@ -234,6 +234,8 @@ namespace TestPlugin.NiceLobby
 					{
 						if (!player.Username.Equals("gurunx")) continue;
 
+						Log.Debug("Skin tick");
+
 						if (_image >= 9) _image = 0;
 
 						_image++;
@@ -245,61 +247,61 @@ namespace TestPlugin.NiceLobby
 						//skin.SkinGeometryName = "";
 						//skin.SkinGeometry = Encoding.UTF8.GetBytes(File.ReadAllText(@"D:\Temp\humanoid.json"));
 
-						{
-							string file = Path.Combine(@"D:\Development\Other\Smash Heroes 3x6 (128)\Smash Heroes 3x6 (128)", $"Smash Heroes Trailer{_imageCape:D4}.bmp");
-							//string file = @"D:\Temp\Smiley\big_smile0" + _image + ".png";
-							if (!File.Exists(file))
-							{
-								_imageCape = 0;
-								continue;
-							}
+						//{
+						//	string file = Path.Combine(@"D:\Development\Other\Smash Heroes 3x6 (128)\Smash Heroes 3x6 (128)", $"Smash Heroes Trailer{_imageCape:D4}.bmp");
+						//	//string file = @"D:\Temp\Smiley\big_smile0" + _image + ".png";
+						//	if (!File.Exists(file))
+						//	{
+						//		_imageCape = 0;
+						//		continue;
+						//	}
 
-							//Bitmap bitmap = new Bitmap((Bitmap)Image.FromFile(file), 12, 18);
-							Bitmap bitmap = new Bitmap((Bitmap) Image.FromFile(file), 64, 64);
-							int offsetx = 16, offsety = 16;
-							bitmap = CropImage(bitmap, new Rectangle(offsetx, offsety, 12, 18));
-							byte[] bytes = new byte[32 * 64 * 4];
+						//	//Bitmap bitmap = new Bitmap((Bitmap)Image.FromFile(file), 12, 18);
+						//	Bitmap bitmap = new Bitmap((Bitmap) Image.FromFile(file), 64, 64);
+						//	int offsetx = 16, offsety = 16;
+						//	bitmap = CropImage(bitmap, new Rectangle(offsetx, offsety, 12, 18));
+						//	byte[] bytes = new byte[32 * 64 * 4];
 
-							int i = 0;
-							for (int y = 0; y < 32; y++)
-							{
-								for (int x = 0; x < 64; x++)
-								{
-									if (y >= bitmap.Height || x >= bitmap.Width)
-									{
-										Color color = Color.Yellow;
-										bytes[i++] = color.R;
-										bytes[i++] = color.G;
-										bytes[i++] = color.B;
-										bytes[i++] = color.A;
-										continue;
-									}
-									else
-									{
-										Color color = bitmap.GetPixel(x, y);
-										bytes[i++] = color.R;
-										bytes[i++] = color.G;
-										bytes[i++] = color.B;
-										bytes[i++] = color.A;
-									}
-								}
-							}
-							skin.Cape = new Cape()
-							{
-								ImageHeight = 32,
-								ImageWidth = 64,
-								Data = bytes,
-							};
-						}
+						//	int i = 0;
+						//	for (int y = 0; y < 32; y++)
+						//	{
+						//		for (int x = 0; x < 64; x++)
+						//		{
+						//			if (y >= bitmap.Height || x >= bitmap.Width)
+						//			{
+						//				Color color = Color.Yellow;
+						//				bytes[i++] = color.R;
+						//				bytes[i++] = color.G;
+						//				bytes[i++] = color.B;
+						//				bytes[i++] = color.A;
+						//				continue;
+						//			}
+						//			else
+						//			{
+						//				Color color = bitmap.GetPixel(x, y);
+						//				bytes[i++] = color.R;
+						//				bytes[i++] = color.G;
+						//				bytes[i++] = color.B;
+						//				bytes[i++] = color.A;
+						//			}
+						//		}
+						//	}
+						//	skin.Cape = new Cape()
+						//	{
+						//		ImageHeight = 32,
+						//		ImageWidth = 64,
+						//		Data = bytes,
+						//	};
+						//}
 
 
 						Level level = player.Level;
-						//if (level.TickTime%3 != 0) return;
+						if (level.TickTime % 10 != 0) continue;
 						//player.SetNameTag(player.Username + " " + level.TickTime + " testing");
 						//player.SetDisplayName(player.Username + " " + level.TickTime + " testing");
 
 						var texture = skin.Data;
-						byte[] smiley = GetTextureFromFile(@"D:\Temp\Smiley\big_smile0" + _image + ".png");
+						byte[] smiley = GetTextureFromFile(@"C:\Temp\Smiley\big_smile0" + _image + ".png");
 						if (smiley.Length != 8 * 8 * 4) return;
 						int s = 0;
 						int br = 8;
@@ -319,9 +321,11 @@ namespace TestPlugin.NiceLobby
 						}
 
 						{
-							McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
+							var updateSkin = McpePlayerSkin.CreateObject();
 							updateSkin.uuid = player.ClientUuid;
+							updateSkin.oldSkinName = player.Skin.SkinId;
 							updateSkin.skin = skin;
+							updateSkin.skinName = skin.SkinId;
 							level.RelayBroadcast(updateSkin);
 						}
 
@@ -352,6 +356,10 @@ namespace TestPlugin.NiceLobby
 						}
 					}
 				}
+			}
+			catch (Exception e)
+			{
+				Log.Error("SkinTick", e);
 			}
 			finally
 			{
@@ -417,8 +425,8 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Sapling()) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Sapling(), 2) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Vine(), 0) { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new SnowLayer()) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Dirt()) {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemBlock(new SnowLayer()) {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemBlock(new Dirt()) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new CustomTestItem(0xC0FFEE) { Count = 1 };
 			//player.Inventory.Slots[idx++] = new CustomTestItem(0xDEADBEEF) {Count = 10 };
@@ -478,7 +486,7 @@ namespace TestPlugin.NiceLobby
 			});
 
 			//player.Inventory.Slots[idx++] = fireworks;
-			player.Inventory.Slots[idx++] = new ItemBread() {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemBread() {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemSnowball() {Count = 16};
 			//player.Inventory.Slots[idx++] = new ItemBow() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemArrow() {Count = 64};
@@ -487,21 +495,21 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemWheat() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemDye()
-			{
-				Metadata = 4,
-				Count = 64
-			};
-			player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemDye()
+			//{
+			//	Metadata = 4,
+			//	Count = 64
+			//};
+			//player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
 
-			player.Inventory.Helmet = new ItemDiamondHelmet();
-			player.Inventory.Chest = new ItemElytra();
-			player.Inventory.Leggings = new ItemDiamondLeggings();
-			player.Inventory.Boots = new ItemDiamondBoots();
+			//player.Inventory.Helmet = new ItemDiamondHelmet();
+			//player.Inventory.Chest = new ItemElytra();
+			//player.Inventory.Leggings = new ItemDiamondLeggings();
+			//player.Inventory.Boots = new ItemDiamondBoots();
 			//while (player.Inventory.SetFirstEmptySlot(new ItemIronAxe(), false)) { }
 
 			player.SendPlayerInventory();

@@ -18,6 +18,11 @@ namespace MiNET.Utils.Skins
 		public int Type { get; set; } // description above
 
 		// doesn't have reference-type fields so use MemberwiseClone
-		public object Clone() => MemberwiseClone();
+		public object Clone()
+		{
+			var clone = (Animation) MemberwiseClone();
+			clone.Image = Image?.Clone() as byte[];
+			return clone;
+		}
 	}
 }

@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -26,6 +26,7 @@
 using System;
 using System.Numerics;
 using System.Text;
+using log4net;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -36,6 +37,8 @@ namespace MiNET.Entities
 {
 	public class PlayerMob : Mob
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(PlayerMob));
+
 		public UUID ClientUuid { get; private set; }
 		public Skin Skin { get; set; }
 
@@ -52,10 +55,17 @@ namespace MiNET.Entities
 			IsSpawned = false;
 
 			NameTag = name;
+
+
+			var resourcePatch = new SkinResourcePatch() { Geometry = new GeometryIdentifier() {Default = "geometry.humanoid.customSlim" } };
 			Skin = new Skin
 			{
-				Slim = false,
-				Data = Encoding.Default.GetBytes(new string('Z', 8192))
+				SkinId = $"{Guid.NewGuid().ToString()}.CustomSlim",
+				SkinResourcePatch = resourcePatch,
+				Slim = true,
+				Height = 32,
+				Width = 64,
+				Data = Encoding.Default.GetBytes(new string('Z', 8192)),
 			};
 
 			ItemInHand = new ItemAir();
@@ -92,7 +102,6 @@ namespace MiNET.Entities
 		public override MetadataDictionary GetMetadata()
 		{
 			var metadata = base.GetMetadata();
-			//metadata[0] = new MetadataLong(0);
 
 			return metadata;
 		}
@@ -100,16 +109,22 @@ namespace MiNET.Entities
 		public override void SpawnToPlayers(Player[] players)
 		{
 			{
-				Player fake = new Player(null, null)
+				var fake = new Player(null, null)
 				{
 					ClientUuid = ClientUuid,
 					EntityId = EntityId,
 					NameTag = NameTag,
+					DisplayName = NameTag,
+					Username = NameTag,
 					Skin = Skin,
-					PlayerInfo = new PlayerInfo()
+					PlayerInfo = new PlayerInfo
+					{
+						DeviceOS = 7,
+						PlatformChatId = NameTag,
+					}
 				};
 
-				McpePlayerList playerList = McpePlayerList.CreateObject();
+				var playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {fake};
 				Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
 				playerList.records = null;
@@ -117,7 +132,7 @@ namespace MiNET.Entities
 			}
 
 			{
-				McpeAddPlayer message = McpeAddPlayer.CreateObject();
+				var message = McpeAddPlayer.CreateObject();
 				message.uuid = ClientUuid;
 				message.username = NameTag;
 				message.entityIdSelf = EntityId;
@@ -129,17 +144,19 @@ namespace MiNET.Entities
 				message.headYaw = KnownPosition.HeadYaw;
 				message.pitch = KnownPosition.Pitch;
 				message.metadata = GetMetadata();
+				message.userId = -1;
 				Level.RelayBroadcast(players, message);
 			}
+
 			{
-				McpeMobEquipment message = McpeMobEquipment.CreateObject();
+				var message = McpeMobEquipment.CreateObject();
 				message.runtimeEntityId = EntityId;
 				message.item = ItemInHand;
 				message.slot = 0;
 				Level.RelayBroadcast(players, message);
 			}
 			{
-				McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
+				var armorEquipment = McpeMobArmorEquipment.CreateObject();
 				armorEquipment.runtimeEntityId = EntityId;
 				armorEquipment.helmet = Helmet;
 				armorEquipment.chestplate = Chest;
@@ -149,7 +166,7 @@ namespace MiNET.Entities
 			}
 
 			{
-				Player fake = new Player(null, null)
+				var fake = new Player(null, null)
 				{
 					ClientUuid = ClientUuid,
 					EntityId = EntityId,
@@ -157,15 +174,15 @@ namespace MiNET.Entities
 					Skin = Skin
 				};
 
-				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerRemoveRecords {fake};
+				var playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerRemoveRecords { fake };
 				Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
 				playerList.records = null;
 				playerList.PutPool();
 			}
 
 			{
-				McpeSetEntityData setEntityData = McpeSetEntityData.CreateObject();
+				var setEntityData = McpeSetEntityData.CreateObject();
 				setEntityData.runtimeEntityId = EntityId;
 				setEntityData.metadata = GetMetadata();
 				Level?.RelayBroadcast(players, setEntityData);
@@ -174,7 +191,7 @@ namespace MiNET.Entities
 
 		public void RemoveFromPlayerList()
 		{
-			Player fake = new Player(null, null)
+			var fake = new Player(null, null)
 			{
 				ClientUuid = ClientUuid,
 				EntityId = EntityId,
@@ -184,7 +201,7 @@ namespace MiNET.Entities
 
 			var players = Level.GetSpawnedPlayers();
 
-			McpePlayerList playerList = McpePlayerList.CreateObject();
+			var playerList = McpePlayerList.CreateObject();
 			playerList.records = new PlayerRemoveRecords {fake};
 			Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
 			playerList.records = null;
@@ -214,7 +231,7 @@ namespace MiNET.Entities
 		public override void DespawnFromPlayers(Player[] players)
 		{
 			{
-				Player fake = new Player(null, null)
+				var fake = new Player(null, null)
 				{
 					ClientUuid = ClientUuid,
 					EntityId = EntityId,

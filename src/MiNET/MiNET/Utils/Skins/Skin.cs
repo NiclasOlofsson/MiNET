@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -27,13 +27,35 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace MiNET.Utils.Skins
 {
+	public class SkinResourcePatch : ICloneable
+	{
+		public GeometryIdentifier Geometry { get; set; }
+
+		public object Clone()
+		{
+			var cloned = new SkinResourcePatch();
+			cloned.Geometry = (GeometryIdentifier) Geometry?.Clone();
+
+			return cloned;
+		}
+	}
+
+	public class GeometryIdentifier : ICloneable
+	{
+		public string Default { get; set; }
+
+		public object Clone()
+		{
+			return MemberwiseClone();
+		}
+	}
+
 	public class Skin : ICloneable
 	{
 		public bool Slim { get; set; }
@@ -42,7 +64,14 @@ namespace MiNET.Utils.Skins
 
 		public Cape Cape { get; set; }
 		public string SkinId { get; set; }
-		public string ResourcePatch { get; set; }  // contains GeometryName
+
+		public string ResourcePatch
+		{
+			get => ToJson(SkinResourcePatch);
+			set => ToJSkinResourcePatch(value);
+		} // contains GeometryName
+
+		public SkinResourcePatch SkinResourcePatch { get; set; } // contains GeometryName
 		public int Height { get; set; }
 		public int Width { get; set; }
 		public byte[] Data { get; set; }
@@ -110,12 +139,6 @@ namespace MiNET.Utils.Skins
 			bitmap.Save(filename, ImageFormat.Png);
 		}
 
-		public static GeometryModel ParseGeometry(string path)
-		{
-			string json = File.ReadAllText(path);
-			return Parse(json);
-		}
-
 		public static GeometryModel Parse(string json)
 		{
 			var settings = new JsonSerializerSettings();
@@ -136,40 +159,52 @@ namespace MiNET.Utils.Skins
 			settings.MissingMemberHandling = MissingMemberHandling.Error;
 			//settings.Formatting = Formatting.Indented;
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-			settings.Converters.Add(new StringEnumConverter {CamelCaseText = true});
+			settings.Converters.Add(new StringEnumConverter {NamingStrategy = new CamelCaseNamingStrategy()});
 
 			return JsonConvert.SerializeObject(geometryModel, settings);
 		}
 
+
+		public static string ToJson(SkinResourcePatch model)
+		{
+			var settings = new JsonSerializerSettings();
+			settings.NullValueHandling = NullValueHandling.Ignore;
+			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+			settings.MissingMemberHandling = MissingMemberHandling.Error;
+			//settings.Formatting = Formatting.Indented;
+			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			settings.Converters.Add(new StringEnumConverter {CamelCaseText = true});
+
+			string json = JsonConvert.SerializeObject(model, settings);
+
+			return json;
+		}
+
+		public static SkinResourcePatch ToJSkinResourcePatch(string json)
+		{
+			var settings = new JsonSerializerSettings();
+			settings.NullValueHandling = NullValueHandling.Ignore;
+			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+			settings.MissingMemberHandling = MissingMemberHandling.Error;
+			//settings.Formatting = Formatting.Indented;
+			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			settings.Converters.Add(new StringEnumConverter {CamelCaseText = true});
+
+			var obj = JsonConvert.DeserializeObject<SkinResourcePatch>(json, settings);
+
+			return obj;
+		}
+
 		public object Clone()
 		{
-			byte[] clonedSkinData = null;
-
-			if (Data != null)
-			{
-				clonedSkinData = new byte[Data.Length];
-				Data.CopyTo(clonedSkinData, 0);
-			}
-
-			var clonedSkin = new Skin
-			{
-				SkinId = SkinId,
-				GeometryData = GeometryData,
-				Slim = Slim,
-				Data = clonedSkinData,
-				Cape = Cape == null ? null : (Cape)Cape.Clone(),
-				IsPersonaSkin = IsPersonaSkin,
-				IsPremiumSkin = IsPremiumSkin,
-				ResourcePatch = ResourcePatch,
-				Height = Height,
-				Width = Width,
-				GeometryName = GeometryName,
-				AnimationData = AnimationData,
-			};
+			var clonedSkin = (Skin) MemberwiseClone();
+			clonedSkin.Data = Data?.Clone() as byte[];
+			clonedSkin.Cape = Cape?.Clone() as Cape;
+			clonedSkin.SkinResourcePatch = SkinResourcePatch?.Clone() as SkinResourcePatch;
 
 			foreach (Animation animation in Animations)
 			{
-				clonedSkin.Animations.Add((Animation)animation.Clone());
+				clonedSkin.Animations.Add((Animation) animation.Clone());
 			}
 
 			return clonedSkin;

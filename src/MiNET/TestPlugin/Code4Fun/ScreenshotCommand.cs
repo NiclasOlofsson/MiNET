@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -52,36 +53,50 @@ namespace TestPlugin.Code4Fun
 		[Command]
 		public void Screenshot(Player player)
 		{
-			var coordinates = player.KnownPosition;
-			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection()) * 1.5f;
+			var coordinates = (BlockCoordinates) player.KnownPosition;
+
+			BlockCoordinates direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection()) * 1.5f;
 
 			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			//byte[] skinBytes = Encoding.ASCII.GetBytes(new string('Z', 64*64*4));
 			byte[] skinBytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "test_skin.png"));
+			Log.Warn($"Size {skinBytes.Length}");
 
 			for (int x = 0; x < _width; x++)
 			{
 				for (int y = 0; y < _height; y++)
 				{
 					var skinGeometryName = "geometry.flat." + Guid.NewGuid();
-					GeometryModel model = new GeometryModel()
+					var model = new GeometryModel()
 					{
+						FormatVersion = "1.12.0",
+						Geometry = new List<Geometry>
 						{
-							skinGeometryName, new Geometry()
+							new Geometry
 							{
-								Name = skinGeometryName,
-								Bones = new List<Bone>()
+								Description = new Description
 								{
-									new Bone()
+									Identifier = skinGeometryName,
+									TextureHeight = 64,
+									TextureWidth = 64,
+									VisibleBoundsHeight = 0,
+									VisibleBoundsWidth = 0,
+									VisibleBoundsOffset = new int[3]
+								},
+								Name = skinGeometryName,
+								Bones = new List<Bone>
+								{
+									new Bone
 									{
 										Name = BoneName.Body,
-										Pivot = new float[3],
 										Cubes = new List<Cube>()
 										{
-											new Cube()
+											new Cube
 											{
 												Origin = new float[3],
-												Size = new float[] {64, 64, 1f},
-												Uv = new float[] {0, 0}
+												//Size = new float[] {68.4f, 68.4f, 0.1f},
+												Size = new float[] {62, 62, 1},
+												Uv = new float[2] {0, 0}
 											}
 										}
 									}
@@ -90,20 +105,26 @@ namespace TestPlugin.Code4Fun
 						},
 					};
 
-					PlayerMob fake = new PlayerMob(string.Empty, player.Level)
-					{
-						Width = 0.1,
-						Length = 0.1,
-						Height = 0.1,
 
+					//string fileName = Path.GetTempPath() + "Geometry_" + Guid.NewGuid() + ".json";
+					//File.WriteAllText(fileName, Skin.ToJson(model));
+
+					var fake = new PlayerMob(string.Empty, player.Level)
+					{
+						Scale = 1.1,
+						Width = 0.01,
+						Length = 0.01,
+						Height = 0.01,
 						Skin = new Skin
 						{
 							SkinId = "testing" + new Guid(),
 							Slim = false,
+							Height = 64,
+							Width = 64,
 							Data = skinBytes,
-							Cape = new Cape(),
 							GeometryName = skinGeometryName,
 							GeometryData = Skin.ToJson(model),
+							SkinResourcePatch = new SkinResourcePatch() {Geometry = new GeometryIdentifier() {Default = skinGeometryName}}
 						},
 						KnownPosition = new PlayerLocation(coordinates.X + direction.X + (x * 4), coordinates.Y + (y * 4), coordinates.Z + direction.Z, 0, 0)
 					};
@@ -121,40 +142,44 @@ namespace TestPlugin.Code4Fun
 				if (player.Level.TickTime % 4 != 0) return;
 			}
 
-			using (Bitmap bmpScreenCapture = new Bitmap(1118, 801))
+			using var bmpScreenCapture = new Bitmap(2150, 1519);
+			using (var g = Graphics.FromImage(bmpScreenCapture))
 			{
-				using (Graphics g = Graphics.FromImage(bmpScreenCapture))
-				{
-					g.CopyFromScreen(620, 101, 0, 0, bmpScreenCapture.Size, CopyPixelOperation.SourceCopy);
-				}
+				g.CopyFromScreen(1669, 90, 0, 0, bmpScreenCapture.Size, CopyPixelOperation.SourceCopy);
+			}
 
-				using (Bitmap srcBitmap = new Bitmap(bmpScreenCapture, new Size((_width) * 64, (_height) * 64)))
-				{
-					foreach (var mobCoord in mobs)
-					{
-						PlayerMob mob = mobCoord.Value;
-						mob.AddToPlayerList();
+			using var srcBitmap = new Bitmap(bmpScreenCapture, new Size((_width) * 62, (_height) * 62));
+			foreach (var mobCoord in mobs)
+			{
+				PlayerMob mob = mobCoord.Value;
+				mob.AddToPlayerList();
 
-						int offsetx = (mobCoord.Key.Item1) * 64;
-						int offsety = (_height - mobCoord.Key.Item2 - 1) * 64;
-						using (Bitmap bitmap = NiceLobbyPlugin.CropImage(srcBitmap, new Rectangle(offsetx, offsety, 64, 64)))
-						{
-							var bytes = NiceLobbyPlugin.BitmapToBytes(bitmap, true);
+				int offsetx = (mobCoord.Key.Item1) * 62;
+				int offsety = (_height - mobCoord.Key.Item2 - 1) * 62;
+				using Bitmap croppedImage = NiceLobbyPlugin.CropImage(srcBitmap, new Rectangle(offsetx, offsety, 62, 62));
+				using Bitmap textureImage = new Bitmap(64, 64);
+				var gfx = Graphics.FromImage(textureImage);
+				gfx.FillRectangle(Brushes.Black, new Rectangle(0, 0, 64, 64));
+				gfx.DrawImageUnscaled(croppedImage, new Point(1, 1));
+				//var bytes = NiceLobbyPlugin.BitmapToBytes(textureImage, true);
+				var stream = new MemoryStream();
+				textureImage.Save(stream, ImageFormat.MemoryBmp);
+				var bytes = stream.ToArray();
 
-							mob.Skin.Data = bytes;
+				string oldSkinId = mob.Skin.SkinId;
+				var skin = (Skin) mob.Skin.Clone();
+				skin.Data = bytes;
+				skin.SkinId = "testing" + new Guid();
+				mob.Skin = skin;
 
-							var skin = (Skin)mob.Skin.Clone();
-							skin.SkinId += new Guid();
+				var updateSkin = McpePlayerSkin.CreateObject();
+				updateSkin.uuid = mob.ClientUuid;
+				updateSkin.oldSkinName = oldSkinId;
+				updateSkin.skinName = mob.Skin.SkinId;
+				updateSkin.skin = mob.Skin;
+				mob.Level.RelayBroadcast(updateSkin);
 
-							McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
-							updateSkin.uuid = mob.ClientUuid;
-							updateSkin.skin = skin;
-							mob.Level.RelayBroadcast(updateSkin);
-						}
-
-						mob.RemoveFromPlayerList();
-					}
-				}
+				mob.RemoveFromPlayerList();
 			}
 		}
 	}

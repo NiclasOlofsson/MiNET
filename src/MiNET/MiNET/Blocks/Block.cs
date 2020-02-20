@@ -223,6 +223,8 @@ namespace MiNET.Blocks
 		public virtual Item[] GetDrops(Item tool)
 		{
 			var item = GetItem();
+			if (item == null) return new Item[0];
+
 			item.Count = 1;
 
 			return new[] {item};

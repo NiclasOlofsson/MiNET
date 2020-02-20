@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -26,6 +26,7 @@
 using System;
 using System.Numerics;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
@@ -147,17 +148,19 @@ namespace MiNET.Entities.Behaviors
 				}
 			}
 
-			BlockCoordinates coord = (BlockCoordinates) (currPosition + (direction * speedFactor) + (direction * (float) (_entity.Length * 0.5f)));
+			Vector3 futurePosition = (currPosition + (direction * speedFactor) + (direction * (float) (_entity.Length * 0.5f)));
+			var coord = (BlockCoordinates) futurePosition;
 			var block = level.GetBlock(coord);
 			var blockUp = level.GetBlock(coord.BlockUp());
 			var blockUpUp = level.GetBlock(coord.BlockUp().BlockUp());
 
-			var colliding = block.IsSolid || (_entity.Height > 1 && blockUp.IsSolid);
+			//TODO: Need to rewrite so that the question is "is colliding with block" not "is solid block"
+			var blockCollide = IsCollidingWithBlock(futurePosition, block) || (_entity.Height > 1 && BlockIsSolid(blockUp));
 
-			if (!colliding && !entityCollide)
+			if (!blockCollide && !entityCollide)
 			{
 				var blockDown = level.GetBlock(coord.BlockDown());
-				if (!_entity.IsOnGround && !blockDown.IsSolid) return;
+				if (!_entity.IsOnGround && !BlockIsSolid(blockDown)) return;
 
 				//Log.Debug($"Move forward: {block}, {(_entity.IsOnGround ? "On ground" : "not on ground")}, Position: {(Vector3) _entity.KnownPosition}");
 				//if (!_entity.IsOnGround) return;
@@ -179,7 +182,7 @@ namespace MiNET.Entities.Behaviors
 				{
 					_entity.Velocity = new Vector3(0, 0.2f, 0);
 				}
-				else if (!entityCollide && !blockUp.IsSolid && !(_entity.Height > 1 && blockUpUp.IsSolid) /*&& level.Random.Next(4) != 0*/)
+				else if (!entityCollide && !BlockIsSolid(blockUp) && !(_entity.Height > 1 && BlockIsSolid(blockUpUp)) /*&& level.Random.Next(4) != 0*/)
 				{
 					// Above is wrong. Checks the wrong block in the wrong way.
 
@@ -207,6 +210,32 @@ namespace MiNET.Entities.Behaviors
 					}
 				}
 			}
+		}
+
+		private static bool IsCollidingWithBlock(Vector3 pos, Block block)
+		{
+			if (block is DoorBase door)
+			{
+				return !door.OpenBit;
+			}
+
+			if (block.IsSolid)
+			{
+				BoundingBox bbox = block.GetBoundingBox();
+				return pos.Y - bbox.Max.Y < 0;
+			}
+
+			return false;
+		}
+
+		private static bool BlockIsSolid(Block block)
+		{
+			if (block is DoorBase door)
+			{
+				return !door.OpenBit;
+			}
+
+			return block.IsSolid;
 		}
 
 		public void Jump()

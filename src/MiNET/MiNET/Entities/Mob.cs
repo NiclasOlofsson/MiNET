@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -196,12 +196,15 @@ namespace MiNET.Entities
 			IsOnGround = !inWater && IsMobOnGround(KnownPosition);
 			if (!onGroundBefore && IsOnGround)
 			{
-				while (Level.GetBlock(KnownPosition).IsSolid)
+				Block block = Level.GetBlock(KnownPosition);
+				while (block.IsSolid)
 				{
-					KnownPosition.Y = (float) Math.Floor(KnownPosition.Y + 1);
+					//KnownPosition.Y = (float) Math.Floor(KnownPosition.Y);
+					KnownPosition.Y = block.GetBoundingBox().Max.Y;
+					block = Level.GetBlock(block.Coordinates.BlockUp());
 				}
 
-				KnownPosition.Y = (float) Math.Floor(KnownPosition.Y);
+				//KnownPosition.Y = (float) (Math.Floor(KnownPosition.Y));
 				Velocity *= new Vector3(0, 1, 0);
 			}
 
@@ -443,15 +446,28 @@ namespace MiNET.Entities
 			BlockCoordinates coord = pos;
 			Block block = Level.GetBlock(coord.BlockDown());
 
-			return block.IsSolid;
+			if (block.IsSolid)
+			{
+				//return true;
+				BoundingBox bbox = block.GetBoundingBox();
+				return pos.Y - bbox.Max.Y < 0.01;
+			}
+
+			return false;
 			//return block.IsSolid && block.GetBoundingBox().Contains(GetBoundingBox().OffsetBy(new Vector3(0, -0.1f, 0))) == ContainmentType.Intersects;
 		}
 
-		protected bool IsMobInGround(Vector3 position)
+		protected bool IsMobInGround(Vector3 pos)
 		{
-			Block block = Level.GetBlock(position);
+			Block block = Level.GetBlock(pos);
 
-			return block.IsSolid;
+			if (block.IsSolid)
+			{
+				BoundingBox bbox = block.GetBoundingBox();
+				return pos.Y - bbox.Max.Y < 0.01;
+			}
+
+			return false;
 		}
 
 
@@ -481,10 +497,11 @@ namespace MiNET.Entities
 			var skinGeometryName = "geometry.flat." + Guid.NewGuid();
 			GeometryModel model = new GeometryModel()
 			{
-				Geometry = new List<Geometry>() {
+				Geometry = new List<Geometry>()
+				{
 					new Geometry()
 					{
-						Description =  new Description(){Identifier = skinGeometryName},
+						Description = new Description() {Identifier = skinGeometryName},
 						Name = skinGeometryName,
 						TextureHeight = 64,
 						TextureWidth = 64,
@@ -597,7 +614,6 @@ namespace MiNET.Entities
 				Width = theMob.Width,
 				Length = theMob.Width,
 				Height = theMob.Height,
-
 				Skin = new Skin
 				{
 					SkinId = "testing" + new Guid(),

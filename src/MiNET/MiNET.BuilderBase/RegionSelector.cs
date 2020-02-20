@@ -193,7 +193,10 @@ namespace MiNET.BuilderBase
 		{
 			if (!forceDisplay && _structureBlockBlockEntity != null && (forceHide || _structureBlockBlockEntity.ShowBoundingBox != ShowSelection))
 			{
-				_structureBlockBlockEntity.ShowBoundingBox = !forceHide && ShowSelection;
+				bool showBoundingBox = !forceHide && ShowSelection;
+				if (_structureBlockBlockEntity.ShowBoundingBox == showBoundingBox) return;
+
+				_structureBlockBlockEntity.ShowBoundingBox = showBoundingBox;
 
 				var nbt = new Nbt
 				{

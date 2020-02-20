@@ -42,6 +42,7 @@ namespace MiNET.Blocks
 
 		public override BoundingBox GetBoundingBox()
 		{
+			//TODO: Fix for top-slab
 			return new BoundingBox(Coordinates, (Vector3) Coordinates + new Vector3(1f, 0.5f, 1f));
 		}
 

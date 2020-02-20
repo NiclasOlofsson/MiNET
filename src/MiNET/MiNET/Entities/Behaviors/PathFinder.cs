@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -270,8 +270,7 @@ namespace MiNET.Entities.Behaviors
 
 		public Block GetBlock(Tile tile)
 		{
-			Block block;
-			if (!_blockCache.TryGetValue(tile, out block))
+			if (!_blockCache.TryGetValue(tile, out Block block))
 			{
 				// Do something?
 
@@ -301,27 +300,17 @@ namespace MiNET.Entities.Behaviors
 			_entity = entity;
 		}
 
-		private static readonly int[,] Neighbors = new int[,]
-		{
-			{0, -1},
-			{1, 0},
-			{0, 1},
-			{-1, 0},
-			{-1, -1},
-			{1, -1},
-			{1, 1},
-			{-1, 1}
-		};
+		private static readonly int[,] Neighbors = new int[,] {{0, -1}, {1, 0}, {0, 1}, {-1, 0}, {-1, -1}, {1, -1}, {1, 1}, {-1, 1}};
 
 		public IEnumerable<Tile> GetNeighbors(Tile start)
 		{
-			if (!_blockCache.TryGetValue(start, out var block))
+			if (!_blockCache.TryGetValue(start, out Block block))
 			{
 				block = _level.GetBlock(new BlockCoordinates(start.X, _startY, start.Y));
 				_blockCache.Add(start, block);
 			}
 
-			HashSet<Tile> neighbors = new HashSet<Tile>();
+			var neighbors = new HashSet<Tile>();
 			for (int index = 0; index < Neighbors.GetLength(0); ++index)
 			{
 				var item = new Tile3d(start.X + Neighbors[index, 0], start.Y + Neighbors[index, 1], block.Coordinates.Y);
@@ -330,15 +319,15 @@ namespace MiNET.Entities.Behaviors
 				if (isDiagonalMove)
 				{
 					// Don't allow cutting corners where there is a block
-					Tile undiagonal = new Tile(start.X, start.Y + Neighbors[index, 1]);
+					var undiagonal = new Tile(start.X, start.Y + Neighbors[index, 1]);
 					if (!_blockCache.TryGetValue(undiagonal, out var udblock)) continue;
 					if (udblock.Coordinates.Y != block.Coordinates.Y) continue;
 				}
 
 				// Check for too high steps
-				BlockCoordinates coord = new BlockCoordinates(item.X, block.Coordinates.Y, item.Y);
+				var coord = new BlockCoordinates(item.X, block.Coordinates.Y, item.Y);
 
-				if (_level.GetBlock(coord).IsSolid)
+				if (IsBlocked(_level.GetBlock(coord)))
 				{
 					// Only allow diagonal movements if on same Y level
 					if (isDiagonalMove) continue;
@@ -379,13 +368,13 @@ namespace MiNET.Entities.Behaviors
 					else
 					{
 						// Check block collision box, not hit box
-						if(_level.GetBlock(coord) is Fence)
+						if (_level.GetBlock(coord) is Fence)
 						{
 							continue;
 						}
 
 						Block blockUp = _level.GetBlock(coord.BlockUp());
-						if (blockUp.IsSolid)
+						if (IsBlocked(blockUp))
 						{
 							// Can't jump. This is hardwired for 1 block jump height for all mobs.
 							continue;
@@ -394,7 +383,7 @@ namespace MiNET.Entities.Behaviors
 						if (IsObstructed(blockUp.Coordinates)) continue;
 
 						//TODO: There is a problem when there is a path both under and over a block. It chooses the last checked block.
-						if (_blockCache.TryGetValue(item, out var trash) && trash.Coordinates.Y != blockUp.Coordinates.Y)
+						if (_blockCache.TryGetValue(item, out Block trash) && trash.Coordinates.Y != blockUp.Coordinates.Y)
 						{
 							//Log.Warn("Already had this coordinated but on different Y");
 							continue;
@@ -503,8 +492,15 @@ namespace MiNET.Entities.Behaviors
 		{
 			if (block == null || block.IsSolid)
 			{
+				if (block is DoorBase door)
+				{
+					//Log.Warn($"Found door at {block.Coordinates} and it OpenBit set to {door.OpenBit}");
+					return !door.OpenBit;
+				}
+
 				return true;
 			}
+
 			return false;
 		}
 
@@ -570,13 +566,16 @@ namespace MiNET.Entities.Behaviors
 
 		public bool IsBlocked(Tile coord)
 		{
-			Block block;
-			if (!_blockCache.TryGetValue(coord, out block))
+			if (!_blockCache.TryGetValue(coord, out Block block))
 			{
 				return true;
 			}
 
-			if (block.IsSolid) return true; // ? Should never happen, right. If solid, shouldn't even be here.
+			if (IsBlocked(block.Coordinates))
+			{
+				Log.Warn($"This shouldn't have happened with block {block}");
+				return true; // ? Should never happen, right. If solid, shouldn't even be here.
+			}
 			if (_entityCoords.Contains(block.Coordinates)) return true;
 
 			//if (Math.Abs(_entityPos.Y - block.Coordinates.Y) > _entity.Height + 3) return true;
@@ -609,6 +608,12 @@ namespace MiNET.Entities.Behaviors
 
 			if (block == null || block.IsSolid)
 			{
+				if (block is DoorBase door)
+				{
+					//Log.Warn($"Found door at {coord} and it OpenBit set to {door.OpenBit}");
+					return !door.OpenBit;
+				}
+
 				return true;
 			}
 			return false;

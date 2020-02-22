@@ -1,12 +1,12 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -27,13 +27,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Jose;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Utils;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
@@ -94,7 +91,7 @@ namespace MiNET.Test
 			//string x5u = x5uVanilla;
 
 
-			ECPublicKeyParameters x5KeyParam = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(x5u.DecodeBase64());
+			ECPublicKeyParameters x5KeyParam = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(x5u.DecodeBase64());
 			Assert.AreEqual("Org.BouncyCastle.Math.EC.Custom.Sec.SecP384R1Curve", x5KeyParam.Parameters.Curve.GetType().FullName);
 			Assert.AreEqual("EC", x5KeyParam.AlgorithmName);
 
@@ -116,7 +113,7 @@ namespace MiNET.Test
 
 			//CertificateData data = JWT.Decode<CertificateData>(raw, ECDsa.Create(signParam));
 
- 			Assert.AreEqual(raw, Serialize(Parse(raw)));
+			Assert.AreEqual(raw, Serialize(Parse(raw)));
 
 			DecodeBytes(raw, key);
 		}
@@ -163,7 +160,7 @@ namespace MiNET.Test
 			//	throw new JoseException(string.Format("Unsupported JWS algorithm requested: {0}", (object)headerValue));
 			//Assert.AreEqual("Jose.netstandard1_4.EcdsaUsingSha", jwsAlgorithm1.GetType().FullName);
 
-			if(!((ECDsa) key).VerifyData(bytes2, signature, HashAlgorithmName.SHA384))
+			if (!((ECDsa) key).VerifyData(bytes2, signature, HashAlgorithmName.SHA384))
 				throw new IntegrityException("Invalid signature.");
 
 			//if (!jwsAlgorithm1.Verify(signature, bytes2, key))

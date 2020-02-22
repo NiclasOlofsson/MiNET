@@ -28,7 +28,6 @@ using System.IO;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Entities;
-using MiNET.Utils;
 using MiNET.Utils.Skins;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -79,7 +78,7 @@ namespace MiNET.Test
 			settings.MissingMemberHandling = MissingMemberHandling.Error;
 			settings.Formatting = Formatting.Indented;
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-			settings.Converters.Add(new StringEnumConverter { NamingStrategy = new CamelCaseNamingStrategy() });
+			settings.Converters.Add(new StringEnumConverter {NamingStrategy = new CamelCaseNamingStrategy()});
 
 			GeometryModel geometryModel = JsonConvert.DeserializeObject<GeometryModel>(json, settings);
 

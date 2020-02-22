@@ -37,9 +37,12 @@ namespace MiNET.Utils.Skins
 	{
 		public GeometryIdentifier Geometry { get; set; }
 
+		[JsonProperty(PropertyName = "persona_reset_resource_definitions")]
+		public bool PersonaResetResourceDefinitions { get; set; }
+
 		public object Clone()
 		{
-			var cloned = new SkinResourcePatch();
+			var cloned = (SkinResourcePatch) MemberwiseClone();
 			cloned.Geometry = (GeometryIdentifier) Geometry?.Clone();
 
 			return cloned;
@@ -49,6 +52,9 @@ namespace MiNET.Utils.Skins
 	public class GeometryIdentifier : ICloneable
 	{
 		public string Default { get; set; }
+
+		[JsonProperty(PropertyName = "animated_face")]
+		public string AnimatedFace { get; set; }
 
 		public object Clone()
 		{
@@ -68,7 +74,7 @@ namespace MiNET.Utils.Skins
 		public string ResourcePatch
 		{
 			get => ToJson(SkinResourcePatch);
-			set => ToJSkinResourcePatch(value);
+			set => SkinResourcePatch = ToJSkinResourcePatch(value);
 		} // contains GeometryName
 
 		public SkinResourcePatch SkinResourcePatch { get; set; } // contains GeometryName

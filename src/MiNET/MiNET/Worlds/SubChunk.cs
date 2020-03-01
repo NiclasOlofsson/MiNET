@@ -88,7 +88,7 @@ namespace MiNET.Worlds
 			fixed (T* shorts = data)
 			{
 				byte* bytes = (byte*) shorts;
-				int len = data.Length * sizeof(short);
+				int len = data.Length * sizeof(T);
 				int rem = len % (sizeof(long) * 16);
 				long* b = (long*) bytes;
 				long* e = (long*) (shorts + len - rem);

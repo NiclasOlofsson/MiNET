@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -57,9 +57,9 @@ namespace MiNET.Utils
 			return batch;
 		}
 
-		public static void WriteLength(Stream stream, int lenght)
+		public static void WriteLength(Stream stream, int length)
 		{
-			VarInt.WriteUInt32(stream, (uint) lenght);
+			VarInt.WriteUInt32(stream, (uint) length);
 		}
 
 		public static int ReadLength(Stream stream)

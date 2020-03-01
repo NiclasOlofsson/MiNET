@@ -672,13 +672,18 @@ namespace MiNET.Worlds
 				// Send player movements
 				BroadCastMovement(players, entities);
 
-				Parallel.ForEach(players, (player, state) =>
+				//TODO: We don't want to trigger sending here. But right now
+				// it seems better for performance since the send-tick is one for all
+				// sessions, so we need to refactor that first.
+				var tasks = new List<Task>();
+				foreach (Player player in players)
 				{
 					if (player.NetworkHandler is PlayerNetworkSession session)
 					{
-						session.SendQueue();
+						tasks.Add(session.SendQueueAsync());
 					}
-				});
+				}
+				Task.WhenAll(tasks.ToArray()).Wait();
 
 
 				if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 50) Log.Error($"World tick too too long: {_tickTimer.ElapsedMilliseconds} ms");

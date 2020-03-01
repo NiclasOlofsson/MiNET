@@ -49,12 +49,13 @@ namespace MiNET.ServiceKiller
 
 
 		private const int TimeBetweenSpawns = 0;
-		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(900);
-		private const int NumberOfBots = 400;
+		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromMinutes(15);
+		private const int NumberOfBots = 500;
 		private const int RanSleepMin = 40;
 		private const int RanSleepMax = 100;
 		private const int RequestChunkRadius = 5;
-		private const bool ConcurrentSpawn = false;
+		private const bool ConcurrentSpawn = true;
+		private const int ConcurrentBatchSize = 10;
 
 		public AutoResetEvent ConcurrentSpawnWaitHandle = new AutoResetEvent(false);
 
@@ -121,7 +122,18 @@ namespace MiNET.ServiceKiller
 
 						new Thread(o => { client.EmulateClient(); }) {IsBackground = true}.Start();
 
-						if (ConcurrentSpawn) emulator.ConcurrentSpawnWaitHandle.Set();
+						if (ConcurrentSpawn)
+						{
+							if (j % ConcurrentBatchSize == 0 && j != 0)
+							{
+								for (int i = 0; i < ConcurrentBatchSize; i++)
+								{
+									emulator.ConcurrentSpawnWaitHandle.WaitOne(TimeSpan.FromMilliseconds(1000));
+								}
+							}
+
+							continue;
+						}
 
 						emulator.ConcurrentSpawnWaitHandle.WaitOne();
 
@@ -189,10 +201,6 @@ namespace MiNET.ServiceKiller
 		{
 			try
 			{
-				int threads;
-				int iothreads;
-				ThreadPool.GetAvailableThreads(out threads, out iothreads);
-
 				Console.WriteLine($"Client {Name} connecting...");
 
 				var client = new MiNetClient(EndPoint, Name, _threadPool);

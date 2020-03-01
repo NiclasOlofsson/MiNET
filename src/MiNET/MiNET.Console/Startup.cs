@@ -45,13 +45,13 @@ namespace MiNET.Console
 
 			var service = new MiNetServer();
 			Log.Info("Starting...");
-	
-			if(Config.GetProperty("UserBedrockGenerator", false))
+
+			if (Config.GetProperty("UserBedrockGenerator", false))
 			{
 				service.LevelManager = new LevelManager();
 				service.LevelManager.Generator = new BedrockGenerator();
 			}
-			
+
 			service.StartServer();
 
 			System.Console.WriteLine("MiNET running. Press <enter> to stop service.");

@@ -32,6 +32,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -164,7 +165,7 @@ namespace MiNET
 					}
 				}
 
-				ServerManager = ServerManager ?? new DefaultServerManager(this);
+				ServerManager ??= new DefaultServerManager(this);
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Node)
 				{
@@ -176,11 +177,11 @@ namespace MiNET
 					// Bootstrap server
 					PluginManager.ExecuteStartup(this);
 
-					GreylistManager = GreylistManager ?? new GreylistManager(this);
-					SessionManager = SessionManager ?? new SessionManager();
-					LevelManager = LevelManager ?? new LevelManager();
-					//LevelManager = LevelManager ?? new SpreadLevelManager(1);
-					PlayerFactory = PlayerFactory ?? new PlayerFactory();
+					GreylistManager ??= new GreylistManager(this);
+					SessionManager ??= new SessionManager();
+					LevelManager ??= new LevelManager();
+					//LevelManager ??= new SpreadLevelManager(50);
+					PlayerFactory ??= new PlayerFactory();
 
 					PluginManager.EnablePlugins(this, LevelManager);
 
@@ -188,8 +189,8 @@ namespace MiNET
 					LevelManager.GetLevel(null, Dimension.Overworld.ToString());
 				}
 
-				GreylistManager = GreylistManager ?? new GreylistManager(this);
-				MotdProvider = MotdProvider ?? new MotdProvider();
+				GreylistManager ??= new GreylistManager(this);
+				MotdProvider ??= new MotdProvider();
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{
@@ -219,10 +220,18 @@ namespace MiNET
 			return false;
 		}
 
-		private void SendTick(object obj)
+		private async void SendTick(object obj)
 		{
-			foreach (var session in _playerSessions.Values) session.SendTick(null);
-			//Parallel.ForEach(_playerSessions.Values, (session, state) => { session.SendTick(null); });
+			//var watch = Stopwatch.StartNew();
+			var tasks = new List<Task>();
+			foreach (var session in _playerSessions)
+			{
+				tasks.Add(session.Value.SendTickAsync());
+			}
+			await Task.WhenAll(tasks);
+
+			//long duration = watch.ElapsedMilliseconds;
+			//if (duration > 10) Log.Warn($"Ticker thread exceeded max time. Took {watch.ElapsedMilliseconds}ms for {_playerSessions.Count} sessions.");
 		}
 
 		private UdpClient CreateListener()
@@ -304,9 +313,8 @@ namespace MiNET
 					//senderEndpoint = result.RemoteEndPoint;
 					//byte[] receiveBytes = result.Buffer;
 
-					Interlocked.Exchange(ref ServerInfo.AvailableBytes, listener.Available);
 					Interlocked.Increment(ref ServerInfo.NumberOfPacketsInPerSecond);
-					Interlocked.Add(ref ServerInfo.TotalPacketSizeIn, receiveBytes.Length);
+					Interlocked.Add(ref ServerInfo.TotalPacketSizeInPerSecond, receiveBytes.Length);
 
 					if (receiveBytes.Length != 0)
 					{
@@ -390,7 +398,7 @@ namespace MiNET
 						throw new Exception("Receive ERROR, NAK in wrong place");
 					}
 
-					ConnectedPacket packet = ConnectedPacket.CreateObject();
+					var packet = ConnectedPacket.CreateObject();
 					try
 					{
 						packet.Decode(receiveBytes);
@@ -988,17 +996,17 @@ namespace MiNET
 			session.SignalTick();
 		}
 
-		public void SendPacket(PlayerNetworkSession session, Packet message)
+		public async Task SendPacketAsync(PlayerNetworkSession session, Packet message)
 		{
-			foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
+			foreach (Datagram datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
 			{
-				SendDatagram(session, datagram);
+				await SendDatagramAsync(session, datagram);
 			}
 
 			message.PutPool();
 		}
 
-		internal void SendDatagram(PlayerNetworkSession session, Datagram datagram)
+		internal async Task SendDatagramAsync(PlayerNetworkSession session, Datagram datagram)
 		{
 			if (datagram.MessageParts.Count == 0)
 			{
@@ -1025,31 +1033,29 @@ namespace MiNET
 			datagram.TransmissionCount++;
 			datagram.RetransmitImmediate = false;
 
-			//byte[] data = datagram.Encode();
-			byte[] data;
-			var lenght = (int) datagram.GetEncoded(out data);
+			int length = (int) datagram.GetEncoded(out byte[] data);
 
 			datagram.Timer.Restart();
 
 			if (!session.WaitingForAcksQueue.TryAdd(datagram.Header.datagramSequenceNumber.IntValue(), datagram))
 			{
-				Log.Warn(string.Format("Datagram sequence unexpectedly existed in the ACK/NAK queue already {0}", datagram.Header.datagramSequenceNumber.IntValue()));
+				Log.Warn($"Datagram sequence unexpectedly existed in the ACK/NAK queue already {datagram.Header.datagramSequenceNumber.IntValue()}");
 			}
 
-			lock (session.SyncRoot)
+			//lock (session.SyncRoot)
 			{
-				SendData(data, lenght, session.EndPoint);
+				await SendDataAsync(data, length, session.EndPoint);
 			}
 		}
 
-		internal void SendData(byte[] data, int lenght, IPEndPoint targetEndPoint)
+		private async Task SendDataAsync(byte[] data, int length, IPEndPoint targetEndPoint)
 		{
 			try
 			{
-				_listener.Send(data, lenght, targetEndPoint); // Less thread-issues it seems
+				await _listener.SendAsync(data, length, targetEndPoint); // Less thread-issues it seems
 
 				Interlocked.Increment(ref ServerInfo.NumberOfPacketsOutPerSecond);
-				Interlocked.Add(ref ServerInfo.TotalPacketSizeOut, lenght);
+				Interlocked.Add(ref ServerInfo.TotalPacketSizeOutPerSecond, length);
 			}
 			catch (ObjectDisposedException e)
 			{
@@ -1070,7 +1076,25 @@ namespace MiNET
 				_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
 
 				Interlocked.Increment(ref ServerInfo.NumberOfPacketsOutPerSecond);
-				Interlocked.Add(ref ServerInfo.TotalPacketSizeOut, data.Length);
+				Interlocked.Add(ref ServerInfo.TotalPacketSizeOutPerSecond, data.Length);
+			}
+			catch (ObjectDisposedException e)
+			{
+			}
+			catch (Exception e)
+			{
+				//if (_listener == null || _listener.Client != null) Log.Error(string.Format("Send data lenght: {0}", data.Length), e);
+			}
+		}
+
+		internal async Task SendDataAsync(byte[] data, IPEndPoint targetEndPoint)
+		{
+			try
+			{
+				await _listener.SendAsync(data, data.Length, targetEndPoint); // Less thread-issues it seems
+
+				Interlocked.Increment(ref ServerInfo.NumberOfPacketsOutPerSecond);
+				Interlocked.Add(ref ServerInfo.TotalPacketSizeOutPerSecond, data.Length);
 			}
 			catch (ObjectDisposedException e)
 			{

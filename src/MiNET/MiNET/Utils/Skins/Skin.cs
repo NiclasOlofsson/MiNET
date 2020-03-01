@@ -71,13 +71,14 @@ namespace MiNET.Utils.Skins
 		public Cape Cape { get; set; }
 		public string SkinId { get; set; }
 
-		public string ResourcePatch
+		public string ResourcePatch { get; set; } // contains GeometryName
+
+		public SkinResourcePatch SkinResourcePatch
 		{
-			get => ToJson(SkinResourcePatch);
-			set => SkinResourcePatch = ToJSkinResourcePatch(value);
+			get => ToJSkinResourcePatch(ResourcePatch);
+			set => ResourcePatch = ToJson(value);
 		} // contains GeometryName
 
-		public SkinResourcePatch SkinResourcePatch { get; set; } // contains GeometryName
 		public int Height { get; set; }
 		public int Width { get; set; }
 		public byte[] Data { get; set; }

@@ -258,9 +258,11 @@ namespace MiNET
 			Parallel.For(0, numberOfLevels, i =>
 			{
 				var name = "Default" + i;
-				//Levels.Add(CreateLevel(name, template._worldProvider));
-				Levels.Add(CreateLevel(name, null));
-				Log.Warn($"Created level {name}");
+				lock (Levels)
+				{
+					Levels.Add(CreateLevel(name, null));
+					Log.Warn($"Created level {name}");
+				}
 			});
 
 			Log.Warn("DONE Creating and caching worlds");
@@ -268,9 +270,14 @@ namespace MiNET
 
 		public override Level GetLevel(Player player, string name)
 		{
-			Random rand = new Random();
+			var rand = new Random();
 
 			return Levels[rand.Next(0, _numberOfLevels)];
+		}
+
+		public override Level GetDimension(Level level, Dimension dimension)
+		{
+			return null;
 		}
 
 		public virtual Level CreateLevel(string name, IWorldProvider provider)

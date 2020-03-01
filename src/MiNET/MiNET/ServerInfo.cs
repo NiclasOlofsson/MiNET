@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -50,16 +50,18 @@ namespace MiNET
 		public long NumberOfResends = 0;
 		public long NumberOfPacketsOutPerSecond = 0;
 		public long NumberOfPacketsInPerSecond = 0;
-		public long TotalPacketSizeOut = 0;
-		public long TotalPacketSizeIn = 0;
+		public long TotalPacketSizeOutPerSecond = 0;
+		public long TotalPacketSizeInPerSecond = 0;
 
 		public Timer ThroughPut { get; set; }
 		public long Latency { get; set; }
-		public int AvailableBytes = 0;
 
 		public int MaxNumberOfPlayers { get; set; }
 		public int MaxNumberOfConcurrentConnects { get; set; }
 		public int ConnectionsInConnectPhase = 0;
+
+		private long _avgSizePerPacketIn;
+		private long _avgSizePerPacketOut;
 
 		public ServerInfo(LevelManager levelManager, ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> playerSessions)
 		{
@@ -77,7 +79,7 @@ namespace MiNET
 			_levelManager = levelManager;
 			PlayerSessions = playerSessions;
 			{
-				ThroughPut = new Timer(delegate (object state)
+				ThroughPut = new Timer(state =>
 				{
 					NumberOfPlayers = PlayerSessions.Count;
 
@@ -89,27 +91,37 @@ namespace MiNET
 					//ctrNumberOfResends.IncrementBy(NumberOfResends);
 					//ctrNumberOfFails.IncrementBy(NumberOfFails);
 
-					int threads;
-					int portThreads;
-					ThreadPool.GetAvailableThreads(out threads, out portThreads);
-					double kbitPerSecondOut = Interlocked.Exchange(ref TotalPacketSizeOut, 0) * 8 / 1000000D;
-					double kbitPerSecondIn = Interlocked.Exchange(ref TotalPacketSizeIn, 0) * 8 / 1000000D;
-					var message = string.Format("{5} Pl(s) Pkt(#/s) (Out={0} In={2}) ACK/NAK/RESD/FTO(#/s) ({1}-{14})/{11}/{12}/{13} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
-						Interlocked.Exchange(ref NumberOfPacketsOutPerSecond, 0),
-						Interlocked.Exchange(ref NumberOfAckReceive, 0),
-						Interlocked.Exchange(ref NumberOfPacketsInPerSecond, 0),
-						kbitPerSecondOut,
-						0 /*_level.LastTickProcessingTime*/,
-						NumberOfPlayers,
-						Latency,
-						kbitPerSecondIn,
-						AvailableBytes / 1000,
-						threads,
-						portThreads,
-						Interlocked.Exchange(ref NumberOfNakReceive, 0),
-						Interlocked.Exchange(ref NumberOfResends, 0),
-						Interlocked.Exchange(ref NumberOfFails, 0),
-						Interlocked.Exchange(ref NumberOfAckSent, 0));
+
+					Interlocked.Exchange(ref NumberOfDeniedConnectionRequestsPerSecond, 0);
+
+					long packetSizeOut = Interlocked.Exchange(ref TotalPacketSizeOutPerSecond, 0);
+					long packetSizeIn = Interlocked.Exchange(ref TotalPacketSizeInPerSecond, 0);
+
+					double mbpsPerSecondOut = packetSizeOut * 8 / 1_000_000D;
+					double mbpsPerSecondIn = packetSizeIn * 8 / 1_000_000D;
+
+					long numberOfPacketsOutPerSecond = Interlocked.Exchange(ref NumberOfPacketsOutPerSecond, 0);
+					long numberOfPacketsInPerSecond = Interlocked.Exchange(ref NumberOfPacketsInPerSecond, 0);
+
+
+					_avgSizePerPacketIn = _avgSizePerPacketIn == 0 ? packetSizeIn * 100 : (long) ((_avgSizePerPacketIn * 99) + (packetSizeIn == 0 ? 0 : numberOfPacketsInPerSecond / ((double) packetSizeIn)));
+					_avgSizePerPacketOut = _avgSizePerPacketOut == 0 ? packetSizeOut * 100 : (long) ((_avgSizePerPacketOut * 99) + (packetSizeOut == 0 ? 0 : numberOfPacketsOutPerSecond / ((double) packetSizeOut)));
+					_avgSizePerPacketIn /= 100; // running avg of 100 prev values
+					_avgSizePerPacketOut /= 100; // running avg of 100 prev values
+
+					long numberOfAckIn = Interlocked.Exchange(ref NumberOfAckReceive, 0);
+					long numberOfAckOut = Interlocked.Exchange(ref NumberOfAckSent, 0);
+					long numberOfNakIn = Interlocked.Exchange(ref NumberOfNakReceive, 0);
+					long numberOfResend = Interlocked.Exchange(ref NumberOfResends, 0);
+					long numberOfFailed = Interlocked.Exchange(ref NumberOfFails, 0);
+					
+					var message =
+						$"Players {NumberOfPlayers}, " +
+						$"Pkt in/out(#/s) {numberOfPacketsInPerSecond}/{numberOfPacketsOutPerSecond}, " +
+						$"ACK(in-out)/NAK/RSND/FTO(#/s) ({numberOfAckIn}-{numberOfAckOut})/{numberOfNakIn}/{numberOfResend}/{numberOfFailed}, " +
+						$"THR in/out(Mbps) {mbpsPerSecondIn:F}/{mbpsPerSecondOut:F}, " +
+						$"PktSz Total in/out(B/s){packetSizeIn}/{packetSizeOut}, " +
+						$"PktSz Avg(100s) in/out(B){_avgSizePerPacketIn}/{_avgSizePerPacketOut}";
 
 					if (Config.GetProperty("ServerInfoInTitle", false))
 					{
@@ -119,8 +131,6 @@ namespace MiNET
 					{
 						Log.InfoFormat(message);
 					}
-
-					Interlocked.Exchange(ref NumberOfDeniedConnectionRequestsPerSecond, 0);
 				}, null, 1000, 1000);
 			}
 		}

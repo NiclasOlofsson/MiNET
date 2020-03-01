@@ -285,6 +285,45 @@ namespace MiNET.Worlds
 			return Color.FromArgb(color);
 		}
 
+		public static unsafe void FastFill<T>(ref T[] data, T value2, ulong value) where T : unmanaged
+		{
+			fixed (T* shorts = data)
+			{
+				byte* bytes = (byte*) shorts;
+				int len = data.Length * sizeof(T);
+				int rem = len % (sizeof(long) * 16);
+				ulong* b = (ulong*) bytes;
+				ulong* e = (ulong*) (shorts + len - rem);
+
+				while (b < e)
+				{
+					*(b) = value;
+					*(b + 1) = value;
+					*(b + 2) = value;
+					*(b + 3) = value;
+					*(b + 4) = value;
+					*(b + 5) = value;
+					*(b + 6) = value;
+					*(b + 7) = value;
+					*(b + 8) = value;
+					*(b + 9) = value;
+					*(b + 10) = value;
+					*(b + 11) = value;
+					*(b + 12) = value;
+					*(b + 13) = value;
+					*(b + 14) = value;
+					*(b + 15) = value;
+					b += 16;
+				}
+
+				for (int i = 0; i < rem; i++)
+				{
+					data[len - 1 - i] = value2;
+				}
+			}
+		}
+
+
 		public static void Fill<T>(T[] destinationArray, params T[] value)
 		{
 			if (destinationArray == null)

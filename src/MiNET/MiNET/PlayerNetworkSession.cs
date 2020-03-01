@@ -34,6 +34,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using MiNET.Net;
+using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 
@@ -99,16 +100,12 @@ namespace MiNET
 		{
 			if (Server == null) // EMULATOR
 			{
-				if (_tickerHighPrecisionTimer != null)
-				{
-					_tickerHighPrecisionTimer.Dispose();
-				}
+				_tickerHighPrecisionTimer?.Dispose();
 
 				return;
 			}
 
-			PlayerNetworkSession session;
-			if (!Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
+			if (!Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out PlayerNetworkSession session))
 			{
 				return;
 			}
@@ -118,16 +115,13 @@ namespace MiNET
 				Thread.Sleep(50);
 			}
 
-			if (_tickerHighPrecisionTimer != null)
-			{
-				_tickerHighPrecisionTimer.Dispose();
-			}
+			_tickerHighPrecisionTimer?.Dispose();
 
 			State = ConnectionState.Unconnected;
 			Evicted = true;
 			MessageHandler = null;
 
-			SendQueue();
+			SendQueueAsync().Wait();
 
 			_cancellationToken.Cancel();
 			_waitEvent.Set();
@@ -137,20 +131,18 @@ namespace MiNET
 			var queue = WaitingForAcksQueue;
 			foreach (var kvp in queue)
 			{
-				Datagram datagram;
-				if (queue.TryRemove(kvp.Key, out datagram)) datagram.PutPool();
+				if (queue.TryRemove(kvp.Key, out Datagram datagram)) datagram.PutPool();
 			}
 
 			foreach (var kvp in Splits)
 			{
-				SplitPartPacket[] splitPartPackets;
-				if (Splits.TryRemove(kvp.Key, out splitPartPackets))
+				if (Splits.TryRemove(kvp.Key, out SplitPartPacket[] splitPartPackets))
 				{
 					if (splitPartPackets == null) continue;
 
 					foreach (SplitPartPacket packet in splitPartPackets)
 					{
-						if (packet != null) packet.PutPool();
+						packet?.PutPool();
 					}
 				}
 			}
@@ -165,8 +157,9 @@ namespace MiNET
 				_waitEvent.Close();
 				_mainWaitEvent.Close();
 			}
-			catch (Exception e)
+			catch
 			{
+				// ignored
 			}
 
 			if (Log.IsDebugEnabled) Log.Warn($"Closed network session for player {Username}");
@@ -791,18 +784,24 @@ namespace MiNET
 			}
 		}
 
-		private int i = 0;
+		private int _tickCounter;
 
-		public void SendTick(object state)
+		public async Task SendTickAsync()
 		{
 			try
 			{
-				SendAckQueue();
-				SendQueue();
-				if (i++ >= 5)
+				Task sendAckQueueAsync = SendAckQueueAsync();
+				Task sendQueueAsync = SendQueueAsync();
+
+				if (_tickCounter++ >= 5)
 				{
-					Update();
-					i = 0;
+					Task updateAsync = UpdateAsync();
+					await Task.WhenAll(sendAckQueueAsync, sendQueueAsync, updateAsync);
+					_tickCounter = 0;
+				}
+				else
+				{
+					await Task.WhenAll(sendAckQueueAsync, sendQueueAsync);
 				}
 			}
 			catch (Exception e)
@@ -815,7 +814,7 @@ namespace MiNET
 		private object _updateSync = new object();
 		private Stopwatch _forceQuitTimer = new Stopwatch();
 
-		private void Update()
+		private async Task UpdateAsync()
 		{
 			if (Server == null) return; // MiNET Client
 
@@ -902,16 +901,19 @@ namespace MiNET
 							ErrorCount++;
 							ResendCount++;
 
-							MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
-							{
+							var resendTasks = new List<Task>();
+							//MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
+							//{
 								var dtgram = deleted;
 								if (Log.IsDebugEnabled)
 								{
 									Log.Warn($"{(deleted.RetransmitImmediate ? "NAK RSND" : "TIMEOUT")}, Resent #{deleted.Header.datagramSequenceNumber.IntValue()} Type: {deleted.FirstMessageId} (0x{deleted.FirstMessageId:x2}) for {Username} ({elapsedTime} > {datagramTimout}) RTO {Rto}");
 								}
-								Server.SendDatagram(this, (Datagram) dtgram);
+
+								resendTasks.Add(Server.SendDatagramAsync(this, (Datagram) dtgram));
 								Interlocked.Increment(ref Server.ServerInfo.NumberOfResends);
-							});
+							//});
+							await Task.WhenAll(resendTasks);
 						}
 					}
 				}
@@ -939,7 +941,7 @@ namespace MiNET
 		}
 
 
-		private void SendAckQueue()
+		private async Task SendAckQueueAsync()
 		{
 			PlayerNetworkSession session = this;
 			var queue = session.PlayerAckQueue;
@@ -959,7 +961,7 @@ namespace MiNET
 			if (acks.acks.Count > 0)
 			{
 				byte[] data = acks.Encode();
-				Server.SendData(data, session.EndPoint);
+				await Server.SendDataAsync(data, session.EndPoint);
 			}
 
 			acks.PutPool();
@@ -968,7 +970,7 @@ namespace MiNET
 		private object _syncHack = new object();
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
 
-		public void SendQueue()
+		public async Task SendQueueAsync()
 		{
 			if (_sendQueueNotConcurrent.Count == 0) return;
 
@@ -976,14 +978,14 @@ namespace MiNET
 
 			try
 			{
-				using (MemoryStream memStream = new MemoryStream())
+				using (var memStream = new MemoryStream())
 				{
 					Queue<Packet> queue = _sendQueueNotConcurrent;
 
 					int messageCount = 0;
 
-					int lenght = queue.Count;
-					for (int i = 0; i < lenght; i++)
+					int length = queue.Count;
+					for (int i = 0; i < length; i++)
 					{
 						Packet packet = null;
 						lock (_queueSync)
@@ -1006,15 +1008,15 @@ namespace MiNET
 							continue;
 						}
 
-						if (lenght == 1)
+						if (length == 1)
 						{
-							Server.SendPacket(this, packet);
+							await Server.SendPacketAsync(this, packet);
 						}
 						else if (packet is McpeWrapper)
 						{
-							SendBuffered(messageCount, memStream);
+							await SendBufferedAsync(messageCount, memStream);
 							messageCount = 0;
-							Server.SendPacket(this, packet);
+							await Server.SendPacketAsync(this, packet);
 							// The following is necessary if no throttling is done on chunk sending,
 							// but having it creates a lot of packet lag when using SpawnLevel. You can see it
 							// as players standing still, but having running particles.
@@ -1023,9 +1025,9 @@ namespace MiNET
 						}
 						else if (packet.NoBatch)
 						{
-							SendBuffered(messageCount, memStream);
+							await SendBufferedAsync(messageCount, memStream);
 							messageCount = 0;
-							Server.SendPacket(this, packet);
+							await Server.SendPacketAsync(this, packet);
 						}
 						else
 						{
@@ -1053,7 +1055,7 @@ namespace MiNET
 						return;
 					}
 
-					SendBuffered(messageCount, memStream);
+					await SendBufferedAsync(messageCount, memStream);
 				}
 			}
 			finally
@@ -1062,21 +1064,21 @@ namespace MiNET
 			}
 		}
 
-		private void SendBuffered(int messageCount, MemoryStream memStream)
+		private async Task SendBufferedAsync(int messageCount, MemoryStream memStream)
 		{
 			if (messageCount == 0) return;
 
-			var batch = BatchUtils.CreateBatchPacket(new Memory<byte>(memStream.GetBuffer(), 0, (int) memStream.Length), CompressionLevel.Fastest, false);
+			McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(memStream.GetBuffer(), 0, (int) memStream.Length), CompressionLevel.Fastest, false);
 			batch.Encode();
 			memStream.Position = 0;
 			memStream.SetLength(0);
 
-			Server.SendPacket(this, batch);
+			await Server.SendPacketAsync(this, batch);
 		}
 
 		public void SendDirectPacket(Packet packet)
 		{
-			Server.SendPacket(this, packet);
+			Server.SendPacketAsync(this, packet).Wait();
 		}
 
 		public IPEndPoint GetClientEndPoint()

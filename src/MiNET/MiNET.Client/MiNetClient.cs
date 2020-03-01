@@ -156,11 +156,8 @@ namespace MiNET.Client
 					////
 				}
 
-				//Task.Run(ProcessQueue);
-
 				Session = new PlayerNetworkSession(null, null, ClientEndpoint, _mtuSize);
 
-				//UdpClient.BeginReceive(ReceiveCallback, UdpClient);
 				_mainProcessingThread = new Thread(ProcessDatagrams) {IsBackground = true};
 				_mainProcessingThread.Start(UdpClient);
 
@@ -206,10 +203,10 @@ namespace MiNET.Client
 
 		private void ProcessDatagrams(object state)
 		{
+			var listener = (UdpClient) state;
+
 			while (true)
 			{
-				var listener = (UdpClient) state;
-
 
 				// Check if we already closed the server
 				if (listener.Client == null) return;

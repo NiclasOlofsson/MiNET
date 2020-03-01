@@ -31,6 +31,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
@@ -46,6 +47,154 @@ namespace MiNET.Test
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GeneralTests));
 
+
+		[TestMethod]
+		public void Check_all_air_base_test()
+		{
+			var buffer = new byte[10_000].Concat(new byte[] {42}).ToArray();
+
+			for (int k = 0; k < 10_000_000; k++)
+			{
+				bool foundNonZero = false;
+				for (int i = 0; i < buffer.Length; i++)
+				{
+					if (buffer[i] != 0)
+					{
+						foundNonZero = true;
+						break;
+					}
+				}
+				Assert.IsTrue(foundNonZero);
+			}
+		}
+
+		[TestMethod]
+		public void Check_all_air_fast_test()
+		{
+			var buffer = new byte[10_000].Concat(new byte[] {42}).ToArray();
+			for (int i = 0; i < 10_000_000; i++)
+			{
+				Assert.IsFalse(SubChunk.AllZeroFast(buffer));
+			}
+		}
+
+		[TestMethod]
+		public void Check_all_air_vector_test()
+		{
+			Assert.IsTrue(Vector.IsHardwareAccelerated);
+
+			var buffer = new byte[10_000].Concat(new byte[] {42}).ToArray();
+
+			for (int i = 0; i < 10_000_000; i++)
+			{
+				bool foundNonZero = false;
+				int remainingStart = 0;
+				while (remainingStart <= buffer.Length - Vector<byte>.Count)
+				{
+					var vector = new Vector<byte>(buffer, remainingStart);
+					if (!Vector.EqualsAll(vector, default))
+					{
+						break;
+					}
+					remainingStart += Vector<byte>.Count;
+				}
+
+				for (int j = remainingStart; j < buffer.Length; j++)
+				{
+					if (buffer[j] != 0)
+					{
+						foundNonZero = true;
+						break;
+					}
+				}
+				Assert.IsTrue(foundNonZero);
+			}
+		}
+
+		[TestMethod]
+		public void Check_all_air_long_test()
+		{
+			var buffer = new byte[10_000].Concat(new byte[] {42}).ToArray();
+
+			for (int k = 0; k < 10_000_000; k++)
+			{
+				int remainingStart = 0;
+				bool foundNonZero = false;
+				if (IntPtr.Size == sizeof(long))
+				{
+					Span<long> longBuffer = MemoryMarshal.Cast<byte, long>(buffer);
+					remainingStart = longBuffer.Length * sizeof(long);
+
+					for (int i = 0; i < longBuffer.Length; i++)
+					{
+						if (longBuffer[i] != 0)
+						{
+							remainingStart = i * sizeof(long);
+							break;
+						}
+					}
+				}
+
+				for (int i = remainingStart; i < buffer.Length; i++)
+				{
+					if (buffer[i] != 0)
+					{
+						foundNonZero = true;
+						break;
+					}
+				}
+				Assert.IsTrue(foundNonZero);
+			}
+		}
+
+		[TestMethod]
+		public void ZeroValueDetectSse()
+		{
+			var buffer = new byte[10_000].Concat(new byte[] { 42 }).ToArray();
+			for (int k = 0; k < 10_000_000; k++)
+			{
+				bool foundNonZero = false;
+				int concurrentAmount = 4;
+				int startIndex = 0;
+				int endIndex = buffer.Length -1;
+				int sseIndexEnd = startIndex + ((endIndex - startIndex + 1) / (Vector<byte>.Count * concurrentAmount)) * (Vector<byte>.Count * concurrentAmount);
+				int i;
+				int offset1 = Vector<byte>.Count;
+				int offset2 = Vector<byte>.Count * 2;
+				int offset3 = Vector<byte>.Count * 3;
+				int increment = Vector<byte>.Count * concurrentAmount;
+				for (i = startIndex; i < sseIndexEnd; i += increment)
+				{
+					var inVector = new Vector<byte>(buffer, i);
+					inVector |= new Vector<byte>(buffer, i + offset1);
+					inVector |= new Vector<byte>(buffer, i + offset2);
+					inVector |= new Vector<byte>(buffer, i + offset3);
+					if (!Vector.EqualsAll(inVector, default))
+					{
+						foundNonZero = true;
+						break;
+					}
+				}
+
+				if(foundNonZero) continue;
+
+				byte overallOr = 0;
+				for (; i <= endIndex; i++)
+					overallOr |= buffer[i];
+				foundNonZero = overallOr != 0;
+				//for (; i <= endIndex; i++)
+				//{
+				//	if (buffer[i] != 0)
+				//	{
+				//		foundNonZero = true;
+				//		break;
+				//	}
+				//}
+
+				Assert.IsTrue(foundNonZero);
+			}
+		}
+
 		[TestMethod]
 		public void DeltaEncodeTest()
 		{
@@ -60,7 +209,7 @@ namespace MiNET.Test
 		}
 
 		[TestMethod]
-		public void EncodePalettedChunk()
+		public void EncodePaletteChunk()
 		{
 			var blocks = new short[4096];
 			var random = new Random();
@@ -339,12 +488,24 @@ namespace MiNET.Test
 
 			ChunkColumn.Fill<byte>(array, 0xff);
 			var sw = Stopwatch.StartNew();
-			int iterations = 100000;
+			int iterations = 10_000_000;
 			for (int i = 0; i < iterations; i++)
 			{
 				ChunkColumn.Fill<byte>(array, 0xff);
 			}
 			Console.WriteLine($"My fill {sw.ElapsedMilliseconds}ms");
+
+			ChunkColumn.FastFill<byte>(ref array, 0xff, ulong.MaxValue);
+			sw.Restart();
+			for (int i = 0; i < iterations; i++)
+			{
+				ChunkColumn.FastFill<byte>(ref array, 0xff, ulong.MaxValue);
+			}
+			Console.WriteLine($"My fast fill {sw.ElapsedMilliseconds}ms");
+			foreach (byte t in array)
+			{
+				Assert.AreEqual(0xff, t);
+			}
 
 			Array.Fill<byte>(array, 0xff);
 			sw.Restart();

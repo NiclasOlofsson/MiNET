@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -58,8 +58,7 @@ namespace MiNET.Net
 
 		public T GetObject()
 		{
-			T item;
-			if (_objects.TryDequeue(out item)) return item;
+			if (_objects.TryDequeue(out T item)) return item;
 			return _objectGenerator();
 		}
 

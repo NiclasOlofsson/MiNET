@@ -257,7 +257,6 @@ namespace MiNET
 								}
 							);
 						}
-						Log.Warn($"Cape data lenght={_playerInfo.Skin.Cape.Data.Length}");
 					}
 					catch (Exception e)
 					{

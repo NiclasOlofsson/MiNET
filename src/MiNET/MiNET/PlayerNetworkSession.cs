@@ -811,7 +811,8 @@ namespace MiNET
 		}
 
 
-		private object _updateSync = new object();
+		//private object _updateSync = new object();
+		private SemaphoreSlim _updateSync = new SemaphoreSlim(1, 1);
 		private Stopwatch _forceQuitTimer = new Stopwatch();
 
 		private async Task UpdateAsync()
@@ -822,7 +823,8 @@ namespace MiNET
 
 			if (MiNetServer.FastThreadPool == null) return;
 
-			if (!Monitor.TryEnter(_updateSync)) return;
+			if (!(await _updateSync.WaitAsync(0)))
+				return;
 
 			try
 			{
@@ -925,7 +927,7 @@ namespace MiNET
 					Log.Warn($"Update took unexpected long time={_forceQuitTimer.ElapsedMilliseconds}, Count={WaitingForAcksQueue.Count}");
 				}
 
-				Monitor.Exit(_updateSync);
+				_updateSync.Release();
 			}
 		}
 
@@ -967,15 +969,16 @@ namespace MiNET
 			acks.PutPool();
 		}
 
-		private object _syncHack = new object();
+		private SemaphoreSlim _syncHack = new SemaphoreSlim(1,1);
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
 
 		public async Task SendQueueAsync()
 		{
 			if (_sendQueueNotConcurrent.Count == 0) return;
 
-			if (!Monitor.TryEnter(_syncHack)) return;
-
+			if (!(await _syncHack.WaitAsync(0)))
+				return;
+			
 			try
 			{
 				using (var memStream = new MemoryStream())
@@ -1064,7 +1067,7 @@ namespace MiNET
 			}
 			finally
 			{
-				Monitor.Exit(_syncHack);
+				_syncHack.Release();
 			}
 		}
 

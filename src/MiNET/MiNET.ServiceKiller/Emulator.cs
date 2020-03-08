@@ -266,7 +266,7 @@ namespace MiNET.ServiceKiller
 						z += client.LevelInfo.SpawnZ;
 
 						client.CurrentLocation = new PlayerLocation(x, y, z, (float) angle.ToDegrees(), (float) angle.ToDegrees());
-						client.SendMcpeMovePlayer();
+						client.SendCurrentPlayerPositionAsync().Wait();
 
 						int timeout = RanMin == RanMax ? RanMin : Random.Next(RanMin, RanMax);
 						if (timeout > 0) Thread.Sleep(timeout);

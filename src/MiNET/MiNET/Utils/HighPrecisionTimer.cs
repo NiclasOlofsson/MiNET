@@ -179,7 +179,7 @@ namespace MiNET.Utils
 
 							Sleeps++;
 							Thread.Sleep(1);
-							if (!skipTicks)
+							if (!skipTicks && Log.IsDebugEnabled)
 							{
 								long t = nextStop - watch.ElapsedMilliseconds;
 								if (t < -5) Log.Warn($"We overslept {t}ms in thread yield/sleep");
@@ -189,7 +189,7 @@ namespace MiNET.Utils
 
 						Sleeps++;
 						Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));
-						if (!skipTicks)
+						if (!skipTicks && Log.IsDebugEnabled)
 						{
 							long t = nextStop - watch.ElapsedMilliseconds;
 							if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");

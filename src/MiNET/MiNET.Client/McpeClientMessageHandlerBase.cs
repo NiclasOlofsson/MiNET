@@ -179,6 +179,13 @@ namespace MiNET.Client
 			client.ChunkRadius = 5;
 			packet.chunkRadius = client.ChunkRadius;
 
+			if (Client.IsEmulator)
+			{
+				Client.HasSpawned = true;
+				Client.PlayerStatusChangedWaitHandle.Set();
+				Client.SendMcpeMovePlayer();
+			}
+
 			client.SendPacket(packet);
 		}
 

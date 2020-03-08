@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Threading;
 using log4net;
 using MiNET.Utils;
@@ -222,7 +223,7 @@ namespace MiNET.Net
 						}
 						else
 						{
-							encodedMessage = Compression.Compress(encodedMessage, true);
+							encodedMessage = Compression.Compress(encodedMessage, true, encodedMessage.Length > 1000 ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
 						}
 
 						McpeWrapper wrapper = McpeWrapper.CreateObject();
@@ -233,7 +234,7 @@ namespace MiNET.Net
 					else if (!isBatch)
 					{
 						McpeWrapper wrapper = McpeWrapper.CreateObject();
-						wrapper.payload = Compression.Compress(encodedMessage, true);
+						wrapper.payload = Compression.Compress(encodedMessage, true, encodedMessage.Length > 1000 ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
 						encodedMessage = wrapper.Encode();
 						wrapper.PutPool();
 					}

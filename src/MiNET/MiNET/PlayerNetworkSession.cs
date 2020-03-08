@@ -1058,6 +1058,10 @@ namespace MiNET
 					await SendBufferedAsync(messageCount, memStream);
 				}
 			}
+			catch (Exception e)
+			{
+				Log.Error(e);
+			}
 			finally
 			{
 				Monitor.Exit(_syncHack);

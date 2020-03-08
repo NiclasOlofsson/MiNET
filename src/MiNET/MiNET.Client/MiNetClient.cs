@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -158,7 +158,7 @@ namespace MiNET.Client
 
 				Session = new PlayerNetworkSession(null, null, ClientEndpoint, _mtuSize);
 
-				_mainProcessingThread = new Thread(ProcessDatagrams) {IsBackground = true};
+				_mainProcessingThread = new Thread(ProcessDatagram) {IsBackground = true};
 				_mainProcessingThread.Start(UdpClient);
 
 				ClientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;
@@ -201,7 +201,7 @@ namespace MiNET.Client
 			return false;
 		}
 
-		private void ProcessDatagrams(object state)
+		private void ProcessDatagram(object state)
 		{
 			var listener = (UdpClient) state;
 
@@ -218,14 +218,16 @@ namespace MiNET.Client
 				// Note the spocket settings on creation of the server. It makes us ignore these resets.
 				try
 				{
-					//var result = listener.ReceiveAsync().Result;
-					//senderEndpoint = result.RemoteEndPoint;
-					//receiveBytes = result.Buffer;
-					IPEndPoint senderEndpoint = null;
-					byte[] receiveBytes = listener.Receive(ref senderEndpoint);
+					//IPEndPoint senderEndpoint = null;
+					//byte[] receiveBytes = listener.Receive(ref senderEndpoint);
+					UdpReceiveResult result = listener.ReceiveAsync().Result;
+					IPEndPoint senderEndpoint = result.RemoteEndPoint;
+					byte[] receiveBytes = result.Buffer;
 
 					if (receiveBytes.Length != 0)
 					{
+						//ThreadPool.QueueUserWorkItem(o =>
+						//Task.Run(() =>
 						_threadPool.QueueUserWorkItem(() =>
 						{
 							try
@@ -244,6 +246,10 @@ namespace MiNET.Client
 						return;
 					}
 				}
+				catch (AggregateException)
+				{
+					return;
+				}
 				catch (ObjectDisposedException)
 				{
 					return;
@@ -256,67 +262,6 @@ namespace MiNET.Client
 
 					return;
 				}
-			}
-		}
-
-
-		/// <summary>
-		///     Handles the callback.
-		/// </summary>
-		/// <param name="ar">The results</param>
-		private void ReceiveCallback(IAsyncResult ar)
-		{
-			UdpClient listener = (UdpClient) ar.AsyncState;
-
-			if (listener.Client == null) return;
-
-			// WSAECONNRESET:
-			// The virtual circuit was reset by the remote side executing a hard or abortive close. 
-			// The application should close the socket; it is no longer usable. On a UDP-datagram socket 
-			// this error indicates a previous send operation resulted in an ICMP Port Unreachable message.
-			// Note the spocket settings on creation of the server. It makes us ignore these resets.
-			IPEndPoint senderEndpoint = new IPEndPoint(0, 0);
-			Byte[] receiveBytes;
-			try
-			{
-				receiveBytes = listener.EndReceive(ar, ref senderEndpoint);
-			}
-			catch (Exception e)
-			{
-				if (listener.Client == null) return;
-				Log.Error("Recieve processing", e);
-
-				try
-				{
-					listener.BeginReceive(ReceiveCallback, listener);
-				}
-				catch (ObjectDisposedException dex)
-				{
-					// Log and move on. Should probably free up the player and remove them here.
-					Log.Error("Recieve processing", dex);
-				}
-
-				return;
-			}
-
-			if (receiveBytes.Length != 0)
-			{
-				if (listener.Client == null) return;
-				try
-				{
-					listener.BeginReceive(ReceiveCallback, listener);
-
-					if (listener.Client == null) return;
-					ProcessMessage(receiveBytes, senderEndpoint);
-				}
-				catch (Exception e)
-				{
-					Log.Error("Processing", e);
-				}
-			}
-			else
-			{
-				Log.Error("Unexpected end of transmission?");
 			}
 		}
 
@@ -380,12 +325,11 @@ namespace MiNET.Client
 						throw new Exception("Receive ERROR, NAK in wrong place");
 					}
 
-					if (IsEmulator && PlayerStatus == 3)
+					if (IsEmulator && HasSpawned /*&& PlayerStatus == 3*/)
 					{
 						int datagramId = new Int24(new[] {receiveBytes[1], receiveBytes[2], receiveBytes[3]});
 
-						//Acks ack = Acks.CreateObject();
-						Acks ack = new Acks();
+						var ack = new Acks();
 						ack.acks.Add(datagramId);
 						byte[] data = ack.Encode();
 						ack.PutPool();
@@ -552,11 +496,11 @@ namespace MiNET.Client
 			Log.Warn($"MOTD: {packet.serverName}");
 			Log.Warn($"from server {senderEndpoint}");
 
-			
+
 			if (!HaveServer)
 			{
 				string[] motdParts = packet.serverName.Split(';');
-				if(motdParts.Length >= 11)
+				if (motdParts.Length >= 11)
 				{
 					senderEndpoint.Port = int.Parse(motdParts[10]);
 				}
@@ -587,7 +531,7 @@ namespace MiNET.Client
 
 		public virtual void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			if(Log.IsDebugEnabled) Log.Warn("!! WHAT THE FUK NAK NAK NAK");
+			if (Log.IsDebugEnabled) Log.Warn("!! WHAT THE FUK NAK NAK NAK");
 		}
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPacket splitMessage)
@@ -1261,19 +1205,19 @@ namespace MiNET.Client
 			}
 		}
 
-		public void SendPacket(Packet message, short mtuSize, ref int reliableMessageNumber)
+		public async Task SendPacketAsync(Packet message)
 		{
 			if (message == null) return;
 
 			TraceSend(message);
 
-			foreach (var datagram in Datagram.CreateDatagrams(message, mtuSize, Session))
+			foreach (var datagram in Datagram.CreateDatagrams(message, _mtuSize, Session))
 			{
-				SendDatagram(Session, datagram);
+				await SendDatagramAsync(datagram);
 			}
 		}
 
-		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)
+		private async Task SendDatagramAsync(Datagram datagram)
 		{
 			if (datagram.MessageParts.Count != 0)
 			{
@@ -1281,7 +1225,7 @@ namespace MiNET.Client
 				byte[] data = datagram.Encode();
 				datagram.PutPool();
 
-				SendData(data, ServerEndpoint);
+				await SendDataAsync(data, ServerEndpoint);
 			}
 		}
 
@@ -1301,6 +1245,21 @@ namespace MiNET.Client
 			try
 			{
 				UdpClient.Send(data, data.Length, targetEndpoint);
+			}
+			catch (Exception e)
+			{
+				Log.Debug("Send exception", e);
+			}
+		}
+
+		private async Task SendDataAsync(byte[] data, IPEndPoint targetEndpoint)
+		{
+			if (UdpClient == null)
+				return;
+
+			try
+			{
+				await UdpClient.SendAsync(data, data.Length, targetEndpoint);
 			}
 			catch (Exception e)
 			{
@@ -1338,7 +1297,6 @@ namespace MiNET.Client
 				var jsonSerializerSettings = new JsonSerializerSettings
 				{
 					PreserveReferencesHandling = PreserveReferencesHandling.All,
-
 					Formatting = Formatting.Indented,
 				};
 				jsonSerializerSettings.Converters.Add(new StringEnumConverter());
@@ -1387,7 +1345,6 @@ namespace MiNET.Client
 				var jsonSerializerSettings = new JsonSerializerSettings
 				{
 					PreserveReferencesHandling = PreserveReferencesHandling.All,
-
 					Formatting = Formatting.Indented,
 				};
 				jsonSerializerSettings.Converters.Add(new StringEnumConverter());
@@ -1403,7 +1360,6 @@ namespace MiNET.Client
 			{
 				Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 			}
-
 		}
 
 		public void SendUnconnectedPing()
@@ -1429,10 +1385,7 @@ namespace MiNET.Client
 
 		public void SendConnectedPing()
 		{
-			var packet = new ConnectedPing()
-			{
-				sendpingtime = DateTime.UtcNow.Ticks
-			};
+			var packet = new ConnectedPing() {sendpingtime = DateTime.UtcNow.Ticks};
 
 			SendPacket(packet);
 		}
@@ -1500,7 +1453,7 @@ namespace MiNET.Client
 
 		public void SendPacket(Packet packet)
 		{
-			SendPacket(packet, _mtuSize, ref _reliableMessageNumber);
+			SendPacketAsync(packet).Wait();
 			packet.PutPool();
 		}
 
@@ -1531,7 +1484,7 @@ namespace MiNET.Client
 		{
 			if (CurrentLocation == null) return;
 
-			if(CurrentLocation.Y < 0)
+			if (CurrentLocation.Y < 0)
 				CurrentLocation.Y = 64f;
 
 			var movePlayerPacket = McpeMovePlayer.CreateObject();
@@ -1546,6 +1499,28 @@ namespace MiNET.Client
 			movePlayerPacket.onGround = false;
 
 			SendPacket(movePlayerPacket);
+		}
+
+		public async Task SendCurrentPlayerPositionAsync()
+		{
+			if (CurrentLocation == null)
+				return;
+
+			if (CurrentLocation.Y < 0)
+				CurrentLocation.Y = 64f;
+
+			var movePlayerPacket = McpeMovePlayer.CreateObject();
+			movePlayerPacket.runtimeEntityId = EntityId;
+			movePlayerPacket.x = CurrentLocation.X;
+			movePlayerPacket.y = CurrentLocation.Y;
+			movePlayerPacket.z = CurrentLocation.Z;
+			movePlayerPacket.yaw = CurrentLocation.Yaw;
+			movePlayerPacket.pitch = CurrentLocation.Pitch;
+			movePlayerPacket.headYaw = CurrentLocation.HeadYaw;
+			movePlayerPacket.mode = 1;
+			movePlayerPacket.onGround = false;
+
+			await SendPacketAsync(movePlayerPacket);
 		}
 
 

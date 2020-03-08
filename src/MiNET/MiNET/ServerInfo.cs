@@ -104,10 +104,10 @@ namespace MiNET
 					long numberOfPacketsInPerSecond = Interlocked.Exchange(ref NumberOfPacketsInPerSecond, 0);
 
 
-					_avgSizePerPacketIn = _avgSizePerPacketIn == 0 ? packetSizeIn * 100 : (long) ((_avgSizePerPacketIn * 99) + (packetSizeIn == 0 ? 0 : numberOfPacketsInPerSecond / ((double) packetSizeIn)));
-					_avgSizePerPacketOut = _avgSizePerPacketOut == 0 ? packetSizeOut * 100 : (long) ((_avgSizePerPacketOut * 99) + (packetSizeOut == 0 ? 0 : numberOfPacketsOutPerSecond / ((double) packetSizeOut)));
-					_avgSizePerPacketIn /= 100; // running avg of 100 prev values
-					_avgSizePerPacketOut /= 100; // running avg of 100 prev values
+					_avgSizePerPacketIn = _avgSizePerPacketIn <= 0 ? packetSizeIn * 10 : (long) ((_avgSizePerPacketIn * 9) + (numberOfPacketsInPerSecond == 0 ? 0 : packetSizeIn / (double) numberOfPacketsInPerSecond));
+					_avgSizePerPacketOut = _avgSizePerPacketOut <= 0 ? packetSizeOut * 10 : (long) ((_avgSizePerPacketOut * 9) + (numberOfPacketsOutPerSecond == 0 ? 0 : packetSizeOut / (double) numberOfPacketsOutPerSecond));
+					_avgSizePerPacketIn /= 10; // running avg of 100 prev values
+					_avgSizePerPacketOut /= 10; // running avg of 100 prev values
 
 					long numberOfAckIn = Interlocked.Exchange(ref NumberOfAckReceive, 0);
 					long numberOfAckOut = Interlocked.Exchange(ref NumberOfAckSent, 0);

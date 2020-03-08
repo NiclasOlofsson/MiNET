@@ -2353,14 +2353,6 @@ namespace MiNET.Net
 			if (!IsMcpe) Id = ReadByte();
 		}
 
-		public void CloneReset()
-		{
-			_buffer = new MemoryStream();
-			_reader = new BinaryReader(_buffer);
-			_writer = new BinaryWriter(_buffer);
-			Timer.Start();
-		}
-
 		public abstract void PutPool();
 
 		public static string HexDump(byte[] bytes, int bytesPerLine = 16, bool printLineCount = false)

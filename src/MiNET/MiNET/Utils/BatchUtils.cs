@@ -52,7 +52,7 @@ namespace MiNET.Utils
 		public static McpeWrapper CreateBatchPacket(Memory<byte> input, CompressionLevel compressionLevel, bool writeLen)
 		{
 			var batch = McpeWrapper.CreateObject();
-			batch.payload = Compression.Compress(input, writeLen, compressionLevel);
+			batch.payload = Compression.Compress(input, writeLen, input.Length > 1000 ? compressionLevel : CompressionLevel.NoCompression);
 			batch.Encode(); // prepare
 			return batch;
 		}

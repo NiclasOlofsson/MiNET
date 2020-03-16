@@ -251,7 +251,7 @@ namespace MiNET.Utils
 
 		protected bool Equals(BlockStateString other)
 		{
-			return Name == other.Name && Value == other.Value;
+			return string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase) && string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
 		}
 
 		public override bool Equals(object obj)
@@ -267,7 +267,7 @@ namespace MiNET.Utils
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(GetType().Name, Name, Value);
+			return HashCode.Combine(GetType().Name, Name, Value.ToLowerInvariant());
 		}
 
 		public override string ToString()

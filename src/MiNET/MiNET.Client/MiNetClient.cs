@@ -218,11 +218,11 @@ namespace MiNET.Client
 				// Note the spocket settings on creation of the server. It makes us ignore these resets.
 				try
 				{
-					//IPEndPoint senderEndpoint = null;
-					//byte[] receiveBytes = listener.Receive(ref senderEndpoint);
-					UdpReceiveResult result = listener.ReceiveAsync().Result;
-					IPEndPoint senderEndpoint = result.RemoteEndPoint;
-					byte[] receiveBytes = result.Buffer;
+					IPEndPoint senderEndpoint = null;
+					byte[] receiveBytes = listener.Receive(ref senderEndpoint);
+					//UdpReceiveResult result = listener.ReceiveAsync().Result;
+					//IPEndPoint senderEndpoint = result.RemoteEndPoint;
+					//byte[] receiveBytes = result.Buffer;
 
 					if (receiveBytes.Length != 0)
 					{

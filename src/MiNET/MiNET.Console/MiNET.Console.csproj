@@ -32,7 +32,7 @@
 
   <ItemGroup>
     <Content Include="log4net.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

@@ -180,7 +180,7 @@ namespace MiNET
 					GreylistManager ??= new GreylistManager(this);
 					SessionManager ??= new SessionManager();
 					LevelManager ??= new LevelManager();
-					//LevelManager ??= new SpreadLevelManager(50);
+					//LevelManager ??= new SpreadLevelManager(75);
 					PlayerFactory ??= new PlayerFactory();
 
 					PluginManager.EnablePlugins(this, LevelManager);

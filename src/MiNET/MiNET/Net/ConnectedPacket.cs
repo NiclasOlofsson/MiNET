@@ -132,14 +132,14 @@ namespace MiNET.Net
 		{
 			Messages = new List<Packet>();
 
-			_buffer.Position = 0;
+			_reader.Position = 0;
 
 			_datagramHeader = new DatagramHeader(ReadByte());
 			_datagramSequenceNumber = ReadLittle();
 			_datagramHeader.datagramSequenceNumber = _datagramSequenceNumber;
 
 			_hasSplit = false;
-			while (_buffer.Position < _buffer.Length)
+			while (_reader.Position < _reader.Length)
 			{
 				//if (_hasSplit) Log.Warn("Reading second split message");
 
@@ -203,7 +203,7 @@ namespace MiNET.Net
 				// Slurp the payload
 				MessageLength = (int) Math.Ceiling((((double) dataBitLength) / 8));
 
-				byte[] internalBuffer = ReadBytes(MessageLength);
+				var internalBuffer = Slice(MessageLength);
 
 				if (_hasSplit)
 				{
@@ -216,7 +216,7 @@ namespace MiNET.Net
 					splitPartPacket.SplitId = _splitPacketId;
 					splitPartPacket.SplitCount = _splitPacketCount;
 					splitPartPacket.SplitIdx = _splitPacketIndex;
-					splitPartPacket.Id = internalBuffer[0];
+					splitPartPacket.Id = internalBuffer.Span[0];
 					splitPartPacket.Message = internalBuffer;
 					Messages.Add(splitPartPacket);
 
@@ -224,8 +224,8 @@ namespace MiNET.Net
 					continue;
 				}
 
-				byte id = internalBuffer[0];
-				Packet packet = PacketFactory.Create(id, internalBuffer, "raknet") ?? new UnknownPacket(id, internalBuffer);
+				byte id = internalBuffer.Span[0];
+				Packet packet = PacketFactory.Create(id, internalBuffer, "raknet") ?? new UnknownPacket(id, internalBuffer.ToArray());
 				packet.DatagramSequenceNumber = _datagramSequenceNumber;
 				packet.Reliability = _reliability;
 				packet.ReliableMessageNumber = _reliableMessageNumber;

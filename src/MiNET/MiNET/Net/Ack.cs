@@ -139,7 +139,7 @@ namespace MiNET.Net
 		{
 			base.DecodePacket();
 
-			if (Id != 0xc0) throw new Exception("Not ACK");
+			//if (Id != 0xc0) throw new Exception("Not ACK");
 
 			ranges.Clear();
 

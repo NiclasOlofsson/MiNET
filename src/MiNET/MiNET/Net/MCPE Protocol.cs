@@ -362,7 +362,7 @@ namespace MiNET.Net
 
 	public class PacketFactory
 	{
-		public static Packet Create(byte messageId, byte[] buffer, string ns)
+		public static Packet Create(byte messageId, ReadOnlyMemory<byte> buffer, string ns)
 		{
 			Packet packet = null; 
 			if(ns == "raknet") 

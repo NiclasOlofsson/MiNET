@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,11 +23,13 @@
 
 #endregion
 
+using System;
+
 namespace MiNET.Net
 {
 	public class SplitPartPacket : Packet<SplitPartPacket>
 	{
-		public byte[] Message { get; set; }
+		public ReadOnlyMemory<byte> Message { get; set; }
 		public int SplitId { get; set; }
 		public int SplitCount { get; set; }
 		public int SplitIdx { get; set; }

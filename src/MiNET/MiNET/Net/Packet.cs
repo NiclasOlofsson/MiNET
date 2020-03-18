@@ -33,6 +33,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using fNbt;
@@ -67,11 +69,11 @@ namespace MiNET.Net
 		[JsonIgnore] public byte Id;
 		[JsonIgnore] public bool IsMcpe;
 
-		protected MemoryStream _buffer;
+		protected MemoryStreamReader _reader; // new construct for reading
+		protected Stream _buffer;
 		private BinaryWriter _writer;
-		private BinaryReader _reader;
 
-		[JsonIgnore] public byte[] Bytes { get; private set; }
+		[JsonIgnore] public ReadOnlyMemory<byte> Bytes { get; private set; }
 		[JsonIgnore] public Stopwatch Timer { get; } = new Stopwatch();
 
 		public Packet()
@@ -86,7 +88,7 @@ namespace MiNET.Net
 
 		public byte ReadByte()
 		{
-			return _reader.ReadByte();
+			return (byte) _reader.ReadByte();
 		}
 
 		public void Write(bool value)
@@ -121,18 +123,23 @@ namespace MiNET.Net
 			_writer.Write(value);
 		}
 
+		public ReadOnlyMemory<byte> Slice(int count)
+		{
+			return _reader.Read(count);
+		}
+
 		public byte[] ReadBytes(int count, bool slurp = false)
 		{
 			if (!slurp && count == 0) return new byte[0];
 
 			if (count == 0)
 			{
-				count = (int) (_reader.BaseStream.Length - _reader.BaseStream.Position);
+				count = (int) (_reader.Length - _reader.Position);
 			}
 
-			var readBytes = _reader.ReadBytes(count);
+			ReadOnlyMemory<byte> readBytes = _reader.Read(count);
 			if (readBytes.Length != count) throw new ArgumentOutOfRangeException($"Expected {count} bytes, only read {readBytes.Length}.");
-			return readBytes;
+			return readBytes.ToArray(); //TODO: Replace with ReadOnlyMemory<byte> return
 		}
 
 		public void WriteByteArray(byte[] value)
@@ -165,7 +172,7 @@ namespace MiNET.Net
 
 		public short ReadShort(bool bigEndian = false)
 		{
-			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return 0;
+			if (_reader.Position == _reader.Length) return 0;
 
 			if (bigEndian) return BinaryPrimitives.ReverseEndianness(_reader.ReadInt16());
 
@@ -180,7 +187,7 @@ namespace MiNET.Net
 
 		public ushort ReadUshort(bool bigEndian = false)
 		{
-			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return 0;
+			if (_reader.Position == _reader.Length) return 0;
 
 			if (bigEndian) return BinaryPrimitives.ReverseEndianness(_reader.ReadUInt16());
 
@@ -194,7 +201,7 @@ namespace MiNET.Net
 
 		public short ReadShortBe()
 		{
-			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return 0;
+			if (_reader.Position == _reader.Length) return 0;
 
 			return BinaryPrimitives.ReverseEndianness(_reader.ReadInt16());
 		}
@@ -206,7 +213,7 @@ namespace MiNET.Net
 
 		public Int24 ReadLittle()
 		{
-			return new Int24(_reader.ReadBytes(3));
+			return new Int24(_reader.Read(3).Span);
 		}
 
 		public void Write(int value, bool bigEndian = false)
@@ -250,7 +257,7 @@ namespace MiNET.Net
 
 		public int ReadVarInt()
 		{
-			return VarInt.ReadInt32(_buffer);
+			return VarInt.ReadInt32(_reader);
 		}
 
 		public void WriteSignedVarInt(int value)
@@ -260,7 +267,7 @@ namespace MiNET.Net
 
 		public int ReadSignedVarInt()
 		{
-			return VarInt.ReadSInt32(_buffer);
+			return VarInt.ReadSInt32(_reader);
 		}
 
 		public void WriteUnsignedVarInt(uint value)
@@ -270,12 +277,12 @@ namespace MiNET.Net
 
 		public uint ReadUnsignedVarInt()
 		{
-			return VarInt.ReadUInt32(_buffer);
+			return VarInt.ReadUInt32(_reader);
 		}
 
 		public int ReadLength()
 		{
-			return (int) VarInt.ReadUInt32(_buffer);
+			return (int) VarInt.ReadUInt32(_reader);
 		}
 
 		public void WriteLength(int value)
@@ -290,7 +297,7 @@ namespace MiNET.Net
 
 		public long ReadVarLong()
 		{
-			return VarInt.ReadInt64(_buffer);
+			return VarInt.ReadInt64(_reader);
 		}
 
 		public void WriteEntityId(long value)
@@ -305,7 +312,7 @@ namespace MiNET.Net
 
 		public long ReadSignedVarLong()
 		{
-			return VarInt.ReadSInt64(_buffer);
+			return VarInt.ReadSInt64(_reader);
 		}
 
 		public void WriteRuntimeEntityId(long value)
@@ -322,7 +329,7 @@ namespace MiNET.Net
 		public long ReadUnsignedVarLong()
 		{
 			// Need to fix this to ulong later
-			return (long) VarInt.ReadUInt64(_buffer);
+			return (long) VarInt.ReadUInt64(_reader);
 		}
 
 		public void Write(long value)
@@ -379,7 +386,7 @@ namespace MiNET.Net
 
 		public string ReadString()
 		{
-			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return string.Empty;
+			if (_reader.Position == _reader.Length) return string.Empty;
 			int len = ReadLength();
 			if (len <= 0) return string.Empty;
 			return Encoding.UTF8.GetString(ReadBytes(len));
@@ -401,10 +408,10 @@ namespace MiNET.Net
 
 		public string ReadFixedString()
 		{
-			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return string.Empty;
+			if (_reader.Position == _reader.Length) return string.Empty;
 			short len = ReadShort(true);
 			if (len <= 0) return string.Empty;
-			return Encoding.UTF8.GetString(ReadBytes(len));
+			return Encoding.UTF8.GetString(_reader.Read(len).Span);
 		}
 
 		public void Write(Vector2 vec)
@@ -628,7 +635,7 @@ namespace MiNET.Net
 
 		public IPEndPoint[] ReadIPEndPoints(int count)
 		{
-			if (count == 20 && _reader.BaseStream.Length < 120) count = 10;
+			if (count == 20 && _reader.Length < 120) count = 10;
 			var endPoints = new IPEndPoint[count];
 			for (int i = 0; i < endPoints.Length; i++)
 			{
@@ -668,7 +675,7 @@ namespace MiNET.Net
 
 		public Nbt ReadNbt()
 		{
-			return ReadNbt(_reader.BaseStream);
+			return ReadNbt(_reader);
 		}
 
 		public static Nbt ReadNbt(Stream stream)
@@ -1012,7 +1019,11 @@ namespace MiNET.Net
 
 		public MetadataDictionary ReadMetadataDictionary()
 		{
-			return MetadataDictionary.FromStream(_reader);
+			//_buffer.Position = _reader.Position;
+			var reader = new BinaryReader(_reader);
+			var dictionary = MetadataDictionary.FromStream(reader);
+			//_reader.Position = (int) _buffer.Position;
+			return dictionary;
 		}
 
 		public PlayerAttributes ReadPlayerAttributes()
@@ -1197,7 +1208,8 @@ namespace MiNET.Net
 			file.UseVarInt = true;
 			file.AllowAlternativeRootTag = true;
 			nbt.NbtFile = file;
-			file.LoadFromStream(_reader.BaseStream, NbtCompression.None);
+
+			file.LoadFromStream(_reader, NbtCompression.None);
 
 			int runtimeId = 0;
 			var rootTag = (NbtList) file.RootTag;
@@ -2228,7 +2240,7 @@ namespace MiNET.Net
 
 		public bool CanRead()
 		{
-			return _reader.BaseStream.Position < _reader.BaseStream.Length;
+			return _reader.Position < _reader.Length;
 		}
 
 		public void SetEncodedMessage(byte[] encodedMessage)
@@ -2293,7 +2305,8 @@ namespace MiNET.Net
 					// This WILL allocate LOB. Need to convert this to work with array segment and pool it.
 					// then we will use GetBuffer instead.
 					// Also remember to move dispose entirely to Reset (dispose) when that happens.
-					_encodedMessage = _buffer.ToArray();
+					var buffer = (MemoryStream) _buffer;
+					_encodedMessage = buffer.ToArray();
 					if (!isLob && _encodedMessage.Length >= 85_000)
 					{
 						_isLob.TryAdd(GetType(), true);
@@ -2328,39 +2341,46 @@ namespace MiNET.Net
 			//if (IsMcpe) Write((short) 0);
 		}
 
+		[Obsolete("Use decode with ReadOnlyMemory<byte> instead.")]
 		public virtual void Decode(byte[] buffer)
 		{
+			Decode(new ReadOnlyMemory<byte>(buffer));
+		}
+
+		public virtual void Decode(ReadOnlyMemory<byte> buffer)
+		{
 			Bytes = buffer;
-			_buffer = new MemoryStream(buffer, false);
-			_reader = new BinaryReader(_buffer, Encoding.UTF8, true);
+			_reader = new MemoryStreamReader(buffer);
 
 			DecodePacket();
 
-			if (Log.IsDebugEnabled && _buffer.Position != (buffer.Length))
+			if (Log.IsDebugEnabled && _reader.Position != (buffer.Length))
 			{
-				Log.Warn($"{GetType().Name}: Still have {buffer.Length - _buffer.Position} bytes to read!!\n{HexDump(buffer)}");
+				Log.Warn($"{GetType().Name}: Still have {buffer.Length - _reader.Position} bytes to read!!\n{HexDump(buffer.ToArray())}");
 			}
 
 			_reader.Dispose();
-			_buffer.Dispose();
 			_reader = null;
-			_buffer = null;
 		}
 
 		protected virtual void DecodePacket()
 		{
-			_buffer.Position = 0;
 			if (!IsMcpe) Id = ReadByte();
 		}
 
 		public abstract void PutPool();
 
-		public static string HexDump(byte[] bytes, int bytesPerLine = 16, bool printLineCount = false)
+		public static string HexDump(ReadOnlyMemory<byte> bytes, int bytesPerLine = 16, bool printLineCount = false)
 		{
-			StringBuilder sb = new StringBuilder();
+			return HexDump(bytes.Span, bytesPerLine, printLineCount);
+		}
+
+		private static string HexDump(ReadOnlySpan<byte> bytes, in int bytesPerLine, in bool printLineCount)
+		{
+			var sb = new StringBuilder();
 			for (int line = 0; line < bytes.Length; line += bytesPerLine)
 			{
-				byte[] lineBytes = bytes.Skip(line).Take(bytesPerLine).ToArray();
+				byte[] lineBytes = bytes.Slice(line).ToArray().Take(bytesPerLine).ToArray();
 				if (printLineCount) sb.AppendFormat("{0:x8} ", line);
 				sb.Append(string.Join(" ", lineBytes.Select(b => b.ToString("x2"))
 						.ToArray())
@@ -2493,6 +2513,243 @@ namespace MiNET.Net
 		public void Dispose()
 		{
 			PutPool();
+		}
+	}
+
+	public class MemoryStreamReader : Stream
+	{
+		private ReadOnlyMemory<byte> _buffer;
+
+		public override long Position { get; set; }
+		public override long Length => _buffer.Length;
+		public override bool CanWrite => false;
+		public override bool CanRead => true;
+		public override bool CanSeek => true;
+
+		public bool Eof => Position >= _buffer.Length;
+
+
+		public MemoryStreamReader(ReadOnlyMemory<byte> buffer)
+		{
+			_buffer = buffer;
+		}
+
+		public override long Seek(long offset, SeekOrigin origin)
+		{
+			if (offset > Length) throw new ArgumentOutOfRangeException(nameof(offset), "offset longer than stream");
+
+			long tempPosition = Position;
+			switch (origin)
+			{
+				case SeekOrigin.Begin:
+					tempPosition = offset;
+					break;
+				case SeekOrigin.Current:
+					tempPosition += offset;
+					break;
+				case SeekOrigin.End:
+					tempPosition = Length + offset;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
+			}
+
+			if (tempPosition < 0) throw new IOException("Seek before beginning of stream");
+
+			Position = (int) tempPosition;
+
+			return Position;
+		}
+
+
+		public override int ReadByte()
+		{
+			return _buffer.Span[(int) Position++];
+		}
+
+		public override void SetLength(long value)
+		{
+			if (value > _buffer.Length) throw new IOException("Can't set length beyond size of buffer");
+			_buffer = _buffer.Slice(0, (int) value);
+		}
+
+		public override void Write(byte[] buffer, int offset, int count)
+		{
+			throw new NotImplementedException("This stream can't be used for write operations");
+		}
+
+		public short ReadInt16()
+		{
+			var val = BinaryPrimitives.ReadInt16LittleEndian(_buffer.Span.Slice((int) Position, 2));
+			Position += 2;
+			return val;
+		}
+
+		public ushort ReadUInt16()
+		{
+			var val = BinaryPrimitives.ReadUInt16LittleEndian(_buffer.Span.Slice((int) Position, 2));
+			Position += 2;
+			return val;
+		}
+
+		public int ReadInt32()
+		{
+			int val = BinaryPrimitives.ReadInt32LittleEndian(_buffer.Span.Slice((int) Position, 4));
+			Position += 4;
+			return val;
+		}
+
+		public uint ReadUInt32()
+		{
+			uint val = BinaryPrimitives.ReadUInt32LittleEndian(_buffer.Span.Slice((int) Position, 4));
+			Position += 4;
+			return val;
+		}
+
+		public long ReadInt64()
+		{
+			long val = BinaryPrimitives.ReadInt64LittleEndian(_buffer.Span.Slice((int) Position, 8));
+			Position += 8;
+			return val;
+		}
+
+		public ulong ReadUInt64()
+		{
+			ulong val = BinaryPrimitives.ReadUInt64LittleEndian(_buffer.Span.Slice((int) Position, 8));
+			Position += 8;
+			return val;
+		}
+
+		public float ReadSingle()
+		{
+			float val = ReadSingleLittleEndian(_buffer.Span.Slice((int) Position, 4));
+			Position += 4;
+			return val;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public float ReadSingleLittleEndian(ReadOnlySpan<byte> source)
+		{
+			float f = !BitConverter.IsLittleEndian ? BitConverter.Int32BitsToSingle(BinaryPrimitives.ReverseEndianness(MemoryMarshal.Read<int>(source))) : MemoryMarshal.Read<float>(source);
+			return f;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public double ReadDoubleLittleEndian(ReadOnlySpan<byte> source)
+		{
+			double d = !BitConverter.IsLittleEndian ? BitConverter.Int64BitsToDouble(BinaryPrimitives.ReverseEndianness(MemoryMarshal.Read<long>(source))) : MemoryMarshal.Read<double>(source);
+			return d;
+		}
+
+		//public uint ReadVarInt()
+		//{
+		//	return ReadVarIntInternal();
+		//}
+
+		//public int ReadSignedVarInt()
+		//{
+		//	return DecodeZigZag32((uint) ReadVarIntInternal());
+		//}
+
+		private static int DecodeZigZag32(uint n)
+		{
+			return (int) (n >> 1) ^ -(int) (n & 1);
+		}
+
+		public ulong ReadVarLong()
+		{
+			return ReadVarLongInternal();
+		}
+
+		public string ReadLengthPrefixedString()
+		{
+			return Encoding.UTF8.GetString(ReadLengthPrefixedBytes().Span);
+		}
+
+		public ReadOnlyMemory<byte> ReadLengthPrefixedBytes()
+		{
+			var length = ReadVarLongInternal();
+			return Read(length);
+		}
+
+		private ulong ReadVarLongInternal()
+		{
+			ulong result = 0;
+			for (int shift = 0; shift <= 63; shift += 7)
+			{
+				ulong b = _buffer.Span[(int) Position++];
+
+				// add the lower 7 bits to the result
+				result |= ((b & 0x7f) << shift);
+
+				// if high bit is not set, this is the last byte in the number
+				if ((b & 0x80) == 0)
+				{
+					return result;
+				}
+			}
+
+			throw new Exception("last byte of variable length int has high bit set");
+		}
+
+		//public ReadOnlyMemory<byte> Read(ulong offset, ulong count)
+		//{
+		//	long n = Length - Position;
+		//	if (n > (long) count)
+		//		n = (long) count;
+		//	if (n <= 0)
+		//		return ReadOnlyMemory<byte>.Empty;
+
+		//	Span<byte> result = new byte[offset + count];
+
+		//	Read(n).CopyTo(result.Slice((int) offset, (int) n));
+
+		//	return result;
+		//}
+
+		public ReadOnlyMemory<byte> Read(ulong length)
+		{
+			return Read((int) length);
+		}
+
+		public ReadOnlyMemory<byte> Read(long length)
+		{
+			return Read((int) length);
+		}
+
+		public ReadOnlyMemory<byte> Read(int length)
+		{
+			if (length > Length - Position) throw new ArgumentOutOfRangeException(nameof(length), Length - Position, $"Value outside of range: {length}");
+
+			ReadOnlyMemory<byte> buffer = _buffer.Slice((int) Position, length);
+			Position += length;
+
+			return buffer;
+		}
+
+		public void Dispose()
+		{
+			// DO NOTHING
+		}
+
+		public override void Flush()
+		{
+			// DO NOTHING
+		}
+
+		public override int Read(byte[] buffer, int offset, int count)
+		{
+			throw new NotImplementedException("Don't use");
+
+			var b = Read(count);
+			b.CopyTo(new Memory<byte>(buffer).Slice(offset, count));
+
+			return count;
+		}
+
+		public override void Close()
+		{
+			// DO NOTHING
 		}
 	}
 }

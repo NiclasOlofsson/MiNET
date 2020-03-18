@@ -584,14 +584,14 @@ namespace MiNET.Client
 					for (int i = 0; i < spPackets.Length; i++)
 					{
 						SplitPartPacket splitPartPacket = spPackets[i];
-						byte[] buf = splitPartPacket.Message;
-						if (buf == null)
+						var buf = splitPartPacket.Message;
+						if (buf.Length == 0)
 						{
 							Log.Error("Expected bytes in splitpart, but got none");
 							continue;
 						}
 
-						stream.Write(buf, 0, buf.Length);
+						stream.Write(buf.Span);
 						splitPartPacket.PutPool();
 					}
 

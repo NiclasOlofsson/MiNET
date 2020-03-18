@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -31,7 +31,7 @@ namespace MiNET.Utils
 	{
 		private int _value;
 
-		public Int24(byte[] value)
+		public Int24(ReadOnlySpan<byte> value)
 		{
 			_value = ToInt24(value).IntValue();
 		}
@@ -41,7 +41,7 @@ namespace MiNET.Utils
 			_value = value;
 		}
 
-		public static Int24 ToInt24(byte[] value)
+		private static Int24 ToInt24(ReadOnlySpan<byte> value)
 		{
 			if (value.Length > 3) throw new ArgumentOutOfRangeException();
 			return new Int24(value[0] | value[1] << 8 | value[2] << 16);
@@ -59,8 +59,8 @@ namespace MiNET.Utils
 
 		public void ReverseIndian()
 		{
-			var b = GetBytes();
-			Array.Reverse(b);
+			Span<byte> b = GetBytes();
+			b.Reverse();
 			_value = new Int24(b).IntValue();
 		}
 
@@ -89,16 +89,12 @@ namespace MiNET.Utils
 
 		public static explicit operator Int24(byte[] values)
 		{
-			Int24 d = new Int24(values); // explicit conversion
-
-			return d;
+			return new Int24(values);
 		}
 
 		public static implicit operator Int24(int value)
 		{
-			Int24 d = new Int24(value); // explicit conversion
-
-			return d;
+			return new Int24(value);
 		}
 
 		public static explicit operator byte[](Int24 d)

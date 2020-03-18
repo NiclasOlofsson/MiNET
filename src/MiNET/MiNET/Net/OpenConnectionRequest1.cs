@@ -32,10 +32,10 @@ namespace MiNET.Net
 		partial void AfterDecode()
 		{
 			//mtuSize = (short) (((int) (_buffer.Length - _buffer.Position)) + 18);
-			mtuSize = (short) (_buffer.Length + 8 + 20);
+			mtuSize = (short) (_reader.Length + 8 + 20);
 			// DIFF by 28?!
 			//mtuSize = (short) (_buffer.Length);
-			ReadBytes((int) (_buffer.Length - 18));
+			ReadBytes((int) (_reader.Length - 18));
 		}
 	}
 }

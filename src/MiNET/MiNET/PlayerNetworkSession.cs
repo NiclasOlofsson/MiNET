@@ -312,7 +312,7 @@ namespace MiNET
 
 					// Decompress bytes
 
-					MemoryStream stream = new MemoryStream(payload);
+					var stream = new MemoryStreamReader(new ReadOnlyMemory<byte>(payload).Slice(0, payload.Length - 4)); // slice away adler
 					if (stream.ReadByte() != 0x78)
 					{
 						if (Log.IsDebugEnabled) Log.Error($"Incorrect ZLib header. Expected 0x78 0x9C 0x{message.Id:X2}\n{Packet.HexDump(batch.payload)}");
@@ -323,39 +323,33 @@ namespace MiNET
 					using (var deflateStream = new DeflateStream(stream, CompressionMode.Decompress, false))
 					{
 						// Get actual packet out of bytes
-						using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
+						while (!stream.Eof)
 						{
-							deflateStream.CopyTo(destination);
-							destination.Position = 0;
+							int len = (int) VarInt.ReadUInt32(deflateStream);
+							Memory<byte> internalBuffer = new byte[len];
+							deflateStream.Read(internalBuffer.Span);
+							int id = internalBuffer.Span[0];
+							internalBuffer = internalBuffer.Slice(id > 127 ? 2 : 1); //TODO: This is stupid. Get rid of the id slicing
 
-							while (destination.Position < destination.Length)
+							//if (Log.IsDebugEnabled)
+							//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Packet.HexDump(internalBuffer)}");
+
+							try
 							{
-								int len = (int) VarInt.ReadUInt32(destination);
-								long pos = destination.Position;
-								int id = (int) VarInt.ReadUInt32(destination);
-								len = (int) (len - (destination.Position - pos)); // calculate len of buffer after varint
-								byte[] internalBuffer = new byte[len];
-								destination.Read(internalBuffer, 0, len);
-
-								//if (Log.IsDebugEnabled)
-								//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Packet.HexDump(internalBuffer)}");
-
-								try
-								{
-									messages.Add(PacketFactory.Create((byte) id, internalBuffer, "mcpe") ??
-												new UnknownPacket((byte) id, internalBuffer));
-								}
-								catch (Exception e)
-								{
-									if (Log.IsDebugEnabled) Log.Warn($"Error parsing packet 0x{message.Id:X2}\n{Packet.HexDump(internalBuffer)}");
-
-									throw;
-								}
+								messages.Add(PacketFactory.Create((byte) id, internalBuffer, "mcpe") ??
+											new UnknownPacket((byte) id, internalBuffer));
 							}
+							catch (Exception)
+							{
+								if (Log.IsDebugEnabled) Log.Warn($"Error parsing packet 0x{message.Id:X2}\n{Packet.HexDump(internalBuffer)}");
 
-							if (destination.Length > destination.Position) throw new Exception("Have more data");
+								throw;
+							}
 						}
+
+						if (stream.Length > stream.Position) throw new Exception("Have more data");
 					}
+
 					foreach (var msg in messages)
 					{
 						// Temp fix for performance, take 1.

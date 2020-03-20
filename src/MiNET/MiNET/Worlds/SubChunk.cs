@@ -28,6 +28,7 @@ using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
@@ -50,9 +51,10 @@ namespace MiNET.Worlds
 		public NibbleArray _blocklight;
 		public NibbleArray _skylight;
 
-		private byte[] _cache;
-
 		public bool IsDirty { get; private set; }
+
+		public bool DisableCache { get; set; }
+		private byte[] _cache;
 
 		public SubChunk(bool clearBuffers = true)
 		{
@@ -73,16 +75,17 @@ namespace MiNET.Worlds
 		}
 
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool IsAllAir()
 		{
 			if (IsDirty)
 			{
 				_isAllAir = AllZeroFast(_blocks);
-				//_isDirty = false;
 			}
 			return _isAllAir;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static unsafe bool AllZeroFast<T>(T[] data) where T : unmanaged
 		{
 			fixed (T* shorts = data)
@@ -214,7 +217,7 @@ namespace MiNET.Worlds
 
 		public void Write(MemoryStream stream)
 		{
-			if (_cache != null)
+			if (!DisableCache && !IsDirty && _cache != null)
 			{
 				stream.Write(_cache);
 				return;
@@ -251,6 +254,7 @@ namespace MiNET.Worlds
 				throw new InvalidDataException($"Expected {startPos + length} but was {stream.Position}");
 
 			_cache = bytes;
+			IsDirty = false;
 		}
 
 		private bool WriteStore(MemoryStream stream, short[] blocks, byte[] loggedBlocks, bool forceWrite, List<int> palette)

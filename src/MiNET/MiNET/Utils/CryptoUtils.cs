@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,16 +18,18 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -71,11 +73,7 @@ namespace MiNET.Utils
 
 		public static byte[] ToDerEncoded([NotNull] this ECDiffieHellmanPublicKey key)
 		{
-			byte[] asn = new byte[24]
-			{
-				0x30, 0x76, 0x30, 0x10, 0x6, 0x7, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x2,
-				0x1, 0x6, 0x5, 0x2b, 0x81, 0x4, 0x0, 0x22, 0x3, 0x62, 0x0, 0x4
-			};
+			byte[] asn = new byte[24] {0x30, 0x76, 0x30, 0x10, 0x6, 0x7, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x2, 0x1, 0x6, 0x5, 0x2b, 0x81, 0x4, 0x0, 0x22, 0x3, 0x62, 0x0, 0x4};
 
 			return asn.Concat(key.ToByteArray().Skip(8)).ToArray();
 		}
@@ -102,51 +100,35 @@ namespace MiNET.Utils
 			return inKey;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static byte[] Encrypt(Memory<byte> payload, CryptoContext cryptoContext)
 		{
-			using (MemoryStream hashStream = new MemoryStream())
-			{
-				// hash
+			// hash
+			int hashPoolLen = 8 + payload.Length + cryptoContext.Key.Length;
+			var hashBufferPooled = ArrayPool<byte>.Shared.Rent(hashPoolLen);
+			Span<byte> hashBuffer = hashBufferPooled.AsSpan();
+			BitConverter.GetBytes(Interlocked.Increment(ref cryptoContext.SendCounter)).CopyTo(hashBuffer.Slice(0, 8));
+			payload.Span.CopyTo(hashBuffer.Slice(8));
+			cryptoContext.Key.CopyTo(hashBuffer.Slice(8 + payload.Length));
+			using var hasher = new SHA256Managed();
+			Span<byte> validationCheckSum = hasher.ComputeHash(hashBufferPooled, 0, hashPoolLen).AsSpan(0, 8);
+			ArrayPool<byte>.Shared.Return(hashBufferPooled);
 
-				SHA256Managed crypt = new SHA256Managed();
+			IBufferedCipher cipher = cryptoContext.Encryptor;
+			var encrypted = new byte[payload.Length + 8];
+			int length = cipher.ProcessBytes(payload.ToArray(), encrypted, 0);
+			cipher.ProcessBytes(validationCheckSum.ToArray(), encrypted, length);
 
-				hashStream.Write(BitConverter.GetBytes(Interlocked.Increment(ref cryptoContext.SendCounter)), 0, 8);
-				hashStream.Write(payload.Span);
-				hashStream.Write(cryptoContext.Key, 0, cryptoContext.Key.Length);
-				var hashBuffer = hashStream.ToArray();
-
-				Span<byte> validationCheckSum = crypt.ComputeHash(hashBuffer, 0, hashBuffer.Length);
-
-				Span<byte> clear = stackalloc byte[payload.Length + 8];
-				payload.Span.CopyTo(clear);
-				validationCheckSum.Slice(0, 8).CopyTo(clear.Slice(payload.Length));
-
-				var cipher = cryptoContext.Encryptor;
-
-				byte[] encrypted = new byte[clear.Length];
-				int length = cipher.ProcessBytes(clear.ToArray(), encrypted, 0);
-				//cipher.DoFinal(outputBytes, length); //Do the final block
-
-				return encrypted;
-			}
+			return encrypted;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static byte[] Decrypt(byte[] payload, CryptoContext cryptoContext)
 		{
-			//byte[] checksum;
-			byte[] clearBytes;
-
-			{
-				var cipher = cryptoContext.Decryptor;
-				byte[] clear = new byte[payload.Length];
-				int length = cipher.ProcessBytes(payload, clear, 0);
-				//cipher.DoFinal(comparisonBytes, length); //Do the final block
-
-				clearBytes = (byte[]) clear.Take(clear.Length - 8).ToArray();
-				//checksum = fullResult.Skip(fullResult.Length - 8).ToArray();
-			}
-
-			return clearBytes;
+			IBufferedCipher cipher = cryptoContext.Decryptor;
+			byte[] clear = cipher.ProcessBytes(payload);
+			//TODO: Verify hash!
+			return clear.AsSpan(0, clear.Length - 8).ToArray();
 		}
 
 
@@ -207,7 +189,7 @@ namespace MiNET.Utils
 
 		public static byte[] EncodeSkinJwt(AsymmetricCipherKeyPair newKey, string username)
 		{
-			var resourcePatch = new SkinResourcePatch() { Geometry = new GeometryIdentifier() { Default = "geometry.humanoid.customSlim" } };
+			var resourcePatch = new SkinResourcePatch() {Geometry = new GeometryIdentifier() {Default = "geometry.humanoid.customSlim"}};
 			var skin = new Skin
 			{
 				SkinId = $"{Guid.NewGuid().ToString()}.CustomSlim",

@@ -2717,12 +2717,13 @@ namespace MiNET.Net
 			return Read((int) length);
 		}
 
-		public ReadOnlyMemory<byte> Read(int length)
+		public ReadOnlyMemory<byte> Read(int length, bool boundCheck = true)
 		{
-			if (length > Length - Position) throw new ArgumentOutOfRangeException(nameof(length), Length - Position, $"Value outside of range: {length}");
+			if (boundCheck && length > Length - Position) throw new ArgumentOutOfRangeException(nameof(length), length, $"Value outside of range: {Length - Position}");
 
-			ReadOnlyMemory<byte> buffer = _buffer.Slice((int) Position, length);
-			Position += length;
+			int readLen = (int) Math.Min(length, Length - Position);
+			ReadOnlyMemory<byte> buffer = _buffer.Slice((int) Position, readLen);
+			Position += buffer.Length;
 
 			return buffer;
 		}
@@ -2739,12 +2740,10 @@ namespace MiNET.Net
 
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			throw new NotImplementedException("Don't use");
+			ReadOnlyMemory<byte> bytes = Read(count, false);
+			bytes.CopyTo(new Memory<byte>(buffer).Slice(offset, count));
 
-			var b = Read(count);
-			b.CopyTo(new Memory<byte>(buffer).Slice(offset, count));
-
-			return count;
+			return bytes.Length;
 		}
 
 		public override void Close()

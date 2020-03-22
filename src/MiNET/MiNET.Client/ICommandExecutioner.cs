@@ -32,6 +32,7 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;

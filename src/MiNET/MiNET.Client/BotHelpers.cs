@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Utils;
 
 namespace MiNET.Client

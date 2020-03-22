@@ -245,15 +245,19 @@ namespace MiNET.Worlds
 			stream.Position = storePosition;
 			stream.WriteByte((byte) numberOfStores); // storage size
 
-			var bytes = new byte[length];
-			stream.Position = startPos;
-			int read = stream.Read(bytes, 0, length);
-			if (read != length)
-				throw new InvalidDataException($"Read wrong amount of data. Expected {length} but read {read}");
-			if (startPos + length != stream.Position)
-				throw new InvalidDataException($"Expected {startPos + length} but was {stream.Position}");
+			//if (DisableCache)
+			{
+				var bytes = new byte[length];
+				stream.Position = startPos;
+				int read = stream.Read(bytes, 0, length);
+				if (read != length)
+					throw new InvalidDataException($"Read wrong amount of data. Expected {length} but read {read}");
+				if (startPos + length != stream.Position)
+					throw new InvalidDataException($"Expected {startPos + length} but was {stream.Position}");
 
-			_cache = bytes;
+				_cache = bytes;
+			}
+
 			IsDirty = false;
 		}
 

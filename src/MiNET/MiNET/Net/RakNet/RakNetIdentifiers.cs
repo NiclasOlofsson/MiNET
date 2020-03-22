@@ -23,7 +23,7 @@
 
 #endregion
 
-namespace MiNET.Net
+namespace MiNET.Net.RakNet
 {
 	///// \sa NetworkIDObject.h
 	//typedef unsigned char UniqueIDType; => C# byte

@@ -50,6 +50,7 @@ using MiNET.Crafting;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
@@ -216,18 +217,16 @@ namespace MiNET.Client
 				// The application should close the socket; it is no longer usable. On a UDP-datagram socket 
 				// this error indicates a previous send operation resulted in an ICMP Port Unreachable message.
 				// Note the spocket settings on creation of the server. It makes us ignore these resets.
+				IPEndPoint senderEndpoint = null;
 				try
 				{
-					IPEndPoint senderEndpoint = null;
-					byte[] receiveBytes = listener.Receive(ref senderEndpoint);
+					ReadOnlyMemory<byte> receiveBytes = listener.Receive(ref senderEndpoint);
 					//UdpReceiveResult result = listener.ReceiveAsync().Result;
 					//IPEndPoint senderEndpoint = result.RemoteEndPoint;
 					//byte[] receiveBytes = result.Buffer;
 
 					if (receiveBytes.Length != 0)
 					{
-						//ThreadPool.QueueUserWorkItem(o =>
-						//Task.Run(() =>
 						_threadPool.QueueUserWorkItem(() =>
 						{
 							try
@@ -271,9 +270,9 @@ namespace MiNET.Client
 		/// <param name="receiveBytes">The received bytes.</param>
 		/// <param name="senderEndpoint">The sender's endpoint.</param>
 		/// <exception cref="System.Exception">Receive ERROR, NAK in wrong place</exception>
-		private void ProcessMessage(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		private void ProcessMessage(ReadOnlyMemory<byte> receiveBytes, IPEndPoint senderEndpoint)
 		{
-			byte msgId = receiveBytes[0];
+			byte msgId = receiveBytes.Span[0];
 
 			if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 			{
@@ -317,18 +316,18 @@ namespace MiNET.Client
 			}
 			else
 			{
-				DatagramHeader header = new DatagramHeader(receiveBytes[0]);
-				if (!header.isACK && !header.isNAK && header.isValid)
+				var header = new DatagramHeader(receiveBytes.Span[0]);
+				if (!header.IsAck && !header.IsNak && header.IsValid)
 				{
-					if (receiveBytes[0] == 0xa0)
+					if (receiveBytes.Span[0] == 0xa0)
 					{
 						throw new Exception("Receive ERROR, NAK in wrong place");
 					}
 
 					if (IsEmulator && HasSpawned /*&& PlayerStatus == 3*/)
 					{
-						int datagramId = new Int24(new[] {receiveBytes[1], receiveBytes[2], receiveBytes[3]});
 
+						int datagramId = new Int24(receiveBytes.Span.Slice(1, 3));
 						var ack = new Acks();
 						ack.acks.Add(datagramId);
 						byte[] data = ack.Encode();
@@ -338,14 +337,12 @@ namespace MiNET.Client
 						return;
 					}
 
-					ConnectedPacket packet = ConnectedPacket.CreateObject();
+					var packet = ConnectedPacket.CreateObject();
 					packet.Decode(receiveBytes);
-					header = packet._datagramHeader;
-					//Log.Debug($"> Datagram #{header.datagramSequenceNumber}, {package._hasSplit}, {package._splitPacketId}, {package._reliability}, {package._reliableMessageNumber}, {package._sequencingIndex}, {package._orderingChannel}, {package._orderingIndex}");
 
 					{
-						Acks ack = Acks.CreateObject();
-						ack.acks.Add(packet._datagramSequenceNumber.IntValue());
+						var ack = Acks.CreateObject();
+						ack.acks.Add(packet._datagramSequenceNumber);
 						byte[] data = ack.Encode();
 						ack.PutPool();
 						SendData(data, senderEndpoint);
@@ -354,21 +351,19 @@ namespace MiNET.Client
 					HandleConnectedPacket(packet);
 					packet.PutPool();
 				}
-				else if (header.isPacketPair)
+				else if (header.IsPacketPair)
 				{
 					Log.Warn("header.isPacketPair");
 				}
-				else if (header.isACK && header.isValid)
+				else if (header.IsAck && header.IsValid)
 				{
 					HandleAck(receiveBytes, senderEndpoint);
 				}
-				else if (header.isNAK && header.isValid)
+				else if (header.IsNak && header.IsValid)
 				{
-					Nak nak = new Nak();
-					nak.Decode(receiveBytes);
 					HandleNak(receiveBytes, senderEndpoint);
 				}
-				else if (!header.isValid)
+				else if (!header.IsValid)
 				{
 					Log.Warn("!!!! ERROR, Invalid header !!!!!");
 				}
@@ -524,12 +519,12 @@ namespace MiNET.Client
 		}
 
 
-		public virtual void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		public virtual void HandleAck(ReadOnlyMemory<byte> receiveBytes, IPEndPoint senderEndpoint)
 		{
 			//Log.Info("Ack");
 		}
 
-		public virtual void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		public virtual void HandleNak(ReadOnlyMemory<byte> receiveBytes, IPEndPoint senderEndpoint)
 		{
 			if (Log.IsDebugEnabled) Log.Warn("!! WHAT THE FUK NAK NAK NAK");
 		}
@@ -1139,15 +1134,15 @@ namespace MiNET.Client
 
 
 			// Get bytes
-			byte[] payload = batch.payload;
+			var payload = batch.payload;
 
 			if (Session.CryptoContext != null && Session.CryptoContext.UseEncryption)
 			{
 				FirstEncryptedPacketWaitHandle.Set();
-				payload = CryptoUtils.Decrypt(payload, Session.CryptoContext);
+				payload = CryptoUtils.Decrypt(payload.ToArray(), Session.CryptoContext);
 			}
 
-			MemoryStream stream = new MemoryStream(payload);
+			var stream = new MemoryStreamReader(payload.Slice(0, payload.Length - 4)); // slice away adler
 			if (stream.ReadByte() != 0x78)
 			{
 				throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
@@ -1221,7 +1216,7 @@ namespace MiNET.Client
 		{
 			if (datagram.MessageParts.Count != 0)
 			{
-				datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref Session.DatagramSequenceNumber);
+				datagram.Header.DatagramSequenceNumber = Interlocked.Increment(ref Session.DatagramSequenceNumber);
 				byte[] data = datagram.Encode();
 				datagram.PutPool();
 

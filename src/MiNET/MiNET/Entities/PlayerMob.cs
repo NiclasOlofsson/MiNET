@@ -29,6 +29,7 @@ using System.Text;
 using log4net;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;

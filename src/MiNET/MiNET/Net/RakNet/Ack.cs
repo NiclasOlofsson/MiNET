@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using MiNET.Utils;
 
-namespace MiNET.Net
+namespace MiNET.Net.RakNet
 {
 	public class Acks : Packet<Acks>
 	{
@@ -128,7 +128,7 @@ namespace MiNET.Net
 
 	public class Ack : Packet<Ack>
 	{
-		public List<Tuple<int, int>> ranges = new List<Tuple<int, int>>();
+		public List<(int, int)> ranges = new List<(int, int)>();
 
 		public Ack()
 		{
@@ -153,13 +153,13 @@ namespace MiNET.Net
 					int end = ReadLittle().IntValue();
 					if (end - start > 512) end = start + 512;
 
-					var range = new Tuple<int, int>(start, end);
+					var range = (start, end);
 					ranges.Add(range);
 				}
 				else
 				{
 					int seqNo = ReadLittle().IntValue();
-					var range = new Tuple<int, int>(seqNo, seqNo);
+					var range = (seqNo, seqNo);
 					ranges.Add(range);
 				}
 			}

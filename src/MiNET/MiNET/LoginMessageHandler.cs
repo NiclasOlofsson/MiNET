@@ -34,6 +34,7 @@ using fNbt;
 using Jose;
 using log4net;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using Newtonsoft.Json.Linq;

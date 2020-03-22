@@ -158,11 +158,13 @@ namespace MiNET.Test
 			Console.WriteLine($"Setup chunks: {watch.ElapsedMilliseconds}ms");
 
 
+			// 319761
 			int topEmpty = column.GetTopEmpty();
 			Console.WriteLine($"Top {topEmpty}");
 
 			var bytes = column.GetBytes(topEmpty);
 			Console.WriteLine($"Bytes: Size={bytes.Length} bytes");
+			//Assert.AreEqual(319761, bytes.Length);
 
 			// warmup
 			for (int i = 0; i < 100; i++)

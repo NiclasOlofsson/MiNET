@@ -415,9 +415,9 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Sheep) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Wolf) {Count = 64};
 
-			//player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
-			//player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
-			//player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemDiamondAxe() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemDiamondShovel() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() { Count = 1 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new CraftingTable()) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Chest()) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Anvil()) { Count = 64 };
@@ -506,10 +506,10 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
 
-			//player.Inventory.Helmet = new ItemDiamondHelmet();
-			//player.Inventory.Chest = new ItemElytra();
-			//player.Inventory.Leggings = new ItemDiamondLeggings();
-			//player.Inventory.Boots = new ItemDiamondBoots();
+			player.Inventory.Helmet = new ItemDiamondHelmet();
+			player.Inventory.Chest = new ItemElytra();
+			player.Inventory.Leggings = new ItemDiamondLeggings();
+			player.Inventory.Boots = new ItemDiamondBoots();
 			//while (player.Inventory.SetFirstEmptySlot(new ItemIronAxe(), false)) { }
 
 			player.SendPlayerInventory();

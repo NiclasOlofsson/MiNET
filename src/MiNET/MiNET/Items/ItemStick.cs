@@ -44,6 +44,7 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
+			Log.Warn("Use item stick");
 			if (player.IsGliding)
 			{
 				var currentSpeed = player.CurrentSpeed / 20f;
@@ -70,9 +71,9 @@ namespace MiNET.Items
 			}
 			else if (player.Inventory.Chest is ItemElytra)
 			{
-				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				var motions = McpeSetEntityMotion.CreateObject();
 				motions.runtimeEntityId = EntityManager.EntityIdSelf;
-				Vector3 velocity = new Vector3(0, 2, 0);
+				var velocity = new Vector3(0, 2, 0);
 				motions.velocity = velocity;
 				player.SendPacket(motions);
 

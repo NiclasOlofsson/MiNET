@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,43 +23,29 @@
 
 #endregion
 
-using MiNET.Utils;
+using System;
 
-namespace MiNET.Net
+namespace MiNET.Net.RakNet
 {
-	public class MessagePartHeader
+	public class SplitPartPacket : Packet<SplitPartPacket>
 	{
-		public Reliability Reliability { get; set; }
-		public Int24 ReliableMessageNumber { get; set; }
-		public Int24 SequencingIndex { get; set; }
-		public Int24 OrderingIndex { get; set; }
-		public byte OrderingChannel { get; set; }
+		public ReadOnlyMemory<byte> Message { get; set; }
+		public int SplitId { get; set; }
+		public int SplitCount { get; set; }
+		public int SplitIdx { get; set; }
 
-		public bool HasSplit { get; set; }
-		public int PartCount { get; set; }
-		public short PartId { get; set; }
-		public int PartIndex { get; set; }
-
-		public void Reset()
-		{
-			Reliability = Reliability.Unreliable;
-			ReliableMessageNumber = 0;
-			SequencingIndex = 0;
-			OrderingIndex = 0;
-			OrderingChannel = 0;
-
-			HasSplit = false;
-			PartCount = 0;
-			PartId = 0;
-			PartIndex = 0;
-		}
-
-		public void Decode()
+		public SplitPartPacket()
 		{
 		}
 
-		public void Encode()
+		public override void Reset()
 		{
+			base.Reset();
+			SplitId = -1;
+			SplitCount = -1;
+			SplitIdx = -1;
+
+			Message = null;
 		}
 	}
 }

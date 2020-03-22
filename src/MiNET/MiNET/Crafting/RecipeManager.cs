@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using log4net;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Net.RakNet;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Crafting

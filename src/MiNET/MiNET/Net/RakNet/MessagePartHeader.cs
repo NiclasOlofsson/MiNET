@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,15 +23,43 @@
 
 #endregion
 
-using fNbt;
+using MiNET.Utils;
 
-namespace MiNET.Utils
+namespace MiNET.Net.RakNet
 {
-	public static class StreamExtensions
+	public class MessagePartHeader
 	{
-		public static void Write(this NbtBinaryWriter writer, byte[] data)
+		public Reliability Reliability { get; set; }
+		public Int24 ReliableMessageNumber { get; set; }
+		public Int24 SequencingIndex { get; set; }
+		public Int24 OrderingIndex { get; set; }
+		public byte OrderingChannel { get; set; }
+
+		public bool HasSplit { get; set; }
+		public int PartCount { get; set; }
+		public short PartId { get; set; }
+		public int PartIndex { get; set; }
+
+		public void Reset()
 		{
-			writer.Write(data, 0, data.Length);
+			Reliability = Reliability.Unreliable;
+			ReliableMessageNumber = 0;
+			SequencingIndex = 0;
+			OrderingIndex = 0;
+			OrderingChannel = 0;
+
+			HasSplit = false;
+			PartCount = 0;
+			PartId = 0;
+			PartIndex = 0;
+		}
+
+		public void Decode()
+		{
+		}
+
+		public void Encode()
+		{
 		}
 	}
 }

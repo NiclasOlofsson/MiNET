@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 

@@ -23,17 +23,17 @@
 
 #endregion
 
-namespace MiNET.Net
+using System;
+
+namespace MiNET.Net.RakNet
 {
-	public partial class McpeInteract : Packet<McpeInteract>
+	/// <summary>
+	/// A custom packet factory that can be used to override default parsing by MiNET.
+	/// Used only in advanced scenarios where MiNET doesn't yet implement parsing, or
+	/// have faulty parsing.
+	/// </summary>
+	public interface ICustomPacketFactory
 	{
-		partial void AfterDecode()
-		{
-			if (actionId == (int) Actions.MouseOver || actionId == (int) Actions.LeaveVehicle)
-			{
-				// TODO: Something useful with this value
-				ReadVector3();
-			}
-		}
+		public Packet Create(byte messageId, ReadOnlyMemory<byte> buffer, string ns);
 	}
 }

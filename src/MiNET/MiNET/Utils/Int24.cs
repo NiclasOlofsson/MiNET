@@ -57,13 +57,6 @@ namespace MiNET.Utils
 			return _value;
 		}
 
-		public void ReverseIndian()
-		{
-			Span<byte> b = GetBytes();
-			b.Reverse();
-			_value = new Int24(b).IntValue();
-		}
-
 		public static byte[] FromInt(int value)
 		{
 			byte[] buffer = new byte[3];

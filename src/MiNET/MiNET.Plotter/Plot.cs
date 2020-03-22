@@ -25,6 +25,7 @@
 
 using System;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

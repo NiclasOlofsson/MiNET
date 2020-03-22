@@ -46,6 +46,7 @@ using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Items;
 using MiNET.Crafting;
+using MiNET.Net.RakNet;
 using little = MiNET.Utils.Int24; // friendly name
 using LongString = System.String;
 
@@ -95,17 +96,22 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @ser
 
 		public bool HandlePacket(Packet message)
 		{
-			if (false) {}
+			switch (message)
+			{
 <#	
 foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @server='true']"))
 {
 #>
-			else if (typeof(<#= CodeTypeName(pdu.Attributes["name"].Value) #>) == message.GetType()) _messageHandler.Handle<#= CodeTypeName(pdu.Attributes["name"].Value) #>((<#= CodeTypeName(pdu.Attributes["name"].Value) #>) message);
+				case <#= CodeTypeName(pdu.Attributes["name"].Value) #> msg:
+					_messageHandler.Handle<#= CodeTypeName(pdu.Attributes["name"].Value) #>(msg);
+					break;
 <#	
 } // foreach
 
 #>
-			else return false;
+				default:
+					return false;
+			}
 
 			return true;
 		}
@@ -113,9 +119,13 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @ser
 
 	public class PacketFactory
 	{
+		public static ICustomPacketFactory CustomPacketFactory { get; set; } = null;
+
 		public static Packet Create(byte messageId, ReadOnlyMemory<byte> buffer, string ns)
 		{
-			Packet packet = null; 
+			Packet packet = CustomPacketFactory?.Create(messageId, buffer, ns);
+			if (packet != null) return packet;
+
 			if(ns == "raknet") 
 			{
 				switch (messageId)

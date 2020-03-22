@@ -31,7 +31,7 @@ using System.Threading;
 using log4net;
 using MiNET.Utils;
 
-namespace MiNET.Net
+namespace MiNET.Net.RakNet
 {
 	public class Datagram : Packet<Datagram>
 	{
@@ -51,8 +51,8 @@ namespace MiNET.Net
 			MessageParts = new List<MessagePart>(50);
 			Header = new DatagramHeader
 			{
-				isValid = true,
-				needsBAndAs = true,
+				IsValid = true,
+				NeedsBAndAs = true,
 				//datagramSequenceNumber = datagramSequenceNumber
 			};
 			_buf = new MemoryStream(new byte[1600], 0, 1600, true, true);
@@ -73,7 +73,7 @@ namespace MiNET.Net
 			}
 			//if (Header.isContinuousSend) return false;
 
-			if (messagePart.Header.PartCount > 0 && messagePart.Header.PartIndex > 0) Header.isContinuousSend = true;
+			if (messagePart.Header.PartCount > 0 && messagePart.Header.PartIndex > 0) Header.IsContinuousSend = true;
 
 			if (FirstMessageId == 0) FirstMessageId = messagePart.ContainedMessageId;
 
@@ -112,7 +112,7 @@ namespace MiNET.Net
 			if (_buf.Length != 0 && _buf.Length != 1600)
 			{
 				_buf.Position = 1;
-				_buf.Write(Header.datagramSequenceNumber.GetBytes(), 0, 3);
+				_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
 
 				return _buf.ToArray();
 			}
@@ -120,8 +120,9 @@ namespace MiNET.Net
 			_buf.SetLength(0);
 
 			// Header
-			_buf.WriteByte((byte) (Header.isContinuousSend ? 0x8c : 0x84));
-			_buf.Write(Header.datagramSequenceNumber.GetBytes(), 0, 3);
+			//_buf.WriteByte(Header.AsByte());
+			_buf.WriteByte((byte) (Header.IsContinuousSend ? 0x8c : 0x84));
+			_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
 
 			// Message (Payload)
 			foreach (MessagePart messagePart in MessageParts)
@@ -135,20 +136,21 @@ namespace MiNET.Net
 
 		public long GetEncoded(out byte[] buffer)
 		{
-			//TODO: This is a qick-fix to lower the impact of resends. I want to do this
+			// This is a quick-fix to lower the impact of resend. I want to do this
 			// as standard, just need to refactor a bit of this stuff first.
 			if (_buf.Length != 0 && _buf.Length != 1600)
 			{
 				_buf.Position = 1;
-				_buf.Write(Header.datagramSequenceNumber.GetBytes(), 0, 3);
+				_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
 			}
 			else
 			{
 				_buf.SetLength(0);
 
 				// Header
-				_buf.WriteByte((byte) (Header.isContinuousSend ? 0x8c : 0x84));
-				_buf.Write(Header.datagramSequenceNumber.GetBytes(), 0, 3);
+				_buf.WriteByte((byte) (Header.IsContinuousSend ? 0x8c : 0x84));
+				//_buf.WriteByte(Header.AsByte());
+				_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
 
 				// Message (Payload)
 				foreach (MessagePart messagePart in MessageParts)
@@ -193,11 +195,7 @@ namespace MiNET.Net
 
 		private static List<MessagePart> GetMessageParts(Packet message, int mtuSize, Reliability reliability, PlayerNetworkSession session)
 		{
-			var messageParts = new List<MessagePart>();
-
 			Memory<byte> encodedMessage = message.Encode();
-			//if (Log.IsDebugEnabled && message is McpeBatch)
-			//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
 
 			int orderingIndex = 0;
 
@@ -213,7 +211,7 @@ namespace MiNET.Net
 				{
 					reliability = Reliability.ReliableOrdered;
 
-					var isBatch = message is McpeWrapper;
+					bool isBatch = message is McpeWrapper;
 
 					if (!message.ForceClear && session.CryptoContext.UseEncryption)
 					{
@@ -226,14 +224,14 @@ namespace MiNET.Net
 							encodedMessage = Compression.Compress(encodedMessage, true, encodedMessage.Length > 1000 ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
 						}
 
-						McpeWrapper wrapper = McpeWrapper.CreateObject();
+						var wrapper = McpeWrapper.CreateObject();
 						wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
 						encodedMessage = wrapper.Encode();
 						wrapper.PutPool();
 					}
 					else if (!isBatch)
 					{
-						McpeWrapper wrapper = McpeWrapper.CreateObject();
+						var wrapper = McpeWrapper.CreateObject();
 						wrapper.payload = Compression.Compress(encodedMessage, true, encodedMessage.Length > 1000 ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
 						encodedMessage = wrapper.Encode();
 						wrapper.PutPool();
@@ -250,7 +248,7 @@ namespace MiNET.Net
 				orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
 			}
 
-			if (encodedMessage.IsEmpty) return messageParts;
+			if (encodedMessage.IsEmpty) return new List<MessagePart>(0);
 
 			int datagramHeaderSize = 100;
 			int count = (int) Math.Ceiling(encodedMessage.Length / ((double) mtuSize - datagramHeaderSize));
@@ -262,9 +260,10 @@ namespace MiNET.Net
 
 			short splitId = (short) Interlocked.Increment(ref session.SplitPartId);
 
+			var messageParts = new List<MessagePart>();
 			if (count <= 1)
 			{
-				MessagePart messagePart = MessagePart.CreateObject();
+				var messagePart = MessagePart.CreateObject();
 				messagePart.Header.Reliability = reliability;
 				messagePart.Header.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
 				messagePart.Header.HasSplit = count > 1;
@@ -280,9 +279,9 @@ namespace MiNET.Net
 			}
 			else
 			{
-				foreach ((int from, int to) span in ArraySplit(encodedMessage.Length, mtuSize - datagramHeaderSize))
+				foreach ((int from, int length) span in ArraySplit(encodedMessage.Length, mtuSize - datagramHeaderSize))
 				{
-					MessagePart messagePart = MessagePart.CreateObject();
+					var messagePart = MessagePart.CreateObject();
 					messagePart.Header.Reliability = reliability;
 					messagePart.Header.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
 					messagePart.Header.HasSplit = count > 1;
@@ -292,7 +291,7 @@ namespace MiNET.Net
 					messagePart.Header.OrderingChannel = 0;
 					messagePart.Header.OrderingIndex = orderingIndex;
 					messagePart.ContainedMessageId = message.Id;
-					messagePart.Buffer = encodedMessage.Slice(span.from, span.to);
+					messagePart.Buffer = encodedMessage.Slice(span.from, span.length);
 
 					messageParts.Add(messagePart);
 				}
@@ -301,45 +300,45 @@ namespace MiNET.Net
 			return messageParts;
 		}
 
-		public static List<(int from, int to)> ArraySplit(int length, int intBufforLengt)
+		private static List<(int from, int length)> ArraySplit(int length, int intBufferLength)
 		{
-			List<(int from, int to)> result = new List<(int, int)>();
+			List<(int from, int length)> result = new List<(int, int)>();
 
 			int i = 0;
-			for (; (i + 1) * intBufforLengt < length; i++)
+			for (; (i + 1) * intBufferLength < length; i++)
 			{
-				result.Add((i * intBufforLengt, intBufforLengt));
+				result.Add((i * intBufferLength, intBufferLength));
 			}
 
-			(int, int) reminer = (i * intBufforLengt, length - i * intBufforLengt);
-			if (reminer.Item2 > 0)
+			(int form, int length) reminder = (i * intBufferLength, length - i * intBufferLength);
+			if (reminder.length > 0)
 			{
-				result.Add(reminer);
+				result.Add(reminder);
 			}
 
 			return result;
 		}
 
-		public static IEnumerable<byte[]> ArraySplit(byte[] bArray, int intBufforLengt)
+		public static IEnumerable<byte[]> ArraySplit(byte[] bArray, int intBufferLength)
 		{
 			int bArrayLenght = bArray.Length;
 			byte[] bReturn;
 
 			int i = 0;
-			for (; bArrayLenght > (i + 1) * intBufforLengt; i++)
+			for (; bArrayLenght > (i + 1) * intBufferLength; i++)
 			{
-				bReturn = new byte[intBufforLengt];
+				bReturn = new byte[intBufferLength];
 				//Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLengt);
-				Buffer.BlockCopy(bArray, i * intBufforLengt, bReturn, 0, intBufforLengt);
+				Buffer.BlockCopy(bArray, i * intBufferLength, bReturn, 0, intBufferLength);
 				yield return bReturn;
 			}
 
-			int intBufforLeft = bArrayLenght - i * intBufforLengt;
+			int intBufforLeft = bArrayLenght - i * intBufferLength;
 			if (intBufforLeft > 0)
 			{
 				bReturn = new byte[intBufforLeft];
 				//Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLeft);
-				Buffer.BlockCopy(bArray, i * intBufforLengt, bReturn, 0, intBufforLeft);
+				Buffer.BlockCopy(bArray, i * intBufferLength, bReturn, 0, intBufforLeft);
 				yield return bReturn;
 			}
 		}

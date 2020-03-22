@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,26 +18,31 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
-namespace MiNET.Utils
+namespace MiNET.Net
 {
-	public sealed class PrefixedArray
+	public partial class McpeAnimate : Packet<McpeAnimate>
 	{
-		public PrefixedArray(byte[] array) : this(array, array.Length)
+		public float unknownFloat;
+
+		partial void AfterDecode()
 		{
+			if (actionId == 0x80 || actionId == 0x81)
+			{
+				unknownFloat = ReadFloat();
+			}
 		}
 
-		public PrefixedArray(byte[] array, int length)
+		partial void AfterEncode()
 		{
-			Array = array;
-			Length = length;
+			if (actionId == 0x80 || actionId == 0x81)
+			{
+				Write(unknownFloat);
+			}
 		}
-
-		public byte[] Array { get; }
-		public int Length { get; }
 	}
 }

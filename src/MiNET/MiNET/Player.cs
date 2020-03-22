@@ -43,6 +43,7 @@ using MiNET.Entities.Passive;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Particles;
 using MiNET.UI;
 using MiNET.Utils;
@@ -1671,7 +1672,6 @@ namespace MiNET
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.runtimeEntityId = EntityManager.EntityIdSelf;
 			mcpeSetEntityData.metadata = metadata;
-			mcpeSetEntityData.Encode();
 			SendPacket(mcpeSetEntityData);
 
 			base.BroadcastSetEntityData(metadata);
@@ -1682,7 +1682,6 @@ namespace MiNET
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.runtimeEntityId = EntityManager.EntityIdSelf;
 			mcpeSetEntityData.metadata = GetMetadata();
-			mcpeSetEntityData.Encode();
 			SendPacket(mcpeSetEntityData);
 		}
 
@@ -1791,7 +1790,7 @@ namespace MiNET
 
 						if (sendDisconnect)
 						{
-							McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+							var disconnect = McpeDisconnect.CreateObject();
 							disconnect.NoBatch = true;
 							disconnect.message = reason;
 							NetworkHandler.SendDirectPacket(disconnect);
@@ -3308,16 +3307,16 @@ namespace MiNET
 			DisplayName = displayName;
 
 			{
-				McpePlayerList playerList = McpePlayerList.CreateObject();
+				var playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerRemoveRecords {this};
-				Level.RelayBroadcast(Level.CreateMcpeBatch(playerList.Encode()));
+				Level.RelayBroadcast(Level.CreateMcpeBatch(playerList.Encode())); // Replace with records, to remove need for player and encode
 				playerList.records = null;
 				playerList.PutPool();
 			}
 			{
-				McpePlayerList playerList = McpePlayerList.CreateObject();
+				var playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {this};
-				Level.RelayBroadcast(Level.CreateMcpeBatch(playerList.Encode()));
+				Level.RelayBroadcast(Level.CreateMcpeBatch(playerList.Encode())); // Replace with records, to remove need for player and encode
 				playerList.records = null;
 				playerList.PutPool();
 			}

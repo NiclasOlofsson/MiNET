@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -26,6 +26,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using MiNET.Net;
+using MiNET.Net.RakNet;
+using MiNET.Utils;
 
 namespace MiNET
 {

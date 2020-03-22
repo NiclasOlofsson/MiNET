@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,23 +18,19 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
 using System;
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -42,6 +38,7 @@ using System.Threading.Tasks;
 using log4net;
 using Microsoft.IO;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Plugins;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -181,8 +178,8 @@ namespace MiNET
 
 					GreylistManager ??= new GreylistManager(this);
 					SessionManager ??= new SessionManager();
-					LevelManager ??= new LevelManager();
-					//LevelManager ??= new SpreadLevelManager(75);
+					//LevelManager ??= new LevelManager();
+					LevelManager ??= new SpreadLevelManager(75);
 					PlayerFactory ??= new PlayerFactory();
 
 					PluginManager.EnablePlugins(this, LevelManager);
@@ -201,10 +198,7 @@ namespace MiNET
 					new Thread(ProcessDatagrams) {IsBackground = true}.Start(_listener);
 				}
 
-				ServerInfo = new ServerInfo(LevelManager, _playerSessions)
-				{
-					MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 10)
-				};
+				ServerInfo = new ServerInfo(LevelManager, _playerSessions) {MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 10)};
 				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
 				_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
@@ -392,7 +386,7 @@ namespace MiNET
 				playerSession.LastUpdatedTime = DateTime.UtcNow;
 
 				var header = new DatagramHeader(receiveBytes.Span[0]);
-				if (!header.isACK && !header.isNAK && header.isValid)
+				if (!header.IsAck && !header.IsNak && header.IsValid)
 				{
 					if (receiveBytes.Span[0] == 0xa0)
 					{
@@ -408,7 +402,7 @@ namespace MiNET
 					{
 						playerSession.Disconnect("Bad packet received from client.");
 
-						Log.Warn($"Bad packet {receiveBytes.Span[0]}\n{Packet.HexDump(receiveBytes.ToArray())}", e);
+						Log.Warn($"Bad packet {receiveBytes.Span[0]}\n{Packet.HexDump(receiveBytes)}", e);
 
 						GreylistManager.Blacklist(senderEndpoint.Address);
 
@@ -432,15 +426,15 @@ namespace MiNET
 					HandleConnectedPacket(playerSession, packet);
 					packet.PutPool();
 				}
-				else if (header.isACK && header.isValid)
+				else if (header.IsAck && header.IsValid)
 				{
 					HandleAck(playerSession, receiveBytes);
 				}
-				else if (header.isNAK && header.isValid)
+				else if (header.IsNak && header.IsValid)
 				{
 					HandleNak(playerSession, receiveBytes);
 				}
-				else if (!header.isValid)
+				else if (!header.IsValid)
 				{
 					Log.Warn("!!!! ERROR, Invalid header !!!!!");
 				}
@@ -467,7 +461,7 @@ namespace MiNET
 					var bytes = noFree.Encode();
 
 					TraceSend(noFree);
-					
+
 					noFree.PutPool();
 
 					SendData(bytes, senderEndpoint);
@@ -544,7 +538,7 @@ namespace MiNET
 				packet.pingId = incoming.pingId;
 				packet.serverName = MotdProvider.GetMotd(ServerInfo, senderEndpoint, true);
 				var data = packet.Encode();
-				
+
 				TraceSend(packet);
 
 				packet.PutPool();
@@ -660,7 +654,7 @@ namespace MiNET
 			var data = reply.Encode();
 
 			TraceSend(reply);
-			
+
 			reply.PutPool();
 
 
@@ -669,11 +663,11 @@ namespace MiNET
 
 		private void HandleConnectedPacket(PlayerNetworkSession playerSession, ConnectedPacket packet)
 		{
-			foreach (var message in packet.Messages)
+			foreach (Packet message in packet.Messages)
 			{
-				if (message is SplitPartPacket)
+				if (message is SplitPartPacket splitPartPacket)
 				{
-					HandleSplitMessage(playerSession, (SplitPartPacket) message);
+					HandleSplitMessage(playerSession, splitPartPacket);
 					continue;
 				}
 
@@ -682,100 +676,92 @@ namespace MiNET
 			}
 		}
 
-		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPacket splitMessage)
+		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPacket splitPart)
 		{
-			int spId = splitMessage.SplitId;
-			int spIdx = splitMessage.SplitIdx;
-			int spCount = splitMessage.SplitCount;
+			int spId = splitPart.SplitId;
+			int spIdx = splitPart.SplitIdx;
+			int spCount = splitPart.SplitCount;
 
-			Int24 sequenceNumber = splitMessage.DatagramSequenceNumber;
-			Reliability reliability = splitMessage.Reliability;
-			Int24 reliableMessageNumber = splitMessage.ReliableMessageNumber;
-			Int24 orderingIndex = splitMessage.OrderingIndex;
-			byte orderingChannel = splitMessage.OrderingChannel;
+			Int24 sequenceNumber = splitPart.DatagramSequenceNumber;
+			Reliability reliability = splitPart.Reliability;
+			Int24 reliableMessageNumber = splitPart.ReliableMessageNumber;
+			Int24 orderingIndex = splitPart.OrderingIndex;
+			byte orderingChannel = splitPart.OrderingChannel;
 
-			SplitPartPacket[] spPackets;
-			bool haveEmpty = false;
-
+			SplitPartPacket[] splitPartList = playerSession.Splits.GetOrAdd(spId, new SplitPartPacket[spCount]);
+			bool haveAllParts = true;
 			// Need sync for this part since they come very fast, and very close in time. 
-			// If no synk, will often detect complete message two times (or more).
-			lock (playerSession.Splits)
+			// If no sync, will often detect complete message two times (or more).
+
+			lock (splitPartList)
 			{
-				if (!playerSession.Splits.ContainsKey(spId))
-				{
-					playerSession.Splits.TryAdd(spId, new SplitPartPacket[spCount]);
-				}
+				// Already had part (resent). Then ignore. 
+				if (splitPartList[spIdx] != null) return;
 
-				spPackets = playerSession.Splits[spId];
-				if (spPackets[spIdx] != null)
-				{
-					Log.Debug("Already had splitpart (resent). Ignore this part.");
-					return;
-				}
-				spPackets[spIdx] = splitMessage;
+				splitPartList[spIdx] = splitPart;
 
-				for (int i = 0; i < spPackets.Length; i++)
+				foreach (SplitPartPacket spp in splitPartList)
 				{
-					haveEmpty = haveEmpty || spPackets[i] == null;
+					if (spp != null) continue;
+
+					haveAllParts = false;
+					break;
 				}
 			}
 
-			if (!haveEmpty)
+			if (!haveAllParts) return;
+
+			Log.Debug($"Got all {spCount} split packets for split ID: {spId}");
+
+			playerSession.Splits.TryRemove(spId, out SplitPartPacket[] _);
+
+			int contiguousLength = 0;
+			foreach (SplitPartPacket spp in splitPartList)
 			{
-				Log.DebugFormat("Got all {0} split packets for split ID: {1}", spCount, spId);
+				contiguousLength += spp.Message.Length;
+			}
 
-				playerSession.Splits.TryRemove(spId, out SplitPartPacket[] _);
+			var buffer = new Memory<byte>(new byte[contiguousLength]);
 
-				int contiguousLength = 0;
-				foreach (var splitPartPacket in spPackets)
-				{
-					contiguousLength += splitPartPacket.Message.Length;
-				}
+			int position = 0;
+			foreach (SplitPartPacket spp in splitPartList)
+			{
+				spp.Message.CopyTo(buffer.Slice(position));
+				position += spp.Message.Length;
+				spp.PutPool();
+			}
 
-				var buffer = new Memory<byte>(new byte[contiguousLength]);
+			try
+			{
+				var newPacket = ConnectedPacket.CreateObject();
+				newPacket._datagramSequenceNumber = sequenceNumber;
+				newPacket._reliability = reliability;
+				newPacket._reliableMessageNumber = reliableMessageNumber;
+				newPacket._orderingIndex = orderingIndex;
+				newPacket._orderingChannel = (byte) orderingChannel;
+				newPacket._hasSplit = false;
 
-				SequenceReader<byte> read = new SequenceReader<byte>();
-				int position = 0;
-				foreach (var splitPartPacket in spPackets)
-				{
-					splitPartPacket.Message.CopyTo(buffer.Slice(position));
-					position += splitPartPacket.Message.Length;
-					splitPartPacket.PutPool();
-				}
+				Packet fullMessage = PacketFactory.Create(buffer.Span[0], buffer, "raknet") ??
+									new UnknownPacket(buffer.Span[0], buffer.ToArray());
+				fullMessage.DatagramSequenceNumber = sequenceNumber;
+				fullMessage.Reliability = reliability;
+				fullMessage.ReliableMessageNumber = reliableMessageNumber;
+				fullMessage.OrderingIndex = orderingIndex;
+				fullMessage.OrderingChannel = orderingChannel;
 
-				try
-				{
-					var newPacket = ConnectedPacket.CreateObject();
-					newPacket._datagramSequenceNumber = sequenceNumber;
-					newPacket._reliability = reliability;
-					newPacket._reliableMessageNumber = reliableMessageNumber;
-					newPacket._orderingIndex = orderingIndex;
-					newPacket._orderingChannel = (byte) orderingChannel;
-					newPacket._hasSplit = false;
+				newPacket.Messages = new List<Packet>();
+				newPacket.Messages.Add(fullMessage);
 
-					Packet fullMessage = PacketFactory.Create(buffer.Span[0], buffer, "raknet") ??
-										new UnknownPacket(buffer.Span[0], buffer.ToArray());
-					fullMessage.DatagramSequenceNumber = sequenceNumber;
-					fullMessage.Reliability = reliability;
-					fullMessage.ReliableMessageNumber = reliableMessageNumber;
-					fullMessage.OrderingIndex = orderingIndex;
-					fullMessage.OrderingChannel = orderingChannel;
-
-					newPacket.Messages = new List<Packet>();
-					newPacket.Messages.Add(fullMessage);
-
-					Log.Debug(
-						$"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
-					HandleConnectedPacket(playerSession, newPacket);
-					newPacket.PutPool();
-				}
-				catch (Exception e)
-				{
-					Log.Error("Error during split message parsing", e);
-					if (Log.IsDebugEnabled)
-						Log.Debug($"0x{buffer.Span[0]:x2}\n{Packet.HexDump(buffer)}");
-					playerSession.Disconnect("Bad packet received from client.", false);
-				}
+				Log.Debug($"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
+				HandleConnectedPacket(playerSession, newPacket);
+				newPacket.PutPool();
+			}
+			catch (Exception e)
+			{
+				Log.Error("Error during split message parsing", e);
+				if (Log.IsDebugEnabled)
+					Log.Debug($"0x{buffer.Span[0]:x2}\n{Packet.HexDump(buffer)}");
+				playerSession.Disconnect("Bad packet received from client.", false);
 			}
 		}
 
@@ -877,7 +863,7 @@ namespace MiNET
 		{
 			if (session == null) return;
 
-			Nak nak = Nak.CreateObject();
+			var nak = Nak.CreateObject();
 			nak.Reset();
 			nak.Decode(receiveBytes);
 
@@ -913,39 +899,29 @@ namespace MiNET
 		{
 			if (session == null) return;
 
-			//Ack ack = Ack.CreateObject();
-			Ack ack = new Ack();
-			//ack.Reset();
+			var ack = new Ack();
 			ack.Decode(receiveBytes);
 
 			var queue = session.WaitingForAcksQueue;
 
-			foreach (Tuple<int, int> range in ack.ranges)
+			foreach ((int start, int end) range in ack.ranges)
 			{
 				Interlocked.Increment(ref ServerInfo.NumberOfAckReceive);
 
-				int start = range.Item1;
-				int end = range.Item2;
-				for (int i = start; i <= end; i++)
+				for (int i = range.start; i <= range.end; i++)
 				{
-					if (queue.TryRemove(i, out var datagram))
+					if (queue.TryRemove(i, out Datagram datagram))
 					{
-						//if (Log.IsDebugEnabled)
-						//	Log.DebugFormat("ACK, on datagram #{0} for {2}. Queue size={1}", i, queue.Count, player.Username);
-
 						CalculateRto(session, datagram);
 
 						datagram.PutPool();
 					}
 					else
 					{
-						if (Log.IsDebugEnabled)
-							Log.WarnFormat("ACK, Failed to remove datagram #{0} for {2}. Queue size={1}", i, queue.Count, session.Username);
+						if (Log.IsDebugEnabled) Log.Warn($"ACK, Failed to remove datagram #{i} for {session.Username}. Queue size={queue.Count}");
 					}
 				}
 			}
-
-			//ack.PutPool();
 
 			session.ResendCount = 0;
 			session.WaitForAck = false;
@@ -1010,7 +986,7 @@ namespace MiNET
 			if (datagram.MessageParts.Count == 0)
 			{
 				datagram.PutPool();
-				Log.WarnFormat("Failed to resend #{0}", datagram.Header.datagramSequenceNumber.IntValue());
+				Log.WarnFormat("Failed to resend #{0}", datagram.Header.DatagramSequenceNumber.IntValue());
 				return;
 			}
 
@@ -1018,7 +994,7 @@ namespace MiNET
 			{
 				if (Log.IsDebugEnabled)
 					Log.WarnFormat("Retransmission count exceeded. No more resend of #{0} Type: {2} (0x{2:x2}) for {1}",
-						datagram.Header.datagramSequenceNumber.IntValue(),
+						datagram.Header.DatagramSequenceNumber.IntValue(),
 						session.Username,
 						datagram.FirstMessageId);
 
@@ -1028,7 +1004,7 @@ namespace MiNET
 				return;
 			}
 
-			datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
+			datagram.Header.DatagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
 			datagram.TransmissionCount++;
 			datagram.RetransmitImmediate = false;
 
@@ -1036,9 +1012,10 @@ namespace MiNET
 
 			datagram.Timer.Restart();
 
-			if (!session.WaitingForAcksQueue.TryAdd(datagram.Header.datagramSequenceNumber.IntValue(), datagram))
+			if (!session.WaitingForAcksQueue.TryAdd(datagram.Header.DatagramSequenceNumber.IntValue(), datagram))
 			{
-				Log.Warn($"Datagram sequence unexpectedly existed in the ACK/NAK queue already {datagram.Header.datagramSequenceNumber.IntValue()}");
+				Log.Warn($"Datagram sequence unexpectedly existed in the ACK/NAK queue already {datagram.Header.DatagramSequenceNumber.IntValue()}");
+				datagram.PutPool();
 			}
 
 			//lock (session.SyncRoot)

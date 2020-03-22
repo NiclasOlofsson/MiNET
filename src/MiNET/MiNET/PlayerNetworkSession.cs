@@ -27,6 +27,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -34,6 +35,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
@@ -165,7 +167,7 @@ namespace MiNET
 			if (Log.IsDebugEnabled) Log.Warn($"Closed network session for player {Username}");
 		}
 
-		private long _lastSequenceNumber = -1; // That's the first message with wrapper
+		private long _lastOrderingIndex = -1; // That's the first message with wrapper
 		private AutoResetEvent _waitEvent = new AutoResetEvent(false);
 		private AutoResetEvent _mainWaitEvent = new AutoResetEvent(false);
 		private object _eventSync = new object();
@@ -186,7 +188,7 @@ namespace MiNET
 				{
 					if (CryptoContext == null || CryptoContext.UseEncryption == false)
 					{
-						_lastSequenceNumber = message.OrderingIndex;
+						_lastOrderingIndex = message.OrderingIndex;
 						HandlePacket(message, this);
 						return;
 					}
@@ -194,9 +196,14 @@ namespace MiNET
 
 				lock (_eventSync)
 				{
-					if (_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
+					if (_queue.Count == 0 && message.OrderingIndex == _lastOrderingIndex + 1)
 					{
-						_lastSequenceNumber = message.OrderingIndex;
+						if (_processingThread != null)
+						{
+							// Remove the thread again. But need to deal with cancellation token, so not entirely easy.
+							// Needs refactoring of the processing thread first.
+						}
+						_lastOrderingIndex = message.OrderingIndex;
 						HandlePacket(message, this);
 						return;
 					}
@@ -232,11 +239,11 @@ namespace MiNET
 
 					if (_queue.TryPeek(out pair))
 					{
-						if (pair.Key == _lastSequenceNumber + 1)
+						if (pair.Key == _lastOrderingIndex + 1)
 						{
 							if (_queue.TryDequeue(out pair))
 							{
-								_lastSequenceNumber = pair.Key;
+								_lastOrderingIndex = pair.Key;
 
 								HandlePacket(pair.Value, this);
 
@@ -246,9 +253,9 @@ namespace MiNET
 								}
 							}
 						}
-						else if (pair.Key <= _lastSequenceNumber)
+						else if (pair.Key <= _lastOrderingIndex)
 						{
-							if (Log.IsDebugEnabled) Log.Warn($"{Username} - Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+							if (Log.IsDebugEnabled) Log.Warn($"{Username} - Resent. Expected {_lastOrderingIndex + 1}, but was {pair.Key}.");
 							if (_queue.TryDequeue(out pair))
 							{
 								pair.Value.PutPool();
@@ -256,7 +263,7 @@ namespace MiNET
 						}
 						else
 						{
-							if (Log.IsDebugEnabled) Log.Warn($"{Username} - Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+							if (Log.IsDebugEnabled) Log.Warn($"{Username} - Wrong sequence. Expected {_lastOrderingIndex + 1}, but was {pair.Key}.");
 							WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
 						}
 					}
@@ -302,17 +309,21 @@ namespace MiNET
 					McpeWrapper batch = (McpeWrapper) message;
 					var messages = new List<Packet>();
 
-					// Get bytes
-					byte[] payload = batch.payload;
+					// Get bytes to process
+					ReadOnlyMemory<byte> payload = batch.payload;
+
+					// Decrypt bytes
+
 					if (playerSession.CryptoContext != null && playerSession.CryptoContext.UseEncryption)
 					{
+						// This call copies the entire buffer, but what can we do? It is kind of compensated by not
+						// creating a new buffer when parsing the packet (only a mem-slice)
 						payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
 					}
 
-
 					// Decompress bytes
 
-					var stream = new MemoryStreamReader(new ReadOnlyMemory<byte>(payload).Slice(0, payload.Length - 4)); // slice away adler
+					var stream = new MemoryStreamReader(payload.Slice(0, payload.Length - 4)); // slice away adler
 					if (stream.ReadByte() != 0x78)
 					{
 						if (Log.IsDebugEnabled) Log.Error($"Incorrect ZLib header. Expected 0x78 0x9C 0x{message.Id:X2}\n{Packet.HexDump(batch.payload)}");
@@ -342,7 +353,6 @@ namespace MiNET
 							catch (Exception)
 							{
 								if (Log.IsDebugEnabled) Log.Warn($"Error parsing packet 0x{message.Id:X2}\n{Packet.HexDump(internalBuffer)}");
-
 								throw;
 							}
 						}
@@ -350,7 +360,7 @@ namespace MiNET
 						if (stream.Length > stream.Position) throw new Exception("Have more data");
 					}
 
-					foreach (var msg in messages)
+					foreach (Packet msg in messages)
 					{
 						// Temp fix for performance, take 1.
 						var interact = msg as McpeInteract;
@@ -878,7 +888,7 @@ namespace MiNET
 
 					if (!datagram.Timer.IsRunning)
 					{
-						Log.ErrorFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
+						Log.ErrorFormat("Timer not running for #{0}", datagram.Header.DatagramSequenceNumber);
 						datagram.Timer.Restart();
 						continue;
 					}
@@ -892,7 +902,7 @@ namespace MiNET
 
 					if (datagram.RetransmitImmediate || elapsedTime >= datagramTimout)
 					{
-						if (!Evicted && WaitingForAcksQueue.TryRemove(datagram.Header.datagramSequenceNumber, out var deleted))
+						if (!Evicted && WaitingForAcksQueue.TryRemove(datagram.Header.DatagramSequenceNumber, out var deleted))
 						{
 							ErrorCount++;
 							ResendCount++;
@@ -903,7 +913,7 @@ namespace MiNET
 								var dtgram = deleted;
 								if (Log.IsDebugEnabled)
 								{
-									Log.Warn($"{(deleted.RetransmitImmediate ? "NAK RSND" : "TIMEOUT")}, Resent #{deleted.Header.datagramSequenceNumber.IntValue()} Type: {deleted.FirstMessageId} (0x{deleted.FirstMessageId:x2}) for {Username} ({elapsedTime} > {datagramTimout}) RTO {Rto}");
+									Log.Warn($"{(deleted.RetransmitImmediate ? "NAK RSND" : "TIMEOUT")}, Resent #{deleted.Header.DatagramSequenceNumber.IntValue()} Type: {deleted.FirstMessageId} (0x{deleted.FirstMessageId:x2}) for {Username} ({elapsedTime} > {datagramTimout}) RTO {Rto}");
 								}
 
 								resendTasks.Add(Server.SendDatagramAsync(this, (Datagram) dtgram));
@@ -966,18 +976,19 @@ namespace MiNET
 		private SemaphoreSlim _syncHack = new SemaphoreSlim(1,1);
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
 
+		[SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
 		public async Task SendQueueAsync()
 		{
 			if (_sendQueueNotConcurrent.Count == 0) return;
 
-			if (!(await _syncHack.WaitAsync(0)))
-				return;
+			if (!(await _syncHack.WaitAsync(0))) return;
 			
 			try
 			{
 				using (var memStream = new MemoryStream())
 				{
 					Queue<Packet> queue = _sendQueueNotConcurrent;
+					var sendLast = new List<Packet>();
 
 					int messageCount = 0;
 
@@ -992,7 +1003,7 @@ namespace MiNET
 							{
 								packet = queue.Dequeue();
 							}
-							catch (Exception e)
+							catch (Exception)
 							{
 							}
 						}
@@ -1008,43 +1019,40 @@ namespace MiNET
 						if (length == 1)
 						{
 							await Server.SendPacketAsync(this, packet);
+							continue;
 						}
-						else if (packet is McpeWrapper)
+						
+						if (packet is McpeWrapper)
 						{
-							await SendBufferedAsync(messageCount, memStream);
-							messageCount = 0;
-							await Server.SendPacketAsync(this, packet);
-							// The following is necessary if no throttling is done on chunk sending,
-							// but having it creates a lot of packet lag when using SpawnLevel. You can see it
-							// as players standing still, but having running particles.
-							//
-							//Thread.Sleep(1); // Really important to slow down speed a bit
+							sendLast.Add(packet);
+							continue;
 						}
-						else if (packet.NoBatch)
+						
+						if (packet.NoBatch)
 						{
-							await SendBufferedAsync(messageCount, memStream);
-							messageCount = 0;
-							await Server.SendPacketAsync(this, packet);
+							sendLast.Add(packet);
+							continue;
 						}
-						else
+						
+						if (messageCount == 0)
 						{
-							if (messageCount == 0)
-							{
-								memStream.Position = 0;
-								memStream.SetLength(0);
-							}
+							memStream.Position = 0;
+							memStream.SetLength(0);
+						}
 
-							byte[] bytes = packet.Encode();
-							if (bytes != null)
-							{
-								messageCount++;
-								BatchUtils.WriteLength(memStream, bytes.Length);
-								//memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-								memStream.Write(bytes, 0, bytes.Length);
-							}
-
-							packet.PutPool();
+						byte[] bytes = packet.Encode();
+						if (bytes != null)
+						{
+							BatchUtils.WriteLength(memStream, bytes.Length);
+							memStream.Write(bytes, 0, bytes.Length);
+							messageCount++;
 						}
+
+						packet.PutPool();
+					}
+					foreach (Packet packet in sendLast)
+					{
+						await Server.SendPacketAsync(this, packet);
 					}
 
 					if (State == ConnectionState.Unconnected)

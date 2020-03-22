@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -29,7 +29,7 @@ using System.Linq;
 using log4net;
 using MiNET.Utils;
 
-namespace MiNET.Net
+namespace MiNET.Net.RakNet
 {
 	public class ConnectedPacket : Packet<ConnectedPacket>
 	{
@@ -51,26 +51,19 @@ namespace MiNET.Net
 		public int _splitPacketIndex;
 
 
-		public int MessageLength { get; set; }
-		public List<Packet> Messages { get; set; }
-		public byte[] Buffer { get; set; }
+		public List<Packet> Messages { get; set; } = new List<Packet>();
 
 		public ConnectedPacket()
 		{
-			Messages = new List<Packet>();
 		}
 
 		protected override void EncodePacket()
 		{
 			_buffer.Position = 0;
 
-			byte[] encodedMessage = Buffer;
-			if (Buffer == null)
-			{
-				encodedMessage = Messages.First().Encode();
-			}
+			byte[] encodedMessage = Messages.First().Encode();
 
-			MessageLength = encodedMessage.Length;
+			int messageLength = encodedMessage.Length;
 
 			// Datagram header
 
@@ -93,27 +86,29 @@ namespace MiNET.Net
 			// Message header
 
 			byte rely = (byte) _reliability;
-			Write((byte) ((rely << 5) | (_hasSplit ? Convert.ToByte("00010000", 2) : 0x00)));
-			Write((short) (MessageLength * 8), true); // length
+			Write((byte) ((rely << 5) | (_hasSplit ? 0b00010000 : 0x00)));
+			Write((short) (messageLength * 8), true); // length
 
-			if (_reliability == Reliability.Reliable
-				|| _reliability == Reliability.ReliableOrdered
-				|| _reliability == Reliability.ReliableSequenced
-				|| _reliability == Reliability.ReliableWithAckReceipt
-				|| _reliability == Reliability.ReliableOrderedWithAckReceipt
-			)
+			switch (_reliability)
 			{
-				Write(_reliableMessageNumber);
+				case Reliability.Reliable:
+				case Reliability.ReliableOrdered:
+				case Reliability.ReliableSequenced:
+				case Reliability.ReliableWithAckReceipt:
+				case Reliability.ReliableOrderedWithAckReceipt:
+					Write(_reliableMessageNumber);
+					break;
 			}
 
-			if (_reliability == Reliability.UnreliableSequenced
-				|| _reliability == Reliability.ReliableOrdered
-				|| _reliability == Reliability.ReliableSequenced
-				|| _reliability == Reliability.ReliableOrderedWithAckReceipt
-			)
+			switch (_reliability)
 			{
-				Write(_orderingIndex);
-				Write(_orderingChannel);
+				case Reliability.UnreliableSequenced:
+				case Reliability.ReliableOrdered:
+				case Reliability.ReliableSequenced:
+				case Reliability.ReliableOrderedWithAckReceipt:
+					Write(_orderingIndex);
+					Write(_orderingChannel);
+					break;
 			}
 
 			if (_hasSplit)
@@ -136,55 +131,52 @@ namespace MiNET.Net
 
 			_datagramHeader = new DatagramHeader(ReadByte());
 			_datagramSequenceNumber = ReadLittle();
-			_datagramHeader.datagramSequenceNumber = _datagramSequenceNumber;
+			_datagramHeader.DatagramSequenceNumber = _datagramSequenceNumber;
 
-			_hasSplit = false;
 			while (_reader.Position < _reader.Length)
 			{
-				//if (_hasSplit) Log.Warn("Reading second split message");
-
 				byte flags = ReadByte();
-				_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
-				_hasSplit = ((flags & Convert.ToByte("00010000", 2)) > 0);
+				_reliability = (Reliability) ((flags & 0b011100000) >> 5);
+				_hasSplit = ((flags & 0b00010000) > 0);
 
 				short dataBitLength = ReadShort(true);
 
-				if (_reliability == Reliability.Reliable
-					|| _reliability == Reliability.ReliableSequenced
-					|| _reliability == Reliability.ReliableOrdered
-				)
+				switch (_reliability)
 				{
-					_reliableMessageNumber = ReadLittle();
-				}
-				else
-				{
-					_reliableMessageNumber = -1;
-				}
-
-				if (_reliability == Reliability.UnreliableSequenced
-					|| _reliability == Reliability.ReliableSequenced
-				)
-				{
-					_sequencingIndex = ReadLittle();
-				}
-				else
-				{
-					_sequencingIndex = -1;
+					case Reliability.Reliable:
+					case Reliability.ReliableSequenced:
+					case Reliability.ReliableOrdered:
+						_reliableMessageNumber = ReadLittle();
+						break;
+					default:
+						_reliableMessageNumber = -1;
+						break;
 				}
 
-				if (_reliability == Reliability.UnreliableSequenced
-					|| _reliability == Reliability.ReliableSequenced
-					|| _reliability == Reliability.ReliableOrdered
-					|| _reliability == Reliability.ReliableOrderedWithAckReceipt
-				)
+				switch (_reliability)
 				{
-					_orderingIndex = ReadLittle();
-					_orderingChannel = ReadByte(); // flags
+					case Reliability.UnreliableSequenced:
+					case Reliability.ReliableSequenced:
+						_sequencingIndex = ReadLittle();
+						break;
+					default:
+						_sequencingIndex = -1;
+						break;
 				}
-				else
+
+				switch (_reliability)
 				{
-					_orderingIndex = 0;
-					_orderingChannel = 0;
+					case Reliability.UnreliableSequenced:
+					case Reliability.ReliableSequenced:
+					case Reliability.ReliableOrdered:
+					case Reliability.ReliableOrderedWithAckReceipt:
+						_orderingIndex = ReadLittle();
+						_orderingChannel = ReadByte(); // flags
+						break;
+					default:
+						_orderingIndex = 0;
+						_orderingChannel = 0;
+						break;
 				}
 
 				if (_hasSplit)
@@ -201,13 +193,12 @@ namespace MiNET.Net
 				}
 
 				// Slurp the payload
-				MessageLength = (int) Math.Ceiling((((double) dataBitLength) / 8));
-
-				var internalBuffer = Slice(MessageLength);
+				int messageLength = (int) Math.Ceiling((((double) dataBitLength) / 8));
+				ReadOnlyMemory<byte> internalBuffer = Slice(messageLength);
 
 				if (_hasSplit)
 				{
-					SplitPartPacket splitPartPacket = SplitPartPacket.CreateObject();
+					var splitPartPacket = SplitPartPacket.CreateObject();
 					splitPartPacket.DatagramSequenceNumber = _datagramSequenceNumber;
 					splitPartPacket.Reliability = _reliability;
 					splitPartPacket.ReliableMessageNumber = _reliableMessageNumber;
@@ -235,7 +226,7 @@ namespace MiNET.Net
 				//if (!(package is McpeBatch)) Log.Debug($"Raw: {package.DatagramSequenceNumber} {package.ReliableMessageNumber} {package.OrderingIndex} {package.GetType().Name} 0x{package.Id:x2} \n{HexDump(internalBuffer)}");
 
 				Messages.Add(packet);
-				if (Log.IsDebugEnabled && MessageLength != internalBuffer.Length) Log.Debug("Mismatch of requested length, and actual read length");
+				if (Log.IsDebugEnabled && messageLength != internalBuffer.Length) Log.Debug("Mismatch of requested length, and actual read length");
 			}
 		}
 

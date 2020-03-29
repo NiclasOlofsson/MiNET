@@ -84,57 +84,31 @@ namespace MiNET.Net.RakNet
 
 		public override byte[] Encode()
 		{
-			throw new NotImplementedException();
+			byte[] buffer = ArrayPool<byte>.Shared.Rent(1600);
+			ArrayPool<byte>.Shared.Return(buffer);
+			using (var buf = new MemoryStream(buffer))
+			{
+				buf.WriteByte((byte) (Header.IsContinuousSend ? 0x8c : 0x84));
+				buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
 
+				// Message (Payload)
+				foreach (MessagePart messagePart in MessageParts)
+				{
+					byte[] bytes = messagePart.Encode();
+					buf.Write(bytes, 0, bytes.Length);
+				}
 
-			//byte[] buffer = ArrayPool<byte>.Shared.Rent(1600);
-			//ArrayPool<byte>.Shared.Return(buffer);
-			//using (var _buf = new MemoryStream(buffer, 0, 1600, true, true))
-			//{
-			//	//TODO: This is a qick-fix to lower the impact of resends. I want to do this
-			//	// as standard, just need to refactor a bit of this stuff first.
-			//	if (_buf.Length != 0 && _buf.Length != 1600)
-			//	{
-			//		_buf.Position = 1;
-			//		_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
-
-			//		return _buf.ToArray();
-			//	}
-
-
-			//	_buf.SetLength(0);
-
-			//	// Header
-			//	//_buf.WriteByte(Header.AsByte());
-			//	_buf.WriteByte((byte) (Header.IsContinuousSend ? 0x8c : 0x84));
-			//	_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
-
-			//	// Message (Payload)
-			//	foreach (MessagePart messagePart in MessageParts)
-			//	{
-			//		byte[] bytes = messagePart.Encode();
-			//		_buf.Write(bytes, 0, bytes.Length);
-			//	}
-
-			//	return _buf.ToArray();
-			//}
+				return buf.ToArray();
+			}
 		}
 
 		public long GetEncoded(ref byte[] buffer)
 		{
-			using (var buf = new MemoryStream(buffer, 0, 1600, true, true))
+			using (var buf = new MemoryStream(buffer))
 			{
 				// This is a quick-fix to lower the impact of resend. I want to do this
 				// as standard, just need to refactor a bit of this stuff first.
-				if (buf.Length != 0 && buf.Length != 1600)
 				{
-					buf.Position = 1;
-					buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
-				}
-				else
-				{
-					buf.SetLength(0);
-
 					if (MessageParts.Count > 1) Log.Error($"Got {MessageParts.Count} message parts");
 
 					// Header
@@ -150,7 +124,7 @@ namespace MiNET.Net.RakNet
 					}
 				}
 
-				return buf.Length;
+				return buf.Position;
 			}
 		}
 
@@ -178,7 +152,7 @@ namespace MiNET.Net.RakNet
 			Datagram datagram = CreateObject();
 
 			List<MessagePart> messageParts = CreateMessageParts(message, mtuSize, Reliability.Reliable, session);
-			foreach (var messagePart in messageParts)
+			foreach (MessagePart messagePart in messageParts)
 			{
 				if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 				{
@@ -199,33 +173,6 @@ namespace MiNET.Net.RakNet
 			yield return datagram;
 		}
 
-		public static List<Datagram> CreateDatagramsNew(Packet message, int mtuSize, RakSession session)
-		{
-			Datagram datagram = CreateObject();
-
-			List<MessagePart> messageParts = CreateMessageParts(message, mtuSize, Reliability.Reliable, session);
-			//foreach (var messagePart in messageParts)
-			//{
-			//	if (!datagram.TryAddMessagePart(messagePart, mtuSize))
-			//	{
-			//		return datagram;
-
-			//		datagram = CreateObject();
-			//		if (datagram.MessageParts.Count != 0) throw new Exception("Excepted no message parts in new message");
-
-			//		if (!datagram.TryAddMessagePart(messagePart, mtuSize))
-			//		{
-			//			string error = $"Message part too big for a single datagram. Size: {messagePart.Encode().Length}, MTU: {mtuSize}";
-			//			Log.Error(error);
-			//			throw new Exception(error);
-			//		}
-			//	}
-			//}
-
-			return new List<Datagram>();
-		}
-
-
 		private static List<MessagePart> CreateMessageParts(Packet message, int mtuSize, Reliability reliability, RakSession session)
 		{
 			Memory<byte> encodedMessage = message.Encode();
@@ -234,12 +181,14 @@ namespace MiNET.Net.RakNet
 
 			// All MCPE messages goes into a compressed (and possible encrypted) wrapper.
 			// Note that McpeWrapper itself is a RakNet level message.
+			bool isWrapper = message is McpeWrapper;
 			if (message.IsMcpe)
 			{
 				var wrapper = McpeWrapper.CreateObject();
 				wrapper.payload = Compression.Compress(encodedMessage, true, encodedMessage.Length > 1000 ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
 				encodedMessage = wrapper.Encode();
 				wrapper.PutPool();
+				isWrapper = true;
 			}
 
 			// Should probably only force for McpeWrapper, not the other messages (RakNet)
@@ -249,7 +198,7 @@ namespace MiNET.Net.RakNet
 			lock (session.EncodeSync)
 			{
 				CryptoContext cryptoContext = session.CryptoContext;
-				if (!message.ForceClear && cryptoContext != null && session.CryptoContext.UseEncryption && message is McpeWrapper)
+				if (!message.ForceClear && cryptoContext != null && session.CryptoContext.UseEncryption && isWrapper)
 				{
 					var wrapper = McpeWrapper.CreateObject();
 					wrapper.payload = CryptoUtils.Encrypt(encodedMessage.Slice(1), cryptoContext);
@@ -262,7 +211,7 @@ namespace MiNET.Net.RakNet
 
 			List<(int @from, int length)> splits = ArraySplit(encodedMessage.Length, mtuSize - 100);
 			int count = splits.Count;
-
+			if (count == 0) Log.Warn("Got zero parts back from split");
 			if (count <= 1)
 			{
 				var messagePart = MessagePart.CreateObject();

@@ -33,7 +33,7 @@ namespace MiNET.Net.RakNet
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ConnectedPacket));
 
-		public DatagramHeader _datagramHeader;
+		public DatagramHeader Header { get; set; }
 
 		public List<Packet> Messages { get; set; } = new List<Packet>();
 
@@ -113,8 +113,8 @@ namespace MiNET.Net.RakNet
 		{
 			_reader.Position = 0;
 
-			_datagramHeader = new DatagramHeader(ReadByte());
-			_datagramHeader.DatagramSequenceNumber = ReadLittle();
+			Header = new DatagramHeader(ReadByte());
+			Header.DatagramSequenceNumber = ReadLittle();
 
 			// End datagram, online packet starts
 
@@ -168,6 +168,10 @@ namespace MiNET.Net.RakNet
 				// Slurp the payload
 				int messageLength = (int) Math.Ceiling((((double) dataBitLength) / 8));
 				ReadOnlyMemory<byte> internalBuffer = Slice(messageLength);
+				if(internalBuffer.Length != messageLength) Log.Error($"Didn't get expected length {internalBuffer.Length}");
+				if(internalBuffer.Length == 0) Log.Error($"Read length {internalBuffer.Length}, expected {messageLength}");
+				if(messageLength == 0)  continue;
+				if(header.Reliability != Reliability.ReliableOrdered) Log.Error($"Parsing message with reliability={header.Reliability}");
 
 				if (header.HasSplit)
 				{
@@ -177,16 +181,13 @@ namespace MiNET.Net.RakNet
 					splitPartPacket.Message = internalBuffer;
 					Messages.Add(splitPartPacket);
 
-					//if (Log.IsDebugEnabled && _buffer.Position < _buffer.Length) Log.Debug($"Got split message, but more to read {_buffer.Length - _buffer.Position}");
-					continue;
+					if (Log.IsDebugEnabled && _reader.Position < _reader.Length) Log.Debug($"Got split message, but more to read {_reader.Length - _reader.Position}");
 				}
 				else
 				{
 					byte id = internalBuffer.Span[0];
 					Packet packet = PacketFactory.Create(id, internalBuffer, "raknet") ?? new UnknownPacket(id, internalBuffer.ToArray());
 					packet.ReliabilityHeader = header;
-
-					//if (!(package is McpeBatch)) Log.Debug($"Raw: {package.DatagramSequenceNumber} {package.ReliableMessageNumber} {package.OrderingIndex} {package.GetType().Name} 0x{package.Id:x2} \n{HexDump(internalBuffer)}");
 
 					Messages.Add(packet);
 				}

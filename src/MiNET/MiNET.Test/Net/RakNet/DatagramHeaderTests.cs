@@ -85,5 +85,16 @@ namespace MiNETTests.Net.RakNet
 			byte result = header;
 			Assert.AreEqual(0x84, result);
 		}
+
+		[TestMethod()]
+		public void DatagramHeader_get_byte_nak()
+		{
+			var header = new DatagramHeader();
+			header.IsValid = true;
+			header.IsNak = true; // remove
+
+			byte result = header;
+			Assert.AreEqual(0xa0, result);
+		}
 	}
 }

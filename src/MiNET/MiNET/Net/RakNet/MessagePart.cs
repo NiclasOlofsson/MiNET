@@ -32,18 +32,11 @@ namespace MiNET.Net.RakNet
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(MessagePart));
 
-		public ReliabilityHeader ReliabilityHeader { get; private set; }
 		public Memory<byte> Buffer { get; set; }
 		public byte ContainedMessageId { get; set; }
 
 		public MessagePart()
 		{
-			ReliabilityHeader = new ReliabilityHeader();
-		}
-
-		public int GetPayloadSize()
-		{
-			return Buffer.Length;
 		}
 
 		public override void Reset()
@@ -61,7 +54,11 @@ namespace MiNET.Net.RakNet
 
 			Memory<byte> encodedMessage = Buffer;
 
-			Write((byte) ((byte) (((byte) ReliabilityHeader.Reliability) << 5) | (ReliabilityHeader.HasSplit ? 0b00010000 : 0x00)));
+			if(encodedMessage.Length == 0) Log.Error("Bad size 0 in message part");
+			if(ReliabilityHeader.Reliability != Reliability.ReliableOrdered) Log.Warn($"Sending message with reliability={ReliabilityHeader.Reliability}");
+
+			byte flags = (byte) (((byte) ReliabilityHeader.Reliability) << 5);
+			Write((byte) (flags | (ReliabilityHeader.HasSplit ? 0b00010000 : 0x00)));
 			Write((short) (encodedMessage.Length * 8), true); // bit length
 
 			switch (ReliabilityHeader.Reliability)
@@ -75,13 +72,13 @@ namespace MiNET.Net.RakNet
 					break;
 			}
 
-			switch (ReliabilityHeader.Reliability)
-			{
-				case Reliability.UnreliableSequenced:
-				case Reliability.ReliableSequenced:
-					ReliabilityHeader.SequencingIndex = ReadLittle();
-					break;
-			}
+			//switch (ReliabilityHeader.Reliability)
+			//{
+			//	case Reliability.UnreliableSequenced:
+			//	case Reliability.ReliableSequenced:
+			//		ReliabilityHeader.SequencingIndex = WriteLittle();
+			//		break;
+			//}
 
 			switch (ReliabilityHeader.Reliability)
 			{

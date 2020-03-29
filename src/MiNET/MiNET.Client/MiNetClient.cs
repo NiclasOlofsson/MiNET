@@ -343,7 +343,7 @@ namespace MiNET.Client
 
 					{
 						var ack = Acks.CreateObject();
-						ack.acks.Add(packet._datagramHeader.DatagramSequenceNumber);
+						ack.acks.Add(packet.Header.DatagramSequenceNumber);
 						byte[] data = ack.Encode();
 						ack.PutPool();
 						SendData(data, senderEndpoint);
@@ -379,9 +379,9 @@ namespace MiNET.Client
 		{
 			foreach (var message in packet.Messages)
 			{
-				if (message is SplitPartPacket)
+				if (message is SplitPartPacket partPacket)
 				{
-					HandleSplitMessage(Session, (SplitPartPacket) message);
+					HandleSplitMessage(Session, partPacket);
 
 					continue;
 				}
@@ -512,7 +512,7 @@ namespace MiNET.Client
 			Log.Debug("MTU Size: " + message.mtuSize);
 			Log.Debug("Client Endpoint: " + message.clientEndpoint);
 
-			//_serverEndpoint = message.clientEndpoint;
+			//ServerEndpoint = message.clientEndpoint;
 
 			_mtuSize = message.mtuSize;
 			Thread.Sleep(100);
@@ -522,12 +522,12 @@ namespace MiNET.Client
 
 		public virtual void HandleAck(ReadOnlyMemory<byte> receiveBytes, IPEndPoint senderEndpoint)
 		{
-			//Log.Info("Ack");
+			//Log.Info($"Ack {Packet.HexDump(receiveBytes)}");
 		}
 
 		public virtual void HandleNak(ReadOnlyMemory<byte> receiveBytes, IPEndPoint senderEndpoint)
 		{
-			if (Log.IsDebugEnabled) Log.Warn("!! WHAT THE FUK NAK NAK NAK");
+			if (Log.IsDebugEnabled) Log.Warn($"!! WHAT THE FUK NAK NAK NAK, {Packet.HexDump(receiveBytes)}");
 		}
 
 		private void HandleSplitMessage(RakSession playerSession, SplitPartPacket splitPart)
@@ -1142,7 +1142,7 @@ namespace MiNET.Client
 			if (Session.CryptoContext != null && Session.CryptoContext.UseEncryption)
 			{
 				FirstEncryptedPacketWaitHandle.Set();
-				payload = CryptoUtils.Decrypt(payload.ToArray(), Session.CryptoContext);
+				payload = CryptoUtils.Decrypt(payload, Session.CryptoContext);
 			}
 
 			var stream = new MemoryStreamReader(payload.Slice(0, payload.Length - 4)); // slice away adler
@@ -1213,7 +1213,7 @@ namespace MiNET.Client
 
 			TraceSend(message);
 
-			foreach (var datagram in Datagram.CreateDatagrams(message, _mtuSize, Session))
+			foreach (Datagram datagram in Datagram.CreateDatagrams(message, _mtuSize, Session))
 			{
 				await SendDatagramAsync(datagram);
 			}

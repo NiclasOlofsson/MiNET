@@ -30,13 +30,14 @@ namespace MiNET.Net.RakNet
 {
 	public class DatagramHeader
 	{
-		public bool IsAck { get; set; } = false;
-		public bool IsNak { get; set; } = false;
-		public bool IsPacketPair { get; set; } = false;
-		public bool HasBAndAs { get; set; } = false;
-		public bool IsContinuousSend { get; set; } = false;
-		public bool NeedsBAndAs { get; set; } = false;
-		public bool IsValid { get; set; } = false;
+		public bool IsAck { get; set; }
+		public bool IsNak { get; set; }
+		public bool IsPacketPair { get; set; }
+		public bool HasBAndAs { get; set; }
+		public bool IsContinuousSend { get; set; }
+		public bool NeedsBAndAs { get; set; }
+		public bool IsValid { get; set; }
+
 		public Int24 DatagramSequenceNumber; // uint 24
 
 		public DatagramHeader() : this(0)

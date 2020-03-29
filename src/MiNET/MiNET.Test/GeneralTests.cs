@@ -46,14 +46,17 @@ namespace MiNET.Test
 	public class GeneralTests
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GeneralTests));
-
-
+#if DEBUG
+		private int _iterations = 100_000;
+#else
+		private int _iterations = 10_000_000;
+#endif
 		[TestMethod]
 		public void Check_all_air_base_test()
 		{
 			var buffer = new byte[10_000].Concat(new byte[] {42}).ToArray();
 
-			for (int k = 0; k < 10_000_000; k++)
+			for (int k = 0; k < _iterations; k++)
 			{
 				bool foundNonZero = false;
 				for (int i = 0; i < buffer.Length; i++)
@@ -72,7 +75,7 @@ namespace MiNET.Test
 		public void Check_all_air_fast_test()
 		{
 			var buffer = new byte[10_000].Concat(new byte[] {42}).ToArray();
-			for (int i = 0; i < 10_000_000; i++)
+			for (int i = 0; i < _iterations; i++)
 			{
 				Assert.IsFalse(SubChunk.AllZeroFast(buffer));
 			}
@@ -85,7 +88,7 @@ namespace MiNET.Test
 
 			var buffer = new byte[10_000].Concat(new byte[] {42}).ToArray();
 
-			for (int i = 0; i < 10_000_000; i++)
+			for (int i = 0; i < _iterations; i++)
 			{
 				bool foundNonZero = false;
 				int remainingStart = 0;
@@ -116,7 +119,7 @@ namespace MiNET.Test
 		{
 			var buffer = new byte[10_000].Concat(new byte[] {42}).ToArray();
 
-			for (int k = 0; k < 10_000_000; k++)
+			for (int k = 0; k < _iterations; k++)
 			{
 				int remainingStart = 0;
 				bool foundNonZero = false;
@@ -151,7 +154,7 @@ namespace MiNET.Test
 		public void ZeroValueDetectSse()
 		{
 			var buffer = new byte[10_000].Concat(new byte[] { 42 }).ToArray();
-			for (int k = 0; k < 10_000_000; k++)
+			for (int k = 0; k < _iterations; k++)
 			{
 				bool foundNonZero = false;
 				int concurrentAmount = 4;
@@ -488,7 +491,7 @@ namespace MiNET.Test
 
 			ChunkColumn.Fill<byte>(array, 0xff);
 			var sw = Stopwatch.StartNew();
-			int iterations = 10_000_000;
+			int iterations = _iterations;
 			for (int i = 0; i < iterations; i++)
 			{
 				ChunkColumn.Fill<byte>(array, 0xff);

@@ -305,6 +305,8 @@ namespace MiNET
 				return;
 			}
 
+			Log.Warn($"Receive packet with unexpected reliability={message.ReliabilityHeader.Reliability}");
+
 			HandlePacket(message);
 		}
 
@@ -350,6 +352,11 @@ namespace MiNET
 
 			var buffer = new Memory<byte>(new byte[contiguousLength]);
 
+			Reliability headerReliability = splitPart.ReliabilityHeader.Reliability;
+			var headerReliableMessageNumber = splitPart.ReliabilityHeader.ReliableMessageNumber;
+			var headerOrderingChannel = splitPart.ReliabilityHeader.OrderingChannel;
+			var headerOrderingIndex = splitPart.ReliabilityHeader.OrderingIndex;
+
 			int position = 0;
 			foreach (SplitPartPacket spp in splitPartList)
 			{
@@ -362,15 +369,16 @@ namespace MiNET
 			{
 				Packet fullMessage = PacketFactory.Create(buffer.Span[0], buffer, "raknet") ??
 									new UnknownPacket(buffer.Span[0], buffer.ToArray());
+
 				fullMessage.ReliabilityHeader = new ReliabilityHeader()
 				{
-					Reliability = splitPart.ReliabilityHeader.Reliability,
-					ReliableMessageNumber = splitPart.ReliabilityHeader.ReliableMessageNumber,
-					OrderingChannel = splitPart.ReliabilityHeader.OrderingChannel,
-					OrderingIndex = splitPart.ReliabilityHeader.OrderingIndex,
+					Reliability = headerReliability,
+					ReliableMessageNumber = headerReliableMessageNumber,
+					OrderingChannel = headerOrderingChannel,
+					OrderingIndex = headerOrderingIndex,
 				};
 
-				//Log.Debug($"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
+				Log.Debug($"Assembled split packet {fullMessage.ReliabilityHeader.Reliability} message #{fullMessage.ReliabilityHeader.ReliableMessageNumber}, OrdIdx: #{fullMessage.ReliabilityHeader.OrderingIndex}");
 
 				fullMessage.Timer.Restart();
 				HandleRakMessage(fullMessage);
@@ -385,6 +393,7 @@ namespace MiNET
 
 		public void AddToProcessing(Packet message)
 		{
+			Log.Debug($"Received packet with ordering index={message.ReliabilityHeader.OrderingIndex}");
 			try
 			{
 				if (_cancellationToken.Token.IsCancellationRequested) return;

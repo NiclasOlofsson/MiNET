@@ -23,35 +23,39 @@
 
 #endregion
 
-using MiNET.Utils;
+using System;
+using System.Net;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace MiNET.Net.RakNet
+namespace MiNET.Net.RakNet.Tests
 {
-	public class ReliabilityHeader
+	[TestClass()]
+	public class DatagramTests
 	{
-		public Reliability Reliability { get; set; } = Reliability.Undefined;
-		public Int24 ReliableMessageNumber { get; set; }
-		public Int24 SequencingIndex { get; set; }
-		public Int24 OrderingIndex { get; set; }
-		public byte OrderingChannel { get; set; }
-
-		public bool HasSplit { get; set; }
-		public int PartCount { get; set; }
-		public short PartId { get; set; }
-		public int PartIndex { get;set; }
-
-		public void Reset()
+		[TestMethod()]
+		public void Encode_basic_ok()
 		{
-			Reliability = Reliability.Undefined;
-			ReliableMessageNumber = default;
-			SequencingIndex = default;
-			OrderingIndex = default;
-			OrderingChannel = default;
+			var message = new ConnectionRequestAccepted();
+			message.NoBatch = true;
+			message.systemAddress = new IPEndPoint(IPAddress.Loopback, 19132);
+			message.systemAddresses = new IPEndPoint[20];
+			message.systemAddresses[0] = new IPEndPoint(IPAddress.Loopback, 19132);
+			message.incomingTimestamp = 12345;
+			message.serverTimestamp = DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
 
-			HasSplit = false;
-			PartCount = default;
-			PartId = default;
-			PartIndex = default;
+			for (int i = 1; i < 20; i++)
+			{
+				message.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 19132);
+			}
+
+
+			var datagrams = Datagram.CreateDatagrams(message, 1664, new RakSession(null, null, IPEndPoint.Parse("127.0.0.1"), 1664));
+			foreach (Datagram datagram in datagrams)
+			{
+				var buffer = new byte[1600];
+				long length = datagram.GetEncoded(ref buffer);
+				Assert.AreNotEqual(length, buffer.Length);
+			}
 		}
 	}
 }

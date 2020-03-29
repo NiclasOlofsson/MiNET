@@ -426,7 +426,7 @@ namespace MiNET
 			//	|| reliability == Reliability.ReliableOrdered
 			//	)
 			{
-				server.EnqueueAck(rakNetSession, datagram._datagramHeader.DatagramSequenceNumber);
+				server.EnqueueAck(rakNetSession, datagram.Header.DatagramSequenceNumber);
 			}
 
 			rakNetSession.HandleDatagram(datagram);

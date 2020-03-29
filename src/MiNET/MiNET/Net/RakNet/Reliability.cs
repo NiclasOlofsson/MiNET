@@ -27,6 +27,7 @@ namespace MiNET.Net.RakNet
 {
 	public enum Reliability
 	{
+		Undefined = -1,
 		Unreliable = 0,
 		UnreliableSequenced = 1,
 		Reliable = 2,

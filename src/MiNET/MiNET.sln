@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNET.Plotter", "MiNET.Plot
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNET.BuilderBase", "MiNET.BuilderBase\MiNET.BuilderBase.csproj", "{69FEC583-68A6-4EE3-8B41-A47BBA5A94F0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNET.Test", "MiNET.Test\MiNET.Test.csproj", "{94CA564C-DE93-4761-AF02-A2B05D8DC6D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNETTests", "MiNET.Test\MiNETTests.csproj", "{94CA564C-DE93-4761-AF02-A2B05D8DC6D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -25,9 +25,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using log4net;
-using MiNET.Utils;
 
 namespace MiNET.Net.RakNet
 {
@@ -36,20 +34,6 @@ namespace MiNET.Net.RakNet
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ConnectedPacket));
 
 		public DatagramHeader _datagramHeader;
-		public Int24 _datagramSequenceNumber; // uint 24
-
-		public Reliability _reliability;
-		public Int24 _reliableMessageNumber;
-
-		public Int24 _sequencingIndex;
-		public Int24 _orderingIndex;
-		public byte _orderingChannel;
-
-		public bool _hasSplit;
-		public int _splitPacketCount;
-		public short _splitPacketId;
-		public int _splitPacketIndex;
-
 
 		public List<Packet> Messages { get; set; } = new List<Packet>();
 
@@ -59,154 +43,136 @@ namespace MiNET.Net.RakNet
 
 		protected override void EncodePacket()
 		{
-			_buffer.Position = 0;
+			throw new NotImplementedException();
 
-			byte[] encodedMessage = Messages.First().Encode();
+			//_buffer.Position = 0;
 
-			int messageLength = encodedMessage.Length;
+			//byte[] encodedMessage = Messages.First().Encode();
 
-			// Datagram header
+			//int messageLength = encodedMessage.Length;
 
-			if (_datagramHeader == null) _datagramHeader = new DatagramHeader(0x8c);
-			if (_splitPacketCount > 1 && _splitPacketIndex > 0)
-			{
-				Write((byte) 0x8c);
-				_hasSplit = true;
-			}
-			else
-			{
-				_hasSplit = false;
-				Write((byte) 0x84);
-			}
+			//// Datagram header
 
-			Write(_datagramSequenceNumber);
+			//if (_datagramHeader == null) _datagramHeader = new DatagramHeader(0x8c);
+			//if (_splitPacketCount > 1 && _splitPacketIndex > 0)
+			//{
+			//	Write((byte) 0x8c);
+			//	_hasSplit = true;
+			//}
+			//else
+			//{
+			//	_hasSplit = false;
+			//	Write((byte) 0x84);
+			//}
 
-			// foreach message
+			//Write(_datagramSequenceNumber);
 
-			// Message header
+			//// foreach message
 
-			byte rely = (byte) _reliability;
-			Write((byte) ((rely << 5) | (_hasSplit ? 0b00010000 : 0x00)));
-			Write((short) (messageLength * 8), true); // length
+			//// Message header
 
-			switch (_reliability)
-			{
-				case Reliability.Reliable:
-				case Reliability.ReliableOrdered:
-				case Reliability.ReliableSequenced:
-				case Reliability.ReliableWithAckReceipt:
-				case Reliability.ReliableOrderedWithAckReceipt:
-					Write(_reliableMessageNumber);
-					break;
-			}
+			//byte rely = (byte) _reliability;
+			//Write((byte) ((rely << 5) | (_hasSplit ? 0b00010000 : 0x00)));
+			//Write((short) (messageLength * 8), true); // length
 
-			switch (_reliability)
-			{
-				case Reliability.UnreliableSequenced:
-				case Reliability.ReliableOrdered:
-				case Reliability.ReliableSequenced:
-				case Reliability.ReliableOrderedWithAckReceipt:
-					Write(_orderingIndex);
-					Write(_orderingChannel);
-					break;
-			}
+			//switch (_reliability)
+			//{
+			//	case Reliability.Reliable:
+			//	case Reliability.ReliableOrdered:
+			//	case Reliability.ReliableSequenced:
+			//	case Reliability.ReliableWithAckReceipt:
+			//	case Reliability.ReliableOrderedWithAckReceipt:
+			//		Write(_reliableMessageNumber);
+			//		break;
+			//}
 
-			if (_hasSplit)
-			{
-				Write(_splitPacketCount, true);
-				Write(_splitPacketId, true);
-				Write(_splitPacketIndex, true);
-			}
+			//switch (_reliability)
+			//{
+			//	case Reliability.UnreliableSequenced:
+			//	case Reliability.ReliableOrdered:
+			//	case Reliability.ReliableSequenced:
+			//	case Reliability.ReliableOrderedWithAckReceipt:
+			//		Write(_orderingIndex);
+			//		Write(_orderingChannel);
+			//		break;
+			//}
 
-			// Message body
+			//if (_hasSplit)
+			//{
+			//	Write(_splitPacketCount, true);
+			//	Write(_splitPacketId, true);
+			//	Write(_splitPacketIndex, true);
+			//}
 
-			Write(encodedMessage);
+			//// Message body
+
+			//Write(encodedMessage);
 		}
 
 		protected override void DecodePacket()
 		{
-			Messages = new List<Packet>();
-
 			_reader.Position = 0;
 
 			_datagramHeader = new DatagramHeader(ReadByte());
-			_datagramSequenceNumber = ReadLittle();
-			_datagramHeader.DatagramSequenceNumber = _datagramSequenceNumber;
+			_datagramHeader.DatagramSequenceNumber = ReadLittle();
+
+			// End datagram, online packet starts
+
+			Messages = new List<Packet>();
 
 			while (_reader.Position < _reader.Length)
 			{
 				byte flags = ReadByte();
-				_reliability = (Reliability) ((flags & 0b011100000) >> 5);
-				_hasSplit = ((flags & 0b00010000) > 0);
+				var header = new ReliabilityHeader();
+
+				header.Reliability = (Reliability) ((flags & 0b011100000) >> 5);
+				header.HasSplit = (flags & 0b00010000) > 0;
 
 				short dataBitLength = ReadShort(true);
 
-				switch (_reliability)
+				switch (header.Reliability)
 				{
 					case Reliability.Reliable:
 					case Reliability.ReliableSequenced:
 					case Reliability.ReliableOrdered:
-						_reliableMessageNumber = ReadLittle();
-						break;
-					default:
-						_reliableMessageNumber = -1;
+						header.ReliableMessageNumber = ReadLittle();
 						break;
 				}
 
-				switch (_reliability)
+				switch (header.Reliability)
 				{
 					case Reliability.UnreliableSequenced:
 					case Reliability.ReliableSequenced:
-						_sequencingIndex = ReadLittle();
-						break;
-					default:
-						_sequencingIndex = -1;
+						header.SequencingIndex = ReadLittle();
 						break;
 				}
 
-				switch (_reliability)
+				switch (header.Reliability)
 				{
 					case Reliability.UnreliableSequenced:
 					case Reliability.ReliableSequenced:
 					case Reliability.ReliableOrdered:
 					case Reliability.ReliableOrderedWithAckReceipt:
-						_orderingIndex = ReadLittle();
-						_orderingChannel = ReadByte(); // flags
-						break;
-					default:
-						_orderingIndex = 0;
-						_orderingChannel = 0;
+						header.OrderingIndex = ReadLittle();
+						header.OrderingChannel = ReadByte(); // flags
 						break;
 				}
 
-				if (_hasSplit)
+				if (header.HasSplit)
 				{
-					_splitPacketCount = ReadInt(true);
-					_splitPacketId = ReadShort(true);
-					_splitPacketIndex = ReadInt(true);
-				}
-				else
-				{
-					_splitPacketCount = -1;
-					_splitPacketId = -1;
-					_splitPacketIndex = -1;
+					header.PartCount = ReadInt(true);
+					header.PartId = ReadShort(true);
+					header.PartIndex = ReadInt(true);
 				}
 
 				// Slurp the payload
 				int messageLength = (int) Math.Ceiling((((double) dataBitLength) / 8));
 				ReadOnlyMemory<byte> internalBuffer = Slice(messageLength);
 
-				if (_hasSplit)
+				if (header.HasSplit)
 				{
 					var splitPartPacket = SplitPartPacket.CreateObject();
-					splitPartPacket.DatagramSequenceNumber = _datagramSequenceNumber;
-					splitPartPacket.Reliability = _reliability;
-					splitPartPacket.ReliableMessageNumber = _reliableMessageNumber;
-					splitPartPacket.OrderingChannel = _orderingChannel;
-					splitPartPacket.OrderingIndex = _orderingIndex;
-					splitPartPacket.SplitId = _splitPacketId;
-					splitPartPacket.SplitCount = _splitPacketCount;
-					splitPartPacket.SplitIdx = _splitPacketIndex;
+					splitPartPacket.ReliabilityHeader = header;
 					splitPartPacket.Id = internalBuffer.Span[0];
 					splitPartPacket.Message = internalBuffer;
 					Messages.Add(splitPartPacket);
@@ -214,18 +180,17 @@ namespace MiNET.Net.RakNet
 					//if (Log.IsDebugEnabled && _buffer.Position < _buffer.Length) Log.Debug($"Got split message, but more to read {_buffer.Length - _buffer.Position}");
 					continue;
 				}
+				else
+				{
+					byte id = internalBuffer.Span[0];
+					Packet packet = PacketFactory.Create(id, internalBuffer, "raknet") ?? new UnknownPacket(id, internalBuffer.ToArray());
+					packet.ReliabilityHeader = header;
 
-				byte id = internalBuffer.Span[0];
-				Packet packet = PacketFactory.Create(id, internalBuffer, "raknet") ?? new UnknownPacket(id, internalBuffer.ToArray());
-				packet.DatagramSequenceNumber = _datagramSequenceNumber;
-				packet.Reliability = _reliability;
-				packet.ReliableMessageNumber = _reliableMessageNumber;
-				packet.OrderingChannel = _orderingChannel;
-				packet.OrderingIndex = _orderingIndex;
+					//if (!(package is McpeBatch)) Log.Debug($"Raw: {package.DatagramSequenceNumber} {package.ReliableMessageNumber} {package.OrderingIndex} {package.GetType().Name} 0x{package.Id:x2} \n{HexDump(internalBuffer)}");
 
-				//if (!(package is McpeBatch)) Log.Debug($"Raw: {package.DatagramSequenceNumber} {package.ReliableMessageNumber} {package.OrderingIndex} {package.GetType().Name} 0x{package.Id:x2} \n{HexDump(internalBuffer)}");
+					Messages.Add(packet);
+				}
 
-				Messages.Add(packet);
 				if (Log.IsDebugEnabled && messageLength != internalBuffer.Length) Log.Debug("Mismatch of requested length, and actual read length");
 			}
 		}

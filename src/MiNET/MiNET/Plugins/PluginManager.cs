@@ -43,7 +43,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-[assembly: InternalsVisibleTo("MiNET.Test")]
+[assembly: InternalsVisibleTo("MiNETTests")]
 namespace MiNET.Plugins
 {
 	public class PluginManager

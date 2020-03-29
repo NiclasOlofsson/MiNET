@@ -1843,7 +1843,6 @@ namespace MiNET
 			Level.BroadcastMessage(text, sender: this);
 		}
 
-		private int _lastPlayerMoveSequenceNUmber;
 		private int _lastOrderingIndex;
 		private object _moveSyncLock = new object();
 
@@ -1855,23 +1854,12 @@ namespace MiNET
 			{
 				lock (_moveSyncLock)
 				{
-					if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
-					{
-						return;
-					}
-
-					_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
-
-					if (_lastOrderingIndex > message.OrderingIndex)
-					{
-						return;
-					}
-
-					_lastOrderingIndex = message.OrderingIndex;
+					if (_lastOrderingIndex > message.ReliabilityHeader.OrderingIndex) return;
+					_lastOrderingIndex = message.ReliabilityHeader.OrderingIndex;
 				}
 			}
 
-			Vector3 origin = KnownPosition.ToVector3();
+			var origin = KnownPosition.ToVector3();
 			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
 
 			CurrentSpeed = distanceTo / ((double) (DateTime.UtcNow - LastUpdatedTime).Ticks / TimeSpan.TicksPerSecond);

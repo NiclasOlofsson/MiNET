@@ -91,5 +91,40 @@ namespace MiNET.Net.RakNet
 			IsValid = false;
 			DatagramSequenceNumber = 0;
 		}
+
+		public static implicit operator byte(DatagramHeader h)
+		{
+			var bits = new BitArray(8);
+
+			if (h.IsValid)
+			{
+				bits[7] = h.IsValid;
+
+				if (h.IsAck)
+				{
+					bits[6] = h.IsAck;
+					bits[5] = h.HasBAndAs;
+				}
+				else
+				{
+					bits[5] = h.IsNak;
+					if (h.IsNak)
+					{
+					}
+					else
+					{
+						// Other
+						bits[4] = h.IsPacketPair;
+						bits[3] = h.IsContinuousSend;
+						bits[2] = h.NeedsBAndAs;
+					}
+				}
+			}
+
+			var bytes = new byte[1];
+			bits.CopyTo(bytes, 0);
+
+			return bytes[0];
+		}
 	}
 }

@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,12 +18,13 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -38,7 +39,6 @@ namespace MiNET.Net.RakNet
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Datagram));
 
 		private int _currentSize = 4; // header
-		private MemoryStream _buf;
 		public long RetransmissionTimeOut { get; set; }
 		public bool RetransmitImmediate { get; set; }
 		public int TransmissionCount { get; set; }
@@ -52,20 +52,17 @@ namespace MiNET.Net.RakNet
 			Header = new DatagramHeader
 			{
 				IsValid = true,
-				NeedsBAndAs = true,
+				NeedsBAndAs = false,
 				//datagramSequenceNumber = datagramSequenceNumber
 			};
-			_buf = new MemoryStream(new byte[1600], 0, 1600, true, true);
 		}
 
 		public bool TryAddMessagePart(MessagePart messagePart, int mtuSize)
 		{
-			var bytes = messagePart.Encode();
-			if (bytes.Length + _currentSize > mtuSize)
-			{
-				return false;
-			}
-			if (messagePart.Header.HasSplit && MessageParts.Count > 0)
+			byte[] bytes = messagePart.Encode();
+			if (bytes.Length + _currentSize > mtuSize) return false;
+
+			if (messagePart.ReliabilityHeader.HasSplit && MessageParts.Count > 0)
 			{
 				//if (Log.IsDebugEnabled)
 				//	Log.Warn($"Message has split and count > 0: {MessageParts.Count}, MTU: {mtuSize}");
@@ -73,7 +70,7 @@ namespace MiNET.Net.RakNet
 			}
 			//if (Header.isContinuousSend) return false;
 
-			if (messagePart.Header.PartCount > 0 && messagePart.Header.PartIndex > 0) Header.IsContinuousSend = true;
+			if (messagePart.ReliabilityHeader.PartCount > 0 && messagePart.ReliabilityHeader.PartIndex > 0) Header.IsContinuousSend = true;
 
 			if (FirstMessageId == 0) FirstMessageId = messagePart.ContainedMessageId;
 
@@ -84,6 +81,78 @@ namespace MiNET.Net.RakNet
 		}
 
 		public int FirstMessageId { get; set; }
+
+		public override byte[] Encode()
+		{
+			throw new NotImplementedException();
+
+
+			//byte[] buffer = ArrayPool<byte>.Shared.Rent(1600);
+			//ArrayPool<byte>.Shared.Return(buffer);
+			//using (var _buf = new MemoryStream(buffer, 0, 1600, true, true))
+			//{
+			//	//TODO: This is a qick-fix to lower the impact of resends. I want to do this
+			//	// as standard, just need to refactor a bit of this stuff first.
+			//	if (_buf.Length != 0 && _buf.Length != 1600)
+			//	{
+			//		_buf.Position = 1;
+			//		_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
+
+			//		return _buf.ToArray();
+			//	}
+
+
+			//	_buf.SetLength(0);
+
+			//	// Header
+			//	//_buf.WriteByte(Header.AsByte());
+			//	_buf.WriteByte((byte) (Header.IsContinuousSend ? 0x8c : 0x84));
+			//	_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
+
+			//	// Message (Payload)
+			//	foreach (MessagePart messagePart in MessageParts)
+			//	{
+			//		byte[] bytes = messagePart.Encode();
+			//		_buf.Write(bytes, 0, bytes.Length);
+			//	}
+
+			//	return _buf.ToArray();
+			//}
+		}
+
+		public long GetEncoded(ref byte[] buffer)
+		{
+			using (var buf = new MemoryStream(buffer, 0, 1600, true, true))
+			{
+				// This is a quick-fix to lower the impact of resend. I want to do this
+				// as standard, just need to refactor a bit of this stuff first.
+				if (buf.Length != 0 && buf.Length != 1600)
+				{
+					buf.Position = 1;
+					buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
+				}
+				else
+				{
+					buf.SetLength(0);
+
+					if (MessageParts.Count > 1) Log.Error($"Got {MessageParts.Count} message parts");
+
+					// Header
+					//_buf.WriteByte((byte) (Header.IsContinuousSend ? 0x8c : 0x84));
+					buf.WriteByte(Header);
+					buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
+
+					// Message (Payload)
+					foreach (MessagePart messagePart in MessageParts)
+					{
+						byte[] bytes = messagePart.Encode();
+						buf.Write(bytes, 0, bytes.Length);
+					}
+				}
+
+				return buf.Length;
+			}
+		}
 
 		public override void Reset()
 		{
@@ -102,76 +171,13 @@ namespace MiNET.Net.RakNet
 			}
 
 			MessageParts.Clear();
-			_buf.SetLength(0);
 		}
 
-		public override byte[] Encode()
+		public static IEnumerable<Datagram> CreateDatagrams(Packet message, int mtuSize, RakSession session)
 		{
-			//TODO: This is a qick-fix to lower the impact of resends. I want to do this
-			// as standard, just need to refactor a bit of this stuff first.
-			if (_buf.Length != 0 && _buf.Length != 1600)
-			{
-				_buf.Position = 1;
-				_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
-
-				return _buf.ToArray();
-			}
-
-			_buf.SetLength(0);
-
-			// Header
-			//_buf.WriteByte(Header.AsByte());
-			_buf.WriteByte((byte) (Header.IsContinuousSend ? 0x8c : 0x84));
-			_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
-
-			// Message (Payload)
-			foreach (MessagePart messagePart in MessageParts)
-			{
-				byte[] bytes = messagePart.Encode();
-				_buf.Write(bytes, 0, bytes.Length);
-			}
-
-			return _buf.ToArray();
-		}
-
-		public long GetEncoded(out byte[] buffer)
-		{
-			// This is a quick-fix to lower the impact of resend. I want to do this
-			// as standard, just need to refactor a bit of this stuff first.
-			if (_buf.Length != 0 && _buf.Length != 1600)
-			{
-				_buf.Position = 1;
-				_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
-			}
-			else
-			{
-				_buf.SetLength(0);
-
-				// Header
-				_buf.WriteByte((byte) (Header.IsContinuousSend ? 0x8c : 0x84));
-				//_buf.WriteByte(Header.AsByte());
-				_buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
-
-				// Message (Payload)
-				foreach (MessagePart messagePart in MessageParts)
-				{
-					byte[] bytes = messagePart.Encode();
-					_buf.Write(bytes, 0, bytes.Length);
-				}
-			}
-
-			buffer = _buf.GetBuffer();
-			return _buf.Length;
-		}
-
-
-		public static IEnumerable<Datagram> CreateDatagrams(Packet message, int mtuSize, PlayerNetworkSession session)
-		{
-			if (message is InternalPing) yield break;
-
 			Datagram datagram = CreateObject();
 
-			List<MessagePart> messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, session);
+			List<MessagePart> messageParts = CreateMessageParts(message, mtuSize, Reliability.Reliable, session);
 			foreach (var messagePart in messageParts)
 			{
 				if (!datagram.TryAddMessagePart(messagePart, mtuSize))
@@ -193,108 +199,103 @@ namespace MiNET.Net.RakNet
 			yield return datagram;
 		}
 
-		private static List<MessagePart> GetMessageParts(Packet message, int mtuSize, Reliability reliability, PlayerNetworkSession session)
+		public static List<Datagram> CreateDatagramsNew(Packet message, int mtuSize, RakSession session)
+		{
+			Datagram datagram = CreateObject();
+
+			List<MessagePart> messageParts = CreateMessageParts(message, mtuSize, Reliability.Reliable, session);
+			//foreach (var messagePart in messageParts)
+			//{
+			//	if (!datagram.TryAddMessagePart(messagePart, mtuSize))
+			//	{
+			//		return datagram;
+
+			//		datagram = CreateObject();
+			//		if (datagram.MessageParts.Count != 0) throw new Exception("Excepted no message parts in new message");
+
+			//		if (!datagram.TryAddMessagePart(messagePart, mtuSize))
+			//		{
+			//			string error = $"Message part too big for a single datagram. Size: {messagePart.Encode().Length}, MTU: {mtuSize}";
+			//			Log.Error(error);
+			//			throw new Exception(error);
+			//		}
+			//	}
+			//}
+
+			return new List<Datagram>();
+		}
+
+
+		private static List<MessagePart> CreateMessageParts(Packet message, int mtuSize, Reliability reliability, RakSession session)
 		{
 			Memory<byte> encodedMessage = message.Encode();
 
-			int orderingIndex = 0;
-
-			if (!(message is ConnectedPong) && !(message is DetectLostConnections))
-			{
-				reliability = Reliability.ReliableOrdered;
-			}
-
-			CryptoContext cryptoContext = session.CryptoContext;
-			if (cryptoContext != null && !(message is ConnectedPong) && !(message is DetectLostConnections))
-			{
-				lock (session.EncodeSync)
-				{
-					reliability = Reliability.ReliableOrdered;
-
-					bool isBatch = message is McpeWrapper;
-
-					if (!message.ForceClear && session.CryptoContext.UseEncryption)
-					{
-						if (isBatch)
-						{
-							encodedMessage = encodedMessage.Slice(1);
-						}
-						else
-						{
-							encodedMessage = Compression.Compress(encodedMessage, true, encodedMessage.Length > 1000 ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
-						}
-
-						var wrapper = McpeWrapper.CreateObject();
-						wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
-						encodedMessage = wrapper.Encode();
-						wrapper.PutPool();
-					}
-					else if (!isBatch)
-					{
-						var wrapper = McpeWrapper.CreateObject();
-						wrapper.payload = Compression.Compress(encodedMessage, true, encodedMessage.Length > 1000 ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
-						encodedMessage = wrapper.Encode();
-						wrapper.PutPool();
-					}
-					//if (Log.IsDebugEnabled)
-					//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
-				}
-			}
-			//if (Log.IsDebugEnabled)
-			//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
-
-			if (reliability == Reliability.ReliableOrdered)
-			{
-				orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
-			}
-
 			if (encodedMessage.IsEmpty) return new List<MessagePart>(0);
 
-			int datagramHeaderSize = 100;
-			int count = (int) Math.Ceiling(encodedMessage.Length / ((double) mtuSize - datagramHeaderSize));
-			int index = 0;
-			if (session.SplitPartId > short.MaxValue - 100)
+			// All MCPE messages goes into a compressed (and possible encrypted) wrapper.
+			// Note that McpeWrapper itself is a RakNet level message.
+			if (message.IsMcpe)
 			{
-				Interlocked.CompareExchange(ref session.SplitPartId, 0, short.MaxValue);
+				var wrapper = McpeWrapper.CreateObject();
+				wrapper.payload = Compression.Compress(encodedMessage, true, encodedMessage.Length > 1000 ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
+				encodedMessage = wrapper.Encode();
+				wrapper.PutPool();
 			}
 
-			short splitId = (short) Interlocked.Increment(ref session.SplitPartId);
+			// Should probably only force for McpeWrapper, not the other messages (RakNet)
+			if (!(message is ConnectedPong) && !(message is DetectLostConnections)) reliability = Reliability.ReliableOrdered;
 
-			var messageParts = new List<MessagePart>();
+			int orderingIndex = 0;
+			lock (session.EncodeSync)
+			{
+				CryptoContext cryptoContext = session.CryptoContext;
+				if (!message.ForceClear && cryptoContext != null && session.CryptoContext.UseEncryption && message is McpeWrapper)
+				{
+					var wrapper = McpeWrapper.CreateObject();
+					wrapper.payload = CryptoUtils.Encrypt(encodedMessage.Slice(1), cryptoContext);
+					encodedMessage = wrapper.Encode();
+					wrapper.PutPool();
+				}
+
+				if (reliability == Reliability.ReliableOrdered) orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
+			}
+
+			List<(int @from, int length)> splits = ArraySplit(encodedMessage.Length, mtuSize - 100);
+			int count = splits.Count;
+
 			if (count <= 1)
 			{
 				var messagePart = MessagePart.CreateObject();
-				messagePart.Header.Reliability = reliability;
-				messagePart.Header.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
-				messagePart.Header.HasSplit = count > 1;
-				messagePart.Header.PartCount = count;
-				messagePart.Header.PartId = splitId;
-				messagePart.Header.PartIndex = index++;
-				messagePart.Header.OrderingChannel = 0;
-				messagePart.Header.OrderingIndex = orderingIndex;
-				messagePart.ContainedMessageId = message.Id;
-				messagePart.Buffer = encodedMessage.ToArray();
+				messagePart.ReliabilityHeader.Reliability = reliability;
+				messagePart.ReliabilityHeader.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
+				messagePart.ReliabilityHeader.OrderingChannel = 0;
+				messagePart.ReliabilityHeader.OrderingIndex = orderingIndex;
+				messagePart.ReliabilityHeader.HasSplit = false;
+				messagePart.Buffer = encodedMessage;
+
+				return new List<MessagePart>(1) {messagePart};
+			}
+
+			// Stupid but scared to change it .. remove the -100 when i feel "safe"
+			if (session.SplitPartId > short.MaxValue - 100) Interlocked.CompareExchange(ref session.SplitPartId, 0, short.MaxValue);
+
+			int index = 0;
+			short splitId = (short) Interlocked.Increment(ref session.SplitPartId);
+			var messageParts = new List<MessagePart>(count);
+			foreach ((int from, int length) span in splits)
+			{
+				var messagePart = MessagePart.CreateObject();
+				messagePart.ReliabilityHeader.Reliability = reliability;
+				messagePart.ReliabilityHeader.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
+				messagePart.ReliabilityHeader.OrderingChannel = 0;
+				messagePart.ReliabilityHeader.OrderingIndex = orderingIndex;
+				messagePart.ReliabilityHeader.HasSplit = count > 1;
+				messagePart.ReliabilityHeader.PartCount = count;
+				messagePart.ReliabilityHeader.PartId = splitId;
+				messagePart.ReliabilityHeader.PartIndex = index++;
+				messagePart.Buffer = encodedMessage.Slice(span.@from, span.length);
 
 				messageParts.Add(messagePart);
-			}
-			else
-			{
-				foreach ((int from, int length) span in ArraySplit(encodedMessage.Length, mtuSize - datagramHeaderSize))
-				{
-					var messagePart = MessagePart.CreateObject();
-					messagePart.Header.Reliability = reliability;
-					messagePart.Header.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
-					messagePart.Header.HasSplit = count > 1;
-					messagePart.Header.PartCount = count;
-					messagePart.Header.PartId = splitId;
-					messagePart.Header.PartIndex = index++;
-					messagePart.Header.OrderingChannel = 0;
-					messagePart.Header.OrderingIndex = orderingIndex;
-					messagePart.ContainedMessageId = message.Id;
-					messagePart.Buffer = encodedMessage.Slice(span.from, span.length);
-
-					messageParts.Add(messagePart);
-				}
 			}
 
 			return messageParts;
@@ -317,30 +318,6 @@ namespace MiNET.Net.RakNet
 			}
 
 			return result;
-		}
-
-		public static IEnumerable<byte[]> ArraySplit(byte[] bArray, int intBufferLength)
-		{
-			int bArrayLenght = bArray.Length;
-			byte[] bReturn;
-
-			int i = 0;
-			for (; bArrayLenght > (i + 1) * intBufferLength; i++)
-			{
-				bReturn = new byte[intBufferLength];
-				//Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLengt);
-				Buffer.BlockCopy(bArray, i * intBufferLength, bReturn, 0, intBufferLength);
-				yield return bReturn;
-			}
-
-			int intBufforLeft = bArrayLenght - i * intBufferLength;
-			if (intBufforLeft > 0)
-			{
-				bReturn = new byte[intBufforLeft];
-				//Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLeft);
-				Buffer.BlockCopy(bArray, i * intBufferLength, bReturn, 0, intBufforLeft);
-				yield return bReturn;
-			}
 		}
 	}
 }

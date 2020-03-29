@@ -37,7 +37,7 @@ namespace MiNET
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ServerInfo));
 
 		private readonly LevelManager _levelManager;
-		public ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> PlayerSessions { get; private set; }
+		public ConcurrentDictionary<IPEndPoint, RakSession> PlayerSessions { get; private set; }
 
 		public int NumberOfPlayers { get; set; }
 
@@ -63,7 +63,7 @@ namespace MiNET
 		private long _avgSizePerPacketIn;
 		private long _avgSizePerPacketOut;
 
-		public ServerInfo(LevelManager levelManager, ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> playerSessions)
+		public ServerInfo(LevelManager levelManager, ConcurrentDictionary<IPEndPoint, RakSession> playerSessions)
 		{
 			//CreateCounters();
 

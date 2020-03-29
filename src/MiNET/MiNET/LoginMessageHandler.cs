@@ -51,12 +51,12 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LoginMessageHandler));
 
-		private readonly PlayerNetworkSession _session;
+		private readonly RakSession _session;
 
 		private object _loginSyncLock = new object();
 		private PlayerInfo _playerInfo = new PlayerInfo();
 
-		public LoginMessageHandler(PlayerNetworkSession session)
+		public LoginMessageHandler(RakSession session)
 		{
 			_session = session;
 		}

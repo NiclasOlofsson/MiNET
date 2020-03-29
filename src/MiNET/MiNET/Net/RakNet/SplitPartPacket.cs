@@ -30,9 +30,6 @@ namespace MiNET.Net.RakNet
 	public class SplitPartPacket : Packet<SplitPartPacket>
 	{
 		public ReadOnlyMemory<byte> Message { get; set; }
-		public int SplitId { get; set; }
-		public int SplitCount { get; set; }
-		public int SplitIdx { get; set; }
 
 		public SplitPartPacket()
 		{
@@ -41,9 +38,6 @@ namespace MiNET.Net.RakNet
 		public override void Reset()
 		{
 			base.Reset();
-			SplitId = -1;
-			SplitCount = -1;
-			SplitIdx = -1;
 
 			Message = null;
 		}

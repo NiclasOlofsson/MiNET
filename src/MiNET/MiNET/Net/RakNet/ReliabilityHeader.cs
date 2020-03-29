@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -27,9 +27,9 @@ using MiNET.Utils;
 
 namespace MiNET.Net.RakNet
 {
-	public class MessagePartHeader
+	public class ReliabilityHeader
 	{
-		public Reliability Reliability { get; set; }
+		public Reliability Reliability { get; set; } = Reliability.Unreliable;
 		public Int24 ReliableMessageNumber { get; set; }
 		public Int24 SequencingIndex { get; set; }
 		public Int24 OrderingIndex { get; set; }
@@ -38,28 +38,20 @@ namespace MiNET.Net.RakNet
 		public bool HasSplit { get; set; }
 		public int PartCount { get; set; }
 		public short PartId { get; set; }
-		public int PartIndex { get; set; }
+		public int PartIndex { get;set; }
 
 		public void Reset()
 		{
 			Reliability = Reliability.Unreliable;
-			ReliableMessageNumber = 0;
-			SequencingIndex = 0;
-			OrderingIndex = 0;
-			OrderingChannel = 0;
+			ReliableMessageNumber = default;
+			SequencingIndex = default;
+			OrderingIndex = default;
+			OrderingChannel = default;
 
 			HasSplit = false;
-			PartCount = 0;
-			PartId = 0;
-			PartIndex = 0;
-		}
-
-		public void Decode()
-		{
-		}
-
-		public void Encode()
-		{
+			PartCount = default;
+			PartId = default;
+			PartIndex = default;
 		}
 	}
 }

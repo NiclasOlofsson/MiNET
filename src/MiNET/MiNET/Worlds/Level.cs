@@ -678,7 +678,7 @@ namespace MiNET.Worlds
 				var tasks = new List<Task>();
 				foreach (Player player in players)
 				{
-					if (player.NetworkHandler is PlayerNetworkSession session)
+					if (player.NetworkHandler is RakSession session)
 					{
 						tasks.Add(session.SendQueueAsync());
 					}

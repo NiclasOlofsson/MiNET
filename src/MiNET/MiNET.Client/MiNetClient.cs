@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Buffers;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -81,7 +82,7 @@ namespace MiNET.Client
 		public Vector3 SpawnPoint { get; set; }
 		public long EntityId { get; set; }
 		public long NetworkEntityId { get; set; }
-		public PlayerNetworkSession Session { get; set; }
+		public RakSession Session { get; set; }
 		private Thread _mainProcessingThread;
 		public int ChunkRadius { get; set; } = 5;
 
@@ -157,7 +158,7 @@ namespace MiNET.Client
 					////
 				}
 
-				Session = new PlayerNetworkSession(null, null, ClientEndpoint, _mtuSize);
+				Session = new RakSession(null, null, ClientEndpoint, _mtuSize);
 
 				_mainProcessingThread = new Thread(ProcessDatagram) {IsBackground = true};
 				_mainProcessingThread.Start(UdpClient);
@@ -342,7 +343,7 @@ namespace MiNET.Client
 
 					{
 						var ack = Acks.CreateObject();
-						ack.acks.Add(packet._datagramSequenceNumber);
+						ack.acks.Add(packet._datagramHeader.DatagramSequenceNumber);
 						byte[] data = ack.Encode();
 						ack.PutPool();
 						SendData(data, senderEndpoint);
@@ -402,7 +403,7 @@ namespace MiNET.Client
 
 		public void AddToProcessing(Packet message)
 		{
-			if (message.Reliability != Reliability.ReliableOrdered)
+			if (message.ReliabilityHeader.Reliability != Reliability.ReliableOrdered)
 			{
 				HandlePacket(message);
 				return;
@@ -412,10 +413,10 @@ namespace MiNET.Client
 
 			lock (_eventSync)
 			{
-				if (_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
+				if (_queue.Count == 0 && message.ReliabilityHeader.OrderingIndex == _lastSequenceNumber + 1)
 				{
 					HandlePacket(message);
-					_lastSequenceNumber = message.OrderingIndex;
+					_lastSequenceNumber = message.ReliabilityHeader.OrderingIndex;
 					return;
 				}
 
@@ -426,7 +427,7 @@ namespace MiNET.Client
 					_processingThread.Start();
 				}
 
-				_queue.Enqueue(message.OrderingIndex, message);
+				_queue.Enqueue(message.ReliabilityHeader.OrderingIndex, message);
 				WaitHandle.SignalAndWait(_waitEvent, _mainWaitEvent);
 			}
 		}
@@ -529,17 +530,11 @@ namespace MiNET.Client
 			if (Log.IsDebugEnabled) Log.Warn("!! WHAT THE FUK NAK NAK NAK");
 		}
 
-		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPacket splitMessage)
+		private void HandleSplitMessage(RakSession playerSession, SplitPartPacket splitPart)
 		{
-			int spId = splitMessage.SplitId;
-			int spIdx = splitMessage.SplitIdx;
-			int spCount = splitMessage.SplitCount;
-
-			Int24 sequenceNumber = splitMessage.DatagramSequenceNumber;
-			Reliability reliability = splitMessage.Reliability;
-			Int24 reliableMessageNumber = splitMessage.ReliableMessageNumber;
-			Int24 orderingIndex = splitMessage.OrderingIndex;
-			byte orderingChannel = splitMessage.OrderingChannel;
+			int spId = splitPart.ReliabilityHeader.PartId;
+			int spIdx = splitPart.ReliabilityHeader.PartIndex;
+			int spCount = splitPart.ReliabilityHeader.PartCount;
 
 			SplitPartPacket[] spPackets;
 			bool haveEmpty = false;
@@ -559,7 +554,7 @@ namespace MiNET.Client
 					Log.Debug("Already had splitpart (resent). Ignore this part.");
 					return;
 				}
-				spPackets[spIdx] = splitMessage;
+				spPackets[spIdx] = splitPart;
 
 				for (int i = 0; i < spPackets.Length; i++)
 				{
@@ -570,6 +565,12 @@ namespace MiNET.Client
 			if (!haveEmpty)
 			{
 				Log.DebugFormat("Got all {0} split packets for split ID: {1}", spCount, spId);
+
+				
+				Reliability reliability = splitPart.ReliabilityHeader.Reliability;
+				Int24 reliableMessageNumber = splitPart.ReliabilityHeader.ReliableMessageNumber;
+				Int24 orderingIndex = splitPart.ReliabilityHeader.OrderingIndex;
+				byte orderingChannel = splitPart.ReliabilityHeader.OrderingChannel;
 
 				SplitPartPacket[] waste;
 				playerSession.Splits.TryRemove(spId, out waste);
@@ -593,25 +594,27 @@ namespace MiNET.Client
 					byte[] buffer = stream.ToArray();
 					try
 					{
-						ConnectedPacket newPacket = ConnectedPacket.CreateObject();
-						newPacket._datagramSequenceNumber = sequenceNumber;
-						newPacket._reliability = reliability;
-						newPacket._reliableMessageNumber = reliableMessageNumber;
-						newPacket._orderingIndex = orderingIndex;
-						newPacket._orderingChannel = (byte) orderingChannel;
-						newPacket._hasSplit = false;
+						var newPacket = ConnectedPacket.CreateObject();
+						newPacket.ReliabilityHeader = new ReliabilityHeader()
+						{
+							Reliability = reliability,
+							ReliableMessageNumber = reliableMessageNumber,
+							OrderingChannel = orderingChannel,
+							OrderingIndex = orderingIndex,
+						};
 
 						Packet fullMessage = PacketFactory.Create(buffer[0], buffer, "raknet") ?? new UnknownPacket(buffer[0], buffer);
-						fullMessage.DatagramSequenceNumber = sequenceNumber;
-						fullMessage.Reliability = reliability;
-						fullMessage.ReliableMessageNumber = reliableMessageNumber;
-						fullMessage.OrderingIndex = orderingIndex;
-						fullMessage.OrderingChannel = orderingChannel;
-
+						fullMessage.ReliabilityHeader = new ReliabilityHeader()
+						{
+							Reliability = reliability,
+							ReliableMessageNumber = reliableMessageNumber,
+							OrderingChannel = orderingChannel,
+							OrderingIndex = orderingIndex,
+						};
 						newPacket.Messages = new List<Packet>();
 						newPacket.Messages.Add(fullMessage);
 
-						Log.Debug($"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
+						//Log.Debug($"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
 						HandleConnectedPacket(newPacket);
 						newPacket.PutPool();
 					}
@@ -1192,9 +1195,13 @@ namespace MiNET.Client
 
 			foreach (var msg in messages)
 			{
-				msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
-				msg.OrderingChannel = batch.OrderingChannel;
-				msg.OrderingIndex = batch.OrderingIndex;
+				msg.ReliabilityHeader = new ReliabilityHeader()
+				{
+					Reliability = batch.ReliabilityHeader.Reliability,
+					ReliableMessageNumber = batch.ReliabilityHeader.ReliableMessageNumber,
+					OrderingChannel = batch.ReliabilityHeader.OrderingChannel,
+					OrderingIndex = batch.ReliabilityHeader.OrderingIndex,
+				};
 				HandlePacket(msg);
 				msg.PutPool();
 			}
@@ -1214,13 +1221,15 @@ namespace MiNET.Client
 
 		private async Task SendDatagramAsync(Datagram datagram)
 		{
-			if (datagram.MessageParts.Count != 0)
+			if (datagram.MessageParts.Count > 0)
 			{
 				datagram.Header.DatagramSequenceNumber = Interlocked.Increment(ref Session.DatagramSequenceNumber);
-				byte[] data = datagram.Encode();
-				datagram.PutPool();
 
-				await SendDataAsync(data, ServerEndpoint);
+				byte[] buffer = ArrayPool<byte>.Shared.Rent(1600);
+				int length = (int) datagram.GetEncoded(ref buffer);
+
+				await SendDataAsync(buffer, length, ServerEndpoint);
+				ArrayPool<byte>.Shared.Return(buffer);
 			}
 		}
 
@@ -1247,14 +1256,14 @@ namespace MiNET.Client
 			}
 		}
 
-		private async Task SendDataAsync(byte[] data, IPEndPoint targetEndpoint)
+		private async Task SendDataAsync(byte[] data, int length, IPEndPoint targetEndpoint)
 		{
 			if (UdpClient == null)
 				return;
 
 			try
 			{
-				await UdpClient.SendAsync(data, data.Length, targetEndpoint);
+				await UdpClient.SendAsync(data, length, targetEndpoint);
 			}
 			catch (Exception e)
 			{

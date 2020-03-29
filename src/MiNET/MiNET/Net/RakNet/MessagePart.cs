@@ -32,13 +32,13 @@ namespace MiNET.Net.RakNet
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(MessagePart));
 
-		public MessagePartHeader Header { get; private set; }
+		public ReliabilityHeader ReliabilityHeader { get; private set; }
 		public Memory<byte> Buffer { get; set; }
 		public byte ContainedMessageId { get; set; }
 
 		public MessagePart()
 		{
-			Header = new MessagePartHeader();
+			ReliabilityHeader = new ReliabilityHeader();
 		}
 
 		public int GetPayloadSize()
@@ -49,7 +49,7 @@ namespace MiNET.Net.RakNet
 		public override void Reset()
 		{
 			base.Reset();
-			Header.Reset();
+			ReliabilityHeader.Reset();
 			ContainedMessageId = 0;
 			Buffer = null;
 		}
@@ -61,37 +61,44 @@ namespace MiNET.Net.RakNet
 
 			Memory<byte> encodedMessage = Buffer;
 
-			byte flags = (byte) Header.Reliability;
-			Write((byte) ((flags << 5) | (Header.HasSplit ? 0b00010000 : 0x00)));
-			Write((short) (encodedMessage.Length * 8), true); // length
+			Write((byte) ((byte) (((byte) ReliabilityHeader.Reliability) << 5) | (ReliabilityHeader.HasSplit ? 0b00010000 : 0x00)));
+			Write((short) (encodedMessage.Length * 8), true); // bit length
 
-			switch (Header.Reliability)
+			switch (ReliabilityHeader.Reliability)
 			{
 				case Reliability.Reliable:
 				case Reliability.ReliableOrdered:
 				case Reliability.ReliableSequenced:
 				case Reliability.ReliableWithAckReceipt:
 				case Reliability.ReliableOrderedWithAckReceipt:
-					Write(Header.ReliableMessageNumber);
+					Write(ReliabilityHeader.ReliableMessageNumber);
 					break;
 			}
 
-			switch (Header.Reliability)
+			switch (ReliabilityHeader.Reliability)
+			{
+				case Reliability.UnreliableSequenced:
+				case Reliability.ReliableSequenced:
+					ReliabilityHeader.SequencingIndex = ReadLittle();
+					break;
+			}
+
+			switch (ReliabilityHeader.Reliability)
 			{
 				case Reliability.UnreliableSequenced:
 				case Reliability.ReliableOrdered:
 				case Reliability.ReliableSequenced:
 				case Reliability.ReliableOrderedWithAckReceipt:
-					Write(Header.OrderingIndex);
-					Write(Header.OrderingChannel);
+					Write(ReliabilityHeader.OrderingIndex);
+					Write(ReliabilityHeader.OrderingChannel);
 					break;
 			}
 
-			if (Header.HasSplit)
+			if (ReliabilityHeader.HasSplit)
 			{
-				Write(Header.PartCount, true);
-				Write(Header.PartId, true);
-				Write(Header.PartIndex, true);
+				Write(ReliabilityHeader.PartCount, true);
+				Write(ReliabilityHeader.PartId, true);
+				Write(ReliabilityHeader.PartIndex, true);
 			}
 
 			// Message body

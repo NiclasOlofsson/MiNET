@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -31,30 +31,30 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using MiNET.Net;
 using MiNET.Net.RakNet;
-using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 
 namespace MiNET
 {
-	public class PlayerNetworkSession : INetworkHandler
+	public class RakSession : INetworkHandler
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(PlayerNetworkSession));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(RakSession));
 
 		public object SyncRoot { get; private set; } = new object();
 		public object EncodeSync { get; private set; } = new object();
 
 		public MiNetServer Server { get; private set; }
 
-		public string Username { get; set; }
-
 		public IMcpeMessageHandler MessageHandler { get; set; }
 
+		public string Username { get; set; }
+		public CryptoContext CryptoContext { get; set; }
 		public IPEndPoint EndPoint { get; private set; }
 		public short MtuSize { get; set; }
 		public long NetworkIdentifier { get; set; }
@@ -67,25 +67,39 @@ namespace MiNET
 
 		public bool Evicted { get; set; }
 
-		public Random Random { get; } = new Random();
-
 		public ConnectionState State { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
 		public bool WaitForAck { get; set; }
 		public int ResendCount { get; set; }
 
+		/// <summary>
+		/// </summary>
+		public long Syn { get; set; } = 300;
+
+		/// <summary>
+		///     Round Trip Time.
+		///     <code>RTT = RTT * 0.875 + rtt * 0.125</code>
+		/// </summary>
 		public long Rtt { get; set; } = 300;
+
+		/// <summary>
+		///     Round Trip Time Variance.
+		///     <code>RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125</code>
+		/// </summary>
 		public long RttVar { get; set; }
+
+		/// <summary>
+		///     Retransmission Time Out.
+		///     <code>RTO = RTT + 4 * RTTVar</code>
+		/// </summary>
 		public long Rto { get; set; }
 
 		public ConcurrentDictionary<int, SplitPartPacket[]> Splits { get; } = new ConcurrentDictionary<int, SplitPartPacket[]>();
-		public ConcurrentQueue<int> PlayerAckQueue { get; } = new ConcurrentQueue<int>();
-		public ConcurrentDictionary<int, Datagram> WaitingForAcksQueue { get; } = new ConcurrentDictionary<int, Datagram>();
+		public ConcurrentQueue<int> OutgoingAckQueue { get; } = new ConcurrentQueue<int>();
+		public ConcurrentDictionary<int, Datagram> WaitingForAckQueue { get; } = new ConcurrentDictionary<int, Datagram>();
 
-		public CryptoContext CryptoContext { get; set; }
-
-		public PlayerNetworkSession(MiNetServer server, Player player, IPEndPoint endPoint, short mtuSize)
+		public RakSession(MiNetServer server, Player player, IPEndPoint endPoint, short mtuSize)
 		{
 			State = ConnectionState.Unconnected;
 
@@ -107,12 +121,12 @@ namespace MiNET
 				return;
 			}
 
-			if (!Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out PlayerNetworkSession session))
+			if (!Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out RakSession session))
 			{
 				return;
 			}
 
-			if (PlayerAckQueue.Count > 0)
+			if (OutgoingAckQueue.Count > 0)
 			{
 				Thread.Sleep(50);
 			}
@@ -130,7 +144,7 @@ namespace MiNET
 			_mainWaitEvent.Set();
 			_queue.Clear();
 
-			var queue = WaitingForAcksQueue;
+			var queue = WaitingForAckQueue;
 			foreach (var kvp in queue)
 			{
 				if (queue.TryRemove(kvp.Key, out Datagram datagram)) datagram.PutPool();
@@ -176,35 +190,223 @@ namespace MiNET
 		private CancellationTokenSource _cancellationToken;
 		private Thread _processingThread;
 
+		internal void HandleAck(ReadOnlyMemory<byte> receiveBytes, ServerInfo serverInfo)
+		{
+			var ack = new Ack();
+			ack.Decode(receiveBytes);
+
+			var queue = WaitingForAckQueue;
+
+			foreach ((int start, int end) range in ack.ranges)
+			{
+				Interlocked.Increment(ref serverInfo.NumberOfAckReceive);
+
+				for (int i = range.start; i <= range.end; i++)
+				{
+					if (queue.TryRemove(i, out Datagram datagram))
+					{
+						CalculateRto(datagram);
+
+						datagram.PutPool();
+					}
+					else
+					{
+						if (Log.IsDebugEnabled) Log.Warn($"ACK, Failed to remove datagram #{i} for {Username}. Queue size={queue.Count}");
+					}
+				}
+			}
+
+			ResendCount = 0;
+			WaitForAck = false;
+		}
+
+		internal void HandleNak(ReadOnlyMemory<byte> receiveBytes, ServerInfo serverInfo)
+		{
+			var nak = Nak.CreateObject();
+			nak.Reset();
+			nak.Decode(receiveBytes);
+
+			var queue = WaitingForAckQueue;
+
+			foreach (Tuple<int, int> range in nak.ranges)
+			{
+				Interlocked.Increment(ref serverInfo.NumberOfNakReceive);
+
+				int start = range.Item1;
+				int end = range.Item2;
+
+				for (int i = start; i <= end; i++)
+				{
+					if (queue.TryGetValue(i, out var datagram))
+					{
+						CalculateRto(datagram);
+
+						datagram.RetransmitImmediate = true;
+					}
+					else
+					{
+						if (Log.IsDebugEnabled)
+							Log.WarnFormat("NAK, no datagram #{0} for {1}", i, Username);
+					}
+				}
+			}
+
+			nak.PutPool();
+		}
+
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void CalculateRto(Datagram datagram)
+		{
+			// RTT = RTT * 0.875 + rtt * 0.125
+			// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
+			// RTO = RTT + 4 * RTTVar
+			long rtt = datagram.Timer.ElapsedMilliseconds;
+			long RTT = Rtt;
+			long RTTVar = RttVar;
+
+			Rtt = (long) (RTT * 0.875 + rtt * 0.125);
+			RttVar = (long) (RTTVar * 0.875 + Math.Abs(RTT - rtt) * 0.125);
+			Rto = Rtt + 4 * RttVar + 100; // SYNC time in the end
+		}
+
+
+		public void HandleDatagram(ConnectedPacket packet)
+		{
+			foreach (Packet message in packet.Messages)
+			{
+				if (message is SplitPartPacket splitPartPacket)
+				{
+					HandleSplitMessage(splitPartPacket);
+					continue;
+				}
+
+				message.Timer.Restart();
+				HandleRakMessage(message);
+			}
+		}
+
+		private void HandleRakMessage(Packet message)
+		{
+			if (message == null) return;
+
+			if (message.ReliabilityHeader.Reliability == Reliability.ReliableOrdered)
+			{
+				// Adds to a "ordered channel" that doesn't really exist, but oh well.
+				//if (CryptoContext?.UseEncryption == true)
+				//{
+				//	MiNetServer.FastThreadPool.QueueUserWorkItem(() => AddToProcessing(message));
+				//}
+				//else
+				{
+					AddToProcessing(message);
+				}
+
+				return;
+			}
+
+			HandlePacket(message);
+		}
+
+
+		private void HandleSplitMessage(SplitPartPacket splitPart)
+		{
+			int spId = splitPart.ReliabilityHeader.PartId;
+			int spIdx = splitPart.ReliabilityHeader.PartIndex;
+			int spCount = splitPart.ReliabilityHeader.PartCount;
+
+			SplitPartPacket[] splitPartList = Splits.GetOrAdd(spId, new SplitPartPacket[spCount]);
+			bool haveAllParts = true;
+			// Need sync for this part since they come very fast, and very close in time. 
+			// If no sync, will often detect complete message two times (or more).
+
+			lock (splitPartList)
+			{
+				// Already had part (resent). Then ignore. 
+				if (splitPartList[spIdx] != null) return;
+
+				splitPartList[spIdx] = splitPart;
+
+				foreach (SplitPartPacket spp in splitPartList)
+				{
+					if (spp != null) continue;
+
+					haveAllParts = false;
+					break;
+				}
+			}
+
+			if (!haveAllParts) return;
+
+			Log.Debug($"Got all {spCount} split packets for split ID: {spId}");
+
+			Splits.TryRemove(spId, out SplitPartPacket[] _);
+
+			int contiguousLength = 0;
+			foreach (SplitPartPacket spp in splitPartList)
+			{
+				contiguousLength += spp.Message.Length;
+			}
+
+			var buffer = new Memory<byte>(new byte[contiguousLength]);
+
+			int position = 0;
+			foreach (SplitPartPacket spp in splitPartList)
+			{
+				spp.Message.CopyTo(buffer.Slice(position));
+				position += spp.Message.Length;
+				spp.PutPool();
+			}
+
+			try
+			{
+				Packet fullMessage = PacketFactory.Create(buffer.Span[0], buffer, "raknet") ??
+									new UnknownPacket(buffer.Span[0], buffer.ToArray());
+				fullMessage.ReliabilityHeader = new ReliabilityHeader()
+				{
+					Reliability = splitPart.ReliabilityHeader.Reliability,
+					ReliableMessageNumber = splitPart.ReliabilityHeader.ReliableMessageNumber,
+					OrderingChannel = splitPart.ReliabilityHeader.OrderingChannel,
+					OrderingIndex = splitPart.ReliabilityHeader.OrderingIndex,
+				};
+
+				//Log.Debug($"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
+
+				fullMessage.Timer.Restart();
+				HandleRakMessage(fullMessage);
+			}
+			catch (Exception e)
+			{
+				Log.Error("Error during split message parsing", e);
+				if (Log.IsDebugEnabled) Log.Debug($"0x{buffer.Span[0]:x2}\n{Packet.HexDump(buffer)}");
+				Disconnect("Bad packet received from client.", false);
+			}
+		}
+
 		public void AddToProcessing(Packet message)
 		{
 			try
 			{
 				if (_cancellationToken.Token.IsCancellationRequested) return;
 
-				bool forceOrder = Server.ForceOrderingForAll;
-
-				if (!forceOrder)
+				if (CryptoContext == null || CryptoContext.UseEncryption == false)
 				{
-					if (CryptoContext == null || CryptoContext.UseEncryption == false)
-					{
-						_lastOrderingIndex = message.OrderingIndex;
-						HandlePacket(message, this);
-						return;
-					}
+					_lastOrderingIndex = message.ReliabilityHeader.OrderingIndex;
+					HandlePacket(message);
+					return;
 				}
 
 				lock (_eventSync)
 				{
-					if (_queue.Count == 0 && message.OrderingIndex == _lastOrderingIndex + 1)
+					if (_queue.Count == 0 && message.ReliabilityHeader.OrderingIndex == _lastOrderingIndex + 1)
 					{
 						if (_processingThread != null)
 						{
 							// Remove the thread again. But need to deal with cancellation token, so not entirely easy.
 							// Needs refactoring of the processing thread first.
 						}
-						_lastOrderingIndex = message.OrderingIndex;
-						HandlePacket(message, this);
+						_lastOrderingIndex = message.ReliabilityHeader.OrderingIndex;
+						HandlePacket(message);
 						return;
 					}
 
@@ -215,7 +417,7 @@ namespace MiNET
 						if (Log.IsDebugEnabled) Log.Warn($"Started processing thread for {Username}");
 					}
 
-					_queue.Enqueue(message.OrderingIndex, message);
+					_queue.Enqueue(message.ReliabilityHeader.OrderingIndex, message);
 					WaitHandle.SignalAndWait(_waitEvent, _mainWaitEvent);
 				}
 			}
@@ -245,7 +447,7 @@ namespace MiNET
 							{
 								_lastOrderingIndex = pair.Key;
 
-								HandlePacket(pair.Value, this);
+								HandlePacket(pair.Value);
 
 								if (_queue.Count == 0)
 								{
@@ -284,7 +486,7 @@ namespace MiNET
 			return Task.CompletedTask;
 		}
 
-		internal void HandlePacket(Packet message, PlayerNetworkSession playerSession)
+		internal void HandlePacket(Packet message)
 		{
 			//SignalTick();
 
@@ -306,7 +508,7 @@ namespace MiNET
 
 				if (typeof(McpeWrapper) == message.GetType())
 				{
-					McpeWrapper batch = (McpeWrapper) message;
+					var batch = (McpeWrapper) message;
 					var messages = new List<Packet>();
 
 					// Get bytes to process
@@ -314,11 +516,11 @@ namespace MiNET
 
 					// Decrypt bytes
 
-					if (playerSession.CryptoContext != null && playerSession.CryptoContext.UseEncryption)
+					if (CryptoContext != null && CryptoContext.UseEncryption)
 					{
 						// This call copies the entire buffer, but what can we do? It is kind of compensated by not
 						// creating a new buffer when parsing the packet (only a mem-slice)
-						payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
+						payload = CryptoUtils.Decrypt(payload, CryptoContext);
 					}
 
 					// Decompress bytes
@@ -366,37 +568,29 @@ namespace MiNET
 						var interact = msg as McpeInteract;
 						if (interact?.actionId == 4 && interact.targetRuntimeEntityId == 0) continue;
 
-						msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
-						msg.Reliability = batch.Reliability;
-						msg.ReliableMessageNumber = batch.ReliableMessageNumber;
-						msg.OrderingChannel = batch.OrderingChannel;
-						msg.OrderingIndex = batch.OrderingIndex;
-						HandlePacket(msg, playerSession);
+						msg.ReliabilityHeader = new ReliabilityHeader()
+						{
+							Reliability = batch.ReliabilityHeader.Reliability,
+							ReliableMessageNumber = batch.ReliabilityHeader.ReliableMessageNumber,
+							OrderingChannel = batch.ReliabilityHeader.OrderingChannel,
+							OrderingIndex = batch.ReliabilityHeader.OrderingIndex,
+						};
+
+						HandlePacket(msg);
 					}
 
 					message.PutPool();
 					return;
 				}
 
-				MiNetServer.TraceReceive(message);
+				RakNetProcessor.TraceReceive(message);
 
 				// This needs rework. Some packets (transaction) really require the correct order to be maintained 
 				// in order to process correctly. I was thinking perhaps marking some packets as "order important" and
 				// check that flag here. But for now, I'm disabling the threading here. Not even sure why it is here.
 
-				//if (CryptoContext != null && CryptoContext.UseEncryption)
-				//{
-				//	MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
-				//	{
-				//		HandlePacket(MessageHandler, message as Packet);
-				//		message.PutPool();
-				//	});
-				//}
-				//else
-				{
-					HandlePacket(MessageHandler, message);
-					message.PutPool();
-				}
+				HandlePacket(MessageHandler, message);
+				message.PutPool();
 			}
 			catch (Exception e)
 			{
@@ -699,7 +893,7 @@ namespace MiNET
 
 		protected virtual void HandleConnectedPing(ConnectedPing message)
 		{
-			ConnectedPong packet = ConnectedPong.CreateObject();
+			var packet = ConnectedPong.CreateObject();
 			packet.NoBatch = true;
 			packet.ForceClear = true;
 			packet.sendpingtime = message.sendpingtime;
@@ -768,7 +962,7 @@ namespace MiNET
 				return;
 			}
 
-			MiNetServer.TraceSend(packet);
+			RakNetProcessor.TraceSend(packet);
 
 			bool isBatch = packet is McpeWrapper;
 
@@ -871,24 +1065,24 @@ namespace MiNET
 					WaitForAck = true;
 				}
 
-				if (WaitingForAcksQueue.Count == 0) return;
+				if (WaitingForAckQueue.Count == 0) return;
 
 				if (WaitForAck) return;
 
 				if (Rto == 0) return;
 
 				long rto = Math.Max(100, Rto);
-				var queue = WaitingForAcksQueue;
+				var queue = WaitingForAckQueue;
 
 				foreach (KeyValuePair<int, Datagram> datagramPair in queue)
 				{
 					if (Evicted) return;
 
-					var datagram = datagramPair.Value;
+					Datagram datagram = datagramPair.Value;
 
 					if (!datagram.Timer.IsRunning)
 					{
-						Log.ErrorFormat("Timer not running for #{0}", datagram.Header.DatagramSequenceNumber);
+						Log.Error($"Timer not running for #{datagram.Header.DatagramSequenceNumber}");
 						datagram.Timer.Restart();
 						continue;
 					}
@@ -896,30 +1090,26 @@ namespace MiNET
 					if (Rtt == -1) return;
 
 					long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-					long datagramTimout = rto * (datagram.TransmissionCount + ResendCount + 1);
-					datagramTimout = Math.Min(datagramTimout, 3000);
-					datagramTimout = Math.Max(datagramTimout, 100);
+					long datagramTimeout = rto * (datagram.TransmissionCount + ResendCount + 1);
+					datagramTimeout = Math.Min(datagramTimeout, 3000);
+					datagramTimeout = Math.Max(datagramTimeout, 100);
 
-					if (datagram.RetransmitImmediate || elapsedTime >= datagramTimout)
+					if (datagram.RetransmitImmediate || elapsedTime >= datagramTimeout)
 					{
-						if (!Evicted && WaitingForAcksQueue.TryRemove(datagram.Header.DatagramSequenceNumber, out var deleted))
+						if (!Evicted && WaitingForAckQueue.TryRemove(datagram.Header.DatagramSequenceNumber, out _))
 						{
 							ErrorCount++;
 							ResendCount++;
 
-							var resendTasks = new List<Task>();
-							//MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
-							//{
-								var dtgram = deleted;
-								if (Log.IsDebugEnabled)
-								{
-									Log.Warn($"{(deleted.RetransmitImmediate ? "NAK RSND" : "TIMEOUT")}, Resent #{deleted.Header.DatagramSequenceNumber.IntValue()} Type: {deleted.FirstMessageId} (0x{deleted.FirstMessageId:x2}) for {Username} ({elapsedTime} > {datagramTimout}) RTO {Rto}");
-								}
 
-								resendTasks.Add(Server.SendDatagramAsync(this, (Datagram) dtgram));
-								Interlocked.Increment(ref Server.ServerInfo.NumberOfResends);
-							//});
-							await Task.WhenAll(resendTasks);
+							if (Log.IsDebugEnabled) Log.Warn($"{(datagram.RetransmitImmediate ? "NAK RSND" : "TIMEOUT")}, Resent #{datagram.Header.DatagramSequenceNumber.IntValue()} Type: {datagram.FirstMessageId} (0x{datagram.FirstMessageId:x2}) for {Username} ({elapsedTime} > {datagramTimeout}) RTO {Rto}");
+
+							Interlocked.Increment(ref Server.ServerInfo.NumberOfResends);
+							await Server.SendDatagramAsync(this, datagram);
+
+							//var resendTasks = new List<Task>();
+							//resendTasks.Add(Server.SendDatagramAsync(this, datagram));
+							//await Task.WhenAll(resendTasks);
 						}
 					}
 				}
@@ -928,7 +1118,7 @@ namespace MiNET
 			{
 				if (_forceQuitTimer.ElapsedMilliseconds > 100)
 				{
-					Log.Warn($"Update took unexpected long time={_forceQuitTimer.ElapsedMilliseconds}, Count={WaitingForAcksQueue.Count}");
+					Log.Warn($"Update took unexpected long time={_forceQuitTimer.ElapsedMilliseconds}, Count={WaitingForAckQueue.Count}");
 				}
 
 				_updateSync.Release();
@@ -949,8 +1139,8 @@ namespace MiNET
 
 		private async Task SendAckQueueAsync()
 		{
-			PlayerNetworkSession session = this;
-			var queue = session.PlayerAckQueue;
+			RakSession session = this;
+			var queue = session.OutgoingAckQueue;
 			int lenght = queue.Count;
 
 			if (lenght == 0) return;
@@ -973,7 +1163,7 @@ namespace MiNET
 			acks.PutPool();
 		}
 
-		private SemaphoreSlim _syncHack = new SemaphoreSlim(1,1);
+		private SemaphoreSlim _syncHack = new SemaphoreSlim(1, 1);
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
 
 		[SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
@@ -982,7 +1172,7 @@ namespace MiNET
 			if (_sendQueueNotConcurrent.Count == 0) return;
 
 			if (!(await _syncHack.WaitAsync(0))) return;
-			
+
 			try
 			{
 				using (var memStream = new MemoryStream())
@@ -1021,19 +1211,19 @@ namespace MiNET
 							await Server.SendPacketAsync(this, packet);
 							continue;
 						}
-						
+
 						if (packet is McpeWrapper)
 						{
 							sendLast.Add(packet);
 							continue;
 						}
-						
+
 						if (packet.NoBatch)
 						{
 							sendLast.Add(packet);
 							continue;
 						}
-						
+
 						if (messageCount == 0)
 						{
 							memStream.Position = 0;

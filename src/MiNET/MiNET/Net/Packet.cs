@@ -54,14 +54,13 @@ namespace MiNET.Net
 		private bool _isEncoded;
 		private byte[] _encodedMessage;
 
-		[JsonIgnore] public int DatagramSequenceNumber;
-
 		[JsonIgnore] public bool NoBatch { get; set; }
 
-		[JsonIgnore] public Reliability Reliability = Reliability.Unreliable;
-		[JsonIgnore] public int ReliableMessageNumber;
-		[JsonIgnore] public byte OrderingChannel;
-		[JsonIgnore] public int OrderingIndex;
+		[JsonIgnore] public ReliabilityHeader ReliabilityHeader = new ReliabilityHeader();
+		//[JsonIgnore] public Reliability Reliability = Reliability.Unreliable;
+		//[JsonIgnore] public int ReliableMessageNumber;
+		//[JsonIgnore] public byte OrderingChannel;
+		//[JsonIgnore] public int OrderingIndex;
 
 		[JsonIgnore] public bool ForceClear;
 
@@ -73,20 +72,11 @@ namespace MiNET.Net
 		private BinaryWriter _writer;
 
 		[JsonIgnore] public ReadOnlyMemory<byte> Bytes { get; private set; }
-		[JsonIgnore] public Stopwatch Timer { get; } = new Stopwatch();
+		[JsonIgnore] public Stopwatch Timer { get; } = Stopwatch.StartNew();
 
-		object t = null;
 		public Packet()
 		{
 			Timer.Start();
-			switch (t)
-			{
-				case string test:
-					Log.Warn($"{test}");
-					break;
-				case int _:
-					break;
-			}
 		}
 
 		public void Write(byte value)
@@ -2279,12 +2269,7 @@ namespace MiNET.Net
 		{
 			ResetPacket();
 
-			DatagramSequenceNumber = -1;
-
-			Reliability = Reliability.Unreliable;
-			ReliableMessageNumber = -1;
-			OrderingChannel = 0;
-			OrderingIndex = -1;
+			ReliabilityHeader = new ReliabilityHeader();
 
 			NoBatch = false;
 			ForceClear = false;

@@ -36,6 +36,8 @@ using MiNET.Client;
 using MiNET.Net;
 using MiNET.Utils;
 
+#pragma warning disable 1591
+
 namespace MiNET.ServiceKiller
 {
 	public class Emulator
@@ -48,27 +50,38 @@ namespace MiNET.ServiceKiller
 		//private const int RequestChunkRadius = 8;
 
 
-		private const int TimeBetweenSpawns = 0;
-		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromMinutes(15);
-		private const int NumberOfBots = 500;
-		private const int RanSleepMin = 40;
-		private const int RanSleepMax = 100;
-		private const int RequestChunkRadius = 5;
-		private const bool ConcurrentSpawn = true;
-		private const int ConcurrentBatchSize = 10;
+		private static int TimeBetweenSpawns = 0;
+		private static TimeSpan DurationOfConnection = TimeSpan.FromMinutes(15);
+		private static int NumberOfBots = 100;
+		private static int RanSleepMin = 40;
+		private static int RanSleepMax = 100;
+		private static int RequestChunkRadius = 5;
+		private static bool ConcurrentSpawn = true;
+		private static int ConcurrentBatchSize = 5;
 
 		public AutoResetEvent ConcurrentSpawnWaitHandle = new AutoResetEvent(false);
 
-		private static bool _running = true;
+		public bool Running { get; set; } = true;
 
-		public bool Running
+		/// <summary>
+		/// </summary>
+		/// <param name="numberOfBots">The number of bots to spawn.</param>
+		/// <param name="durationOfConnection">How long (in seconds) should each individual bots stay connected.</param>
+		/// <param name="concurrentSpawn">Should the emulator spawn bots in parallel.</param>
+		/// <param name="batchSize">If parallel spawn, how many in each batch.</param>
+		/// <param name="chunkRadius">The chunk radius the bots will request. Server may override.</param>
+		/// <param name="processorAffinity">Processor affinity mask represented as an integer.</param>
+		private static void Main(int numberOfBots = 500, int durationOfConnection = 900, bool concurrentSpawn = true, int batchSize = 5, int chunkRadius = 5, int processorAffinity = 0)
 		{
-			get { return _running; }
-			set { _running = value; }
-		}
+			NumberOfBots = numberOfBots;
+			DurationOfConnection = TimeSpan.FromSeconds(durationOfConnection);
+			ConcurrentSpawn = concurrentSpawn;
+			ConcurrentBatchSize = batchSize;
+			RequestChunkRadius = chunkRadius;
 
-		private static void Main(string[] args)
-		{
+			var currentProcess = Process.GetCurrentProcess();
+			currentProcess.ProcessorAffinity = processorAffinity <= 0 ? currentProcess.ProcessorAffinity : (IntPtr) processorAffinity;
+
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 			XmlConfigurator.Configure(logRepository, new FileInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log4net.xml")));
 
@@ -85,17 +98,7 @@ namespace MiNET.ServiceKiller
 				Console.WriteLine("Press <Enter> to start emulation...");
 				Console.ReadLine();
 
-				//int threads;
-				//int iothreads;
-
-				//ThreadPool.GetMaxThreads(out threads, out iothreads);
-				//ThreadPool.SetMaxThreads(threads, 4000);
-
-				//ThreadPool.GetMinThreads(out threads, out iothreads);
-				//ThreadPool.SetMinThreads(4000, 4000);
-
-				//DedicatedThreadPool threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
-				var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(4000));
+				var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
 
 				var emulator = new Emulator {Running = true};
 				long start = DateTime.UtcNow.Ticks;

@@ -43,10 +43,10 @@
 			<conversionPattern value="%5level [%logger{1}] - %message%newline" />
 		</layout>
 
-		<!--<filter type="log4net.Filter.LoggerMatchFilter">
-				<loggerToMatch value="MiNET.ServerInfo" />
-				<acceptOnMatch value="false" />
-			</filter>-->
+		<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.Net.RakNet.ServerInfo" />
+			<acceptOnMatch value="false" />
+		</filter>
 
 		<filter type="log4net.Filter.LoggerMatchFilter">
 			<loggerToMatch value="MiNET.LevelDB" />
@@ -54,7 +54,7 @@
 		</filter>
 
 		<filter type="log4net.Filter.LevelRangeFilter">
-			<levelMin value="INFO" />
+			<levelMin value="WARN" />
 			<levelMax value="FATAL" />
 		</filter>
 
@@ -70,19 +70,20 @@
 			<conversionPattern value="%date [%thread] %-5level %logger - %message%newline" />
 		</layout>
 
-		<!--<filter type="log4net.Filter.LoggerMatchFilter">
-				<loggerToMatch value="MiNET.LevelDB" />
-				<acceptOnMatch value="false" />
-			</filter>-->
 		<filter type="log4net.Filter.LoggerMatchFilter">
 			<loggerToMatch value="MiNET.LevelDB" />
 			<acceptOnMatch value="false" />
 		</filter>
 
+		<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.Net.Mcpe" />
+			<acceptOnMatch value="false" />
+		</filter>
+
 		<!--<filter type="log4net.Filter.LoggerMatchFilter">
-				<loggerToMatch value="MiNET.ServerInfo" />
-				<acceptOnMatch value="false" />
-			</filter>-->
+			<loggerToMatch value="MiNET.Net.RakNet.ServerInfo" />
+			<acceptOnMatch value="false" />
+		</filter>-->
 
 		<filter type="log4net.Filter.LevelRangeFilter">
 			<levelMin value="DEBUG" />

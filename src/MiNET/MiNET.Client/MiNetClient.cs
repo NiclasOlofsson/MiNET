@@ -24,7 +24,6 @@
 #endregion
 
 using System;
-using System.Buffers;
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -39,13 +38,11 @@ using System.Net.Sockets;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using fNbt;
 using Jose;
 using log4net;
-using log4net.Config;
 using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Entities;
@@ -54,14 +51,12 @@ using MiNET.Net;
 using MiNET.Net.RakNet;
 using MiNET.Utils;
 using MiNET.Worlds;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
-[assembly: XmlConfigurator(Watch = true)]
+//[assembly: XmlConfigurator(Watch = true)]
 // This will cause log4net to look for a configuration file
 // called TestApp.exe.config in the application base
 // directory (i.e. the directory containing TestApp.exe)
@@ -75,15 +70,16 @@ namespace MiNET.Client
 
 		public IPEndPoint ClientEndpoint { get; private set; }
 		public IPEndPoint ServerEndpoint { get; private set; }
-		private readonly DedicatedThreadPool _threadPool;
-		//private short _mtuSize = 1192;
-		private short _mtuSize = 1464;
-		private int _reliableMessageNumber = -1;
+
+		private RakConnection _connection;
+
+		public RakSession Session => _connection.ServerInfo.RakSessions.Values.FirstOrDefault();
+		public bool FoundServer => _connection.FoundServer;
+		public bool IsConnected => Session?.State == ConnectionState.Connected;
+
 		public Vector3 SpawnPoint { get; set; }
 		public long EntityId { get; set; }
 		public long NetworkEntityId { get; set; }
-		public RakSession Session { get; set; }
-		private Thread _mainProcessingThread;
 		public int ChunkRadius { get; set; } = 5;
 
 		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
@@ -91,22 +87,22 @@ namespace MiNET.Client
 
 		public LevelInfo LevelInfo { get; } = new LevelInfo();
 
-		//private long _clientGuid = new Random().Next();
-		private long _clientGuid = 1111111 + new Random().Next();
-		//private long _clientGuid = 1111111 + DateTimeOffset.Now.ToUnixTimeMilliseconds();
+		private long _clientGuid;
 
-		public bool HaveServer = false;
 		public PlayerLocation CurrentLocation { get; set; }
 
 		public bool IsEmulator { get; set; }
 
-		public UdpClient UdpClient { get; private set; }
-
 		public string Username { get; set; }
 		public int ClientId { get; set; }
 
+		public UdpClient UdpClient { get; private set; }
 
-		public McpeClientMessageDispatcher MessageDispatcher { get; set; }
+		public McpeClientMessageDispatcher MessageDispatcher
+		{
+			get => throw new NotSupportedException("Use Connection.CustomMessageHandlerFactory instead");
+			set => throw new NotSupportedException("Use Connection.CustomMessageHandlerFactory instead");
+		}
 
 		public MiNetClient(IPEndPoint endpoint, string username, DedicatedThreadPool threadPool)
 		{
@@ -117,570 +113,36 @@ namespace MiNET.Client
 			Username = username;
 			ClientId = new Random().Next();
 			ServerEndpoint = endpoint;
-			_threadPool = threadPool;
 			if (ServerEndpoint != null) Log.Info("Connecting to: " + ServerEndpoint);
 			ClientEndpoint = new IPEndPoint(IPAddress.Any, 0);
-			MessageDispatcher = new McpeClientMessageDispatcher(new BedrockTraceHandler(this));
+			//MessageDispatcher = new McpeClientMessageDispatcher(new DefaultMessageHandler(this));
 		}
 
 		public void StartClient()
 		{
-			if (UdpClient != null) return;
+			var greyListManager = new GreyListManager();
+			var motdProvider = new MotdProvider();
 
-			try
-			{
-				Log.Info("Initializing...");
+			_connection = new RakConnection(ClientEndpoint, greyListManager, motdProvider);
+			//_connection.CustomMessageHandlerFactory = session => new BedrockClientMessageHandler(session, new BedrockTraceHandler(this));
+			_connection.CustomMessageHandlerFactory = session => new BedrockClientMessageHandler(session, new DefaultMessageHandler(this));
 
-				UdpClient = new UdpClient(ClientEndpoint)
-				{
-					Client =
-					{
-						ReceiveBufferSize = int.MaxValue,
-						SendBufferSize = int.MaxValue
-					},
-					DontFragment = false
-				};
+			//TODO: This is bad design, need to refactor this later.
+			greyListManager.ServerInfo = _connection.ServerInfo;
+			var serverInfo = _connection.ServerInfo;
+			serverInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 10);
+			serverInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", serverInfo.MaxNumberOfPlayers);
 
-				if (Environment.OSVersion.Platform != PlatformID.Unix && Environment.OSVersion.Platform != PlatformID.MacOSX)
-				{
-					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
-					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
-					// - Set to TRUE to enable reporting.
-					// - Set to FALSE to disable reporting.
-
-					uint IOC_IN = 0x80000000;
-					uint IOC_VENDOR = 0x18000000;
-					uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-					UdpClient.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
-
-					////
-					////WARNING: We need to catch errors here to remove the code above.
-					////
-				}
-
-				Session = new RakSession(null, null, ClientEndpoint, _mtuSize);
-
-				_mainProcessingThread = new Thread(ProcessDatagram) {IsBackground = true};
-				_mainProcessingThread.Start(UdpClient);
-
-				ClientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;
-
-				Log.InfoFormat("Client open for actions by {0}", Username);
-			}
-			catch (Exception e)
-			{
-				Log.Error("Main loop", e);
-				StopClient();
-			}
+			_connection.Start();
 		}
 
-		/// <summary>
-		///     Stops the server.
-		/// </summary>
-		/// <returns></returns>
 		public bool StopClient()
 		{
-			//Environment.Exit(0);
-			try
-			{
-				Session?.Close();
-				//_mainProcessingThread?.Abort();
-				_mainProcessingThread = null;
-
-				if (UdpClient == null) return true; // Already stopped. It's ok.
-
-				UdpClient.Close();
-				UdpClient = null;
-				Log.InfoFormat("Client closed for business {0}", Username);
-
-				return true;
-			}
-			catch (Exception e)
-			{
-				Log.Error(e);
-			}
-
-			return false;
-		}
-
-		private void ProcessDatagram(object state)
-		{
-			var listener = (UdpClient) state;
-
-			while (true)
-			{
-
-				// Check if we already closed the server
-				if (listener.Client == null) return;
-
-				// WSAECONNRESET:
-				// The virtual circuit was reset by the remote side executing a hard or abortive close. 
-				// The application should close the socket; it is no longer usable. On a UDP-datagram socket 
-				// this error indicates a previous send operation resulted in an ICMP Port Unreachable message.
-				// Note the spocket settings on creation of the server. It makes us ignore these resets.
-				IPEndPoint senderEndpoint = null;
-				try
-				{
-					ReadOnlyMemory<byte> receiveBytes = listener.Receive(ref senderEndpoint);
-					//UdpReceiveResult result = listener.ReceiveAsync().Result;
-					//IPEndPoint senderEndpoint = result.RemoteEndPoint;
-					//byte[] receiveBytes = result.Buffer;
-
-					if (receiveBytes.Length != 0)
-					{
-						_threadPool.QueueUserWorkItem(() =>
-						{
-							try
-							{
-								ProcessMessage(receiveBytes, senderEndpoint);
-							}
-							catch (Exception e)
-							{
-								Log.Warn($"Process message error from: {senderEndpoint.Address}", e);
-							}
-						});
-					}
-					else
-					{
-						Log.Error("Unexpected end of transmission?");
-						return;
-					}
-				}
-				catch (AggregateException)
-				{
-					return;
-				}
-				catch (ObjectDisposedException)
-				{
-					return;
-				}
-				catch (SocketException e)
-				{
-					if (e.ErrorCode != 10004) Log.Error("Unexpected end of receive", e);
-
-					if (listener.Client != null) continue;
-
-					return;
-				}
-			}
-		}
-
-		/// <summary>
-		///     Processes a message.
-		/// </summary>
-		/// <param name="receiveBytes">The received bytes.</param>
-		/// <param name="senderEndpoint">The sender's endpoint.</param>
-		/// <exception cref="System.Exception">Receive ERROR, NAK in wrong place</exception>
-		private void ProcessMessage(ReadOnlyMemory<byte> receiveBytes, IPEndPoint senderEndpoint)
-		{
-			byte msgId = receiveBytes.Span[0];
-
-			if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
-			{
-				var msgIdType = (DefaultMessageIdTypes) msgId;
-
-				Packet message = PacketFactory.Create(msgId, receiveBytes, "raknet");
-
-				if (message == null) return;
-
-				TraceReceive(message);
-
-				switch (msgIdType)
-				{
-					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
-					{
-						var incoming = (UnconnectedPong) message;
-						OnUnconnectedPong(incoming, senderEndpoint);
-
-						break;
-					}
-					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_1:
-					{
-						var incoming = (OpenConnectionReply1) message;
-						if (incoming.mtuSize != _mtuSize) Log.Warn("Error, mtu differ from what we sent:" + incoming.mtuSize);
-						Log.Debug($"Server with ID {incoming.serverGuid} security={incoming.serverHasSecurity}");
-						_mtuSize = incoming.mtuSize;
-						SendOpenConnectionRequest2();
-						break;
-					}
-					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_2:
-					{
-						OnOpenConnectionReply2((OpenConnectionReply2) message);
-						break;
-					}
-					case DefaultMessageIdTypes.ID_NO_FREE_INCOMING_CONNECTIONS:
-					{
-						OnNoFreeIncomingConnections((NoFreeIncomingConnections) message);
-						break;
-					}
-				}
-			}
-			else
-			{
-				var header = new DatagramHeader(receiveBytes.Span[0]);
-				if (!header.IsAck && !header.IsNak && header.IsValid)
-				{
-					if (receiveBytes.Span[0] == 0xa0)
-					{
-						throw new Exception("Receive ERROR, NAK in wrong place");
-					}
-
-					if (IsEmulator && HasSpawned /*&& PlayerStatus == 3*/)
-					{
-
-						int datagramId = new Int24(receiveBytes.Span.Slice(1, 3));
-						var ack = new Acks();
-						ack.acks.Add(datagramId);
-						byte[] data = ack.Encode();
-						ack.PutPool();
-						SendData(data, senderEndpoint);
-
-						return;
-					}
-
-					var packet = ConnectedPacket.CreateObject();
-					packet.Decode(receiveBytes);
-
-					{
-						var ack = Acks.CreateObject();
-						ack.acks.Add(packet.Header.DatagramSequenceNumber);
-						byte[] data = ack.Encode();
-						ack.PutPool();
-						SendData(data, senderEndpoint);
-					}
-
-					HandleConnectedPacket(packet);
-					packet.PutPool();
-				}
-				else if (header.IsPacketPair)
-				{
-					Log.Warn("header.isPacketPair");
-				}
-				else if (header.IsAck && header.IsValid)
-				{
-					HandleAck(receiveBytes, senderEndpoint);
-				}
-				else if (header.IsNak && header.IsValid)
-				{
-					HandleNak(receiveBytes, senderEndpoint);
-				}
-				else if (!header.IsValid)
-				{
-					Log.Warn("!!!! ERROR, Invalid header !!!!!");
-				}
-				else
-				{
-					Log.Warn("!! WHAT THE F");
-				}
-			}
-		}
-
-		private void HandleConnectedPacket(ConnectedPacket packet)
-		{
-			foreach (var message in packet.Messages)
-			{
-				if (message is SplitPartPacket partPacket)
-				{
-					HandleSplitMessage(Session, partPacket);
-
-					continue;
-				}
-
-				//TraceReceive(message);
-
-				message.Timer.Restart();
-				AddToProcessing(message);
-			}
-		}
-
-		private long _lastSequenceNumber = -1; // That's the first message with wrapper
-		private AutoResetEvent _waitEvent = new AutoResetEvent(false);
-		private AutoResetEvent _mainWaitEvent = new AutoResetEvent(false);
-		private object _eventSync = new object();
-		private ConcurrentPriorityQueue<int, Packet> _queue = new ConcurrentPriorityQueue<int, Packet>();
-
-		private Thread _processingThread = null;
-
-		public void AddToProcessing(Packet message)
-		{
-			if (message.ReliabilityHeader.Reliability != Reliability.ReliableOrdered)
-			{
-				HandlePacket(message);
-				return;
-			}
-			//Log.Error("DO NOT USE THIS");
-			//throw new Exception("DO NOT USE THIS");
-
-			lock (_eventSync)
-			{
-				if (_queue.Count == 0 && message.ReliabilityHeader.OrderingIndex == _lastSequenceNumber + 1)
-				{
-					HandlePacket(message);
-					_lastSequenceNumber = message.ReliabilityHeader.OrderingIndex;
-					return;
-				}
-
-				if (_processingThread == null)
-				{
-					_processingThread = new Thread(ProcessQueueThread);
-					_processingThread.IsBackground = true;
-					_processingThread.Start();
-				}
-
-				_queue.Enqueue(message.ReliabilityHeader.OrderingIndex, message);
-				WaitHandle.SignalAndWait(_waitEvent, _mainWaitEvent);
-			}
-		}
-
-		private void ProcessQueueThread(object o)
-		{
-			ProcessQueue();
-		}
-
-		private Task ProcessQueue()
-		{
-			while (true)
-			{
-				KeyValuePair<int, Packet> pair;
-
-				if (_queue.TryPeek(out pair))
-				{
-					if (pair.Key == _lastSequenceNumber + 1)
-					{
-						if (_queue.TryDequeue(out pair))
-						{
-							HandlePacket(pair.Value);
-
-							_lastSequenceNumber = pair.Key;
-
-							if (_queue.Count == 0)
-							{
-								WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
-							}
-						}
-					}
-					else if (pair.Key <= _lastSequenceNumber)
-					{
-						if (Log.IsDebugEnabled) Log.Warn($"{Username} - Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
-						if (_queue.TryDequeue(out pair))
-						{
-							pair.Value.PutPool();
-						}
-					}
-					else
-					{
-						//if (Log.IsDebugEnabled) Log.Warn($"{Username} - Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
-						WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
-					}
-				}
-				else
-				{
-					if (_queue.Count == 0)
-					{
-						WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
-					}
-				}
-			}
-
-			//Log.Warn($"Exit receive handler task for {Player.Username}");
-			return Task.CompletedTask;
-		}
-
-
-		public virtual void OnUnconnectedPong(UnconnectedPong packet, IPEndPoint senderEndpoint)
-		{
-			Log.Warn($"MOTD: {packet.serverName}");
-			Log.Warn($"from server {senderEndpoint}");
-
-
-			if (!HaveServer)
-			{
-				string[] motdParts = packet.serverName.Split(';');
-				if (motdParts.Length >= 11)
-				{
-					senderEndpoint.Port = int.Parse(motdParts[10]);
-				}
-				Log.Debug($"Connecting to {senderEndpoint}");
-				ServerEndpoint = senderEndpoint;
-				HaveServer = true;
-				SendOpenConnectionRequest1();
-			}
-		}
-
-		public virtual void OnOpenConnectionReply2(OpenConnectionReply2 message)
-		{
-			Log.Debug("MTU Size: " + message.mtuSize);
-			Log.Debug("Client Endpoint: " + message.clientEndpoint);
-
-			//ServerEndpoint = message.clientEndpoint;
-
-			_mtuSize = message.mtuSize;
-			Thread.Sleep(100);
-			SendConnectionRequest();
-		}
-
-
-		public virtual void HandleAck(ReadOnlyMemory<byte> receiveBytes, IPEndPoint senderEndpoint)
-		{
-			//Log.Info($"Ack {Packet.HexDump(receiveBytes)}");
-		}
-
-		public virtual void HandleNak(ReadOnlyMemory<byte> receiveBytes, IPEndPoint senderEndpoint)
-		{
-			if (Log.IsDebugEnabled) Log.Warn($"!! WHAT THE FUK NAK NAK NAK, {Packet.HexDump(receiveBytes)}");
-		}
-
-		private void HandleSplitMessage(RakSession playerSession, SplitPartPacket splitPart)
-		{
-			int spId = splitPart.ReliabilityHeader.PartId;
-			int spIdx = splitPart.ReliabilityHeader.PartIndex;
-			int spCount = splitPart.ReliabilityHeader.PartCount;
-
-			SplitPartPacket[] spPackets;
-			bool haveEmpty = false;
-
-			// Need sync for this part since they come very fast, and very close in time. 
-			// If no synk, will often detect complete message two times (or more).
-			lock (playerSession.Splits)
-			{
-				if (!playerSession.Splits.ContainsKey(spId))
-				{
-					playerSession.Splits.TryAdd(spId, new SplitPartPacket[spCount]);
-				}
-
-				spPackets = playerSession.Splits[spId];
-				if (spPackets[spIdx] != null)
-				{
-					Log.Debug("Already had splitpart (resent). Ignore this part.");
-					return;
-				}
-				spPackets[spIdx] = splitPart;
-
-				for (int i = 0; i < spPackets.Length; i++)
-				{
-					haveEmpty = haveEmpty || spPackets[i] == null;
-				}
-			}
-
-			if (!haveEmpty)
-			{
-				Log.DebugFormat("Got all {0} split packets for split ID: {1}", spCount, spId);
-
-				
-				Reliability reliability = splitPart.ReliabilityHeader.Reliability;
-				Int24 reliableMessageNumber = splitPart.ReliabilityHeader.ReliableMessageNumber;
-				Int24 orderingIndex = splitPart.ReliabilityHeader.OrderingIndex;
-				byte orderingChannel = splitPart.ReliabilityHeader.OrderingChannel;
-
-				SplitPartPacket[] waste;
-				playerSession.Splits.TryRemove(spId, out waste);
-
-				using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
-				{
-					for (int i = 0; i < spPackets.Length; i++)
-					{
-						SplitPartPacket splitPartPacket = spPackets[i];
-						var buf = splitPartPacket.Message;
-						if (buf.Length == 0)
-						{
-							Log.Error("Expected bytes in splitpart, but got none");
-							continue;
-						}
-
-						stream.Write(buf.Span);
-						splitPartPacket.PutPool();
-					}
-
-					byte[] buffer = stream.ToArray();
-					try
-					{
-						var newPacket = ConnectedPacket.CreateObject();
-						newPacket.ReliabilityHeader = new ReliabilityHeader()
-						{
-							Reliability = reliability,
-							ReliableMessageNumber = reliableMessageNumber,
-							OrderingChannel = orderingChannel,
-							OrderingIndex = orderingIndex,
-						};
-
-						Packet fullMessage = PacketFactory.Create(buffer[0], buffer, "raknet") ?? new UnknownPacket(buffer[0], buffer);
-						fullMessage.ReliabilityHeader = new ReliabilityHeader()
-						{
-							Reliability = reliability,
-							ReliableMessageNumber = reliableMessageNumber,
-							OrderingChannel = orderingChannel,
-							OrderingIndex = orderingIndex,
-						};
-						newPacket.Messages = new List<Packet>();
-						newPacket.Messages.Add(fullMessage);
-
-						//Log.Debug($"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
-						HandleConnectedPacket(newPacket);
-						newPacket.PutPool();
-					}
-					catch (Exception e)
-					{
-						Log.Error("Error during split message parsing", e);
-						if (Log.IsDebugEnabled)
-							Log.Debug($"0x{buffer[0]:x2}\n{Packet.HexDump(buffer)}");
-						playerSession.Disconnect("Bad packet received from client.", false);
-					}
-				}
-			}
+			_connection.Stop();
+			return true;
 		}
 
 		public int PlayerStatus { get; set; }
-
-
-		private void HandlePacket(Packet message)
-		{
-			TraceReceive(message);
-
-			if (typeof(McpeWrapper) == message.GetType())
-			{
-				HandleBatch((McpeWrapper) message);
-				return;
-			}
-
-			if (typeof(ConnectedPing) == message.GetType())
-			{
-				ConnectedPing msg = (ConnectedPing) message;
-				SendConnectedPong(msg.sendpingtime);
-				return;
-			}
-
-			if (typeof(ConnectedPing) == message.GetType())
-			{
-				ConnectedPing msg = (ConnectedPing) message;
-				SendConnectedPong(msg.sendpingtime);
-				return;
-			}
-
-			if (typeof(ConnectionRequestAccepted) == message.GetType())
-			{
-				OnConnectionRequestAccepted();
-				return;
-			}
-
-			if (MessageDispatcher.HandlePacket(message))
-			{
-			}
-			else if (typeof(UnknownPacket) == message.GetType())
-			{
-				UnknownPacket packet = (UnknownPacket) message;
-				if (Log.IsDebugEnabled) Log.Warn($"Unknown packet 0x{message.Id:X2}\n{Packet.HexDump(packet.Message)}");
-			}
-			else
-			{
-				if (Log.IsDebugEnabled) Log.Warn($"Unhandled packet 0x{message.Id:X2} {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
-			}
-		}
-
-		public virtual void OnNoFreeIncomingConnections(NoFreeIncomingConnections message)
-		{
-			Log.Error($"No free connections from server {message.serverGuid}");
-			StopClient();
-		}
 
 		public void SendLogin(string username)
 		{
@@ -695,7 +157,8 @@ namespace MiNET.Client
 				payload = data
 			};
 
-			Session.CryptoContext = new CryptoContext()
+			var bedrockHandler = (BedrockClientMessageHandler) Session.CustomMessageHandler;
+			bedrockHandler.CryptoContext = new CryptoContext
 			{
 				ClientKey = clientKey,
 				UseEncryption = false,
@@ -722,8 +185,10 @@ namespace MiNET.Client
 				//	Log.Error("Lenght of random bytes: " + randomKeyToken.Length);
 				//}
 
-				ECDHBasicAgreement agreement = new ECDHBasicAgreement();
-				agreement.Init(Session.CryptoContext.ClientKey.Private);
+				var bedrockHandler = (BedrockClientMessageHandler) Session.CustomMessageHandler;
+
+				var agreement = new ECDHBasicAgreement();
+				agreement.Init(bedrockHandler.CryptoContext.ClientKey.Private);
 				byte[] secret;
 				using (var sha = SHA256.Create())
 				{
@@ -739,7 +204,7 @@ namespace MiNET.Client
 				IBufferedCipher encryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
 				encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
 
-				Session.CryptoContext = new CryptoContext
+				bedrockHandler.CryptoContext = new CryptoContext
 				{
 					Decryptor = decryptor,
 					Encryptor = encryptor,
@@ -922,7 +387,7 @@ namespace MiNET.Client
 				}
 				else
 				{
-					Log.Debug("Extradata: \n" + extraData);
+					//Log.Debug("Extradata: \n" + extraData);
 					if (extraData.Contains("ench"))
 					{
 						NbtList ench = (NbtList) extraData["ench"];
@@ -1115,254 +580,22 @@ namespace MiNET.Client
 			return result;
 		}
 
-		public virtual void OnConnectionRequestAccepted()
-		{
-			Thread.Sleep(50);
-			SendNewIncomingConnection();
-			//_connectedPingTimer = new Timer(state => SendConnectedPing(), null, 1000, 1000);
-			Thread.Sleep(50);
-			SendLogin(Username);
-		}
-
 		private int _numberOfChunks = 0;
 
 		public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> Chunks { get; } = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 		public IndentedTextWriter _mobWriter;
 
-		public virtual void HandleBatch(McpeWrapper batch)
-		{
-			FirstPacketWaitHandle.Set();
-
-			var messages = new List<Packet>();
-
-
-			// Get bytes
-			var payload = batch.payload;
-
-			if (Session.CryptoContext != null && Session.CryptoContext.UseEncryption)
-			{
-				FirstEncryptedPacketWaitHandle.Set();
-				payload = CryptoUtils.Decrypt(payload, Session.CryptoContext);
-			}
-
-			var stream = new MemoryStreamReader(payload.Slice(0, payload.Length - 4)); // slice away adler
-			if (stream.ReadByte() != 0x78)
-			{
-				throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-			}
-			stream.ReadByte();
-			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
-			{
-				// Get actual package out of bytes
-				using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
-				{
-					defStream2.CopyTo(destination);
-					destination.Position = 0;
-					do
-					{
-						byte[] internalBuffer = null;
-						try
-						{
-							int len = (int) VarInt.ReadUInt32(destination);
-							long pos = destination.Position;
-							int id = (int) VarInt.ReadUInt32(destination);
-							len = (int) (len - (destination.Position - pos)); // calculate len of buffer after varint
-							internalBuffer = new byte[len];
-							destination.Read(internalBuffer, 0, len);
-
-							if (id == 0x8e) throw new Exception("Wrong code, didn't expect a 0x8E in a batched packet");
-
-							var packet = PacketFactory.Create((byte) id, internalBuffer, "mcpe") ??
-										new UnknownPacket((byte) id, internalBuffer);
-							messages.Add(packet);
-
-							//if (Log.IsDebugEnabled) Log.Debug($"Batch: {packet.GetType().Name} 0x{packet.Id:x2}");
-							if (packet is UnknownPacket) Log.Error($"Batch: {packet.GetType().Name} 0x{packet.Id:x2}");
-							//if (!(package is McpeFullChunkData)) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2} \n{Package.HexDump(internalBuffer)}");
-						}
-						catch (Exception e)
-						{
-							if (internalBuffer != null)
-								Log.Error($"Batch error while reading:\n{Packet.HexDump(internalBuffer)}");
-							Log.Error("Batch processing", e);
-						}
-					} while (destination.Position < destination.Length);
-				}
-			}
-
-			//Log.Error($"Batch had {messages.Count} packets.");
-			if (messages.Count == 0) Log.Error($"Batch had 0 packets.");
-
-			foreach (var msg in messages)
-			{
-				msg.ReliabilityHeader = new ReliabilityHeader()
-				{
-					Reliability = batch.ReliabilityHeader.Reliability,
-					ReliableMessageNumber = batch.ReliabilityHeader.ReliableMessageNumber,
-					OrderingChannel = batch.ReliabilityHeader.OrderingChannel,
-					OrderingIndex = batch.ReliabilityHeader.OrderingIndex,
-				};
-				HandlePacket(msg);
-				msg.PutPool();
-			}
-		}
-
-		public async Task SendPacketAsync(Packet message)
-		{
-			if (message == null) return;
-
-			TraceSend(message);
-
-			foreach (Datagram datagram in Datagram.CreateDatagrams(message, _mtuSize, Session))
-			{
-				await SendDatagramAsync(datagram);
-			}
-		}
-
-		private async Task SendDatagramAsync(Datagram datagram)
-		{
-			if (datagram.MessageParts.Count > 0)
-			{
-				datagram.Header.DatagramSequenceNumber = Interlocked.Increment(ref Session.DatagramSequenceNumber);
-
-				byte[] buffer = ArrayPool<byte>.Shared.Rent(1600);
-				int length = (int) datagram.GetEncoded(ref buffer);
-
-				await SendDataAsync(buffer, length, ServerEndpoint);
-				ArrayPool<byte>.Shared.Return(buffer);
-			}
-		}
-
-
-		private void SendData(byte[] data)
-		{
-			Thread.Sleep(50);
-
-			SendData(data, ServerEndpoint);
-		}
-
-
 		private void SendData(byte[] data, IPEndPoint targetEndpoint)
 		{
-			if (UdpClient == null) return;
+			if (_connection == null) return;
 
 			try
 			{
-				UdpClient.Send(data, data.Length, targetEndpoint);
+				_connection.SendData(data, targetEndpoint);
 			}
 			catch (Exception e)
 			{
 				Log.Debug("Send exception", e);
-			}
-		}
-
-		private async Task SendDataAsync(byte[] data, int length, IPEndPoint targetEndpoint)
-		{
-			if (UdpClient == null)
-				return;
-
-			try
-			{
-				await UdpClient.SendAsync(data, length, targetEndpoint);
-			}
-			catch (Exception e)
-			{
-				Log.Debug("Send exception", e);
-			}
-		}
-
-		private void TraceReceive(Packet message)
-		{
-			if (!Log.IsDebugEnabled) return;
-
-			string typeName = message.GetType().Name;
-
-			string includePattern = Config.GetProperty("TracePackets.Include", ".*");
-			string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
-			int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
-			verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
-
-			if (!Regex.IsMatch(typeName, includePattern))
-			{
-				return;
-			}
-
-			if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
-			{
-				return;
-			}
-
-			if (verbosity == 0)
-			{
-				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
-			}
-			else if (verbosity == 1)
-			{
-				var jsonSerializerSettings = new JsonSerializerSettings
-				{
-					PreserveReferencesHandling = PreserveReferencesHandling.All,
-					Formatting = Formatting.Indented,
-				};
-				jsonSerializerSettings.Converters.Add(new StringEnumConverter());
-				jsonSerializerSettings.Converters.Add(new NbtIntConverter());
-				jsonSerializerSettings.Converters.Add(new NbtStringConverter());
-				jsonSerializerSettings.Converters.Add(new IPAddressConverter());
-				jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
-
-				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
-				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
-			}
-			else if (verbosity == 2)
-			{
-				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
-			}
-		}
-
-		private void TraceSend(Packet message)
-		{
-			if (!Log.IsDebugEnabled) return;
-
-			string typeName = message.GetType().Name;
-
-			string includePattern = Config.GetProperty("TracePackets.Include", ".*");
-			string excludePattern = Config.GetProperty("TracePackets.Exclude", "");
-			int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
-			verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
-
-
-			if (!Regex.IsMatch(typeName, includePattern))
-			{
-				return;
-			}
-			if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
-			{
-				return;
-			}
-
-
-			if (verbosity == 0)
-			{
-				Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
-			}
-			else if (verbosity == 1)
-			{
-				var jsonSerializerSettings = new JsonSerializerSettings
-				{
-					PreserveReferencesHandling = PreserveReferencesHandling.All,
-					Formatting = Formatting.Indented,
-				};
-				jsonSerializerSettings.Converters.Add(new StringEnumConverter());
-				jsonSerializerSettings.Converters.Add(new NbtIntConverter());
-				jsonSerializerSettings.Converters.Add(new NbtStringConverter());
-				jsonSerializerSettings.Converters.Add(new IPAddressConverter());
-				jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
-
-				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
-				Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
-			}
-			else if (verbosity == 2)
-			{
-				Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 			}
 		}
 
@@ -1375,8 +608,7 @@ namespace MiNET.Client
 			};
 
 			var data = packet.Encode();
-			TraceSend(packet);
-			//SendData(data);
+
 			if (ServerEndpoint != null)
 			{
 				SendData(data, ServerEndpoint);
@@ -1407,71 +639,12 @@ namespace MiNET.Client
 
 		public void SendOpenConnectionRequest1()
 		{
-			var packet = new OpenConnectionRequest1()
-			{
-				raknetProtocolVersion = 9,
-				mtuSize = _mtuSize
-			};
-
-			byte[] data = packet.Encode();
-
-			TraceSend(packet);
-
-			// 1446 - 1464
-			// 1087 1447
-			byte[] data2 = new byte[_mtuSize - data.Length - 10];
-			Buffer.BlockCopy(data, 0, data2, 0, data.Length);
-
-			Log.Debug($"data lenght={data2.Length}");
-			SendData(data2);
-		}
-
-		public virtual void SendOpenConnectionRequest2()
-		{
-			//_clientGuid = new Random().Next() + new Random().Next();
-			var packet = new OpenConnectionRequest2()
-			{
-				remoteBindingAddress = ServerEndpoint,
-				mtuSize = _mtuSize,
-				clientGuid = _clientGuid,
-			};
-
-			var data = packet.Encode();
-
-			TraceSend(packet);
-
-			SendData(data);
-		}
-
-		public void SendConnectionRequest()
-		{
-			var packet = new ConnectionRequest()
-			{
-				clientGuid = _clientGuid,
-				timestamp = DateTime.UtcNow.Ticks /*/TimeSpan.TicksPerMillisecond*/,
-				doSecurity = 0,
-			};
-
-			SendPacket(packet);
+			_connection._rakProcessor.SendOpenConnectionRequest1(ServerEndpoint);
 		}
 
 		public void SendPacket(Packet packet)
 		{
-			SendPacketAsync(packet).Wait();
-			packet.PutPool();
-		}
-
-		public void SendNewIncomingConnection()
-		{
-			var packet = NewIncomingConnection.CreateObject();
-			packet.clientendpoint = ServerEndpoint;
-			packet.systemAddresses = new IPEndPoint[20];
-			for (int i = 0; i < 20; i++)
-			{
-				packet.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 0);
-			}
-
-			SendPacket(packet);
+			Session?.SendPacket(packet);
 		}
 
 		public void SendChat(string text)
@@ -1524,13 +697,12 @@ namespace MiNET.Client
 			movePlayerPacket.mode = 1;
 			movePlayerPacket.onGround = false;
 
-			await SendPacketAsync(movePlayerPacket);
+			await Session.SendPacketAsync(movePlayerPacket);
 		}
 
 
 		public void SendDisconnectionNotification()
 		{
-			Session.CryptoContext = null;
 			SendPacket(new DisconnectionNotification());
 		}
 	}

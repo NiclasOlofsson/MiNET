@@ -1,5 +1,4 @@
-﻿
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -241,7 +240,7 @@ namespace MiNET.Client
 					enumerator.MoveNext();
 					var value = enumerator.Current;
 					if (value == null) continue;
-					Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
+					//Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
 					//int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
 					Block blockById = BlockFactory.GetBlockById(value.Id);
 					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;

@@ -48,10 +48,10 @@
 			<acceptOnMatch value="false" />
 		</filter>
 
-		<!--<filter type="log4net.Filter.LoggerMatchFilter">
-				<loggerToMatch value="MiNET.ServerInfo" />
-				<acceptOnMatch value="false" />
-			</filter>-->
+		<filter type="log4net.Filter.LoggerMatchFilter">
+			<loggerToMatch value="MiNET.Net.RakNet.ServerInfo" />
+			<acceptOnMatch value="false" />
+		</filter>
 
 		<filter type="log4net.Filter.LoggerMatchFilter">
 			<loggerToMatch value="MiNET.LevelDB" />
@@ -95,9 +95,9 @@
 		</filter>
 
 		<!--<filter type="log4net.Filter.LoggerMatchFilter">
-				<loggerToMatch value="MiNET.ServerInfo" />
-				<acceptOnMatch value="false" />
-			</filter>-->
+			<loggerToMatch value="MiNET.Net.RakNet.ServerInfo" />
+			<acceptOnMatch value="false" />
+		</filter>-->
 
 		<filter type="log4net.Filter.LevelRangeFilter">
 			<levelMin value="DEBUG" />

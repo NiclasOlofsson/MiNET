@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -51,14 +51,18 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LoginMessageHandler));
 
+		private readonly BedrockMessageHandler _bedrockHandler;
 		private readonly RakSession _session;
+		private readonly IServerManager _serverManager;
 
 		private object _loginSyncLock = new object();
 		private PlayerInfo _playerInfo = new PlayerInfo();
 
-		public LoginMessageHandler(RakSession session)
+		public LoginMessageHandler(BedrockMessageHandler bedrockHandler, RakSession session, IServerManager serverManager)
 		{
+			_bedrockHandler = bedrockHandler;
 			_session = session;
+			_serverManager = serverManager;
 		}
 
 		public void Disconnect(string reason, bool sendDisconnect = true)
@@ -202,7 +206,7 @@ namespace MiNET
 						//-------------------------- AnimatedImageData
 
 						//-------------------------- DeviceId
-						
+
 						// --------------------------------------------------------------
 
 						// Unused
@@ -381,12 +385,12 @@ namespace MiNET
 						if (Log.IsDebugEnabled) Log.Debug($"Connecting user {_playerInfo.Username} with identity={identity} on protocol version={_playerInfo.ProtocolVersion}");
 						_playerInfo.ClientUuid = new UUID(identity);
 
-						_session.CryptoContext = new CryptoContext
+						_bedrockHandler.CryptoContext = new CryptoContext
 						{
 							UseEncryption = Config.GetProperty("UseEncryptionForAll", false) || (Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(_playerInfo.CertificateData.ExtraData.Xuid)),
 						};
 
-						if (_session.CryptoContext.UseEncryption)
+						if (_bedrockHandler.CryptoContext.UseEncryption)
 						{
 							// Use bouncy to parse the DER key
 							ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters)
@@ -424,9 +428,9 @@ namespace MiNET
 							IBufferedCipher encryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
 							encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
 
-							_session.CryptoContext.Key = secret;
-							_session.CryptoContext.Decryptor = decryptor;
-							_session.CryptoContext.Encryptor = encryptor;
+							_bedrockHandler.CryptoContext.Key = secret;
+							_bedrockHandler.CryptoContext.Decryptor = decryptor;
+							_bedrockHandler.CryptoContext.Encryptor = encryptor;
 
 							var signParam = new ECParameters
 							{
@@ -441,11 +445,11 @@ namespace MiNET
 							signParam.Validate();
 
 							string signedToken = null;
-							if (_session.Server.IsEdu)
-							{
-								EduTokenManager tokenManager = _session.Server.EduTokenManager;
-								signedToken = tokenManager.GetSignedToken(_playerInfo.TenantId);
-							}
+							//if (_session.Server.IsEdu)
+							//{
+							//	EduTokenManager tokenManager = _session.Server.EduTokenManager;
+							//	signedToken = tokenManager.GetSignedToken(_playerInfo.TenantId);
+							//}
 
 							var signKey = ECDsa.Create(signParam);
 							var b64PublicKey = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(pubAsyKey).GetEncoded().EncodeBase64();
@@ -472,9 +476,9 @@ namespace MiNET
 						}
 					}
 				}
-				if (!_session.CryptoContext.UseEncryption)
+				if (!_bedrockHandler.CryptoContext.UseEncryption)
 				{
-					_session.MessageHandler.HandleMcpeClientToServerHandshake(null);
+					_bedrockHandler.Handler.HandleMcpeClientToServerHandshake(null);
 				}
 			}
 			catch (Exception e)
@@ -487,11 +491,10 @@ namespace MiNET
 		{
 			Log.Warn($"Connection established with {_playerInfo.Username} using MC version {_playerInfo.GameVersion} with protocol version {_playerInfo.ProtocolVersion}");
 
-			IServerManager serverManager = _session.Server.ServerManager;
-			IServer server = serverManager.GetServer();
+			IServer server = _serverManager.GetServer();
 
 			IMcpeMessageHandler messageHandler = server.CreatePlayer(_session, _playerInfo);
-			_session.MessageHandler = messageHandler; // Replace current message handler with real one.
+			_bedrockHandler.Handler = messageHandler; // Replace current message handler with real one.
 
 			if (_playerInfo.ProtocolVersion < McpeProtocolInfo.ProtocolVersion || _playerInfo.ProtocolVersion > 65535)
 			{
@@ -508,7 +511,7 @@ namespace MiNET
 				return;
 			}
 
-			_session.MessageHandler.HandleMcpeClientToServerHandshake(null);
+			_bedrockHandler.Handler.HandleMcpeClientToServerHandshake(null);
 		}
 
 		public void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
@@ -712,6 +715,31 @@ namespace MiNET
 	public interface IServer
 	{
 		IMcpeMessageHandler CreatePlayer(INetworkHandler session, PlayerInfo playerInfo);
+	}
+
+	public class PlayerInfo
+	{
+		public int ADRole { get; set; }
+		public CertificateData CertificateData { get; set; }
+		public string Username { get; set; }
+		public UUID ClientUuid { get; set; }
+		public string ServerAddress { get; set; }
+		public long ClientId { get; set; }
+		public Skin Skin { get; set; }
+		public int CurrentInputMode { get; set; }
+		public int DefaultInputMode { get; set; }
+		public string DeviceModel { get; set; }
+		public string GameVersion { get; set; }
+		public int DeviceOS { get; set; }
+		public string DeviceId { get; set; }
+		public int GuiScale { get; set; }
+		public int UIProfile { get; set; }
+		public int Edition { get; set; }
+		public int ProtocolVersion { get; set; }
+		public string LanguageCode { get; set; }
+		public string PlatformChatId { get; set; }
+		public string ThirdPartyName { get; set; }
+		public string TenantId { get; set; }
 	}
 
 	public class DefaultServerManager : IServerManager

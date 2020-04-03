@@ -62,7 +62,7 @@ namespace MiNET.Console
 
 				if (_client.ServerEndpoint != null)
 				{
-					while (!_client.HaveServer)
+					while (!_client.FoundServer)
 					{
 						_client.SendUnconnectedPing();
 						Thread.Sleep(100);

@@ -91,7 +91,7 @@ namespace MiNET.Utils
 
 		public override void Write(byte[] buffer, int offset, int count)
 		{
-			throw new NotImplementedException("This stream can't be used for write operations");
+				throw new NotImplementedException("This stream can't be used for write operations");
 		}
 
 		public short ReadInt16()

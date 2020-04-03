@@ -42,6 +42,7 @@ using MiNET.Entities.Passive;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Net.RakNet;
 using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Diagnostics;

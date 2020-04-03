@@ -215,7 +215,6 @@ namespace MiNET.ServiceKiller
 				client.StartClient();
 				Console.WriteLine("Client started.");
 
-				client.HaveServer = true;
 				client.SendOpenConnectionRequest1();
 
 				//client.FirstPacketWaitHandle.WaitOne();
@@ -223,7 +222,7 @@ namespace MiNET.ServiceKiller
 				client.PlayerStatusChangedWaitHandle.WaitOne();
 				Emulator.ConcurrentSpawnWaitHandle.Set();
 				Console.CursorLeft = Console.CursorLeft = Console.BufferWidth - $"Client {Name} connected, emulating...".Length;
-				if (client.UdpClient != null) Console.WriteLine($"Client {Name} connected, emulating...");
+				Console.WriteLine($"Client {Name} connected, emulating...");
 
 				var runningTime = Stopwatch.StartNew();
 

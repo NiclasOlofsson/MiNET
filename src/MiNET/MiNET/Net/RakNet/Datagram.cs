@@ -44,7 +44,12 @@ namespace MiNET.Net.RakNet
 		public int TransmissionCount { get; set; }
 
 		public DatagramHeader Header { get; private set; }
+
+		// For encoding
 		public List<MessagePart> MessageParts { get; set; }
+
+		// From decoding
+		public List<Packet> Messages { get; set; } = new List<Packet>();
 
 		public Datagram()
 		{
@@ -56,6 +61,94 @@ namespace MiNET.Net.RakNet
 				//datagramSequenceNumber = datagramSequenceNumber
 			};
 		}
+
+		protected override void DecodePacket()
+		{
+			_reader.Position = 0;
+
+			Header = new DatagramHeader(ReadByte());
+			Header.DatagramSequenceNumber = ReadLittle();
+
+			// End datagram, online packet starts
+
+			Messages = new List<Packet>();
+
+			while (!_reader.Eof)
+			{
+				byte flags = ReadByte();
+				var header = new ReliabilityHeader();
+
+				header.Reliability = (Reliability) ((flags & 0b011100000) >> 5);
+				header.HasSplit = (flags & 0b00010000) > 0;
+
+				short dataBitLength = ReadShort(true);
+
+				switch (header.Reliability)
+				{
+					case Reliability.Reliable:
+					case Reliability.ReliableSequenced:
+					case Reliability.ReliableOrdered:
+						header.ReliableMessageNumber = ReadLittle();
+						break;
+				}
+
+				switch (header.Reliability)
+				{
+					case Reliability.UnreliableSequenced:
+					case Reliability.ReliableSequenced:
+						header.SequencingIndex = ReadLittle();
+						break;
+				}
+
+				switch (header.Reliability)
+				{
+					case Reliability.UnreliableSequenced:
+					case Reliability.ReliableSequenced:
+					case Reliability.ReliableOrdered:
+					case Reliability.ReliableOrderedWithAckReceipt:
+						header.OrderingIndex = ReadLittle();
+						header.OrderingChannel = ReadByte(); // flags
+						break;
+				}
+
+				if (header.HasSplit)
+				{
+					header.PartCount = ReadInt(true);
+					header.PartId = ReadShort(true);
+					header.PartIndex = ReadInt(true);
+				}
+
+				// Slurp the payload
+				int messageLength = (int) Math.Ceiling((((double) dataBitLength) / 8));
+				ReadOnlyMemory<byte> internalBuffer = Slice(messageLength);
+				if(internalBuffer.Length != messageLength) Log.Error($"Didn't get expected length {internalBuffer.Length}");
+				if(internalBuffer.Length == 0) Log.Error($"Read length {internalBuffer.Length}, expected {messageLength}");
+				if(messageLength == 0)  continue;
+				if(header.Reliability != Reliability.ReliableOrdered) Log.Error($"Parsing message {internalBuffer.Span[0]} with reliability={header.Reliability}");
+
+				if (header.HasSplit)
+				{
+					var splitPartPacket = SplitPartPacket.CreateObject();
+					splitPartPacket.ReliabilityHeader = header;
+					splitPartPacket.Id = internalBuffer.Span[0];
+					splitPartPacket.Message = internalBuffer;
+					Messages.Add(splitPartPacket);
+
+					if (Log.IsDebugEnabled && _reader.Position < _reader.Length) Log.Debug($"Got split message, but more to read {_reader.Length - _reader.Position}");
+				}
+				else
+				{
+					byte id = internalBuffer.Span[0];
+					Packet packet = PacketFactory.Create(id, internalBuffer, "raknet") ?? new UnknownPacket(id, internalBuffer.ToArray());
+					packet.ReliabilityHeader = header;
+
+					Messages.Add(packet);
+				}
+
+				if (Log.IsDebugEnabled && messageLength != internalBuffer.Length) Log.Debug("Mismatch of requested length, and actual read length");
+			}
+		}
+
 
 		public bool TryAddMessagePart(MessagePart messagePart, int mtuSize)
 		{
@@ -195,10 +288,20 @@ namespace MiNET.Net.RakNet
 			if (!(message is ConnectedPong) && !(message is DetectLostConnections)) reliability = Reliability.ReliableOrdered;
 
 			int orderingIndex = 0;
-			lock (session.EncodeSync)
+			lock (session.EncryptionSyncRoot)
 			{
-				CryptoContext cryptoContext = session.CryptoContext;
-				if (!message.ForceClear && cryptoContext != null && session.CryptoContext.UseEncryption && isWrapper)
+				CryptoContext cryptoContext = null;
+				switch (session.CustomMessageHandler)
+				{
+					case BedrockMessageHandler bedrockMessageHandler:
+						cryptoContext = bedrockMessageHandler.CryptoContext;
+						break;
+					case BedrockClientMessageHandler bedrockClientMessageHandler:
+						cryptoContext = bedrockClientMessageHandler.CryptoContext;
+						break;
+				}
+
+				if (!message.ForceClear && cryptoContext != null && cryptoContext.UseEncryption && isWrapper)
 				{
 					var wrapper = McpeWrapper.CreateObject();
 					wrapper.payload = CryptoUtils.Encrypt(encodedMessage.Slice(1), cryptoContext);

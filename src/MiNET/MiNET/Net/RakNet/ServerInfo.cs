@@ -30,14 +30,13 @@ using System.Threading;
 using log4net;
 using MiNET.Utils;
 
-namespace MiNET
+namespace MiNET.Net.RakNet
 {
 	public class ServerInfo
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ServerInfo));
 
-		private readonly LevelManager _levelManager;
-		public ConcurrentDictionary<IPEndPoint, RakSession> PlayerSessions { get; private set; }
+		public ConcurrentDictionary<IPEndPoint, RakSession> RakSessions { get; set; }
 
 		public int NumberOfPlayers { get; set; }
 
@@ -63,7 +62,7 @@ namespace MiNET
 		private long _avgSizePerPacketIn;
 		private long _avgSizePerPacketOut;
 
-		public ServerInfo(LevelManager levelManager, ConcurrentDictionary<IPEndPoint, RakSession> playerSessions)
+		public ServerInfo(ConcurrentDictionary<IPEndPoint, RakSession> rakSessions)
 		{
 			//CreateCounters();
 
@@ -76,12 +75,11 @@ namespace MiNET
 			//PerformanceCounter ctrNumberOfFails = new PerformanceCounter("MiNET", nameof(NumberOfFails), "MiNET", false);
 
 
-			_levelManager = levelManager;
-			PlayerSessions = playerSessions;
+			RakSessions = rakSessions;
 			{
 				ThroughPut = new Timer(state =>
 				{
-					NumberOfPlayers = PlayerSessions.Count;
+					NumberOfPlayers = RakSessions.Count;
 
 					//ctrNumberOfPacketsOutPerSecond.IncrementBy(NumberOfPacketsOutPerSecond);
 					//ctrNumberOfPacketsInPerSecond.IncrementBy(NumberOfPacketsInPerSecond);
@@ -114,7 +112,7 @@ namespace MiNET
 					long numberOfNakIn = Interlocked.Exchange(ref NumberOfNakReceive, 0);
 					long numberOfResend = Interlocked.Exchange(ref NumberOfResends, 0);
 					long numberOfFailed = Interlocked.Exchange(ref NumberOfFails, 0);
-					
+
 					var message =
 						$"Players {NumberOfPlayers}, " +
 						$"Pkt in/out(#/s) {numberOfPacketsInPerSecond}/{numberOfPacketsOutPerSecond}, " +

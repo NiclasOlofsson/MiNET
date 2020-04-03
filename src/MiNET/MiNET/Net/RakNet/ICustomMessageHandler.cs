@@ -23,45 +23,29 @@
 
 #endregion
 
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using log4net;
-using log4net.Config;
-using MiNET.Utils;
+using MiNET.Blocks;
 
-namespace MiNET.Console
+namespace MiNET.Net.RakNet
 {
-	class Startup
+	public interface ICustomMessageHandler
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Startup));
+		void Disconnect(string reason, bool sendDisconnect = true);
 
-		static void Main(string[] args)
+		void HandlePacket(Packet message);
+	}
+
+	public class DefaultMessageHandler : ICustomMessageHandler
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(DefaultMessageHandler));
+
+		public void Disconnect(string reason, bool sendDisconnect = true)
 		{
-			var currentProcess = Process.GetCurrentProcess();
-			currentProcess.ProcessorAffinity = (IntPtr) Config.GetProperty("ProcessorAffinity", (int) currentProcess.ProcessorAffinity);
+		}
 
-			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log4net.xml")));
-
-			Log.Info(MiNetServer.MiNET);
-			System.Console.WriteLine(MiNetServer.MiNET);
-
-			var service = new MiNetServer();
-			Log.Info("Starting...");
-
-			if (Config.GetProperty("UserBedrockGenerator", false))
-			{
-				service.LevelManager = new LevelManager();
-				service.LevelManager.Generator = new BedrockGenerator();
-			}
-
-			service.StartServer();
-
-			System.Console.WriteLine("MiNET running. Press <enter> to stop service.");
-			System.Console.ReadLine();
-			service.StopServer();
+		public void HandlePacket(Packet message)
+		{
+			Log.Warn($"Default custom message handler. Probably not what you want!");
 		}
 	}
 }

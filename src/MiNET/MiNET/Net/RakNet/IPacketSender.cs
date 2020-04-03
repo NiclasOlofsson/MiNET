@@ -23,41 +23,18 @@
 
 #endregion
 
-using System;
 using System.Net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MiNET.Net;
-using MiNET.Net.RakNet;
+using System.Threading.Tasks;
 
-namespace MiNETTests.Net.RakNet
+namespace MiNET.Net.RakNet
 {
-	[TestClass()]
-	public class DatagramTests
+	public interface IPacketSender
 	{
-		[TestMethod()]
-		public void Encode_basic_ok()
-		{
-			var message = new ConnectionRequestAccepted();
-			message.NoBatch = true;
-			message.systemAddress = new IPEndPoint(IPAddress.Loopback, 19132);
-			message.systemAddresses = new IPEndPoint[20];
-			message.systemAddresses[0] = new IPEndPoint(IPAddress.Loopback, 19132);
-			message.incomingTimestamp = 12345;
-			message.serverTimestamp = DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
+		//public Task SendPacketAsync(RakSession session, Packet message);
+		//public Task SendDatagramAsync(RakSession session, Datagram datagram);
 
-			for (int i = 1; i < 20; i++)
-			{
-				message.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 19132);
-			}
-
-
-			var datagrams = Datagram.CreateDatagrams(message, 1664, new RakSession(null, null, IPEndPoint.Parse("127.0.0.1"), 1664));
-			foreach (Datagram datagram in datagrams)
-			{
-				var buffer = new byte[1600];
-				long length = datagram.GetEncoded(ref buffer);
-				Assert.AreNotEqual(length, buffer.Length);
-			}
-		}
+		public void SendData(byte[] data, IPEndPoint targetEndPoint);
+		public Task SendDataAsync(byte[] data, IPEndPoint targetEndPoint);
+		public Task SendDataAsync(byte[] data, int length, IPEndPoint targetEndPoint);
 	}
 }

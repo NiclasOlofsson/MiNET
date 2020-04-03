@@ -71,7 +71,7 @@ namespace MiNET.ServiceKiller
 		/// <param name="batchSize">If parallel spawn, how many in each batch.</param>
 		/// <param name="chunkRadius">The chunk radius the bots will request. Server may override.</param>
 		/// <param name="processorAffinity">Processor affinity mask represented as an integer.</param>
-		private static void Main(int numberOfBots = 500, int durationOfConnection = 900, bool concurrentSpawn = true, int batchSize = 5, int chunkRadius = 5, int processorAffinity = 0)
+		private static void Main(int numberOfBots = 10, int durationOfConnection = 900, bool concurrentSpawn = true, int batchSize = 5, int chunkRadius = 5, int processorAffinity = 0)
 		{
 			NumberOfBots = numberOfBots;
 			DurationOfConnection = TimeSpan.FromSeconds(durationOfConnection);
@@ -207,7 +207,6 @@ namespace MiNET.ServiceKiller
 				Console.WriteLine($"Client {Name} connecting...");
 
 				var client = new MiNetClient(EndPoint, Name, _threadPool);
-				client.MessageDispatcher = new McpeClientMessageDispatcher(new DefaultMessageHandler(client));
 				client.ChunkRadius = ChunkRadius;
 				client.IsEmulator = true;
 				client.ClientId = ClientId;
@@ -247,7 +246,7 @@ namespace MiNET.ServiceKiller
 
 				for (int i = 0; /*i < 10 && */Emulator.Running && runningTime.Elapsed < TimeToRun; i++)
 				{
-					if (client.UdpClient == null) break;
+					if (!client.IsConnected) break;
 
 					float y = client.LevelInfo.SpawnX + Random.Next(7, 10);
 					float length = Random.Next(5, 20);
@@ -258,7 +257,7 @@ namespace MiNET.ServiceKiller
 
 					while (angle < 2 * Math.PI && Emulator.Running)
 					{
-						if (client.UdpClient == null) break;
+						if (!client.IsConnected) break;
 
 						float x = (float) (length * Math.Cos(angle));
 						float z = (float) (length * Math.Sin(angle));
@@ -278,14 +277,14 @@ namespace MiNET.ServiceKiller
 					}
 				}
 
-				if (client.UdpClient != null)
+				if (client.IsConnected)
 				{
 					client.SendChat("Shadow gov agent BREXITING!");
 					client.SendDisconnectionNotification();
 				}
 
 				client.StopClient();
-				Console.WriteLine($"{runningTime.ElapsedMilliseconds} Client stopped. {client.UdpClient == null}, {Emulator.Running}");
+				Console.WriteLine($"{runningTime.ElapsedMilliseconds} Client stopped. {client.IsConnected}, {Emulator.Running}");
 			}
 			catch (Exception e)
 			{

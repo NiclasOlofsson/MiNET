@@ -82,7 +82,7 @@ namespace MiNET.Client
 				Thread.Sleep(500);
 			}
 
-			client.SendLogin(client.Username);
+			client.PlayerStatusChangedWaitHandle.WaitOne();
 
 			client.HasSpawned = true;
 

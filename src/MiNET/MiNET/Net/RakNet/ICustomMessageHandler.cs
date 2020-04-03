@@ -30,6 +30,8 @@ namespace MiNET.Net.RakNet
 {
 	public interface ICustomMessageHandler
 	{
+		void Connected();
+
 		void Disconnect(string reason, bool sendDisconnect = true);
 
 		void HandlePacket(Packet message);
@@ -38,6 +40,10 @@ namespace MiNET.Net.RakNet
 	public class DefaultMessageHandler : ICustomMessageHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(DefaultMessageHandler));
+
+		public void Connected()
+		{
+		}
 
 		public void Disconnect(string reason, bool sendDisconnect = true)
 		{

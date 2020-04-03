@@ -50,8 +50,7 @@ namespace MiNET.Test
 
 			var client = new MiNetClient(endpoint, username, new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			var scraper = new DataScraperTraceHandler(client);
-
-			client.MessageDispatcher = new McpeClientMessageDispatcher(scraper);
+			client.MessageHandler = new DataScraperTraceHandler(client);
 
 			client.StartClient();
 			client.SendOpenConnectionRequest1();

@@ -48,6 +48,10 @@ namespace MiNET.Net
 
 		public CryptoContext CryptoContext { get; set; }
 
+		public void Connected()
+		{
+		}
+
 		public void Disconnect(string reason, bool sendDisconnect = true)
 		{
 			Handler.Disconnect(reason, sendDisconnect);

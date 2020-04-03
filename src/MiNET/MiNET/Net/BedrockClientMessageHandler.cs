@@ -42,12 +42,19 @@ namespace MiNET.Net
 		public McpeClientMessageDispatcher MessageDispatcher { get; set; }
 		public CryptoContext CryptoContext { get; set; }
 
+		public Action ConnectionAction { get; set; }
+
 		public BedrockClientMessageHandler(RakSession session, IMcpeClientMessageHandler handler)
 		{
 			_session = session;
 			MessageDispatcher = new McpeClientMessageDispatcher(handler);
 		}
 
+
+		public void Connected()
+		{
+			ConnectionAction?.Invoke();
+		}
 
 		public void Disconnect(string reason, bool sendDisconnect = true)
 		{

@@ -547,8 +547,9 @@ namespace MiNET.Net.RakNet
 
 		protected virtual void HandleNewIncomingConnection(NewIncomingConnection message)
 		{
+			Log.Debug($"New incoming connection from {EndPoint.Address} {EndPoint.Port}");
+
 			State = ConnectionState.Connected;
-			Log.DebugFormat("New incoming connection from {0} {1}", EndPoint.Address, EndPoint.Port);
 		}
 
 		private void HandleConnectionRequestAccepted(ConnectionRequestAccepted message)
@@ -557,7 +558,7 @@ namespace MiNET.Net.RakNet
 
 			State = ConnectionState.Connected;
 
-			//SendLogin(Username);
+			CustomMessageHandler?.Connected();
 		}
 
 		public void SendNewIncomingConnection()

@@ -68,13 +68,18 @@ namespace MiNET.Client
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(MiNetClient));
 
-		public IPEndPoint ClientEndpoint { get; private set; }
-		public IPEndPoint ServerEndpoint { get; private set; }
+		
+		private long _clientGuid;
+
+		public IPEndPoint ClientEndpoint { get; set; }
+		public IPEndPoint ServerEndpoint { get; set; }
+
+		public bool IsEmulator { get; set; }
 
 		private RakConnection _connection;
+		public bool FoundServer => _connection.FoundServer;
 
 		public RakSession Session => _connection.ServerInfo.RakSessions.Values.FirstOrDefault();
-		public bool FoundServer => _connection.FoundServer;
 		public bool IsConnected => Session?.State == ConnectionState.Connected;
 
 		public Vector3 SpawnPoint { get; set; }
@@ -82,21 +87,18 @@ namespace MiNET.Client
 		public long NetworkEntityId { get; set; }
 		public int ChunkRadius { get; set; } = 5;
 
+		public LevelInfo LevelInfo { get; } = new LevelInfo();
+
 		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
 		public BlockPalette BlockPalette { get; set; } = new BlockPalette();
 
-		public LevelInfo LevelInfo { get; } = new LevelInfo();
-
-		private long _clientGuid;
-
 		public PlayerLocation CurrentLocation { get; set; }
 
-		public bool IsEmulator { get; set; }
 
 		public string Username { get; set; }
 		public int ClientId { get; set; }
 
-		public UdpClient UdpClient { get; private set; }
+		public IMcpeClientMessageHandler MessageHandler { get; set; }
 
 		public McpeClientMessageDispatcher MessageDispatcher
 		{
@@ -124,8 +126,9 @@ namespace MiNET.Client
 			var motdProvider = new MotdProvider();
 
 			_connection = new RakConnection(ClientEndpoint, greyListManager, motdProvider);
-			//_connection.CustomMessageHandlerFactory = session => new BedrockClientMessageHandler(session, new BedrockTraceHandler(this));
-			_connection.CustomMessageHandlerFactory = session => new BedrockClientMessageHandler(session, new DefaultMessageHandler(this));
+			var handlerFactory = new BedrockClientMessageHandler(Session, MessageHandler ?? new DefaultMessageHandler(this));
+			handlerFactory.ConnectionAction = () => SendLogin(Username);
+			_connection.CustomMessageHandlerFactory = session => handlerFactory;
 
 			//TODO: This is bad design, need to refactor this later.
 			greyListManager.ServerInfo = _connection.ServerInfo;

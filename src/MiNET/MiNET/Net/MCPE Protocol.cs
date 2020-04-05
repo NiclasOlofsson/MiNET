@@ -614,619 +614,317 @@ namespace MiNET.Net
 				switch (messageId)
 				{
 					case 0x00:
-						packet = ConnectedPing.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return ConnectedPing.CreateObject().Decode(buffer);
 					case 0x01:
-						packet = UnconnectedPing.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return UnconnectedPing.CreateObject().Decode(buffer);
 					case 0x03:
-						packet = ConnectedPong.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return ConnectedPong.CreateObject().Decode(buffer);
 					case 0x04:
-						packet = DetectLostConnections.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return DetectLostConnections.CreateObject().Decode(buffer);
 					case 0x1c:
-						packet = UnconnectedPong.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return UnconnectedPong.CreateObject().Decode(buffer);
 					case 0x05:
-						packet = OpenConnectionRequest1.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return OpenConnectionRequest1.CreateObject().Decode(buffer);
 					case 0x06:
-						packet = OpenConnectionReply1.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return OpenConnectionReply1.CreateObject().Decode(buffer);
 					case 0x07:
-						packet = OpenConnectionRequest2.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return OpenConnectionRequest2.CreateObject().Decode(buffer);
 					case 0x08:
-						packet = OpenConnectionReply2.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return OpenConnectionReply2.CreateObject().Decode(buffer);
 					case 0x09:
-						packet = ConnectionRequest.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return ConnectionRequest.CreateObject().Decode(buffer);
 					case 0x10:
-						packet = ConnectionRequestAccepted.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return ConnectionRequestAccepted.CreateObject().Decode(buffer);
 					case 0x13:
-						packet = NewIncomingConnection.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return NewIncomingConnection.CreateObject().Decode(buffer);
 					case 0x14:
-						packet = NoFreeIncomingConnections.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return NoFreeIncomingConnections.CreateObject().Decode(buffer);
 					case 0x15:
-						packet = DisconnectionNotification.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return DisconnectionNotification.CreateObject().Decode(buffer);
 					case 0x17:
-						packet = ConnectionBanned.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return ConnectionBanned.CreateObject().Decode(buffer);
 					case 0x1A:
-						packet = IpRecentlyConnected.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return IpRecentlyConnected.CreateObject().Decode(buffer);
 					case 0xfe:
-						packet = McpeWrapper.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeWrapper.CreateObject().Decode(buffer);
 				}
 			} else if(ns == "ftl") 
 			{
 				switch (messageId)
 				{
 					case 0x01:
-						packet = FtlCreatePlayer.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return FtlCreatePlayer.CreateObject().Decode(buffer);
 				}
 			} else {
 
 				switch (messageId)
 				{
 					case 0x01:
-						packet = McpeLogin.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeLogin.CreateObject().Decode(buffer);
 					case 0x02:
-						packet = McpePlayStatus.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpePlayStatus.CreateObject().Decode(buffer);
 					case 0x03:
-						packet = McpeServerToClientHandshake.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeServerToClientHandshake.CreateObject().Decode(buffer);
 					case 0x04:
-						packet = McpeClientToServerHandshake.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeClientToServerHandshake.CreateObject().Decode(buffer);
 					case 0x05:
-						packet = McpeDisconnect.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeDisconnect.CreateObject().Decode(buffer);
 					case 0x06:
-						packet = McpeResourcePacksInfo.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeResourcePacksInfo.CreateObject().Decode(buffer);
 					case 0x07:
-						packet = McpeResourcePackStack.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeResourcePackStack.CreateObject().Decode(buffer);
 					case 0x08:
-						packet = McpeResourcePackClientResponse.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeResourcePackClientResponse.CreateObject().Decode(buffer);
 					case 0x09:
-						packet = McpeText.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeText.CreateObject().Decode(buffer);
 					case 0x0a:
-						packet = McpeSetTime.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetTime.CreateObject().Decode(buffer);
 					case 0x0b:
-						packet = McpeStartGame.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeStartGame.CreateObject().Decode(buffer);
 					case 0x0c:
-						packet = McpeAddPlayer.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeAddPlayer.CreateObject().Decode(buffer);
 					case 0x0d:
-						packet = McpeAddEntity.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeAddEntity.CreateObject().Decode(buffer);
 					case 0x0e:
-						packet = McpeRemoveEntity.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeRemoveEntity.CreateObject().Decode(buffer);
 					case 0x0f:
-						packet = McpeAddItemEntity.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeAddItemEntity.CreateObject().Decode(buffer);
 					case 0x11:
-						packet = McpeTakeItemEntity.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeTakeItemEntity.CreateObject().Decode(buffer);
 					case 0x12:
-						packet = McpeMoveEntity.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeMoveEntity.CreateObject().Decode(buffer);
 					case 0x13:
-						packet = McpeMovePlayer.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeMovePlayer.CreateObject().Decode(buffer);
 					case 0x14:
-						packet = McpeRiderJump.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeRiderJump.CreateObject().Decode(buffer);
 					case 0x15:
-						packet = McpeUpdateBlock.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeUpdateBlock.CreateObject().Decode(buffer);
 					case 0x16:
-						packet = McpeAddPainting.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeAddPainting.CreateObject().Decode(buffer);
 					case 0x17:
-						packet = McpeTickSync.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeTickSync.CreateObject().Decode(buffer);
 					case 0x18:
-						packet = McpeLevelSoundEventOld.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeLevelSoundEventOld.CreateObject().Decode(buffer);
 					case 0x19:
-						packet = McpeLevelEvent.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeLevelEvent.CreateObject().Decode(buffer);
 					case 0x1a:
-						packet = McpeBlockEvent.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeBlockEvent.CreateObject().Decode(buffer);
 					case 0x1b:
-						packet = McpeEntityEvent.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeEntityEvent.CreateObject().Decode(buffer);
 					case 0x1c:
-						packet = McpeMobEffect.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeMobEffect.CreateObject().Decode(buffer);
 					case 0x1d:
-						packet = McpeUpdateAttributes.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeUpdateAttributes.CreateObject().Decode(buffer);
 					case 0x1e:
-						packet = McpeInventoryTransaction.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeInventoryTransaction.CreateObject().Decode(buffer);
 					case 0x1f:
-						packet = McpeMobEquipment.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeMobEquipment.CreateObject().Decode(buffer);
 					case 0x20:
-						packet = McpeMobArmorEquipment.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeMobArmorEquipment.CreateObject().Decode(buffer);
 					case 0x21:
-						packet = McpeInteract.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeInteract.CreateObject().Decode(buffer);
 					case 0x22:
-						packet = McpeBlockPickRequest.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeBlockPickRequest.CreateObject().Decode(buffer);
 					case 0x23:
-						packet = McpeEntityPickRequest.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeEntityPickRequest.CreateObject().Decode(buffer);
 					case 0x24:
-						packet = McpePlayerAction.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpePlayerAction.CreateObject().Decode(buffer);
 					case 0x25:
-						packet = McpeEntityFall.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeEntityFall.CreateObject().Decode(buffer);
 					case 0x26:
-						packet = McpeHurtArmor.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeHurtArmor.CreateObject().Decode(buffer);
 					case 0x27:
-						packet = McpeSetEntityData.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetEntityData.CreateObject().Decode(buffer);
 					case 0x28:
-						packet = McpeSetEntityMotion.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetEntityMotion.CreateObject().Decode(buffer);
 					case 0x29:
-						packet = McpeSetEntityLink.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetEntityLink.CreateObject().Decode(buffer);
 					case 0x2a:
-						packet = McpeSetHealth.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetHealth.CreateObject().Decode(buffer);
 					case 0x2b:
-						packet = McpeSetSpawnPosition.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetSpawnPosition.CreateObject().Decode(buffer);
 					case 0x2c:
-						packet = McpeAnimate.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeAnimate.CreateObject().Decode(buffer);
 					case 0x2d:
-						packet = McpeRespawn.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeRespawn.CreateObject().Decode(buffer);
 					case 0x2e:
-						packet = McpeContainerOpen.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeContainerOpen.CreateObject().Decode(buffer);
 					case 0x2f:
-						packet = McpeContainerClose.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeContainerClose.CreateObject().Decode(buffer);
 					case 0x30:
-						packet = McpePlayerHotbar.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpePlayerHotbar.CreateObject().Decode(buffer);
 					case 0x31:
-						packet = McpeInventoryContent.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeInventoryContent.CreateObject().Decode(buffer);
 					case 0x32:
-						packet = McpeInventorySlot.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeInventorySlot.CreateObject().Decode(buffer);
 					case 0x33:
-						packet = McpeContainerSetData.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeContainerSetData.CreateObject().Decode(buffer);
 					case 0x34:
-						packet = McpeCraftingData.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeCraftingData.CreateObject().Decode(buffer);
 					case 0x35:
-						packet = McpeCraftingEvent.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeCraftingEvent.CreateObject().Decode(buffer);
 					case 0x36:
-						packet = McpeGuiDataPickItem.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeGuiDataPickItem.CreateObject().Decode(buffer);
 					case 0x37:
-						packet = McpeAdventureSettings.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeAdventureSettings.CreateObject().Decode(buffer);
 					case 0x38:
-						packet = McpeBlockEntityData.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeBlockEntityData.CreateObject().Decode(buffer);
 					case 0x39:
-						packet = McpePlayerInput.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpePlayerInput.CreateObject().Decode(buffer);
 					case 0x3a:
-						packet = McpeLevelChunk.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeLevelChunk.CreateObject().Decode(buffer);
 					case 0x3b:
-						packet = McpeSetCommandsEnabled.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetCommandsEnabled.CreateObject().Decode(buffer);
 					case 0x3c:
-						packet = McpeSetDifficulty.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetDifficulty.CreateObject().Decode(buffer);
 					case 0x3d:
-						packet = McpeChangeDimension.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeChangeDimension.CreateObject().Decode(buffer);
 					case 0x3e:
-						packet = McpeSetPlayerGameType.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetPlayerGameType.CreateObject().Decode(buffer);
 					case 0x3f:
-						packet = McpePlayerList.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpePlayerList.CreateObject().Decode(buffer);
 					case 0x40:
-						packet = McpeSimpleEvent.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSimpleEvent.CreateObject().Decode(buffer);
 					case 0x41:
-						packet = McpeTelemetryEvent.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeTelemetryEvent.CreateObject().Decode(buffer);
 					case 0x42:
-						packet = McpeSpawnExperienceOrb.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSpawnExperienceOrb.CreateObject().Decode(buffer);
 					case 0x43:
-						packet = McpeClientboundMapItemData.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeClientboundMapItemData.CreateObject().Decode(buffer);
 					case 0x44:
-						packet = McpeMapInfoRequest.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeMapInfoRequest.CreateObject().Decode(buffer);
 					case 0x45:
-						packet = McpeRequestChunkRadius.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeRequestChunkRadius.CreateObject().Decode(buffer);
 					case 0x46:
-						packet = McpeChunkRadiusUpdate.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeChunkRadiusUpdate.CreateObject().Decode(buffer);
 					case 0x47:
-						packet = McpeItemFrameDropItem.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeItemFrameDropItem.CreateObject().Decode(buffer);
 					case 0x48:
-						packet = McpeGameRulesChanged.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeGameRulesChanged.CreateObject().Decode(buffer);
 					case 0x49:
-						packet = McpeCamera.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeCamera.CreateObject().Decode(buffer);
 					case 0x4a:
-						packet = McpeBossEvent.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeBossEvent.CreateObject().Decode(buffer);
 					case 0x4b:
-						packet = McpeShowCredits.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeShowCredits.CreateObject().Decode(buffer);
 					case 0x4c:
-						packet = McpeAvailableCommands.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeAvailableCommands.CreateObject().Decode(buffer);
 					case 0x4d:
-						packet = McpeCommandRequest.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeCommandRequest.CreateObject().Decode(buffer);
 					case 0x4e:
-						packet = McpeCommandBlockUpdate.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeCommandBlockUpdate.CreateObject().Decode(buffer);
 					case 0x4f:
-						packet = McpeCommandOutput.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeCommandOutput.CreateObject().Decode(buffer);
 					case 0x50:
-						packet = McpeUpdateTrade.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeUpdateTrade.CreateObject().Decode(buffer);
 					case 0x51:
-						packet = McpeUpdateEquipment.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeUpdateEquipment.CreateObject().Decode(buffer);
 					case 0x52:
-						packet = McpeResourcePackDataInfo.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeResourcePackDataInfo.CreateObject().Decode(buffer);
 					case 0x53:
-						packet = McpeResourcePackChunkData.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeResourcePackChunkData.CreateObject().Decode(buffer);
 					case 0x54:
-						packet = McpeResourcePackChunkRequest.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeResourcePackChunkRequest.CreateObject().Decode(buffer);
 					case 0x55:
-						packet = McpeTransfer.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeTransfer.CreateObject().Decode(buffer);
 					case 0x56:
-						packet = McpePlaySound.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpePlaySound.CreateObject().Decode(buffer);
 					case 0x57:
-						packet = McpeStopSound.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeStopSound.CreateObject().Decode(buffer);
 					case 0x58:
-						packet = McpeSetTitle.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetTitle.CreateObject().Decode(buffer);
 					case 0x59:
-						packet = McpeAddBehaviorTree.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeAddBehaviorTree.CreateObject().Decode(buffer);
 					case 0x5a:
-						packet = McpeStructureBlockUpdate.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeStructureBlockUpdate.CreateObject().Decode(buffer);
 					case 0x5b:
-						packet = McpeShowStoreOffer.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeShowStoreOffer.CreateObject().Decode(buffer);
 					case 0x5c:
-						packet = McpePurchaseReceipt.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpePurchaseReceipt.CreateObject().Decode(buffer);
 					case 0x5d:
-						packet = McpePlayerSkin.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpePlayerSkin.CreateObject().Decode(buffer);
 					case 0x5e:
-						packet = McpeSubClientLogin.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSubClientLogin.CreateObject().Decode(buffer);
 					case 0x5f:
-						packet = McpeInitiateWebSocketConnection.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeInitiateWebSocketConnection.CreateObject().Decode(buffer);
 					case 0x60:
-						packet = McpeSetLastHurtBy.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetLastHurtBy.CreateObject().Decode(buffer);
 					case 0x61:
-						packet = McpeBookEdit.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeBookEdit.CreateObject().Decode(buffer);
 					case 0x62:
-						packet = McpeNpcRequest.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeNpcRequest.CreateObject().Decode(buffer);
 					case 0x63:
-						packet = McpePhotoTransfer.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpePhotoTransfer.CreateObject().Decode(buffer);
 					case 0x64:
-						packet = McpeModalFormRequest.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeModalFormRequest.CreateObject().Decode(buffer);
 					case 0x65:
-						packet = McpeModalFormResponse.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeModalFormResponse.CreateObject().Decode(buffer);
 					case 0x66:
-						packet = McpeServerSettingsRequest.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeServerSettingsRequest.CreateObject().Decode(buffer);
 					case 0x67:
-						packet = McpeServerSettingsResponse.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeServerSettingsResponse.CreateObject().Decode(buffer);
 					case 0x68:
-						packet = McpeShowProfile.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeShowProfile.CreateObject().Decode(buffer);
 					case 0x69:
-						packet = McpeSetDefaultGameType.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetDefaultGameType.CreateObject().Decode(buffer);
 					case 0x6a:
-						packet = McpeRemoveObjective.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeRemoveObjective.CreateObject().Decode(buffer);
 					case 0x6b:
-						packet = McpeSetDisplayObjective.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetDisplayObjective.CreateObject().Decode(buffer);
 					case 0x6c:
-						packet = McpeSetScore.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetScore.CreateObject().Decode(buffer);
 					case 0x6d:
-						packet = McpeLabTable.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeLabTable.CreateObject().Decode(buffer);
 					case 0x6e:
-						packet = McpeUpdateBlockSynced.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeUpdateBlockSynced.CreateObject().Decode(buffer);
 					case 0x6f:
-						packet = McpeMoveEntityDelta.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeMoveEntityDelta.CreateObject().Decode(buffer);
 					case 0x70:
-						packet = McpeSetScoreboardIdentityPacket.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetScoreboardIdentityPacket.CreateObject().Decode(buffer);
 					case 0x71:
-						packet = McpeSetLocalPlayerAsInitializedPacket.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSetLocalPlayerAsInitializedPacket.CreateObject().Decode(buffer);
 					case 0x72:
-						packet = McpeUpdateSoftEnumPacket.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeUpdateSoftEnumPacket.CreateObject().Decode(buffer);
 					case 0x73:
-						packet = McpeNetworkStackLatencyPacket.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeNetworkStackLatencyPacket.CreateObject().Decode(buffer);
 					case 0x75:
-						packet = McpeScriptCustomEventPacket.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeScriptCustomEventPacket.CreateObject().Decode(buffer);
 					case 0x76:
-						packet = McpeSpawnParticleEffect.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeSpawnParticleEffect.CreateObject().Decode(buffer);
 					case 0x77:
-						packet = McpeAvailableEntityIdentifiers.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeAvailableEntityIdentifiers.CreateObject().Decode(buffer);
 					case 0x78:
-						packet = McpeLevelSoundEventV2.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeLevelSoundEventV2.CreateObject().Decode(buffer);
 					case 0x79:
-						packet = McpeNetworkChunkPublisherUpdate.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeNetworkChunkPublisherUpdate.CreateObject().Decode(buffer);
 					case 0x7a:
-						packet = McpeBiomeDefinitionList.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeBiomeDefinitionList.CreateObject().Decode(buffer);
 					case 0x7b:
-						packet = McpeLevelSoundEvent.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeLevelSoundEvent.CreateObject().Decode(buffer);
 					case 0x7c:
-						packet = McpeLevelEventGeneric.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeLevelEventGeneric.CreateObject().Decode(buffer);
 					case 0x7d:
-						packet = McpeLecternUpdate.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeLecternUpdate.CreateObject().Decode(buffer);
 					case 0x7e:
-						packet = McpeVideoStreamConnect.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeVideoStreamConnect.CreateObject().Decode(buffer);
 					case 0x81:
-						packet = McpeClientCacheStatus.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeClientCacheStatus.CreateObject().Decode(buffer);
 					case 0x82:
-						packet = McpeOnScreenTextureAnimation.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeOnScreenTextureAnimation.CreateObject().Decode(buffer);
 					case 0x83:
-						packet = McpeMapCreateLockedCopy.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeMapCreateLockedCopy.CreateObject().Decode(buffer);
 					case 0x84:
-						packet = McpeStructureTemplateDataExportRequest.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeStructureTemplateDataExportRequest.CreateObject().Decode(buffer);
 					case 0x85:
-						packet = McpeStructureTemplateDataExportResponse.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeStructureTemplateDataExportResponse.CreateObject().Decode(buffer);
 					case 0x86:
-						packet = McpeUpdateBlockProperties.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeUpdateBlockProperties.CreateObject().Decode(buffer);
 					case 0x87:
-						packet = McpeClientCacheBlobStatus.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeClientCacheBlobStatus.CreateObject().Decode(buffer);
 					case 0x88:
-						packet = McpeClientCacheMissResponse.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeClientCacheMissResponse.CreateObject().Decode(buffer);
 					case 0x8f:
-						packet = McpeNetworkSettingsPacket.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return McpeNetworkSettingsPacket.CreateObject().Decode(buffer);
 				}
 			}
 

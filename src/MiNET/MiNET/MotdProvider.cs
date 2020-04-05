@@ -58,10 +58,10 @@ namespace MiNET
 			GameMode = Config.GetProperty("gamemode", "Survival");
 		}
 
-		public virtual string GetMotd(ServerInfo serverInfo, IPEndPoint caller, bool eduMotd = false)
+		public virtual string GetMotd(ConnectionInfo connectionInfo, IPEndPoint caller, bool eduMotd = false)
 		{
-			NumberOfPlayers = serverInfo.NumberOfPlayers;
-			MaxNumberOfPlayers = serverInfo.MaxNumberOfPlayers;
+			NumberOfPlayers = connectionInfo.NumberOfPlayers;
+			MaxNumberOfPlayers = connectionInfo.MaxNumberOfPlayers;
 
 			ulong serverId = (ulong) ServerId;
 

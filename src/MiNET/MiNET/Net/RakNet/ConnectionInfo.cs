@@ -32,9 +32,9 @@ using MiNET.Utils;
 
 namespace MiNET.Net.RakNet
 {
-	public class ServerInfo
+	public class ConnectionInfo
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ServerInfo));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ConnectionInfo));
 
 		public ConcurrentDictionary<IPEndPoint, RakSession> RakSessions { get; set; }
 
@@ -67,8 +67,12 @@ namespace MiNET.Net.RakNet
 		private long _avgSizePerPacketIn;
 		private long _avgSizePerPacketOut;
 
-		public ServerInfo(ConcurrentDictionary<IPEndPoint, RakSession> rakSessions)
+		public ConnectionInfo(ConcurrentDictionary<IPEndPoint, RakSession> rakSessions)
 		{
+			RakSessions = rakSessions;
+
+			if (!Log.IsInfoEnabled) return;
+
 			//CreateCounters();
 
 			//PerformanceCounter ctrNumberOfPacketsOutPerSecond = new PerformanceCounter("MiNET", nameof(NumberOfPacketsOutPerSecond), "MiNET", false);
@@ -79,9 +83,8 @@ namespace MiNET.Net.RakNet
 			//PerformanceCounter ctrNumberOfResends = new PerformanceCounter("MiNET", nameof(NumberOfResends), "MiNET", false);
 			//PerformanceCounter ctrNumberOfFails = new PerformanceCounter("MiNET", nameof(NumberOfFails), "MiNET", false);
 
-
-			RakSessions = rakSessions;
 			{
+
 				ThroughPut = new Timer(state =>
 				{
 					NumberOfPlayers = RakSessions.Count;
@@ -132,7 +135,7 @@ namespace MiNET.Net.RakNet
 					}
 					else
 					{
-						Log.InfoFormat(message);
+						Log.Info(message);
 					}
 				}, null, 1000, 1000);
 			}

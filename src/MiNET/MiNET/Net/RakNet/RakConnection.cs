@@ -24,10 +24,12 @@
 #endregion
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
@@ -44,17 +46,18 @@ namespace MiNET.Net.RakNet
 		private DedicatedThreadPool _receiveThreadPool;
 		private Thread _receiveThread;
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
-		private ConcurrentDictionary<IPEndPoint, RakSession> _rakSessions = new ConcurrentDictionary<IPEndPoint, RakSession>();
+		private readonly ConcurrentDictionary<IPEndPoint, RakSession> _rakSessions = new ConcurrentDictionary<IPEndPoint, RakSession>();
 		private readonly GreyListManager _greyListManager;
 		private readonly MotdProvider _motdProvider;
-		public readonly RakProcessor _rakProcessor;
-		public ServerInfo ServerInfo { get; }
+		public readonly RakOfflineHandler _rakOfflineHandler;
+		public ConnectionInfo ConnectionInfo { get; }
 
-		public bool FoundServer => _rakProcessor.HaveServer;
+		public bool FoundServer => _rakOfflineHandler.HaveServer;
+
 		public bool AutoConnect
 		{
-			get => _rakProcessor.AutoConnect;
-			set => _rakProcessor.AutoConnect = value;
+			get => _rakOfflineHandler.AutoConnect;
+			set => _rakOfflineHandler.AutoConnect = value;
 		}
 
 		// This is only used in client scenarios. Will contain
@@ -77,9 +80,9 @@ namespace MiNET.Net.RakNet
 
 			_receiveThreadPool = threadPool ?? new DedicatedThreadPool(new DedicatedThreadPoolSettings(100, "Datagram Rcv Thread"));
 
-			ServerInfo = new ServerInfo(_rakSessions);
+			ConnectionInfo = new ConnectionInfo(_rakSessions);
 
-			_rakProcessor = new RakProcessor(this, this, _greyListManager, _motdProvider, ServerInfo);
+			_rakOfflineHandler = new RakOfflineHandler(this, this, _greyListManager, _motdProvider, ConnectionInfo);
 		}
 
 		public void Start()
@@ -153,6 +156,32 @@ namespace MiNET.Net.RakNet
 			return listener;
 		}
 
+		public void Close(RakSession session)
+		{
+			var ackQueue = session.WaitingForAckQueue;
+			foreach (var kvp in ackQueue)
+			{
+				if (ackQueue.TryRemove(kvp.Key, out Datagram datagram)) datagram.PutPool();
+			}
+
+			var splits = session.Splits;
+			foreach (var kvp in splits)
+			{
+				if (splits.TryRemove(kvp.Key, out SplitPartPacket[] splitPartPackets))
+				{
+					if (splitPartPackets == null) continue;
+
+					foreach (SplitPartPacket packet in splitPartPackets)
+					{
+						packet?.PutPool();
+					}
+				}
+			}
+
+			ackQueue.Clear();
+			splits.Clear();
+		}
+
 
 		private void ReceiveDatagram(object state)
 		{
@@ -176,8 +205,8 @@ namespace MiNET.Net.RakNet
 					//senderEndpoint = result.RemoteEndPoint;
 					//byte[] receiveBytes = result.Buffer;
 
-					Interlocked.Increment(ref ServerInfo.NumberOfPacketsInPerSecond);
-					Interlocked.Add(ref ServerInfo.TotalPacketSizeInPerSecond, receiveBytes.Length);
+					Interlocked.Increment(ref ConnectionInfo.NumberOfPacketsInPerSecond);
+					Interlocked.Add(ref ConnectionInfo.TotalPacketSizeInPerSecond, receiveBytes.Length);
 
 					if (receiveBytes.Length != 0)
 					{
@@ -191,7 +220,7 @@ namespace MiNET.Net.RakNet
 									if (_greyListManager.IsGreylisted(senderEndpoint.Address)) return;
 								}
 
-								ProcessMessage(receiveBytes, senderEndpoint);
+								ReceiveDatagram(receiveBytes, senderEndpoint);
 							}
 							catch (Exception e)
 							{
@@ -216,7 +245,7 @@ namespace MiNET.Net.RakNet
 			}
 		}
 
-		private void ProcessMessage(ReadOnlyMemory<byte> receivedBytes, IPEndPoint clientEndpoint)
+		private void ReceiveDatagram(ReadOnlyMemory<byte> receivedBytes, IPEndPoint clientEndpoint)
 		{
 			var header = new DatagramHeader(receivedBytes.Span[0]);
 
@@ -228,7 +257,7 @@ namespace MiNET.Net.RakNet
 
 				if (messageId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 				{
-					_rakProcessor.HandleOfflineRakMessage(receivedBytes, clientEndpoint);
+					_rakOfflineHandler.HandleOfflineRakMessage(receivedBytes, clientEndpoint);
 				}
 				else
 				{
@@ -265,25 +294,31 @@ namespace MiNET.Net.RakNet
 
 			if (header.IsAck)
 			{
-				if (ServerInfo.IsEmulator) return;
+				if (ConnectionInfo.IsEmulator) return;
 
-				rakSession.HandleAck(receivedBytes, ServerInfo);
+				var ack = new Ack();
+				ack.Decode(receivedBytes);
+
+				HandleAck(rakSession, ack, ConnectionInfo);
 				return;
 			}
 
 			if (header.IsNak)
 			{
-				if (ServerInfo.IsEmulator) return;
+				if (ConnectionInfo.IsEmulator) return;
 
-				rakSession.HandleNak(receivedBytes, ServerInfo);
+				var nak = new Nak();
+				nak.Decode(receivedBytes);
+
+				HandleNak(rakSession, nak, ConnectionInfo);
 				return;
 			}
 
-			if (ServerInfo.IsEmulator)
+			if (ConnectionInfo.IsEmulator)
 			{
 				if (_tickerHighPrecisionTimer != null)
 				{
-					var timer = _tickerHighPrecisionTimer;
+					HighPrecisionTimer timer = _tickerHighPrecisionTimer;
 					_tickerHighPrecisionTimer = null;
 					timer?.Dispose();
 				}
@@ -293,7 +328,9 @@ namespace MiNET.Net.RakNet
 				var acks = Acks.CreateObject();
 				acks.acks.Add(datagramSequenceNumber);
 				byte[] data = acks.Encode();
+
 				SendData(data, clientEndpoint);
+
 				return;
 			}
 
@@ -313,10 +350,184 @@ namespace MiNET.Net.RakNet
 				return;
 			}
 
-			rakSession.OutgoingAckQueue.Enqueue(datagram.Header.DatagramSequenceNumber);
+			EnqueueAck(rakSession, datagram.Header.DatagramSequenceNumber);
 
-			rakSession.HandleDatagram(datagram);
+			HandleDatagram(rakSession, datagram);
 			datagram.PutPool();
+		}
+
+		private void HandleDatagram(RakSession session, Datagram datagram)
+		{
+			foreach (Packet packet in datagram.Messages)
+			{
+				Packet message = packet;
+				if (message is SplitPartPacket splitPartPacket)
+				{
+					message = HandleSplitMessage(session, splitPartPacket);
+					if (message == null) continue;
+				}
+
+				message.Timer.Restart();
+				session.HandleRakMessage(message);
+			}
+		}
+
+		private Packet HandleSplitMessage(RakSession session, SplitPartPacket splitPart)
+		{
+			int spId = splitPart.ReliabilityHeader.PartId;
+			int spIdx = splitPart.ReliabilityHeader.PartIndex;
+			int spCount = splitPart.ReliabilityHeader.PartCount;
+
+			SplitPartPacket[] splitPartList = session.Splits.GetOrAdd(spId, new SplitPartPacket[spCount]);
+			bool haveAllParts = true;
+			// Need sync for this part since they come very fast, and very close in time. 
+			// If no sync, will often detect complete message two times (or more).
+
+			lock (splitPartList)
+			{
+				// Already had part (resent). Then ignore. 
+				if (splitPartList[spIdx] != null) return null;
+
+				splitPartList[spIdx] = splitPart;
+
+				foreach (SplitPartPacket spp in splitPartList)
+				{
+					if (spp != null) continue;
+
+					haveAllParts = false;
+					break;
+				}
+			}
+
+			if (!haveAllParts) return null;
+
+			Log.Debug($"Got all {spCount} split packets for split ID: {spId}");
+
+			session.Splits.TryRemove(spId, out SplitPartPacket[] _);
+
+			int contiguousLength = 0;
+			foreach (SplitPartPacket spp in splitPartList)
+			{
+				contiguousLength += spp.Message.Length;
+			}
+
+			var buffer = new Memory<byte>(new byte[contiguousLength]);
+
+			Reliability headerReliability = splitPart.ReliabilityHeader.Reliability;
+			var headerReliableMessageNumber = splitPart.ReliabilityHeader.ReliableMessageNumber;
+			var headerOrderingChannel = splitPart.ReliabilityHeader.OrderingChannel;
+			var headerOrderingIndex = splitPart.ReliabilityHeader.OrderingIndex;
+
+			int position = 0;
+			foreach (SplitPartPacket spp in splitPartList)
+			{
+				spp.Message.CopyTo(buffer.Slice(position));
+				position += spp.Message.Length;
+				spp.PutPool();
+			}
+
+			try
+			{
+				Packet fullMessage = PacketFactory.Create(buffer.Span[0], buffer, "raknet") ??
+									new UnknownPacket(buffer.Span[0], buffer.ToArray());
+
+				fullMessage.ReliabilityHeader = new ReliabilityHeader()
+				{
+					Reliability = headerReliability,
+					ReliableMessageNumber = headerReliableMessageNumber,
+					OrderingChannel = headerOrderingChannel,
+					OrderingIndex = headerOrderingIndex,
+				};
+
+				Log.Debug($"Assembled split packet {fullMessage.ReliabilityHeader.Reliability} message #{fullMessage.ReliabilityHeader.ReliableMessageNumber}, OrdIdx: #{fullMessage.ReliabilityHeader.OrderingIndex}");
+
+				return fullMessage;
+			}
+			catch (Exception e)
+			{
+				Log.Error("Error during split message parsing", e);
+				if (Log.IsDebugEnabled) Log.Debug($"0x{buffer.Span[0]:x2}\n{Packet.HexDump(buffer)}");
+				session.Disconnect("Bad packet received from client.", false);
+			}
+
+			return null;
+		}
+
+
+		private void EnqueueAck(RakSession session, Int24 datagramSequenceNumber)
+		{
+			session.OutgoingAckQueue.Enqueue(datagramSequenceNumber);
+		}
+
+		private void HandleAck(RakSession session, Ack ack, ConnectionInfo connectionInfo)
+		{
+			var queue = session.WaitingForAckQueue;
+
+			foreach ((int start, int end) range in ack.ranges)
+			{
+				Interlocked.Increment(ref connectionInfo.NumberOfAckReceive);
+
+				for (int i = range.start; i <= range.end; i++)
+				{
+					if (queue.TryRemove(i, out Datagram datagram))
+					{
+						CalculateRto(session, datagram);
+
+						datagram.PutPool();
+					}
+					else
+					{
+						if (Log.IsDebugEnabled) Log.Warn($"ACK, Failed to remove datagram #{i} for {session.Username}. Queue size={queue.Count}");
+					}
+				}
+			}
+
+			session.ResendCount = 0;
+			session.WaitForAck = false;
+		}
+
+		internal void HandleNak(RakSession session, Nak nak, ConnectionInfo connectionInfo)
+		{
+			var queue = session.WaitingForAckQueue;
+
+			foreach (Tuple<int, int> range in nak.ranges)
+			{
+				Interlocked.Increment(ref connectionInfo.NumberOfNakReceive);
+
+				int start = range.Item1;
+				int end = range.Item2;
+
+				for (int i = start; i <= end; i++)
+				{
+					if (queue.TryGetValue(i, out var datagram))
+					{
+						CalculateRto(session, datagram);
+
+						datagram.RetransmitImmediate = true;
+					}
+					else
+					{
+						if (Log.IsDebugEnabled)
+							Log.WarnFormat("NAK, no datagram #{0} for {1}", i, session.Username);
+					}
+				}
+			}
+		}
+
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void CalculateRto(RakSession session, Datagram datagram)
+		{
+			// RTT = RTT * 0.875 + rtt * 0.125
+			// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
+			// RTO = RTT + 4 * RTTVar
+			long rtt = datagram.Timer.ElapsedMilliseconds;
+			long RTT = session.Rtt;
+			long RTTVar = session.RttVar;
+
+			session.Rtt = (long) (RTT * 0.875 + rtt * 0.125);
+			session.RttVar = (long) (RTTVar * 0.875 + Math.Abs(RTT - rtt) * 0.125);
+			session.Rto = session.Rtt + 4 * session.RttVar + 100; // SYNC time in the end
 		}
 
 		private async void SendTick(object obj)
@@ -326,7 +537,7 @@ namespace MiNET.Net.RakNet
 			var tasks = new List<Task>();
 			foreach (KeyValuePair<IPEndPoint, RakSession> session in _rakSessions)
 			{
-				tasks.Add(session.Value.SendTickAsync());
+				tasks.Add(session.Value.SendTickAsync(this));
 			}
 			await Task.WhenAll(tasks);
 
@@ -334,14 +545,136 @@ namespace MiNET.Net.RakNet
 			//if (duration > 10) Log.Warn($"Ticker thread exceeded max time. Took {watch.ElapsedMilliseconds}ms for {_playerSessions.Count} sessions.");
 		}
 
+		internal async Task UpdateAsync(RakSession session)
+		{
+			if (session.Evicted) return;
+
+			if (MiNetServer.FastThreadPool == null) return;
+
+			try
+			{
+				long now = DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
+				long lastUpdate = session.LastUpdatedTime.Ticks / TimeSpan.TicksPerMillisecond;
+
+				if (!session.WaitForAck && (session.ResendCount > session.ResendThreshold || lastUpdate + session.InactivityTimeout < now))
+				{
+					//TODO: Seems to have lost code here. This should actually count the resends too.
+					// Spam is a bit too much. The Russians have trouble with bad connections.
+					session.DetectLostConnection();
+					session.WaitForAck = true;
+				}
+
+				if (session.WaitingForAckQueue.Count == 0) return;
+
+				if (session.WaitForAck) return;
+
+				if (session.Rto == 0) return;
+
+				long rto = Math.Max(100, session.Rto);
+				var queue = session.WaitingForAckQueue;
+
+				foreach (KeyValuePair<int, Datagram> datagramPair in queue)
+				{
+					if (session.Evicted) return;
+
+					Datagram datagram = datagramPair.Value;
+
+					if (!datagram.Timer.IsRunning)
+					{
+						Log.Error($"Timer not running for #{datagram.Header.DatagramSequenceNumber}");
+						datagram.Timer.Restart();
+						continue;
+					}
+
+					if (session.Rtt == -1) return;
+
+					long elapsedTime = datagram.Timer.ElapsedMilliseconds;
+					long datagramTimeout = rto * (datagram.TransmissionCount + session.ResendCount + 1);
+					datagramTimeout = Math.Min(datagramTimeout, 3000);
+					datagramTimeout = Math.Max(datagramTimeout, 100);
+
+					if (datagram.RetransmitImmediate || elapsedTime >= datagramTimeout)
+					{
+						if (!session.Evicted && session.WaitingForAckQueue.TryRemove(datagram.Header.DatagramSequenceNumber, out _))
+						{
+							session.ErrorCount++;
+							session.ResendCount++;
+
+							if (Log.IsDebugEnabled) Log.Warn($"{(datagram.RetransmitImmediate ? "NAK RSND" : "TIMEOUT")}, Resent #{datagram.Header.DatagramSequenceNumber.IntValue()} Type: {datagram.FirstMessageId} (0x{datagram.FirstMessageId:x2}) for {session.Username} ({elapsedTime} > {datagramTimeout}) RTO {session.Rto}");
+
+							Interlocked.Increment(ref ConnectionInfo.NumberOfResends);
+							await SendDatagramAsync(session, datagram);
+						}
+					}
+				}
+			}
+			finally
+			{
+				//session._updateSync.Release();
+			}
+		}
+
+		public async Task SendPacketAsync(RakSession session, Packet message)
+		{
+			foreach (Datagram datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
+			{
+				await SendDatagramAsync(session, datagram);
+			}
+
+			message.PutPool();
+		}
+
+		public async Task SendDatagramAsync(RakSession session, Datagram datagram)
+		{
+			if (datagram.MessageParts.Count == 0)
+			{
+				Log.Warn($"Failed to send #{datagram.Header.DatagramSequenceNumber.IntValue()}");
+				datagram.PutPool();
+				return;
+			}
+
+			if (datagram.TransmissionCount > 10)
+			{
+				if (Log.IsDebugEnabled) Log.Warn($"Retransmission count exceeded. No more resend of #{datagram.Header.DatagramSequenceNumber.IntValue()} Type: {datagram.FirstMessageId} (0x{datagram.FirstMessageId:x2}) for {session.Username}");
+
+				datagram.PutPool();
+
+				Interlocked.Increment(ref ConnectionInfo.NumberOfFails);
+				//TODO: Disconnect! Because of encryption, this connection can't be used after this point
+				return;
+			}
+
+			datagram.Header.DatagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
+			datagram.TransmissionCount++;
+			datagram.RetransmitImmediate = false;
+
+			byte[] buffer = ArrayPool<byte>.Shared.Rent(1600);
+			int length = (int) datagram.GetEncoded(ref buffer);
+
+			datagram.Timer.Restart();
+
+			if (!ConnectionInfo.DisableAck && !ConnectionInfo.IsEmulator && !session.WaitingForAckQueue.TryAdd(datagram.Header.DatagramSequenceNumber.IntValue(), datagram))
+			{
+				Log.Warn($"Datagram sequence unexpectedly existed in the ACK/NAK queue already {datagram.Header.DatagramSequenceNumber.IntValue()}");
+				datagram.PutPool();
+			}
+
+			//lock (session.SyncRoot)
+			{
+				await SendDataAsync(buffer, length, session.EndPoint);
+				ArrayPool<byte>.Shared.Return(buffer);
+			}
+		}
+
+
 		public void SendData(byte[] data, IPEndPoint targetEndPoint)
 		{
 			try
 			{
 				_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
 
-				Interlocked.Increment(ref ServerInfo.NumberOfPacketsOutPerSecond);
-				Interlocked.Add(ref ServerInfo.TotalPacketSizeOutPerSecond, data.Length);
+				Interlocked.Increment(ref ConnectionInfo.NumberOfPacketsOutPerSecond);
+				Interlocked.Add(ref ConnectionInfo.TotalPacketSizeOutPerSecond, data.Length);
 			}
 			catch (ObjectDisposedException e)
 			{
@@ -364,8 +697,8 @@ namespace MiNET.Net.RakNet
 				await _listener.SendAsync(data, length, targetEndPoint);
 				//_listener.Send(data, length, targetEndPoint);
 
-				Interlocked.Increment(ref ServerInfo.NumberOfPacketsOutPerSecond);
-				Interlocked.Add(ref ServerInfo.TotalPacketSizeOutPerSecond, length);
+				Interlocked.Increment(ref ConnectionInfo.NumberOfPacketsOutPerSecond);
+				Interlocked.Add(ref ConnectionInfo.TotalPacketSizeOutPerSecond, length);
 			}
 			catch (ObjectDisposedException e)
 			{

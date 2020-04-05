@@ -35,16 +35,16 @@ using Newtonsoft.Json.Converters;
 
 namespace MiNET.Net.RakNet
 {
-	public sealed class RakProcessor
+	public sealed class RakOfflineHandler
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(RakProcessor));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(RakOfflineHandler));
 
 		private const int DefaultMtuSize = 1464;
 
 		private readonly IPacketSender _sender;
 		private readonly RakConnection _connection;
 		private readonly MotdProvider _motdProvider;
-		private readonly ServerInfo _serverInfo;
+		private readonly ConnectionInfo _connectionInfo;
 		private readonly GreyListManager _greyListManager;
 		private readonly ConcurrentDictionary<IPEndPoint, DateTime> _connectionAttempts = new ConcurrentDictionary<IPEndPoint, DateTime>();
 		private long _clientGuid = 1111111 + new Random().Next();
@@ -54,12 +54,12 @@ namespace MiNET.Net.RakNet
 		// Tell RakNet to automatically connect to any found server.
 		public bool AutoConnect { get; set; } = true;
 
-		internal RakProcessor(RakConnection connection, IPacketSender sender, GreyListManager greyListManager, MotdProvider motdProvider, ServerInfo serverInfo)
+		internal RakOfflineHandler(RakConnection connection, IPacketSender sender, GreyListManager greyListManager, MotdProvider motdProvider, ConnectionInfo connectionInfo)
 		{
 			_sender = sender;
 			_connection = connection;
 			_motdProvider = motdProvider;
-			_serverInfo = serverInfo;
+			_connectionInfo = connectionInfo;
 			_greyListManager = greyListManager;
 		}
 
@@ -69,7 +69,7 @@ namespace MiNET.Net.RakNet
 			var messageType = (DefaultMessageIdTypes) messageId;
 
 			// Increase fast, decrease slow on 1s ticks.
-			if (_serverInfo.NumberOfPlayers < _serverInfo.RakSessions.Count) _serverInfo.NumberOfPlayers = _serverInfo.RakSessions.Count;
+			if (_connectionInfo.NumberOfPlayers < _connectionInfo.RakSessions.Count) _connectionInfo.NumberOfPlayers = _connectionInfo.RakSessions.Count;
 
 			// Shortcut to reply fast, and no parsing
 			if (messageType == DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1)
@@ -84,7 +84,7 @@ namespace MiNET.Net.RakNet
 					noFree.PutPool();
 
 					_sender.SendData(bytes, senderEndpoint);
-					Interlocked.Increment(ref _serverInfo.NumberOfDeniedConnectionRequestsPerSecond);
+					Interlocked.Increment(ref _connectionInfo.NumberOfDeniedConnectionRequestsPerSecond);
 					return;
 				}
 			}
@@ -189,7 +189,7 @@ namespace MiNET.Net.RakNet
 
 		public void SendConnectionRequest(IPEndPoint targetEndPoint)
 		{
-			var session = new RakSession(_serverInfo, _sender, targetEndPoint, DefaultMtuSize)
+			var session = new RakSession(_connectionInfo, _sender, targetEndPoint, DefaultMtuSize)
 			{
 				State = ConnectionState.Connecting,
 				LastUpdatedTime = DateTime.UtcNow,
@@ -198,7 +198,7 @@ namespace MiNET.Net.RakNet
 
 			session.CustomMessageHandler = _connection.CustomMessageHandlerFactory?.Invoke(session);
 
-			if (!_serverInfo.RakSessions.TryAdd(targetEndPoint, session))
+			if (!_connectionInfo.RakSessions.TryAdd(targetEndPoint, session))
 			{
 				Log.Warn($"Unable to add session, will close now");
 				_connection.Stop();
@@ -288,7 +288,7 @@ namespace MiNET.Net.RakNet
 				var packet = UnconnectedPong.CreateObject();
 				packet.serverId = _motdProvider.ServerId;
 				packet.pingId = message.pingId;
-				packet.serverName = _motdProvider.GetMotd(_serverInfo, senderEndpoint);
+				packet.serverName = _motdProvider.GetMotd(_connectionInfo, senderEndpoint);
 				byte[] data = packet.Encode();
 
 				TraceSend(packet);
@@ -301,7 +301,7 @@ namespace MiNET.Net.RakNet
 
 		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionRequest1 message)
 		{
-			ConcurrentDictionary<IPEndPoint, RakSession> sessions = _serverInfo.RakSessions;
+			ConcurrentDictionary<IPEndPoint, RakSession> sessions = _connectionInfo.RakSessions;
 			ConcurrentDictionary<IPEndPoint, DateTime> connectionAttempts = _connectionAttempts;
 
 			lock (sessions)
@@ -334,7 +334,7 @@ namespace MiNET.Net.RakNet
 
 		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionRequest2 incoming)
 		{
-			ConcurrentDictionary<IPEndPoint, RakSession> sessions = _serverInfo.RakSessions;
+			ConcurrentDictionary<IPEndPoint, RakSession> sessions = _connectionInfo.RakSessions;
 			ConcurrentDictionary<IPEndPoint, DateTime> connectionAttempts = _connectionAttempts;
 
 			lock (sessions)
@@ -360,7 +360,7 @@ namespace MiNET.Net.RakNet
 					sessions.TryRemove(senderEndpoint, out _);
 				}
 
-				session = new RakSession(_serverInfo, _sender, senderEndpoint, incoming.mtuSize)
+				session = new RakSession(_connectionInfo, _sender, senderEndpoint, incoming.mtuSize)
 				{
 					State = ConnectionState.Connecting,
 					LastUpdatedTime = DateTime.UtcNow,

@@ -63,7 +63,7 @@ namespace MiNET
 		public PluginManager PluginManager { get; set; }
 		public SessionManager SessionManager { get; set; }
 
-		public ServerInfo ServerInfo { get; set; }
+		public ConnectionInfo ConnectionInfo { get; set; }
 
 		public ServerRole ServerRole { get; set; }
 
@@ -160,10 +160,10 @@ namespace MiNET
 					_listener.CustomMessageHandlerFactory = session => new BedrockMessageHandler(session, ServerManager, PluginManager);
 
 					//TODO: This is bad design, need to refactor this later.
-					GreyListManager.ServerInfo = _listener.ServerInfo;
-					ServerInfo = _listener.ServerInfo;
-					ServerInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 10);
-					ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
+					GreyListManager.ConnectionInfo = _listener.ConnectionInfo;
+					ConnectionInfo = _listener.ConnectionInfo;
+					ConnectionInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 10);
+					ConnectionInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ConnectionInfo.MaxNumberOfPlayers);
 
 					_listener.Start();
 				}

@@ -2335,12 +2335,12 @@ namespace MiNET.Net
 		}
 
 		[Obsolete("Use decode with ReadOnlyMemory<byte> instead.")]
-		public virtual void Decode(byte[] buffer)
+		public virtual Packet Decode(byte[] buffer)
 		{
-			Decode(new ReadOnlyMemory<byte>(buffer));
+			return Decode(new ReadOnlyMemory<byte>(buffer));
 		}
 
-		public virtual void Decode(ReadOnlyMemory<byte> buffer)
+		public virtual Packet Decode(ReadOnlyMemory<byte> buffer)
 		{
 			Bytes = buffer;
 			_reader = new MemoryStreamReader(buffer);
@@ -2354,6 +2354,8 @@ namespace MiNET.Net
 
 			_reader.Dispose();
 			_reader = null;
+
+			return this;
 		}
 
 		protected virtual void DecodePacket()

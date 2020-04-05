@@ -136,9 +136,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[@namespace='raknet']"))
 {
 #>
 					case <#= pdu.Attributes["id"].Value #>:
-						packet = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject().Decode(buffer);
 <#	
 } // foreach
 #>
@@ -152,9 +150,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[@namespace='ftl']"))
 {
 #>
 					case <#= pdu.Attributes["id"].Value #>:
-						packet = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject().Decode(buffer);
 <#	
 } // foreach
 #>
@@ -168,9 +164,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and not(
 {
 #>
 					case <#= pdu.Attributes["id"].Value #>:
-						packet = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-						packet.Decode(buffer);
-						return packet;
+						return <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject().Decode(buffer);
 <#	
 } // foreach
 #>

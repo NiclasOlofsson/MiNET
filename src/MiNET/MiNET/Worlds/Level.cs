@@ -677,12 +677,9 @@ namespace MiNET.Worlds
 				var tasks = new List<Task>();
 				foreach (Player player in players)
 				{
-					if (player.NetworkHandler is RakSession session)
-					{
-						tasks.Add(session.SendQueueAsync());
-					}
+					if (player.NetworkHandler is RakSession session) tasks.Add(session.SendQueueAsync());
 				}
-				Task.WhenAll(tasks.ToArray()).Wait();
+				Task.WhenAll(tasks).Wait();
 
 				if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 50) Log.Error($"World tick too too long: {_tickTimer.ElapsedMilliseconds} ms");
 			}

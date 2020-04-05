@@ -80,7 +80,7 @@ namespace MiNET.Client
 		public RakConnection Connection { get; private set; }
 		public bool FoundServer => Connection.FoundServer;
 
-		public RakSession Session => Connection.ServerInfo.RakSessions.Values.FirstOrDefault();
+		public RakSession Session => Connection.ConnectionInfo.RakSessions.Values.FirstOrDefault();
 		public bool IsConnected => Session?.State == ConnectionState.Connected;
 
 		public Vector3 SpawnPoint { get; set; }
@@ -131,8 +131,8 @@ namespace MiNET.Client
 			Connection.CustomMessageHandlerFactory = session => handlerFactory;
 
 			//TODO: This is bad design, need to refactor this later.
-			greyListManager.ServerInfo = Connection.ServerInfo;
-			var serverInfo = Connection.ServerInfo;
+			greyListManager.ConnectionInfo = Connection.ConnectionInfo;
+			var serverInfo = Connection.ConnectionInfo;
 			serverInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 10);
 			serverInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", serverInfo.MaxNumberOfPlayers);
 
@@ -642,7 +642,7 @@ namespace MiNET.Client
 
 		public void SendOpenConnectionRequest1()
 		{
-			Connection._rakProcessor.SendOpenConnectionRequest1(ServerEndpoint);
+			Connection._rakOfflineHandler.SendOpenConnectionRequest1(ServerEndpoint);
 		}
 
 		public void SendPacket(Packet packet)
@@ -699,13 +699,23 @@ namespace MiNET.Client
 			movePlayerPacket.mode = 1;
 			movePlayerPacket.onGround = false;
 
-			if (Connection.ServerInfo.IsEmulator)
+			if (Connection.ConnectionInfo.IsEmulator)
 			{
-				var batch = McpeWrapper.CreateObject();
-				batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
-				batch.payload = Compression.CompressPacketsForWrapper(new List<Packet> {movePlayerPacket});
-				batch.Encode();
-				await Session.SendPacketAsync(batch);
+				//var batch = McpeWrapper.CreateObject();
+				//batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
+				//batch.payload = Compression.CompressPacketsForWrapper(new List<Packet> {movePlayerPacket});
+
+				//Packet message = null;
+				//if (Session.CustomMessageHandler != null) message = Session.CustomMessageHandler.HandleOrderedSend(batch);
+
+				//Reliability reliability = message.ReliabilityHeader.Reliability;
+				//if (reliability == Reliability.Undefined) reliability = Reliability.Reliable; // Questionable practice
+
+				//if (reliability == Reliability.ReliableOrdered) message.ReliabilityHeader.OrderingIndex = Interlocked.Increment(ref Session.OrderingIndex);
+				//await Session.SendPacketAsync(message);
+
+				Session.SendPacket(movePlayerPacket);
+				await Session.SendQueueAsync(0);
 			}
 			else
 			{

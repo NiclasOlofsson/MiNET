@@ -193,7 +193,7 @@ namespace MiNET.Net
 						OrderingIndex = wrapper.ReliabilityHeader.OrderingIndex,
 					};
 
-					RakProcessor.TraceReceive(Log, msg);
+					RakOfflineHandler.TraceReceive(Log, msg);
 					HandleCustomPacket(msg);
 				}
 

@@ -36,5 +36,7 @@ namespace MiNET.Net.RakNet
 		public void SendData(byte[] data, IPEndPoint targetEndPoint);
 		public Task SendDataAsync(byte[] data, IPEndPoint targetEndPoint);
 		public Task SendDataAsync(byte[] data, int length, IPEndPoint targetEndPoint);
+		public Task SendPacketAsync(RakSession session, Packet message);
+		void Close(RakSession session);
 	}
 }

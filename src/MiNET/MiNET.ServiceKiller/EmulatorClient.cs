@@ -77,7 +77,7 @@ namespace MiNET.ServiceKiller
 				client.ClientId = ClientId;
 
 				client.StartClient();
-				client.Connection.ServerInfo.DisableAck = true;
+				client.Connection.ConnectionInfo.DisableAck = true;
 				Console.WriteLine("Client started.");
 
 				client.SendOpenConnectionRequest1();
@@ -85,7 +85,7 @@ namespace MiNET.ServiceKiller
 				//client.FirstPacketWaitHandle.WaitOne();
 				//client.FirstEncryptedPacketWaitHandle.WaitOne();
 				client.PlayerStatusChangedWaitHandle.WaitOne();
-				client.Connection.ServerInfo.IsEmulator = true;
+				client.Connection.ConnectionInfo.IsEmulator = true;
 				Emulator.ConcurrentSpawnWaitHandle.Set();
 				Console.CursorLeft = Console.CursorLeft = Console.BufferWidth - $"Client {Name} connected, emulating...".Length;
 				Console.WriteLine($"Client {Name} connected, emulating...");

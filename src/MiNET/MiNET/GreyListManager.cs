@@ -38,15 +38,15 @@ namespace MiNET
 
 		private HashSet<IPAddress> _blacklist = new HashSet<IPAddress>();
 		private ConcurrentDictionary<IPAddress, DateTime> _greylist = new ConcurrentDictionary<IPAddress, DateTime>();
-		public ServerInfo ServerInfo { get; set; }
+		public ConnectionInfo ConnectionInfo { get; set; }
 
-		public GreyListManager(ServerInfo serverInfo = null)
+		public GreyListManager(ConnectionInfo connectionInfo = null)
 		{
 			_blacklist.Add(IPAddress.Parse("86.126.166.61"));
 			//_blacklist.Add(IPAddress.Parse("185.89.216.247"));
 			//_blacklist.Add(IPAddress.Parse("66.176.197.86"));
 			//_blacklist.Add(IPAddress.Parse("78.197.138.50"));
-			ServerInfo = serverInfo;
+			ConnectionInfo = connectionInfo;
 		}
 
 		public virtual bool IsWhitelisted(IPAddress senderAddress)
@@ -75,10 +75,10 @@ namespace MiNET
 		{
 			if (IsWhitelisted(senderAddress)) return true;
 
-			ServerInfo serverInfo = ServerInfo;
-			if (serverInfo == null) return true;
+			ConnectionInfo connectionInfo = ConnectionInfo;
+			if (connectionInfo == null) return true;
 
-			if (serverInfo.NumberOfPlayers >= serverInfo.MaxNumberOfPlayers || serverInfo.ConnectionsInConnectPhase >= serverInfo.MaxNumberOfConcurrentConnects)
+			if (connectionInfo.NumberOfPlayers >= connectionInfo.MaxNumberOfPlayers || connectionInfo.ConnectionsInConnectPhase >= connectionInfo.MaxNumberOfConcurrentConnects)
 			{
 				if (Log.IsInfoEnabled)
 					Log.InfoFormat("Rejected connection (server full) from: {0}", senderAddress);

@@ -132,7 +132,7 @@ namespace MiNET
 		{
 			// Beware that message might be null here.
 
-			var serverInfo = Server.ServerInfo;
+			var serverInfo = Server.ConnectionInfo;
 			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
 			SendPlayerStatus(0);
@@ -845,7 +845,7 @@ namespace MiNET
 			Stopwatch watch = new Stopwatch();
 			watch.Restart();
 
-			var serverInfo = Server.ServerInfo;
+			var serverInfo = Server.ConnectionInfo;
 
 			try
 			{
@@ -1791,9 +1791,8 @@ namespace MiNET
 						if (sendDisconnect)
 						{
 							var disconnect = McpeDisconnect.CreateObject();
-							disconnect.NoBatch = true;
 							disconnect.message = reason;
-							NetworkHandler.SendDirectPacket(disconnect);
+							NetworkHandler.SendPacket(disconnect);
 						}
 
 						NetworkHandler.Close();

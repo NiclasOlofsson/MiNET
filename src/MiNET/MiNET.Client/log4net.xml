@@ -81,7 +81,7 @@
 		</filter>
 
 		<!--<filter type="log4net.Filter.LoggerMatchFilter">
-			<loggerToMatch value="MiNET.Net.RakNet.ServerInfo" />
+			<loggerToMatch value="MiNET.Net.RakNet.ConnectionInfo" />
 			<acceptOnMatch value="false" />
 		</filter>-->
 

@@ -49,7 +49,10 @@ namespace MiNET.Net.RakNet
 		private readonly ConcurrentDictionary<IPEndPoint, DateTime> _connectionAttempts = new ConcurrentDictionary<IPEndPoint, DateTime>();
 		private long _clientGuid = 1111111 + new Random().Next();
 
+		// RakNet found a remote server using Ping.
 		public bool HaveServer { get; set; }
+		// Tell RakNet to automatically connect to any found server.
+		public bool AutoConnect { get; set; } = true;
 
 		internal RakProcessor(RakConnection connection, IPacketSender sender, GreyListManager greyListManager, MotdProvider motdProvider, ServerInfo serverInfo)
 		{
@@ -212,8 +215,8 @@ namespace MiNET.Net.RakNet
 
 		public void HandleRakNetMessage(IPEndPoint senderEndpoint, UnconnectedPong message)
 		{
-			Log.Info($"Found server at {senderEndpoint}");
-			Log.Info($"MOTD: {message.serverName}");
+			Log.Debug($"Found server at {senderEndpoint}");
+			Log.Debug($"MOTD: {message.serverName}");
 
 			if (!HaveServer)
 			{
@@ -225,8 +228,17 @@ namespace MiNET.Net.RakNet
 
 				HaveServer = true;
 
-				Log.Debug($"Connecting to {senderEndpoint}");
-				SendOpenConnectionRequest1(senderEndpoint);
+				if (AutoConnect)
+				{
+					Log.Debug($"Connecting to {senderEndpoint}");
+					SendOpenConnectionRequest1(senderEndpoint);
+				}
+				else
+				{
+					Log.Debug($"Connect to server using actual endpoint={senderEndpoint}");
+					_connection.RemoteEndpoint = senderEndpoint;
+					_connection.RemoteServerName = message.serverName;
+				}
 			}
 		}
 
@@ -377,7 +389,7 @@ namespace MiNET.Net.RakNet
 
 		internal static void TraceReceive(ILog log, Packet message)
 		{
-			if (!log.IsDebugEnabled) return;
+			if (!Log.IsTraceEnable()) return;
 
 			try
 			{
@@ -400,7 +412,7 @@ namespace MiNET.Net.RakNet
 
 				if (verbosity == 0)
 				{
-					log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
+					log.Trace($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
 				}
 				else if (verbosity == 1 || verbosity == 3)
 				{
@@ -418,11 +430,11 @@ namespace MiNET.Net.RakNet
 					jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
 
 					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
-					log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+					log.Verbose($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
 				}
 				else if (verbosity == 2 || verbosity == 3)
 				{
-					log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
+					log.Verbose($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 				}
 			}
 			catch (Exception e)
@@ -433,7 +445,7 @@ namespace MiNET.Net.RakNet
 
 		internal static void TraceSend(Packet message)
 		{
-			if (!Log.IsDebugEnabled) return;
+			if (!Log.IsTraceEnable()) return;
 
 			try
 			{
@@ -456,7 +468,7 @@ namespace MiNET.Net.RakNet
 
 				if (verbosity == 0)
 				{
-					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
+					Log.Trace($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
 				}
 				else if (verbosity == 1 || verbosity == 3)
 				{
@@ -472,11 +484,11 @@ namespace MiNET.Net.RakNet
 					jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
 
 					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
-					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+					Log.Verbose($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
 				}
 				else if (verbosity == 2 || verbosity == 3)
 				{
-					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
+					Log.Verbose($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 				}
 			}
 			catch (Exception e)

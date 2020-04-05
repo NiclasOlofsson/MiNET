@@ -62,8 +62,6 @@ namespace MiNET.Client
 			Log.Warn("Client listening for connecting on: " + client.ClientEndpoint);
 			Console.WriteLine("Started!");
 
-			//client.SendOpenConnectionRequest1();
-
 			Console.WriteLine("Looking for server...");
 			if (client.ServerEndpoint != null)
 			{

@@ -51,6 +51,16 @@ namespace MiNET.Net.RakNet
 		public ServerInfo ServerInfo { get; }
 
 		public bool FoundServer => _rakProcessor.HaveServer;
+		public bool AutoConnect
+		{
+			get => _rakProcessor.AutoConnect;
+			set => _rakProcessor.AutoConnect = value;
+		}
+
+		// This is only used in client scenarios. Will contain
+		// information regarding a located server.
+		public IPEndPoint RemoteEndpoint { get; set; }
+		public string RemoteServerName { get; set; }
 
 		public Func<RakSession, ICustomMessageHandler> CustomMessageHandlerFactory { get; set; }
 

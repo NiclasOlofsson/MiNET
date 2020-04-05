@@ -25,17 +25,20 @@
 
 using log4net;
 using MiNET.Net.RakNet;
+using MiNET.Plugins;
 
 namespace MiNET.Net
 {
 	public class BedrockMessageHandler : BedrockMessageHandlerBase
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(BedrockMessageHandler));
+		private PluginManager _pluginManager;
 
 		public IMcpeMessageHandler Handler { get; set; }
 
-		public BedrockMessageHandler(RakSession session, IServerManager serverManager) : base(session)
+		public BedrockMessageHandler(RakSession session, IServerManager serverManager, PluginManager pluginManager) : base(session)
 		{
+			_pluginManager = pluginManager;
 			Handler = new LoginMessageHandler(this, session, serverManager);
 		}
 
@@ -48,6 +51,18 @@ namespace MiNET.Net
 			Handler.Disconnect(reason, sendDisconnect);
 		}
 
+		public override Packet OnSendCustomPacket(Packet packet)
+		{
+			if (Handler is Player player)
+			{
+				var result = _pluginManager.PluginPacketHandler(packet, false, player);
+				if (result != packet) packet.PutPool();
+				packet = result;
+			}
+
+			return packet;
+		}
+
 		public override void HandleCustomPacket(Packet message)
 		{
 			HandleBedrockMessage(Handler, message);
@@ -55,12 +70,14 @@ namespace MiNET.Net
 
 		private void HandleBedrockMessage(IMcpeMessageHandler handler, Packet message)
 		{
-			//if (handler is Player player)
-			//{
-			//	Packet result = Server.PluginManager.PluginPacketHandler(message, true, player);
-			//	if (result != message) message.PutPool();
-			//	message = result;
-			//}
+			if (handler is Player player)
+			{
+				Packet result = _pluginManager.PluginPacketHandler(message, true, player);
+				if (result != message) message.PutPool();
+				message = result;
+			}
+
+			if (message == null) return;
 
 			switch (message)
 			{

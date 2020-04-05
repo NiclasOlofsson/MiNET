@@ -101,7 +101,7 @@ namespace MiNET.Utils
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static byte[] Encrypt(Memory<byte> payload, CryptoContext cryptoContext)
+		public static byte[] Encrypt(ReadOnlyMemory<byte> payload, CryptoContext cryptoContext)
 		{
 			// hash
 			int hashPoolLen = 8 + payload.Length + cryptoContext.Key.Length;

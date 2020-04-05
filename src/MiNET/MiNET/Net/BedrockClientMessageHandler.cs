@@ -48,6 +48,11 @@ namespace MiNET.Net
 		{
 		}
 
+		public override Packet OnSendCustomPacket(Packet message)
+		{
+			return message;
+		}
+
 		public override void HandleCustomPacket(Packet message)
 		{
 			_messageDispatcher.HandlePacket(message);

@@ -299,21 +299,19 @@ namespace MiNET.Worlds
 				// It's simply to slow and bad.
 
 				Player[] players = GetAllPlayers();
-				List<Player> spawnedPlayers = players.ToList();
+				var spawnedPlayers = players.ToList();
 				spawnedPlayers.Add(newPlayer);
 
 				Player[] sendList = spawnedPlayers.ToArray();
 
-				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
+				var playerListMessage = McpePlayerList.CreateObject();
 				playerListMessage.records = new PlayerAddRecords(spawnedPlayers);
 				newPlayer.SendPacket(CreateMcpeBatch(playerListMessage.Encode()));
-				playerListMessage.records = null;
 				playerListMessage.PutPool();
 
-				McpePlayerList playerList = McpePlayerList.CreateObject();
+				var playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {newPlayer};
 				RelayBroadcast(newPlayer, sendList, CreateMcpeBatch(playerList.Encode()));
-				playerList.records = null;
 				playerList.PutPool();
 
 				newPlayer.SpawnToPlayers(players);

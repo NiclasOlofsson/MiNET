@@ -87,7 +87,8 @@ namespace MiNET.Net
 				}
 
 				packet.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
-				sendInBatch.Add(packet);
+
+				sendInBatch.Add(OnSendCustomPacket(packet));
 			}
 
 			if (sendInBatch.Count > 0)
@@ -102,20 +103,19 @@ namespace MiNET.Net
 			return sendList;
 		}
 
-		public Memory<byte> HandleOrderedSend(Packet packet, Memory<byte> message)
+		public Packet HandleOrderedSend(Packet packet)
 		{
-			if (!packet.ForceClear && CryptoContext != null && CryptoContext.UseEncryption && packet is McpeWrapper)
+			if (!packet.ForceClear && CryptoContext != null && CryptoContext.UseEncryption && packet is McpeWrapper wrapper)
 			{
-				var wrapper = McpeWrapper.CreateObject();
-				wrapper.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
-				wrapper.payload = CryptoUtils.Encrypt(message.Slice(1), CryptoContext);
-				var encodedMessage = wrapper.Encode();
-				wrapper.PutPool();
+				var encryptedWrapper = McpeWrapper.CreateObject();
+				encryptedWrapper.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
+				encryptedWrapper.payload = CryptoUtils.Encrypt(wrapper.payload, CryptoContext);
+				encryptedWrapper.Encode();
 
-				return encodedMessage;
+				return encryptedWrapper;
 			}
 
-			return message;
+			return packet;
 		}
 
 		public void HandlePacket(Packet message)
@@ -211,6 +211,8 @@ namespace MiNET.Net
 				if (Log.IsDebugEnabled) Log.Warn($"Unknown packet 0x{message.Id:X2}\n{Packet.HexDump(message.Bytes)}");
 			}
 		}
+
+		public abstract Packet OnSendCustomPacket(Packet message);
 
 		public abstract void HandleCustomPacket(Packet message);
 	}

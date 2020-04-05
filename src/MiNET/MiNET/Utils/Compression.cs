@@ -144,10 +144,7 @@ namespace MiNET.Utils
 		public static byte[] CompressPacketsForWrapper(List<Packet> packets, CompressionLevel compressionLevel = CompressionLevel.Fastest)
 		{
 			long length = 0;
-			foreach (Packet packet in packets)
-			{
-				length += packet.Encode().Length;
-			}
+			foreach (Packet packet in packets) length += packet.Encode().Length;
 
 			compressionLevel = length > 1000 ? compressionLevel : CompressionLevel.NoCompression;
 

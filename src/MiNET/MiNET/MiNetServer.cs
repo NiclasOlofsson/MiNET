@@ -157,7 +157,7 @@ namespace MiNET
 				{
 					_listener = new RakConnection(Endpoint, GreyListManager, MotdProvider);
 					//_listener.ServerInfo.DisableAck = true;
-					_listener.CustomMessageHandlerFactory = session => new BedrockMessageHandler(session, ServerManager);
+					_listener.CustomMessageHandlerFactory = session => new BedrockMessageHandler(session, ServerManager, PluginManager);
 
 					//TODO: This is bad design, need to refactor this later.
 					GreyListManager.ServerInfo = _listener.ServerInfo;

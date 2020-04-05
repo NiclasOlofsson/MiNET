@@ -270,18 +270,7 @@ namespace MiNET.Net.RakNet
 
 			if (encodedMessage.IsEmpty) return new List<MessagePart>(0);
 
-			Reliability reliability = message.ReliabilityHeader.Reliability;
-			if(reliability == Reliability.Undefined) reliability = Reliability.Reliable;
-
 			if (message.IsMcpe) Log.Error($"Got bedrock message in unexpected place {message.GetType().Name}");
-
-			int orderingIndex = 0;
-			lock (session.EncryptionSyncRoot)
-			{
-				if (session.CustomMessageHandler != null) encodedMessage = session.CustomMessageHandler.HandleOrderedSend(message, encodedMessage);
-
-				if (reliability == Reliability.ReliableOrdered) orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
-			}
 
 			List<(int @from, int length)> splits = ArraySplit(encodedMessage.Length, mtuSize - 100);
 			int count = splits.Count;
@@ -289,10 +278,10 @@ namespace MiNET.Net.RakNet
 			if (count <= 1)
 			{
 				var messagePart = MessagePart.CreateObject();
-				messagePart.ReliabilityHeader.Reliability = reliability;
+				messagePart.ReliabilityHeader.Reliability = message.ReliabilityHeader.Reliability;
 				messagePart.ReliabilityHeader.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
 				messagePart.ReliabilityHeader.OrderingChannel = 0;
-				messagePart.ReliabilityHeader.OrderingIndex = orderingIndex;
+				messagePart.ReliabilityHeader.OrderingIndex = message.ReliabilityHeader.OrderingIndex;
 				messagePart.ReliabilityHeader.HasSplit = false;
 				messagePart.Buffer = encodedMessage;
 
@@ -308,10 +297,10 @@ namespace MiNET.Net.RakNet
 			foreach ((int from, int length) span in splits)
 			{
 				var messagePart = MessagePart.CreateObject();
-				messagePart.ReliabilityHeader.Reliability = reliability;
+				messagePart.ReliabilityHeader.Reliability = message.ReliabilityHeader.Reliability;
 				messagePart.ReliabilityHeader.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
 				messagePart.ReliabilityHeader.OrderingChannel = 0;
-				messagePart.ReliabilityHeader.OrderingIndex = orderingIndex;
+				messagePart.ReliabilityHeader.OrderingIndex = message.ReliabilityHeader.OrderingIndex;
 				messagePart.ReliabilityHeader.HasSplit = count > 1;
 				messagePart.ReliabilityHeader.PartCount = count;
 				messagePart.ReliabilityHeader.PartId = splitId;

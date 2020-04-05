@@ -605,18 +605,6 @@ namespace MiNET.Net.RakNet
 
 			RakProcessor.TraceSend(packet);
 
-			//bool isBatch = packet is McpeWrapper;
-			//if (!isBatch)
-			//{
-			//	var result = Server.PluginManager.PluginPacketHandler(packet, false, Player);
-			//	if (result != packet)
-			//		packet.PutPool();
-			//	packet = result;
-
-			//	if (packet == null)
-			//		return;
-			//}
-
 			lock (_queueSync)
 			{
 				_sendQueueNotConcurrent.Enqueue(packet);
@@ -825,7 +813,19 @@ namespace MiNET.Net.RakNet
 				List<Packet> prepareSend = CustomMessageHandler.PrepareSend(sendList);
 				foreach (Packet packet in prepareSend)
 				{
-					await SendPacketAsync(packet);
+					Packet message = packet;
+
+					if (CustomMessageHandler != null)
+					{
+						message = CustomMessageHandler.HandleOrderedSend(message);
+					}
+
+					Reliability reliability = message.ReliabilityHeader.Reliability;
+					if (reliability == Reliability.Undefined) reliability = Reliability.Reliable; // Questionable practice
+
+					if (reliability == Reliability.ReliableOrdered) message.ReliabilityHeader.OrderingIndex = Interlocked.Increment(ref OrderingIndex);
+
+					await SendPacketAsync(message);
 				}
 			}
 			catch (Exception e)
@@ -840,6 +840,9 @@ namespace MiNET.Net.RakNet
 
 		public void SendDirectPacket(Packet packet)
 		{
+			if (packet.ReliabilityHeader.Reliability == Reliability.ReliableOrdered)
+				throw new Exception($"Can't send direct messages with ordering. The offending packet was {packet.GetType().Name}");
+
 			SendPacketAsync(packet).Wait();
 		}
 
@@ -917,7 +920,7 @@ namespace MiNET.Net.RakNet
 			CustomMessageHandler = null;
 
 			// Send with high priority, bypass queue
-			SendDirectPacket(new DisconnectionNotification());
+			SendDirectPacket(DisconnectionNotification.CreateObject());
 
 			SendQueueAsync(500).Wait();
 

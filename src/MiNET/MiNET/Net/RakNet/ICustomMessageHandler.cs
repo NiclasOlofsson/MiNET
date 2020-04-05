@@ -37,7 +37,7 @@ namespace MiNET.Net.RakNet
 
 		void HandlePacket(Packet message);
 
-		Memory<byte> HandleOrderedSend(Packet packet, Memory<byte> message);
+		Packet HandleOrderedSend(Packet packet);
 		List<Packet> PrepareSend(List<Packet> packetsToSend);
 	}
 
@@ -58,10 +58,10 @@ namespace MiNET.Net.RakNet
 			Log.Warn($"Default custom message handler. Probably not what you want!");
 		}
 
-		public Memory<byte> HandleOrderedSend(Packet packet, Memory<byte> message)
+		public Packet HandleOrderedSend(Packet packet)
 		{
 			Log.Warn($"Default custom message handler. Probably not what you want!");
-			return message;
+			return packet;
 		}
 
 		public List<Packet> PrepareSend(List<Packet> packetsToSend)

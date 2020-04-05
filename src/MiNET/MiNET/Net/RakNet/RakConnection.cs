@@ -41,7 +41,7 @@ namespace MiNET.Net.RakNet
 
 		private UdpClient _listener;
 		private IPEndPoint _endpoint;
-		private DedicatedThreadPool _receiveThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(1000, "Datagram Rcv Thread"));
+		private DedicatedThreadPool _receiveThreadPool;
 		private Thread _receiveThread;
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
 		private ConcurrentDictionary<IPEndPoint, RakSession> _rakSessions = new ConcurrentDictionary<IPEndPoint, RakSession>();
@@ -54,16 +54,18 @@ namespace MiNET.Net.RakNet
 
 		public Func<RakSession, ICustomMessageHandler> CustomMessageHandlerFactory { get; set; }
 
-		public RakConnection(GreyListManager greyListManager, MotdProvider motdProvider) : this(null, greyListManager, motdProvider)
+		public RakConnection(GreyListManager greyListManager, MotdProvider motdProvider, DedicatedThreadPool threadPool = null) : this(null, greyListManager, motdProvider, threadPool)
 		{
 		}
 
-		public RakConnection(IPEndPoint endpoint, GreyListManager greyListManager, MotdProvider motdProvider)
+		public RakConnection(IPEndPoint endpoint, GreyListManager greyListManager, MotdProvider motdProvider, DedicatedThreadPool threadPool = null)
 		{
 			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, 0);
 
 			_greyListManager = greyListManager;
 			_motdProvider = motdProvider;
+
+			_receiveThreadPool = threadPool ?? new DedicatedThreadPool(new DedicatedThreadPoolSettings(100, "Datagram Rcv Thread"));
 
 			ServerInfo = new ServerInfo(_rakSessions);
 
@@ -253,13 +255,35 @@ namespace MiNET.Net.RakNet
 
 			if (header.IsAck)
 			{
+				if (ServerInfo.IsEmulator) return;
+
 				rakSession.HandleAck(receivedBytes, ServerInfo);
 				return;
 			}
 
 			if (header.IsNak)
 			{
+				if (ServerInfo.IsEmulator) return;
+
 				rakSession.HandleNak(receivedBytes, ServerInfo);
+				return;
+			}
+
+			if (ServerInfo.IsEmulator)
+			{
+				if (_tickerHighPrecisionTimer != null)
+				{
+					var timer = _tickerHighPrecisionTimer;
+					_tickerHighPrecisionTimer = null;
+					timer?.Dispose();
+				}
+
+				var datagramSequenceNumber = new Int24(receivedBytes.Span.Slice(1, 3));
+
+				var acks = Acks.CreateObject();
+				acks.acks.Add(datagramSequenceNumber);
+				byte[] data = acks.Encode();
+				SendData(data, clientEndpoint);
 				return;
 			}
 
@@ -327,7 +351,8 @@ namespace MiNET.Net.RakNet
 		{
 			try
 			{
-				await _listener.SendAsync(data, length, targetEndPoint); // Less thread-issues it seems
+				await _listener.SendAsync(data, length, targetEndPoint);
+				//_listener.Send(data, length, targetEndPoint);
 
 				Interlocked.Increment(ref ServerInfo.NumberOfPacketsOutPerSecond);
 				Interlocked.Add(ref ServerInfo.TotalPacketSizeOutPerSecond, length);

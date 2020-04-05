@@ -45,12 +45,11 @@ namespace MiNET.Crafting
 		{
 			if (_craftingData == null)
 			{
-				McpeCraftingData craftingData = McpeCraftingData.CreateObject();
+				var craftingData = McpeCraftingData.CreateObject();
 				craftingData.recipes = Recipes;
-				//craftingData.someArraySize = 0;
-				//craftingData.someArraySize2 = 0;
 				craftingData.isClean = true;
 				var packet = Level.CreateMcpeBatch(craftingData.Encode());
+				craftingData.PutPool();
 				packet.MarkPermanent(true);
 				_craftingData = packet;
 			}

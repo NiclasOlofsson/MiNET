@@ -66,6 +66,7 @@ namespace MiNET.Client
 {
 	public class MiNetClient
 	{
+		private readonly DedicatedThreadPool _threadPool;
 		private static readonly ILog Log = LogManager.GetLogger(typeof(MiNetClient));
 
 		
@@ -76,10 +77,10 @@ namespace MiNET.Client
 
 		public bool IsEmulator { get; set; }
 
-		private RakConnection _connection;
-		public bool FoundServer => _connection.FoundServer;
+		public RakConnection Connection { get; private set; }
+		public bool FoundServer => Connection.FoundServer;
 
-		public RakSession Session => _connection.ServerInfo.RakSessions.Values.FirstOrDefault();
+		public RakSession Session => Connection.ServerInfo.RakSessions.Values.FirstOrDefault();
 		public bool IsConnected => Session?.State == ConnectionState.Connected;
 
 		public Vector3 SpawnPoint { get; set; }
@@ -108,16 +109,15 @@ namespace MiNET.Client
 
 		public MiNetClient(IPEndPoint endpoint, string username, DedicatedThreadPool threadPool)
 		{
-			byte[] buffer = new byte[8];
-			new Random().NextBytes(buffer);
-			_clientGuid = BitConverter.ToInt64(buffer, 0);
-
+			_threadPool = threadPool;
 			Username = username;
 			ClientId = new Random().Next();
 			ServerEndpoint = endpoint;
 			if (ServerEndpoint != null) Log.Info("Connecting to: " + ServerEndpoint);
-			ClientEndpoint = new IPEndPoint(IPAddress.Any, 0);
-			//MessageDispatcher = new McpeClientMessageDispatcher(new DefaultMessageHandler(this));
+			ClientEndpoint = new IPEndPoint(IPAddress.Loopback, 0);
+			byte[] buffer = new byte[8];
+			new Random().NextBytes(buffer);
+			_clientGuid = BitConverter.ToInt64(buffer, 0);
 		}
 
 		public void StartClient()
@@ -125,23 +125,23 @@ namespace MiNET.Client
 			var greyListManager = new GreyListManager();
 			var motdProvider = new MotdProvider();
 
-			_connection = new RakConnection(ClientEndpoint, greyListManager, motdProvider);
+			Connection = new RakConnection(ClientEndpoint, greyListManager, motdProvider, _threadPool);
 			var handlerFactory = new BedrockClientMessageHandler(Session, MessageHandler ?? new DefaultMessageHandler(this));
 			handlerFactory.ConnectionAction = () => SendLogin(Username);
-			_connection.CustomMessageHandlerFactory = session => handlerFactory;
+			Connection.CustomMessageHandlerFactory = session => handlerFactory;
 
 			//TODO: This is bad design, need to refactor this later.
-			greyListManager.ServerInfo = _connection.ServerInfo;
-			var serverInfo = _connection.ServerInfo;
+			greyListManager.ServerInfo = Connection.ServerInfo;
+			var serverInfo = Connection.ServerInfo;
 			serverInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 10);
 			serverInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", serverInfo.MaxNumberOfPlayers);
 
-			_connection.Start();
+			Connection.Start();
 		}
 
 		public bool StopClient()
 		{
-			_connection.Stop();
+			Connection.Stop();
 			return true;
 		}
 
@@ -590,11 +590,11 @@ namespace MiNET.Client
 
 		private void SendData(byte[] data, IPEndPoint targetEndpoint)
 		{
-			if (_connection == null) return;
+			if (Connection == null) return;
 
 			try
 			{
-				_connection.SendData(data, targetEndpoint);
+				Connection.SendData(data, targetEndpoint);
 			}
 			catch (Exception e)
 			{
@@ -642,7 +642,7 @@ namespace MiNET.Client
 
 		public void SendOpenConnectionRequest1()
 		{
-			_connection._rakProcessor.SendOpenConnectionRequest1(ServerEndpoint);
+			Connection._rakProcessor.SendOpenConnectionRequest1(ServerEndpoint);
 		}
 
 		public void SendPacket(Packet packet)
@@ -683,13 +683,12 @@ namespace MiNET.Client
 
 		public async Task SendCurrentPlayerPositionAsync()
 		{
-			if (CurrentLocation == null)
-				return;
+			if (CurrentLocation == null) return;
 
-			if (CurrentLocation.Y < 0)
-				CurrentLocation.Y = 64f;
+			if (CurrentLocation.Y < 0) CurrentLocation.Y = 64f;
 
 			var movePlayerPacket = McpeMovePlayer.CreateObject();
+			movePlayerPacket.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
 			movePlayerPacket.runtimeEntityId = EntityId;
 			movePlayerPacket.x = CurrentLocation.X;
 			movePlayerPacket.y = CurrentLocation.Y;
@@ -700,7 +699,18 @@ namespace MiNET.Client
 			movePlayerPacket.mode = 1;
 			movePlayerPacket.onGround = false;
 
-			await Session.SendPacketAsync(movePlayerPacket);
+			if (Connection.ServerInfo.IsEmulator)
+			{
+				var batch = McpeWrapper.CreateObject();
+				batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
+				batch.payload = Compression.CompressPacketsForWrapper(new List<Packet> {movePlayerPacket});
+				batch.Encode();
+				await Session.SendPacketAsync(batch);
+			}
+			else
+			{
+				Session.SendPacket(movePlayerPacket);
+			}
 		}
 
 

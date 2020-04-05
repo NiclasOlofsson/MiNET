@@ -32,8 +32,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using log4net.Config;
-using MiNET.Client;
-using MiNET.Net;
 using MiNET.Utils;
 
 #pragma warning disable 1591
@@ -71,7 +69,7 @@ namespace MiNET.ServiceKiller
 		/// <param name="batchSize">If parallel spawn, how many in each batch.</param>
 		/// <param name="chunkRadius">The chunk radius the bots will request. Server may override.</param>
 		/// <param name="processorAffinity">Processor affinity mask represented as an integer.</param>
-		private static void Main(int numberOfBots = 10, int durationOfConnection = 900, bool concurrentSpawn = true, int batchSize = 5, int chunkRadius = 5, int processorAffinity = 0)
+		private static void Main(int numberOfBots = 500, int durationOfConnection = 900, bool concurrentSpawn = true, int batchSize = 5, int chunkRadius = 5, int processorAffinity = 0)
 		{
 			NumberOfBots = numberOfBots;
 			DurationOfConnection = TimeSpan.FromSeconds(durationOfConnection);
@@ -81,6 +79,8 @@ namespace MiNET.ServiceKiller
 
 			var currentProcess = Process.GetCurrentProcess();
 			currentProcess.ProcessorAffinity = processorAffinity <= 0 ? currentProcess.ProcessorAffinity : (IntPtr) processorAffinity;
+
+			//var listener = new GcFinalizersEventListener();
 
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 			XmlConfigurator.Configure(logRepository, new FileInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log4net.xml")));
@@ -98,7 +98,8 @@ namespace MiNET.ServiceKiller
 				Console.WriteLine("Press <Enter> to start emulation...");
 				Console.ReadLine();
 
-				var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
+				//var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
+				var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(100));
 
 				var emulator = new Emulator {Running = true};
 				long start = DateTime.UtcNow.Ticks;
@@ -113,7 +114,7 @@ namespace MiNET.ServiceKiller
 					{
 						string playerName = $"TheGrey{j + 1:D3}";
 
-						var client = new ClientEmulator(threadPool,
+						var client = new EmulatorClient(threadPool,
 							emulator,
 							DurationOfConnection,
 							playerName,
@@ -149,7 +150,11 @@ namespace MiNET.ServiceKiller
 
 				Console.WriteLine("Press <enter> to stop all clients.");
 				Console.ReadLine();
+
 				emulator.Running = false;
+
+				Console.WriteLine("Stopping all clients, press <enter> to exit.");
+				Console.ReadLine();
 			}
 			catch (Exception e)
 			{
@@ -159,137 +164,11 @@ namespace MiNET.ServiceKiller
 			{
 				Console.ResetColor();
 			}
-
-			Console.WriteLine("Emulation complete. Press <enter> to exit.");
-			Console.ReadLine();
 		}
 
 		private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
 		{
 			Console.WriteLine("ERROR." + unhandledExceptionEventArgs.ExceptionObject);
-		}
-	}
-
-	public class ClientEmulator
-	{
-		private readonly DedicatedThreadPool _threadPool;
-
-		public int RanMin { get; set; }
-		public int RanMax { get; set; }
-		public int ChunkRadius { get; set; }
-
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ClientEmulator));
-		public IPEndPoint EndPoint { get; }
-
-		public Emulator Emulator { get; private set; }
-		public string Name { get; set; }
-		public int ClientId { get; set; }
-		public Random Random { get; set; } = new Random();
-		public TimeSpan TimeToRun { get; set; }
-
-		public ClientEmulator(DedicatedThreadPool threadPool, Emulator emulator, TimeSpan timeToRun, string name, int clientId, IPEndPoint endPoint, int ranMin = 150, int ranMax = 450, int chunkRadius = 8)
-		{
-			_threadPool = threadPool;
-			Emulator = emulator;
-			TimeToRun = timeToRun;
-			Name = name;
-			ClientId = clientId;
-			EndPoint = endPoint;
-			RanMin = ranMin;
-			RanMax = ranMax;
-			ChunkRadius = chunkRadius;
-		}
-
-		public void EmulateClient()
-		{
-			try
-			{
-				Console.WriteLine($"Client {Name} connecting...");
-
-				var client = new MiNetClient(EndPoint, Name, _threadPool);
-				client.ChunkRadius = ChunkRadius;
-				client.IsEmulator = true;
-				client.ClientId = ClientId;
-
-				client.StartClient();
-				Console.WriteLine("Client started.");
-
-				client.SendOpenConnectionRequest1();
-
-				//client.FirstPacketWaitHandle.WaitOne();
-				//client.FirstEncryptedPacketWaitHandle.WaitOne();
-				client.PlayerStatusChangedWaitHandle.WaitOne();
-				Emulator.ConcurrentSpawnWaitHandle.Set();
-				Console.CursorLeft = Console.CursorLeft = Console.BufferWidth - $"Client {Name} connected, emulating...".Length;
-				Console.WriteLine($"Client {Name} connected, emulating...");
-
-				var runningTime = Stopwatch.StartNew();
-
-				//Thread.Sleep(3000);
-
-				//client.SendChat(".tp test");
-				//client.SendChat("/join bb");
-				//client.SendChat("/join skywars");
-
-				//Thread.Sleep(TimeToRun);
-
-				//if (client.CurrentLocation != null)
-				//{
-				//	client.CurrentLocation = new PlayerLocation(client.CurrentLocation.X, -10, client.CurrentLocation.Z);
-				//	client.SendMcpeMovePlayer();
-				//	Thread.Sleep(3000);
-				//}
-
-				//client.SendChat("/hub");
-
-				//Thread.Sleep(3000);
-
-				for (int i = 0; /*i < 10 && */Emulator.Running && runningTime.Elapsed < TimeToRun; i++)
-				{
-					if (!client.IsConnected) break;
-
-					float y = client.LevelInfo.SpawnX + Random.Next(7, 10);
-					float length = Random.Next(5, 20);
-
-					double angle = 0.0;
-					const double angleStepsize = 0.05;
-					float heightStepSize = (float) (Random.NextDouble() / 5);
-
-					while (angle < 2 * Math.PI && Emulator.Running)
-					{
-						if (!client.IsConnected) break;
-
-						float x = (float) (length * Math.Cos(angle));
-						float z = (float) (length * Math.Sin(angle));
-						y += heightStepSize;
-
-						x += client.LevelInfo.SpawnX;
-						z += client.LevelInfo.SpawnZ;
-
-						client.CurrentLocation = new PlayerLocation(x, y, z, (float) angle.ToDegrees(), (float) angle.ToDegrees());
-						//client.SendMcpeMovePlayer();
-						client.SendCurrentPlayerPositionAsync().Wait();
-
-						int timeout = RanMin == RanMax ? RanMin : Random.Next(RanMin, RanMax);
-						if (timeout > 0) Thread.Sleep(timeout);
-
-						angle += angleStepsize;
-					}
-				}
-
-				if (client.IsConnected)
-				{
-					client.SendChat("Shadow gov agent BREXITING!");
-					client.SendDisconnectionNotification();
-				}
-
-				client.StopClient();
-				Console.WriteLine($"{runningTime.ElapsedMilliseconds} Client stopped. {client.IsConnected}, {Emulator.Running}");
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e);
-			}
 		}
 	}
 }

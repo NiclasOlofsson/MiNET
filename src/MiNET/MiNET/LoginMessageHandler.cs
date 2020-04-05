@@ -460,14 +460,13 @@ namespace MiNET
 							};
 							string val = JWT.Encode(handshakeJson, signKey, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64PublicKey}});
 
-							Log.Warn($"Headers:\n{string.Join(";", JWT.Headers(val))}");
-							Log.Warn($"Return salt:\n{JWT.Payload(val)}");
-							Log.Warn($"JWT:\n{val}");
+							Log.Debug($"Headers:\n{string.Join(";", JWT.Headers(val))}");
+							Log.Debug($"Return salt:\n{JWT.Payload(val)}");
+							Log.Debug($"JWT:\n{val}");
 
 
 							var response = McpeServerToClientHandshake.CreateObject();
-							response.NoBatch = true;
-							response.ForceClear = true;
+							response.ForceClear = true; // Must be!
 							response.token = val;
 
 							_session.SendPacket(response);
@@ -489,7 +488,7 @@ namespace MiNET
 
 		public void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message)
 		{
-			Log.Warn($"Connection established with {_playerInfo.Username} using MC version {_playerInfo.GameVersion} with protocol version {_playerInfo.ProtocolVersion}");
+			Log.Warn($"{(_bedrockHandler.CryptoContext == null ? "C" : $"Encrypted c")}onnection established with {_playerInfo.Username} using MC version {_playerInfo.GameVersion} with protocol version {_playerInfo.ProtocolVersion}");
 
 			IServer server = _serverManager.GetServer();
 

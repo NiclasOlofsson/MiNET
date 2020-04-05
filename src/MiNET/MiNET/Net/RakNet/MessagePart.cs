@@ -50,12 +50,11 @@ namespace MiNET.Net.RakNet
 		protected override void EncodePacket()
 		{
 			// DO NOT CALL base.EncodePackage();
-			_buffer.Position = 0;
 
 			Memory<byte> encodedMessage = Buffer;
 
 			if(encodedMessage.Length == 0) Log.Error("Bad size 0 in message part");
-			if(ReliabilityHeader.Reliability != Reliability.ReliableOrdered) Log.Warn($"Sending message with reliability={ReliabilityHeader.Reliability}");
+			//if(ReliabilityHeader.Reliability != Reliability.ReliableOrdered) Log.Warn($"Sending message with reliability={ReliabilityHeader.Reliability}");
 
 			byte flags = (byte) (((byte) ReliabilityHeader.Reliability) << 5);
 			Write((byte) (flags | (ReliabilityHeader.HasSplit ? 0b00010000 : 0x00)));

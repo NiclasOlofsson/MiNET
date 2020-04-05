@@ -141,7 +141,7 @@ namespace MiNET
 
 					SessionManager ??= new SessionManager();
 					LevelManager ??= new LevelManager();
-					//LevelManager ??= new SpreadLevelManager(75);
+					//LevelManager ??= new SpreadLevelManager(50);
 					PlayerFactory ??= new PlayerFactory();
 
 					PluginManager.EnablePlugins(this, LevelManager);
@@ -156,6 +156,7 @@ namespace MiNET
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{
 					_listener = new RakConnection(Endpoint, GreyListManager, MotdProvider);
+					//_listener.ServerInfo.DisableAck = true;
 					_listener.CustomMessageHandlerFactory = session => new BedrockMessageHandler(session, ServerManager);
 
 					//TODO: This is bad design, need to refactor this later.

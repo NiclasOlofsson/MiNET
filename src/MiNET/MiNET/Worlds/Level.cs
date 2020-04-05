@@ -791,18 +791,20 @@ namespace MiNET.Worlds
 			DateTime lastSendTime = _lastSendTime;
 			_lastSendTime = DateTime.UtcNow;
 
-			using (MemoryStream stream = new MemoryStream())
+			//using (MemoryStream stream = new MemoryStream())
 			{
 				int playerMoveCount = 0;
 				int entiyMoveCount = 0;
+
+				List<Packet> movePackets = new List<Packet>();
 
 				foreach (var player in players)
 				{
 					if (now - player.LastUpdatedTime <= now - lastSendTime)
 					{
-						PlayerLocation knownPosition = (PlayerLocation) player.KnownPosition.Clone();
+						var knownPosition = (PlayerLocation) player.KnownPosition.Clone();
 
-						McpeMovePlayer move = McpeMovePlayer.CreateObject();
+						var move = McpeMovePlayer.CreateObject();
 						move.runtimeEntityId = player.EntityId;
 						move.x = knownPosition.X;
 						move.y = knownPosition.Y + 1.62f;
@@ -813,10 +815,7 @@ namespace MiNET.Worlds
 						move.mode = (byte) (player.Vehicle == 0 ? 0 : 3);
 						move.onGround = !player.IsGliding && player.IsOnGround;
 						move.otherRuntimeEntityId = player.Vehicle;
-						byte[] bytes = move.Encode();
-						BatchUtils.WriteLength(stream, bytes.Length);
-						stream.Write(bytes, 0, bytes.Length);
-						move.PutPool();
+						movePackets.Add(move);
 						playerMoveCount++;
 					}
 				}
@@ -852,13 +851,14 @@ namespace MiNET.Worlds
 
 				if (players.Length == 1 && entiyMoveCount == 0) return;
 
-				McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(stream.GetBuffer(), 0, (int) stream.Length), CompressionLevel.Optimal, false);
-				batch.AddReferences(players.Length - 1);
+				if (movePackets.Count == 0) return;
+
+				//McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(stream.GetBuffer(), 0, (int) stream.Length), CompressionLevel.Optimal, false);
+				var batch = McpeWrapper.CreateObject(players.Length);
+				batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
+				batch.payload = Compression.CompressPacketsForWrapper(movePackets);
 				batch.Encode();
-				foreach (var player in players)
-				{
-					MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPacket(batch));
-				}
+				foreach (Player player in players) MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPacket(batch));
 				_lastBroadcast = DateTime.UtcNow;
 			}
 		}

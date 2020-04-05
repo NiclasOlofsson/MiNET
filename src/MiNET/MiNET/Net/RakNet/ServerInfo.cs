@@ -38,6 +38,11 @@ namespace MiNET.Net.RakNet
 
 		public ConcurrentDictionary<IPEndPoint, RakSession> RakSessions { get; set; }
 
+		// Special property for use with ServiceKiller.
+		// Will disable reliability handling after login.
+		public bool IsEmulator { get; set; }
+		public bool DisableAck { get; set; }
+
 		public int NumberOfPlayers { get; set; }
 
 		public long NumberOfAckReceive = 0;

@@ -51,24 +51,18 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Packet));
 
-		private bool _isEncoded;
 		private byte[] _encodedMessage;
 
-		[JsonIgnore] public bool NoBatch { get; set; }
-
 		[JsonIgnore] public ReliabilityHeader ReliabilityHeader = new ReliabilityHeader();
-		//[JsonIgnore] public Reliability Reliability = Reliability.Unreliable;
-		//[JsonIgnore] public int ReliableMessageNumber;
-		//[JsonIgnore] public byte OrderingChannel;
-		//[JsonIgnore] public int OrderingIndex;
 
 		[JsonIgnore] public bool ForceClear;
+		[JsonIgnore] public bool NoBatch { get; set; }
 
 		[JsonIgnore] public byte Id;
 		[JsonIgnore] public bool IsMcpe;
 
 		protected MemoryStreamReader _reader; // new construct for reading
-		protected Stream _buffer;
+		private Stream _buffer;
 		private BinaryWriter _writer;
 
 		[JsonIgnore] public ReadOnlyMemory<byte> Bytes { get; private set; }
@@ -2262,7 +2256,6 @@ namespace MiNET.Net
 		public void SetEncodedMessage(byte[] encodedMessage)
 		{
 			_encodedMessage = encodedMessage;
-			_isEncoded = true;
 		}
 
 		public virtual void Reset()
@@ -2277,7 +2270,6 @@ namespace MiNET.Net
 			_encodedMessage = null;
 			Bytes = null;
 			Timer.Restart();
-			_isEncoded = false;
 
 			_writer?.Close();
 			_reader?.Close();
@@ -2294,19 +2286,21 @@ namespace MiNET.Net
 		private object _encodeSync = new object();
 
 		private static RecyclableMemoryStreamManager _streamManager = new RecyclableMemoryStreamManager();
-		private static ConcurrentDictionary<Type, bool> _isLob = new ConcurrentDictionary<Type, bool>();
+		private static ConcurrentDictionary<int, bool> _isLob = new ConcurrentDictionary<int, bool>();
 
 		public virtual byte[] Encode()
 		{
+			byte[] cache = _encodedMessage;
+			if (cache != null) return cache;
+
 			lock (_encodeSync)
 			{
-				if (_isEncoded) return _encodedMessage;
-
-				_isEncoded = false;
+				// This construct to avoid unnecessary contention and double encoding.
+				if (_encodedMessage != null) return _encodedMessage;
 
 				// Dynamic pooling. If this packet has been registered as a large object in previous
 				// runs, we use the pooled stream for it instead to avoid LOB allocations
-				bool isLob = _isLob.ContainsKey(GetType());
+				bool isLob = _isLob.ContainsKey(Id);
 				_buffer = isLob ? _streamManager.GetStream() : new MemoryStream();
 				using (_writer = new BinaryWriter(_buffer, Encoding.UTF8, true))
 				{
@@ -2320,21 +2314,9 @@ namespace MiNET.Net
 					_encodedMessage = buffer.ToArray();
 					if (!isLob && _encodedMessage.Length >= 85_000)
 					{
-						_isLob.TryAdd(GetType(), true);
+						_isLob.TryAdd(Id, true);
 						//Log.Warn($"LOB {GetType().Name} {_encodedMessage.Length}, IsLOB={_isLob}");
 					}
-					//else if (isLob && _encodedMessage.Length < 85_000)
-					//{
-					//	if (GetType() != typeof(McpeWrapper)) Log.Warn($"Marked as LOB {GetType().Name} but size was not LOB {_encodedMessage.Length}");
-					//}
-					_isEncoded = true;
-
-					//ResetPacket();
-
-					//_writer.Dispose();
-					//_buffer.Dispose();
-					//_writer = null;
-					//_buffer = null;
 				}
 				_buffer.Dispose();
 

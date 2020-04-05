@@ -27,10 +27,8 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Threading;
 using log4net;
-using MiNET.Utils;
 
 namespace MiNET.Net.RakNet
 {
@@ -121,10 +119,10 @@ namespace MiNET.Net.RakNet
 				// Slurp the payload
 				int messageLength = (int) Math.Ceiling((((double) dataBitLength) / 8));
 				ReadOnlyMemory<byte> internalBuffer = Slice(messageLength);
-				if(internalBuffer.Length != messageLength) Log.Error($"Didn't get expected length {internalBuffer.Length}");
-				if(internalBuffer.Length == 0) Log.Error($"Read length {internalBuffer.Length}, expected {messageLength}");
-				if(messageLength == 0)  continue;
-				if(header.Reliability != Reliability.ReliableOrdered) Log.Error($"Parsing message {internalBuffer.Span[0]} with reliability={header.Reliability}");
+				if (internalBuffer.Length != messageLength) Log.Error($"Didn't get expected length {internalBuffer.Length}");
+				if (internalBuffer.Length == 0) Log.Error($"Read length {internalBuffer.Length}, expected {messageLength}");
+				if (messageLength == 0) continue;
+				//if(header.Reliability != Reliability.ReliableOrdered) Log.Error($"Parsing message {internalBuffer.Span[0]} with reliability={header.Reliability}");
 
 				if (header.HasSplit)
 				{
@@ -244,7 +242,7 @@ namespace MiNET.Net.RakNet
 		{
 			Datagram datagram = CreateObject();
 
-			List<MessagePart> messageParts = CreateMessageParts(message, mtuSize, Reliability.Reliable, session);
+			List<MessagePart> messageParts = CreateMessageParts(message, mtuSize, session);
 			foreach (MessagePart messagePart in messageParts)
 			{
 				if (!datagram.TryAddMessagePart(messagePart, mtuSize))
@@ -266,48 +264,21 @@ namespace MiNET.Net.RakNet
 			yield return datagram;
 		}
 
-		private static List<MessagePart> CreateMessageParts(Packet message, int mtuSize, Reliability reliability, RakSession session)
+		private static List<MessagePart> CreateMessageParts(Packet message, int mtuSize, RakSession session)
 		{
 			Memory<byte> encodedMessage = message.Encode();
 
 			if (encodedMessage.IsEmpty) return new List<MessagePart>(0);
 
-			// All MCPE messages goes into a compressed (and possible encrypted) wrapper.
-			// Note that McpeWrapper itself is a RakNet level message.
-			bool isWrapper = message is McpeWrapper;
-			if (message.IsMcpe)
-			{
-				var wrapper = McpeWrapper.CreateObject();
-				wrapper.payload = Compression.Compress(encodedMessage, true, encodedMessage.Length > 1000 ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
-				encodedMessage = wrapper.Encode();
-				wrapper.PutPool();
-				isWrapper = true;
-			}
+			Reliability reliability = message.ReliabilityHeader.Reliability;
+			if(reliability == Reliability.Undefined) reliability = Reliability.Reliable;
 
-			// Should probably only force for McpeWrapper, not the other messages (RakNet)
-			if (!(message is ConnectedPong) && !(message is DetectLostConnections)) reliability = Reliability.ReliableOrdered;
+			if (message.IsMcpe) Log.Error($"Got bedrock message in unexpected place {message.GetType().Name}");
 
 			int orderingIndex = 0;
 			lock (session.EncryptionSyncRoot)
 			{
-				CryptoContext cryptoContext = null;
-				switch (session.CustomMessageHandler)
-				{
-					case BedrockMessageHandler bedrockMessageHandler:
-						cryptoContext = bedrockMessageHandler.CryptoContext;
-						break;
-					case BedrockClientMessageHandler bedrockClientMessageHandler:
-						cryptoContext = bedrockClientMessageHandler.CryptoContext;
-						break;
-				}
-
-				if (!message.ForceClear && cryptoContext != null && cryptoContext.UseEncryption && isWrapper)
-				{
-					var wrapper = McpeWrapper.CreateObject();
-					wrapper.payload = CryptoUtils.Encrypt(encodedMessage.Slice(1), cryptoContext);
-					encodedMessage = wrapper.Encode();
-					wrapper.PutPool();
-				}
+				if (session.CustomMessageHandler != null) encodedMessage = session.CustomMessageHandler.HandleOrderedSend(message, encodedMessage);
 
 				if (reliability == Reliability.ReliableOrdered) orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
 			}

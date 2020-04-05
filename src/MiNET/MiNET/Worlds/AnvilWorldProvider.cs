@@ -839,13 +839,13 @@ namespace MiNET.Worlds
 
 		public bool HaveNether()
 		{
-			return true;
+			return !(MissingChunkProvider is SuperflatGenerator);
 			//return Directory.Exists(Path.Combine(BasePath, @"DIM-1"));
 		}
 
 		public bool HaveTheEnd()
 		{
-			return true;
+			return !(MissingChunkProvider is SuperflatGenerator);
 			//return Directory.Exists(Path.Combine(BasePath, @"DIM1"));
 		}
 

@@ -29,8 +29,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.IO.Compression;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -128,6 +126,8 @@ namespace MiNET.Net.RakNet
 
 		internal void HandleAck(ReadOnlyMemory<byte> receiveBytes, ServerInfo serverInfo)
 		{
+			if (ServerInfo.DisableAck) return;
+
 			var ack = new Ack();
 			ack.Decode(receiveBytes);
 
@@ -349,12 +349,7 @@ namespace MiNET.Net.RakNet
 			{
 				if (_cancellationToken.Token.IsCancellationRequested) return;
 
-				//if (CryptoContext == null || CryptoContext.UseEncryption == false)
-				//{
-				//	_lastOrderingIndex = message.ReliabilityHeader.OrderingIndex;
-				//	HandlePacket(message);
-				//	return;
-				//}
+				if (message.ReliabilityHeader.OrderingIndex <= _lastOrderingIndex) return;
 
 				lock (_eventSync)
 				{
@@ -374,7 +369,11 @@ namespace MiNET.Net.RakNet
 
 					if (_processingThread == null)
 					{
-						_processingThread = new Thread(ProcessQueueThread) {IsBackground = true, Name = $"Ordering Thread [{Username}]"};
+						_processingThread = new Thread(ProcessQueue)
+						{
+							IsBackground = true,
+							Name = $"Ordering Thread [{Username}]"
+						};
 						_processingThread.Start();
 						if (Log.IsDebugEnabled) Log.Warn($"Started processing thread for {Username}");
 					}
@@ -391,16 +390,11 @@ namespace MiNET.Net.RakNet
 			}
 		}
 
-		private void ProcessQueueThread(object o)
-		{
-			ProcessQueue();
-		}
-
-		private Task ProcessQueue()
+		private void ProcessQueue()
 		{
 			try
 			{
-				while (!_cancellationToken.IsCancellationRequested)
+				while (!_cancellationToken.IsCancellationRequested && !ServerInfo.IsEmulator)
 				{
 					if (_orderingBufferQueue.TryPeek(out KeyValuePair<int, Packet> pair))
 					{
@@ -408,20 +402,20 @@ namespace MiNET.Net.RakNet
 						{
 							if (_orderingBufferQueue.TryDequeue(out pair))
 							{
-								_lastOrderingIndex = pair.Key;
-
 								//Log.Debug($"Handling packet ordering index={pair.Value.ReliabilityHeader.OrderingIndex}. Current index={_lastOrderingIndex}");
+
+								_lastOrderingIndex = pair.Key;
 								HandlePacket(pair.Value);
 
 								if (_orderingBufferQueue.Count == 0)
 								{
-									WaitHandle.SignalAndWait(_packetHandledWaitEvent, _packetQueuedWaitEvent, TimeSpan.FromMilliseconds(50), true);
+									WaitHandle.SignalAndWait(_packetHandledWaitEvent, _packetQueuedWaitEvent, 500, true);
 								}
 							}
 						}
 						else if (pair.Key <= _lastOrderingIndex)
 						{
-							if (Log.IsDebugEnabled) Log.Warn($"{Username} - Resent. Expected {_lastOrderingIndex + 1}, but was {pair.Key}.");
+							if (Log.IsDebugEnabled) Log.Debug($"{Username} - Resent. Expected {_lastOrderingIndex + 1}, but was {pair.Key}.");
 							if (_orderingBufferQueue.TryDequeue(out pair))
 							{
 								pair.Value.PutPool();
@@ -429,25 +423,27 @@ namespace MiNET.Net.RakNet
 						}
 						else
 						{
-							if (Log.IsDebugEnabled) Log.Warn($"{Username} - Wrong sequence. Expected {_lastOrderingIndex + 1}, but was {pair.Key}.");
-							WaitHandle.SignalAndWait(_packetHandledWaitEvent, _packetQueuedWaitEvent, TimeSpan.FromMilliseconds(50), true);
+							if (Log.IsDebugEnabled) Log.Debug($"{Username} - Wrong sequence. Expected {_lastOrderingIndex + 1}, but was {pair.Key}.");
+							WaitHandle.SignalAndWait(_packetHandledWaitEvent, _packetQueuedWaitEvent, 500, true);
 						}
 					}
 					else
 					{
 						if (_orderingBufferQueue.Count == 0)
 						{
-							WaitHandle.SignalAndWait(_packetHandledWaitEvent, _packetQueuedWaitEvent, TimeSpan.FromMilliseconds(50), true);
+							WaitHandle.SignalAndWait(_packetHandledWaitEvent, _packetQueuedWaitEvent, 500, true);
 						}
 					}
 				}
+			}
+			catch (ObjectDisposedException)
+			{
+				// Ignore. Comes from the reset events being waited on while being disposed. Not a problem.
 			}
 			catch (Exception e)
 			{
 				Log.Error($"Exit receive handler task for player", e);
 			}
-
-			return Task.CompletedTask;
 		}
 
 		private void HandlePacket(Packet message)
@@ -456,7 +452,7 @@ namespace MiNET.Net.RakNet
 
 			try
 			{
-				RakProcessor.TraceReceive(message);
+				RakProcessor.TraceReceive(Log, message);
 
 				if (message.Id < (int) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 				{
@@ -518,8 +514,6 @@ namespace MiNET.Net.RakNet
 		protected virtual void HandleConnectedPing(ConnectedPing message)
 		{
 			var packet = ConnectedPong.CreateObject();
-			packet.NoBatch = true;
-			packet.ForceClear = true;
 			packet.sendpingtime = message.sendpingtime;
 			packet.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
 			SendPacket(packet);
@@ -588,9 +582,7 @@ namespace MiNET.Net.RakNet
 
 		public void DetectLostConnection()
 		{
-			DetectLostConnections ping = DetectLostConnections.CreateObject();
-			ping.ForceClear = true;
-			ping.NoBatch = true;
+			var ping = DetectLostConnections.CreateObject();
 			SendPacket(ping);
 		}
 
@@ -613,16 +605,17 @@ namespace MiNET.Net.RakNet
 
 			RakProcessor.TraceSend(packet);
 
-			bool isBatch = packet is McpeWrapper;
+			//bool isBatch = packet is McpeWrapper;
+			//if (!isBatch)
+			//{
+			//	var result = Server.PluginManager.PluginPacketHandler(packet, false, Player);
+			//	if (result != packet)
+			//		packet.PutPool();
+			//	packet = result;
 
-			if (!isBatch)
-			{
-				//var result = Server.PluginManager.PluginPacketHandler(packet, false, Player);
-				//if (result != packet) packet.PutPool();
-				//packet = result;
-
-				//if (packet == null) return;
-			}
+			//	if (packet == null)
+			//		return;
+			//}
 
 			lock (_queueSync)
 			{
@@ -795,90 +788,44 @@ namespace MiNET.Net.RakNet
 		private SemaphoreSlim _syncHack = new SemaphoreSlim(1, 1);
 
 		[SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
-		public async Task SendQueueAsync()
+		public async Task SendQueueAsync(int millisecondsWait = 0)
 		{
 			if (_sendQueueNotConcurrent.Count == 0) return;
 
-			if (!(await _syncHack.WaitAsync(0))) return;
+			if (!(await _syncHack.WaitAsync(millisecondsWait))) return;
 
 			try
 			{
-				using (var memStream = new MemoryStream())
+				var sendList = new List<Packet>();
+				Queue<Packet> queue = _sendQueueNotConcurrent;
+				int length = queue.Count;
+				for (int i = 0; i < length; i++)
 				{
-					Queue<Packet> queue = _sendQueueNotConcurrent;
-					var sendLast = new List<Packet>();
-
-					int messageCount = 0;
-
-					int length = queue.Count;
-					for (int i = 0; i < length; i++)
+					Packet packet;
+					lock (_queueSync)
 					{
-						Packet packet = null;
-						lock (_queueSync)
-						{
-							if (queue.Count == 0) break;
-							try
-							{
-								packet = queue.Dequeue();
-							}
-							catch (Exception)
-							{
-							}
-						}
+						if (queue.Count == 0) break;
 
-						if (packet == null) continue;
-
-						if (State == ConnectionState.Unconnected)
-						{
-							packet.PutPool();
-							continue;
-						}
-
-						if (length == 1)
-						{
-							await SendPacketAsync(packet);
-							continue;
-						}
-
-						if (packet is McpeWrapper)
-						{
-							sendLast.Add(packet);
-							continue;
-						}
-
-						if (packet.NoBatch)
-						{
-							sendLast.Add(packet);
-							continue;
-						}
-
-						if (messageCount == 0)
-						{
-							memStream.Position = 0;
-							memStream.SetLength(0);
-						}
-
-						byte[] bytes = packet.Encode();
-						if (bytes != null)
-						{
-							BatchUtils.WriteLength(memStream, bytes.Length);
-							memStream.Write(bytes, 0, bytes.Length);
-							messageCount++;
-						}
-
-						packet.PutPool();
+						if (!queue.TryDequeue(out packet)) break;
 					}
-					foreach (Packet packet in sendLast)
-					{
-						await SendPacketAsync(packet);
-					}
+
+					if (packet == null) continue;
 
 					if (State == ConnectionState.Unconnected)
 					{
-						return;
+						packet.PutPool();
+						continue;
 					}
 
-					await SendBufferedAsync(messageCount, memStream);
+					sendList.Add(packet);
+				}
+
+				if (sendList.Count == 0) return;
+
+				List<Packet> prepareSend = CustomMessageHandler.PrepareSend(sendList);
+				foreach (Packet packet in prepareSend)
+				{
+					await SendPacketAsync(packet);
 				}
 			}
 			catch (Exception e)
@@ -889,18 +836,6 @@ namespace MiNET.Net.RakNet
 			{
 				_syncHack.Release();
 			}
-		}
-
-		private async Task SendBufferedAsync(int messageCount, MemoryStream memStream)
-		{
-			if (messageCount == 0) return;
-
-			McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(memStream.GetBuffer(), 0, (int) memStream.Length), CompressionLevel.Fastest, false);
-			batch.Encode();
-			memStream.Position = 0;
-			memStream.SetLength(0);
-
-			await SendPacketAsync(batch);
 		}
 
 		public void SendDirectPacket(Packet packet)
@@ -957,7 +892,7 @@ namespace MiNET.Net.RakNet
 
 			datagram.Timer.Restart();
 
-			if (!session.WaitingForAckQueue.TryAdd(datagram.Header.DatagramSequenceNumber.IntValue(), datagram))
+			if (!ServerInfo.DisableAck && !ServerInfo.IsEmulator && !session.WaitingForAckQueue.TryAdd(datagram.Header.DatagramSequenceNumber.IntValue(), datagram))
 			{
 				Log.Warn($"Datagram sequence unexpectedly existed in the ACK/NAK queue already {datagram.Header.DatagramSequenceNumber.IntValue()}");
 				datagram.PutPool();
@@ -972,14 +907,9 @@ namespace MiNET.Net.RakNet
 
 		public void Close()
 		{
-			if (!ServerInfo.RakSessions.TryRemove(EndPoint, out RakSession session))
+			if (!ServerInfo.RakSessions.TryRemove(EndPoint, out _))
 			{
 				return;
-			}
-
-			if (OutgoingAckQueue.Count > 0)
-			{
-				Thread.Sleep(50);
 			}
 
 			State = ConnectionState.Unconnected;
@@ -989,7 +919,7 @@ namespace MiNET.Net.RakNet
 			// Send with high priority, bypass queue
 			SendDirectPacket(new DisconnectionNotification());
 
-			SendQueueAsync().Wait();
+			SendQueueAsync(500).Wait();
 
 			_cancellationToken.Cancel();
 			_packetQueuedWaitEvent.Set();

@@ -1659,7 +1659,7 @@ namespace MiNET
 
 		protected virtual void SendChangeDimension(Dimension dimension, bool respawn = false, Vector3 position = new Vector3())
 		{
-			McpeChangeDimension changeDimension = McpeChangeDimension.CreateObject();
+			var changeDimension = McpeChangeDimension.CreateObject();
 			changeDimension.dimension = (int) dimension;
 			changeDimension.position = position;
 			changeDimension.respawn = respawn;

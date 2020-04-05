@@ -23,8 +23,9 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using log4net;
-using MiNET.Blocks;
 
 namespace MiNET.Net.RakNet
 {
@@ -35,6 +36,9 @@ namespace MiNET.Net.RakNet
 		void Disconnect(string reason, bool sendDisconnect = true);
 
 		void HandlePacket(Packet message);
+
+		Memory<byte> HandleOrderedSend(Packet packet, Memory<byte> message);
+		List<Packet> PrepareSend(List<Packet> packetsToSend);
 	}
 
 	public class DefaultMessageHandler : ICustomMessageHandler
@@ -52,6 +56,17 @@ namespace MiNET.Net.RakNet
 		public void HandlePacket(Packet message)
 		{
 			Log.Warn($"Default custom message handler. Probably not what you want!");
+		}
+
+		public Memory<byte> HandleOrderedSend(Packet packet, Memory<byte> message)
+		{
+			Log.Warn($"Default custom message handler. Probably not what you want!");
+			return message;
+		}
+
+		public List<Packet> PrepareSend(List<Packet> packetsToSend)
+		{
+			return packetsToSend;
 		}
 	}
 }

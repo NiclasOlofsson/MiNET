@@ -106,7 +106,7 @@ namespace MiNET.Net.RakNet
 					return;
 				}
 
-				TraceReceive(message);
+				TraceReceive(Log, message);
 
 				switch (messageType)
 				{
@@ -375,9 +375,9 @@ namespace MiNET.Net.RakNet
 			_sender.SendData(data, senderEndpoint);
 		}
 
-		internal static void TraceReceive(Packet message)
+		internal static void TraceReceive(ILog log, Packet message)
 		{
-			if (!Log.IsDebugEnabled) return;
+			if (!log.IsDebugEnabled) return;
 
 			try
 			{
@@ -400,7 +400,7 @@ namespace MiNET.Net.RakNet
 
 				if (verbosity == 0)
 				{
-					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
+					log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
 				}
 				else if (verbosity == 1 || verbosity == 3)
 				{
@@ -418,16 +418,16 @@ namespace MiNET.Net.RakNet
 					jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
 
 					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
-					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+					log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
 				}
 				else if (verbosity == 2 || verbosity == 3)
 				{
-					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
+					log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 				}
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error when printing trace", e);
+				log.Error("Error when printing trace", e);
 			}
 		}
 

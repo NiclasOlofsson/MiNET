@@ -58,6 +58,8 @@ namespace MiNET.Net
 			{
 				// We must send forced clear messages in single message batch because
 				// we can't mix them with un-encrypted messages for obvious reasons.
+				// If need be, we could put these in a batch of it's own, but too rare 
+				// to bother.
 				if (packet.ForceClear)
 				{
 					var wrapper = McpeWrapper.CreateObject();
@@ -88,11 +90,14 @@ namespace MiNET.Net
 				sendInBatch.Add(packet);
 			}
 
-			var batch = McpeWrapper.CreateObject();
-			batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
-			batch.payload = Compression.CompressPacketsForWrapper(sendInBatch);
-			batch.Encode(); // prepare
-			sendList.Add(batch);
+			if (sendInBatch.Count > 0)
+			{
+				var batch = McpeWrapper.CreateObject();
+				batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
+				batch.payload = Compression.CompressPacketsForWrapper(sendInBatch);
+				batch.Encode(); // prepare
+				sendList.Add(batch);
+			}
 
 			return sendList;
 		}
@@ -101,16 +106,14 @@ namespace MiNET.Net
 		{
 			if (!packet.ForceClear && CryptoContext != null && CryptoContext.UseEncryption && packet is McpeWrapper)
 			{
-				Log.Warn($"Encrypting {packet.GetType()}");
 				var wrapper = McpeWrapper.CreateObject();
 				wrapper.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
 				wrapper.payload = CryptoUtils.Encrypt(message.Slice(1), CryptoContext);
 				var encodedMessage = wrapper.Encode();
 				wrapper.PutPool();
+
 				return encodedMessage;
 			}
-
-			Log.Warn($"NOT Encrypting {packet.GetType()}");
 
 			return message;
 		}

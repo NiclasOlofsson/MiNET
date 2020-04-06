@@ -152,20 +152,20 @@ namespace MiNET.Net.RakNet
 		{
 			if (message.mtuSize != DefaultMtuSize)
 			{
-				Log.Warn($"Error, mtu differ from what we sent. Received {message.mtuSize} bytes");
-				return;
+				Log.Debug($"Error, mtu differ from what we sent. Received {message.mtuSize} bytes");
+				//return;
 			}
 
 			Log.Debug($"Server with ID {message.serverGuid} security={message.serverHasSecurity}");
 
-			SendOpenConnectionRequest2(senderEndpoint);
+			SendOpenConnectionRequest2(senderEndpoint, message.mtuSize);
 		}
 
-		private void SendOpenConnectionRequest2(IPEndPoint targetEndPoint)
+		private void SendOpenConnectionRequest2(IPEndPoint targetEndPoint, short mtuSize)
 		{
 			var packet = OpenConnectionRequest2.CreateObject();
 			packet.remoteBindingAddress = targetEndPoint;
-			packet.mtuSize = DefaultMtuSize;
+			packet.mtuSize = mtuSize;
 			packet.clientGuid = _clientGuid;
 
 			byte[] data = packet.Encode();
@@ -184,12 +184,12 @@ namespace MiNET.Net.RakNet
 			HaveServer = true;
 
 			Thread.Sleep(100);
-			SendConnectionRequest(senderEndpoint);
+			SendConnectionRequest(senderEndpoint, message.mtuSize);
 		}
 
-		public void SendConnectionRequest(IPEndPoint targetEndPoint)
+		public void SendConnectionRequest(IPEndPoint targetEndPoint, short mtuSize)
 		{
-			var session = new RakSession(_connectionInfo, _sender, targetEndPoint, DefaultMtuSize)
+			var session = new RakSession(_connectionInfo, _sender, targetEndPoint, mtuSize)
 			{
 				State = ConnectionState.Connecting,
 				LastUpdatedTime = DateTime.UtcNow,

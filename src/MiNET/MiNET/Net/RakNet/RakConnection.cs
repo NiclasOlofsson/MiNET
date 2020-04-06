@@ -234,6 +234,10 @@ namespace MiNET.Net.RakNet
 						continue;
 					}
 				}
+				catch (ObjectDisposedException e)
+				{
+					return;
+				}
 				catch (SocketException e)
 				{
 					if (e.ErrorCode != 10004) Log.Error("Unexpected end of receive", e);

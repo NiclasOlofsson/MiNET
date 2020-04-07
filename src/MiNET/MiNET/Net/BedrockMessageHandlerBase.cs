@@ -152,14 +152,15 @@ namespace MiNET.Net
 					deflateStream.CopyTo(s);
 					s.Position = 0;
 
+					int count = 0;
 					// Get actual packet out of bytes
 					while (s.Position < s.Length)
 					{
-						int len = (int) VarInt.ReadUInt32(s);
+						count++;
+						uint len = VarInt.ReadUInt32(s);
 						Memory<byte> internalBuffer = new byte[len];
 						s.Read(internalBuffer.Span);
 						int id = internalBuffer.Span[0];
-						internalBuffer = internalBuffer.Slice(id > 127 ? 2 : 1); //TODO: This is stupid. Get rid of the id slicing
 
 						//if (Log.IsDebugEnabled)
 						//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Packet.HexDump(internalBuffer)}");
@@ -171,8 +172,9 @@ namespace MiNET.Net
 						}
 						catch (Exception)
 						{
-							if (Log.IsDebugEnabled) Log.Warn($"Error parsing packet 0x{wrapper.Id:X2}\n{Packet.HexDump(internalBuffer)}");
-							throw;
+							if (Log.IsDebugEnabled) Log.Warn($"Error parsing bedrock message #{count} id=0x{wrapper.Id:X2}\n{Packet.HexDump(internalBuffer)}");
+							//throw;
+							return; // Exit, but don't crash.
 						}
 					}
 
@@ -194,7 +196,14 @@ namespace MiNET.Net
 					};
 
 					RakOfflineHandler.TraceReceive(Log, msg);
-					HandleCustomPacket(msg);
+					try
+					{
+						HandleCustomPacket(msg);
+					}
+					catch (Exception e)
+					{
+						Log.Warn($"Bedrock message handler error", e);
+					}
 				}
 
 				wrapper.PutPool();

@@ -67,12 +67,11 @@ namespace MiNET
 
 		public ServerRole ServerRole { get; set; }
 
-		internal static DedicatedThreadPool FastThreadPool { get; set; }
+		internal static DedicatedThreadPool FastThreadPool { get; set; } = new DedicatedThreadPool(new DedicatedThreadPoolSettings(100, "Fast_Thread"));
 
 		public MiNetServer()
 		{
 			ServerRole = Config.GetProperty("ServerRole", ServerRole.Full);
-			FastThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
 		}
 
 		public MiNetServer(IPEndPoint endpoint) : this()

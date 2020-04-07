@@ -79,7 +79,7 @@ namespace MiNET.Net.RakNet
 			_greyListManager = greyListManager;
 			_motdProvider = motdProvider;
 
-			_receiveThreadPool = threadPool ?? new DedicatedThreadPool(new DedicatedThreadPoolSettings(100, "Datagram Rcv Thread"));
+			_receiveThreadPool = threadPool ?? new DedicatedThreadPool(new DedicatedThreadPoolSettings(100, "Datagram_Rcv_Thread"));
 
 			ConnectionInfo = new ConnectionInfo(_rakSessions);
 

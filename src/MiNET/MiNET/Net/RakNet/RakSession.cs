@@ -311,7 +311,15 @@ namespace MiNET.Net.RakNet
 				}
 				else
 				{
-					CustomMessageHandler.HandlePacket(message);
+					try
+					{
+						CustomMessageHandler.HandlePacket(message);
+					}
+					catch (Exception e)
+					{
+						// ignore
+						Log.Warn($"Custom message handler error", e);
+					}
 				}
 
 				if (message.Timer.IsRunning)

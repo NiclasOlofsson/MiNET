@@ -2360,7 +2360,7 @@ namespace MiNET.Net
 
 		protected virtual void DecodePacket()
 		{
-			if (!IsMcpe) Id = ReadByte();
+			Id = ReadByte();
 		}
 
 		public abstract void PutPool();

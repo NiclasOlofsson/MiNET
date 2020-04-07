@@ -99,7 +99,7 @@ namespace MiNET.ServiceKiller
 				Console.ReadLine();
 
 				//var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
-				var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(100));
+				var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(100, "Shared_Thread"));
 
 				var emulator = new Emulator {Running = true};
 				long start = DateTime.UtcNow.Ticks;

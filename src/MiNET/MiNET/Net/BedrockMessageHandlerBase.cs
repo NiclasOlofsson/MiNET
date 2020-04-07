@@ -157,9 +157,10 @@ namespace MiNET.Net
 					while (s.Position < s.Length)
 					{
 						count++;
+
 						uint len = VarInt.ReadUInt32(s);
-						Memory<byte> internalBuffer = new byte[len];
-						s.Read(internalBuffer.Span);
+						ReadOnlyMemory<byte> internalBuffer = s.GetBuffer().AsMemory((int) s.Position, (int) len);
+						s.Position += len;
 						int id = internalBuffer.Span[0];
 
 						//if (Log.IsDebugEnabled)
@@ -172,7 +173,7 @@ namespace MiNET.Net
 						}
 						catch (Exception)
 						{
-							if (Log.IsDebugEnabled) Log.Warn($"Error parsing bedrock message #{count} id=0x{wrapper.Id:X2}\n{Packet.HexDump(internalBuffer)}");
+							if (Log.IsDebugEnabled) Log.Warn($"Error parsing bedrock message #{count} id={id}\n{Packet.HexDump(internalBuffer)}");
 							//throw;
 							return; // Exit, but don't crash.
 						}

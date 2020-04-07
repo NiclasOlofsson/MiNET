@@ -27,6 +27,7 @@ using System;
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -89,11 +90,86 @@ namespace MiNET.Net.RakNet
 		{
 			if (_listener != null) return;
 
+			Log.Debug($"Creating listener for packets on {_endpoint}");
 			_listener = CreateListener(_endpoint);
 			_receiveThread = new Thread(ReceiveDatagram) {IsBackground = true};
 			_receiveThread.Start(_listener);
 
 			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
+		}
+
+		public bool TryLocate(out (IPEndPoint serverEndPoint, string serverName) serverInfo, int numberOfAttempts = int.MaxValue)
+		{
+			return TryLocate(null, out serverInfo, numberOfAttempts);
+		}
+
+		public bool TryLocate(IPEndPoint targetEndPoint, out (IPEndPoint serverEndPoint, string serverName) serverInfo, int numberOfAttempts = int.MaxValue)
+		{
+			Start(); // Make sure we have started.
+
+			bool oldAutoConnect = AutoConnect;
+			AutoConnect = false;
+
+			while (!FoundServer && numberOfAttempts-- > 0)
+			{
+				SendUnconnectedPingInternal(targetEndPoint);
+				Task.Delay(500).Wait();
+			}
+
+			serverInfo = (RemoteEndpoint, RemoteServerName);
+
+			AutoConnect = oldAutoConnect;
+
+			return FoundServer;
+		}
+
+
+		public bool TryConnect(IPEndPoint targetEndPoint, int numberOfAttempts = int.MaxValue)
+		{
+			Start(); // Make sure we have started.
+
+			Log.Debug($"Sending open connection request 1");
+			_rakOfflineHandler.SendOpenConnectionRequest1(targetEndPoint);
+
+			RakSession session = null;
+			do
+			{
+				_rakSessions.TryGetValue(targetEndPoint, out session);
+				Task.Delay(500).Wait();
+			} while (session == null && numberOfAttempts-- > 0);
+
+			Log.Debug($"Done waiting for connection {numberOfAttempts}, {session == null}");
+
+			if (session == null) return false;
+
+			Log.Debug($"Got session for server. Waiting for connection to complete.");
+
+			while (session.State != ConnectionState.Connected && numberOfAttempts-- > 0)
+			{
+				Task.Delay(500).Wait();
+			}
+
+			return session.State == ConnectionState.Connected;
+		}
+
+		private void SendUnconnectedPingInternal(IPEndPoint targetEndPoint)
+		{
+			var packet = new UnconnectedPing
+			{
+				pingId = Stopwatch.GetTimestamp() /*incoming.pingId*/,
+				guid = _rakOfflineHandler.ClientGuid
+			};
+
+			var data = packet.Encode();
+
+			if (targetEndPoint != null)
+			{
+				SendData(data, targetEndPoint);
+			}
+			else
+			{
+				SendData(data, new IPEndPoint(IPAddress.Broadcast, 19132));
+			}
 		}
 
 		public void Stop()
@@ -356,6 +432,8 @@ namespace MiNET.Net.RakNet
 
 			EnqueueAck(rakSession, datagram.Header.DatagramSequenceNumber);
 
+			if (Log.IsVerboseEnabled()) Log.Verbose($"Receive datagram #{datagram.Header.DatagramSequenceNumber} for {_endpoint}");
+
 			HandleDatagram(rakSession, datagram);
 			datagram.PutPool();
 		}
@@ -405,7 +483,7 @@ namespace MiNET.Net.RakNet
 
 			if (!haveAllParts) return null;
 
-			Log.Debug($"Got all {spCount} split packets for split ID: {spId}");
+			if (Log.IsVerboseEnabled()) Log.Verbose($"Got all {spCount} split packets for split ID: {spId}");
 
 			session.Splits.TryRemove(spId, out SplitPartPacket[] _);
 
@@ -443,7 +521,7 @@ namespace MiNET.Net.RakNet
 					OrderingIndex = headerOrderingIndex,
 				};
 
-				Log.Debug($"Assembled split packet {fullMessage.ReliabilityHeader.Reliability} message #{fullMessage.ReliabilityHeader.ReliableMessageNumber}, OrdIdx: #{fullMessage.ReliabilityHeader.OrderingIndex}");
+				if(Log.IsVerboseEnabled()) Log.Verbose($"Assembled split packet {fullMessage.ReliabilityHeader.Reliability} message #{fullMessage.ReliabilityHeader.ReliableMessageNumber}, OrdIdx: #{fullMessage.ReliabilityHeader.OrderingIndex}");
 
 				return fullMessage;
 			}

@@ -31,6 +31,7 @@ namespace MiNET.Utils
 {
 	public static class LogHelpers
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(LogHelpers));
 
 		// These are all the levels built into log4net
 		//public static readonly Level Off = new Level(int.MaxValue, "OFF");
@@ -54,7 +55,7 @@ namespace MiNET.Utils
 
 		private static readonly Type _declaringType = typeof(LogHelpers);
 
-		public static bool IsTraceEnable(this ILog log)
+		public static bool IsTraceEnabled(this ILog log)
 		{
 			return log.Logger.IsEnabledFor(Level.Trace);
 		}
@@ -69,7 +70,7 @@ namespace MiNET.Utils
 			log.Trace(message, null);
 		}
 
-		public static bool IsVerboseEnable(this ILog log)
+		public static bool IsVerboseEnabled(this ILog log)
 		{
 			return log.Logger.IsEnabledFor(Level.Verbose);
 		}

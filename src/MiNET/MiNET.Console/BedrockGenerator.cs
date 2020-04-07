@@ -60,7 +60,7 @@ namespace MiNET.Console
 				_client.MessageHandler = new ChunkGeneratorHandler(_client);
 				_client.StartClient();
 
-				if (_client.ServerEndpoint != null)
+				if (_client.ServerEndPoint != null)
 				{
 					while (!_client.FoundServer)
 					{

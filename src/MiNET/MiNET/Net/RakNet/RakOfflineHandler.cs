@@ -39,7 +39,7 @@ namespace MiNET.Net.RakNet
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(RakOfflineHandler));
 
-		private const int DefaultMtuSize = 1464;
+		private const int DefaultMtuSize = 1164;
 
 		private readonly IPacketSender _sender;
 		private readonly RakConnection _connection;
@@ -47,7 +47,8 @@ namespace MiNET.Net.RakNet
 		private readonly ConnectionInfo _connectionInfo;
 		private readonly GreyListManager _greyListManager;
 		private readonly ConcurrentDictionary<IPEndPoint, DateTime> _connectionAttempts = new ConcurrentDictionary<IPEndPoint, DateTime>();
-		private long _clientGuid = 1111111 + new Random().Next();
+
+		public long ClientGuid { get; }
 
 		// RakNet found a remote server using Ping.
 		public bool HaveServer { get; set; }
@@ -61,6 +62,10 @@ namespace MiNET.Net.RakNet
 			_motdProvider = motdProvider;
 			_connectionInfo = connectionInfo;
 			_greyListManager = greyListManager;
+
+			byte[] buffer = new byte[8];
+			new Random().NextBytes(buffer);
+			ClientGuid = BitConverter.ToInt64(buffer, 0);
 		}
 
 		internal void HandleOfflineRakMessage(ReadOnlyMemory<byte> receiveBytes, IPEndPoint senderEndpoint)
@@ -166,7 +171,7 @@ namespace MiNET.Net.RakNet
 			var packet = OpenConnectionRequest2.CreateObject();
 			packet.remoteBindingAddress = targetEndPoint;
 			packet.mtuSize = mtuSize;
-			packet.clientGuid = _clientGuid;
+			packet.clientGuid = ClientGuid;
 
 			byte[] data = packet.Encode();
 
@@ -193,7 +198,7 @@ namespace MiNET.Net.RakNet
 			{
 				State = ConnectionState.Connecting,
 				LastUpdatedTime = DateTime.UtcNow,
-				NetworkIdentifier = _clientGuid,
+				NetworkIdentifier = ClientGuid,
 			};
 
 			session.CustomMessageHandler = _connection.CustomMessageHandlerFactory?.Invoke(session);
@@ -206,7 +211,7 @@ namespace MiNET.Net.RakNet
 			}
 
 			var packet = ConnectionRequest.CreateObject();
-			packet.clientGuid = _clientGuid;
+			packet.clientGuid = ClientGuid;
 			packet.timestamp = DateTime.UtcNow.Ticks;
 			packet.doSecurity = 0;
 
@@ -226,11 +231,10 @@ namespace MiNET.Net.RakNet
 					senderEndpoint.Port = int.Parse(motdParts[10]);
 				}
 
-				HaveServer = true;
-
 				if (AutoConnect)
 				{
 					Log.Debug($"Connecting to {senderEndpoint}");
+					HaveServer = true;
 					SendOpenConnectionRequest1(senderEndpoint);
 				}
 				else
@@ -238,6 +242,7 @@ namespace MiNET.Net.RakNet
 					Log.Debug($"Connect to server using actual endpoint={senderEndpoint}");
 					_connection.RemoteEndpoint = senderEndpoint;
 					_connection.RemoteServerName = message.serverName;
+					HaveServer = true;
 				}
 			}
 		}
@@ -389,7 +394,7 @@ namespace MiNET.Net.RakNet
 
 		internal static void TraceReceive(ILog log, Packet message)
 		{
-			if (!Log.IsTraceEnable()) return;
+			if (!Log.IsTraceEnabled()) return;
 
 			try
 			{
@@ -445,7 +450,7 @@ namespace MiNET.Net.RakNet
 
 		internal static void TraceSend(Packet message)
 		{
-			if (!Log.IsTraceEnable()) return;
+			if (!Log.IsTraceEnabled()) return;
 
 			try
 			{

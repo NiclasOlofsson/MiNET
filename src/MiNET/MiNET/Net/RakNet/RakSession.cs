@@ -108,6 +108,8 @@ namespace MiNET.Net.RakNet
 
 		public RakSession(ConnectionInfo connectionInfo, IPacketSender packetSender, IPEndPoint endPoint, short mtuSize, ICustomMessageHandler messageHandler = null)
 		{
+			Log.Debug($"Create session for {endPoint}");
+
 			_packetSender = packetSender;
 			ConnectionInfo = connectionInfo;
 			CustomMessageHandler = messageHandler ?? new DefaultMessageHandler();
@@ -177,24 +179,24 @@ namespace MiNET.Net.RakNet
 				{
 					//Log.Debug($"Received packet {message.Id} with ordering index={message.ReliabilityHeader.OrderingIndex}. Current index={_lastOrderingIndex}");
 
-					if (_orderingBufferQueue.Count == 0 && message.ReliabilityHeader.OrderingIndex == _lastOrderingIndex + 1)
-					{
-						if (_orderedQueueProcessingThread != null)
-						{
-							// Remove the thread again? But need to deal with cancellation token, so not entirely easy.
-							// Needs refactoring of the processing thread first.
-						}
-						_lastOrderingIndex = message.ReliabilityHeader.OrderingIndex;
-						HandlePacket(message);
-						return;
-					}
+					//if (_orderingBufferQueue.Count == 0 && message.ReliabilityHeader.OrderingIndex == _lastOrderingIndex + 1)
+					//{
+					//	if (_orderedQueueProcessingThread != null)
+					//	{
+					//		// Remove the thread again? But need to deal with cancellation token, so not entirely easy.
+					//		// Needs refactoring of the processing thread first.
+					//	}
+					//	_lastOrderingIndex = message.ReliabilityHeader.OrderingIndex;
+					//	HandlePacket(message);
+					//	return;
+					//}
 
 					if (_orderedQueueProcessingThread == null)
 					{
 						_orderedQueueProcessingThread = new Thread(ProcessOrderedQueue)
 						{
 							IsBackground = true,
-							Name = $"Ordering Thread [{Username}]"
+							Name = $"Ordering Thread [{EndPoint}]"
 						};
 						_orderedQueueProcessingThread.Start();
 						if (Log.IsDebugEnabled) Log.Warn($"Started processing thread for {Username}");
@@ -284,6 +286,9 @@ namespace MiNET.Net.RakNet
 						case ConnectedPing connectedPing:
 							HandleConnectedPing(connectedPing);
 							break;
+						case ConnectedPong connectedPong:
+							HandleConnectedPong(connectedPong);
+							break;
 						case DetectLostConnections _:
 							break;
 						case ConnectionRequest connectionRequest:
@@ -331,6 +336,11 @@ namespace MiNET.Net.RakNet
 			{
 				message?.PutPool();
 			}
+		}
+
+		private void HandleConnectedPong(ConnectedPong connectedPong)
+		{
+			// Ignore
 		}
 
 		protected virtual void HandleConnectedPing(ConnectedPing message)

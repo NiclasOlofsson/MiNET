@@ -73,7 +73,7 @@ namespace MiNET.Client
 		private long _clientGuid;
 
 		public IPEndPoint ClientEndpoint { get; set; }
-		public IPEndPoint ServerEndpoint { get; set; }
+		public IPEndPoint ServerEndPoint { get; set; }
 
 		public bool IsEmulator { get; set; }
 
@@ -107,14 +107,14 @@ namespace MiNET.Client
 			set => throw new NotSupportedException("Use Connection.CustomMessageHandlerFactory instead");
 		}
 
-		public MiNetClient(IPEndPoint endpoint, string username, DedicatedThreadPool threadPool)
+		public MiNetClient(IPEndPoint endPoint, string username, DedicatedThreadPool threadPool = null)
 		{
 			_threadPool = threadPool;
 			Username = username;
 			ClientId = new Random().Next();
-			ServerEndpoint = endpoint;
-			if (ServerEndpoint != null) Log.Info("Connecting to: " + ServerEndpoint);
-			ClientEndpoint = new IPEndPoint(IPAddress.Loopback, 0);
+			ServerEndPoint = endPoint;
+			if (ServerEndPoint != null) Log.Info("Connecting to: " + ServerEndPoint);
+			ClientEndpoint = new IPEndPoint(IPAddress.Any, 0);
 			byte[] buffer = new byte[8];
 			new Random().NextBytes(buffer);
 			_clientGuid = BitConverter.ToInt64(buffer, 0);
@@ -612,9 +612,9 @@ namespace MiNET.Client
 
 			var data = packet.Encode();
 
-			if (ServerEndpoint != null)
+			if (ServerEndPoint != null)
 			{
-				SendData(data, ServerEndpoint);
+				SendData(data, ServerEndPoint);
 			}
 			else
 			{
@@ -642,7 +642,7 @@ namespace MiNET.Client
 
 		public void SendOpenConnectionRequest1()
 		{
-			Connection._rakOfflineHandler.SendOpenConnectionRequest1(ServerEndpoint);
+			Connection.TryConnect(ServerEndPoint);
 		}
 
 		public void SendPacket(Packet packet)

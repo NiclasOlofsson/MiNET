@@ -52,7 +52,8 @@ namespace MiNET.Client
 			Console.WriteLine("Starting client...");
 
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.4"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 19132), "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.pmmp.io").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.4"), 19162), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("213.89.103.206"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
@@ -60,25 +61,21 @@ namespace MiNET.Client
 
 			client.StartClient();
 			Log.Warn("Client listening for connecting on: " + client.ClientEndpoint);
-			Console.WriteLine("Started!");
 
 			Console.WriteLine("Looking for server...");
-			if (client.ServerEndpoint != null)
+
+			if(!client.Connection.TryLocate(client.ServerEndPoint, out (IPEndPoint serverEndPoint, string serverName) info))
 			{
-				while (!client.FoundServer)
-				{
-					Console.WriteLine("... still looking ...");
-					client.SendUnconnectedPing();
-					Thread.Sleep(500);
-				}
+				Console.WriteLine($"Failed to locate server at {client.ServerEndPoint}");
+				return;
 			}
 
-			Console.WriteLine($"... YEAH! FOUND SERVER! It's at {client.ServerEndpoint?.Address}, port {client.ServerEndpoint?.Port}");
+			Console.WriteLine($"... YEAH! FOUND SERVER! It's at {info.serverEndPoint}, \"{info.serverName}\"");
 
-			while (!client.IsConnected)
+			if (!client.Connection.TryConnect(info.serverEndPoint))
 			{
-				Console.WriteLine("... waiting for connection ...");
-				Thread.Sleep(500);
+				Console.WriteLine($"Failed to connect to server at {info.serverEndPoint}");
+				return;
 			}
 
 			client.PlayerStatusChangedWaitHandle.WaitOne();

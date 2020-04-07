@@ -676,7 +676,7 @@ namespace MiNET.Test
 
 			packet = new McpeMoveEntityDelta();
 			packet.prevSentPosition = prev;
-			packet.Decode(bytes.AsSpan(1, bytes.Length - 1).ToArray());
+			packet.Decode(bytes.AsMemory());
 
 			Assert.AreEqual(packet.runtimeEntityId, 0x0102030405);
 

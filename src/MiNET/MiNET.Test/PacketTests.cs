@@ -45,7 +45,7 @@ namespace MiNET.Test
 			var bytes = input.Encode();
 
 			var packet = new McpePlayStatus();
-			packet.Decode(bytes.AsSpan(1, bytes.Length - 1).ToArray());
+			packet.Decode(bytes.AsMemory());
 
 			Assert.AreEqual(10, packet.status);
 		}

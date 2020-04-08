@@ -733,6 +733,20 @@ namespace MiNET.Test
 			file.LoadFromStream(stream, NbtCompression.None);
 		}
 
+				[TestMethod]
+		public void NbtBlockPropertiesParseTest()
+		{
+			var bytes = new byte[] {0x0a, 0x00, 0x00};
+
+			var stream = new MemoryStream(bytes);
+			Nbt nbt = new Nbt();
+			NbtFile file = new NbtFile();
+			file.BigEndian = false;
+			file.UseVarInt = true;
+			nbt.NbtFile = file;
+			file.LoadFromStream(stream, NbtCompression.None);
+		}
+
 
 	}
 }

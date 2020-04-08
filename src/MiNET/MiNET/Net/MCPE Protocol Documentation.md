@@ -2645,6 +2645,8 @@ Wiki: [Update Block Properties](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Unknown | byte |  |
+|NamedTag | Nbt |  |
 -----------------------------------------------------------------------
 ### Client Cache Blob Status (0x87)
 Wiki: [Client Cache Blob Status](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientCacheBlobStatus)
@@ -2694,6 +2696,7 @@ Wiki: [Network Settings Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Unknown | byte |  |
 |Compression threshold | short |  |
 -----------------------------------------------------------------------
 

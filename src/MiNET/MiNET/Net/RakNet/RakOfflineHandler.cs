@@ -439,7 +439,7 @@ namespace MiNET.Net.RakNet
 					jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
 
 					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
-					log.Verbose($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+					log.Trace($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
 				}
 				else if (verbosity == 2 || verbosity == 3)
 				{

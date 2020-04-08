@@ -1148,6 +1148,8 @@
 	</pdu>
 
 	<pdu id="0x86" online="false" client="false" server="true" name="MCPE_UPDATE_BLOCK_PROPERTIES">
+		<field name="Unknown" type="byte" />
+		<field name="NamedTag" type="Nbt" />
 	</pdu>
 
 	<pdu id="0x87" online="false" client="false" server="true" name="MCPE_CLIENT_CACHE_BLOB_STATUS">
@@ -1162,6 +1164,7 @@
 			<enum id="Everything" value="1" />
 		</enums>
 
+		<field name="Unknown" type="byte" />
 		<field name="Compression threshold" type="short" />
 	</pdu>
 

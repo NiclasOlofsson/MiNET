@@ -9303,6 +9303,8 @@ namespace MiNET.Net
 	public partial class McpeUpdateBlockProperties : Packet<McpeUpdateBlockProperties>
 	{
 
+		public byte unknown; // = null;
+		public Nbt namedtag; // = null;
 
 		public McpeUpdateBlockProperties()
 		{
@@ -9316,6 +9318,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(unknown);
+			Write(namedtag);
 
 			AfterEncode();
 		}
@@ -9329,6 +9333,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			unknown = ReadByte();
+			namedtag = ReadNbt();
 
 			AfterDecode();
 		}
@@ -9340,6 +9346,8 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+			unknown=default(byte);
+			namedtag=default(Nbt);
 		}
 
 	}
@@ -9440,6 +9448,7 @@ namespace MiNET.Net
 			Everything = 1,
 		}
 
+		public byte unknown; // = null;
 		public short compressionThreshold; // = null;
 
 		public McpeNetworkSettingsPacket()
@@ -9454,6 +9463,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(unknown);
 			Write(compressionThreshold);
 
 			AfterEncode();
@@ -9468,6 +9478,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			unknown = ReadByte();
 			compressionThreshold = ReadShort();
 
 			AfterDecode();
@@ -9480,6 +9491,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+			unknown=default(byte);
 			compressionThreshold=default(short);
 		}
 

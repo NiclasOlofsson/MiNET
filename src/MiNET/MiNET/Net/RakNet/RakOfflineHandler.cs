@@ -188,26 +188,30 @@ namespace MiNET.Net.RakNet
 
 			HaveServer = true;
 
-			Thread.Sleep(100);
 			SendConnectionRequest(senderEndpoint, message.mtuSize);
 		}
 
 		public void SendConnectionRequest(IPEndPoint targetEndPoint, short mtuSize)
 		{
-			var session = new RakSession(_connectionInfo, _sender, targetEndPoint, mtuSize)
+			RakSession session;
+			lock (_connectionInfo.RakSessions)
 			{
-				State = ConnectionState.Connecting,
-				LastUpdatedTime = DateTime.UtcNow,
-				NetworkIdentifier = ClientGuid,
-			};
+				if (_connectionInfo.RakSessions.ContainsKey(targetEndPoint)) return;
 
-			session.CustomMessageHandler = _connection.CustomMessageHandlerFactory?.Invoke(session);
+				session = new RakSession(_connectionInfo, _sender, targetEndPoint, mtuSize)
+				{
+					State = ConnectionState.Connecting,
+					LastUpdatedTime = DateTime.UtcNow,
+					NetworkIdentifier = ClientGuid,
+				};
 
-			if (!_connectionInfo.RakSessions.TryAdd(targetEndPoint, session))
-			{
-				Log.Warn($"Unable to add session, will close now");
-				_connection.Stop();
-				return;
+				session.CustomMessageHandler = _connection.CustomMessageHandlerFactory?.Invoke(session);
+
+				if (!_connectionInfo.RakSessions.TryAdd(targetEndPoint, session))
+				{
+					Log.Debug($"Session already exist, ignoring");
+					return;
+				}
 			}
 
 			var packet = ConnectionRequest.CreateObject();

@@ -55,10 +55,10 @@ namespace MiNET.Client
 			if (Client.PlayerStatus == 3)
 			{
 				Client.HasSpawned = true;
-				if (Client.IsEmulator)
+				//if (Client.IsEmulator)
 				{
 					Client.PlayerStatusChangedWaitHandle.Set();
-					Client.SendMcpeMovePlayer();
+					//Client.SendMcpeMovePlayer();
 				}
 			}
 		}

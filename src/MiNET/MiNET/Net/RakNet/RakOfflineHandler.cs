@@ -245,6 +245,8 @@ namespace MiNET.Net.RakNet
 			ConcurrentDictionary<IPEndPoint, RakSession> sessions = _connectionInfo.RakSessions;
 			ConcurrentDictionary<IPEndPoint, DateTime> connectionAttempts = _connectionAttempts;
 
+			if (Log.IsDebugEnabled) Log.Warn($"New connection from {senderEndpoint.Address} {senderEndpoint.Port}, MTU={message.mtuSize}, RakNet version={message.raknetProtocolVersion}");
+
 			lock (sessions)
 			{
 				// Already connecting, then this is just a duplicate
@@ -258,7 +260,7 @@ namespace MiNET.Net.RakNet
 				if (!connectionAttempts.TryAdd(senderEndpoint, DateTime.UtcNow)) return;
 			}
 
-			if (Log.IsDebugEnabled) Log.Warn($"New connection from {senderEndpoint.Address} {senderEndpoint.Port}, MTU={message.mtuSize}, RakNet version={message.raknetProtocolVersion}");
+			if (message.mtuSize > MaxMtuSize) return;
 
 			var packet = OpenConnectionReply1.CreateObject();
 			packet.serverGuid = _motdProvider.ServerId;

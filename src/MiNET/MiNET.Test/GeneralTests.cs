@@ -76,7 +76,7 @@ namespace MiNET.Test
 		[TestMethod]
 		public void Check_all_air_fast_test()
 		{
-			var buffer = new byte[10_000].Concat(new byte[] {42}).ToArray();
+			var buffer = new short[10_000].Concat(new short[] {42}).ToArray();
 			for (int i = 0; i < _iterations; i++)
 			{
 				Assert.IsFalse(SubChunk.AllZeroFast(buffer));

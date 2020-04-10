@@ -113,7 +113,7 @@ namespace MiNET.Net.RakNet
 			while (!FoundServer && numberOfAttempts-- > 0)
 			{
 				SendUnconnectedPingInternal(targetEndPoint);
-				Task.Delay(500).Wait();
+				Task.Delay(100).Wait();
 			}
 
 			serverInfo = (RemoteEndpoint, RemoteServerName);
@@ -124,29 +124,22 @@ namespace MiNET.Net.RakNet
 		}
 
 
-		public bool TryConnect(IPEndPoint targetEndPoint, int numberOfAttempts = int.MaxValue)
+		public bool TryConnect(IPEndPoint targetEndPoint, int numberOfAttempts = int.MaxValue, short mtuSize = 1500)
 		{
-			Start(); // Make sure we have started.
+			Start(); // Make sure we have started the listener
 
-			Log.Debug($"Sending open connection request 1");
-			_rakOfflineHandler.SendOpenConnectionRequest1(targetEndPoint);
-
-			RakSession session = null;
+			RakSession session;
 			do
 			{
-				_rakSessions.TryGetValue(targetEndPoint, out session);
-				Task.Delay(500).Wait();
-			} while (session == null && numberOfAttempts-- > 0);
-
-			Log.Debug($"Done waiting for connection {numberOfAttempts}, {session == null}");
+				_rakOfflineHandler.SendOpenConnectionRequest1(targetEndPoint, mtuSize);
+				Task.Delay(300).Wait();
+			} while (!_rakSessions.TryGetValue(targetEndPoint, out session) && numberOfAttempts-- > 0);
 
 			if (session == null) return false;
 
-			Log.Debug($"Got session for server. Waiting for connection to complete.");
-
 			while (session.State != ConnectionState.Connected && numberOfAttempts-- > 0)
 			{
-				Task.Delay(500).Wait();
+				Task.Delay(100).Wait();
 			}
 
 			return session.State == ConnectionState.Connected;

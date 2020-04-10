@@ -27,6 +27,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using log4net;
 
@@ -272,7 +273,10 @@ namespace MiNET.Net.RakNet
 
 			if (message.IsMcpe) Log.Error($"Got bedrock message in unexpected place {message.GetType().Name}");
 
-			List<(int @from, int length)> splits = ArraySplit(encodedMessage.Length, mtuSize - 100);
+			int maxPayloadSizeNoSplit = mtuSize - 28 - GetHeaderSize(message.ReliabilityHeader, false);
+			bool split = encodedMessage.Length >= maxPayloadSizeNoSplit;
+
+			List<(int @from, int length)> splits = ArraySplit(encodedMessage.Length, mtuSize - RakOfflineHandler.UdpHeaderSize - 4 /*datagram header*/ - GetHeaderSize(message.ReliabilityHeader, split));
 			int count = splits.Count;
 			if (count == 0) Log.Warn("Got zero parts back from split");
 			if (count <= 1)
@@ -313,6 +317,58 @@ namespace MiNET.Net.RakNet
 			return messageParts;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static int GetHeaderSize(ReliabilityHeader reliabilityHeader, bool split)
+		{
+			//Write((byte) (flags | (ReliabilityHeader.HasSplit ? 0b00010000 : 0x00)));
+			//Write((short) (encodedMessage.Length * 8), true); // bit length
+			int size = 3;
+
+			switch (reliabilityHeader.Reliability)
+			{
+				case Reliability.Reliable:
+				case Reliability.ReliableOrdered:
+				case Reliability.ReliableSequenced:
+				case Reliability.ReliableWithAckReceipt:
+				case Reliability.ReliableOrderedWithAckReceipt:
+					//Write(reliabilityHeader.ReliableMessageNumber);
+					size += 3;
+					break;
+			}
+
+			//switch (ReliabilityHeader.Reliability)
+			//{
+			//	case Reliability.UnreliableSequenced:
+			//	case Reliability.ReliableSequenced:
+			//		ReliabilityHeader.SequencingIndex = WriteLittle();
+			//		break;
+			//}
+
+			switch (reliabilityHeader.Reliability)
+			{
+				case Reliability.UnreliableSequenced:
+				case Reliability.ReliableOrdered:
+				case Reliability.ReliableSequenced:
+				case Reliability.ReliableOrderedWithAckReceipt:
+					//Write(ReliabilityHeader.OrderingIndex);
+					//Write(ReliabilityHeader.OrderingChannel);
+					size += 4;
+					break;
+			}
+
+			if (split)
+			{
+				//Write(ReliabilityHeader.PartCount, true);
+				//Write(ReliabilityHeader.PartId, true);
+				//Write(ReliabilityHeader.PartIndex, true);
+
+				size += 10;
+			}
+
+			return size;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static List<(int from, int length)> ArraySplit(int length, int intBufferLength)
 		{
 			List<(int from, int length)> result = new List<(int, int)>();

@@ -23,19 +23,23 @@
 
 #endregion
 
+using MiNET.Net.RakNet;
+
 namespace MiNET.Net
 {
 	public partial class OpenConnectionRequest1
 	{
 		public short mtuSize;
 
+		partial void AfterEncode()
+		{
+			Write(new byte[mtuSize - _buffer.Position - RakOfflineHandler.UdpHeaderSize]);
+		}
+
 		partial void AfterDecode()
 		{
-			//mtuSize = (short) (((int) (_buffer.Length - _buffer.Position)) + 18);
-			mtuSize = (short) (_reader.Length + 8 + 20);
-			// DIFF by 28?!
-			//mtuSize = (short) (_buffer.Length);
-			ReadBytes((int) (_reader.Length - 18));
+			mtuSize = (short) (_reader.Length + RakOfflineHandler.UdpHeaderSize);
+			ReadBytes((int) (_reader.Length - _reader.Position));
 		}
 	}
 }

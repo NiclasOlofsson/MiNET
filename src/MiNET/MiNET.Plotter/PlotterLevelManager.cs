@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -53,14 +53,14 @@ namespace MiNET.Plotter
 					EnableBlockTicking = Config.GetProperty("EnableBlockTicking", false),
 					EnableChunkTicking = Config.GetProperty("EnableChunkTicking", false),
 					SaveInterval = Config.GetProperty("Save.Interval", 300),
-					UnloadInterval = Config.GetProperty("Unload.Interval", 30),
+					UnloadInterval = Config.GetProperty("Unload.Interval", 0),
 
 					DrowningDamage = Config.GetProperty("GameRule.DrowningDamage", true),
 					CommandblockOutput = Config.GetProperty("GameRule.CommandblockOutput", true),
 					DoTiledrops = Config.GetProperty("GameRule.DoTiledrops", true),
 					DoMobloot = Config.GetProperty("GameRule.DoMobloot", true),
 					KeepInventory = Config.GetProperty("GameRule.KeepInventory", true),
-					DoDaylightcycle = Config.GetProperty("GameRule.DoDaylightcycle", true),
+					DoDaylightcycle = Config.GetProperty("GameRule.DoDaylightcycle", false),
 					DoMobspawning = Config.GetProperty("GameRule.DoMobspawning", true),
 					DoEntitydrops = Config.GetProperty("GameRule.DoEntitydrops", true),
 					DoFiretick = Config.GetProperty("GameRule.DoFiretick", true),

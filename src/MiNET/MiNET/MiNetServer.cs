@@ -182,8 +182,20 @@ namespace MiNET
 
 		public void StopServer()
 		{
+			foreach (Level level in LevelManager.Levels)
+			{
+				try
+				{
+					level.Close();
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Error while stopping server", e);
+				}
+			}
+
 			Log.Info("Disabling plugins...");
-			//PluginManager?.DisablePlugins();
+			PluginManager?.DisablePlugins();
 			_listener?.Stop();
 		}
 	}

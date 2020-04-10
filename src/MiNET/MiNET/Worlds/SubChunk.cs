@@ -78,7 +78,7 @@ namespace MiNET.Worlds
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool IsAllAir()
 		{
-			if (IsDirty)
+			//if (IsDirty)
 			{
 				_isAllAir = AllZeroFast(_blocks);
 			}

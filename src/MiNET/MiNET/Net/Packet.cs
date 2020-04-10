@@ -62,7 +62,7 @@ namespace MiNET.Net
 		[JsonIgnore] public bool IsMcpe;
 
 		protected MemoryStreamReader _reader; // new construct for reading
-		private Stream _buffer;
+		protected private Stream _buffer;
 		private BinaryWriter _writer;
 
 		[JsonIgnore] public ReadOnlyMemory<byte> Bytes { get; private set; }

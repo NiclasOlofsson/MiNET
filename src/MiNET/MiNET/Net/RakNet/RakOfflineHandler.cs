@@ -39,7 +39,10 @@ namespace MiNET.Net.RakNet
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(RakOfflineHandler));
 
-		private const int DefaultMtuSize = 1164;
+		public const int UdpHeaderSize = 28;
+
+		public static short MtuSize { get; set; } = 1500;
+		public static short MaxMtuSize { get; } = 1500;
 
 		private readonly IPacketSender _sender;
 		private readonly RakConnection _connection;
@@ -52,6 +55,7 @@ namespace MiNET.Net.RakNet
 
 		// RakNet found a remote server using Ping.
 		public bool HaveServer { get; set; }
+
 		// Tell RakNet to automatically connect to any found server.
 		public bool AutoConnect { get; set; } = true;
 
@@ -122,12 +126,12 @@ namespace MiNET.Net.RakNet
 						// Stop this client connection
 						_connection.Stop();
 						break;
-					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
-						HandleRakNetMessage(senderEndpoint, (UnconnectedPong) message);
-						break;
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PING:
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
 						HandleRakNetMessage(senderEndpoint, (UnconnectedPing) message);
+						break;
+					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
+						HandleRakNetMessage(senderEndpoint, (UnconnectedPong) message);
 						break;
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
 						HandleRakNetMessage(senderEndpoint, (OpenConnectionRequest1) message);
@@ -153,123 +157,6 @@ namespace MiNET.Net.RakNet
 			}
 		}
 
-		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionReply1 message)
-		{
-			if (message.mtuSize != DefaultMtuSize)
-			{
-				Log.Debug($"Error, mtu differ from what we sent. Received {message.mtuSize} bytes");
-				//return;
-			}
-
-			Log.Debug($"Server with ID {message.serverGuid} security={message.serverHasSecurity}");
-
-			SendOpenConnectionRequest2(senderEndpoint, message.mtuSize);
-		}
-
-		private void SendOpenConnectionRequest2(IPEndPoint targetEndPoint, short mtuSize)
-		{
-			var packet = OpenConnectionRequest2.CreateObject();
-			packet.remoteBindingAddress = targetEndPoint;
-			packet.mtuSize = mtuSize;
-			packet.clientGuid = ClientGuid;
-
-			byte[] data = packet.Encode();
-
-			TraceSend(packet);
-
-			_sender.SendData(data, targetEndPoint);
-		}
-
-
-		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionReply2 message)
-		{
-			Log.Debug("MTU Size: " + message.mtuSize);
-			Log.Debug("Client Endpoint: " + message.clientEndpoint);
-
-			HaveServer = true;
-
-			SendConnectionRequest(senderEndpoint, message.mtuSize);
-		}
-
-		public void SendConnectionRequest(IPEndPoint targetEndPoint, short mtuSize)
-		{
-			RakSession session;
-			lock (_connectionInfo.RakSessions)
-			{
-				if (_connectionInfo.RakSessions.ContainsKey(targetEndPoint)) return;
-
-				session = new RakSession(_connectionInfo, _sender, targetEndPoint, mtuSize)
-				{
-					State = ConnectionState.Connecting,
-					LastUpdatedTime = DateTime.UtcNow,
-					NetworkIdentifier = ClientGuid,
-				};
-
-				session.CustomMessageHandler = _connection.CustomMessageHandlerFactory?.Invoke(session);
-
-				if (!_connectionInfo.RakSessions.TryAdd(targetEndPoint, session))
-				{
-					Log.Debug($"Session already exist, ignoring");
-					return;
-				}
-			}
-
-			var packet = ConnectionRequest.CreateObject();
-			packet.clientGuid = ClientGuid;
-			packet.timestamp = DateTime.UtcNow.Ticks;
-			packet.doSecurity = 0;
-
-			session.SendPacket(packet);
-		}
-
-		public void HandleRakNetMessage(IPEndPoint senderEndpoint, UnconnectedPong message)
-		{
-			Log.Debug($"Found server at {senderEndpoint}");
-			Log.Debug($"MOTD: {message.serverName}");
-
-			if (!HaveServer)
-			{
-				string[] motdParts = message.serverName.Split(';');
-				if (motdParts.Length >= 11)
-				{
-					senderEndpoint.Port = int.Parse(motdParts[10]);
-				}
-
-				if (AutoConnect)
-				{
-					Log.Debug($"Connecting to {senderEndpoint}");
-					HaveServer = true;
-					SendOpenConnectionRequest1(senderEndpoint);
-				}
-				else
-				{
-					Log.Debug($"Connect to server using actual endpoint={senderEndpoint}");
-					_connection.RemoteEndpoint = senderEndpoint;
-					_connection.RemoteServerName = message.serverName;
-					HaveServer = true;
-				}
-			}
-		}
-
-		public void SendOpenConnectionRequest1(IPEndPoint targetEndPoint)
-		{
-			var packet = OpenConnectionRequest1.CreateObject();
-			packet.raknetProtocolVersion = 9;
-			packet.mtuSize = DefaultMtuSize;
-
-			byte[] data = packet.Encode();
-
-			TraceSend(packet);
-
-			// 1446 - 1464
-			// 1087 1447
-			var data2 = new byte[DefaultMtuSize - data.Length - 10];
-			Buffer.BlockCopy(data, 0, data2, 0, data.Length);
-
-			Log.Debug($"data length={data2.Length}");
-			_sender.SendData(data2, targetEndPoint);
-		}
-
 		private void HandleRakNetMessage(IPEndPoint senderEndpoint, UnconnectedPing message)
 		{
 			//TODO: This needs to be verified with RakNet first
@@ -292,7 +179,7 @@ namespace MiNET.Net.RakNet
 			//}
 
 			{
-				Log.Debug($"Ping from: {senderEndpoint.Address.ToString()}:{senderEndpoint.Port}");
+				Log.Debug($"Ping from: {senderEndpoint.Address}:{senderEndpoint.Port}");
 
 				var packet = UnconnectedPong.CreateObject();
 				packet.serverId = _motdProvider.ServerId;
@@ -306,6 +193,51 @@ namespace MiNET.Net.RakNet
 
 				_sender.SendData(data, senderEndpoint);
 			}
+		}
+
+		public void HandleRakNetMessage(IPEndPoint senderEndpoint, UnconnectedPong message)
+		{
+			Log.Debug($"Found server at {senderEndpoint}");
+			Log.Debug($"MOTD: {message.serverName}");
+
+			if (!HaveServer)
+			{
+				string[] motdParts = message.serverName.Split(';');
+				if (motdParts.Length >= 11)
+				{
+					senderEndpoint.Port = int.Parse(motdParts[10]);
+				}
+
+				if (AutoConnect)
+				{
+					Log.Debug($"Connecting to {senderEndpoint}");
+					HaveServer = true;
+					SendOpenConnectionRequest1(senderEndpoint, MtuSize);
+				}
+				else
+				{
+					Log.Debug($"Connect to server using actual endpoint={senderEndpoint}");
+					_connection.RemoteEndpoint = senderEndpoint;
+					_connection.RemoteServerName = message.serverName;
+					HaveServer = true;
+				}
+			}
+		}
+
+		public void SendOpenConnectionRequest1(IPEndPoint targetEndPoint, short mtuSize)
+		{
+			MtuSize = mtuSize; // This is what we will use from connections this point forward
+
+			var packet = OpenConnectionRequest1.CreateObject();
+			packet.raknetProtocolVersion = 9;
+			packet.mtuSize = mtuSize;
+
+			byte[] data = packet.Encode();
+
+			TraceSend(packet);
+
+			Log.Debug($"Sending MTU size={mtuSize}, data length={data.Length}");
+			_sender.SendData(data, targetEndPoint);
 		}
 
 		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionRequest1 message)
@@ -341,6 +273,33 @@ namespace MiNET.Net.RakNet
 			_sender.SendData(data, senderEndpoint);
 		}
 
+		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionReply1 message)
+		{
+			if (message.mtuSize != MtuSize)
+			{
+				Log.Debug($"Error, mtu differ from what we sent. Received {message.mtuSize} bytes");
+				//return;
+			}
+
+			Log.Debug($"Server with ID {message.serverGuid} security={message.serverHasSecurity}, mtu agreed on {message.mtuSize}");
+
+			SendOpenConnectionRequest2(senderEndpoint, message.mtuSize);
+		}
+
+		private void SendOpenConnectionRequest2(IPEndPoint targetEndPoint, short mtuSize)
+		{
+			var packet = OpenConnectionRequest2.CreateObject();
+			packet.remoteBindingAddress = targetEndPoint;
+			packet.mtuSize = mtuSize;
+			packet.clientGuid = ClientGuid;
+
+			byte[] data = packet.Encode();
+
+			TraceSend(packet);
+
+			_sender.SendData(data, targetEndPoint);
+		}
+
 		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionRequest2 incoming)
 		{
 			ConcurrentDictionary<IPEndPoint, RakSession> sessions = _connectionInfo.RakSessions;
@@ -348,28 +307,19 @@ namespace MiNET.Net.RakNet
 
 			lock (sessions)
 			{
-				if (!connectionAttempts.TryRemove(senderEndpoint, out _))
+				if (!connectionAttempts.ContainsKey(senderEndpoint))
 				{
-					Log.WarnFormat("Unexpected connection request packet from {0}. Probably a resend.", senderEndpoint.Address);
+					Log.Warn($"Unexpected connection request packet from {senderEndpoint}. Probably a resend.");
 					return;
 				}
 
-				if (sessions.TryGetValue(senderEndpoint, out RakSession session))
+				if (sessions.TryGetValue(senderEndpoint, out _))
 				{
-					// Already connecting, then this is just a duplicate
-					if (session.State == ConnectionState.Connecting /* && DateTime.UtcNow < session.LastUpdatedTime + TimeSpan.FromSeconds(2)*/)
-					{
-						return;
-					}
-
-					Log.InfoFormat("Unexpected session from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
-
-					session.Disconnect("Reconnecting.", false);
-
-					sessions.TryRemove(senderEndpoint, out _);
+					Log.Warn($"Trying to create session where session already exist. Please wait for timeout on {senderEndpoint}. Ignoring this request.");
+					return;
 				}
 
-				session = new RakSession(_connectionInfo, _sender, senderEndpoint, incoming.mtuSize)
+				var session = new RakSession(_connectionInfo, _sender, senderEndpoint, incoming.mtuSize)
 				{
 					State = ConnectionState.Connecting,
 					LastUpdatedTime = DateTime.UtcNow,
@@ -394,6 +344,53 @@ namespace MiNET.Net.RakNet
 			reply.PutPool();
 
 			_sender.SendData(data, senderEndpoint);
+		}
+
+		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionReply2 message)
+		{
+			Log.Debug("MTU Size: " + message.mtuSize);
+			Log.Debug("Client Endpoint: " + message.clientEndpoint);
+
+			HaveServer = true;
+
+			SendConnectionRequest(senderEndpoint, message.mtuSize);
+		}
+
+		private void SendConnectionRequest(IPEndPoint targetEndPoint, short mtuSize)
+		{
+			ConcurrentDictionary<IPEndPoint, RakSession> sessions = _connectionInfo.RakSessions;
+
+			RakSession session;
+			lock (sessions)
+			{
+				if (sessions.ContainsKey(targetEndPoint))
+				{
+					Log.Debug($"Session already exist, ignoring");
+					return;
+				}
+
+				session = new RakSession(_connectionInfo, _sender, targetEndPoint, mtuSize)
+				{
+					State = ConnectionState.Connecting,
+					LastUpdatedTime = DateTime.UtcNow,
+					NetworkIdentifier = ClientGuid,
+				};
+
+				session.CustomMessageHandler = _connection.CustomMessageHandlerFactory?.Invoke(session);
+
+				if (!sessions.TryAdd(targetEndPoint, session))
+				{
+					Log.Debug($"Session already exist, ignoring");
+					return;
+				}
+			}
+
+			var packet = ConnectionRequest.CreateObject();
+			packet.clientGuid = ClientGuid;
+			packet.timestamp = DateTime.UtcNow.Ticks;
+			packet.doSecurity = 0;
+
+			session.SendPacket(packet);
 		}
 
 		internal static void TraceReceive(ILog log, Packet message)

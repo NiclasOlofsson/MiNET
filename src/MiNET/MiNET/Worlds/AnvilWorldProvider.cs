@@ -786,7 +786,7 @@ namespace MiNET.Worlds
 				{
 					SaveLevelInfo(new LevelInfo());
 
-					Dictionary<Tuple<int, int>, List<ChunkColumn>> regions = new Dictionary<Tuple<int, int>, List<ChunkColumn>>();
+					var regions = new Dictionary<Tuple<int, int>, List<ChunkColumn>>();
 					foreach (var chunkColumn in _chunkCache.OrderBy(pair => pair.Key.X >> 5).ThenBy(pair => pair.Key.Z >> 5))
 					{
 						var regionKey = new Tuple<int, int>(chunkColumn.Key.X >> 5, chunkColumn.Key.Z >> 5);
@@ -798,7 +798,7 @@ namespace MiNET.Worlds
 						regions[regionKey].Add(chunkColumn.Value);
 					}
 
-					List<Task> tasks = new List<Task>();
+					var tasks = new List<Task>();
 					foreach (var region in regions.OrderBy(pair => pair.Key.Item1).ThenBy(pair => pair.Key.Item2))
 					{
 						Task task = new Task(delegate
@@ -855,8 +855,7 @@ namespace MiNET.Worlds
 			// free sectors and clear up old ones. It works fine as long as no dynamic data is written
 			// like block entity data (signs etc).
 
-			Stopwatch time = new Stopwatch();
-			time.Restart();
+			var time = Stopwatch.StartNew();
 
 			chunk.NeedSave = false;
 
@@ -885,7 +884,7 @@ namespace MiNET.Worlds
 				}
 			}
 
-			Stopwatch testTime = new Stopwatch();
+			var testTime = new Stopwatch();
 
 			using (var regionFile = File.Open(filePath, FileMode.Open))
 			{
@@ -980,17 +979,21 @@ namespace MiNET.Worlds
 
 			for (int i = 0; i < 16; i++)
 			{
-				var subChunk = chunk[i];
-				if (subChunk.IsAllAir()) continue;
+				SubChunk subChunk = chunk[i];
+				if (subChunk.IsAllAir())
+				{
+					if(i == 0) Log.Debug($"All air bottom chunk? {subChunk.GetBlockId(0,0,0)}");
+					continue;
+				}
 
-				NbtCompound sectionTag = new NbtCompound();
+				var sectionTag = new NbtCompound();
 				sectionsTag.Add(sectionTag);
 				sectionTag.Add(new NbtByte("Y", (byte) i));
 
-				byte[] blocks = new byte[4096];
-				byte[] data = new byte[2048];
-				byte[] blockLight = new byte[2048];
-				byte[] skyLight = new byte[2048];
+				var blocks = new byte[4096];
+				var data = new byte[2048];
+				var blockLight = new byte[2048];
+				var skyLight = new byte[2048];
 
 				{
 					for (int x = 0; x < 16; x++)
@@ -1015,7 +1018,7 @@ namespace MiNET.Worlds
 				sectionTag.Add(new NbtByteArray("SkyLight", skyLight));
 			}
 
-			int[] heights = new int[256];
+			var heights = new int[256];
 			for (int h = 0; h < heights.Length; h++)
 			{
 				heights[h] = chunk.height[h];
@@ -1023,13 +1026,13 @@ namespace MiNET.Worlds
 			levelTag.Add(new NbtIntArray("HeightMap", heights));
 
 			// TODO: Save entities
-			NbtList entitiesTag = new NbtList("Entities", NbtTagType.Compound);
+			var entitiesTag = new NbtList("Entities", NbtTagType.Compound);
 			levelTag.Add(entitiesTag);
 
-			NbtList blockEntitiesTag = new NbtList("TileEntities", NbtTagType.Compound);
+			var blockEntitiesTag = new NbtList("TileEntities", NbtTagType.Compound);
 			foreach (NbtCompound blockEntityNbt in chunk.BlockEntities.Values)
 			{
-				NbtCompound nbtClone = (NbtCompound) blockEntityNbt.Clone();
+				var nbtClone = (NbtCompound) blockEntityNbt.Clone();
 				nbtClone.Name = null;
 				blockEntitiesTag.Add(nbtClone);
 			}

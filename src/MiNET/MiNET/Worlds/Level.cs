@@ -192,6 +192,8 @@ namespace MiNET.Worlds
 
 		public virtual void Close()
 		{
+			WorldProvider.SaveChunks();
+
 			NetherLevel?.Close();
 			TheEndLevel?.Close();
 

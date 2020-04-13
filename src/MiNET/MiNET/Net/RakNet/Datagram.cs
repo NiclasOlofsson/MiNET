@@ -148,32 +148,6 @@ namespace MiNET.Net.RakNet
 			}
 		}
 
-
-		public bool TryAddMessagePart(MessagePart messagePart, int mtuSize)
-		{
-			byte[] bytes = messagePart.Encode();
-			if (bytes.Length + _currentSize > mtuSize) return false;
-
-			if (messagePart.ReliabilityHeader.HasSplit && MessageParts.Count > 0)
-			{
-				//if (Log.IsDebugEnabled)
-				//	Log.Warn($"Message has split and count > 0: {MessageParts.Count}, MTU: {mtuSize}");
-				return false;
-			}
-			//if (Header.isContinuousSend) return false;
-
-			if (messagePart.ReliabilityHeader.PartCount > 0 && messagePart.ReliabilityHeader.PartIndex > 0) Header.IsContinuousSend = true;
-
-			if (FirstMessageId == 0) FirstMessageId = messagePart.ContainedMessageId;
-
-			MessageParts.Add(messagePart);
-			_currentSize = _currentSize + bytes.Length;
-
-			return true;
-		}
-
-		public int FirstMessageId { get; set; }
-
 		public override byte[] Encode()
 		{
 			byte[] buffer = ArrayPool<byte>.Shared.Rent(1600);
@@ -196,28 +170,24 @@ namespace MiNET.Net.RakNet
 
 		public long GetEncoded(ref byte[] buffer)
 		{
-			using (var buf = new MemoryStream(buffer))
+			using var buf = new MemoryStream(buffer);
+			// This is a quick-fix to lower the impact of resend. I want to do this
+			// as standard, just need to refactor a bit of this stuff first.
 			{
-				// This is a quick-fix to lower the impact of resend. I want to do this
-				// as standard, just need to refactor a bit of this stuff first.
+				// Header
+				//_buf.WriteByte((byte) (Header.IsContinuousSend ? 0x8c : 0x84));
+				buf.WriteByte(Header);
+				buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
+
+				// Message (Payload)
+				foreach (MessagePart messagePart in MessageParts)
 				{
-					if (MessageParts.Count > 1) Log.Error($"Got {MessageParts.Count} message parts");
-
-					// Header
-					//_buf.WriteByte((byte) (Header.IsContinuousSend ? 0x8c : 0x84));
-					buf.WriteByte(Header);
-					buf.Write(Header.DatagramSequenceNumber.GetBytes(), 0, 3);
-
-					// Message (Payload)
-					foreach (MessagePart messagePart in MessageParts)
-					{
-						byte[] bytes = messagePart.Encode();
-						buf.Write(bytes, 0, bytes.Length);
-					}
+					byte[] bytes = messagePart.Encode();
+					buf.Write(bytes, 0, bytes.Length);
 				}
-
-				return buf.Position;
 			}
+
+			return buf.Position;
 		}
 
 		public override void Reset()
@@ -239,8 +209,58 @@ namespace MiNET.Net.RakNet
 			MessageParts.Clear();
 		}
 
+		public bool TryAddMessagePart(MessagePart messagePart, int mtuSize)
+		{
+			byte[] bytes = messagePart.Encode();
+			if (_currentSize + bytes.Length > (mtuSize - RakOfflineHandler.UdpHeaderSize)) return false;
+
+			if (messagePart.ReliabilityHeader.PartCount > 0 && messagePart.ReliabilityHeader.PartIndex > 0) Header.IsContinuousSend = true;
+
+			//TODO: Get rid of this stuff.
+			if (FirstMessageId == 0) FirstMessageId = messagePart.ContainedMessageId;
+
+			MessageParts.Add(messagePart);
+
+			_currentSize += bytes.Length;
+
+			return true;
+		}
+
+		public int FirstMessageId { get; set; }
+
+		public static IEnumerable<Datagram> CreateDatagrams(List<Packet> messages, int mtuSize, RakSession session)
+		{
+			Log.Debug($"CreateDatagrams multiple ({messages.Count}) messages");
+			Datagram datagram = CreateObject();
+
+			foreach (Packet message in messages)
+			{
+				List<MessagePart> messageParts = CreateMessageParts(message, mtuSize, session);
+				foreach (MessagePart messagePart in messageParts)
+				{
+					if (!datagram.TryAddMessagePart(messagePart, mtuSize))
+					{
+						yield return datagram;
+
+						datagram = CreateObject();
+						if (datagram.MessageParts.Count != 0) throw new Exception("Excepted no message parts in new message");
+
+						if (!datagram.TryAddMessagePart(messagePart, mtuSize))
+						{
+							string error = $"Message part too big for a single datagram. Size: {messagePart.Encode().Length}, MTU: {mtuSize}";
+							Log.Error(error);
+							throw new Exception(error);
+						}
+					}
+				}
+			}
+
+			yield return datagram;
+		}
+
 		public static IEnumerable<Datagram> CreateDatagrams(Packet message, int mtuSize, RakSession session)
 		{
+			Log.Debug($"CreateDatagrams single message");
 			Datagram datagram = CreateObject();
 
 			List<MessagePart> messageParts = CreateMessageParts(message, mtuSize, session);
@@ -273,7 +293,7 @@ namespace MiNET.Net.RakNet
 
 			if (message.IsMcpe) Log.Error($"Got bedrock message in unexpected place {message.GetType().Name}");
 
-			int maxPayloadSizeNoSplit = mtuSize - 28 - GetHeaderSize(message.ReliabilityHeader, false);
+			int maxPayloadSizeNoSplit = mtuSize - RakOfflineHandler.UdpHeaderSize - 4 - GetHeaderSize(message.ReliabilityHeader, false);
 			bool split = encodedMessage.Length >= maxPayloadSizeNoSplit;
 
 			List<(int @from, int length)> splits = ArraySplit(encodedMessage.Length, mtuSize - RakOfflineHandler.UdpHeaderSize - 4 /*datagram header*/ - GetHeaderSize(message.ReliabilityHeader, split));
@@ -294,6 +314,8 @@ namespace MiNET.Net.RakNet
 
 			// Stupid but scared to change it .. remove the -100 when i feel "safe"
 			if (session.SplitPartId > short.MaxValue - 100) Interlocked.CompareExchange(ref session.SplitPartId, 0, short.MaxValue);
+
+			if (message.ReliabilityHeader.Reliability == Reliability.Unreliable) message.ReliabilityHeader.Reliability = Reliability.Reliable;
 
 			int index = 0;
 			short splitId = (short) Interlocked.Increment(ref session.SplitPartId);

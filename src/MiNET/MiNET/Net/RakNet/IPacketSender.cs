@@ -23,6 +23,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -37,6 +38,7 @@ namespace MiNET.Net.RakNet
 		public Task SendDataAsync(byte[] data, IPEndPoint targetEndPoint);
 		public Task SendDataAsync(byte[] data, int length, IPEndPoint targetEndPoint);
 		public Task SendPacketAsync(RakSession session, Packet message);
+		public Task SendPacketAsync(RakSession session, List<Packet> message);
 		void Close(RakSession session);
 	}
 }

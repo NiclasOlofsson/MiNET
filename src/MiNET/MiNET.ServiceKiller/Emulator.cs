@@ -98,8 +98,7 @@ namespace MiNET.ServiceKiller
 				Console.WriteLine("Press <Enter> to start emulation...");
 				Console.ReadLine();
 
-				//var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
-				var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(100, "Shared_Thread"));
+				var threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(numberOfBots, "Shared_Thread"));
 
 				var emulator = new Emulator {Running = true};
 				long start = DateTime.UtcNow.Ticks;

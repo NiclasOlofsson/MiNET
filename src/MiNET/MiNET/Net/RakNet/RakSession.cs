@@ -583,6 +583,7 @@ namespace MiNET.Net.RakNet
 				if (sendList.Count == 0) return;
 
 				List<Packet> prepareSend = CustomMessageHandler.PrepareSend(sendList);
+				var preppedSendList = new List<Packet>();
 				foreach (Packet packet in prepareSend)
 				{
 					Packet message = packet;
@@ -594,8 +595,11 @@ namespace MiNET.Net.RakNet
 
 					if (reliability == Reliability.ReliableOrdered) message.ReliabilityHeader.OrderingIndex = Interlocked.Increment(ref OrderingIndex);
 
-					await _packetSender.SendPacketAsync(this, message);
+					preppedSendList.Add(message);
+					//await _packetSender.SendPacketAsync(this, message);
 				}
+
+				await _packetSender.SendPacketAsync(this, preppedSendList);
 			}
 			catch (Exception e)
 			{

@@ -309,9 +309,14 @@ namespace MiNET.Net.RakNet
 				}
 				catch (SocketException e)
 				{
-					if (e.ErrorCode != 10004) Log.Error("Unexpected end of receive", e);
+					// 10058 (just regular disconnect while listening)
+					if (e.ErrorCode == 10058) return;
+					if (e.ErrorCode == 10038) return;
+					if (e.ErrorCode == 10004) return;
 
-					if (listener.Client != null) continue;
+					if (Log.IsDebugEnabled) Log.Error("Unexpected end of receive", e);
+
+					if (listener.Client != null) continue; // ??
 
 					return;
 				}
@@ -698,6 +703,20 @@ namespace MiNET.Net.RakNet
 
 			message.PutPool();
 		}
+
+		public async Task SendPacketAsync(RakSession session, List<Packet> messages)
+		{
+			foreach (Datagram datagram in Datagram.CreateDatagrams(messages, session.MtuSize, session))
+			{
+				await SendDatagramAsync(session, datagram);
+			}
+
+			foreach (Packet message in messages)
+			{
+				message.PutPool();
+			}
+		}
+
 
 		public async Task SendDatagramAsync(RakSession session, Datagram datagram)
 		{

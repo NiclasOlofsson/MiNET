@@ -258,9 +258,10 @@ namespace MiNET
 			Parallel.For(0, numberOfLevels, i =>
 			{
 				var name = "Default" + i;
+				Level level = CreateLevel(name, null);
 				lock (Levels)
 				{
-					Levels.Add(CreateLevel(name, null));
+					Levels.Add(level);
 					Log.Warn($"Created level {name}");
 				}
 			});

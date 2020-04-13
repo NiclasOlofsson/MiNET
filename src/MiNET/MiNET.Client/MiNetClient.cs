@@ -642,7 +642,7 @@ namespace MiNET.Client
 
 		public void SendOpenConnectionRequest1()
 		{
-			Connection.TryConnect(ServerEndPoint);
+			Connection.TryConnect(ServerEndPoint, 1);
 		}
 
 		public void SendPacket(Packet packet)

@@ -529,6 +529,8 @@ namespace MiNET.Net
 					break;
 			}
 
+			if (!_reader.Eof) ReadBool(); // damn BS
+
 			return records;
 		}
 
@@ -1544,7 +1546,7 @@ namespace MiNET.Net
 			Write(skin.ArmSize);
 			Write(skin.SkinColor);
 			Write(skin.PersonaPieces.Count);
-			foreach( PersonaPiece piece in skin.PersonaPieces )
+			foreach (PersonaPiece piece in skin.PersonaPieces)
 			{
 				Write(piece.PieceId);
 				Write(piece.PieceType);
@@ -1553,11 +1555,11 @@ namespace MiNET.Net
 				Write(piece.ProductId);
 			}
 			Write(skin.SkinPieces.Count);
-			foreach ( SkinPiece skinPiece in skin.SkinPieces )
+			foreach (SkinPiece skinPiece in skin.SkinPieces)
 			{
 				Write(skinPiece.PieceType);
 				Write(skinPiece.Colors.Count);
-				foreach(string color in skinPiece.Colors)
+				foreach (string color in skinPiece.Colors)
 				{
 					Write(color);
 				}
@@ -1601,11 +1603,10 @@ namespace MiNET.Net
 			ReadString(); // fullSkinId
 			skin.ArmSize = ReadString();
 			skin.SkinColor = ReadString();
-			int personaPieces = ReadInt();
-			PersonaPiece p;
-			for(int i = 0; i < personaPieces; i++)
+			int personaPieceCount = ReadInt();
+			for (int i = 0; i < personaPieceCount; i++)
 			{
-				p = new PersonaPiece();
+				var p = new PersonaPiece();
 				p.PieceId = ReadString();
 				p.PieceType = ReadString();
 				p.PackId = ReadString();
@@ -1614,21 +1615,18 @@ namespace MiNET.Net
 				skin.PersonaPieces.Add(p);
 			}
 
-			int colors = ReadInt();
-			SkinPiece piece;
-			for(int i1 = 0; i1 < colors; i1++)
+			int skinPieceCount = ReadInt();
+			for (int i = 0; i < skinPieceCount; i++)
 			{
-				piece = new SkinPiece();
+				var piece = new SkinPiece();
 				piece.PieceType = ReadString();
 				int colorAmount = ReadInt();
-				for(int i2 = 0; i2 < colorAmount; i2++)
+				for (int i2 = 0; i2 < colorAmount; i2++)
 				{
 					piece.Colors.Add(ReadString());
 				}
 				skin.SkinPieces.Add(piece);
 			}
-
-		
 
 			//Log.Debug($"SkinId={skin.SkinId}");
 			//Log.Debug($"SkinData lenght={skin.Data.Length}");

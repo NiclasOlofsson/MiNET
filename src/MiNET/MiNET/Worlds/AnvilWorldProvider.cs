@@ -582,10 +582,10 @@ namespace MiNET.Worlds
 
 					//NbtList tileTicks = dataTag["TileTicks"] as NbtList;
 
-					chunk.RecalcHeight();
-
 					if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
 					{
+						chunk.RecalcHeight();
+
 						SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunk);
 						new SkyLightCalculations().RecalcSkyLight(chunk, blockAccess);
 						//TODO: Block lights.

@@ -87,7 +87,7 @@ namespace MiNET
 					EnableBlockTicking = Config.GetProperty("EnableBlockTicking", false),
 					EnableChunkTicking = Config.GetProperty("EnableChunkTicking", false),
 					SaveInterval = Config.GetProperty("Save.Interval", 300),
-					UnloadInterval = Config.GetProperty("Unload.Interval", -1),
+					UnloadInterval = Config.GetProperty("Unload.Interval", 0),
 
 					DrowningDamage = Config.GetProperty("GameRule.DrowningDamage", true),
 					CommandblockOutput = Config.GetProperty("GameRule.CommandblockOutput", true),

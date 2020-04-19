@@ -44,11 +44,10 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			Log.Warn("Use item stick");
 			if (player.IsGliding)
 			{
 				var currentSpeed = player.CurrentSpeed / 20f;
-				if (currentSpeed > 25f / 20f)
+				if (currentSpeed > 35f / 20f)
 				{
 					//player.SendMessage($"Speed already over max {player.CurrentSpeed:F2}m/s", MessageType.Raw);
 					return;

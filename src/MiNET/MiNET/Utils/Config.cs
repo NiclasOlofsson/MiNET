@@ -90,12 +90,12 @@ namespace MiNET.Utils
 
 				string key = splitLine[0].ToLower();
 				string value = splitLine[1];
-				Log.Debug($"Adding config {key}={value}");
-#if DEUBG
+#if DEBUG
 				value = value.Replace("{configuration}", "Debug", StringComparison.InvariantCultureIgnoreCase);
 #else
 				value = value.Replace("{configuration}", "Release", StringComparison.InvariantCultureIgnoreCase);
 #endif
+				Log.Debug($"Adding config {key}={value}");
 				newDictionairy.Remove(key);
 				newDictionairy.Add(key, value);
 			}

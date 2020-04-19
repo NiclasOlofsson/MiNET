@@ -230,7 +230,7 @@ namespace MiNET.Net.RakNet
 
 		public static IEnumerable<Datagram> CreateDatagrams(List<Packet> messages, int mtuSize, RakSession session)
 		{
-			Log.Debug($"CreateDatagrams multiple ({messages.Count}) messages");
+			//Log.Debug($"CreateDatagrams multiple ({messages.Count}) messages");
 			Datagram datagram = CreateObject();
 
 			foreach (Packet message in messages)
@@ -260,7 +260,7 @@ namespace MiNET.Net.RakNet
 
 		public static IEnumerable<Datagram> CreateDatagrams(Packet message, int mtuSize, RakSession session)
 		{
-			Log.Debug($"CreateDatagrams single message");
+			Log.Warn($"CreateDatagrams single message");
 			Datagram datagram = CreateObject();
 
 			List<MessagePart> messageParts = CreateMessageParts(message, mtuSize, session);

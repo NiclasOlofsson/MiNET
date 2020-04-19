@@ -178,6 +178,14 @@ namespace MiNET
 
 		public virtual void HandleMcpePlayerSkin(McpePlayerSkin message)
 		{
+
+			McpePlayerSkin pk = McpePlayerSkin.CreateObject();
+			pk.uuid = this.ClientUuid;
+			pk.skin = message.skin;
+			pk.oldSkinName = this.Skin.SkinId;
+			pk.skinName = message.skinName;
+			this.Skin = message.skin;
+			this.Level.RelayBroadcast(pk);
 		}
 
 		public virtual void HandleMcpePhotoTransfer(McpePhotoTransfer message)

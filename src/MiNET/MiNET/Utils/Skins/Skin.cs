@@ -84,13 +84,23 @@ namespace MiNET.Utils.Skins
 		public byte[] Data { get; set; }
 		public string GeometryName { get; set; }
 		public string GeometryData { get; set; }
+
+		public string ArmSize { get; set; }
+
+		public string SkinColor { get; set; }
+
 		public string AnimationData { get; set; }
 		public List<Animation> Animations { get; set; }
 
+		public List<PersonaPiece> PersonaPieces { get; set; }
+
+		public List<SkinPiece> SkinPieces { get; set; }
 		public Skin()
 		{
 			Cape = new Cape();
 			Animations = new List<Animation>();
+			PersonaPieces = new List<PersonaPiece>();
+			SkinPieces = new List<SkinPiece>();
 		}
 
 		public static byte[] GetTextureFromFile(string filename)

@@ -5732,6 +5732,8 @@ namespace MiNET.Net
 
 			Write(records);
 
+			
+
 			AfterEncode();
 		}
 
@@ -5741,10 +5743,19 @@ namespace MiNET.Net
 		protected override void DecodePacket()
 		{
 			base.DecodePacket();
-
+			MemoryStreamReader reader = new MemoryStreamReader(Bytes);
 			BeforeDecode();
+			
 
 			records = ReadPlayerRecords();
+
+			if (reader.Position != _buffer.Length)
+			{
+				ReadBool();
+			}
+
+			reader.Dispose();
+			reader = null;
 
 			AfterDecode();
 		}
@@ -7354,13 +7365,20 @@ namespace MiNET.Net
 		protected override void DecodePacket()
 		{
 			base.DecodePacket();
-
 			BeforeDecode();
-
 			uuid = ReadUUID();
 			skin = ReadSkin();
 			skinName = ReadString();
 			oldSkinName = ReadString();
+			if(_reader.Position != (Bytes.Length))
+			{
+				// Bytes are left in Buffer
+				for(int i = 0; i < ((Bytes.Length) - _reader.Position); i++)
+				{
+					ReadBool();
+				}
+			}
+		
 
 			AfterDecode();
 		}

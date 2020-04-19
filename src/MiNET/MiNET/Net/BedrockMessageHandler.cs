@@ -222,6 +222,9 @@ namespace MiNET.Net
 				case McpeNetworkStackLatencyPacket msg:
 					handler.HandleMcpeNetworkStackLatencyPacket(msg);
 					break;
+				case McpePlayerSkin msg:
+					handler.HandleMcpePlayerSkin(msg);
+					break;
 				default:
 				{
 					Log.Error($"Unhandled packet: {message.GetType().Name} 0x{message.Id:X2} for user: {_session.Username}, IP {_session.EndPoint.Address}");

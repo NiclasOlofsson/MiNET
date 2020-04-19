@@ -1543,8 +1543,8 @@ namespace MiNET.Net
 			Write(skin.SkinId + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()); // some unique skin id
 			Write(skin.ArmSize);
 			Write(skin.SkinColor);
-			Write(skin.PersonaPieceCount);
-			foreach( PersonaPiece piece in skin.PersonaPieces)
+			Write(skin.PersonaPieces.Count);
+			foreach( PersonaPiece piece in skin.PersonaPieces )
 			{
 				Write(piece.PieceId);
 				Write(piece.PieceType);
@@ -1552,8 +1552,8 @@ namespace MiNET.Net
 				Write(piece.IsDefaultPiece);
 				Write(piece.ProductId);
 			}
-			Write(skin.PieceTintColors);
-			foreach (SkinPiece skinPiece in skin.SkinPieces)
+			Write(skin.SkinPieces.Count);
+			foreach ( SkinPiece skinPiece in skin.SkinPieces )
 			{
 				Write(skinPiece.PieceType);
 				Write(skinPiece.Colors.Count);
@@ -1602,7 +1602,6 @@ namespace MiNET.Net
 			skin.ArmSize = ReadString();
 			skin.SkinColor = ReadString();
 			int personaPieces = ReadInt();
-			skin.PersonaPieceCount = personaPieces;
 			PersonaPiece p;
 			for(int i = 0; i < personaPieces; i++)
 			{
@@ -1621,11 +1620,12 @@ namespace MiNET.Net
 			{
 				piece = new SkinPiece();
 				piece.PieceType = ReadString();
-				int ColorAmount = ReadInt();
-				for(int i2 = 0; i2 < ColorAmount; i2++)
+				int colorAmount = ReadInt();
+				for(int i2 = 0; i2 < colorAmount; i2++)
 				{
 					piece.Colors.Add(ReadString());
 				}
+				skin.SkinPieces.Add(piece);
 			}
 
 		

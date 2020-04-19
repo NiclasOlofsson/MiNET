@@ -89,10 +89,6 @@ namespace MiNET.Utils.Skins
 
 		public string SkinColor { get; set; }
 
-		public int PersonaPieceCount { get; set; }
-
-		public int PieceTintColors { get; set; }
-
 		public string AnimationData { get; set; }
 		public List<Animation> Animations { get; set; }
 

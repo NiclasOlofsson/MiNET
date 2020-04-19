@@ -7366,11 +7366,20 @@ namespace MiNET.Net
 		{
 			base.DecodePacket();
 			BeforeDecode();
-
 			uuid = ReadUUID();
 			skin = ReadSkin();
 			skinName = ReadString();
 			oldSkinName = ReadString();
+			if(_reader.Position != (Bytes.Length))
+			{
+				// Bytes are left in Buffer
+				for(int i = 0; i < ((Bytes.Length) - _reader.Position); i++)
+				{
+					ReadBool();
+				}
+			}
+		
+
 			AfterDecode();
 		}
 

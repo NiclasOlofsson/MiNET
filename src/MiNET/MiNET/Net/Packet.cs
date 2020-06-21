@@ -530,6 +530,7 @@ namespace MiNET.Net
 			}
 
 			if (!_reader.Eof) ReadBool(); // damn BS
+			if (!_reader.Eof) ReadBool(); // damn BS
 
 			return records;
 		}

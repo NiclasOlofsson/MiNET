@@ -106,6 +106,8 @@ namespace MiNET
 		public string DisplayName { get; set; }
 
 		public string Xuid { get; set; }
+
+		public string TitleId { get; set; }
 	}
 
 	public class NewtonsoftMapper : IJsonMapper

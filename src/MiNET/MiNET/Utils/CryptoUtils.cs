@@ -157,14 +157,16 @@ namespace MiNET.Utils
 			ECDsa signKey = ConvertToSingKeyFormat(newKey);
 			string b64Key = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(newKey.Public).GetEncoded().EncodeBase64();
 
-			CertificateData certificateData = new CertificateData
+			var certificateData = new CertificateData
 			{
 				Exp = exp,
 				Iat = iat,
 				ExtraData = new ExtraData
 				{
+					Xuid = "",
 					DisplayName = username,
 					Identity = isEmulator ? Guid.NewGuid().ToString() : "85e4febd-3d33-4008-b044-1ad9fb85b26c",
+					TitleId = "89692877"
 				},
 				Iss = "self",
 				IdentityPublicKey = b64Key,
@@ -215,6 +217,7 @@ namespace MiNET.Utils
 			string skinData = $@"
 {{
 	""AnimatedImageData"": [],
+	""ArmSize"": """",
 	""CapeData"": """",
 	""CapeId"": """",
 	""CapeImageHeight"": 0,
@@ -229,13 +232,16 @@ namespace MiNET.Utils
 	""GameVersion"": ""{McpeProtocolInfo.GameVersion}"",
 	""GuiScale"": -1,
 	""LanguageCode"": ""en_US"",
+	""PersonaPieces"": [],
 	""PersonaSkin"": false,
+	""PieceTintColors"": [],
 	""PlatformOfflineId"": """",
 	""PlatformOnlineId"": """",
-	""PremiumSkin"": true,
+	""PremiumSkin"": false,
 	""SelfSignedId"": ""{Guid.NewGuid().ToString()}"",
 	""ServerAddress"": ""yodamine.com:19132"",
 	""SkinAnimationData"": """",
+	""SkinColor"": ""#0"",
 	""SkinData"": ""{skin64}"",
 	""SkinGeometryData"": """",
 	""SkinId"": ""{skin.SkinId}"",

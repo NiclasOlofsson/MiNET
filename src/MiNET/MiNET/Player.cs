@@ -2006,9 +2006,310 @@ namespace MiNET
 					switch (stackAction)
 					{
 						case CraftCreativeAction craftCreativeAction:
+						{
+							Item creativeItem = InventoryUtils.CreativeInventoryItems.FirstOrDefault(i => i.UniqueId == (int) craftCreativeAction.CreativeItemNetworkId);
+							if(creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {craftCreativeAction.CreativeItemNetworkId}");
+							creativeItem = (Item) creativeItem.Clone(); //TODO: Need to fix clone for NBT
+							creativeItem.Count = (byte) creativeItem.MaxStackSize;
+							creativeItem.UniqueId = Environment.TickCount;
+							Log.Debug($"Creating {creativeItem}");
+							Inventory.CreativeInventory.Slots[50] = creativeItem;
 							break;
+						}
 						case CraftResultDeprecatedAction craftResultDeprecatedAction:
+						{
+							// Ignore (remove)
 							break;
+						}
+						case TakeAction takeAction:
+						{
+							byte count = takeAction.Count;
+							Item sourceItem = null;
+							Item destItem;
+							StackRequestSlotInfo source = takeAction.Source;
+							StackRequestSlotInfo destination = takeAction.Destination;
+
+							switch (source.ContainerId)
+							{
+								case 59:
+									Item creativeItem = Inventory.CreativeInventory.Slots[source.Slot];
+									if (creativeItem.Count != takeAction.Count) throw new Exception($"Client asked for different count than what we had in creative inventory.");
+
+									sourceItem = creativeItem;
+									break;
+								case 58:
+									sourceItem = Inventory.CursorInventory.Slots[source.Slot];
+									break;
+								case 27:
+								case 28:
+									sourceItem = Inventory.Slots[source.Slot];
+									break;
+								default:
+									Log.Warn($"Unknown source containerId: {source.ContainerId} for a take action");
+									break;
+							}
+
+							if (sourceItem.Count == count)
+							{
+								destItem = sourceItem;
+								sourceItem = new ItemAir();
+								sourceItem.UniqueId = 0;
+								switch (source.ContainerId)
+								{
+									case 59:
+										Inventory.CreativeInventory.Slots[source.Slot] = sourceItem;
+										break;
+									case 58:
+										Inventory.CursorInventory.Slots[source.Slot] = sourceItem;
+										break;
+									case 27:
+									case 28:
+										Inventory.Slots[source.Slot] = sourceItem;
+										break;
+									default:
+										Log.Warn($"Unknown source containerId: {source.ContainerId} for a take action");
+										break;
+								}
+							}
+							else
+							{
+								destItem = (Item) sourceItem.Clone();
+								sourceItem.Count -= count;
+								destItem.Count = count;
+								destItem.UniqueId = Environment.TickCount;
+							}
+
+							switch (destination.ContainerId)
+							{
+								case 58:
+									Inventory.CursorInventory.Slots[destination.Slot] = destItem;
+									break;
+								default:
+									Log.Warn($"Unknown destination containerId: {destination.ContainerId} for a take action");
+									break;
+							}
+
+							if(destItem == null) throw new Exception($"Expected item");
+
+							//TODO: Calculate count here. Needed for "partial takes".
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = source.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = sourceItem.Count,
+										Slot = source.Slot,
+										HotbarSlot = source.Slot,
+										StackNetworkId = sourceItem.UniqueId
+									}
+								}
+							});
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = destination.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count =  destItem.Count,
+										Slot = destination.Slot,
+										HotbarSlot = destination.Slot,
+										StackNetworkId = destItem.UniqueId
+									}
+								}
+							});
+							
+							break;
+						}
+						case PlaceAction placeAction:
+						{
+							byte count = placeAction.Count;
+							Item sourceItem = null;
+							Item destItem;
+							StackRequestSlotInfo source = placeAction.Source;
+							StackRequestSlotInfo destination = placeAction.Destination;
+
+							switch (source.ContainerId)
+							{
+								case 58:
+									sourceItem = Inventory.CursorInventory.Slots[source.Slot];
+									break;
+								default:
+									Log.Warn($"Unknown source containerId: {source.ContainerId} for a place action");
+									break;
+							}
+
+							if (sourceItem.Count == count)
+							{
+								destItem = sourceItem;
+								sourceItem = new ItemAir();
+								sourceItem.UniqueId = 0;
+								switch (source.ContainerId)
+								{
+									case 58:
+										Inventory.CursorInventory.Slots[source.Slot] = sourceItem;
+										break;
+									default:
+										Log.Warn($"Unknown source containerId: {source.ContainerId} for a take action");
+										break;
+								}
+							}
+							else
+							{
+								destItem = (Item) sourceItem.Clone();
+								sourceItem.Count -= count;
+								destItem.Count = count;
+								destItem.UniqueId = Environment.TickCount;
+							}
+
+							switch (destination.ContainerId)
+							{
+								case 58:
+									Inventory.CursorInventory.Slots[destination.Slot] = destItem;
+									break;
+								case 27:
+								case 28:
+									Item invItem = Inventory.Slots[destination.Slot];
+									if (invItem.UniqueId > 0)
+									{
+										invItem.Count += count;
+										destItem = invItem;
+									}
+									else
+									{
+										Inventory.Slots[destination.Slot] = destItem;
+									}
+									break;
+								default:
+									Log.Warn($"Unknown destination containerId: {destination.ContainerId} for a place action");
+									break;
+							}
+
+							if(sourceItem == null) throw new Exception($"Expected item");
+
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = source.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = sourceItem.Count,
+										Slot = source.Slot,
+										HotbarSlot = source.Slot,
+										StackNetworkId = sourceItem.UniqueId
+									}
+								}
+							});
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = destination.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = destItem.Count,
+										Slot = destination.Slot,
+										HotbarSlot = destination.Slot,
+										StackNetworkId = destItem.UniqueId
+									}
+								}
+							});
+							break;
+						}
+						case SwapAction swapAction:
+						{
+							Item sourceItem = null;
+							Item destItem = null;
+							StackRequestSlotInfo source = swapAction.Source;
+							StackRequestSlotInfo destination = swapAction.Destination;
+
+							switch (source.ContainerId)
+							{
+								case 58:
+									sourceItem = Inventory.CursorInventory.Slots[source.Slot];
+									break;
+								case 27:
+								case 28:
+									sourceItem = Inventory.Slots[source.Slot];
+									break;
+								default:
+									Log.Warn($"Unknown source containerId: {source.ContainerId} for a take action");
+									break;
+							}
+
+							switch (destination.ContainerId)
+							{
+								case 58:
+									destItem = Inventory.CursorInventory.Slots[destination.Slot];
+									break;
+								case 27:
+								case 28:
+									destItem = Inventory.Slots[destination.Slot];
+									break;
+								default:
+									Log.Warn($"Unknown destination containerId: {destination.ContainerId} for a take action");
+									break;
+							}
+
+							switch (source.ContainerId)
+							{
+								case 58:
+									Inventory.CursorInventory.Slots[source.Slot] = destItem;
+									break;
+								case 27:
+								case 28:
+									Inventory.Slots[source.Slot] = destItem;
+									break;
+							}
+
+							switch (destination.ContainerId)
+							{
+								case 58:
+									Inventory.CursorInventory.Slots[destination.Slot] = sourceItem;
+									break;
+								case 27:
+								case 28:
+									Inventory.Slots[destination.Slot] = sourceItem;
+									break;
+							}
+
+							if(destItem == null) throw new Exception($"Expected item");
+
+							//TODO: Calculate count here. Needed for "partial takes".
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = source.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = destItem.Count,
+										Slot = source.Slot,
+										HotbarSlot = source.Slot,
+										StackNetworkId = destItem.UniqueId
+									}
+								}
+							});
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = destination.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count =  sourceItem.Count,
+										Slot = destination.Slot,
+										HotbarSlot = destination.Slot,
+										StackNetworkId = sourceItem.UniqueId
+									}
+								}
+							});
+							
+							break;
+						}
 						case DestroyAction destroyAction:
 						{
 							stackResponse.Responses.Add(new StackResponseContainerInfo
@@ -2025,107 +2326,6 @@ namespace MiNET
 									}
 								}
 							});
-							break;
-						}
-						case PlaceAction placeAction:
-						{
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = placeAction.Source.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = 0,
-										Slot = placeAction.Source.Slot,
-										HotbarSlot = placeAction.Source.Slot,
-										StackNetworkId = 0
-									}
-								}
-							});
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = placeAction.Destination.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = placeAction.Count,
-										Slot = placeAction.Destination.Slot,
-										HotbarSlot = placeAction.Destination.Slot,
-										StackNetworkId = Environment.TickCount
-									}
-								}
-							});
-							break;
-						}
-						case SwapAction swapAction:
-						{
-							//{
-							//	var containerInfo = new StackResponseContainerInfo
-							//	{
-							//		ContainerId = swapAction.Source.ContainerId,
-							//		Slots = new List<StackResponseSlotInfo>
-							//		{
-							//			new StackResponseSlotInfo()
-							//			{
-							//				Count = swapAction.Source.,
-							//				Slot = placeAction.Source.Slot,
-							//				StackNetworkId = 0
-							//			}
-							//		}
-							//	};
-							//	stackResponse.Responses.Add(containerInfo);
-							//}
-							//{
-							//	var containerInfo = new StackResponseContainerInfo
-							//	{
-							//		ContainerId = placeAction.Destination.ContainerId,
-							//		Slots = new List<StackResponseSlotInfo>
-							//		{
-							//			new StackResponseSlotInfo()
-							//			{
-							//				Count = placeAction.Count,
-							//				Slot = placeAction.Destination.Slot,
-							//				StackNetworkId = placeAction.Source.StackNetworkId
-							//			}
-							//		}
-							//	};
-							//	stackResponse.Responses.Add(containerInfo);
-							//}
-							break;
-						}
-						case TakeAction takeAction:
-						{
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = takeAction.Source.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = 0,
-										Slot = takeAction.Source.Slot,
-										HotbarSlot = takeAction.Source.Slot,
-										StackNetworkId = 0
-									}
-								}
-							});
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = takeAction.Destination.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = takeAction.Count,
-										Slot = takeAction.Destination.Slot,
-										HotbarSlot = takeAction.Destination.Slot,
-										StackNetworkId = Environment.TickCount
-									}
-								}
-							});
-							
 							break;
 						}
 
@@ -2255,6 +2455,7 @@ namespace MiNET
 				McpeInventorySlot sendSlot = McpeInventorySlot.CreateObject();
 				sendSlot.inventoryId = inventory.WindowsId;
 				sendSlot.slot = slot;
+				sendSlot.uniqueid = itemStack.UniqueId;
 				sendSlot.item = itemStack;
 				SendPacket(sendSlot);
 			}

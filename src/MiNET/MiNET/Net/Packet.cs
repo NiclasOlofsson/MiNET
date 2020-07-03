@@ -736,21 +736,21 @@ namespace MiNET.Net
 			return metadata;
 		}
 
-		public void Write(ItemStacks metadata)
+		public void Write(ItemStacks itemStacks)
 		{
-			if (metadata == null)
+			if (itemStacks == null)
 			{
 				WriteSignedVarInt(0);
 				WriteUnsignedVarInt(0);
 				return;
 			}
 
-			WriteUnsignedVarInt((uint) metadata.Count);
+			WriteUnsignedVarInt((uint) itemStacks.Count);
 
-			for (int i = 0; i < metadata.Count; i++)
+			for (int i = 0; i < itemStacks.Count; i++)
 			{
-				WriteSignedVarInt(metadata[i].UniqueId);
-				Write(metadata[i]);
+				WriteVarInt(itemStacks[i].UniqueId);
+				Write(itemStacks[i]);
 			}
 		}
 
@@ -762,7 +762,7 @@ namespace MiNET.Net
 
 			for (int i = 0; i < count; i++)
 			{
-				int uniqueId = ReadSignedVarInt();
+				int uniqueId = ReadVarInt();
 				Item item = ReadItem();
 				item.UniqueId = uniqueId;
 				metadata.Add(item);

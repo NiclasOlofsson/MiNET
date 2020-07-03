@@ -29,6 +29,7 @@ namespace MiNET.Items
 	{
 		public ItemAir() : base(0, 0, 0)
 		{
+			UniqueId = 0;
 		}
 	}
 }

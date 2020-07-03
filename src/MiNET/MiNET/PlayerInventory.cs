@@ -48,6 +48,7 @@ namespace MiNET
 		public int InHandSlot { get; set; }
 
 		public CursorInventory CursorInventory { get; set; } = new CursorInventory();
+		public CursorInventory CreativeInventory { get; set; } = new CursorInventory();
 
 		// Armour
 		public Item Boots { get; set; } = new ItemAir();
@@ -326,6 +327,7 @@ namespace MiNET
 			McpeInventorySlot sendSlot = McpeInventorySlot.CreateObject();
 			sendSlot.inventoryId = 0;
 			sendSlot.slot = (uint) slot;
+			sendSlot.uniqueid = Slots[slot].UniqueId;
 			sendSlot.item = Slots[slot];
 			Player.SendPacket(sendSlot);
 		}

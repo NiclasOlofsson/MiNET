@@ -5041,6 +5041,7 @@ namespace MiNET.Net
 
 		public uint inventoryId; // = null;
 		public uint slot; // = null;
+		public int uniqueid; // = null;
 		public Item item; // = null;
 
 		public McpeInventorySlot()
@@ -5057,6 +5058,7 @@ namespace MiNET.Net
 
 			WriteUnsignedVarInt(inventoryId);
 			WriteUnsignedVarInt(slot);
+			WriteVarInt(uniqueid);
 			Write(item);
 
 			AfterEncode();
@@ -5073,6 +5075,7 @@ namespace MiNET.Net
 
 			inventoryId = ReadUnsignedVarInt();
 			slot = ReadUnsignedVarInt();
+			uniqueid = ReadVarInt();
 			item = ReadItem();
 
 			AfterDecode();
@@ -5087,6 +5090,7 @@ namespace MiNET.Net
 
 			inventoryId=default(uint);
 			slot=default(uint);
+			uniqueid=default(int);
 			item=default(Item);
 		}
 

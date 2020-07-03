@@ -91,11 +91,11 @@ namespace MiNET.Net
 				case McpeResourcePackChunkRequest msg:
 					handler.HandleMcpeResourcePackChunkRequest(msg);
 					break;
-				case McpeSetLocalPlayerAsInitializedPacket msg:
-					handler.HandleMcpeSetLocalPlayerAsInitializedPacket(msg);
+				case McpeSetLocalPlayerAsInitialized msg:
+					handler.HandleMcpeSetLocalPlayerAsInitialized(msg);
 					break;
-				case McpeScriptCustomEventPacket msg:
-					handler.HandleMcpeScriptCustomEventPacket(msg);
+				case McpeScriptCustomEvent msg:
+					handler.HandleMcpeScriptCustomEvent(msg);
 					break;
 				case McpeUpdateBlock _:
 					// DO NOT USE. Will dissapear from MCPE any release. 
@@ -180,6 +180,9 @@ namespace MiNET.Net
 				case McpeItemFrameDropItem msg:
 					handler.HandleMcpeItemFrameDropItem(msg);
 					break;
+				case McpeItemStackRequest nms:
+					handler.HandleMcpeItemStackRequest(nms);
+					break;
 				case McpePlayerInput msg:
 					handler.HandleMcpePlayerInput(msg);
 					break;
@@ -219,12 +222,16 @@ namespace MiNET.Net
 				case McpeNpcRequest msg:
 					handler.HandleMcpeNpcRequest(msg);
 					break;
-				case McpeNetworkStackLatencyPacket msg:
-					handler.HandleMcpeNetworkStackLatencyPacket(msg);
+				case McpePacketViolationWarning msg:
+					handler.HandleMcpePacketViolationWarning(msg);
+					break;
+				case McpeNetworkStackLatency msg:
+					handler.HandleMcpeNetworkStackLatency(msg);
 					break;
 				case McpePlayerSkin msg:
 					handler.HandleMcpePlayerSkin(msg);
 					break;
+
 				default:
 				{
 					Log.Error($"Unhandled packet: {message.GetType().Name} 0x{message.Id:X2} for user: {_session.Username}, IP {_session.EndPoint.Address}");

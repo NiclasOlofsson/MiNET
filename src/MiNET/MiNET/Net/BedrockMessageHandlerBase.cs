@@ -138,14 +138,15 @@ namespace MiNET.Net
 
 				// Decompress bytes
 
-				var stream = new MemoryStreamReader(payload.Slice(0, payload.Length - 4)); // slice away adler
-				if (stream.ReadByte() != 0x78)
-				{
-					if (Log.IsDebugEnabled) Log.Error($"Incorrect ZLib header. Expected 0x78 0x9C 0x{wrapper.Id:X2}\n{Packet.HexDump(wrapper.payload)}");
-					if (Log.IsDebugEnabled) Log.Error($"Incorrect ZLib header. Decrypted 0x{wrapper.Id:X2}\n{Packet.HexDump(payload)}");
-					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-				}
-				stream.ReadByte();
+				//var stream = new MemoryStreamReader(payload.Slice(0, payload.Length - 4)); // slice away adler
+				//if (stream.ReadByte() != 0x78)
+				//{
+				//	if (Log.IsDebugEnabled) Log.Error($"Incorrect ZLib header. Expected 0x78 0x9C 0x{wrapper.Id:X2}\n{Packet.HexDump(wrapper.payload)}");
+				//	if (Log.IsDebugEnabled) Log.Error($"Incorrect ZLib header. Decrypted 0x{wrapper.Id:X2}\n{Packet.HexDump(payload)}");
+				//	throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+				//}
+				//stream.ReadByte();
+				var stream = new MemoryStreamReader(payload);
 				using (var deflateStream = new DeflateStream(stream, CompressionMode.Decompress, false))
 				{
 					using var s = new MemoryStream();
@@ -159,24 +160,25 @@ namespace MiNET.Net
 						count++;
 
 						uint len = VarInt.ReadUInt32(s);
+						long pos = s.Position;
 						ReadOnlyMemory<byte> internalBuffer = s.GetBuffer().AsMemory((int) s.Position, (int) len);
-						s.Position += len;
-						int id = internalBuffer.Span[0];
-
-						//if (Log.IsDebugEnabled)
-						//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Packet.HexDump(internalBuffer)}");
-
+						int id = VarInt.ReadInt32(s);
 						try
 						{
+							//if (Log.IsDebugEnabled)
+							//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Packet.HexDump(internalBuffer)}");
+
 							messages.Add(PacketFactory.Create((byte) id, internalBuffer, "mcpe") ??
 										new UnknownPacket((byte) id, internalBuffer));
 						}
-						catch (Exception)
+						catch (Exception e)
 						{
-							if (Log.IsDebugEnabled) Log.Warn($"Error parsing bedrock message #{count} id={id}\n{Packet.HexDump(internalBuffer)}");
+							if (Log.IsDebugEnabled) Log.Warn($"Error parsing bedrock message #{count} id={id}\n{Packet.HexDump(internalBuffer)}", e);
 							//throw;
 							return; // Exit, but don't crash.
 						}
+
+						s.Position = pos + len;
 					}
 
 					if (s.Length > s.Position) throw new Exception("Have more data");

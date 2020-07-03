@@ -144,7 +144,7 @@ namespace MiNET
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
-		public virtual void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
+		public virtual void HandleMcpeScriptCustomEvent(McpeScriptCustomEvent message)
 		{
 		}
 
@@ -285,7 +285,7 @@ namespace MiNET
 		{
 		}
 
-		public virtual void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message)
+		public virtual void HandleMcpeSetLocalPlayerAsInitialized(McpeSetLocalPlayerAsInitialized message)
 		{
 		}
 
@@ -1702,26 +1702,26 @@ namespace MiNET
 
 		public virtual void SendPlayerInventory()
 		{
-			McpeInventoryContent strangeContent = McpeInventoryContent.CreateObject();
-			strangeContent.inventoryId = (byte) 0x7b;
-			strangeContent.input = new ItemStacks();
-			SendPacket(strangeContent);
+			//McpeInventoryContent strangeContent = McpeInventoryContent.CreateObject();
+			//strangeContent.inventoryId = (byte) 0x7b;
+			//strangeContent.input = new ItemStacks();
+			//SendPacket(strangeContent);
 
-			McpeInventoryContent inventoryContent = McpeInventoryContent.CreateObject();
-			inventoryContent.inventoryId = (byte) 0x00;
-			inventoryContent.input = Inventory.GetSlots();
-			SendPacket(inventoryContent);
+			//McpeInventoryContent inventoryContent = McpeInventoryContent.CreateObject();
+			//inventoryContent.inventoryId = (byte) 0x00;
+			//inventoryContent.input = Inventory.GetSlots();
+			//SendPacket(inventoryContent);
 
-			McpeInventoryContent armorContent = McpeInventoryContent.CreateObject();
-			armorContent.inventoryId = 0x78;
-			armorContent.input = Inventory.GetArmor();
-			SendPacket(armorContent);
+			//McpeInventoryContent armorContent = McpeInventoryContent.CreateObject();
+			//armorContent.inventoryId = 0x78;
+			//armorContent.input = Inventory.GetArmor();
+			//SendPacket(armorContent);
 
-			McpeMobEquipment mobEquipment = McpeMobEquipment.CreateObject();
-			mobEquipment.runtimeEntityId = EntityManager.EntityIdSelf;
-			mobEquipment.item = Inventory.GetItemInHand();
-			mobEquipment.slot = (byte) Inventory.InHandSlot;
-			SendPacket(mobEquipment);
+			//McpeMobEquipment mobEquipment = McpeMobEquipment.CreateObject();
+			//mobEquipment.runtimeEntityId = EntityManager.EntityIdSelf;
+			//mobEquipment.item = Inventory.GetItemInHand();
+			//mobEquipment.slot = (byte) Inventory.InHandSlot;
+			//SendPacket(mobEquipment);
 		}
 
 		public virtual void SendCraftingRecipes()
@@ -1735,8 +1735,7 @@ namespace MiNET
 		{
 			if (!UseCreativeInventory) return;
 
-			McpeInventoryContent creativeContent = McpeInventoryContent.CreateObject();
-			creativeContent.inventoryId = (byte) 0x79;
+			var creativeContent = McpeCreativeContent.CreateObject();
 			creativeContent.input = InventoryUtils.GetCreativeMetadataSlots();
 			SendPacket(creativeContent);
 		}
@@ -1981,6 +1980,171 @@ namespace MiNET
 
 		public void HandleMcpeClientCacheStatus(McpeClientCacheStatus message)
 		{
+		}
+
+		public void HandleMcpeNetworkSettings(McpeNetworkSettings message)
+		{
+		}
+
+		public void HandleMcpeItemStackRequest(McpeItemStackRequest message)
+		{
+			var response = McpeItemStackResponse.CreateObject();
+			response.responses = new ItemStackResponses();
+			foreach (ItemStackActions request in message.requests)
+			{
+				var stackResponse = new ItemStackResponse()
+				{
+					Success = true,
+					RequestId = request.RequestId,
+					Responses = new List<StackResponseContainerInfo>()
+				};
+
+				response.responses.Add(stackResponse);
+
+				foreach (ItemStackAction stackAction in request)
+				{
+					switch (stackAction)
+					{
+						case CraftCreativeAction craftCreativeAction:
+							break;
+						case CraftResultDeprecatedAction craftResultDeprecatedAction:
+							break;
+						case DestroyAction destroyAction:
+						{
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = destroyAction.Source.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = 0,
+										Slot = destroyAction.Source.Slot,
+										HotbarSlot = destroyAction.Source.Slot,
+										StackNetworkId = 0
+									}
+								}
+							});
+							break;
+						}
+						case PlaceAction placeAction:
+						{
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = placeAction.Source.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = 0,
+										Slot = placeAction.Source.Slot,
+										HotbarSlot = placeAction.Source.Slot,
+										StackNetworkId = 0
+									}
+								}
+							});
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = placeAction.Destination.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = placeAction.Count,
+										Slot = placeAction.Destination.Slot,
+										HotbarSlot = placeAction.Destination.Slot,
+										StackNetworkId = Environment.TickCount
+									}
+								}
+							});
+							break;
+						}
+						case SwapAction swapAction:
+						{
+							//{
+							//	var containerInfo = new StackResponseContainerInfo
+							//	{
+							//		ContainerId = swapAction.Source.ContainerId,
+							//		Slots = new List<StackResponseSlotInfo>
+							//		{
+							//			new StackResponseSlotInfo()
+							//			{
+							//				Count = swapAction.Source.,
+							//				Slot = placeAction.Source.Slot,
+							//				StackNetworkId = 0
+							//			}
+							//		}
+							//	};
+							//	stackResponse.Responses.Add(containerInfo);
+							//}
+							//{
+							//	var containerInfo = new StackResponseContainerInfo
+							//	{
+							//		ContainerId = placeAction.Destination.ContainerId,
+							//		Slots = new List<StackResponseSlotInfo>
+							//		{
+							//			new StackResponseSlotInfo()
+							//			{
+							//				Count = placeAction.Count,
+							//				Slot = placeAction.Destination.Slot,
+							//				StackNetworkId = placeAction.Source.StackNetworkId
+							//			}
+							//		}
+							//	};
+							//	stackResponse.Responses.Add(containerInfo);
+							//}
+							break;
+						}
+						case TakeAction takeAction:
+						{
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = takeAction.Source.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = 0,
+										Slot = takeAction.Source.Slot,
+										HotbarSlot = takeAction.Source.Slot,
+										StackNetworkId = 0
+									}
+								}
+							});
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = takeAction.Destination.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = takeAction.Count,
+										Slot = takeAction.Destination.Slot,
+										HotbarSlot = takeAction.Destination.Slot,
+										StackNetworkId = Environment.TickCount
+									}
+								}
+							});
+							
+							break;
+						}
+
+						default:
+							throw new ArgumentOutOfRangeException(nameof(stackAction));
+					}
+				}
+			}
+
+			SendPacket(response);
+		}
+
+		public void HandleMcpeUpdatePlayerGameType(McpeUpdatePlayerGameType message)
+		{
+		}
+
+		public void HandleMcpePacketViolationWarning(McpePacketViolationWarning message)
+		{
+			Log.Error($"A level {message.severity} packet violation of type {message.violationType} for packet 0x{message.packetId:X} {message.reason}");
 		}
 
 		public virtual void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)
@@ -2655,6 +2819,12 @@ namespace MiNET
 				{
 					_openInventory = null;
 				}
+				else
+				{
+					var closePacket = McpeContainerClose.CreateObject();
+					closePacket.windowId = 0;
+					SendPacket(closePacket);
+				}
 			}
 		}
 
@@ -2672,12 +2842,21 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public virtual void HandleMcpeInteract(McpeInteract message)
 		{
-			if (!Level.TryGetEntity(message.targetRuntimeEntityId, out Entity target)) return;
+			Entity target = null;
+			long runtimeEntityId = message.targetRuntimeEntityId;
+			if (runtimeEntityId == EntityManager.EntityIdSelf)
+			{
+				target = this;
+			}
+			else if (!Level.TryGetEntity(runtimeEntityId, out target))
+			{
+				return;
+			}
 
 			if (message.actionId != 4)
 			{
 				Log.Debug($"Interact Action ID: {message.actionId}");
-				Log.Debug($"Interact Target Entity ID: {message.targetRuntimeEntityId}");
+				Log.Debug($"Interact Target Entity ID: {runtimeEntityId}");
 			}
 
 			if (target == null) return;
@@ -2701,8 +2880,15 @@ namespace MiNET
 				}
 				case 6:
 				{
-					// Riding; Open inventory
-					if (IsRiding)
+					if (target == this)
+					{
+						var containerOpen = McpeContainerOpen.CreateObject();
+						containerOpen.windowId = 0;
+						containerOpen.type = 255;
+						containerOpen.runtimeEntityId = EntityManager.EntityIdSelf;
+						SendPacket(containerOpen);
+					}
+					else if (IsRiding) // Riding; Open inventory
 					{
 						if (Level.TryGetEntity(Vehicle, out Mob mob) && mob is Horse horse)
 						{
@@ -2863,6 +3049,8 @@ namespace MiNET
 
 			startGame.blockPalette = BlockFactory.BlockPalette;
 			startGame.itemstates = ItemFactory.Itemstates;
+
+			startGame.enableNewInventorySystem = true;
 
 			SendPacket(startGame);
 		}
@@ -3671,9 +3859,9 @@ namespace MiNET
 			Ticked?.Invoke(this, e);
 		}
 
-		public virtual void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
+		public virtual void HandleMcpeNetworkStackLatency(McpeNetworkStackLatency message)
 		{
-			var packet = McpeNetworkStackLatencyPacket.CreateObject();
+			var packet = McpeNetworkStackLatency.CreateObject();
 			packet.timestamp = message.timestamp; // don't know what is it
 			packet.unknownFlag = 1;
 			SendPacket(packet);

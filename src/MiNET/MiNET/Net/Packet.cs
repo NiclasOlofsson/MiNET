@@ -740,6 +740,7 @@ namespace MiNET.Net
 		{
 			if (metadata == null)
 			{
+				WriteSignedVarInt(0);
 				WriteUnsignedVarInt(0);
 				return;
 			}
@@ -748,19 +749,23 @@ namespace MiNET.Net
 
 			for (int i = 0; i < metadata.Count; i++)
 			{
+				WriteSignedVarInt(metadata[i].UniqueId);
 				Write(metadata[i]);
 			}
 		}
 
 		public ItemStacks ReadItemStacks()
 		{
-			ItemStacks metadata = new ItemStacks();
+			var metadata = new ItemStacks();
 
 			var count = ReadUnsignedVarInt();
 
 			for (int i = 0; i < count; i++)
 			{
-				metadata.Add(ReadItem());
+				int uniqueId = ReadSignedVarInt();
+				Item item = ReadItem();
+				item.UniqueId = uniqueId;
+				metadata.Add(item);
 			}
 
 			return metadata;
@@ -853,8 +858,13 @@ namespace MiNET.Net
 
 		public Transaction ReadTransaction()
 		{
+			ReadUnsignedVarLong(); // request id
+
 			var transactions = new List<TransactionRecord>();
 			var transactionType = (McpeInventoryTransaction.TransactionType) ReadVarInt();
+
+			bool hasItemStacks = ReadBool();
+
 			var count = ReadUnsignedVarInt();
 			for (int i = 0; i < count; i++)
 			{
@@ -937,6 +947,207 @@ namespace MiNET.Net
 
 			return transaction;
 		}
+
+		public void Write(ItemStackRequests requests)
+		{
+		}
+
+		//public const TAKE = 0;
+		//public const PLACE = 1;
+		//public const SWAP = 2;
+		//public const DROP = 3;
+		//public const DESTROY = 4;
+		//public const CRAFTING_CONSUME_INPUT = 5;
+		//public const CRAFTING_MARK_SECONDARY_RESULT_SLOT = 6;
+		//public const LAB_TABLE_COMBINE = 7;
+		//public const BEACON_PAYMENT = 8;
+		//public const CRAFTING_RECIPE = 9;
+		//public const CRAFTING_RECIPE_AUTO = 10; //recipe book?
+		//public const CREATIVE_CREATE = 11;
+		//public const CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING = 12; //anvils aren't fully implemented yet
+		//public const CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING = 13; //no idea what this is for
+
+		public ItemStackRequests ReadItemStackRequests()
+		{
+			var requests = new ItemStackRequests();
+
+			var c = ReadUnsignedVarInt();
+			Log.Debug($"Count: {c}");
+			for (int i = 0; i < c; i++)
+			{
+				var actions = new ItemStackActions();
+				actions.RequestId = ReadSignedVarInt();
+				Log.Debug($"Request ID: {actions.RequestId}");
+
+				uint count = ReadUnsignedVarInt();
+				Log.Debug($"Count: {count}");
+				for (int j = 0; j < count; j++)
+				{
+					var actionType = (McpeItemStackRequest.ActionType) ReadByte();
+					Log.Debug($"Action type: {actionType}");
+					switch (actionType)
+					{
+						case McpeItemStackRequest.ActionType.Take:
+						{
+							var action = new TakeAction();
+							action.Count = ReadByte();
+							action.Source = new StackRequestSlotInfo().Read(_reader);
+							action.Destination = new StackRequestSlotInfo().Read(_reader);
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.Place:
+						{
+							var action = new PlaceAction();
+							action.Count = ReadByte();
+							action.Source = new StackRequestSlotInfo().Read(_reader);
+							action.Destination = new StackRequestSlotInfo().Read(_reader);
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.Swap:
+						{
+							var action = new SwapAction();
+							action.Source = new StackRequestSlotInfo().Read(_reader);
+							action.Destination = new StackRequestSlotInfo().Read(_reader);
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.Drop:
+						{
+							var action = new DropAction();
+							action.Count = ReadByte();
+							action.Source = new StackRequestSlotInfo().Read(_reader);
+							action.Randomly = ReadBool();
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.Destroy:
+						{
+							var action = new DestroyAction();
+							action.Count = ReadByte();
+							action.Source = new StackRequestSlotInfo().Read(_reader);
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.Consume:
+						{
+							var action = new ConsumeAction();
+							action.Count = ReadByte();
+							action.Source = new StackRequestSlotInfo().Read(_reader);
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.Create:
+						{
+							var action = new CreateAction();
+							action.ResultSlot = ReadByte();
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.LabTableCombine:
+						{
+							var action = new LabTableCombineAction();
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.BeaconPayment:
+						{
+							var action = new BeaconPaymentAction();
+							action.PrimaryEffect = ReadSignedVarInt();
+							action.SecondaryEffect = ReadSignedVarInt();
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.CraftRecipe:
+						{
+							var action = new CraftAction();
+							action.RecipeNetworkId = ReadUnsignedVarInt();
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.CraftRecipeAuto:
+						{
+							var action = new CraftAutoAction();
+							action.RecipeNetworkId = ReadUnsignedVarInt();
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.CraftCreative:
+						{
+							var action = new CraftCreativeAction();
+							action.CreativeItemNetworkId = ReadUnsignedVarInt();
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.CraftNotImplementedDeprecated:
+						{
+							var action = new CraftNotImplementedDeprecatedAction();
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.CraftResultsDeprecated:
+						{
+							var action = new CraftResultDeprecatedAction();
+							action.ResultItems = ReadItems();
+							action.TimesCrafted = ReadByte();
+							actions.Add(action);
+							break;
+						}
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+				}
+				requests.Add(actions);
+			}
+
+			return requests;
+		}
+
+		public void Write(ItemStackResponses responses)
+		{
+			WriteUnsignedVarInt((uint) responses.Count);
+			foreach (ItemStackResponse stackResponse in responses)
+			{
+				Write(stackResponse.Success);
+				WriteSignedVarInt(stackResponse.RequestId);
+				WriteUnsignedVarInt((uint) stackResponse.Responses.Count);
+				foreach (StackResponseContainerInfo containerInfo in stackResponse.Responses)
+				{
+					Write(containerInfo.ContainerId);
+					WriteUnsignedVarInt((uint) containerInfo.Slots.Count);
+					foreach (StackResponseSlotInfo slot in containerInfo.Slots)
+					{
+						Write(slot.Slot);
+						Write(slot.HotbarSlot);
+						Write(slot.Count);
+						WriteSignedVarInt(slot.StackNetworkId);
+					}
+				}
+			}
+		}
+
+
+		public ItemStackResponses ReadItemStackResponses()
+		{
+			return new ItemStackResponses();
+		}
+
+
+		private ItemStacks ReadItems()
+		{
+			var items = new ItemStacks();
+
+			var count = ReadUnsignedVarInt();
+
+			for (int i = 0; i < count; i++)
+			{
+				items.Add(ReadItem());
+			}
+
+			return items;
+		}
+
 
 		public void Write(Item stack)
 		{
@@ -1675,6 +1886,7 @@ namespace MiNET.Net
 						Write(rec.Id);
 						Write(rec.Block);
 						WriteSignedVarInt(0); // priority
+						WriteSignedVarInt(0); // unique id
 						break;
 					}
 					case ShapedRecipe shapedRecipe:
@@ -1701,6 +1913,7 @@ namespace MiNET.Net
 						Write(rec.Id);
 						Write(rec.Block);
 						WriteSignedVarInt(0); // priority
+						WriteSignedVarInt(0); // unique id
 						break;
 					}
 					case SmeltingRecipe smeltingRecipe:
@@ -1719,6 +1932,7 @@ namespace MiNET.Net
 					case MultiRecipe _:
 						WriteSignedVarInt(Multi); // Type
 						Write(recipe.Id);
+						WriteSignedVarInt(0); // unique id
 						break;
 				}
 			}
@@ -1729,12 +1943,13 @@ namespace MiNET.Net
 			var recipes = new Recipes();
 
 			int count = (int) ReadUnsignedVarInt();
+			Log.Trace($"Reading {count} recipes");
 
 			for (int i = 0; i < count; i++)
 			{
 				int recipeType = ReadSignedVarInt();
 
-				//Log.Error($"Read recipe no={i} type={recipeType}");
+				//Log.Trace($"Read recipe no={i} type={recipeType}");
 
 				if (recipeType < 0 /*|| len == 0*/)
 				{
@@ -1763,6 +1978,7 @@ namespace MiNET.Net
 						recipe.Block = ReadString(); // block?
 						recipes.Add(recipe);
 						ReadSignedVarInt(); // priority
+						ReadSignedVarInt(); // unique id
 						//Log.Error("Read shapeless recipe");
 						break;
 					}
@@ -1790,13 +2006,13 @@ namespace MiNET.Net
 						recipe.Block = ReadString(); // block?
 						recipes.Add(recipe);
 						ReadSignedVarInt(); // priority
+						ReadSignedVarInt(); // unique id
 						//Log.Error("Read shaped recipe");
 						break;
 					}
 					case Furnace:
 					{
 						var recipe = new SmeltingRecipe();
-						//short meta = (short) ReadVarInt(); // input (with metadata) 
 						short id = (short) ReadSignedVarInt(); // input (with metadata) 
 						Item result = ReadItem(); // Result
 						recipe.Block = ReadString(); // block?
@@ -1828,6 +2044,7 @@ namespace MiNET.Net
 
 						var recipe = new MultiRecipe();
 						recipe.Id = ReadUUID();
+						ReadSignedVarInt(); // unique id
 						recipes.Add(recipe);
 						break;
 					}
@@ -1836,11 +2053,13 @@ namespace MiNET.Net
 						int ingrediensCount = ReadVarInt(); // 
 						for (int j = 0; j < ingrediensCount; j++)
 						{
+							ReadSignedVarInt(); // unique id
 							ReadItem();
 						}
 						int resultCount = ReadVarInt(); // 
 						for (int j = 0; j < resultCount; j++)
 						{
+							ReadSignedVarInt(); // unique id
 							ReadItem();
 						}
 
@@ -1857,6 +2076,7 @@ namespace MiNET.Net
 						{
 							for (int h = 0; h < height; h++)
 							{
+								ReadSignedVarInt(); // unique id
 								ReadItem();
 							}
 						}
@@ -1864,6 +2084,7 @@ namespace MiNET.Net
 						int resultCount = ReadVarInt(); // 1?
 						for (int j = 0; j < resultCount; j++)
 						{
+							ReadSignedVarInt(); // unique id
 							ReadItem();
 						}
 
@@ -1877,6 +2098,8 @@ namespace MiNET.Net
 						break;
 				}
 			}
+
+			Log.Trace($"Done reading {count} recipes");
 
 			return recipes;
 		}
@@ -1921,9 +2144,9 @@ namespace MiNET.Net
 			for (int i = 0; i < recipes.Length; i++)
 			{
 				var recipe = new PotionContainerChangeRecipe();
-				recipe.InputItemId = ReadVarInt();
-				recipe.IngredientItemId = ReadVarInt();
-				recipe.OutputItemId = ReadVarInt();
+				recipe.Input = ReadVarInt();
+				recipe.Ingredient = ReadVarInt();
+				recipe.Output = ReadVarInt();
 
 				recipes[i] = recipe;
 			}
@@ -1943,9 +2166,12 @@ namespace MiNET.Net
 			for (int i = 0; i < recipes.Length; i++)
 			{
 				var recipe = new PotionTypeRecipe();
-				recipe.InputPotionType = ReadVarInt();
-				recipe.IngredientItemId = ReadVarInt();
-				recipe.OutputPotionType = ReadVarInt();
+				recipe.Input = ReadVarInt();
+				recipe.InputMeta = ReadVarInt();
+				recipe.Ingredient = ReadVarInt();
+				recipe.IngredientMeta = ReadVarInt();
+				recipe.Output = ReadVarInt();
+				recipe.OutputMeta = ReadVarInt();
 
 				recipes[i] = recipe;
 			}
@@ -2255,7 +2481,7 @@ namespace MiNET.Net
 		{
 			if (list == null) list = new ScoreboardIdentityEntries();
 
-			Write((byte) (list.FirstOrDefault() is ScoreboardClearIdentityEntry ? McpeSetScoreboardIdentityPacket.Operations.ClearIdentity : McpeSetScoreboardIdentityPacket.Operations.RegisterIdentity));
+			Write((byte) (list.FirstOrDefault() is ScoreboardClearIdentityEntry ? McpeSetScoreboardIdentity.Operations.ClearIdentity : McpeSetScoreboardIdentity.Operations.RegisterIdentity));
 			WriteUnsignedVarInt((uint) list.Count);
 			foreach (var entry in list)
 			{
@@ -2271,7 +2497,7 @@ namespace MiNET.Net
 		{
 			ScoreboardIdentityEntries list = new ScoreboardIdentityEntries();
 
-			McpeSetScoreboardIdentityPacket.Operations type = (McpeSetScoreboardIdentityPacket.Operations) ReadByte();
+			McpeSetScoreboardIdentity.Operations type = (McpeSetScoreboardIdentity.Operations) ReadByte();
 			var length = ReadUnsignedVarInt();
 			for (var i = 0; i < length; ++i)
 			{
@@ -2279,14 +2505,14 @@ namespace MiNET.Net
 
 				switch (type)
 				{
-					case McpeSetScoreboardIdentityPacket.Operations.RegisterIdentity:
+					case McpeSetScoreboardIdentity.Operations.RegisterIdentity:
 						list.Add(new ScoreboardRegisterIdentityEntry()
 						{
 							Id = scoreboardId,
 							EntityId = ReadSignedVarLong()
 						});
 						break;
-					case McpeSetScoreboardIdentityPacket.Operations.ClearIdentity:
+					case McpeSetScoreboardIdentity.Operations.ClearIdentity:
 						list.Add(new ScoreboardClearIdentityEntry() {Id = scoreboardId});
 						break;
 				}
@@ -2380,8 +2606,8 @@ namespace MiNET.Net
 		protected virtual void EncodePacket()
 		{
 			_buffer.Position = 0;
-			Write(Id); //TODO: If MCPE write varint
-			//if (IsMcpe) Write((short) 0);
+			if (IsMcpe) WriteVarInt(Id);
+			else Write(Id);
 		}
 
 		[Obsolete("Use decode with ReadOnlyMemory<byte> instead.")]
@@ -2410,7 +2636,7 @@ namespace MiNET.Net
 
 		protected virtual void DecodePacket()
 		{
-			Id = ReadByte();
+			Id = IsMcpe ? (byte) ReadVarInt() : ReadByte();
 		}
 
 		public abstract void PutPool();

@@ -229,7 +229,7 @@ namespace MiNET.Net.RakNet
 			MtuSize = mtuSize; // This is what we will use from connections this point forward
 
 			var packet = OpenConnectionRequest1.CreateObject();
-			packet.raknetProtocolVersion = 9;
+			packet.raknetProtocolVersion = 10;
 			packet.mtuSize = mtuSize;
 
 			byte[] data = packet.Encode();
@@ -485,14 +485,17 @@ namespace MiNET.Net.RakNet
 						PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
 						TypeNameHandling = TypeNameHandling.Auto,
 						Formatting = Formatting.Indented,
+						DefaultValueHandling = DefaultValueHandling.Include
 					};
+
+					jsonSerializerSettings.Converters.Add(new StringEnumConverter());
 					jsonSerializerSettings.Converters.Add(new NbtIntConverter());
 					jsonSerializerSettings.Converters.Add(new NbtStringConverter());
 					jsonSerializerSettings.Converters.Add(new IPAddressConverter());
 					jsonSerializerSettings.Converters.Add(new IPEndPointConverter());
 
 					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
-					Log.Verbose($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+					Log.Trace($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
 				}
 				else if (verbosity == 2 || verbosity == 3)
 				{

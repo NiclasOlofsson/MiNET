@@ -545,6 +545,22 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeNetworkSettings(McpeNetworkSettings message)
+		{
+		}
+
+		public void HandleMcpeItemStackRequest(McpeItemStackRequest message)
+		{
+		}
+
+		public void HandleMcpeUpdatePlayerGameType(McpeUpdatePlayerGameType message)
+		{
+		}
+
+		public void HandleMcpePacketViolationWarning(McpePacketViolationWarning message)
+		{
+		}
+
 		public void HandleMcpeEntityEvent(McpeEntityEvent message)
 		{
 		}
@@ -685,7 +701,7 @@ namespace MiNET
 		{
 		}
 
-		public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message)
+		public void HandleMcpeSetLocalPlayerAsInitialized(McpeSetLocalPlayerAsInitialized message)
 		{
 		}
 
@@ -693,7 +709,7 @@ namespace MiNET
 		{
 		}
 
-		public void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
+		public void HandleMcpeNetworkStackLatency(McpeNetworkStackLatency message)
 		{
 		}
 
@@ -701,7 +717,7 @@ namespace MiNET
 		{
 		}
 
-		public void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
+		public void HandleMcpeScriptCustomEvent(McpeScriptCustomEvent message)
 		{
 		}
 	}

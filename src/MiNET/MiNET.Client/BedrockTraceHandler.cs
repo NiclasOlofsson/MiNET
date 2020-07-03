@@ -41,6 +41,7 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MiNET.Client
@@ -139,15 +140,18 @@ namespace MiNET.Client
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Text: {message.message}");
 
-			var wantExec = _executioners.Where(e => e.CanExecute(message.message));
 			string text = message.message;
+			if (string.IsNullOrEmpty(text)) return;
+
+			var wantExec = _executioners.Where(e => e.CanExecute(text));
+
 			foreach (var executioner in wantExec)
 			{
 				Log.Debug($"Executing command handler: {executioner.GetType().FullName}");
 				Task.Run(() => executioner.Execute(this, text));
 			}
 
-			if (message.message.Equals(".do"))
+			if (text.Equals(".do"))
 			{
 				Client.SendCraftingEvent();
 			}
@@ -173,18 +177,25 @@ namespace MiNET.Client
 
 			ItemStacks slots = message.input;
 
-			if (message.inventoryId == 0x79)
-			{
-				string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
-				Client.WriteInventoryToFile(fileName, slots);
-			}
-			else if (message.inventoryId == 0x00)
-			{
-				//string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
-				//Client.WriteInventoryToFile(fileName, slots);
-			}
+			//if (message.inventoryId == 0x79)
+			//{
+			//	string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
+			//	Client.WriteInventoryToFile(fileName, slots);
+			//}
+			//else if (message.inventoryId == 0x00)
+			//{
+			//	//string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
+			//	//Client.WriteInventoryToFile(fileName, slots);
+			//}
 		}
 
+		public override void HandleMcpeCreativeContent(McpeCreativeContent message)
+		{
+			ItemStacks slots = message.input;
+
+			string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
+			Client.WriteInventoryToFile(fileName, slots);
+		}
 
 		public override void HandleMcpeAddItemEntity(McpeAddItemEntity message)
 		{
@@ -208,25 +219,18 @@ namespace MiNET.Client
 
 			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");
 
+
+			//var fileNameBlockstates = Path.GetTempPath() + "blockstates_" + Guid.NewGuid() + ".json";
+			var fileNameItemstates = Path.GetTempPath() + "itemstates_" + Guid.NewGuid() + ".json";
+			File.WriteAllText(fileNameItemstates, JsonConvert.SerializeObject(message.itemstates));
+
 			string fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
-			using (FileStream file = File.OpenWrite(fileName))
+			using(FileStream file = File.OpenWrite(fileName))
 			{
-				Log.Warn($"Writing new blocks to filename:\n{fileName}");
-
-				var legacyIdMap = new Dictionary<string, int>();
-				var assembly = Assembly.GetAssembly(typeof(Block));
-				using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".legacy_id_map.json"))
-				using (var reader = new StreamReader(stream))
-				{
-					var result = JObject.Parse(reader.ReadToEnd());
-
-					foreach (var obj in result)
-					{
-						legacyIdMap.Add(obj.Key, (int) obj.Value);
-					}
-				}
-
 				var writer = new IndentedTextWriter(new StreamWriter(file));
+
+				Log.Warn($"Directory:\n{Path.GetTempPath()}");
+				Log.Warn($"Filename:\n{fileName}");
 
 				writer.WriteLine($"namespace MiNET.Blocks");
 				writer.WriteLine($"{{");
@@ -234,204 +238,185 @@ namespace MiNET.Client
 
 				var blocks = new List<(int, string)>();
 
-				foreach (IGrouping<string, BlockStateContainer> blockstate in blockPalette.OrderBy(record => record.Name).ThenBy(record => record.Data).GroupBy(record => record.Name))
+				foreach (IGrouping<string, BlockStateContainer> blockstateGrouping in blockPalette.OrderBy(record => record.Name).ThenBy(record => record.Data).GroupBy(record => record.Name))
 				{
-					var enumerator = blockstate.GetEnumerator();
-					enumerator.MoveNext();
-					var value = enumerator.Current;
-					if (value == null) continue;
-					//Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
-					//int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
-					Block blockById = BlockFactory.GetBlockById(value.Id);
+					var currentBlockState = blockstateGrouping.First();
+					var defaultBlockState = blockstateGrouping.FirstOrDefault(bs => bs.Data == 0);
+
+					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Name}, {currentBlockState.Data}");
+					Block blockById = BlockFactory.GetBlockById(currentBlockState.Id);
 					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
-					int id = existingBlock ? value.Id : 0;
+					int id = existingBlock ? currentBlockState.Id : -1;
 
-					if (!(blockById is Air))
+					string blockClassName = CodeName(currentBlockState.Name.Replace("minecraft:", ""), true);
+
+					blocks.Add((blockById.Id, blockClassName));
+					writer.WriteLineNoTabs($"");
+
+					writer.WriteLine($"public partial class {blockClassName} {(existingBlock ? "" : ": Block")} // {blockById.Id} typeof={blockById.GetType().Name}");
+					writer.WriteLine($"{{");
+					writer.Indent++;
+
+					var bits = new List<BlockStateByte>();
+					foreach (var state in blockstateGrouping.First().States)
 					{
-						//if (legacyIdMap.TryGetValue(value.Name, out id))
-						//{
-						//	value.Id = id;
-						//}
+						var q = blockstateGrouping.SelectMany(c => c.States);
 
-						string blockName = Client.CodeName(value.Name.Replace("minecraft:", ""), true);
+						// If this is on base, skip this property. We need this to implement common functionality.
+						Type baseType = blockById.GetType().BaseType;
+						bool propOverride = baseType != null
+											&& ("Block" != baseType.Name
+												&& baseType.GetProperty(CodeName(state.Name, true)) != null);
 
-						blocks.Add((value.Id, blockName));
-
-						writer.WriteLineNoTabs($"");
-
-						writer.WriteLine($"public partial class {blockName} {(existingBlock ? "" : ": Block")} // {blockById.Id} typeof={blockById.GetType().Name}");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-
-						var bits = new List<BlockStateByte>();
-						foreach (var state in blockstate.First().States)
+						switch (state)
 						{
-							var q = blockstate.SelectMany(c => c.States);
-
-							// If this is on base, skip this property. We need this to implement common functionality.
-							Type baseType = blockById.GetType().BaseType;
-							bool propOverride = baseType != null
-												&& ("Block" != baseType.Name
-													&& baseType.GetProperty(Client.CodeName(state.Name, true)) != null);
-
-							switch (state)
+							case BlockStateByte blockStateByte:
 							{
-								case BlockStateByte blockStateByte:
+								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateByte) d).Value).Distinct().OrderBy(s => s).ToList();
+								byte defaultVal = ((BlockStateByte) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? 0;
+								if (values.Min() == 0 && values.Max() == 1)
 								{
-									var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateByte) d).Value).Distinct().OrderBy(s => s).ToList();
-									if (values.Min() == 0 && values.Max() == 1)
-									{
-										bits.Add(blockStateByte);
-										writer.Write($"[StateBit] ");
-										writer.WriteLine($"public {(propOverride ? "override" : "")} bool {Client.CodeName(state.Name, true)} {{ get; set; }}");
-									}
-									else
-									{
-										writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
-										writer.WriteLine($"public {(propOverride ? "override" : "")} byte {Client.CodeName(state.Name, true)} {{ get; set; }}");
-									}
-									break;
+									bits.Add(blockStateByte);
+									writer.Write($"[StateBit] ");
+									writer.WriteLine($"public {(propOverride ? "override" : "")} bool {CodeName(state.Name, true)} {{ get; set; }} = {(defaultVal == 1 ? "true" : "false")};");
 								}
-								case BlockStateInt blockStateInt:
+								else
 								{
-									var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateInt) d).Value).Distinct().OrderBy(s => s).ToList();
 									writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
-									writer.WriteLine($"public {(propOverride ? "override" : "")} int {Client.CodeName(state.Name, true)} {{ get; set; }}");
-									break;
+									writer.WriteLine($"public {(propOverride ? "override" : "")} byte {CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
 								}
-								case BlockStateString blockStateString:
-								{
-									var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateString) d).Value).Distinct().OrderBy(s => s).ToList();
-									if (values.Count > 1)
-									{
-										writer.WriteLine($"[StateEnum({string.Join(',', values.Select(v => $"\"{v}\""))})]");
-									}
-									writer.WriteLine($"public {(propOverride ? "override" : "")} string {Client.CodeName(state.Name, true)} {{ get; set; }}");
-									break;
-								}
-								default:
-									throw new ArgumentOutOfRangeException(nameof(state));
+								break;
 							}
+							case BlockStateInt blockStateInt:
+							{
+								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateInt) d).Value).Distinct().OrderBy(s => s).ToList();
+								int defaultVal = ((BlockStateInt) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? 0;
+								writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
+								writer.WriteLine($"public {(propOverride ? "override" : "")} int {CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
+								break;
+							}
+							case BlockStateString blockStateString:
+							{
+								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateString) d).Value).Distinct().ToList();
+								string defaultVal = ((BlockStateString) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? "";
+								if (values.Count > 1)
+								{
+									writer.WriteLine($"[StateEnum({string.Join(',', values.Select(v => $"\"{v}\""))})]");
+								}
+								writer.WriteLine($"public {(propOverride ? "override" : "")} string {CodeName(state.Name, true)} {{ get; set; }} = \"{defaultVal}\";");
+								break;
+							}
+							default:
+								throw new ArgumentOutOfRangeException(nameof(state));
 						}
-
-						if (id == 0 || blockById.IsGenerated)
-						{
-							writer.WriteLine($"");
-
-							writer.WriteLine($"public {blockName}() : base({value.Id})");
-							writer.WriteLine($"{{");
-							writer.Indent++;
-							writer.WriteLine($"IsGenerated = true;");
-							writer.Indent--;
-							writer.WriteLine($"}}");
-						}
-
-						writer.WriteLineNoTabs($"");
-						writer.WriteLine($"public override void SetState(List<IBlockState> states)");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-						writer.WriteLine($"foreach (var state in states)");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-						writer.WriteLine($"switch(state)");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-
-						foreach (var state in blockstate.First().States)
-						{
-							writer.WriteLine($"case {state.GetType().Name} s when s.Name == \"{state.Name}\":");
-							writer.Indent++;
-							writer.WriteLine($"{Client.CodeName(state.Name, true)} = {(bits.Contains(state) ? "Convert.ToBoolean(s.Value)" : "s.Value")};");
-							writer.WriteLine($"break;");
-							writer.Indent--;
-						}
-
-						writer.Indent--;
-						writer.WriteLine($"}} // switch");
-						writer.Indent--;
-						writer.WriteLine($"}} // foreach");
-						writer.Indent--;
-						writer.WriteLine($"}} // method");
-
-						//public BlockStateContainer GetState()
-						//{
-						//	var record = new BlockStateContainer();
-						//	record.Name = "";
-						//	record.Id = Id;
-						//	record.States.Add(new BlockStateByte() {Name = "", Value = ButtonPressedBit});
-						//	record.States.Add(new BlockStateInt() {Name = "", Value = FacingDirection});
-
-						//	return record;
-						//}
-
-						writer.WriteLineNoTabs($"");
-						writer.WriteLine($"public override BlockStateContainer GetState()");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-						writer.WriteLine($"var record = new BlockStateContainer();");
-						writer.WriteLine($"record.Name = \"{blockstate.First().Name}\";");
-						writer.WriteLine($"record.Id = {blockstate.First().Id};");
-						foreach (var state in blockstate.First().States)
-						{
-							string propName = Client.CodeName(state.Name, true);
-							writer.WriteLine($"record.States.Add(new {state.GetType().Name} {{Name = \"{state.Name}\", Value = {(bits.Contains(state) ? $"Convert.ToByte({propName})" : propName)}}});");
-						}
-						writer.WriteLine($"return record;");
-						writer.Indent--;
-						writer.WriteLine($"}} // method");
-
-						//writer.WriteLine($"");
-
-						//writer.WriteLine($"public byte GetMetadataFromState()");
-						//writer.WriteLine($"{{");
-						//writer.Indent++;
-
-						//writer.WriteLine($"switch(this)");
-						//writer.WriteLine($"{{");
-						//writer.Indent++;
-
-
-						//i = 0;
-						//foreach (var record in message.BlockPalette.Where(b => b.Id == enumerator.Current.Id).OrderBy(b => b.Data))
-						//{
-						//	//case { } b when b.ButtonPressedBit == 0 && b.FacingDirection == 0:
-						//	//	return 0;
-
-						//	writer.Write($"case {{ }} b when true");
-						//	string retVal = "";
-						//	foreach (var state in record.States.OrderBy(s => s.Name).ThenBy(s => s.Value))
-						//	{
-						//		if (state.Type == (byte) NbtTagType.Byte)
-						//		{
-						//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
-						//		}
-						//		else if (state.Type == (byte) NbtTagType.Int)
-						//		{
-						//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
-						//		}
-						//		else if (state.Type == (byte) NbtTagType.String)
-						//		{
-						//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == \"{state.Value}\"");
-						//		}
-						//	}
-						//	writer.WriteLine($":");
-
-						//	writer.Indent++;
-						//	writer.WriteLine($"return { i++ };");
-						//	writer.Indent--;
-						//}
-
-						//writer.Indent--;
-						//writer.WriteLine($"}} // switch");
-
-						//writer.WriteLine($"throw new ArithmeticException(\"Invalid state. Unable to convert state to valid metadata\");");
-
-						//writer.Indent--;
-						//writer.WriteLine($"}} // method");
-
-						writer.Indent--;
-						writer.WriteLine($"}} // class");
 					}
+
+					if (id == -1 || blockById.IsGenerated)
+					{
+						writer.WriteLine($"");
+
+						writer.WriteLine($"public {blockClassName}() : base({currentBlockState.Id})");
+						writer.WriteLine($"{{");
+						writer.Indent++;
+						writer.WriteLine($"IsGenerated = true;");
+						writer.Indent--;
+						writer.WriteLine($"}}");
+					}
+
+					writer.WriteLineNoTabs($"");
+					writer.WriteLine($"public override void SetState(List<IBlockState> states)");
+					writer.WriteLine($"{{");
+					writer.Indent++;
+					writer.WriteLine($"foreach (var state in states)");
+					writer.WriteLine($"{{");
+					writer.Indent++;
+					writer.WriteLine($"switch(state)");
+					writer.WriteLine($"{{");
+					writer.Indent++;
+
+					foreach (var state in blockstateGrouping.First().States)
+					{
+						writer.WriteLine($"case {state.GetType().Name} s when s.Name == \"{state.Name}\":");
+						writer.Indent++;
+						writer.WriteLine($"{CodeName(state.Name, true)} = {(bits.Contains(state) ? "Convert.ToBoolean(s.Value)" : "s.Value")};");
+						writer.WriteLine($"break;");
+						writer.Indent--;
+					}
+
+					writer.Indent--;
+					writer.WriteLine($"}} // switch");
+					writer.Indent--;
+					writer.WriteLine($"}} // foreach");
+					writer.Indent--;
+					writer.WriteLine($"}} // method");
+
+					writer.WriteLineNoTabs($"");
+					writer.WriteLine($"public override BlockStateContainer GetState()");
+					writer.WriteLine($"{{");
+					writer.Indent++;
+					writer.WriteLine($"var record = new BlockStateContainer();");
+					writer.WriteLine($"record.Name = \"{blockstateGrouping.First().Name}\";");
+					writer.WriteLine($"record.Id = {blockstateGrouping.First().Id};");
+					foreach (var state in blockstateGrouping.First().States)
+					{
+						string propName = CodeName(state.Name, true);
+						writer.WriteLine($"record.States.Add(new {state.GetType().Name} {{Name = \"{state.Name}\", Value = {(bits.Contains(state) ? $"Convert.ToByte({propName})" : propName)}}});");
+					}
+					writer.WriteLine($"return record;");
+					writer.Indent--;
+					writer.WriteLine($"}} // method");
+
+					//writer.WriteLine($"");
+
+					//writer.WriteLine($"public byte GetMetadataFromState()");
+					//writer.WriteLine($"{{");
+					//writer.Indent++;
+
+					//writer.WriteLine($"switch(this)");
+					//writer.WriteLine($"{{");
+					//writer.Indent++;
+
+
+					//i = 0;
+					//foreach (var record in message.BlockPalette.Where(b => b.Id == enumerator.Current.Id).OrderBy(b => b.Data))
+					//{
+					//	//case { } b when b.ButtonPressedBit == 0 && b.FacingDirection == 0:
+					//	//	return 0;
+
+					//	writer.Write($"case {{ }} b when true");
+					//	string retVal = "";
+					//	foreach (var state in record.States.OrderBy(s => s.Name).ThenBy(s => s.Value))
+					//	{
+					//		if (state.Type == (byte) NbtTagType.Byte)
+					//		{
+					//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
+					//		}
+					//		else if (state.Type == (byte) NbtTagType.Int)
+					//		{
+					//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
+					//		}
+					//		else if (state.Type == (byte) NbtTagType.String)
+					//		{
+					//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == \"{state.Value}\"");
+					//		}
+					//	}
+					//	writer.WriteLine($":");
+
+					//	writer.Indent++;
+					//	writer.WriteLine($"return { i++ };");
+					//	writer.Indent--;
+					//}
+
+					//writer.Indent--;
+					//writer.WriteLine($"}} // switch");
+
+					//writer.WriteLine($"throw new ArithmeticException(\"Invalid state. Unable to convert state to valid metadata\");");
+
+					//writer.Indent--;
+					//writer.WriteLine($"}} // method");
+
+					writer.Indent--;
+					writer.WriteLine($"}} // class");
 				}
 
 				writer.Indent--;
@@ -468,7 +453,6 @@ namespace MiNET.Client
 
 			LogGamerules(message.gamerules);
 
-
 			Client.LevelInfo.LevelName = "Default";
 			Client.LevelInfo.Version = 19133;
 			Client.LevelInfo.GameType = message.gamemode;
@@ -482,6 +466,37 @@ namespace MiNET.Client
 
 				Client.SendPacket(packet);
 			}
+		}
+
+		public static string CodeName(string name, bool firstUpper = false)
+		{
+			//name = name.ToLowerInvariant();
+
+			bool upperCase = firstUpper;
+
+			var result = string.Empty;
+			for (int i = 0; i < name.Length; i++)
+			{
+				if (name[i] == ' ' || name[i] == '_')
+				{
+					upperCase = true;
+				}
+				else
+				{
+					if ((i == 0 && firstUpper) || upperCase)
+					{
+						result += name[i].ToString().ToUpperInvariant();
+						upperCase = false;
+					}
+					else
+					{
+						result += name[i];
+					}
+				}
+			}
+
+			result = result.Replace(@"[]", "s");
+			return result;
 		}
 
 		public override void HandleMcpeAddPlayer(McpeAddPlayer message)

@@ -117,11 +117,11 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Lab Table | 0x6d | 109 |   
 | Update Block Synced | 0x6e | 110 |   
 | Move Entity Delta | 0x6f | 111 |   
-| Set Scoreboard Identity Packet | 0x70 | 112 |   
-| Set Local Player As Initialized Packet | 0x71 | 113 |   
-| Update Soft Enum Packet | 0x72 | 114 |   
-| Network Stack Latency Packet | 0x73 | 115 |   
-| Script Custom Event Packet | 0x75 | 117 |   
+| Set Scoreboard Identity | 0x70 | 112 |   
+| Set Local Player As Initialized | 0x71 | 113 |   
+| Update Soft Enum | 0x72 | 114 |   
+| Network Stack Latency | 0x73 | 115 |   
+| Script Custom Event | 0x75 | 117 |   
 | Spawn Particle Effect | 0x76 | 118 |   
 | Available Entity Identifiers | 0x77 | 119 |   
 | Level Sound Event V2 | 0x78 | 120 |   
@@ -139,7 +139,12 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Update Block Properties | 0x86 | 134 |   
 | Client Cache Blob Status | 0x87 | 135 |   
 | Client Cache Miss Response | 0x88 | 136 |   
-| Network Settings Packet | 0x8f | 143 |   
+| Network Settings | 0x8f | 143 |   
+| Creative Content | 0x91 | 145 |   
+| Item Stack Request | 0x93 | 147 |   
+| Item Stack Response | 0x94 | 148 |   
+| Update Player Game Type | 0x97 | 151 |   
+| Packet Violation Warning | 0x9c | 156 |   
 
 
 ## Data types
@@ -160,6 +165,8 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | IPEndPoint [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-IPEndPoint) |
 | IPEndPoint[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-IPEndPoint[]) |
 | Item [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Item) |
+| ItemStackRequests [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ItemStackRequests) |
+| ItemStackResponses [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ItemStackResponses) |
 | ItemStacks [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ItemStacks) |
 | Itemstates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Itemstates) |
 | Links [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Links) |
@@ -417,6 +424,8 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Spawn | Vector3 |  |
 |Rotation | Vector2 |  |
 |Seed | SignedVarInt |  |
+|Biome Type | short |  |
+|Biome Name | string |  |
 |Dimension | SignedVarInt |  |
 |Generator | SignedVarInt |  |
 |Gamemode | SignedVarInt |  |
@@ -428,6 +437,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Day cycle stop time | SignedVarInt |  |
 |EDU offer | SignedVarInt |  |
 |Has EDU features enabled | bool |  |
+|EDU Product UUID  | string |  |
 |Rain level | float |  |
 |Lightning level | float |  |
 |Has Confirmed Platform Locked Content | bool |  |
@@ -450,6 +460,10 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Is World Template Option Locked | bool |  |
 |Only Spawn V1 Villagers | bool |  |
 |Game Version | string |  |
+|Limited World Width  | int |  |
+|Limited World Length  | int |  |
+|Is New Nether  | bool |  |
+|Experimental Gameplay Override | bool |  |
 |Level ID | string |  |
 |World name | string |  |
 |Premium World Template Id | string |  |
@@ -460,6 +474,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Block Palette | BlockPalette |  |
 |Itemstates | Itemstates |  |
 |Multiplayer Correlation ID | string |  |
+|Enable New Inventory System  | bool |  |
 -----------------------------------------------------------------------
 ### Add Player (0x0c)
 Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPlayer)
@@ -1159,7 +1174,8 @@ Wiki: [Set Spawn Position](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 |:-----|:-----|:-----|
 |Spawn Type | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
-|Forced | bool |  |
+|Dimension | SignedVarInt |  |
+|Unknown coordinates | BlockCoordinates |  |
 -----------------------------------------------------------------------
 ### Animate (0x2c)
 Wiki: [Animate](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Animate)
@@ -2327,8 +2343,8 @@ Wiki: [Move Entity Delta](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol
 |Runtime Entity ID | UnsignedVarLong |  |
 |Flags | ushort |  |
 -----------------------------------------------------------------------
-### Set Scoreboard Identity Packet (0x70)
-Wiki: [Set Scoreboard Identity Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetScoreboardIdentityPacket)
+### Set Scoreboard Identity (0x70)
+Wiki: [Set Scoreboard Identity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetScoreboardIdentity)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -2349,8 +2365,8 @@ Wiki: [Set Scoreboard Identity Packet](https://github.com/NiclasOlofsson/MiNET/w
 |:-----|:-----|:-----|
 |Entries | ScoreboardIdentityEntries |  |
 -----------------------------------------------------------------------
-### Set Local Player As Initialized Packet (0x71)
-Wiki: [Set Local Player As Initialized Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetLocalPlayerAsInitializedPacket)
+### Set Local Player As Initialized (0x71)
+Wiki: [Set Local Player As Initialized](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetLocalPlayerAsInitialized)
 
 **Sent from server:** false  
 **Sent from client:** true
@@ -2364,8 +2380,8 @@ Wiki: [Set Local Player As Initialized Packet](https://github.com/NiclasOlofsson
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
-### Update Soft Enum Packet (0x72)
-Wiki: [Update Soft Enum Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateSoftEnumPacket)
+### Update Soft Enum (0x72)
+Wiki: [Update Soft Enum](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateSoftEnum)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -2378,8 +2394,8 @@ Wiki: [Update Soft Enum Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Network Stack Latency Packet (0x73)
-Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkStackLatencyPacket)
+### Network Stack Latency (0x73)
+Wiki: [Network Stack Latency](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkStackLatency)
 
 **Sent from server:** true  
 **Sent from client:** true
@@ -2394,8 +2410,8 @@ Wiki: [Network Stack Latency Packet](https://github.com/NiclasOlofsson/MiNET/wik
 |Timestamp | ulong |  |
 |Unknown Flag | byte |  |
 -----------------------------------------------------------------------
-### Script Custom Event Packet (0x75)
-Wiki: [Script Custom Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ScriptCustomEventPacket)
+### Script Custom Event (0x75)
+Wiki: [Script Custom Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ScriptCustomEvent)
 
 **Sent from server:** true  
 **Sent from client:** true
@@ -2645,7 +2661,6 @@ Wiki: [Update Block Properties](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Unknown | byte |  |
 |NamedTag | Nbt |  |
 -----------------------------------------------------------------------
 ### Client Cache Blob Status (0x87)
@@ -2676,11 +2691,11 @@ Wiki: [Client Cache Miss Response](https://github.com/NiclasOlofsson/MiNET/wiki/
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Network Settings Packet (0x8f)
-Wiki: [Network Settings Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkSettingsPacket)
+### Network Settings (0x8f)
+Wiki: [Network Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkSettings)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 
@@ -2697,7 +2712,114 @@ Wiki: [Network Settings Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Unknown | byte |  |
-|Compression threshold | short |  |
+|Compression threshold | byte |  |
+-----------------------------------------------------------------------
+### Creative Content (0x91)
+Wiki: [Creative Content](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CreativeContent)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Input | ItemStacks |  |
+-----------------------------------------------------------------------
+### Item Stack Request (0x93)
+Wiki: [Item Stack Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ItemStackRequest)
+
+**Sent from server:** false  
+**Sent from client:** true
+
+
+public const PLAYER_AUTH_INPUT_PACKET = 0x90;
+public const PLAYER_ENCHANT_OPTIONS_PACKET = 0x92;
+public const PLAYER_ARMOR_DAMAGE_PACKET = 0x95;
+public const CODE_BUILDER_PACKET = 0x96;
+public const UPDATE_PLAYER_GAME_TYPE_PACKET = 0x97;
+public const EMOTE_LIST_PACKET = 0x98;
+public const POSITION_TRACKING_D_B_SERVER_BROADCAST_PACKET = 0x99;
+public const POSITION_TRACKING_D_B_CLIENT_REQUEST_PACKET = 0x9a;
+public const DEBUG_INFO_PACKET = 0x9b;
+public const PACKET_VIOLATION_WARNING_PACKET = 0x9c;
+
+
+#### Action Type constants
+
+| Name | Value |
+|:-----|:-----|
+|Take | 0 |
+|Place | 1 |
+|Swap | 2 |
+|Drop | 3 |
+|Destroy | 4 |
+|Consume | 5 |
+|Create | 6 |
+|Lab Table Combine | 7 |
+|Beacon Payment | 8 |
+|Craft Recipe | 9 |
+|Craft Recipe Auto | 10 |
+|Craft Creative | 11 |
+|Craft Not Implemented Deprecated | 12 |
+|Craft Results Deprecated | 13 |
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Requests | ItemStackRequests |  |
+-----------------------------------------------------------------------
+### Item Stack Response (0x94)
+Wiki: [Item Stack Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ItemStackResponse)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Responses | ItemStackResponses |  |
+-----------------------------------------------------------------------
+### Update Player Game Type (0x97)
+Wiki: [Update Player Game Type](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdatePlayerGameType)
+
+**Sent from server:** false  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Packet Violation Warning (0x9c)
+Wiki: [Packet Violation Warning](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PacketViolationWarning)
+
+**Sent from server:** false  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Violation Type | SignedVarInt |  |
+|Severity | SignedVarInt |  |
+|Packet Id | SignedVarInt |  |
+|Reason | string |  |
 -----------------------------------------------------------------------
 
 

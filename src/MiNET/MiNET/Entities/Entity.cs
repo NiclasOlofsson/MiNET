@@ -226,7 +226,7 @@ namespace MiNET.Entities
 					}
 					case 5:
 					{
-						var e = (MetadataSlot) entry;
+						var e = (MetadataNbt) entry;
 						sb.Append($"{e.GetType().Name}({e.Value});");
 						break;
 					}

@@ -103,19 +103,19 @@ namespace MiNET.Utils
 
 			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 			{
-				stream.WriteByte(0x78); // zlib header
-				switch (compressionLevel)
-				{
-					case CompressionLevel.Optimal:
-						stream.WriteByte(0xda);
-						break;
-					case CompressionLevel.Fastest:
-						stream.WriteByte(0x9c);
-						break;
-					case CompressionLevel.NoCompression:
-						stream.WriteByte(0x01);
-						break;
-				}
+				//stream.WriteByte(0x78); // zlib header
+				//switch (compressionLevel)
+				//{
+				//	case CompressionLevel.Optimal:
+				//		stream.WriteByte(0xda);
+				//		break;
+				//	case CompressionLevel.Fastest:
+				//		stream.WriteByte(0x9c);
+				//		break;
+				//	case CompressionLevel.NoCompression:
+				//		stream.WriteByte(0x01);
+				//		break;
+				//}
 				int checksum = 0;
 				using (var compressStream = new ZLibStream(stream, compressionLevel, true))
 				{
@@ -134,7 +134,7 @@ namespace MiNET.Utils
 					// Adler32 checksum is big-endian
 					Array.Reverse(checksumBytes);
 				}
-				stream.Write(checksumBytes);
+				//stream.Write(checksumBytes);
 
 				byte[] bytes = stream.ToArray();
 				return bytes;
@@ -150,19 +150,19 @@ namespace MiNET.Utils
 
 			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 			{
-				stream.WriteByte(0x78); // zlib header
-				switch (compressionLevel)
-				{
-					case CompressionLevel.Optimal:
-						stream.WriteByte(0xda);
-						break;
-					case CompressionLevel.Fastest:
-						stream.WriteByte(0x9c);
-						break;
-					case CompressionLevel.NoCompression:
-						stream.WriteByte(0x01);
-						break;
-				}
+				//stream.WriteByte(0x78); // zlib header
+				//switch (compressionLevel)
+				//{
+				//	case CompressionLevel.Optimal:
+				//		stream.WriteByte(0xda);
+				//		break;
+				//	case CompressionLevel.Fastest:
+				//		stream.WriteByte(0x9c);
+				//		break;
+				//	case CompressionLevel.NoCompression:
+				//		stream.WriteByte(0x01);
+				//		break;
+				//}
 				int checksum;
 				using (var compressStream = new ZLibStream(stream, compressionLevel, true))
 				{
@@ -186,7 +186,7 @@ namespace MiNET.Utils
 					// Adler32 checksum is big-endian
 					Array.Reverse(checksumBytes);
 				}
-				stream.Write(checksumBytes);
+				//stream.Write(checksumBytes);
 
 				byte[] bytes = stream.ToArray();
 				return bytes;

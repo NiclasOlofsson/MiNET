@@ -581,24 +581,24 @@ namespace MiNET.Client
 		{
 		}
 
-		public virtual void HandleMcpeSetScoreboardIdentityPacket(McpeSetScoreboardIdentityPacket message)
+		public virtual void HandleMcpeSetScoreboardIdentity(McpeSetScoreboardIdentity message)
 		{
 		}
 
-		public virtual void HandleMcpeUpdateSoftEnumPacket(McpeUpdateSoftEnumPacket message)
+		public virtual void HandleMcpeUpdateSoftEnum(McpeUpdateSoftEnum message)
 		{
 		}
 
-		public virtual void HandleMcpeNetworkStackLatencyPacket(McpeNetworkStackLatencyPacket message)
+		public virtual void HandleMcpeNetworkStackLatency(McpeNetworkStackLatency message)
 		{
-			var packet = McpeNetworkStackLatencyPacket.CreateObject();
+			var packet = McpeNetworkStackLatency.CreateObject();
 			packet.timestamp = message.timestamp;
 			packet.unknownFlag = 0;
 
 			Client.SendPacket(packet);
 		}
 
-		public virtual void HandleMcpeScriptCustomEventPacket(McpeScriptCustomEventPacket message)
+		public virtual void HandleMcpeScriptCustomEvent(McpeScriptCustomEvent message)
 		{
 		}
 
@@ -670,7 +670,15 @@ namespace MiNET.Client
 		{
 		}
 
-		public virtual void HandleMcpeNetworkSettingsPacket(McpeNetworkSettingsPacket message)
+		public virtual void HandleMcpeNetworkSettings(McpeNetworkSettings message)
+		{
+		}
+
+		public virtual void HandleMcpeCreativeContent(McpeCreativeContent message)
+		{
+		}
+
+		public virtual void HandleMcpeItemStackResponse(McpeItemStackResponse message)
 		{
 		}
 

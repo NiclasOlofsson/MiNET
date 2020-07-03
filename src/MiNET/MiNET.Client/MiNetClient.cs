@@ -386,7 +386,7 @@ namespace MiNET.Client
 				NbtCompound extraData = slot.ExtraData;
 				if (extraData == null)
 				{
-					writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}),");
+					writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{UniqueId={slot.UniqueId}}},");
 				}
 				else
 				{
@@ -398,7 +398,7 @@ namespace MiNET.Client
 						NbtCompound enchComp = (NbtCompound) ench[0];
 						var id = enchComp["id"].ShortValue;
 						var lvl = enchComp["lvl"].ShortValue;
-						writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},");
+						writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{UniqueId={slot.UniqueId}, ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},");
 					}
 					else if (extraData.Contains("Fireworks"))
 					{
@@ -414,11 +414,11 @@ namespace MiNET.Client
 							byte fireworkTrail = compound["FireworkTrail"].ByteValue;
 							byte fireworkType = compound["FireworkType"].ByteValue;
 
-							writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ExtraData = new NbtCompound {{ new NbtCompound(\"Fireworks\") {{ new NbtList(\"Explosions\") {{ new NbtCompound {{ new NbtByteArray(\"FireworkColor\", new byte[]{{{fireworkColor[0]}}}), new NbtByteArray(\"FireworkFade\", new byte[0]), new NbtByte(\"FireworkFlicker\", {fireworkFlicker}), new NbtByte(\"FireworkTrail\", {fireworkTrail}), new NbtByte(\"FireworkType\", {fireworkType})  }} }}, new NbtByte(\"Flight\", {flight}) }} }} }},");
+							writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{UniqueId={slot.UniqueId}, ExtraData = new NbtCompound {{ new NbtCompound(\"Fireworks\") {{ new NbtList(\"Explosions\") {{ new NbtCompound {{ new NbtByteArray(\"FireworkColor\", new byte[]{{{fireworkColor[0]}}}), new NbtByteArray(\"FireworkFade\", new byte[0]), new NbtByte(\"FireworkFlicker\", {fireworkFlicker}), new NbtByte(\"FireworkTrail\", {fireworkTrail}), new NbtByte(\"FireworkType\", {fireworkType})  }} }}, new NbtByte(\"Flight\", {flight}) }} }} }},");
 						}
 						else
 						{
-							writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ExtraData = new NbtCompound {{new NbtCompound(\"Fireworks\") {{new NbtList(\"Explosions\", NbtTagType.Compound), new NbtByte(\"Flight\", {flight}) }} }} }},");
+							writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{UniqueId={slot.UniqueId}, ExtraData = new NbtCompound {{new NbtCompound(\"Fireworks\") {{new NbtList(\"Explosions\", NbtTagType.Compound), new NbtByte(\"Flight\", {flight}) }} }} }},");
 						}
 					}
 				}
@@ -496,7 +496,7 @@ namespace MiNET.Client
 					}
 					case 5:
 					{
-						var e = (MetadataSlot) entry;
+						var e = (MetadataNbt) entry;
 						sb.Append($"{e.GetType().Name}({e.Value});");
 						break;
 					}

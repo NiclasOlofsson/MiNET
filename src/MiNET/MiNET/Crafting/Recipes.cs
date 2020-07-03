@@ -123,16 +123,19 @@ namespace MiNET.Crafting
 
 	public class PotionContainerChangeRecipe
 	{
-		public int InputItemId { get; set; }
-		public int IngredientItemId { get; set; }
-		public int OutputItemId { get; set; }
+		public int Input { get; set; }
+		public int Ingredient { get; set; }
+		public int Output { get; set; }
 	}
 
 	public class PotionTypeRecipe
 	{
-		public int InputPotionType { get; set; }
-		public int IngredientItemId { get; set; }
-		public int OutputPotionType { get; set; }
+		public int Input { get; set; }
+		public int InputMeta { get; set; }
+		public int Ingredient { get; set; }
+		public int IngredientMeta { get; set; }
+		public int Output { get; set; }
+		public int OutputMeta { get; set; }
 	}
 
 }

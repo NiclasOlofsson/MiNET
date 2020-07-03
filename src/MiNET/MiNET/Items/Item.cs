@@ -45,6 +45,7 @@ namespace MiNET.Items
 	/// </summary>
 	public class Item : ICloneable
 	{
+		public int UniqueId { get; set; } = 1;
 		public short Id { get; protected set; }
 		public short Metadata { get; set; }
 		public byte Count { get; set; }

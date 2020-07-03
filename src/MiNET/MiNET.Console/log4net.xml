@@ -107,7 +107,7 @@
 	</appender>
 
 	<root>
-		<level value="DEBUG" />
+		<level value="TRACE" />
 		<appender-ref ref="Console" />
 		<appender-ref ref="RollingFile" />
 		<!--<appender-ref ref="DebuggerAppender"/>-->

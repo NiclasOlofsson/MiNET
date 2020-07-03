@@ -32,7 +32,6 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
-using MiNET.Net.RakNet;
 using MiNET.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -56,7 +55,11 @@ namespace MiNET.Client
 
 		public bool CanExecute(string text)
 		{
-			return text.Contains("all blocks") || text.Contains("discover drops") || text.Contains("write palette") || text.Contains("pick blocks");
+			return text.Contains("all blocks")
+					|| text.Contains("discover drops")
+					|| text.Contains("write palette")
+					|| text.Contains("pick blocks")
+					|| text.Contains("print palette");
 		}
 
 		private bool _runningBlockMetadataDiscovery;
@@ -79,20 +82,35 @@ namespace MiNET.Client
 			{
 				ExecutePickBlocks(caller);
 			}
+			else if (text.Contains("print palette"))
+			{
+				PrintPalette(caller);
+			}
 			else
 			{
 				Log.Debug($"Found no matching method for '{text}'");
 			}
 		}
 
+		private void PrintPalette(BedrockTraceHandler caller)
+		{
+			var client = caller.Client;
+			var palette = client.BlockPalette;
+			foreach (BlockStateContainer blockState in palette.OrderByDescending(bs => bs.Id))
+			{
+				Log.Warn($"{blockState.Name}");
+			}
+		}
+
 		private void ExecutePickBlocks(BedrockTraceHandler caller)
 		{
 			var client = caller.Client;
-			int count = 500;
+			int count = 600;
 			int yStart = 100;
 			int x = 0;
 			int z = 0;
 
+			SendCommand(client, $"/clear TheGrey");
 
 			string fileName = Path.GetTempPath() + "pick_items_" + Guid.NewGuid() + ".json";
 			var writer = File.AppendText(fileName);
@@ -114,27 +132,13 @@ namespace MiNET.Client
 			{
 				try
 				{
-					{
-						var request = new McpeCommandRequest();
-						request.command = $"/tp TheGrey {x} {150} {z}";
-						request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-						client.SendPacket(request);
-					}
-
-					var block = BlockFactory.GetBlockById(id);
-					if (block.GetType() == typeof(Block))
-					{
-						continue;
-					}
-
-					if (block is Cocoa)
-						continue; // crashes on meta=15
+					SendCommand(client, $"/tp TheGrey {x} {150} {z}");
 
 					int y = yStart;
 					for (int meta = 0; meta <= 15; meta++)
 					{
 						var blockstate = palette.FirstOrDefault(b => b.Id == id && b.Data == meta);
-						if(blockstate == null) continue;
+						if (blockstate == null) continue;
 						blockstate.ItemInstance = null; // reset to nothing
 
 						string name = blockstate.Name.Replace("minecraft:", "");
@@ -244,10 +248,7 @@ namespace MiNET.Client
 			var client = caller.Client;
 
 			{
-				var request = new McpeCommandRequest();
-				request.command = $"/gamerule dotiledrops true";
-				request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-				client.SendPacket(request);
+				SendCommand(client, $"/gamerule dotiledrops true");
 			}
 
 			int x = 0;
@@ -255,10 +256,7 @@ namespace MiNET.Client
 			int z = 0;
 
 			{
-				var request = new McpeCommandRequest();
-				request.command = $"/tp TheGrey {x} {150} {z}";
-				request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-				client.SendPacket(request);
+				SendCommand(client, $"/tp TheGrey {x} {150} {z}");
 			}
 
 			{
@@ -269,17 +267,11 @@ namespace MiNET.Client
 						for (int yd = yStart - 1; yd < yStart + 34; yd++)
 						{
 							{
-								var request = new McpeCommandRequest();
-								request.command = $"/setblock {xd} {yd} {zd} glass 0 replace";
-								request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-								client.SendPacket(request);
+								SendCommand(client, $"/setblock {xd} {yd} {zd} glass 0 replace");
 							}
 
 							{
-								var request = new McpeCommandRequest();
-								request.command = $"/setblock {xd} {yd} {zd} barrier 0 replace";
-								request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-								client.SendPacket(request);
+								SendCommand(client, $"/setblock {xd} {yd} {zd} barrier 0 replace");
 							}
 						}
 					}
@@ -292,23 +284,16 @@ namespace MiNET.Client
 			Log.Warn("Running!");
 			_resetEventAddItemEntity.Reset();
 
-			int count = 500;
+			int count = 600;
 			int y = yStart;
 			for (int id = 1; id < count; id++)
 			{
 				try
 				{
-					var block = BlockFactory.GetBlockById(id);
-					if (block.GetType() == typeof(Block))
-						continue;
-					if (block is Cocoa)
-						continue; // crashes on meta=15
-
 					var blockstate = client.BlockPalette.FirstOrDefault(b => b.Id == id);
 					string name = blockstate.Name.Replace("minecraft:", "");
 
-					if (name.StartsWith("element"))
-						continue;
+					if (name.StartsWith("element")) continue;
 
 					client.BlockPalette.Where(bs => bs.Id == id).ToList().ForEach(bs =>
 					{
@@ -316,10 +301,7 @@ namespace MiNET.Client
 					});
 
 					{
-						var request = new McpeCommandRequest();
-						request.command = $"/setblock {x} {y} {z} air 0 replace";
-						request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-						client.SendPacket(request);
+						SendCommand(client, $"/setblock {x} {y} {z} air 0 replace");
 					}
 
 					Log.Warn($"Setting block {id} {name}");
@@ -331,17 +313,11 @@ namespace MiNET.Client
 							Log.Debug($"Setting block {id} {meta} {name}");
 
 							{
-								var request = new McpeCommandRequest();
-								request.command = $"/setblock {x} {y} {z} {name} {meta} replace";
-								request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-								client.SendPacket(request);
+								SendCommand(client, $"/setblock {x} {y} {z} {name} {meta} replace");
 							}
 
 							{
-								var request = new McpeCommandRequest();
-								request.command = $"/setblock {x} {y} {z} air 0 destroy";
-								request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-								client.SendPacket(request);
+								SendCommand(client, $"/setblock {x} {y} {z} air 0 destroy");
 
 								if (!_resetEventAddItemEntity.WaitOne(1000))
 								{
@@ -352,10 +328,7 @@ namespace MiNET.Client
 						finally
 						{
 							{
-								var request = new McpeCommandRequest();
-								request.command = $"/kill @e[r=150]";
-								request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-								client.SendPacket(request);
+								SendCommand(client, $"/kill @e[r=150]");
 							}
 						}
 
@@ -373,6 +346,14 @@ namespace MiNET.Client
 			Log.Warn("Finished!");
 		}
 
+		private static void SendCommand(MiNetClient client, string command)
+		{
+			var request = new McpeCommandRequest();
+			request.command = command;
+			request.unknownUuid = new UUID(Guid.NewGuid().ToString());
+			client.SendPacket(request);
+		}
+
 		private void ExecuteAllBlocks(BedrockTraceHandler caller)
 		{
 			var client = caller.Client;
@@ -381,46 +362,50 @@ namespace MiNET.Client
 
 			client.SendChat("Starting...");
 
-			{
-				var request = new McpeCommandRequest();
-				request.command = $"/gamerule dotiledrops false";
-				request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-				caller.Client.SendPacket(request);
-			}
+			SendCommand(client, $"/gamerule randomtickspeed 0");
+			SendCommand(client, $"/gamerule doentitydrops false");
+			SendCommand(client, $"/gamerule domobloot false");
+			SendCommand(client, $"/gamerule domobspawning false");
+			SendCommand(client, $"/gamerule dotiledrops false");
+			SendCommand(client, $"/gamerule mobgriefing false");
+			SendCommand(client, $"/gamerule doweathercycle false");
+			SendCommand(client, $"/gamerule showcoordinates true");
+			
+			SendCommand(client, $"/gamerule dotiledrops false");
 
 			int x = 0;
 			int yStart = 100;
 			int z = 0;
 
-			int count = 500;
+			int count = 600;
 			//for (int t = 0; t < count; t++)
 			//{
 			//	for (int xd = x - 1; xd <= x + 1; xd++)
 			//	{
 			//		for (int zd = z - 1; zd <= z + 1; zd++)
 			//		{
-			//{
-			//	var request = new McpeCommandRequest();
-			//	request.command = $"/tp TheGrey {xd} {150} {zd}";
-			//	request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-			//	Client.SendPacket(request);
-			//}
+			//			{
+			//				var request = new McpeCommandRequest();
+			//				request.command = $"/tp TheGrey {xd} {150} {zd}";
+			//				request.unknownUuid = new UUID(Guid.NewGuid().ToString());
+			//				client.SendPacket(request);
+			//			}
 			//			for (int yd = yStart - 1; yd < yStart + 34; yd++)
 			//			{
-			//				//{
-			//				//	var request = new McpeCommandRequest();
-			//				//	request.command = $"/setblock {xd} {yd} {zd} air 0 replace";
-			//				//	request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-			//				//	Client.SendPacket(request);
-			//_resetEventUpdateBlock.WaitOne();
-			//				//}
+			//				{
+			//					var request = new McpeCommandRequest();
+			//					request.command = $"/setblock {xd} {yd} {zd} air 0 replace";
+			//					request.unknownUuid = new UUID(Guid.NewGuid().ToString());
+			//					client.SendPacket(request);
+			//					//_resetEventUpdateBlock.WaitOne();
+			//				}
 
 			//				{
 			//					var request = new McpeCommandRequest();
 			//					request.command = $"/setblock {xd} {yd} {zd} barrier 0 replace";
 			//					request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-			//					Client.SendPacket(request);
-			//_resetEventUpdateBlock.WaitOne();
+			//					client.SendPacket(request);
+			//					//_resetEventUpdateBlock.WaitOne();
 			//				}
 			//			}
 			//		}
@@ -438,10 +423,7 @@ namespace MiNET.Client
 					{
 						if (xd % 10 == 0)
 						{
-							var request = new McpeCommandRequest();
-							request.command = $"/tp TheGrey {xd} {150} {zd}";
-							request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-							client.SendPacket(request);
+							SendCommand(client, $"/tp TheGrey {xd} {150} {zd}");
 						}
 
 						for (int yd = yStart; yd < yStart + 33; yd++)
@@ -455,21 +437,11 @@ namespace MiNET.Client
 							if (xd % 2 != 0)
 								continue;
 
-							{
-								var request = new McpeCommandRequest();
-								request.command = $"/setblock {xd} {yd} {zd} log 0 replace";
-								request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-								client.SendPacket(request);
-								if (!_resetEventUpdateBlock.WaitOne(1000)) Log.Warn("wait timeout");
-							}
+							SendCommand(client, $"/setblock {xd} {yd} {zd} log 0 replace");
+							if (!_resetEventUpdateBlock.WaitOne(1000)) Log.Warn("wait timeout");
 
-							{
-								var request = new McpeCommandRequest();
-								request.command = $"/setblock {xd} {yd} {zd} barrier 0 replace";
-								request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-								client.SendPacket(request);
-								if (!_resetEventUpdateBlock.WaitOne(1000)) Log.Warn("wait timeout");
-							}
+							SendCommand(client, $"/setblock {xd} {yd} {zd} barrier 0 replace");
+							if (!_resetEventUpdateBlock.WaitOne(1000)) Log.Warn("wait timeout");
 						}
 					}
 				}
@@ -479,10 +451,7 @@ namespace MiNET.Client
 			z = 0;
 
 			{
-				var request = new McpeCommandRequest();
-				request.command = $"/tp TheGrey {x} {150} {z}";
-				request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-				client.SendPacket(request);
+				SendCommand(client, $"/tp TheGrey {x} {150} {z}");
 			}
 
 			Log.Warn("Staring to run in 1s");
@@ -498,54 +467,37 @@ namespace MiNET.Client
 			{
 				try
 				{
-					{
-						var request = new McpeCommandRequest();
-						request.command = $"/tp TheGrey {x} {150} {z}";
-						request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-						client.SendPacket(request);
-					}
+					SendCommand(client, $"/tp TheGrey {x} {150} {z}");
 
-					var block = BlockFactory.GetBlockById(id);
-					if (block.GetType() == typeof(Block))
-					{
-						continue;
-					}
-
-					if (block is Cocoa)
-						continue; // crashes on meta=15
+					//var block = BlockFactory.GetBlockById(id);
+					//if (block.GetType() == typeof(Block))
+					//{
+					//	continue;
+					//}
 
 					var blockstate = client.BlockPalette.FirstOrDefault(b => b.Id == id);
+					if (blockstate == null) continue;
+
 					string name = blockstate.Name.Replace("minecraft:", "");
 
-					if (block is Air)
+					if ("air".Equals(name))
 					{
 						blockstate.Data = 0;
 						continue; // don't want
 					}
 
-					if (name.StartsWith("element"))
-						continue;
+					if (name.StartsWith("element")) continue;
 
 					int y = yStart;
 					for (int meta = 0; meta <= 15; meta++)
 					{
 						Log.Warn($"Setting block {id} {meta} {name}");
 
-						{
-							var request = new McpeCommandRequest();
-							request.command = $"/setblock {x} {y} {z} {name} {meta} replace";
-							request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-							client.SendPacket(request);
-						}
+						SendCommand(client, $"/setblock {x} {y} {z} {name} {meta} replace");
 
 						if (!_resetEventUpdateBlock.WaitOne(500))
 						{
-							{
-								var request = new McpeCommandRequest();
-								request.command = $"/setblock {x} {y} {z} air 0 replace";
-								request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-								client.SendPacket(request);
-							}
+							SendCommand(client, $"/setblock {x} {y} {z} air 0 replace");
 							//break;
 						}
 
@@ -572,6 +524,7 @@ namespace MiNET.Client
 				}
 			}
 
+			_runningBlockMetadataDiscovery = false;
 			client.SendChat($"Finished setting blocks.");
 			Log.Warn("Finished!");
 		}
@@ -688,10 +641,15 @@ namespace MiNET.Client
 						blockstate.Data = (short) meta;
 				}
 
+				_resetEventUpdateBlock.Set();
 				return;
 			}
 
-			if (blockstate.Id == 0) return;
+			if (blockstate.Id == 0)
+			{
+				_resetEventUpdateBlock.Set();
+				return;
+			}
 
 			if (blockstate.Data == -1)
 			{
@@ -723,6 +681,7 @@ namespace MiNET.Client
 			else
 			{
 				Log.Warn($"Blockstate {runtimeId} {blockstate.Id}, {meta} already had meta set to {blockstate.Data}");
+				_resetEventUpdateBlock.Set();
 			}
 		}
 	}

@@ -23,25 +23,48 @@
 
 #endregion
 
-using System.Numerics;
-using MiNET.BlockEntities;
-using MiNET.Utils;
-using MiNET.Worlds;
+using System.IO;
+using fNbt;
+using MiNET.Net;
 
-namespace MiNET.Blocks
+namespace MiNET.Utils
 {
-	public partial class StructureBlock : Block
+	public class MetadataNbt : MetadataEntry
 	{
-		public StructureBlock() : base(252)
+		public override byte Identifier
+		{
+			get { return 5; }
+		}
+
+		public override string FriendlyName
+		{
+			get { return "nbt"; }
+		}
+
+		public NbtCompound Value { get; set; }
+
+		public MetadataNbt()
 		{
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public MetadataNbt(NbtCompound value)
 		{
-			var blockEntity = new StructureBlockBlockEntity {Coordinates = Coordinates};
-			world.SetBlockEntity(blockEntity);
+			Value = value;
+		}
 
-			return false;
+		public override void FromStream(BinaryReader reader)
+		{
+			Value = (NbtCompound) Packet.ReadNbt(reader.BaseStream).NbtFile.RootTag;
+		}
+
+		public override void WriteTo(BinaryWriter stream)
+		{
+			NbtCompound nbt = Value;
+
+			byte[] bytes = Packet.GetNbtData(nbt);
+			stream.Write((ushort) 0xffff);
+			stream.Write((byte) 0x01);
+			stream.Write(bytes);
 		}
 	}
 }

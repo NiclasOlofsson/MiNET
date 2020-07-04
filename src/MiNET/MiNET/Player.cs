@@ -43,7 +43,6 @@ using MiNET.Entities.Passive;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
-using MiNET.Net.RakNet;
 using MiNET.Particles;
 using MiNET.UI;
 using MiNET.Utils;
@@ -178,7 +177,6 @@ namespace MiNET
 
 		public virtual void HandleMcpePlayerSkin(McpePlayerSkin message)
 		{
-
 			McpePlayerSkin pk = McpePlayerSkin.CreateObject();
 			pk.uuid = this.ClientUuid;
 			pk.skin = message.skin;
@@ -1707,21 +1705,21 @@ namespace MiNET
 			//strangeContent.input = new ItemStacks();
 			//SendPacket(strangeContent);
 
-			//McpeInventoryContent inventoryContent = McpeInventoryContent.CreateObject();
-			//inventoryContent.inventoryId = (byte) 0x00;
-			//inventoryContent.input = Inventory.GetSlots();
-			//SendPacket(inventoryContent);
+			var inventoryContent = McpeInventoryContent.CreateObject();
+			inventoryContent.inventoryId = (byte) 0x00;
+			inventoryContent.input = Inventory.GetSlots();
+			SendPacket(inventoryContent);
 
-			//McpeInventoryContent armorContent = McpeInventoryContent.CreateObject();
-			//armorContent.inventoryId = 0x78;
-			//armorContent.input = Inventory.GetArmor();
-			//SendPacket(armorContent);
+			var armorContent = McpeInventoryContent.CreateObject();
+			armorContent.inventoryId = 0x78;
+			armorContent.input = Inventory.GetArmor();
+			SendPacket(armorContent);
 
-			//McpeMobEquipment mobEquipment = McpeMobEquipment.CreateObject();
-			//mobEquipment.runtimeEntityId = EntityManager.EntityIdSelf;
-			//mobEquipment.item = Inventory.GetItemInHand();
-			//mobEquipment.slot = (byte) Inventory.InHandSlot;
-			//SendPacket(mobEquipment);
+			var mobEquipment = McpeMobEquipment.CreateObject();
+			mobEquipment.runtimeEntityId = EntityManager.EntityIdSelf;
+			mobEquipment.item = Inventory.GetItemInHand();
+			mobEquipment.slot = (byte) Inventory.InHandSlot;
+			SendPacket(mobEquipment);
 		}
 
 		public virtual void SendCraftingRecipes()
@@ -1986,6 +1984,8 @@ namespace MiNET
 		{
 		}
 
+
+		public bool UsingAnvil { get; set; }
 		public void HandleMcpeItemStackRequest(McpeItemStackRequest message)
 		{
 			var response = McpeItemStackResponse.CreateObject();
@@ -2001,6 +2001,10 @@ namespace MiNET
 
 				response.responses.Add(stackResponse);
 
+				uint recipeNetworkId = 0;
+				var consumedItems = new List<Item>();
+				//Item craftingResult = null;
+
 				foreach (ItemStackAction stackAction in request)
 				{
 					switch (stackAction)
@@ -2008,68 +2012,43 @@ namespace MiNET
 						case CraftCreativeAction craftCreativeAction:
 						{
 							Item creativeItem = InventoryUtils.CreativeInventoryItems.FirstOrDefault(i => i.UniqueId == (int) craftCreativeAction.CreativeItemNetworkId);
-							if(creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {craftCreativeAction.CreativeItemNetworkId}");
-							creativeItem = (Item) creativeItem.Clone(); //TODO: Need to fix clone for NBT
+							if (creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {craftCreativeAction.CreativeItemNetworkId}");
+							creativeItem = ItemFactory.GetItem(creativeItem.Id, creativeItem.Metadata, creativeItem.Count);
 							creativeItem.Count = (byte) creativeItem.MaxStackSize;
 							creativeItem.UniqueId = Environment.TickCount;
 							Log.Debug($"Creating {creativeItem}");
-							Inventory.CreativeInventory.Slots[50] = creativeItem;
+							Inventory.UiInventory.Slots[50] = creativeItem;
 							break;
 						}
+						case CraftNotImplementedDeprecatedAction craftNotImplementedDeprecatedAction:
+							// Do nothing democrafts
+							break;
 						case CraftResultDeprecatedAction craftResultDeprecatedAction:
 						{
-							// Ignore (remove)
+							Item craftingResult = craftResultDeprecatedAction.ResultItems.FirstOrDefault();
+							craftingResult.UniqueId = Environment.TickCount;
+							SetContainerItem(59, 50, craftingResult);
+
+							// Ignore (remove later)
 							break;
 						}
+
 						case TakeAction takeAction:
 						{
 							byte count = takeAction.Count;
-							Item sourceItem = null;
+							Item sourceItem;
 							Item destItem;
 							StackRequestSlotInfo source = takeAction.Source;
 							StackRequestSlotInfo destination = takeAction.Destination;
 
-							switch (source.ContainerId)
-							{
-								case 59:
-									Item creativeItem = Inventory.CreativeInventory.Slots[source.Slot];
-									if (creativeItem.Count != takeAction.Count) throw new Exception($"Client asked for different count than what we had in creative inventory.");
-
-									sourceItem = creativeItem;
-									break;
-								case 58:
-									sourceItem = Inventory.CursorInventory.Slots[source.Slot];
-									break;
-								case 27:
-								case 28:
-									sourceItem = Inventory.Slots[source.Slot];
-									break;
-								default:
-									Log.Warn($"Unknown source containerId: {source.ContainerId} for a take action");
-									break;
-							}
+							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
 
 							if (sourceItem.Count == count)
 							{
 								destItem = sourceItem;
 								sourceItem = new ItemAir();
 								sourceItem.UniqueId = 0;
-								switch (source.ContainerId)
-								{
-									case 59:
-										Inventory.CreativeInventory.Slots[source.Slot] = sourceItem;
-										break;
-									case 58:
-										Inventory.CursorInventory.Slots[source.Slot] = sourceItem;
-										break;
-									case 27:
-									case 28:
-										Inventory.Slots[source.Slot] = sourceItem;
-										break;
-									default:
-										Log.Warn($"Unknown source containerId: {source.ContainerId} for a take action");
-										break;
-								}
+								SetContainerItem(source.ContainerId, source.Slot, sourceItem);
 							}
 							else
 							{
@@ -2079,19 +2058,10 @@ namespace MiNET
 								destItem.UniqueId = Environment.TickCount;
 							}
 
-							switch (destination.ContainerId)
-							{
-								case 58:
-									Inventory.CursorInventory.Slots[destination.Slot] = destItem;
-									break;
-								default:
-									Log.Warn($"Unknown destination containerId: {destination.ContainerId} for a take action");
-									break;
-							}
+							SetContainerItem(destination.ContainerId, destination.Slot, destItem);
 
-							if(destItem == null) throw new Exception($"Expected item");
+							if (destItem == null) throw new Exception($"Expected item");
 
-							//TODO: Calculate count here. Needed for "partial takes".
 							stackResponse.Responses.Add(new StackResponseContainerInfo
 							{
 								ContainerId = source.ContainerId,
@@ -2113,48 +2083,32 @@ namespace MiNET
 								{
 									new StackResponseSlotInfo()
 									{
-										Count =  destItem.Count,
+										Count = destItem.Count,
 										Slot = destination.Slot,
 										HotbarSlot = destination.Slot,
 										StackNetworkId = destItem.UniqueId
 									}
 								}
 							});
-							
+
 							break;
 						}
 						case PlaceAction placeAction:
 						{
 							byte count = placeAction.Count;
-							Item sourceItem = null;
+							Item sourceItem;
 							Item destItem;
 							StackRequestSlotInfo source = placeAction.Source;
 							StackRequestSlotInfo destination = placeAction.Destination;
 
-							switch (source.ContainerId)
-							{
-								case 58:
-									sourceItem = Inventory.CursorInventory.Slots[source.Slot];
-									break;
-								default:
-									Log.Warn($"Unknown source containerId: {source.ContainerId} for a place action");
-									break;
-							}
+							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
 
 							if (sourceItem.Count == count)
 							{
 								destItem = sourceItem;
 								sourceItem = new ItemAir();
 								sourceItem.UniqueId = 0;
-								switch (source.ContainerId)
-								{
-									case 58:
-										Inventory.CursorInventory.Slots[source.Slot] = sourceItem;
-										break;
-									default:
-										Log.Warn($"Unknown source containerId: {source.ContainerId} for a take action");
-										break;
-								}
+								SetContainerItem(source.ContainerId, source.Slot, sourceItem);
 							}
 							else
 							{
@@ -2164,30 +2118,18 @@ namespace MiNET
 								destItem.UniqueId = Environment.TickCount;
 							}
 
-							switch (destination.ContainerId)
+							Item existingItem = GetContainerItem(destination.ContainerId, destination.Slot);
+							if (existingItem.UniqueId > 0)
 							{
-								case 58:
-									Inventory.CursorInventory.Slots[destination.Slot] = destItem;
-									break;
-								case 27:
-								case 28:
-									Item invItem = Inventory.Slots[destination.Slot];
-									if (invItem.UniqueId > 0)
-									{
-										invItem.Count += count;
-										destItem = invItem;
-									}
-									else
-									{
-										Inventory.Slots[destination.Slot] = destItem;
-									}
-									break;
-								default:
-									Log.Warn($"Unknown destination containerId: {destination.ContainerId} for a place action");
-									break;
+								existingItem.Count += count;
+								destItem = existingItem;
+							}
+							else
+							{
+								SetContainerItem(destination.ContainerId, destination.Slot, destItem);
 							}
 
-							if(sourceItem == null) throw new Exception($"Expected item");
+							if (sourceItem == null) throw new Exception($"Expected item");
 
 							stackResponse.Responses.Add(new StackResponseContainerInfo
 							{
@@ -2226,59 +2168,12 @@ namespace MiNET
 							StackRequestSlotInfo source = swapAction.Source;
 							StackRequestSlotInfo destination = swapAction.Destination;
 
-							switch (source.ContainerId)
-							{
-								case 58:
-									sourceItem = Inventory.CursorInventory.Slots[source.Slot];
-									break;
-								case 27:
-								case 28:
-									sourceItem = Inventory.Slots[source.Slot];
-									break;
-								default:
-									Log.Warn($"Unknown source containerId: {source.ContainerId} for a take action");
-									break;
-							}
+							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
+							destItem = GetContainerItem(destination.ContainerId, destination.Slot);
 
-							switch (destination.ContainerId)
-							{
-								case 58:
-									destItem = Inventory.CursorInventory.Slots[destination.Slot];
-									break;
-								case 27:
-								case 28:
-									destItem = Inventory.Slots[destination.Slot];
-									break;
-								default:
-									Log.Warn($"Unknown destination containerId: {destination.ContainerId} for a take action");
-									break;
-							}
+							SetContainerItem(source.ContainerId, source.Slot, destItem);
+							SetContainerItem(destination.ContainerId, destination.Slot, sourceItem);
 
-							switch (source.ContainerId)
-							{
-								case 58:
-									Inventory.CursorInventory.Slots[source.Slot] = destItem;
-									break;
-								case 27:
-								case 28:
-									Inventory.Slots[source.Slot] = destItem;
-									break;
-							}
-
-							switch (destination.ContainerId)
-							{
-								case 58:
-									Inventory.CursorInventory.Slots[destination.Slot] = sourceItem;
-									break;
-								case 27:
-								case 28:
-									Inventory.Slots[destination.Slot] = sourceItem;
-									break;
-							}
-
-							if(destItem == null) throw new Exception($"Expected item");
-
-							//TODO: Calculate count here. Needed for "partial takes".
 							stackResponse.Responses.Add(new StackResponseContainerInfo
 							{
 								ContainerId = source.ContainerId,
@@ -2300,29 +2195,119 @@ namespace MiNET
 								{
 									new StackResponseSlotInfo()
 									{
-										Count =  sourceItem.Count,
+										Count = sourceItem.Count,
 										Slot = destination.Slot,
 										HotbarSlot = destination.Slot,
 										StackNetworkId = sourceItem.UniqueId
 									}
 								}
 							});
-							
+
 							break;
 						}
 						case DestroyAction destroyAction:
 						{
+							byte count = destroyAction.Count;
+							Item sourceItem = null;
+							StackRequestSlotInfo source = destroyAction.Source;
+
+							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
+							sourceItem.Count -= count;
+							if (sourceItem.Count <= 0)
+							{
+								sourceItem = new ItemAir();
+								SetContainerItem(source.ContainerId, source.Slot, sourceItem);
+							}
+
 							stackResponse.Responses.Add(new StackResponseContainerInfo
 							{
-								ContainerId = destroyAction.Source.ContainerId,
+								ContainerId = source.ContainerId,
 								Slots = new List<StackResponseSlotInfo>
 								{
 									new StackResponseSlotInfo()
 									{
-										Count = 0,
-										Slot = destroyAction.Source.Slot,
-										HotbarSlot = destroyAction.Source.Slot,
-										StackNetworkId = 0
+										Count = sourceItem.Count,
+										Slot = source.Slot,
+										HotbarSlot = source.Slot,
+										StackNetworkId = sourceItem.UniqueId
+									}
+								}
+							});
+							break;
+						}
+						case DropAction dropAction:
+						{
+							byte count = dropAction.Count;
+							Item sourceItem = null;
+							Item dropItem = null;
+							StackRequestSlotInfo source = dropAction.Source;
+
+							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
+
+							if (sourceItem.Count == count)
+							{
+								dropItem = sourceItem;
+								sourceItem = new ItemAir();
+								sourceItem.UniqueId = 0;
+								SetContainerItem(source.ContainerId, source.Slot, sourceItem);
+							}
+							else
+							{
+								dropItem = (Item) sourceItem.Clone();
+								sourceItem.Count -= count;
+								dropItem.Count = count;
+								dropItem.UniqueId = Environment.TickCount;
+							}
+
+							DropItem(dropItem);
+
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = source.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = sourceItem.Count,
+										Slot = source.Slot,
+										HotbarSlot = source.Slot,
+										StackNetworkId = sourceItem.UniqueId
+									}
+								}
+							});
+
+							break;
+						}
+						case CraftAction craftAction:
+						{
+							recipeNetworkId = craftAction.RecipeNetworkId;
+							break;
+						}
+						case ConsumeAction consumeAction:
+						{
+							byte count = consumeAction.Count;
+							Item sourceItem = null;
+							StackRequestSlotInfo source = consumeAction.Source;
+
+							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
+							sourceItem.Count -= count;
+							if (sourceItem.Count <= 0)
+							{
+								sourceItem = new ItemAir();
+								SetContainerItem(source.ContainerId, source.Slot, sourceItem);
+							}
+
+							stackResponse.Responses.Add(new StackResponseContainerInfo
+							{
+								ContainerId = source.ContainerId,
+								Slots = new List<StackResponseSlotInfo>
+								{
+									new StackResponseSlotInfo()
+									{
+										Count = sourceItem.Count,
+										Slot = source.Slot,
+										HotbarSlot = source.Slot,
+										StackNetworkId = sourceItem.UniqueId
 									}
 								}
 							});
@@ -2336,6 +2321,90 @@ namespace MiNET
 			}
 
 			SendPacket(response);
+		}
+
+		protected Item GetContainerItem(int containerId, int slot)
+		{
+			if (UsingAnvil && containerId < 3) containerId = 13;
+
+			Item item = null;
+			switch (containerId)
+			{
+				case 13: // crafting
+				case 21: // enchanting
+				case 41: // loom
+				case 58: // cursor
+				case 59: // creative
+					item = Inventory.UiInventory.Slots[slot];
+					break;
+				case 12: // auto
+				case 27: // hotbar
+				case 28: // player inventory
+					item = Inventory.Slots[slot];
+					break;
+				case 6: // armor
+					item = slot switch
+					{
+						0 => Inventory.Helmet,
+						1 => Inventory.Chest,
+						2 => Inventory.Leggings,
+						3 => Inventory.Boots,
+						_ => null
+					};
+					break;
+				case 7: // chest/container
+					if(_openInventory is Inventory inventory) item = inventory.GetSlot((byte) slot);
+					break;
+				default:
+					Log.Warn($"Unknown containerId: {containerId}");
+					break;
+			}
+
+			return item;
+		}
+
+		protected void SetContainerItem(int containerId, int slot, Item item)
+		{
+			if (UsingAnvil && containerId < 3) containerId = 13;
+
+			switch (containerId)
+			{
+				case 13: // crafting
+				case 21: // enchanting
+				case 41: // loom
+				case 58: // cursor
+				case 59: // creative
+					Inventory.UiInventory.Slots[slot] = item;
+					break;
+				case 12: // auto
+				case 27: // hotbar
+				case 28: // player inventory
+					Inventory.Slots[slot] = item;
+					break;
+				case 6: // armor
+					switch (slot)
+					{
+						case 0:
+							Inventory.Helmet = item;
+							break;
+						case 1:
+							Inventory.Chest = item;
+							break;
+						case 2:
+							Inventory.Leggings = item;
+							break;
+						case 3:
+							Inventory.Boots = item;
+							break;
+					}
+					break;
+				case 7: // chest/container
+					if (_openInventory is Inventory inventory) inventory.SetSlot(this, (byte) slot, item);
+					break;
+				default:
+					Log.Warn($"Unknown containerId: {containerId}");
+					break;
+			}
 		}
 
 		public void HandleMcpeUpdatePlayerGameType(McpeUpdatePlayerGameType message)
@@ -2389,6 +2458,7 @@ namespace MiNET
 
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
+			// https://github.com/pmmp/PocketMine-MP/blob/stable/src/pocketmine/network/mcpe/protocol/types/WindowTypes.php
 			lock (_inventorySync)
 			{
 				if (_openInventory is Inventory openInventory)
@@ -2436,7 +2506,7 @@ namespace MiNET
 				containerOpen.runtimeEntityId = -1;
 				SendPacket(containerOpen);
 
-				McpeInventoryContent containerSetContent = McpeInventoryContent.CreateObject();
+				var containerSetContent = McpeInventoryContent.CreateObject();
 				containerSetContent.inventoryId = inventory.WindowsId;
 				containerSetContent.input = inventory.Slots;
 				SendPacket(containerSetContent);
@@ -2452,7 +2522,7 @@ namespace MiNET
 			}
 			else
 			{
-				McpeInventorySlot sendSlot = McpeInventorySlot.CreateObject();
+				var sendSlot = McpeInventorySlot.CreateObject();
 				sendSlot.inventoryId = inventory.WindowsId;
 				sendSlot.slot = slot;
 				sendSlot.uniqueid = itemStack.UniqueId;
@@ -2683,7 +2753,6 @@ namespace MiNET
 		}
 
 		private readonly List<Item> _craftingInput = new List<Item>();
-		public bool UsingCraftingTable { get; set; }
 
 		protected virtual void HandleTransactionRecords(List<TransactionRecord> transactionRecords)
 		{
@@ -2992,7 +3061,7 @@ namespace MiNET
 
 		public virtual void HandleMcpeContainerClose(McpeContainerClose message)
 		{
-			UsingCraftingTable = false;
+			UsingAnvil = false;
 
 			lock (_inventorySync)
 			{
@@ -3015,6 +3084,10 @@ namespace MiNET
 						tileEvent.case2 = 0;
 						Level.RelayBroadcast(tileEvent);
 					}
+
+					var closePacket = McpeContainerClose.CreateObject();
+					closePacket.windowId = inventory.WindowsId;
+					SendPacket(closePacket);
 				}
 				else if (_openInventory is HorseInventory horseInventory)
 				{

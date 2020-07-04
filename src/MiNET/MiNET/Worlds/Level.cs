@@ -1326,6 +1326,7 @@ namespace MiNET.Worlds
 			Block target = GetBlock(blockCoordinates);
 			if (!player.IsSneaking && target.Interact(this, player, blockCoordinates, face, faceCoords)) return; // Handled in block interaction
 
+			Log.Debug($"Item in hand: {itemInHand}");
 			if (itemInHand is ItemBlock)
 			{
 				Block block = GetBlock(blockCoordinates);

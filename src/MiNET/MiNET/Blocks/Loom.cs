@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,45 +18,42 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
 using System.Numerics;
-using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public partial class CraftingTable : Block
+	public partial class Loom : Block
 	{
-		public CraftingTable() : base(58)
+		public Loom() : base(459)
 		{
-			FuelEfficiency = 15;
-			BlastResistance = 12.5f;
-			Hardness = 2.5f;
-			//IsFlammable = true; // Only from lava.
+			IsTransparent = true;
+			BlastResistance = 6000;
+			Hardness = 5;
+		}
+
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			Direction = player.GetDirection();
+
+			return false;
 		}
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			var containerOpen = McpeContainerOpen.CreateObject();
-			containerOpen.windowId = 13;
-			containerOpen.type = 1;
-			containerOpen.coordinates = Coordinates;
+			containerOpen.windowId = 24;
+			containerOpen.type = 24;
+			containerOpen.coordinates = blockCoordinates;
 			containerOpen.runtimeEntityId = EntityManager.EntityIdSelf;
 			player.SendPacket(containerOpen);
-
-			//var sendSlot = McpeInventorySlot.CreateObject();
-			//sendSlot.inventoryId = 124;
-			//sendSlot.slot = 32;
-			//sendSlot.uniqueid = 1;
-			//sendSlot.item = new ItemBlock(new Planks());
-			//player.SendPacket(sendSlot);
-
 
 			return true;
 		}

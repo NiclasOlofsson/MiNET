@@ -24,6 +24,7 @@
 #endregion
 
 using System.Numerics;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -49,12 +50,20 @@ namespace MiNET.Blocks
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
+			player.UsingAnvil = true;
 			var containerOpen = McpeContainerOpen.CreateObject();
-			containerOpen.windowId = 5 + 9;
+			containerOpen.windowId = 14;
 			containerOpen.type = 5;
 			containerOpen.coordinates = blockCoordinates;
-			containerOpen.runtimeEntityId = -1;
+			containerOpen.runtimeEntityId = EntityManager.EntityIdSelf;
 			player.SendPacket(containerOpen);
+
+			//var sendSlot = McpeInventorySlot.CreateObject();
+			//sendSlot.inventoryId = 14;
+			//sendSlot.slot = (uint) 1;
+			//sendSlot.uniqueid = 1;
+			//sendSlot.item = new ItemIronShovel();
+			//player.SendPacket(sendSlot);
 
 			return true;
 		}

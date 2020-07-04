@@ -762,7 +762,11 @@ namespace MiNET.Net
 
 			for (int i = 0; i < count; i++)
 			{
-				int uniqueId = ReadVarInt();
+				int uniqueId = 1;
+				if (!(this is McpeCraftingEvent))
+				{
+					uniqueId = ReadVarInt();
+				}
 				Item item = ReadItem();
 				item.UniqueId = uniqueId;
 				metadata.Add(item);
@@ -1216,7 +1220,7 @@ namespace MiNET.Net
 
 			if (id == 513) // shield
 			{
-				ReadSignedVarInt(); // something about tick, crap code
+				ReadSignedVarLong(); // something about tick, crap code
 			}
 
 			return stack;
@@ -1886,7 +1890,7 @@ namespace MiNET.Net
 						Write(rec.Id);
 						Write(rec.Block);
 						WriteSignedVarInt(0); // priority
-						WriteSignedVarInt(0); // unique id
+						WriteVarInt(shapelessRecipe.UniqueId); // unique id
 						break;
 					}
 					case ShapedRecipe shapedRecipe:
@@ -1913,7 +1917,7 @@ namespace MiNET.Net
 						Write(rec.Id);
 						Write(rec.Block);
 						WriteSignedVarInt(0); // priority
-						WriteSignedVarInt(0); // unique id
+						WriteVarInt(shapedRecipe.UniqueId); // unique id
 						break;
 					}
 					case SmeltingRecipe smeltingRecipe:
@@ -1929,11 +1933,13 @@ namespace MiNET.Net
 						Write(rec.Block);
 						break;
 					}
-					case MultiRecipe _:
+					case MultiRecipe multiRecipe:
+					{
 						WriteSignedVarInt(Multi); // Type
 						Write(recipe.Id);
-						WriteSignedVarInt(0); // unique id
+						WriteVarInt(multiRecipe.UniqueId); // unique id
 						break;
+					}
 				}
 			}
 		}
@@ -1976,9 +1982,9 @@ namespace MiNET.Net
 						}
 						recipe.Id = ReadUUID(); // Id
 						recipe.Block = ReadString(); // block?
-						recipes.Add(recipe);
 						ReadSignedVarInt(); // priority
-						ReadSignedVarInt(); // unique id
+						recipe.UniqueId = ReadVarInt(); // unique id
+						recipes.Add(recipe);
 						//Log.Error("Read shapeless recipe");
 						break;
 					}
@@ -2004,9 +2010,9 @@ namespace MiNET.Net
 						}
 						recipe.Id = ReadUUID(); // Id
 						recipe.Block = ReadString(); // block?
-						recipes.Add(recipe);
 						ReadSignedVarInt(); // priority
-						ReadSignedVarInt(); // unique id
+						recipe.UniqueId = ReadVarInt(); // unique id
+						recipes.Add(recipe);
 						//Log.Error("Read shaped recipe");
 						break;
 					}
@@ -2044,7 +2050,7 @@ namespace MiNET.Net
 
 						var recipe = new MultiRecipe();
 						recipe.Id = ReadUUID();
-						ReadSignedVarInt(); // unique id
+						recipe.UniqueId = ReadVarInt(); // unique id
 						recipes.Add(recipe);
 						break;
 					}
@@ -2053,13 +2059,13 @@ namespace MiNET.Net
 						int ingrediensCount = ReadVarInt(); // 
 						for (int j = 0; j < ingrediensCount; j++)
 						{
-							ReadSignedVarInt(); // unique id
+							ReadVarInt(); // unique id
 							ReadItem();
 						}
 						int resultCount = ReadVarInt(); // 
 						for (int j = 0; j < resultCount; j++)
 						{
-							ReadSignedVarInt(); // unique id
+							ReadVarInt(); // unique id
 							ReadItem();
 						}
 
@@ -2076,7 +2082,7 @@ namespace MiNET.Net
 						{
 							for (int h = 0; h < height; h++)
 							{
-								ReadSignedVarInt(); // unique id
+								ReadVarInt(); // unique id
 								ReadItem();
 							}
 						}
@@ -2084,7 +2090,7 @@ namespace MiNET.Net
 						int resultCount = ReadVarInt(); // 1?
 						for (int j = 0; j < resultCount; j++)
 						{
-							ReadSignedVarInt(); // unique id
+							ReadVarInt(); // unique id
 							ReadItem();
 						}
 

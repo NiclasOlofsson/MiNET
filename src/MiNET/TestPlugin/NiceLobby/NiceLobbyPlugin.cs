@@ -418,10 +418,11 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemDiamondAxe() { Count = 1 };
 			player.Inventory.Slots[idx++] = new ItemDiamondShovel() { Count = 1 };
 			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() { Count = 1 };
-			//player.Inventory.Slots[idx++] = new ItemBlock(new CraftingTable()) {Count = 64};
-			//player.Inventory.Slots[idx++] = new ItemBlock(new Chest()) { Count = 64 };
-			//player.Inventory.Slots[idx++] = new ItemBlock(new Anvil()) { Count = 64 };
-			//player.Inventory.Slots[idx++] = new ItemBlock(new EnchantingTable()) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new CraftingTable()) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new Chest()) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new Anvil()) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new EnchantingTable()) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new Loom()) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Sapling()) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Sapling(), 2) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Vine(), 0) { Count = 64 };
@@ -496,15 +497,16 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
-			//player.Inventory.Slots[idx++] = new ItemDye()
-			//{
-			//	Metadata = 4,
-			//	Count = 64
-			//};
-			//player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
-			//player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
-			//player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
-			//player.Inventory.Slots[idx++] = new ItemIronSword() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemDye()
+			{
+				Metadata = 4,
+				Count = 64
+			};
+			player.Inventory.Slots[idx++] = new ItemIronIngot() { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 150 };
+			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 150 };
+			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 150 };
+			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 150 };
 
 			player.Inventory.Helmet = new ItemDiamondHelmet();
 			player.Inventory.Chest = new ItemElytra();

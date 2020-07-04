@@ -11270,14 +11270,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class Loom : Block // 459 typeof=Loom
+	public partial class Loom // 459 typeof=Loom
 	{
 		[StateRange(0, 3)] public int Direction { get; set; } = 0;
-
-		public Loom() : base(459)
-		{
-			IsGenerated = true;
-		}
 
 		public override void SetState(List<IBlockState> states)
 		{

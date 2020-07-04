@@ -24,6 +24,7 @@
 #endregion
 
 using System.Numerics;
+using log4net;
 using MiNET.BlockEntities;
 using MiNET.Items;
 using MiNET.Utils;
@@ -33,6 +34,8 @@ namespace MiNET.Blocks
 {
 	public abstract class ChestBase : Block
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ChestBase));
+
 		[StateRange(0, 5)] public virtual int FacingDirection { get; set; }
 
 		public ChestBase(byte id) : base(id)
@@ -56,6 +59,7 @@ namespace MiNET.Blocks
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
+			Log.Debug($"Opening chest inventory at {blockCoordinates}");
 			player.OpenInventory(blockCoordinates);
 
 			return true;

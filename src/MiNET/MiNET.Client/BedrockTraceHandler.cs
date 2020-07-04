@@ -718,7 +718,7 @@ namespace MiNET.Client
 						writer.WriteLine($"new Item({itemStack.Id}, {itemStack.Metadata}, {itemStack.Count}),");
 					}
 					writer.Indent--;
-					writer.WriteLine($"}}, \"{shapelessRecipe.Block}\"),");
+					writer.WriteLine($"}}, \"{shapelessRecipe.Block}\"){{ UniqueId = {shapelessRecipe.UniqueId} }},");
 
 					writer.Indent--;
 					continue;
@@ -757,7 +757,7 @@ namespace MiNET.Client
 						writer.WriteLine($"new Item({item.Id}, {item.Metadata}),");
 					}
 					writer.Indent--;
-					writer.WriteLine($"}}, \"{shapedRecipe.Block}\"),");
+					writer.WriteLine($"}}, \"{shapedRecipe.Block}\"){{ UniqueId = {shapedRecipe.UniqueId} }},");
 
 					writer.Indent--;
 
@@ -774,7 +774,7 @@ namespace MiNET.Client
 				var multiRecipe = recipe as MultiRecipe;
 				if (multiRecipe != null)
 				{
-					writer.WriteLine($"new MultiRecipe() {{ Id = new UUID(\"{recipe.Id}\") }}, // {recipe.Id}");
+					writer.WriteLine($"new MultiRecipe() {{ Id = new UUID(\"{recipe.Id}\"), UniqueId = {multiRecipe.UniqueId} }}, // {recipe.Id}");
 					continue;
 				}
 			}

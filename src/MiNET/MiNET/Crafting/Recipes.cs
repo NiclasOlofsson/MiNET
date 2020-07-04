@@ -44,10 +44,12 @@ namespace MiNET.Crafting
 
 	public class MultiRecipe : Recipe
 	{
+		public int UniqueId { get; set; }
 	}
 
 	public class ShapelessRecipe : Recipe
 	{
+		public int UniqueId { get; set; }
 		public List<Item> Input { get; private set; }
 		public List<Item> Result { get; private set; }
 
@@ -75,6 +77,7 @@ namespace MiNET.Crafting
 
 	public class ShapedRecipe : Recipe
 	{
+		public int UniqueId { get; set; }
 		public int Width { get; set; }
 		public int Height { get; set; }
 		public Item[] Input { get; set; }

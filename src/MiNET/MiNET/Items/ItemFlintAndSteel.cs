@@ -46,6 +46,7 @@ namespace MiNET.Items
 		public ItemFlintAndSteel() : base(259)
 		{
 			MaxStackSize = 1;
+			ItemType = ItemType.FlintAndSteel;
 		}
 
 		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

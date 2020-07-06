@@ -678,6 +678,10 @@ namespace MiNET.Client
 		{
 		}
 
+		public void HandleMcpePlayerEnchantOptions(McpePlayerEnchantOptions message)
+		{
+		}
+
 		public virtual void HandleMcpeItemStackResponse(McpeItemStackResponse message)
 		{
 		}

@@ -979,7 +979,7 @@ namespace MiNET.Net
 			Log.Debug($"Count: {c}");
 			for (int i = 0; i < c; i++)
 			{
-				var actions = new ItemStackActions();
+				var actions = new ItemStackActionList();
 				actions.RequestId = ReadSignedVarInt();
 				Log.Debug($"Request ID: {actions.RequestId}");
 
@@ -1137,6 +1137,36 @@ namespace MiNET.Net
 			return new ItemStackResponses();
 		}
 
+		public void Write(EnchantOptions options)
+		{
+			WriteUnsignedVarInt((uint) options.Count);
+			foreach (EnchantOption option in options)
+			{
+				WriteUnsignedVarInt(option.Cost);
+				Write(option.Flags);
+				WriteEnchants(option.EquipActivatedEnchantments);
+				WriteEnchants(option.HeldActivatedEnchantments);
+				WriteEnchants(option.SelfActivatedEnchantments);
+				Write(option.Name);
+				WriteVarInt(option.OptionId);
+			}
+		}
+
+		private void WriteEnchants(List<Enchant> enchants)
+		{
+			WriteUnsignedVarInt((uint) enchants.Count);
+			foreach (Enchant enchant in enchants)
+			{
+				Write(enchant.Id);	
+				Write(enchant.Level);	
+			}
+
+		}
+
+		public EnchantOptions ReadEnchantOptions()
+		{
+			return new EnchantOptions();
+		}
 
 		private ItemStacks ReadItems()
 		{

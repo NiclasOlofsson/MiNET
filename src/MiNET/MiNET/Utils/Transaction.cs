@@ -30,16 +30,16 @@ using MiNET.Net;
 
 namespace MiNET.Utils
 {
-	public class ItemStackRequests : List<ItemStackActions>
+	public class ItemStackRequests : List<ItemStackActionList>
 	{
 	}
 
-	public class ItemStackActions : List<ItemStackAction>
+	public class ItemStackActionList : List<ItemStackAction>
 	{
 		public int RequestId { get; set; }
 	}
 
-	public class ItemStackAction
+	public abstract class ItemStackAction
 	{
 	}
 
@@ -135,7 +135,7 @@ namespace MiNET.Utils
 
 	public class CraftResultDeprecatedAction : ItemStackAction
 	{
-		public ItemStacks ResultItems { get; set; }
+		public ItemStacks ResultItems { get; set; } = new ItemStacks();
 		public byte TimesCrafted { get; set; }
 	}
 
@@ -147,14 +147,14 @@ namespace MiNET.Utils
 	{
 		public int RequestId { get; set; }
 		public bool Success { get; set; } = true;
-		public List<StackResponseContainerInfo> Responses { get; set; }
+		public List<StackResponseContainerInfo> Responses { get; set; } = new List<StackResponseContainerInfo>();
 	}
 
 
 	public class StackResponseContainerInfo
 	{
 		public byte ContainerId { get; set; }
-		public List<StackResponseSlotInfo> Slots { get; set; }
+		public List<StackResponseSlotInfo> Slots { get; set; } = new List<StackResponseSlotInfo>();
 	}
 
 	public class StackResponseSlotInfo

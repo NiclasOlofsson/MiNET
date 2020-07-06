@@ -41,6 +41,7 @@ namespace MiNET.Items
 		public ItemBow() : base(261)
 		{
 			MaxStackSize = 1;
+			ItemType = ItemType.Bow;
 		}
 
 		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)

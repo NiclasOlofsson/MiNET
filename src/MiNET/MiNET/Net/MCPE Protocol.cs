@@ -227,6 +227,7 @@ namespace MiNET.Net
 		void HandleMcpeClientCacheMissResponse(McpeClientCacheMissResponse message);
 		void HandleMcpeNetworkSettings(McpeNetworkSettings message);
 		void HandleMcpeCreativeContent(McpeCreativeContent message);
+		void HandleMcpePlayerEnchantOptions(McpePlayerEnchantOptions message);
 		void HandleMcpeItemStackResponse(McpeItemStackResponse message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
@@ -598,6 +599,9 @@ namespace MiNET.Net
 				case McpeCreativeContent msg:
 					_messageHandler.HandleMcpeCreativeContent(msg);
 					break;
+				case McpePlayerEnchantOptions msg:
+					_messageHandler.HandleMcpePlayerEnchantOptions(msg);
+					break;
 				case McpeItemStackResponse msg:
 					_messageHandler.HandleMcpeItemStackResponse(msg);
 					break;
@@ -939,6 +943,8 @@ namespace MiNET.Net
 						return McpeNetworkSettings.CreateObject().Decode(buffer);
 					case 0x91:
 						return McpeCreativeContent.CreateObject().Decode(buffer);
+					case 0x92:
+						return McpePlayerEnchantOptions.CreateObject().Decode(buffer);
 					case 0x93:
 						return McpeItemStackRequest.CreateObject().Decode(buffer);
 					case 0x94:
@@ -5058,7 +5064,7 @@ namespace MiNET.Net
 
 			WriteUnsignedVarInt(inventoryId);
 			WriteUnsignedVarInt(slot);
-			WriteVarInt(uniqueid);
+			WriteSignedVarInt(uniqueid);
 			Write(item);
 
 			AfterEncode();
@@ -5075,7 +5081,7 @@ namespace MiNET.Net
 
 			inventoryId = ReadUnsignedVarInt();
 			slot = ReadUnsignedVarInt();
-			uniqueid = ReadVarInt();
+			uniqueid = ReadSignedVarInt();
 			item = ReadItem();
 
 			AfterDecode();
@@ -9599,6 +9605,54 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			input=default(ItemStacks);
+		}
+
+	}
+
+	public partial class McpePlayerEnchantOptions : Packet<McpePlayerEnchantOptions>
+	{
+
+		public EnchantOptions enchantOptions; // = null;
+
+		public McpePlayerEnchantOptions()
+		{
+			Id = 0x92;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(enchantOptions);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			enchantOptions = ReadEnchantOptions();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			enchantOptions=default(EnchantOptions);
 		}
 
 	}

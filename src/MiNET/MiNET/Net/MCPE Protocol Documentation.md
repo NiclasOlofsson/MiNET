@@ -141,6 +141,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Client Cache Miss Response | 0x88 | 136 |   
 | Network Settings | 0x8f | 143 |   
 | Creative Content | 0x91 | 145 |   
+| Player Enchant Options | 0x92 | 146 |   
 | Item Stack Request | 0x93 | 147 |   
 | Item Stack Response | 0x94 | 148 |   
 | Update Player Game Type | 0x97 | 151 |   
@@ -157,6 +158,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | byte [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte) |
 | byte[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte[]) |
 | ByteArray [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ByteArray) |
+| EnchantOptions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-EnchantOptions) |
 | EntityAttributes [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-EntityAttributes) |
 | FixedString [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-FixedString) |
 | float [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-float) |
@@ -1301,7 +1303,7 @@ Wiki: [Inventory Slot](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-In
 |:-----|:-----|:-----|
 |Inventory Id | UnsignedVarInt |  |
 |Slot | UnsignedVarInt |  |
-|UniqueId | VarInt |  |
+|UniqueId | SignedVarInt |  |
 |Item | Item |  |
 -----------------------------------------------------------------------
 ### Container Set Data (0x33)
@@ -2730,15 +2732,14 @@ Wiki: [Creative Content](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 |:-----|:-----|:-----|
 |Input | ItemStacks |  |
 -----------------------------------------------------------------------
-### Item Stack Request (0x93)
-Wiki: [Item Stack Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ItemStackRequest)
+### Player Enchant Options (0x92)
+Wiki: [Player Enchant Options](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerEnchantOptions)
 
-**Sent from server:** false  
-**Sent from client:** true
+**Sent from server:** true  
+**Sent from client:** false
 
 
 public const PLAYER_AUTH_INPUT_PACKET = 0x90;
-public const PLAYER_ENCHANT_OPTIONS_PACKET = 0x92;
 public const PLAYER_ARMOR_DAMAGE_PACKET = 0x95;
 public const CODE_BUILDER_PACKET = 0x96;
 public const UPDATE_PLAYER_GAME_TYPE_PACKET = 0x97;
@@ -2747,6 +2748,21 @@ public const POSITION_TRACKING_D_B_SERVER_BROADCAST_PACKET = 0x99;
 public const POSITION_TRACKING_D_B_CLIENT_REQUEST_PACKET = 0x9a;
 public const DEBUG_INFO_PACKET = 0x9b;
 public const PACKET_VIOLATION_WARNING_PACKET = 0x9c;
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Enchant options | EnchantOptions |  |
+-----------------------------------------------------------------------
+### Item Stack Request (0x93)
+Wiki: [Item Stack Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ItemStackRequest)
+
+**Sent from server:** false  
+**Sent from client:** true
+
 
 
 #### Action Type constants

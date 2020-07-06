@@ -34,6 +34,7 @@ namespace MiNET.Items
 		public ItemShears() : base(359)
 		{
 			MaxStackSize = 1;
+			ItemType = ItemType.Sheers;
 		}
 
 		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)

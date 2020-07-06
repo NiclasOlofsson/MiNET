@@ -251,7 +251,7 @@ namespace MiNET.Items
 
 		public override string ToString()
 		{
-			return $"{GetType().Name}(Id={Id}, Meta={Metadata}) Count={Count}, NBT={ExtraData}";
+			return $"{GetType().Name}(Id={Id}, Meta={Metadata}, UniqueId={UniqueId}) Count={Count}, NBT={ExtraData}";
 		}
 
 		public bool Interact(Level level, Player player, Entity target)
@@ -272,17 +272,26 @@ namespace MiNET.Items
 		Gold = 3,
 		Iron = 4,
 		Diamond = 5,
+		Netherite = 6
 	}
 
 	public enum ItemType
 	{
 		//Tools
 		Sword,
+		Bow,
 		Shovel,
 		PickAxe,
 		Axe,
 		Item,
 		Hoe,
+		Sheers,
+		FlintAndSteel,
+		Elytra,
+		Trident,
+		CarrotOnAStick,
+		FishingRod,
+		Book,
 
 		//Armor
 		Helmet,

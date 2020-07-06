@@ -964,6 +964,66 @@ namespace TestPlugin
 			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
 		}
 
+
+		[Command]
+		public void EnchantingKit(Player player)
+		{
+			var inventory = player.Inventory;
+
+			byte slot = 0;
+			inventory.Slots[slot++] = new ItemBlock(new EnchantingTable()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new Anvil()) {Count = 64};
+			inventory.Slots[slot++] = new ItemBlock(new CraftingTable()) {Count = 64};
+			player.Inventory.Slots[slot++] = new ItemDye()
+			{
+				Metadata = 4,
+				Count = 64
+			};
+
+			inventory.Slots[slot++] = new ItemIronSword();
+			inventory.Slots[slot++] = new ItemGoldenSword();
+			inventory.Slots[slot++] = new ItemDiamondSword();
+			inventory.Slots[slot++] = new ItemIronHelmet();
+			inventory.Slots[slot++] = new ItemGoldHelmet();
+			inventory.Slots[slot++] = new ItemDiamondHelmet();
+			inventory.Slots[slot++] = new ItemIronChestplate();
+			inventory.Slots[slot++] = new ItemDiamondChestplate();
+			inventory.Slots[slot++] = new ItemIronBoots();
+			inventory.Slots[slot++] = new ItemGoldBoots();
+			inventory.Slots[slot++] = new ItemDiamondBoots();
+
+			inventory.Slots[slot++] = new ItemIronSword();
+			inventory.Slots[slot++] = new ItemIronSword();
+			inventory.Slots[slot++] = new ItemIronSword();
+			inventory.Slots[slot++] = new ItemIronSword();
+
+			inventory.Slots[slot++] = new ItemGoldenSword();
+			inventory.Slots[slot++] = new ItemGoldenSword();
+			inventory.Slots[slot++] = new ItemGoldenSword();
+			inventory.Slots[slot++] = new ItemGoldenSword();
+
+			inventory.Slots[slot++] = new ItemDiamondSword();
+			inventory.Slots[slot++] = new ItemDiamondSword();
+			inventory.Slots[slot++] = new ItemDiamondSword();
+			inventory.Slots[slot++] = new ItemDiamondSword();
+
+			inventory.Slots[slot++] = new ItemDiamondPickaxe();
+			inventory.Slots[slot++] = new ItemDiamondPickaxe();
+			inventory.Slots[slot++] = new ItemDiamondPickaxe();
+
+			inventory.Slots[slot++] = new ItemGoldenPickaxe();
+			inventory.Slots[slot++] = new ItemGoldenPickaxe();
+			inventory.Slots[slot++] = new ItemGoldenPickaxe();
+			inventory.Slots[slot++] = new ItemGoldenPickaxe();
+			inventory.Slots[slot++] = new ItemGoldenPickaxe();
+
+			player.SendPlayerInventory();
+			SendEquipmentForPlayer(player);
+			SendArmorForPlayer(player);
+
+			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
+		}
+
 		[Command]
 		public void Kit(Player player, int kitId)
 		{

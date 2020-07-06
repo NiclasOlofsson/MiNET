@@ -32,6 +32,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
+using System.Text;
 using System.Threading;
 using fNbt;
 using log4net;
@@ -63,8 +64,9 @@ namespace MiNET
 		private Dictionary<ChunkCoordinates, McpeWrapper> _chunksUsed = new Dictionary<ChunkCoordinates, McpeWrapper>();
 		private ChunkCoordinates _currentChunkPosition;
 
-		private IInventory _openInventory;
+		internal IInventory _openInventory;
 		public PlayerInventory Inventory { get; set; }
+		public ItemStackInventoryManager ItemStackInventoryManager { get; set; }
 
 		public PlayerLocation SpawnPosition { get; set; }
 		public bool IsSleeping { get; set; } = false;
@@ -111,6 +113,7 @@ namespace MiNET
 			Inventory = new PlayerInventory(this);
 			HungerManager = new HungerManager(this);
 			ExperienceManager = new ExperienceManager(this);
+			ItemStackInventoryManager = new ItemStackInventoryManager(this);
 
 			IsSpawned = false;
 			IsConnected = endPoint != null; // Can't connect if there is no endpoint
@@ -1986,11 +1989,12 @@ namespace MiNET
 
 
 		public bool UsingAnvil { get; set; }
+
 		public void HandleMcpeItemStackRequest(McpeItemStackRequest message)
 		{
 			var response = McpeItemStackResponse.CreateObject();
 			response.responses = new ItemStackResponses();
-			foreach (ItemStackActions request in message.requests)
+			foreach (ItemStackActionList request in message.requests)
 			{
 				var stackResponse = new ItemStackResponse()
 				{
@@ -2001,322 +2005,15 @@ namespace MiNET
 
 				response.responses.Add(stackResponse);
 
-				uint recipeNetworkId = 0;
-				var consumedItems = new List<Item>();
-				//Item craftingResult = null;
-
-				foreach (ItemStackAction stackAction in request)
+				try
 				{
-					switch (stackAction)
-					{
-						case CraftCreativeAction craftCreativeAction:
-						{
-							Item creativeItem = InventoryUtils.CreativeInventoryItems.FirstOrDefault(i => i.UniqueId == (int) craftCreativeAction.CreativeItemNetworkId);
-							if (creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {craftCreativeAction.CreativeItemNetworkId}");
-							creativeItem = ItemFactory.GetItem(creativeItem.Id, creativeItem.Metadata, creativeItem.Count);
-							creativeItem.Count = (byte) creativeItem.MaxStackSize;
-							creativeItem.UniqueId = Environment.TickCount;
-							Log.Debug($"Creating {creativeItem}");
-							Inventory.UiInventory.Slots[50] = creativeItem;
-							break;
-						}
-						case CraftNotImplementedDeprecatedAction craftNotImplementedDeprecatedAction:
-							// Do nothing democrafts
-							break;
-						case CraftResultDeprecatedAction craftResultDeprecatedAction:
-						{
-							Item craftingResult = craftResultDeprecatedAction.ResultItems.FirstOrDefault();
-							craftingResult.UniqueId = Environment.TickCount;
-							SetContainerItem(59, 50, craftingResult);
-
-							// Ignore (remove later)
-							break;
-						}
-
-						case TakeAction takeAction:
-						{
-							byte count = takeAction.Count;
-							Item sourceItem;
-							Item destItem;
-							StackRequestSlotInfo source = takeAction.Source;
-							StackRequestSlotInfo destination = takeAction.Destination;
-
-							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
-
-							if (sourceItem.Count == count)
-							{
-								destItem = sourceItem;
-								sourceItem = new ItemAir();
-								sourceItem.UniqueId = 0;
-								SetContainerItem(source.ContainerId, source.Slot, sourceItem);
-							}
-							else
-							{
-								destItem = (Item) sourceItem.Clone();
-								sourceItem.Count -= count;
-								destItem.Count = count;
-								destItem.UniqueId = Environment.TickCount;
-							}
-
-							SetContainerItem(destination.ContainerId, destination.Slot, destItem);
-
-							if (destItem == null) throw new Exception($"Expected item");
-
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = source.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = sourceItem.Count,
-										Slot = source.Slot,
-										HotbarSlot = source.Slot,
-										StackNetworkId = sourceItem.UniqueId
-									}
-								}
-							});
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = destination.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = destItem.Count,
-										Slot = destination.Slot,
-										HotbarSlot = destination.Slot,
-										StackNetworkId = destItem.UniqueId
-									}
-								}
-							});
-
-							break;
-						}
-						case PlaceAction placeAction:
-						{
-							byte count = placeAction.Count;
-							Item sourceItem;
-							Item destItem;
-							StackRequestSlotInfo source = placeAction.Source;
-							StackRequestSlotInfo destination = placeAction.Destination;
-
-							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
-
-							if (sourceItem.Count == count)
-							{
-								destItem = sourceItem;
-								sourceItem = new ItemAir();
-								sourceItem.UniqueId = 0;
-								SetContainerItem(source.ContainerId, source.Slot, sourceItem);
-							}
-							else
-							{
-								destItem = (Item) sourceItem.Clone();
-								sourceItem.Count -= count;
-								destItem.Count = count;
-								destItem.UniqueId = Environment.TickCount;
-							}
-
-							Item existingItem = GetContainerItem(destination.ContainerId, destination.Slot);
-							if (existingItem.UniqueId > 0)
-							{
-								existingItem.Count += count;
-								destItem = existingItem;
-							}
-							else
-							{
-								SetContainerItem(destination.ContainerId, destination.Slot, destItem);
-							}
-
-							if (sourceItem == null) throw new Exception($"Expected item");
-
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = source.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = sourceItem.Count,
-										Slot = source.Slot,
-										HotbarSlot = source.Slot,
-										StackNetworkId = sourceItem.UniqueId
-									}
-								}
-							});
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = destination.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = destItem.Count,
-										Slot = destination.Slot,
-										HotbarSlot = destination.Slot,
-										StackNetworkId = destItem.UniqueId
-									}
-								}
-							});
-							break;
-						}
-						case SwapAction swapAction:
-						{
-							Item sourceItem = null;
-							Item destItem = null;
-							StackRequestSlotInfo source = swapAction.Source;
-							StackRequestSlotInfo destination = swapAction.Destination;
-
-							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
-							destItem = GetContainerItem(destination.ContainerId, destination.Slot);
-
-							SetContainerItem(source.ContainerId, source.Slot, destItem);
-							SetContainerItem(destination.ContainerId, destination.Slot, sourceItem);
-
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = source.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = destItem.Count,
-										Slot = source.Slot,
-										HotbarSlot = source.Slot,
-										StackNetworkId = destItem.UniqueId
-									}
-								}
-							});
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = destination.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = sourceItem.Count,
-										Slot = destination.Slot,
-										HotbarSlot = destination.Slot,
-										StackNetworkId = sourceItem.UniqueId
-									}
-								}
-							});
-
-							break;
-						}
-						case DestroyAction destroyAction:
-						{
-							byte count = destroyAction.Count;
-							Item sourceItem = null;
-							StackRequestSlotInfo source = destroyAction.Source;
-
-							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
-							sourceItem.Count -= count;
-							if (sourceItem.Count <= 0)
-							{
-								sourceItem = new ItemAir();
-								SetContainerItem(source.ContainerId, source.Slot, sourceItem);
-							}
-
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = source.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = sourceItem.Count,
-										Slot = source.Slot,
-										HotbarSlot = source.Slot,
-										StackNetworkId = sourceItem.UniqueId
-									}
-								}
-							});
-							break;
-						}
-						case DropAction dropAction:
-						{
-							byte count = dropAction.Count;
-							Item sourceItem = null;
-							Item dropItem = null;
-							StackRequestSlotInfo source = dropAction.Source;
-
-							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
-
-							if (sourceItem.Count == count)
-							{
-								dropItem = sourceItem;
-								sourceItem = new ItemAir();
-								sourceItem.UniqueId = 0;
-								SetContainerItem(source.ContainerId, source.Slot, sourceItem);
-							}
-							else
-							{
-								dropItem = (Item) sourceItem.Clone();
-								sourceItem.Count -= count;
-								dropItem.Count = count;
-								dropItem.UniqueId = Environment.TickCount;
-							}
-
-							DropItem(dropItem);
-
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = source.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = sourceItem.Count,
-										Slot = source.Slot,
-										HotbarSlot = source.Slot,
-										StackNetworkId = sourceItem.UniqueId
-									}
-								}
-							});
-
-							break;
-						}
-						case CraftAction craftAction:
-						{
-							recipeNetworkId = craftAction.RecipeNetworkId;
-							break;
-						}
-						case ConsumeAction consumeAction:
-						{
-							byte count = consumeAction.Count;
-							Item sourceItem = null;
-							StackRequestSlotInfo source = consumeAction.Source;
-
-							sourceItem = GetContainerItem(source.ContainerId, source.Slot);
-							sourceItem.Count -= count;
-							if (sourceItem.Count <= 0)
-							{
-								sourceItem = new ItemAir();
-								SetContainerItem(source.ContainerId, source.Slot, sourceItem);
-							}
-
-							stackResponse.Responses.Add(new StackResponseContainerInfo
-							{
-								ContainerId = source.ContainerId,
-								Slots = new List<StackResponseSlotInfo>
-								{
-									new StackResponseSlotInfo()
-									{
-										Count = sourceItem.Count,
-										Slot = source.Slot,
-										HotbarSlot = source.Slot,
-										StackNetworkId = sourceItem.UniqueId
-									}
-								}
-							});
-							break;
-						}
-
-						default:
-							throw new ArgumentOutOfRangeException(nameof(stackAction));
-					}
+					stackResponse.Responses.AddRange(ItemStackInventoryManager.HandleItemStackActions(request.RequestId, request));
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Failed to process inventory actions", e);
+					stackResponse.Success = false;
+					stackResponse.Responses.Clear();
 				}
 			}
 
@@ -2332,6 +2029,7 @@ namespace MiNET
 			{
 				case 13: // crafting
 				case 21: // enchanting
+				case 22: // enchanting
 				case 41: // loom
 				case 58: // cursor
 				case 59: // creative
@@ -2371,6 +2069,7 @@ namespace MiNET
 			{
 				case 13: // crafting
 				case 21: // enchanting
+				case 22: // enchanting
 				case 41: // loom
 				case 58: // cursor
 				case 59: // creative

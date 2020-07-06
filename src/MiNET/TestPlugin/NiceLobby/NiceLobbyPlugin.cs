@@ -503,10 +503,10 @@ namespace TestPlugin.NiceLobby
 				Count = 64
 			};
 			player.Inventory.Slots[idx++] = new ItemIronIngot() { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 150 };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 150 };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 150 };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 150 };
+			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 0, UniqueId = Environment.TickCount};
+			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 0, UniqueId = Environment.TickCount };
+			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 0, UniqueId = Environment.TickCount };
+			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 0, UniqueId = Environment.TickCount };
 
 			player.Inventory.Helmet = new ItemDiamondHelmet();
 			player.Inventory.Chest = new ItemElytra();

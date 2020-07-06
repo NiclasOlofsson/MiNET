@@ -9885,6 +9885,7 @@ namespace MiNET.Net
 
 		public long runtimeEntityId; // = null;
 		public string boneId; // = null;
+		public AnimationKey[] keys; // = null;
 		public Vector3 startRotation; // = null;
 		public Vector3 endRotation; // = null;
 		public uint duration; // = null;
@@ -9903,6 +9904,7 @@ namespace MiNET.Net
 
 			WriteUnsignedVarLong(runtimeEntityId);
 			Write(boneId);
+			Write(keys);
 			Write(startRotation);
 			Write(endRotation);
 			WriteUnsignedVarInt(duration);
@@ -9921,6 +9923,7 @@ namespace MiNET.Net
 
 			runtimeEntityId = ReadUnsignedVarLong();
 			boneId = ReadString();
+			keys = ReadAnimationKeys();
 			startRotation = ReadVector3();
 			endRotation = ReadVector3();
 			duration = ReadUnsignedVarInt();
@@ -9937,6 +9940,7 @@ namespace MiNET.Net
 
 			runtimeEntityId=default(long);
 			boneId=default(string);
+			keys=default(AnimationKey[]);
 			startRotation=default(Vector3);
 			endRotation=default(Vector3);
 			duration=default(uint);

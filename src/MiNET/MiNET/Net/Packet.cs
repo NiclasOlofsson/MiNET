@@ -1168,6 +1168,40 @@ namespace MiNET.Net
 			return new EnchantOptions();
 		}
 
+		public void Write(AnimationKey[] keys)
+		{
+			WriteUnsignedVarInt((uint) keys.Length);
+			foreach (AnimationKey key in keys)
+			{
+				Write(key.ExecuteImmediate);
+				Write(key.ResetBefore);
+				Write(key.ResetAfter);
+				Write(key.StartRotation);
+				Write(key.EndRotation);
+				WriteUnsignedVarInt(key.Duration);
+			}
+		}
+
+		public AnimationKey[] ReadAnimationKeys()
+		{
+			var count = ReadUnsignedVarInt();
+			var keys = new AnimationKey[count];
+			for (int i = 0; i < count; i++)
+			{
+				AnimationKey key = new AnimationKey();
+				key.ExecuteImmediate = ReadBool();
+				key.ResetBefore = ReadBool();
+				key.ResetAfter = ReadBool();
+				key.StartRotation = ReadVector3();
+				key.EndRotation = ReadVector3();
+				key.Duration = ReadUnsignedVarInt();
+				keys[i] = key;
+			}
+
+			return keys;
+		}
+
+
 		private ItemStacks ReadItems()
 		{
 			var items = new ItemStacks();

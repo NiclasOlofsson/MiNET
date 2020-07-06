@@ -84,6 +84,44 @@ namespace TestPlugin
 		//    return packet;
 		//}
 
+		[Command]
+		public string Emote(Player player, string emote)
+		{
+			switch (emote)
+			{
+				case "happy":
+				{
+					var startRotation = new Vector3();
+					var endRotation = new Vector3(-160, 25, 0);
+					string boneId = "rightArm";
+					uint duration = 1000;
+					{
+						var animationPacket = McpeAlexEntityAnimation.CreateObject();
+						animationPacket.runtimeEntityId = player.EntityId;
+						animationPacket.startRotation = startRotation;
+						animationPacket.endRotation = endRotation;
+						animationPacket.boneId = boneId;
+						animationPacket.duration = duration;
+						player.Level.RelayBroadcast(player, animationPacket);
+					}
+
+					{
+						var animationPacket = McpeAlexEntityAnimation.CreateObject();
+						animationPacket.runtimeEntityId = EntityManager.EntityIdSelf;
+						animationPacket.startRotation = startRotation;
+						animationPacket.endRotation = endRotation;
+						animationPacket.boneId = boneId;
+						animationPacket.duration = duration;
+						player.SendPacket(animationPacket);
+					}
+					break;
+				}
+			}
+
+
+			return $"Did emote: {emote}";
+		}
+
 		[Command(Name = "bossbar")]
 		public void BossbarCommand(Player player)
 		{

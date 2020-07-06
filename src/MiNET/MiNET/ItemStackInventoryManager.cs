@@ -43,7 +43,6 @@ namespace MiNET
 			_player = player;
 		}
 
-
 		public virtual List<StackResponseContainerInfo> HandleItemStackActions(int requestId, ItemStackActionList actions)
 		{
 			var stackResponses = new List<StackResponseContainerInfo>();
@@ -63,9 +62,11 @@ namespace MiNET
 						break;
 					}
 					case CraftNotImplementedDeprecatedAction craftNotImplementedDeprecatedAction:
+					{
 						// Do nothing democrafts
 						ProcessCraftNotImplementedDeprecatedAction(craftNotImplementedDeprecatedAction);
 						break;
+					}
 					case CraftResultDeprecatedAction craftResultDeprecatedAction:
 					{
 						ProcessCraftResultDeprecatedAction(craftResultDeprecatedAction);
@@ -138,7 +139,7 @@ namespace MiNET
 			return stackResponses;
 		}
 
-		private void ProcessConsumeAction(ConsumeAction action, List<StackResponseContainerInfo> stackResponses)
+		protected virtual void ProcessConsumeAction(ConsumeAction action, List<StackResponseContainerInfo> stackResponses)
 		{
 			byte count = action.Count;
 			StackRequestSlotInfo source = action.Source;
@@ -167,7 +168,7 @@ namespace MiNET
 			});
 		}
 
-		private void ProcessDropAction(DropAction action, List<StackResponseContainerInfo> stackResponses)
+		protected virtual void ProcessDropAction(DropAction action, List<StackResponseContainerInfo> stackResponses)
 		{
 			byte count = action.Count;
 			Item dropItem;
@@ -208,7 +209,7 @@ namespace MiNET
 			});
 		}
 
-		private void ProcessDestroyAction(DestroyAction action, List<StackResponseContainerInfo> stackResponses)
+		protected virtual void ProcessDestroyAction(DestroyAction action, List<StackResponseContainerInfo> stackResponses)
 		{
 			byte count = action.Count;
 			StackRequestSlotInfo source = action.Source;
@@ -237,7 +238,7 @@ namespace MiNET
 			});
 		}
 
-		private void ProcessSwapAction(SwapAction action, List<StackResponseContainerInfo> stackResponses)
+		protected virtual void ProcessSwapAction(SwapAction action, List<StackResponseContainerInfo> stackResponses)
 		{
 			StackRequestSlotInfo source = action.Source;
 			StackRequestSlotInfo destination = action.Destination;
@@ -284,7 +285,7 @@ namespace MiNET
 			});
 		}
 
-		private void ProcessPlaceAction(PlaceAction action, List<StackResponseContainerInfo> stackResponses)
+		protected virtual void ProcessPlaceAction(PlaceAction action, List<StackResponseContainerInfo> stackResponses)
 		{
 			byte count = action.Count;
 			Item sourceItem;
@@ -356,7 +357,7 @@ namespace MiNET
 			});
 		}
 
-		private void ProcessTakeAction(TakeAction action, List<StackResponseContainerInfo> stackResponses)
+		protected virtual void ProcessTakeAction(TakeAction action, List<StackResponseContainerInfo> stackResponses)
 		{
 			byte count = action.Count;
 			Item sourceItem;
@@ -419,7 +420,7 @@ namespace MiNET
 			});
 		}
 
-		private void ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action)
+		protected virtual void ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action)
 		{
 			Item craftingResult = action.ResultItems.FirstOrDefault();
 			if (craftingResult == null) return;
@@ -428,16 +429,16 @@ namespace MiNET
 			SetContainerItem(59, 50, craftingResult);
 		}
 
-		private void ProcessCraftNotImplementedDeprecatedAction(CraftNotImplementedDeprecatedAction action)
+		protected virtual void ProcessCraftNotImplementedDeprecatedAction(CraftNotImplementedDeprecatedAction action)
 		{
 		}
 
-		private uint ProcessCraftAction(CraftAction action)
+		protected virtual uint ProcessCraftAction(CraftAction action)
 		{
 			return action.RecipeNetworkId;
 		}
 
-		private void ProcessCraftCreativeAction(CraftCreativeAction action)
+		protected virtual void ProcessCraftCreativeAction(CraftCreativeAction action)
 		{
 			Item creativeItem = InventoryUtils.CreativeInventoryItems.FirstOrDefault(i => i.UniqueId == (int) action.CreativeItemNetworkId);
 			if (creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {action.CreativeItemNetworkId}");
@@ -448,7 +449,7 @@ namespace MiNET
 			_player.Inventory.UiInventory.Slots[50] = creativeItem;
 		}
 
-		protected Item GetContainerItem(int containerId, int slot)
+		private Item GetContainerItem(int containerId, int slot)
 		{
 			if (_player.UsingAnvil && containerId < 3) containerId = 13;
 
@@ -489,7 +490,7 @@ namespace MiNET
 			return item;
 		}
 
-		protected void SetContainerItem(int containerId, int slot, Item item)
+		private void SetContainerItem(int containerId, int slot, Item item)
 		{
 			if (_player.UsingAnvil && containerId < 3) containerId = 13;
 

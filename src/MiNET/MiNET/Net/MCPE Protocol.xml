@@ -1235,9 +1235,7 @@
 	<pdu id="0xe0" online="false" client="false" server="true" name="MCPE_ALEX_ENTITY_ANIMATION">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Bone Id" type="string" />
-		<field name="Start rotation" type="Vector3" />
-		<field name="End rotation" type="Vector3" />
-		<field name="Duration" type="UnsignedVarInt" />
+		<field name="Keys" type="AnimationKey[]" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">

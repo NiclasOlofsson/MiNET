@@ -153,6 +153,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 
 | Data type | 
 |:--- |
+| AnimationKey[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-AnimationKey[]) |
 | BlockCoordinates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockCoordinates) |
 | BlockPalette [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockPalette) |
 | bool [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-bool) |
@@ -2854,6 +2855,7 @@ Wiki: [Alex Entity Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
 |Bone Id | string |  |
+|Keys | AnimationKey[] |  |
 |Start rotation | Vector3 |  |
 |End rotation | Vector3 |  |
 |Duration | UnsignedVarInt |  |

@@ -2856,9 +2856,6 @@ Wiki: [Alex Entity Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Runtime Entity ID | UnsignedVarLong |  |
 |Bone Id | string |  |
 |Keys | AnimationKey[] |  |
-|Start rotation | Vector3 |  |
-|End rotation | Vector3 |  |
-|Duration | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 
 

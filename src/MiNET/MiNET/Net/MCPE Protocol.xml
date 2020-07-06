@@ -63,6 +63,7 @@
 		<field name="MTU Size" type="short" endianess="BE" />
 	</pdu>
 
+
 	<pdu namespace="raknet" id="0x07" client="true" server="false" name="ID_OPEN_CONNECTION_REQUEST_2" size="34">
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 		<field name="Remote Binding Address" type="IPEndPoint" />
@@ -1229,6 +1230,14 @@
 		<field name="Severity" type="SignedVarInt" />
 		<field name="Packet Id" type="SignedVarInt" />
 		<field name="Reason" type="string" />
+	</pdu>
+
+	<pdu id="0xe0" online="false" client="false" server="true" name="MCPE_ALEX_ENTITY_ANIMATION">
+		<field name="Runtime Entity ID" type="UnsignedVarLong" />
+		<field name="Bone Id" type="string" />
+		<field name="Start rotation" type="Vector3" />
+		<field name="End rotation" type="Vector3" />
+		<field name="Duration" type="UnsignedVarInt" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">

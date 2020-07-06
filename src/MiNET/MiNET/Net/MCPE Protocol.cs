@@ -229,6 +229,7 @@ namespace MiNET.Net
 		void HandleMcpeCreativeContent(McpeCreativeContent message);
 		void HandleMcpePlayerEnchantOptions(McpePlayerEnchantOptions message);
 		void HandleMcpeItemStackResponse(McpeItemStackResponse message);
+		void HandleMcpeAlexEntityAnimation(McpeAlexEntityAnimation message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
 
@@ -605,6 +606,9 @@ namespace MiNET.Net
 				case McpeItemStackResponse msg:
 					_messageHandler.HandleMcpeItemStackResponse(msg);
 					break;
+				case McpeAlexEntityAnimation msg:
+					_messageHandler.HandleMcpeAlexEntityAnimation(msg);
+					break;
 				case FtlCreatePlayer msg:
 					_messageHandler.HandleFtlCreatePlayer(msg);
 					break;
@@ -953,6 +957,8 @@ namespace MiNET.Net
 						return McpeUpdatePlayerGameType.CreateObject().Decode(buffer);
 					case 0x9c:
 						return McpePacketViolationWarning.CreateObject().Decode(buffer);
+					case 0xe0:
+						return McpeAlexEntityAnimation.CreateObject().Decode(buffer);
 				}
 			}
 
@@ -9870,6 +9876,70 @@ namespace MiNET.Net
 			severity=default(int);
 			packetId=default(int);
 			reason=default(string);
+		}
+
+	}
+
+	public partial class McpeAlexEntityAnimation : Packet<McpeAlexEntityAnimation>
+	{
+
+		public long runtimeEntityId; // = null;
+		public string boneId; // = null;
+		public Vector3 startRotation; // = null;
+		public Vector3 endRotation; // = null;
+		public uint duration; // = null;
+
+		public McpeAlexEntityAnimation()
+		{
+			Id = 0xe0;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteUnsignedVarLong(runtimeEntityId);
+			Write(boneId);
+			Write(startRotation);
+			Write(endRotation);
+			WriteUnsignedVarInt(duration);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			runtimeEntityId = ReadUnsignedVarLong();
+			boneId = ReadString();
+			startRotation = ReadVector3();
+			endRotation = ReadVector3();
+			duration = ReadUnsignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			runtimeEntityId=default(long);
+			boneId=default(string);
+			startRotation=default(Vector3);
+			endRotation=default(Vector3);
+			duration=default(uint);
 		}
 
 	}

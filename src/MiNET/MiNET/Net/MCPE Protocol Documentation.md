@@ -146,6 +146,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Item Stack Response | 0x94 | 148 |   
 | Update Player Game Type | 0x97 | 151 |   
 | Packet Violation Warning | 0x9c | 156 |   
+| Alex Entity Animation | 0xe0 | 224 |   
 
 
 ## Data types
@@ -2837,6 +2838,25 @@ Wiki: [Packet Violation Warning](https://github.com/NiclasOlofsson/MiNET/wiki//P
 |Severity | SignedVarInt |  |
 |Packet Id | SignedVarInt |  |
 |Reason | string |  |
+-----------------------------------------------------------------------
+### Alex Entity Animation (0xe0)
+Wiki: [Alex Entity Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AlexEntityAnimation)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Runtime Entity ID | UnsignedVarLong |  |
+|Bone Id | string |  |
+|Start rotation | Vector3 |  |
+|End rotation | Vector3 |  |
+|Duration | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 
 

@@ -686,6 +686,10 @@ namespace MiNET.Client
 		{
 		}
 
+		public virtual void HandleMcpeAlexEntityAnimation(McpeAlexEntityAnimation message)
+		{
+		}
+
 		public virtual void HandleFtlCreatePlayer(FtlCreatePlayer message)
 		{
 		}

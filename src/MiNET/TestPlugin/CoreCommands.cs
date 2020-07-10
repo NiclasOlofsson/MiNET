@@ -91,39 +91,61 @@ namespace TestPlugin
 			{
 				case "happy":
 				{
-					var startRotation = new Vector3();
-					var endRotation = new Vector3(-160, 25, 0);
-					string boneId = "rightArm";
-					uint duration = 1000;
-					var key = new AnimationKey
+					var keys = new List<AnimationKey>();
+					int rotation = 15;
+					var start = new Vector3(0, 0, 0);
+					var up = start + new Vector3(-160, 0, 0);
+					keys.Add(CreateAnimationKey(start, up, 500, false, false, false));
+					uint waveDuration = 250;
+					uint waveTwist = 15;
+					keys.Add(CreateAnimationKey(up, up + new Vector3(rotation, 0, waveTwist), waveDuration, false, false, false));
+					for (int i = 0; i < 10; i++)
 					{
-						StartRotation = startRotation,
-						EndRotation = endRotation,
-						Duration = duration
-					};
-
-					{
-						var animationPacket = McpeAlexEntityAnimation.CreateObject();
-						animationPacket.runtimeEntityId = player.EntityId;
-						animationPacket.boneId = boneId;
-						player.Level.RelayBroadcast(player, animationPacket);
+						keys.Add(CreateAnimationKey(up + new Vector3(rotation, 0, waveTwist), up + new Vector3(-rotation, 0, -waveTwist), waveDuration, false, false, false));
+						keys.Add(CreateAnimationKey(up + new Vector3(-rotation, 0, -waveTwist), up + new Vector3(rotation, 0, waveTwist), waveDuration, false, false, false));
 					}
+					keys.Add(CreateAnimationKey(up + new Vector3(rotation, 0, waveTwist), up, waveDuration, false, false, false));
+					keys.Add(CreateAnimationKey(up, start, 300, false, false, false));
 
-					{
-						var animationPacket = McpeAlexEntityAnimation.CreateObject();
-						animationPacket.runtimeEntityId = EntityManager.EntityIdSelf;
-						//animationPacket.startRotation = startRotation;
-						//animationPacket.endRotation = endRotation;
-						//animationPacket.boneId = boneId;
-						//animationPacket.duration = duration;
-						player.SendPacket(animationPacket);
-					}
+					SendAnimation(player, "rightArm", keys.ToArray());
+
 					break;
 				}
 			}
 
-
 			return $"Did emote: {emote}";
+		}
+
+		private static AnimationKey CreateAnimationKey(Vector3 startRotation, Vector3 endRotation, uint duration, bool executeImmediate, bool resetBefore, bool resetAfter)
+		{
+			return new AnimationKey
+			{
+				ExecuteImmediate = executeImmediate,
+				ResetBefore = resetBefore,
+				ResetAfter = resetAfter,
+				StartRotation = startRotation,
+				EndRotation = endRotation,
+				Duration = duration
+			};
+		}
+
+		private static void SendAnimation(Player player, string boneId, AnimationKey[] keys)
+		{
+			{
+				var animationPacket = McpeAlexEntityAnimation.CreateObject();
+				animationPacket.runtimeEntityId = player.EntityId;
+				animationPacket.boneId = boneId;
+				animationPacket.keys = keys;
+				player.Level.RelayBroadcast(player, animationPacket);
+			}
+
+			{
+				var animationPacket = McpeAlexEntityAnimation.CreateObject();
+				animationPacket.runtimeEntityId = EntityManager.EntityIdSelf;
+				animationPacket.boneId = boneId;
+				animationPacket.keys = keys;
+				player.SendPacket(animationPacket);
+			}
 		}
 
 		[Command(Name = "bossbar")]
@@ -1211,7 +1233,7 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemGoldenSword(); // Golden Sword
 			inventory.Slots[c++] = new ItemIronSword(); // Iron Sword
 			inventory.Slots[c++] = new ItemDiamondSword(); // Diamond Sword
-			inventory.Slots[c++] = new ItemArrow {Count = 64}; // Arrows
+			inventory.Slots[c++] = new ItemArrow {Count = 64, UniqueId = Environment.TickCount}; // Arrows
 			inventory.Slots[c++] = new ItemEgg {Count = 64}; // Eggs
 			inventory.Slots[c++] = new ItemSnowball {Count = 64}; // Snowballs
 			inventory.Slots[c++] = new ItemIronSword

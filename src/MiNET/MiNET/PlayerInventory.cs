@@ -45,9 +45,10 @@ namespace MiNET
 		public Player Player { get; }
 
 		public List<Item> Slots { get; }
-		public int InHandSlot { get; set; }
 
-		public CursorInventory CursorInventory { get; set; } = new CursorInventory();
+		public int InHandSlot { get; set; }
+		public Item OffHand { get; set; } = new ItemAir();
+
 		public CursorInventory UiInventory { get; set; } = new CursorInventory();
 
 		// Armour
@@ -55,6 +56,7 @@ namespace MiNET
 		public Item Leggings { get; set; } = new ItemAir();
 		public Item Chest { get; set; } = new ItemAir();
 		public Item Helmet { get; set; } = new ItemAir();
+
 
 		public PlayerInventory(Player player)
 		{
@@ -173,6 +175,26 @@ namespace MiNET
 			return slotData;
 		}
 
+		public ItemStacks GetUiSlots()
+		{
+			ItemStacks slotData = new ItemStacks();
+			for (int i = 0; i < UiInventory.Slots.Count; i++)
+			{
+				if (UiInventory.Slots[i].Count == 0) UiInventory.Slots[i] = new ItemAir();
+				slotData.Add(UiInventory.Slots[i]);
+			}
+
+			return slotData;
+		}
+
+		public ItemStacks GetOffHand()
+		{
+			return new ItemStacks
+			{
+				OffHand ?? new ItemAir(),
+			};
+		}
+
 		public ItemStacks GetArmor()
 		{
 			return new ItemStacks
@@ -252,7 +274,7 @@ namespace MiNET
 
 			if (sendToPlayer)
 			{
-				McpeMobEquipment order = McpeMobEquipment.CreateObject();
+				var order = McpeMobEquipment.CreateObject();
 				order.runtimeEntityId = EntityManager.EntityIdSelf;
 				order.item = GetItemInHand();
 				order.selectedSlot = (byte) InHandSlot;
@@ -260,7 +282,7 @@ namespace MiNET
 				Player.SendPacket(order);
 			}
 
-			McpeMobEquipment broadcast = McpeMobEquipment.CreateObject();
+			var broadcast = McpeMobEquipment.CreateObject();
 			broadcast.runtimeEntityId = Player.EntityId;
 			broadcast.item = GetItemInHand();
 			broadcast.selectedSlot = (byte) InHandSlot;
@@ -324,7 +346,7 @@ namespace MiNET
 
 		public virtual void SendSetSlot(int slot)
 		{
-			McpeInventorySlot sendSlot = McpeInventorySlot.CreateObject();
+			var sendSlot = McpeInventorySlot.CreateObject();
 			sendSlot.inventoryId = 0;
 			sendSlot.slot = (uint) slot;
 			sendSlot.uniqueid = Slots[slot].UniqueId;

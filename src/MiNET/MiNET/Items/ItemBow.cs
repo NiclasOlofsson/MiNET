@@ -3,10 +3,10 @@
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
 // been modified to be consistent with Exhibit B.
 // 
 // Software distributed under the License is distributed on an "AS IS" basis,
@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -46,6 +46,7 @@ namespace MiNET.Items
 
 		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
 		{
+			//TODO: This is now NBT
 			switch (reason)
 			{
 				case ItemDamageReason.ItemUse:
@@ -63,30 +64,60 @@ namespace MiNET.Items
 			return 385;
 		}
 
-		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates, long timeUsed)
+		private long _useTime = 0;
+
+		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			var inventory = player.Inventory;
-			bool haveArrows = player.GameMode == GameMode.Creative;
-			haveArrows = haveArrows || this.GetEnchantingLevel(EnchantingType.Infinity) > 0;
-			if (!haveArrows)
+			_useTime = world.TickTime;
+		}
+
+		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates)
+		{
+			long timeUsed = world.TickTime - _useTime;
+			if (timeUsed < 6) // questionable, but we go with it for now.
 			{
+				player.SendPlayerInventory(); // Need to reset inventory, because we don't know what the client did here
+				return;
+			}
+
+			PlayerInventory inventory = player.Inventory;
+
+			bool isInfinity = this.GetEnchantingLevel(EnchantingType.Infinity) > 0;
+			bool haveArrow = player.GameMode == GameMode.Creative;
+			if (!haveArrow)
+			{
+				// Try off-hand first
+				Item item = inventory.OffHand;
+				if (item.Id == 262)
+				{
+					haveArrow = true;
+					if (!isInfinity)
+					{
+						item.Count -= 1;
+						item.UniqueId = Environment.TickCount;
+						if (item.Count <= 0) inventory.OffHand = new ItemAir();
+
+						player.SendPlayerInventory();
+					}
+				}
+			}
+			if (!haveArrow)
+			{
+				//TODO: Consume arrows properly
+				//TODO: Make sure we deal with arrows based on "potions"
 				for (byte i = 0; i < inventory.Slots.Count; i++)
 				{
-					var itemStack = inventory.Slots[i];
+					Item itemStack = inventory.Slots[i];
 					if (itemStack.Id == 262)
 					{
-						if (--itemStack.Count <= 0)
-						{
-							// set empty
-							inventory.Slots[i] = new ItemAir();
-						}
-						haveArrows = true;
+						haveArrow = true;
+						if (isInfinity) inventory.RemoveItems(262, 1);
 						break;
 					}
 				}
 			}
-			if (!haveArrows) return;
-			if (timeUsed < 6) return; // questionable, but we go with it for now.
+
+			if (!haveArrow) return;
 
 			float force = CalculateForce(timeUsed);
 			if (force < 0.1D) return;

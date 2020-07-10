@@ -176,7 +176,7 @@ namespace MiNET
 
 			Item sourceItem = GetContainerItem(source.ContainerId, source.Slot);
 
-			if (sourceItem.Count == count)
+			if (sourceItem.Count == count || sourceItem.Count - count <= 0)
 			{
 				dropItem = sourceItem;
 				sourceItem = new ItemAir();
@@ -295,7 +295,7 @@ namespace MiNET
 
 			sourceItem = GetContainerItem(source.ContainerId, source.Slot);
 
-			if (sourceItem.Count == count)
+			if (sourceItem.Count == count || sourceItem.Count - count <= 0)
 			{
 				destItem = sourceItem;
 				sourceItem = new ItemAir();
@@ -366,8 +366,9 @@ namespace MiNET
 			StackRequestSlotInfo destination = action.Destination;
 
 			sourceItem = GetContainerItem(source.ContainerId, source.Slot);
+			Log.Debug($"Take {sourceItem}");
 
-			if (sourceItem.Count == count)
+			if (sourceItem.Count == count || sourceItem.Count - count <= 0)
 			{
 				destItem = sourceItem;
 				sourceItem = new ItemAir();
@@ -469,6 +470,9 @@ namespace MiNET
 				case 28: // player inventory
 					item = _player.Inventory.Slots[slot];
 					break;
+				case 33: // off-hand
+					item = _player.Inventory.OffHand;
+					break;
 				case 6: // armor
 					item = slot switch
 					{
@@ -508,6 +512,9 @@ namespace MiNET
 				case 27: // hotbar
 				case 28: // player inventory
 					_player.Inventory.Slots[slot] = item;
+					break;
+				case 33: // off-hand
+					_player.Inventory.OffHand = item;
 					break;
 				case 6: // armor
 					switch (slot)

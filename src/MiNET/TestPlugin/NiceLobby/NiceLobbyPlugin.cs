@@ -508,10 +508,10 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 0, UniqueId = Environment.TickCount };
 			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 0, UniqueId = Environment.TickCount };
 
-			player.Inventory.Helmet = new ItemDiamondHelmet();
-			player.Inventory.Chest = new ItemElytra();
-			player.Inventory.Leggings = new ItemDiamondLeggings();
-			player.Inventory.Boots = new ItemDiamondBoots();
+			player.Inventory.Helmet = new ItemDiamondHelmet() {UniqueId = Environment.TickCount};
+			player.Inventory.Chest = new ItemElytra() {UniqueId = Environment.TickCount};
+			player.Inventory.Leggings = new ItemDiamondLeggings() {UniqueId = Environment.TickCount};
+			player.Inventory.Boots = new ItemDiamondBoots() {UniqueId = Environment.TickCount};
 			//while (player.Inventory.SetFirstEmptySlot(new ItemIronAxe(), false)) { }
 
 			player.SendPlayerInventory();

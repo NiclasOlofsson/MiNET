@@ -172,7 +172,15 @@ namespace MiNET.Utils
 
 	public abstract class Transaction
 	{
+		public int RequestId { get; set; }
+		public List<RequestRecord> RequestRecords { get; set; } = new List<RequestRecord>();
 		public List<TransactionRecord> TransactionRecords { get; set; } = new List<TransactionRecord>();
+	}
+
+	public class RequestRecord
+	{
+		public byte ContainerId { get; set; }
+		public List<byte> Slots { get; set; } = new List<byte>();
 	}
 
 	public class NormalTransaction : Transaction

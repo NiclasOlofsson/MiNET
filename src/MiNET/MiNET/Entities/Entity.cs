@@ -641,6 +641,11 @@ namespace MiNET.Entities
 			return Vector3.Distance(KnownPosition, entity.KnownPosition);
 		}
 
+		public byte GetOppositeDirection()
+		{
+			return (byte) ((GetDirection() + 1) % 4);
+		}
+
 		public byte GetDirection()
 		{
 			return DirectionByRotationFlat(KnownPosition.Yaw);

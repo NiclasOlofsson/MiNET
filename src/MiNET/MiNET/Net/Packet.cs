@@ -862,14 +862,32 @@ namespace MiNET.Net
 
 		public Transaction ReadTransaction()
 		{
-			ReadUnsignedVarLong(); // request id
+			var requestId = ReadSignedVarInt(); // request id
+			var requestRecords = new List<RequestRecord>();
+			if (requestId != 0)
+			{
+				var c1 = ReadUnsignedVarInt();
+				for (int i = 0; i < c1; i++)
+				{
+					var rr = new RequestRecord();
+					rr.ContainerId = ReadByte();
+					var c2 = ReadUnsignedVarInt();
+					for (int j = 0; j < c2; j++)
+					{
+						byte slot = ReadByte();
+						rr.Slots.Add(slot);
+						Log.Debug($"RequestId:{requestId}, containerId:{rr.ContainerId}, slot:{slot}");
+					}
+					requestRecords.Add(rr);
+				}
+			}
+
+			var transactionType = (McpeInventoryTransaction.TransactionType) ReadVarInt();
+			bool hasItemStacks = ReadBool();
+			if(hasItemStacks) Log.Warn($"Got item stacks in old transaction");
 
 			var transactions = new List<TransactionRecord>();
-			var transactionType = (McpeInventoryTransaction.TransactionType) ReadVarInt();
-
-			bool hasItemStacks = ReadBool();
-
-			var count = ReadUnsignedVarInt();
+			uint count = ReadUnsignedVarInt();
 			for (int i = 0; i < count; i++)
 			{
 				TransactionRecord record;
@@ -900,6 +918,7 @@ namespace MiNET.Net
 				record.Slot = ReadVarInt();
 				record.OldItem = ReadItem();
 				record.NewItem = ReadItem();
+				if (hasItemStacks) ReadSignedVarInt();
 				transactions.Add(record);
 			}
 
@@ -948,6 +967,8 @@ namespace MiNET.Net
 			}
 
 			transaction.TransactionRecords = transactions;
+			transaction.RequestId = requestId;
+			transaction.RequestRecords = requestRecords;
 
 			return transaction;
 		}

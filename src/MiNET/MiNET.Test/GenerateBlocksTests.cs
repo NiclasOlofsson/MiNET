@@ -31,16 +31,63 @@ using System.Linq;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
+using MiNET.Items;
 using MiNET.Utils;
 
 namespace MiNET.Test
 {
 	[TestClass
-		//, Ignore("Manual code generation")
+	, Ignore("Manual code generation")
 	]
 	public class GenerateBlocksTests
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GenerateBlocksTests));
+
+
+		[TestMethod]
+		public void GenerateMissingItemsFromItemsStates()
+		{
+			string fileName = Path.GetTempPath() + "MissingItems_" + Guid.NewGuid() + ".txt";
+			using FileStream file = File.OpenWrite(fileName);
+			var writer = new IndentedTextWriter(new StreamWriter(file));
+
+			var itemStates = ItemFactory.Itemstates.Values;
+			List<Itemstate> newItems = new List<Itemstate>();
+			foreach (Itemstate state in itemStates)
+			{
+				var item = ItemFactory.GetItem(state.Id);
+				if (item.GetType() == typeof(Item))
+				{
+					newItems.Add(state);
+					Console.WriteLine($"New item: {state.Id}, {state.Name}");
+					string clazzName = CodeName(state.Name.Replace("minecraft:", ""), true);
+
+					string baseClazz = "Item";
+					baseClazz = clazzName.EndsWith("Axe") ? "ItemAxe" : baseClazz;
+					baseClazz = clazzName.EndsWith("Shovel") ? "ItemShovel" : baseClazz;
+					baseClazz = clazzName.EndsWith("Pickaxe") ? "ItemPickaxe" : baseClazz;
+					baseClazz = clazzName.EndsWith("Hoe") ? "ItemHoe" : baseClazz;
+					baseClazz = clazzName.EndsWith("Sword") ? "ItemSword" : baseClazz;
+					baseClazz = clazzName.EndsWith("Helmet") ? "ArmorHelmetBase" : baseClazz;
+					baseClazz = clazzName.EndsWith("Chestplate") ? "ArmorChestplateBase" : baseClazz;
+					baseClazz = clazzName.EndsWith("Leggings") ? "ArmorLeggingsBase" : baseClazz;
+					baseClazz = clazzName.EndsWith("Boots") ? "ArmorBootsBase" : baseClazz;
+
+					baseClazz = clazzName.EndsWith("Door") ? "ItemWoodenDoor" : baseClazz;
+
+					writer.WriteLine($"public class Item{clazzName} : {baseClazz} {{ public Item{clazzName}() : base({state.Id}) {{}} }}");
+				}
+			}
+			writer.Flush();
+
+			foreach (Itemstate state in newItems.OrderBy(s => s.Id))
+			{
+				string clazzName = CodeName(state.Name.Replace("minecraft:", ""), true);
+				writer.WriteLine($"else if (id == {state.Id}) item = new Item{clazzName}();");
+			}
+
+			writer.Flush();
+		}
 
 
 		[TestMethod]
@@ -66,10 +113,8 @@ namespace MiNET.Test
 					if (state.Name.Contains("face")) Console.WriteLine($"\t{state.Name}");
 				}
 			}
-
 		}
 
-		
 
 		[TestMethod]
 		public void GeneratePartialBlocksFromBlockstates()
@@ -77,7 +122,7 @@ namespace MiNET.Test
 			BlockPalette blockPalette = BlockFactory.BlockPalette;
 
 			string fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
-			using(FileStream file = File.OpenWrite(fileName))
+			using (FileStream file = File.OpenWrite(fileName))
 			{
 				var blocks = new List<(int, string)>();
 

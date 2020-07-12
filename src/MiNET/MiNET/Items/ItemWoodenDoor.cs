@@ -139,4 +139,25 @@ namespace MiNET.Items
 		{
 		}
 	}
+
+	public class ItemWarpedDoor : ItemWoodenDoor
+	{
+		public ItemWarpedDoor() : base(756)
+		{
+		}
+	}
+
+	public class ItemCrimsonDoor : ItemWoodenDoor
+	{
+		public ItemCrimsonDoor() : base(755)
+		{
+		}
+	}
+
+	public class ItemIronDoor : ItemWoodenDoor
+	{
+		public ItemIronDoor() : base(330)
+		{
+		}
+	}
 }

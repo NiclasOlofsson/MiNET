@@ -24,7 +24,6 @@
 #endregion
 
 using System;
-using System.Linq;
 using MiNET.Utils;
 using MiNET.Worlds;
 

@@ -220,11 +220,16 @@ namespace MiNET.Client
 			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");
 
 
-			string clazzDir = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid();
-			Directory.CreateDirectory(clazzDir);
-			//var fileNameBlockstates = Path.GetTempPath() + "blockstates_" + Guid.NewGuid() + ".json";
+			var settings = new JsonSerializerSettings
+			{
+				PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
+				TypeNameHandling = TypeNameHandling.Auto,
+				Formatting = Formatting.Indented,
+				DefaultValueHandling = DefaultValueHandling.Include
+			};
+
 			var fileNameItemstates = Path.GetTempPath() + "itemstates_" + Guid.NewGuid() + ".json";
-			File.WriteAllText(fileNameItemstates, JsonConvert.SerializeObject(message.itemstates));
+			File.WriteAllText(fileNameItemstates, JsonConvert.SerializeObject(message.itemstates, settings));
 
 			string fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
 			using(FileStream file = File.OpenWrite(fileName))

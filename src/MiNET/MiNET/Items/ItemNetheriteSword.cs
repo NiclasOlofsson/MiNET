@@ -23,36 +23,13 @@
 
 #endregion
 
-using MiNET.Blocks;
-using MiNET.Entities;
-
 namespace MiNET.Items
 {
-	public class ItemPickaxe : Item
+	public class ItemNetheriteSword : ItemSword
 	{
-		internal ItemPickaxe(short id) : base(id)
+		public ItemNetheriteSword() : base(743)
 		{
-			MaxStackSize = 1;
-			ItemType = ItemType.PickAxe;
-		}
-
-		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
-		{
-			switch (reason)
-			{
-				case ItemDamageReason.BlockBreak:
-				{
-					Metadata++;
-					return Metadata >= GetMaxUses() - 1;
-				}
-				case ItemDamageReason.EntityAttack:
-				{
-					Metadata += 2;
-					return Metadata >= GetMaxUses() - 1;
-				}
-				default:
-					return false;
-			}
+			ItemMaterial = ItemMaterial.Netherite;
 		}
 	}
 }

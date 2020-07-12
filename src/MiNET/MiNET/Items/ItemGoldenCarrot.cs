@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemGoldenCarrot : FoodItem
 	{
-		protected internal ItemGoldenCarrot() : base(395, 0, 6, 14.4)
+		protected internal ItemGoldenCarrot() : base(396, 0, 6, 14.4)
 		{
 		}
 	}

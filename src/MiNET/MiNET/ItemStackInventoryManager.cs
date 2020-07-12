@@ -423,6 +423,7 @@ namespace MiNET
 
 		protected virtual void ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action)
 		{
+			//BUG: Won't work proper with anvil anymore.
 			if (GetContainerItem(59, 50).UniqueId > 0) return;
 
 			//TODO: We only use this for anvils right now. Until we fixed the anvil merge ourselves.

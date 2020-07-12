@@ -520,7 +520,6 @@ namespace MiNET.Items
 	public class ItemRecordWait : Item { public ItemRecordWait() : base(511) {} }
 	public class ItemLead : Item { public ItemLead() : base(420) {} }
 	public class ItemPrismarineCrystals : Item { public ItemPrismarineCrystals() : base(422) {} }
-	public class ItemAcaciaSign : Item { public ItemAcaciaSign() : base(475) {} }
 	public class ItemArmorStand : Item { public ItemArmorStand() : base(425) {} }
 	public class ItemPhantomMembrane : Item { public ItemPhantomMembrane() : base(470) {} }
 	public class ItemChorusFruit : Item { public ItemChorusFruit() : base(432) {} }
@@ -532,11 +531,7 @@ namespace MiNET.Items
 	public class ItemTotem : Item { public ItemTotem() : base(450) {} }
 	public class ItemTurtleShellPiece : Item { public ItemTurtleShellPiece() : base(468) {} }
 	public class ItemCrossbow : Item { public ItemCrossbow() : base(471) {} }
-	public class ItemSpruceSign : Item { public ItemSpruceSign() : base(472) {} }
-	public class ItemBirchSign : Item { public ItemBirchSign() : base(473) {} }
 	public class ItemBalloon : Item { public ItemBalloon() : base(448) {} }
-	public class ItemJungleSign : Item { public ItemJungleSign() : base(474) {} }
-	public class ItemDarkoakSign : Item { public ItemDarkoakSign() : base(476) {} }
 	public class ItemBannerPattern : Item { public ItemBannerPattern() : base(434) {} }
 	public class ItemHoneycomb : Item { public ItemHoneycomb() : base(736) {} }
 	public class ItemHoneyBottle : Item { public ItemHoneyBottle() : base(737) {} }
@@ -547,8 +542,6 @@ namespace MiNET.Items
 	public class ItemLodestonecompass : Item { public ItemLodestonecompass() : base(741) {} }
 	public class ItemNetheriteIngot : Item { public ItemNetheriteIngot() : base(742) {} }
 	public class ItemNetheriteScrap : Item { public ItemNetheriteScrap() : base(752) {} }
-	public class ItemCrimsonSign : Item { public ItemCrimsonSign() : base(753) {} }
-	public class ItemWarpedSign : Item { public ItemWarpedSign() : base(754) {} }
 	public class ItemChain : Item { public ItemChain() : base(758) {} }
 	public class ItemWarpedFungusOnAStick : Item { public ItemWarpedFungusOnAStick() : base(757) {} }
 	public class ItemNetherSprouts : Item { public ItemNetherSprouts() : base(760) {} }

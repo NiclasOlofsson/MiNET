@@ -23,6 +23,7 @@
 
 #endregion
 
+using System.Linq;
 using System.Numerics;
 using MiNET.BlockEntities;
 using MiNET.Items;
@@ -31,10 +32,13 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public partial class WallSign : Block
+	public partial class WallSignBase : Block
 	{
-		public WallSign() : base(68)
+		private readonly int _itemDropId;
+
+		public WallSignBase(int id, int itemDropId) : base(id)
 		{
+			_itemDropId = itemDropId;
 			IsTransparent = true;
 			IsSolid = false;
 			BlastResistance = 5;
@@ -50,9 +54,11 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			FacingDirection = (int) face;
-
-			var signBlockEntity = new Sign {Coordinates = Coordinates};
+			var container = GetState();
+			var direction = (BlockStateInt) container.States.First(s => s.Name == "facing_direction");
+			direction.Value = (int) face;
+			SetState(container);
+			var signBlockEntity = new SignBlockEntity {Coordinates = Coordinates};
 			world.SetBlockEntity(signBlockEntity);
 
 			return false;
@@ -65,7 +71,47 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {ItemFactory.GetItem(323, 0, 1)}; // Drop sign item
+			return new[] {ItemFactory.GetItem((short) _itemDropId)}; // Drop sign item
 		}
+	}
+
+	public partial class WallSign : WallSignBase
+	{
+		public WallSign() : base(68, 323) { }
+	}
+
+	public partial class SpruceWallSign : WallSignBase
+	{
+		public SpruceWallSign() : base(437, 472) { IsGenerated = true; }
+	}
+
+	public partial class BirchWallSign : WallSignBase
+	{
+		public BirchWallSign() : base(442, 473) { IsGenerated = true; }
+	}
+
+	public partial class JungleWallSign : WallSignBase
+	{
+		public JungleWallSign() : base(444, 474) { IsGenerated = true; }
+	}
+
+	public partial class AcaciaWallSign : WallSignBase
+	{
+		public AcaciaWallSign() : base(446, 475) { IsGenerated = true; }
+	}
+
+	public partial class DarkoakWallSign : WallSignBase
+	{
+		public DarkoakWallSign() : base(448, 476) { IsGenerated = true; }
+	}
+
+	public partial class CrimsonWallSign : WallSignBase
+	{
+		public CrimsonWallSign() : base(507, 505) { IsGenerated = true; }
+	}
+
+	public partial class WarpedWallSign : WallSignBase
+	{
+		public WarpedWallSign() : base(508, 506) { IsGenerated = true; }
 	}
 }

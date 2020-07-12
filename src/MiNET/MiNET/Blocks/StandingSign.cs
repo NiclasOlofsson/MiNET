@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Numerics;
 using MiNET.BlockEntities;
 using MiNET.Items;
@@ -32,10 +33,13 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public partial class StandingSign : Block
+	public partial class StandingSignBase : Block
 	{
-		public StandingSign() : base(63)
+		private readonly int _itemDropId;
+
+		public StandingSignBase(int id, int itemDropId) : base(id)
 		{
+			_itemDropId = itemDropId;
 			IsTransparent = true;
 			IsSolid = false;
 			BlastResistance = 5;
@@ -51,9 +55,12 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			GroundSignDirection = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180) * 16 / 360) + 0.5) & 0x0f);
+			var container = GetState();
+			var direction = (BlockStateInt) container.States.First(s => s.Name == "ground_sign_direction");
+			direction.Value = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180) * 16 / 360) + 0.5) & 0x0f);
+			SetState(container);
 
-			var signBlockEntity = new Sign {Coordinates = Coordinates};
+			var signBlockEntity = new SignBlockEntity {Coordinates = Coordinates};
 			world.SetBlockEntity(signBlockEntity);
 
 			return false;
@@ -67,7 +74,48 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {ItemFactory.GetItem(323, 0, 1)}; // Drop sign item
+			return new[] {ItemFactory.GetItem((short) _itemDropId)}; // Drop sign item
 		}
+	}
+
+	public partial class StandingSign : StandingSignBase
+	{
+		public StandingSign() : base(63, 323) { }
+	}
+
+
+	public partial class SpruceStandingSign : StandingSignBase
+	{
+		public SpruceStandingSign() : base(436, 472) { IsGenerated = true; }
+	}
+
+	public partial class BirchStandingSign : StandingSignBase
+	{
+		public BirchStandingSign() : base(441, 473) { IsGenerated = true; }
+	}
+
+	public partial class JungleStandingSign : StandingSignBase
+	{
+		public JungleStandingSign() : base(443, 474) { IsGenerated = true; }
+	}
+
+	public partial class AcaciaStandingSign : StandingSignBase
+	{
+		public AcaciaStandingSign() : base(445, 475) { IsGenerated = true; }
+	}
+
+	public partial class DarkoakStandingSign : StandingSignBase
+	{
+		public DarkoakStandingSign() : base(447, 476) { IsGenerated = true; }
+	}
+
+	public partial class CrimsonStandingSign : StandingSignBase
+	{
+		public CrimsonStandingSign() : base(505, 753) { IsGenerated = true; }
+	}
+
+	public partial class WarpedStandingSign : StandingSignBase
+	{
+		public WarpedStandingSign() : base(506, 754) { IsGenerated = true; }
 	}
 }

@@ -27,7 +27,7 @@ using fNbt;
 
 namespace MiNET.BlockEntities
 {
-	public class Sign : BlockEntity
+	public class SignBlockEntity : BlockEntity
 	{
 		public string Text { get; set; }
 		public string Text1 { get; set; }
@@ -35,7 +35,7 @@ namespace MiNET.BlockEntities
 		public string Text3 { get; set; }
 		public string Text4 { get; set; }
 
-		public Sign() : base("Sign")
+		public SignBlockEntity() : base("Sign")
 		{
 			Text = string.Empty;
 			Text1 = string.Empty;

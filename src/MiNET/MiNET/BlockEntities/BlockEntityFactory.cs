@@ -43,7 +43,7 @@ namespace MiNET.BlockEntities
 				return blockEntity;
 			}
 
-			if (blockEntityId == "Sign") blockEntity = new Sign();
+			if (blockEntityId == "Sign") blockEntity = new SignBlockEntity();
 			else if (blockEntityId == "Chest") blockEntity = new ChestBlockEntity();
 			else if (blockEntityId == "EnchantTable") blockEntity = new EnchantingTableBlockEntity();
 			else if (blockEntityId == "Furnace") blockEntity = new FurnaceBlockEntity();

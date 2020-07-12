@@ -497,7 +497,7 @@ namespace MiNET.Worlds
 								blockEntityTag.Name = string.Empty;
 								blockEntity.Coordinates = new BlockCoordinates(x, y, z);
 
-								if (blockEntity is Sign)
+								if (blockEntity is SignBlockEntity)
 								{
 									if (Log.IsDebugEnabled) Log.Debug($"Loaded sign block entity\n{blockEntityTag}");
 									// Remove the JSON stuff and get the text out of extra data.

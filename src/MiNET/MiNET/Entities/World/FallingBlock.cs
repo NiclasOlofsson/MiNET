@@ -38,10 +38,10 @@ namespace MiNET.Entities.World
 		private static readonly ILog Log = LogManager.GetLogger(typeof(FallingBlock));
 
 
-		private readonly Block _original;
+		private readonly int _original;
 		private bool _checkPosition = true;
 
-		public FallingBlock(Level level, Block original) : base(EntityType.FallingBlock, level)
+		public FallingBlock(Level level, int original) : base(EntityType.FallingBlock, level)
 		{
 			_original = original;
 			//Gravity = 0.04;
@@ -62,7 +62,7 @@ namespace MiNET.Entities.World
 			//MetadataDictionary metadata = new MetadataDictionary();
 			//metadata[0] = new MetadataLong(0); // 0
 			//metadata[1] = new MetadataInt(1);
-			metadata[(int) MetadataFlags.Variant] = new MetadataInt((int) _original.GetRuntimeId());
+			metadata[(int) MetadataFlags.Variant] = new MetadataInt(_original);
 			//metadata[4] = new MetadataString("");
 			//metadata[5] = new MetadataLong(-1);
 			//metadata[7] = new MetadataShort(300);
@@ -97,8 +97,8 @@ namespace MiNET.Entities.World
 
 			foreach (var player in players)
 			{
-				McpeUpdateBlockSynced updateBlock = McpeUpdateBlockSynced.CreateObject();
-				updateBlock.coordinates = _original.Coordinates;
+				var updateBlock = McpeUpdateBlockSynced.CreateObject();
+				updateBlock.coordinates = (BlockCoordinates) KnownPosition;
 				updateBlock.blockRuntimeId = (uint) new Air().GetRuntimeId();
 				updateBlock.blockPriority = 3;
 				updateBlock.dataLayerId = 0;
@@ -139,7 +139,7 @@ namespace MiNET.Entities.World
 			{
 				var updateBlock = McpeUpdateBlockSynced.CreateObject();
 				updateBlock.coordinates = new BlockCoordinates(KnownPosition);
-				updateBlock.blockRuntimeId = (uint) _original.GetRuntimeId();
+				updateBlock.blockRuntimeId = (uint) _original;
 				updateBlock.blockPriority = 3;
 				updateBlock.dataLayerId = 0;
 				updateBlock.unknown0 = EntityId;
@@ -149,19 +149,44 @@ namespace MiNET.Entities.World
 
 				DespawnEntity();
 
-				//var block = BlockFactory.GetBlockById(_original.Id);
-				//block.Metadata = _original.Metadata;
-				//block.Coordinates = new BlockCoordinates(KnownPosition);
-				Level.SetBlock(_original, false);
+				var blockState = BlockFactory.BlockPalette[_original];
+				var block = BlockFactory.GetBlockById(blockState.Id);
+				block.SetState(blockState.States);
+				block.Coordinates = (BlockCoordinates) KnownPosition;
+
+				Level.SetBlock(block, false);
 			}
 		}
+
+		//private void PositionCheck()
+		//{
+		//	if (Velocity.Y < -0.001)
+		//	{
+		//		int distance = (int) Math.Ceiling(Velocity.Length());
+		//		BlockCoordinates check = new BlockCoordinates(KnownPosition);
+		//		for (int i = 0; i < distance; i++)
+		//		{
+		//			if (Level.GetBlock(check).IsSolid)
+		//			{
+		//				_checkPosition = false;
+		//				KnownPosition = check.BlockUp();
+		//				return;
+		//			}
+		//			check = check.BlockDown();
+		//		}
+		//	}
+
+		//	KnownPosition.X += (float) Velocity.X;
+		//	KnownPosition.Y += (float) Velocity.Y;
+		//	KnownPosition.Z += (float) Velocity.Z;
+		//}
 
 		private void PositionCheck()
 		{
 			if (Velocity.Y < -0.001)
 			{
 				int distance = (int) Math.Ceiling(Velocity.Length());
-				BlockCoordinates check = new BlockCoordinates(KnownPosition);
+				var check = new BlockCoordinates(KnownPosition);
 				for (int i = 0; i < distance; i++)
 				{
 					if (Level.GetBlock(check).IsSolid)

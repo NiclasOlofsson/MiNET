@@ -429,6 +429,7 @@ namespace MiNET.Net.RakNet
 						PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
 						TypeNameHandling = TypeNameHandling.Auto,
 						Formatting = Formatting.Indented,
+						ReferenceLoopHandling = ReferenceLoopHandling.Ignore
 					};
 
 					jsonSerializerSettings.Converters.Add(new StringEnumConverter());
@@ -485,7 +486,8 @@ namespace MiNET.Net.RakNet
 						PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
 						TypeNameHandling = TypeNameHandling.Auto,
 						Formatting = Formatting.Indented,
-						DefaultValueHandling = DefaultValueHandling.Include
+						DefaultValueHandling = DefaultValueHandling.Include,
+						ReferenceLoopHandling = ReferenceLoopHandling.Ignore
 					};
 
 					jsonSerializerSettings.Converters.Add(new StringEnumConverter());

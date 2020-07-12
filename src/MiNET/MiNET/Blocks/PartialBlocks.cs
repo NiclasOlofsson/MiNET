@@ -14991,7 +14991,6 @@ namespace MiNET.Blocks
         } // method
     } // class
    
-	public partial class Element0 : Block { public Element0() : base(36) { IsGenerated = true; } }
     public partial class CommandBlock : Block { public CommandBlock() : base(137) { IsGenerated = true; } }
     public partial class RepeatingCommandBlock : Block { public RepeatingCommandBlock() : base(188) { IsGenerated = true; } }
     public partial class ChainCommandBlock : Block { public ChainCommandBlock() : base(189) { IsGenerated = true; } }
@@ -15024,6 +15023,7 @@ namespace MiNET.Blocks
     public partial class StrippedDarkOakLog : Block { public StrippedDarkOakLog() : base(264) { IsGenerated = true; } }
     public partial class StrippedOakLog : Block { public StrippedOakLog() : base(265) { IsGenerated = true; } }
     public partial class BlueIce : Block { public BlueIce() : base(266) { IsGenerated = true; } }
+	public partial class Element0 : Block { public Element0() : base(36) { IsGenerated = true; } }
     public partial class Element1 : Block { public Element1() : base(267) { IsGenerated = true; } }
     public partial class Element2 : Block { public Element2() : base(268) { IsGenerated = true; } }
     public partial class Element3 : Block { public Element3() : base(269) { IsGenerated = true; } }

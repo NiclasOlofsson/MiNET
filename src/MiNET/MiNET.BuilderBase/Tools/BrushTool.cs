@@ -35,6 +35,7 @@ using MiNET.BuilderBase.Patterns;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Newtonsoft.Json;
 
 namespace MiNET.BuilderBase.Tools
 {
@@ -45,7 +46,9 @@ namespace MiNET.BuilderBase.Tools
 		public int Radius { get; set; } = 4;
 		public int Height { get; set; } = 1;
 		public int Range { get; set; } = 300;
+		[JsonIgnore]
 		public Pattern Pattern { get; set; } = new Pattern(1, 0);
+		[JsonIgnore]
 		public Mask Mask { get; set; } = new AnyBlockMask();
 		public bool Filled { get; set; } = true;
 

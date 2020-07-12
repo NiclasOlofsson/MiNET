@@ -626,9 +626,7 @@ namespace MiNET.Worlds
 					{
 						if (blockEvent.Value <= TickTime)
 						{
-							long value;
-							BlockWithTicks.TryRemove(blockEvent.Key, out value);
-							GetBlock(blockEvent.Key).OnTick(this, false);
+							if (BlockWithTicks.TryRemove(blockEvent.Key, out _)) GetBlock(blockEvent.Key).OnTick(this, false);
 						}
 					}
 					catch (Exception e)
@@ -1138,9 +1136,8 @@ namespace MiNET.Worlds
 		{
 			if (block.Coordinates.Y < 0) return;
 
-			ChunkColumn chunk;
 			var chunkCoordinates = new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4);
-			chunk = possibleChunk != null && possibleChunk.X == chunkCoordinates.X && possibleChunk.Z == chunkCoordinates.Z ? possibleChunk : GetChunk(chunkCoordinates);
+			ChunkColumn chunk = possibleChunk != null && possibleChunk.X == chunkCoordinates.X && possibleChunk.Z == chunkCoordinates.Z ? possibleChunk : GetChunk(chunkCoordinates);
 
 
 			if (!OnBlockPlace(new BlockPlaceEventArgs(null, this, block, null)))
@@ -1483,6 +1480,11 @@ namespace MiNET.Worlds
 		{
 			if (BlockWithTicks.ContainsKey(block.Coordinates)) return;
 			BlockWithTicks[block.Coordinates] = TickTime + tickRate;
+		}
+
+		public void CancelBlockTick(Block block)
+		{
+			BlockWithTicks.TryRemove(block.Coordinates, out _);
 		}
 
 		public bool TryGetEntity<T>(long targetEntityId, out T entity) where T : class

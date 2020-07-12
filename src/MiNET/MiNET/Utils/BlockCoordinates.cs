@@ -302,19 +302,12 @@ namespace MiNET.Utils
 
 		public override bool Equals(object obj)
 		{
-			if (ReferenceEquals(null, obj)) return false;
-			return obj is BlockCoordinates && Equals((BlockCoordinates) obj);
+			return obj is BlockCoordinates other && Equals(other);
 		}
 
 		public override int GetHashCode()
 		{
-			unchecked
-			{
-				int hashCode = X;
-				hashCode = (hashCode * 397) ^ Y;
-				hashCode = (hashCode * 397) ^ Z;
-				return hashCode;
-			}
+			return HashCode.Combine(X, Y, Z);
 		}
 
 		public override string ToString()

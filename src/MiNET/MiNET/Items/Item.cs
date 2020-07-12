@@ -27,6 +27,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 using fNbt;
+using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Entities;
@@ -45,6 +46,8 @@ namespace MiNET.Items
 	/// </summary>
 	public class Item : ICloneable
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Item));
+
 		public int UniqueId { get; set; } = 1;
 		public short Id { get; protected set; }
 		public short Metadata { get; set; }
@@ -200,20 +203,12 @@ namespace MiNET.Items
 			if (Id != other.Id || Metadata != other.Metadata) return false;
 			if (ExtraData == null ^ other.ExtraData == null) return false;
 
+			//TODO: This doesn't work in  most cases. We need to fix comparison when name == null
 			byte[] saveToBuffer = null;
-			if (other.ExtraData != null)
-			{
-				other.ExtraData.Name = string.Empty;
-				saveToBuffer = new NbtFile(other.ExtraData).SaveToBuffer(NbtCompression.None);
-			}
-
+			if(other.ExtraData?.Name != null) saveToBuffer = new NbtFile(other.ExtraData).SaveToBuffer(NbtCompression.None);
 			byte[] saveToBuffer2 = null;
-			if (ExtraData != null)
-			{
-				ExtraData.Name = string.Empty;
-				saveToBuffer2 = new NbtFile(ExtraData).SaveToBuffer(NbtCompression.None);
-			}
-			var nbtCheck = !(saveToBuffer == null ^ saveToBuffer2 == null);
+			if(ExtraData?.Name != null) saveToBuffer2 = new NbtFile(ExtraData).SaveToBuffer(NbtCompression.None);
+			bool nbtCheck = !(saveToBuffer == null ^ saveToBuffer2 == null);
 			if (nbtCheck)
 			{
 				if (saveToBuffer == null)

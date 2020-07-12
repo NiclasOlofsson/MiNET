@@ -24,6 +24,7 @@
 #endregion
 
 using System.Numerics;
+using log4net;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Utils;
@@ -33,6 +34,8 @@ namespace MiNET.Blocks
 {
 	public partial class Sand : Block
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Sand));
+
 		private int _tickRate = 1;
 
 		public Sand() : base(12)
@@ -68,7 +71,7 @@ namespace MiNET.Blocks
 				var bbox = GetBoundingBox();
 				var d = (bbox.Max - bbox.Min) / 2;
 
-				new FallingBlock(level, this) {KnownPosition = new PlayerLocation(Coordinates.X + d.X, Coordinates.Y - 0.03f, Coordinates.Z + d.Z)}.SpawnEntity();
+				new FallingBlock(level, GetRuntimeId()) {KnownPosition = new PlayerLocation(Coordinates.X + d.X, Coordinates.Y - 0.03f, Coordinates.Z + d.Z)}.SpawnEntity();
 			}
 		}
 

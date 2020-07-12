@@ -2888,6 +2888,7 @@ namespace MiNET
 			startGame.enchantmentSeed = 123456;
 			startGame.gameVersion = "";
 			startGame.isServerSideMovementEnabled = false;
+			startGame.hasEduFeaturesEnabled = true;
 
 			startGame.blockPalette = BlockFactory.BlockPalette;
 			//startGame.itemstates = ItemFactory.Itemstates;

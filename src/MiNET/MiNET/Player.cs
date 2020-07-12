@@ -287,6 +287,7 @@ namespace MiNET
 
 		public virtual void HandleMcpeSetLocalPlayerAsInitialized(McpeSetLocalPlayerAsInitialized message)
 		{
+			OnLocalPlayerIsInitialized(new PlayerEventArgs(this));
 		}
 
 		private bool _serverHaveResources = false;
@@ -3687,6 +3688,13 @@ namespace MiNET
 		protected virtual void OnPlayerJoin(PlayerEventArgs e)
 		{
 			PlayerJoin?.Invoke(this, e);
+		}
+
+		public event EventHandler<PlayerEventArgs> LocalPlayerIsInitialized;
+
+		protected virtual void OnLocalPlayerIsInitialized(PlayerEventArgs e)
+		{
+			LocalPlayerIsInitialized?.Invoke(this, e);
 		}
 
 		public event EventHandler<PlayerEventArgs> PlayerLeave;

@@ -91,6 +91,7 @@ namespace TestPlugin.NiceLobby
 			{
 				Player player = args.Player;
 				player.PlayerJoin += OnPlayerJoin;
+				player.LocalPlayerIsInitialized += OnLocalPlayerIsInitialized;
 				player.PlayerLeave += OnPlayerLeave;
 				player.Ticking += OnTicking;
 			};
@@ -415,14 +416,14 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Sheep) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Wolf) {Count = 64};
 
-			player.Inventory.Slots[idx++] = new ItemDiamondAxe() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemDiamondShovel() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new CraftingTable()) { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new Chest()) { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new Anvil()) { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new EnchantingTable()) { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new Loom()) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemBlock(new CraftingTable()) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBlock(new Chest()) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBlock(new Anvil()) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBlock(new EnchantingTable()) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBlock(new Loom()) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Sapling()) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Sapling(), 2) { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Vine(), 0) { Count = 64 };
@@ -502,11 +503,31 @@ namespace TestPlugin.NiceLobby
 				Metadata = 4,
 				Count = 64
 			};
-			player.Inventory.Slots[idx++] = new ItemIronIngot() { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 0, UniqueId = Environment.TickCount};
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 0, UniqueId = Environment.TickCount };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 0, UniqueId = Environment.TickCount };
-			player.Inventory.Slots[idx++] = new ItemIronSword() { Count = 1, Metadata = 0, UniqueId = Environment.TickCount };
+			player.Inventory.Slots[idx++] = new ItemIronIngot() {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemIronSword()
+			{
+				Count = 1,
+				Metadata = 0,
+				UniqueId = Environment.TickCount
+			};
+			player.Inventory.Slots[idx++] = new ItemIronSword()
+			{
+				Count = 1,
+				Metadata = 0,
+				UniqueId = Environment.TickCount
+			};
+			player.Inventory.Slots[idx++] = new ItemIronSword()
+			{
+				Count = 1,
+				Metadata = 0,
+				UniqueId = Environment.TickCount
+			};
+			player.Inventory.Slots[idx++] = new ItemIronSword()
+			{
+				Count = 1,
+				Metadata = 0,
+				UniqueId = Environment.TickCount
+			};
 
 			player.Inventory.Helmet = new ItemDiamondHelmet() {UniqueId = Environment.TickCount};
 			player.Inventory.Chest = new ItemElytra() {UniqueId = Environment.TickCount};
@@ -520,27 +541,31 @@ namespace TestPlugin.NiceLobby
 			player.SendEquipmentForPlayer();
 
 			_players.TryAdd(player.Username, player);
+		}
 
-			ThreadPool.QueueUserWorkItem(state =>
+		private void OnLocalPlayerIsInitialized(object o, PlayerEventArgs eventArgs)
+		{
+			Thread.Sleep(1000);
+			Player player = eventArgs.Player;
+			Level level = eventArgs.Level;
+
+			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username} joined the server");
+
+			var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
+			joinSound.Spawn(level);
+
+			//player.SendTitle(null, TitleType.Clear);
+			player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20 * 7); // 7 seconds
+			if (Context.Server.IsEdu)
 			{
-				Thread.Sleep(2000);
-				level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username} joined the server");
-				var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
-				joinSound.Spawn(level);
-
-				//player.SendTitle(null, TitleType.Clear);
-				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20 * 10);
-				if (Context.Server.IsEdu)
-				{
-					player.SendTitle($"{ChatColors.White}This is a MiNET Education Edition server", TitleType.SubTitle);
-					player.SendTitle($"{ChatColors.Gold}Welcome!", TitleType.Title);
-				}
-				else
-				{
-					player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
-					player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
-				}
-			});
+				player.SendTitle($"{ChatColors.White}This is a MiNET Education Edition server", TitleType.SubTitle);
+				player.SendTitle($"{ChatColors.Gold}Welcome!", TitleType.Title);
+			}
+			else
+			{
+				player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
+				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
+			}
 		}
 
 		private void OnPlayerLeave(object o, PlayerEventArgs eventArgs)

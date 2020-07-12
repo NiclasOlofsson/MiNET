@@ -1208,14 +1208,46 @@ namespace MiNET
 				case Dimension.Overworld:
 					break;
 				case Dimension.Nether:
-					if (!Level.WorldProvider.HaveNether()) return;
+					if (!Level.WorldProvider.HaveNether())
+					{
+						Log.Warn($"This world doesn't have nether");
+						return;
+					}
 					break;
 				case Dimension.TheEnd:
-					if (!Level.WorldProvider.HaveTheEnd()) return;
+					if (!Level.WorldProvider.HaveTheEnd())
+					{
+						Log.Warn($"This world doesn't have the end");
+						return;
+					}
 					break;
 			}
 
-			SendChangeDimension(dimension);
+			switch (dimension)
+			{
+				case Dimension.Overworld:
+				{
+					var start = (BlockCoordinates) KnownPosition;
+					start *= new BlockCoordinates(8, 1, 8);
+					SendChangeDimension(dimension, false, start);
+					break;
+				}
+				case Dimension.Nether:
+				{
+					var start = (BlockCoordinates) KnownPosition;
+					start /= new BlockCoordinates(8, 1, 8);
+					SendChangeDimension(dimension, false, start);
+					break;
+				}
+				case Dimension.TheEnd:
+				{
+					var start = (BlockCoordinates) KnownPosition;
+					SendChangeDimension(dimension, false, start);
+					break;
+				}
+				default:
+					throw new ArgumentOutOfRangeException(nameof(dimension), dimension, null);
+			}
 
 			Level.RemovePlayer(this);
 
@@ -3494,6 +3526,14 @@ namespace MiNET
 			lock (_sendChunkSync)
 			{
 				_chunksUsed.Clear();
+			}
+		}
+
+		public void CleanCache(ChunkColumn chunk)
+		{
+			lock (_sendChunkSync)
+			{
+				_chunksUsed.Remove(new ChunkCoordinates(chunk.X, chunk.Z));
 			}
 		}
 

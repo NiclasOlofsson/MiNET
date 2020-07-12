@@ -70,7 +70,6 @@ namespace MiNET.Blocks
 		public Block(int id)
 		{
 			Id = id;
-			//IsGeneratede = true;
 		}
 
 		public virtual void SetState(BlockStateContainer blockstate)

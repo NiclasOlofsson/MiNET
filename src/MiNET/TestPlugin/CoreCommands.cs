@@ -502,6 +502,42 @@ namespace TestPlugin
 			});
 		}
 
+		[Command(Description = "Hack to replace the nether biome id of the current chunk and resend it")]
+		public string ResendChunksForNether(Player player)
+		{
+			if (player.Level.Dimension != Dimension.Nether)
+			{
+				return "Can only use this command in the nether or it will crash the client.";
+			}
+			Task.Run(() =>
+			{
+				RewriteBiome(player);
+				//player.CleanCache();
+				player.ForcedSendChunks(() => { player.SendMessage($"Resent chunks."); });
+			});
+
+			return "Running command to update chunk";
+		}
+
+		private void RewriteBiome(Player player)
+		{
+			var level = player.Level;
+			var chunk =level.GetChunk(player.KnownPosition.GetCoordinates3D());
+
+			//var biomeIds = new byte[] {8, 170, 171, 172, 173};
+			var biomeIds = new byte[] {8, 170, 171, 172, 173};
+			byte biomeId = biomeIds[new Random().Next(biomeIds.Length)];
+			for (int i = 0; i < chunk.biomeId.Length; i++)
+			{
+				chunk.biomeId[i] = biomeId;
+			}
+
+			chunk.IsDirty = true;
+			Log.Error($"Changing biome to {biomeId}");
+			player.CleanCache(chunk);
+			player.SendMessage($"Changing biome to {biomeId}");
+		}
+
 		[Command(Aliases = new[] {"cslc"})]
 		public void CalculateSkyLightForChunk(Player player)
 		{

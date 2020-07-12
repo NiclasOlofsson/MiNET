@@ -65,18 +65,6 @@ namespace MiNET.Items
 			return Block.GetSmelt();
 		}
 
-		public static int GetDirectionFromEntity(Entity entity)
-		{
-			return entity.GetDirectionEmum() switch
-			{
-				Entity.Direction.South => 1,
-				Entity.Direction.West => 3,
-				Entity.Direction.North => 0,
-				Entity.Direction.East => 2,
-				_ => throw new ArgumentOutOfRangeException()
-			};
-		}
-
 		public static int GetFacingDirectionFromEntity(Entity entity)
 		{
 			return entity.GetDirectionEmum() switch

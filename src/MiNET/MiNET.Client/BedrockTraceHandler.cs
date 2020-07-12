@@ -220,6 +220,8 @@ namespace MiNET.Client
 			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");
 
 
+			string clazzDir = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid();
+			Directory.CreateDirectory(clazzDir);
 			//var fileNameBlockstates = Path.GetTempPath() + "blockstates_" + Guid.NewGuid() + ".json";
 			var fileNameItemstates = Path.GetTempPath() + "itemstates_" + Guid.NewGuid() + ".json";
 			File.WriteAllText(fileNameItemstates, JsonConvert.SerializeObject(message.itemstates));
@@ -253,7 +255,7 @@ namespace MiNET.Client
 					blocks.Add((blockById.Id, blockClassName));
 					writer.WriteLineNoTabs($"");
 
-					writer.WriteLine($"public partial class {blockClassName} {(existingBlock ? "" : ": Block")} // {blockById.Id} typeof={blockById.GetType().Name}");
+					writer.WriteLine($"public partial class {blockClassName} // {blockById.Id} typeof={blockById.GetType().Name}");
 					writer.WriteLine($"{{");
 					writer.Indent++;
 
@@ -278,12 +280,12 @@ namespace MiNET.Client
 								{
 									bits.Add(blockStateByte);
 									writer.Write($"[StateBit] ");
-									writer.WriteLine($"public {(propOverride ? "override" : "")} bool {CodeName(state.Name, true)} {{ get; set; }} = {(defaultVal == 1 ? "true" : "false")};");
+									writer.WriteLine($"public{(propOverride ? " override" : "")} bool {CodeName(state.Name, true)} {{ get; set; }} = {(defaultVal == 1 ? "true" : "false")};");
 								}
 								else
 								{
 									writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
-									writer.WriteLine($"public {(propOverride ? "override" : "")} byte {CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
+									writer.WriteLine($"public{(propOverride ? " override" : "")} byte {CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
 								}
 								break;
 							}
@@ -292,7 +294,7 @@ namespace MiNET.Client
 								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateInt) d).Value).Distinct().OrderBy(s => s).ToList();
 								int defaultVal = ((BlockStateInt) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? 0;
 								writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
-								writer.WriteLine($"public {(propOverride ? "override" : "")} int {CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
+								writer.WriteLine($"public{(propOverride ? " override" : "")} int {CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
 								break;
 							}
 							case BlockStateString blockStateString:
@@ -303,7 +305,7 @@ namespace MiNET.Client
 								{
 									writer.WriteLine($"[StateEnum({string.Join(',', values.Select(v => $"\"{v}\""))})]");
 								}
-								writer.WriteLine($"public {(propOverride ? "override" : "")} string {CodeName(state.Name, true)} {{ get; set; }} = \"{defaultVal}\";");
+								writer.WriteLine($"public{(propOverride ? " override" : "")} string {CodeName(state.Name, true)} {{ get; set; }} = \"{defaultVal}\";");
 								break;
 							}
 							default:
@@ -311,17 +313,20 @@ namespace MiNET.Client
 						}
 					}
 
-					if (id == -1 || blockById.IsGenerated)
-					{
-						writer.WriteLine($"");
+					// Constructor
 
-						writer.WriteLine($"public {blockClassName}() : base({currentBlockState.Id})");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-						writer.WriteLine($"IsGenerated = true;");
-						writer.Indent--;
-						writer.WriteLine($"}}");
-					}
+					//if (id == -1 || blockById.IsGenerated)
+					//{
+					//	writer.WriteLine($"");
+
+					//	writer.WriteLine($"public {blockClassName}() : base({currentBlockState.Id})");
+					//	writer.WriteLine($"{{");
+					//	writer.Indent++;
+					//	writer.WriteLine($"IsGenerated = true;");
+					//	writer.WriteLine($"SetGenerated();");
+					//	writer.Indent--;
+					//	writer.WriteLine($"}}");
+					//}
 
 					writer.WriteLineNoTabs($"");
 					writer.WriteLine($"public override void SetState(List<IBlockState> states)");
@@ -365,91 +370,39 @@ namespace MiNET.Client
 					writer.WriteLine($"return record;");
 					writer.Indent--;
 					writer.WriteLine($"}} // method");
-
-					//writer.WriteLine($"");
-
-					//writer.WriteLine($"public byte GetMetadataFromState()");
-					//writer.WriteLine($"{{");
-					//writer.Indent++;
-
-					//writer.WriteLine($"switch(this)");
-					//writer.WriteLine($"{{");
-					//writer.Indent++;
-
-
-					//i = 0;
-					//foreach (var record in message.BlockPalette.Where(b => b.Id == enumerator.Current.Id).OrderBy(b => b.Data))
-					//{
-					//	//case { } b when b.ButtonPressedBit == 0 && b.FacingDirection == 0:
-					//	//	return 0;
-
-					//	writer.Write($"case {{ }} b when true");
-					//	string retVal = "";
-					//	foreach (var state in record.States.OrderBy(s => s.Name).ThenBy(s => s.Value))
-					//	{
-					//		if (state.Type == (byte) NbtTagType.Byte)
-					//		{
-					//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
-					//		}
-					//		else if (state.Type == (byte) NbtTagType.Int)
-					//		{
-					//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
-					//		}
-					//		else if (state.Type == (byte) NbtTagType.String)
-					//		{
-					//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == \"{state.Value}\"");
-					//		}
-					//	}
-					//	writer.WriteLine($":");
-
-					//	writer.Indent++;
-					//	writer.WriteLine($"return { i++ };");
-					//	writer.Indent--;
-					//}
-
-					//writer.Indent--;
-					//writer.WriteLine($"}} // switch");
-
-					//writer.WriteLine($"throw new ArithmeticException(\"Invalid state. Unable to convert state to valid metadata\");");
-
-					//writer.Indent--;
-					//writer.WriteLine($"}} // method");
-
 					writer.Indent--;
 					writer.WriteLine($"}} // class");
 				}
 
-				writer.Indent--;
-				writer.WriteLine($"}}");
+				writer.WriteLine();
 
 				foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
 				{
-					writer.WriteLine($"else if (blockId == {block.Item1}) block = new {block.Item2}();");
+					int clazzId = block.Item1;
+
+					Block blockById = BlockFactory.GetBlockById(clazzId);
+					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
+					if (existingBlock) continue;
+
+					string clazzName = block.Item2;
+					string baseClazz = clazzName.EndsWith("Stairs") ? "BlockStairs" : "Block";
+					baseClazz = clazzName.EndsWith("Slab") && !clazzName.EndsWith("DoubleSlab")? "SlabBase" : baseClazz;
+					writer.WriteLine($"public partial class {clazzName} : {baseClazz} {{ " +
+									$"public {clazzName}() : base({clazzId}) {{ IsGenerated = true; }} " +
+									$"}}");
 				}
+
+				writer.Indent--;
+				writer.WriteLine($"}}"); // namespace
+
+				//foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
+				//{
+				//	// 495 => new StrippedCrimsonStem(),
+				//	writer.WriteLine($"\t\t\t\t{block.Item1} => new {block.Item2}(),");
+				//}
 
 				writer.Flush();
 			}
-
-			//			Log.Debug($@"
-			//StartGame:
-			//	entityId: {message.entityIdSelf}	
-			//	runtimeEntityId: {message.runtimeEntityId}	
-			//	spawn: {message.spawn}	
-			//	unknown1: {message.unknown1}	
-			//	dimension: {message.dimension}	
-			//	generator: {message.generator}	
-			//	gamemode: {message.gamemode}	
-			//	difficulty: {message.difficulty}	
-			//	hasAchievementsDisabled: {message.hasAchievementsDisabled}	
-			//	dayCycleStopTime: {message.dayCycleStopTime}	
-			//	eduMode: {message.eduMode}	
-			//	rainLevel: {message.rainLevel}	
-			//	lightnigLevel: {message.lightnigLevel}	
-			//	enableCommands: {message.enableCommands}	
-			//	isTexturepacksRequired: {message.isTexturepacksRequired}	
-			//	secret: {message.levelId}	
-			//	worldName: {message.worldName}	
-			//");
 
 			LogGamerules(message.gamerules);
 
@@ -908,5 +861,29 @@ namespace MiNET.Client
 				}
 			}
 		}
+
+		public override void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message)
+		{
+			//NbtCompound list = new NbtCompound("");
+			//foreach (Biome biome in Biomes)
+			//{
+			//	if (string.IsNullOrEmpty(biome.DefinitionName))
+			//		continue;
+			//	list.Add(
+			//		new NbtCompound(biome.DefinitionName)
+			//		{
+			//			new NbtFloat("downfall", biome.Downfall),
+			//			new NbtFloat("temperature", biome.Temperature),
+			//		}
+			//	);
+			//}
+
+			var root = message.namedtag.NbtFile.RootTag;
+			Log.Debug($"\n{root}");
+
+			File.WriteAllText(Path.Combine(Path.GetTempPath(), "Biomes_" + Guid.NewGuid() + ".txt"), root.ToString());
+		}
+
+
 	}
 }

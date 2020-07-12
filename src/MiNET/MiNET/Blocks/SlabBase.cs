@@ -24,6 +24,7 @@
 #endregion
 
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -35,7 +36,7 @@ namespace MiNET.Blocks
 
 		[StateBit] public virtual bool TopSlotBit { get; set; } = false;
 
-		protected SlabBase(int id, int doubleSlabId) : base(id)
+		protected SlabBase(int id, int doubleSlabId = -1) : base(id)
 		{
 			_doubleSlabId = doubleSlabId;
 		}
@@ -87,14 +88,31 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		protected abstract bool AreSameType(Block first);
+		protected virtual bool AreSameType(Block obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (obj.GetType() != this.GetType()) return false;
+			return true;
+		}
 
 		protected void SetDoubleSlab(Level world, BlockCoordinates coordinates)
 		{
-			Block slab = BlockFactory.GetBlockById(_doubleSlabId);
+			Block slab = _doubleSlabId == -1 ? BlockFactory.GetBlockByName(GetType().Name.Replace("Slab", "DoubleSlab")) : BlockFactory.GetBlockById(_doubleSlabId);
 			slab.Coordinates = coordinates;
 			slab.SetState(GetState().States);
 			world.SetBlock(slab);
 		}
 	}
+
+	public partial class CrimsonSlab : SlabBase { public CrimsonSlab() : base(519) { IsGenerated = false; } }
+	public partial class WarpedSlab : SlabBase { public WarpedSlab() : base(520) { IsGenerated = false; } }
+	public partial class BlackstoneSlab : SlabBase { public BlackstoneSlab() : base(537) { IsGenerated = false; } }
+	public partial class PolishedBlackstoneBrickSlab : SlabBase { public PolishedBlackstoneBrickSlab() : base(539) { IsGenerated = false; } }
+	public partial class PolishedBlackstoneSlab : SlabBase { public PolishedBlackstoneSlab() : base(548) { IsGenerated = false; } }
+	public partial class CrimsonDoubleSlab : Block { public CrimsonDoubleSlab() : base(521) { IsGenerated = false; } }
+	public partial class WarpedDoubleSlab : Block { public WarpedDoubleSlab() : base(522) { IsGenerated = false; } }
+	public partial class BlackstoneDoubleSlab : Block { public BlackstoneDoubleSlab() : base(538) { IsGenerated = false; } }
+	public partial class PolishedBlackstoneBrickDoubleSlab : Block { public PolishedBlackstoneBrickDoubleSlab() : base(540) { IsGenerated = false; } }
+	public partial class PolishedBlackstoneDoubleSlab : Block { public PolishedBlackstoneDoubleSlab() : base(549) { IsGenerated = false; } }
+
 }

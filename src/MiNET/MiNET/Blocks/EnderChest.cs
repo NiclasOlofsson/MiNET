@@ -27,7 +27,7 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public partial class EnderChest : Block
+	public partial class EnderChest : ChestBase
 	{
 		public EnderChest() : base(130)
 		{
@@ -35,6 +35,7 @@ namespace MiNET.Blocks
 			LightLevel = 7;
 			BlastResistance = 3000;
 			Hardness = 22.5f;
+			FuelEfficiency = 0;
 		}
 
 		public override Item[] GetDrops(Item tool)

@@ -311,7 +311,7 @@ namespace MiNET
 			}
 
 			Item existingItem = GetContainerItem(destination.ContainerId, destination.Slot);
-			if (existingItem.UniqueId > 0)
+			if (existingItem.UniqueId > 0) // is empty/air is what this means
 			{
 				existingItem.Count += count;
 				destItem = existingItem;
@@ -423,6 +423,9 @@ namespace MiNET
 
 		protected virtual void ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action)
 		{
+			if (GetContainerItem(59, 50).UniqueId > 0) return;
+
+			//TODO: We only use this for anvils right now. Until we fixed the anvil merge ourselves.
 			Item craftingResult = action.ResultItems.FirstOrDefault();
 			if (craftingResult == null) return;
 
@@ -443,7 +446,7 @@ namespace MiNET
 		{
 			Item creativeItem = InventoryUtils.CreativeInventoryItems.FirstOrDefault(i => i.UniqueId == (int) action.CreativeItemNetworkId);
 			if (creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {action.CreativeItemNetworkId}");
-			creativeItem = ItemFactory.GetItem(creativeItem.Id, creativeItem.Metadata, creativeItem.Count);
+			creativeItem = ItemFactory.GetItem(creativeItem.Id, creativeItem.Metadata);
 			creativeItem.Count = (byte) creativeItem.MaxStackSize;
 			creativeItem.UniqueId = Environment.TickCount;
 			Log.Debug($"Creating {creativeItem}");

@@ -46,6 +46,7 @@ namespace MiNET.Blocks
 			Hardness = 2.5f;
 		}
 
+
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			FacingDirection = ItemBlock.GetFacingDirectionFromEntity(player);

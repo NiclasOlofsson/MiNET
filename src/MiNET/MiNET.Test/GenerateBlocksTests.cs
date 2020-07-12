@@ -42,6 +42,35 @@ namespace MiNET.Test
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GenerateBlocksTests));
 
+
+		[TestMethod]
+		public void BlcoksWithBlockstates()
+		{
+			List<string> blocksWithStates = new List<string>();
+			BlockPalette blockPalette = BlockFactory.BlockPalette;
+			foreach (BlockStateContainer stateContainer in blockPalette)
+			{
+				if (stateContainer.States.Count > 0)
+				{
+					if (stateContainer.States.Count(s => s.Name.Contains("direction")) > 0) blocksWithStates.Add(stateContainer.Name);
+					if (stateContainer.States.Count(s => s.Name.Contains("face")) > 0) blocksWithStates.Add(stateContainer.Name);
+				}
+			}
+
+			foreach (string name in blocksWithStates.OrderBy(n => n).Distinct())
+			{
+				Console.WriteLine($"{name}");
+				foreach (var state in BlockFactory.GetBlockByName(name).GetState().States)
+				{
+					if (state.Name.Contains("direction")) Console.WriteLine($"\t{state.Name}");
+					if (state.Name.Contains("face")) Console.WriteLine($"\t{state.Name}");
+				}
+			}
+
+		}
+
+		
+
 		[TestMethod]
 		public void GeneratePartialBlocksFromBlockstates()
 		{

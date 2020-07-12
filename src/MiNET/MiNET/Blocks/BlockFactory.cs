@@ -43,8 +43,8 @@ namespace MiNET.Blocks
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
 
-		public static readonly byte[] TransparentBlocks = new byte[500];
-		public static readonly byte[] LuminousBlocks = new byte[500];
+		public static readonly byte[] TransparentBlocks = new byte[600];
+		public static readonly byte[] LuminousBlocks = new byte[600];
 		public static Dictionary<string, int> NameToId { get; private set; }
 		public static BlockPalette BlockPalette { get; set; } = null;
 		public static HashSet<BlockStateContainer> BlockStates { get; set; } = null;
@@ -153,582 +153,567 @@ namespace MiNET.Blocks
 		{
 			Block block = null;
 
-			if (CustomBlockFactory != null)
-			{
-				block = CustomBlockFactory.GetBlockById(blockId);
-			}
+			if (CustomBlockFactory != null) block = CustomBlockFactory.GetBlockById(blockId);
 
 			if (block != null) return block;
 
-			if (blockId == 0) block = new Air();
-			else if (blockId == 1) block = new Stone();
-			else if (blockId == 2) block = new Grass();
-			else if (blockId == 3) block = new Dirt();
-			else if (blockId == 4) block = new Cobblestone();
-			else if (blockId == 5) block = new Planks();
-			else if (blockId == 6) block = new Sapling();
-			else if (blockId == 7) block = new Bedrock();
-			else if (blockId == 8) block = new FlowingWater();
-			else if (blockId == 9) block = new Water();
-			else if (blockId == 10) block = new FlowingLava();
-			else if (blockId == 11) block = new Lava();
-			else if (blockId == 12) block = new Sand();
-			else if (blockId == 13) block = new Gravel();
-			else if (blockId == 14) block = new GoldOre();
-			else if (blockId == 15) block = new IronOre();
-			else if (blockId == 16) block = new CoalOre();
-			else if (blockId == 17) block = new Log();
-			else if (blockId == 18) block = new Leaves();
-			else if (blockId == 19) block = new Sponge();
-			else if (blockId == 20) block = new Glass();
-			else if (blockId == 21) block = new LapisOre();
-			else if (blockId == 22) block = new LapisBlock();
-			else if (blockId == 23) block = new Dispenser();
-			else if (blockId == 24) block = new Sandstone();
-			else if (blockId == 25) block = new Noteblock();
-			else if (blockId == 26) block = new Bed();
-			else if (blockId == 27) block = new GoldenRail();
-			else if (blockId == 28) block = new DetectorRail();
-			else if (blockId == 29) block = new StickyPiston();
-			else if (blockId == 30) block = new Web();
-			else if (blockId == 31) block = new Tallgrass();
-			else if (blockId == 32) block = new Deadbush();
-			else if (blockId == 33) block = new Piston();
-			else if (blockId == 34) block = new PistonArmCollision();
-			else if (blockId == 35) block = new Wool();
-			else if (blockId == 36) block = new Element0();
-			else if (blockId == 37) block = new YellowFlower();
-			else if (blockId == 38) block = new RedFlower();
-			else if (blockId == 39) block = new BrownMushroom();
-			else if (blockId == 40) block = new RedMushroom();
-			else if (blockId == 41) block = new GoldBlock();
-			else if (blockId == 42) block = new IronBlock();
-			else if (blockId == 43) block = new DoubleStoneSlab();
-			else if (blockId == 44) block = new StoneSlab();
-			else if (blockId == 45) block = new BrickBlock();
-			else if (blockId == 46) block = new Tnt();
-			else if (blockId == 47) block = new Bookshelf();
-			else if (blockId == 48) block = new MossyCobblestone();
-			else if (blockId == 49) block = new Obsidian();
-			else if (blockId == 50) block = new Torch();
-			else if (blockId == 51) block = new Fire();
-			else if (blockId == 52) block = new MobSpawner();
-			else if (blockId == 53) block = new OakStairs();
-			else if (blockId == 54) block = new Chest();
-			else if (blockId == 55) block = new RedstoneWire();
-			else if (blockId == 56) block = new DiamondOre();
-			else if (blockId == 57) block = new DiamondBlock();
-			else if (blockId == 58) block = new CraftingTable();
-			else if (blockId == 59) block = new Wheat();
-			else if (blockId == 60) block = new Farmland();
-			else if (blockId == 61) block = new Furnace();
-			else if (blockId == 62) block = new LitFurnace();
-			else if (blockId == 63) block = new StandingSign();
-			else if (blockId == 64) block = new WoodenDoor();
-			else if (blockId == 65) block = new Ladder();
-			else if (blockId == 66) block = new Rail();
-			else if (blockId == 67) block = new StoneStairs();
-			else if (blockId == 68) block = new WallSign();
-			else if (blockId == 69) block = new Lever();
-			else if (blockId == 70) block = new StonePressurePlate();
-			else if (blockId == 71) block = new IronDoor();
-			else if (blockId == 72) block = new WoodenPressurePlate();
-			else if (blockId == 73) block = new RedstoneOre();
-			else if (blockId == 74) block = new LitRedstoneOre();
-			else if (blockId == 75) block = new UnlitRedstoneTorch();
-			else if (blockId == 76) block = new RedstoneTorch();
-			else if (blockId == 77) block = new StoneButton();
-			else if (blockId == 78) block = new SnowLayer();
-			else if (blockId == 79) block = new Ice();
-			else if (blockId == 80) block = new Snow();
-			else if (blockId == 81) block = new Cactus();
-			else if (blockId == 82) block = new Clay();
-			else if (blockId == 83) block = new Reeds();
-			else if (blockId == 84) block = new Jukebox();
-			else if (blockId == 85) block = new Fence();
-			else if (blockId == 86) block = new Pumpkin();
-			else if (blockId == 87) block = new Netherrack();
-			else if (blockId == 88) block = new SoulSand();
-			else if (blockId == 89) block = new Glowstone();
-			else if (blockId == 90) block = new Portal();
-			else if (blockId == 91) block = new LitPumpkin();
-			else if (blockId == 92) block = new Cake();
-			else if (blockId == 93) block = new UnpoweredRepeater();
-			else if (blockId == 94) block = new PoweredRepeater();
-			else if (blockId == 95) block = new InvisibleBedrock();
-			else if (blockId == 96) block = new Trapdoor();
-			else if (blockId == 97) block = new MonsterEgg();
-			else if (blockId == 98) block = new Stonebrick();
-			else if (blockId == 99) block = new BrownMushroomBlock();
-			else if (blockId == 100) block = new RedMushroomBlock();
-			else if (blockId == 101) block = new IronBars();
-			else if (blockId == 102) block = new GlassPane();
-			else if (blockId == 103) block = new MelonBlock();
-			else if (blockId == 104) block = new PumpkinStem();
-			else if (blockId == 105) block = new MelonStem();
-			else if (blockId == 106) block = new Vine();
-			else if (blockId == 107) block = new FenceGate();
-			else if (blockId == 108) block = new BrickStairs();
-			else if (blockId == 109) block = new StoneBrickStairs();
-			else if (blockId == 110) block = new Mycelium();
-			else if (blockId == 111) block = new Waterlily();
-			else if (blockId == 112) block = new NetherBrick();
-			else if (blockId == 113) block = new NetherBrickFence();
-			else if (blockId == 114) block = new NetherBrickStairs();
-			else if (blockId == 115) block = new NetherWart();
-			else if (blockId == 116) block = new EnchantingTable();
-			else if (blockId == 117) block = new BrewingStand();
-			else if (blockId == 118) block = new Cauldron();
-			else if (blockId == 119) block = new EndPortal();
-			else if (blockId == 120) block = new EndPortalFrame();
-			else if (blockId == 121) block = new EndStone();
-			else if (blockId == 122) block = new DragonEgg();
-			else if (blockId == 123) block = new RedstoneLamp();
-			else if (blockId == 124) block = new LitRedstoneLamp();
-			else if (blockId == 125) block = new Dropper();
-			else if (blockId == 126) block = new ActivatorRail();
-			else if (blockId == 127) block = new Cocoa();
-			else if (blockId == 128) block = new SandstoneStairs();
-			else if (blockId == 129) block = new EmeraldOre();
-			else if (blockId == 130) block = new EnderChest();
-			else if (blockId == 131) block = new TripwireHook();
-			else if (blockId == 132) block = new TripWire();
-			else if (blockId == 133) block = new EmeraldBlock();
-			else if (blockId == 134) block = new SpruceStairs();
-			else if (blockId == 135) block = new BirchStairs();
-			else if (blockId == 136) block = new JungleStairs();
-			else if (blockId == 137) block = new CommandBlock();
-			else if (blockId == 138) block = new Beacon();
-			else if (blockId == 139) block = new CobblestoneWall();
-			else if (blockId == 140) block = new FlowerPot();
-			else if (blockId == 141) block = new Carrots();
-			else if (blockId == 142) block = new Potatoes();
-			else if (blockId == 143) block = new WoodenButton();
-			else if (blockId == 144) block = new Skull();
-			else if (blockId == 145) block = new Anvil();
-			else if (blockId == 146) block = new TrappedChest();
-			else if (blockId == 147) block = new LightWeightedPressurePlate();
-			else if (blockId == 148) block = new HeavyWeightedPressurePlate();
-			else if (blockId == 149) block = new UnpoweredComparator();
-			else if (blockId == 150) block = new PoweredComparator();
-			else if (blockId == 151) block = new DaylightDetector();
-			else if (blockId == 152) block = new RedstoneBlock();
-			else if (blockId == 153) block = new QuartzOre();
-			else if (blockId == 154) block = new Hopper();
-			else if (blockId == 155) block = new QuartzBlock();
-			else if (blockId == 156) block = new QuartzStairs();
-			else if (blockId == 157) block = new DoubleWoodenSlab();
-			else if (blockId == 158) block = new WoodenSlab();
-			else if (blockId == 159) block = new StainedHardenedClay();
-			else if (blockId == 160) block = new StainedGlassPane();
-			else if (blockId == 161) block = new Leaves2();
-			else if (blockId == 162) block = new Log2();
-			else if (blockId == 163) block = new AcaciaStairs();
-			else if (blockId == 164) block = new DarkOakStairs();
-			else if (blockId == 165) block = new Slime();
-			else if (blockId == 167) block = new IronTrapdoor();
-			else if (blockId == 168) block = new Prismarine();
-			else if (blockId == 169) block = new SeaLantern();
-			else if (blockId == 170) block = new HayBlock();
-			else if (blockId == 171) block = new Carpet();
-			else if (blockId == 172) block = new HardenedClay();
-			else if (blockId == 173) block = new CoalBlock();
-			else if (blockId == 174) block = new PackedIce();
-			else if (blockId == 175) block = new DoublePlant();
-			else if (blockId == 176) block = new StandingBanner();
-			else if (blockId == 177) block = new WallBanner();
-			else if (blockId == 178) block = new DaylightDetectorInverted();
-			else if (blockId == 179) block = new RedSandstone();
-			else if (blockId == 180) block = new RedSandstoneStairs();
-			else if (blockId == 181) block = new DoubleStoneSlab2();
-			else if (blockId == 182) block = new StoneSlab2();
-			else if (blockId == 183) block = new SpruceFenceGate();
-			else if (blockId == 184) block = new BirchFenceGate();
-			else if (blockId == 185) block = new JungleFenceGate();
-			else if (blockId == 186) block = new DarkOakFenceGate();
-			else if (blockId == 187) block = new AcaciaFenceGate();
-			else if (blockId == 188) block = new RepeatingCommandBlock();
-			else if (blockId == 189) block = new ChainCommandBlock();
-			else if (blockId == 190) block = new HardGlassPane();
-			else if (blockId == 191) block = new HardStainedGlassPane();
-			else if (blockId == 192) block = new ChemicalHeat();
-			else if (blockId == 193) block = new SpruceDoor();
-			else if (blockId == 194) block = new BirchDoor();
-			else if (blockId == 195) block = new JungleDoor();
-			else if (blockId == 196) block = new AcaciaDoor();
-			else if (blockId == 197) block = new DarkOakDoor();
-			else if (blockId == 198) block = new GrassPath();
-			else if (blockId == 199) block = new Frame();
-			else if (blockId == 200) block = new ChorusFlower();
-			else if (blockId == 201) block = new PurpurBlock();
-			else if (blockId == 202) block = new ColoredTorchRg();
-			else if (blockId == 203) block = new PurpurStairs();
-			else if (blockId == 204) block = new ColoredTorchBp();
-			else if (blockId == 205) block = new UndyedShulkerBox();
-			else if (blockId == 206) block = new EndBricks();
-			else if (blockId == 207) block = new FrostedIce();
-			else if (blockId == 208) block = new EndRod();
-			else if (blockId == 209) block = new EndGateway();
-			else if (blockId == 210) block = new Allow();
-			else if (blockId == 211) block = new Deny();
-			else if (blockId == 212) block = new BorderBlock();
-			else if (blockId == 213) block = new Magma();
-			else if (blockId == 214) block = new NetherWartBlock();
-			else if (blockId == 215) block = new RedNetherBrick();
-			else if (blockId == 216) block = new BoneBlock();
-			else if (blockId == 217) block = new StructureVoid();
-			else if (blockId == 218) block = new ShulkerBox();
-			else if (blockId == 219) block = new PurpleGlazedTerracotta();
-			else if (blockId == 220) block = new WhiteGlazedTerracotta();
-			else if (blockId == 221) block = new OrangeGlazedTerracotta();
-			else if (blockId == 222) block = new MagentaGlazedTerracotta();
-			else if (blockId == 223) block = new LightBlueGlazedTerracotta();
-			else if (blockId == 224) block = new YellowGlazedTerracotta();
-			else if (blockId == 225) block = new LimeGlazedTerracotta();
-			else if (blockId == 226) block = new PinkGlazedTerracotta();
-			else if (blockId == 227) block = new GrayGlazedTerracotta();
-			else if (blockId == 228) block = new SilverGlazedTerracotta();
-			else if (blockId == 229) block = new CyanGlazedTerracotta();
-			else if (blockId == 231) block = new BlueGlazedTerracotta();
-			else if (blockId == 232) block = new BrownGlazedTerracotta();
-			else if (blockId == 233) block = new GreenGlazedTerracotta();
-			else if (blockId == 234) block = new RedGlazedTerracotta();
-			else if (blockId == 235) block = new BlackGlazedTerracotta();
-			else if (blockId == 236) block = new Concrete();
-			else if (blockId == 237) block = new ConcretePowder();
-			else if (blockId == 238) block = new ChemistryTable();
-			else if (blockId == 239) block = new UnderwaterTorch();
-			else if (blockId == 240) block = new ChorusPlant();
-			else if (blockId == 241) block = new StainedGlass();
-			else if (blockId == 242) block = new Camera();
-			else if (blockId == 243) block = new Podzol();
-			else if (blockId == 244) block = new Beetroot();
-			else if (blockId == 245) block = new Stonecutter();
-			else if (blockId == 246) block = new Glowingobsidian();
-			else if (blockId == 247) block = new Netherreactor();
-			else if (blockId == 248) block = new InfoUpdate();
-			else if (blockId == 249) block = new InfoUpdate2();
-			else if (blockId == 250) block = new MovingBlock();
-			else if (blockId == 251) block = new Observer();
-			else if (blockId == 252) block = new StructureBlock();
-			else if (blockId == 253) block = new HardGlass();
-			else if (blockId == 254) block = new HardStainedGlass();
-			else if (blockId == 255) block = new Reserved6();
-			else if (blockId == 257) block = new PrismarineStairs();
-			else if (blockId == 258) block = new DarkPrismarineStairs();
-			else if (blockId == 259) block = new PrismarineBricksStairs();
-			else if (blockId == 260) block = new StrippedSpruceLog();
-			else if (blockId == 261) block = new StrippedBirchLog();
-			else if (blockId == 262) block = new StrippedJungleLog();
-			else if (blockId == 263) block = new StrippedAcaciaLog();
-			else if (blockId == 264) block = new StrippedDarkOakLog();
-			else if (blockId == 265) block = new StrippedOakLog();
-			else if (blockId == 266) block = new BlueIce();
-			else if (blockId == 267) block = new Element1();
-			else if (blockId == 268) block = new Element2();
-			else if (blockId == 269) block = new Element3();
-			else if (blockId == 270) block = new Element4();
-			else if (blockId == 271) block = new Element5();
-			else if (blockId == 272) block = new Element6();
-			else if (blockId == 273) block = new Element7();
-			else if (blockId == 274) block = new Element8();
-			else if (blockId == 275) block = new Element9();
-			else if (blockId == 276) block = new Element10();
-			else if (blockId == 277) block = new Element11();
-			else if (blockId == 278) block = new Element12();
-			else if (blockId == 279) block = new Element13();
-			else if (blockId == 280) block = new Element14();
-			else if (blockId == 281) block = new Element15();
-			else if (blockId == 282) block = new Element16();
-			else if (blockId == 283) block = new Element17();
-			else if (blockId == 284) block = new Element18();
-			else if (blockId == 285) block = new Element19();
-			else if (blockId == 286) block = new Element20();
-			else if (blockId == 287) block = new Element21();
-			else if (blockId == 288) block = new Element22();
-			else if (blockId == 289) block = new Element23();
-			else if (blockId == 290) block = new Element24();
-			else if (blockId == 291) block = new Element25();
-			else if (blockId == 292) block = new Element26();
-			else if (blockId == 293) block = new Element27();
-			else if (blockId == 294) block = new Element28();
-			else if (blockId == 295) block = new Element29();
-			else if (blockId == 296) block = new Element30();
-			else if (blockId == 297) block = new Element31();
-			else if (blockId == 298) block = new Element32();
-			else if (blockId == 299) block = new Element33();
-			else if (blockId == 300) block = new Element34();
-			else if (blockId == 301) block = new Element35();
-			else if (blockId == 302) block = new Element36();
-			else if (blockId == 303) block = new Element37();
-			else if (blockId == 304) block = new Element38();
-			else if (blockId == 305) block = new Element39();
-			else if (blockId == 306) block = new Element40();
-			else if (blockId == 307) block = new Element41();
-			else if (blockId == 308) block = new Element42();
-			else if (blockId == 309) block = new Element43();
-			else if (blockId == 310) block = new Element44();
-			else if (blockId == 311) block = new Element45();
-			else if (blockId == 312) block = new Element46();
-			else if (blockId == 313) block = new Element47();
-			else if (blockId == 314) block = new Element48();
-			else if (blockId == 315) block = new Element49();
-			else if (blockId == 316) block = new Element50();
-			else if (blockId == 317) block = new Element51();
-			else if (blockId == 318) block = new Element52();
-			else if (blockId == 319) block = new Element53();
-			else if (blockId == 320) block = new Element54();
-			else if (blockId == 321) block = new Element55();
-			else if (blockId == 322) block = new Element56();
-			else if (blockId == 323) block = new Element57();
-			else if (blockId == 324) block = new Element58();
-			else if (blockId == 325) block = new Element59();
-			else if (blockId == 326) block = new Element60();
-			else if (blockId == 327) block = new Element61();
-			else if (blockId == 328) block = new Element62();
-			else if (blockId == 329) block = new Element63();
-			else if (blockId == 330) block = new Element64();
-			else if (blockId == 331) block = new Element65();
-			else if (blockId == 332) block = new Element66();
-			else if (blockId == 333) block = new Element67();
-			else if (blockId == 334) block = new Element68();
-			else if (blockId == 335) block = new Element69();
-			else if (blockId == 336) block = new Element70();
-			else if (blockId == 337) block = new Element71();
-			else if (blockId == 338) block = new Element72();
-			else if (blockId == 339) block = new Element73();
-			else if (blockId == 340) block = new Element74();
-			else if (blockId == 341) block = new Element75();
-			else if (blockId == 342) block = new Element76();
-			else if (blockId == 343) block = new Element77();
-			else if (blockId == 344) block = new Element78();
-			else if (blockId == 345) block = new Element79();
-			else if (blockId == 346) block = new Element80();
-			else if (blockId == 347) block = new Element81();
-			else if (blockId == 348) block = new Element82();
-			else if (blockId == 349) block = new Element83();
-			else if (blockId == 350) block = new Element84();
-			else if (blockId == 351) block = new Element85();
-			else if (blockId == 352) block = new Element86();
-			else if (blockId == 353) block = new Element87();
-			else if (blockId == 354) block = new Element88();
-			else if (blockId == 355) block = new Element89();
-			else if (blockId == 356) block = new Element90();
-			else if (blockId == 357) block = new Element91();
-			else if (blockId == 358) block = new Element92();
-			else if (blockId == 359) block = new Element93();
-			else if (blockId == 360) block = new Element94();
-			else if (blockId == 361) block = new Element95();
-			else if (blockId == 362) block = new Element96();
-			else if (blockId == 363) block = new Element97();
-			else if (blockId == 364) block = new Element98();
-			else if (blockId == 365) block = new Element99();
-			else if (blockId == 366) block = new Element100();
-			else if (blockId == 367) block = new Element101();
-			else if (blockId == 368) block = new Element102();
-			else if (blockId == 369) block = new Element103();
-			else if (blockId == 370) block = new Element104();
-			else if (blockId == 371) block = new Element105();
-			else if (blockId == 372) block = new Element106();
-			else if (blockId == 373) block = new Element107();
-			else if (blockId == 374) block = new Element108();
-			else if (blockId == 375) block = new Element109();
-			else if (blockId == 376) block = new Element110();
-			else if (blockId == 377) block = new Element111();
-			else if (blockId == 378) block = new Element112();
-			else if (blockId == 379) block = new Element113();
-			else if (blockId == 380) block = new Element114();
-			else if (blockId == 381) block = new Element115();
-			else if (blockId == 382) block = new Element116();
-			else if (blockId == 383) block = new Element117();
-			else if (blockId == 384) block = new Element118();
-			else if (blockId == 385) block = new Seagrass();
-			else if (blockId == 386) block = new Coral();
-			else if (blockId == 387) block = new CoralBlock();
-			else if (blockId == 388) block = new CoralFan();
-			else if (blockId == 389) block = new CoralFanDead();
-			else if (blockId == 390) block = new CoralFanHang();
-			else if (blockId == 391) block = new CoralFanHang2();
-			else if (blockId == 392) block = new CoralFanHang3();
-			else if (blockId == 393) block = new Kelp();
-			else if (blockId == 394) block = new DriedKelpBlock();
-			else if (blockId == 395) block = new AcaciaButton();
-			else if (blockId == 396) block = new BirchButton();
-			else if (blockId == 397) block = new DarkOakButton();
-			else if (blockId == 398) block = new JungleButton();
-			else if (blockId == 399) block = new SpruceButton();
-			else if (blockId == 400) block = new AcaciaTrapdoor();
-			else if (blockId == 401) block = new BirchTrapdoor();
-			else if (blockId == 402) block = new DarkOakTrapdoor();
-			else if (blockId == 403) block = new JungleTrapdoor();
-			else if (blockId == 404) block = new SpruceTrapdoor();
-			else if (blockId == 405) block = new AcaciaPressurePlate();
-			else if (blockId == 406) block = new BirchPressurePlate();
-			else if (blockId == 407) block = new DarkOakPressurePlate();
-			else if (blockId == 408) block = new JunglePressurePlate();
-			else if (blockId == 409) block = new SprucePressurePlate();
-			else if (blockId == 410) block = new CarvedPumpkin();
-			else if (blockId == 411) block = new SeaPickle();
-			else if (blockId == 412) block = new Conduit();
-			else if (blockId == 414) block = new TurtleEgg();
-			else if (blockId == 415) block = new BubbleColumn();
-			else if (blockId == 416) block = new Barrier();
-			else if (blockId == 417) block = new StoneSlab3();
-			else if (blockId == 418) block = new Bamboo();
-			else if (blockId == 419) block = new BambooSapling();
-			else if (blockId == 420) block = new Scaffolding();
-			else if (blockId == 421) block = new StoneSlab4();
-			else if (blockId == 422) block = new DoubleStoneSlab3();
-			else if (blockId == 423) block = new DoubleStoneSlab4();
-			else if (blockId == 424) block = new GraniteStairs();
-			else if (blockId == 425) block = new DioriteStairs();
-			else if (blockId == 426) block = new AndesiteStairs();
-			else if (blockId == 427) block = new PolishedGraniteStairs();
-			else if (blockId == 428) block = new PolishedDioriteStairs();
-			else if (blockId == 429) block = new PolishedAndesiteStairs();
-			else if (blockId == 430) block = new MossyStoneBrickStairs();
-			else if (blockId == 431) block = new SmoothRedSandstoneStairs();
-			else if (blockId == 432) block = new SmoothSandstoneStairs();
-			else if (blockId == 433) block = new EndBrickStairs();
-			else if (blockId == 434) block = new MossyCobblestoneStairs();
-			else if (blockId == 435) block = new NormalStoneStairs();
-			else if (blockId == 436) block = new SpruceStandingSign();
-			else if (blockId == 437) block = new SpruceWallSign();
-			else if (blockId == 438) block = new SmoothStone();
-			else if (blockId == 439) block = new RedNetherBrickStairs();
-			else if (blockId == 440) block = new SmoothQuartzStairs();
-			else if (blockId == 441) block = new BirchStandingSign();
-			else if (blockId == 442) block = new BirchWallSign();
-			else if (blockId == 443) block = new JungleStandingSign();
-			else if (blockId == 444) block = new JungleWallSign();
-			else if (blockId == 445) block = new AcaciaStandingSign();
-			else if (blockId == 446) block = new AcaciaWallSign();
-			else if (blockId == 447) block = new DarkoakStandingSign();
-			else if (blockId == 448) block = new DarkoakWallSign();
-			else if (blockId == 449) block = new Lectern();
-			else if (blockId == 450) block = new Grindstone();
-			else if (blockId == 451) block = new BlastFurnace();
-			else if (blockId == 452) block = new StonecutterBlock();
-			else if (blockId == 453) block = new Smoker();
-			else if (blockId == 454) block = new LitSmoker();
-			else if (blockId == 455) block = new CartographyTable();
-			else if (blockId == 456) block = new FletchingTable();
-			else if (blockId == 457) block = new SmithingTable();
-			else if (blockId == 458) block = new Barrel();
-			else if (blockId == 459) block = new Loom();
-			else if (blockId == 461) block = new Bell();
-			else if (blockId == 462) block = new SweetBerryBush();
-			else if (blockId == 463) block = new Lantern();
-			else if (blockId == 464) block = new Campfire();
-			else if (blockId == 465) block = new LavaCauldron();
-			else if (blockId == 466) block = new Jigsaw();
-			else if (blockId == 467) block = new Wood();
-			else if (blockId == 468) block = new Composter();
-			else if (blockId == 469) block = new LitBlastFurnace();
-			else if (blockId == 470) block = new LightBlock();
-			else if (blockId == 471) block = new WitherRose();
-			else if (blockId == 472) block = new StickyPistonArmCollision();
-			else if (blockId == 473) block = new BeeNest();
-			else if (blockId == 474) block = new Beehive();
-			else if (blockId == 475) block = new HoneyBlock();
-			else if (blockId == 476) block = new HoneycombBlock();
-			else if (blockId == 477) block = new Lodestone();
-			else if (blockId == 478) block = new CrimsonRoots();
-			else if (blockId == 479) block = new WarpedRoots();
-			else if (blockId == 480) block = new CrimsonStem();
-			else if (blockId == 481) block = new WarpedStem();
-			else if (blockId == 482) block = new WarpedWartBlock();
-			else if (blockId == 483) block = new CrimsonFungus();
-			else if (blockId == 484) block = new WarpedFungus();
-			else if (blockId == 485) block = new Shroomlight();
-			else if (blockId == 486) block = new WeepingVines();
-			else if (blockId == 487) block = new CrimsonNylium();
-			else if (blockId == 488) block = new WarpedNylium();
-			else if (blockId == 489) block = new Basalt();
-			else if (blockId == 490) block = new PolishedBasalt();
-			else if (blockId == 491) block = new SoulSoil();
-			else if (blockId == 492) block = new SoulFire();
-			else if (blockId == 493) block = new NetherSprouts();
-			else if (blockId == 494) block = new Target();
-			else if (blockId == 495) block = new StrippedCrimsonStem();
-			else if (blockId == 496) block = new StrippedWarpedStem();
-			else if (blockId == 497) block = new CrimsonPlanks();
-			else if (blockId == 498) block = new WarpedPlanks();
-			else if (blockId == 499) block = new CrimsonDoor();
-			else if (blockId == 500) block = new WarpedDoor();
-			else if (blockId == 501) block = new CrimsonTrapdoor();
-			else if (blockId == 502) block = new WarpedTrapdoor();
-			else if (blockId == 505) block = new CrimsonStandingSign();
-			else if (blockId == 506) block = new WarpedStandingSign();
-			else if (blockId == 507) block = new CrimsonWallSign();
-			else if (blockId == 508) block = new WarpedWallSign();
-			else if (blockId == 509) block = new CrimsonStairs();
-			else if (blockId == 510) block = new WarpedStairs();
-			else if (blockId == 511) block = new CrimsonFence();
-			else if (blockId == 512) block = new WarpedFence();
-			else if (blockId == 513) block = new CrimsonFenceGate();
-			else if (blockId == 514) block = new WarpedFenceGate();
-			else if (blockId == 515) block = new CrimsonButton();
-			else if (blockId == 516) block = new WarpedButton();
-			else if (blockId == 517) block = new CrimsonPressurePlate();
-			else if (blockId == 518) block = new WarpedPressurePlate();
-			else if (blockId == 519) block = new CrimsonSlab();
-			else if (blockId == 520) block = new WarpedSlab();
-			else if (blockId == 521) block = new CrimsonDoubleSlab();
-			else if (blockId == 522) block = new WarpedDoubleSlab();
-			else if (blockId == 523) block = new SoulTorch();
-			else if (blockId == 524) block = new SoulLantern();
-			else if (blockId == 525) block = new NetheriteBlock();
-			else if (blockId == 526) block = new AncientDebris();
-			else if (blockId == 527) block = new RespawnAnchor();
-			else if (blockId == 528) block = new Blackstone();
-			else if (blockId == 529) block = new PolishedBlackstoneBricks();
-			else if (blockId == 530) block = new PolishedBlackstoneBrickStairs();
-			else if (blockId == 531) block = new BlackstoneStairs();
-			else if (blockId == 532) block = new BlackstoneWall();
-			else if (blockId == 533) block = new PolishedBlackstoneBrickWall();
-			else if (blockId == 534) block = new ChiseledPolishedBlackstone();
-			else if (blockId == 535) block = new CrackedPolishedBlackstoneBricks();
-			else if (blockId == 536) block = new GildedBlackstone();
-			else if (blockId == 537) block = new BlackstoneSlab();
-			else if (blockId == 538) block = new BlackstoneDoubleSlab();
-			else if (blockId == 539) block = new PolishedBlackstoneBrickSlab();
-			else if (blockId == 540) block = new PolishedBlackstoneBrickDoubleSlab();
-			else if (blockId == 541) block = new Chain();
-			else if (blockId == 542) block = new TwistingVines();
-			else if (blockId == 543) block = new NetherGoldOre();
-			else if (blockId == 544) block = new CryingObsidian();
-			else if (blockId == 545) block = new SoulCampfire();
-			else if (blockId == 546) block = new PolishedBlackstone();
-			else if (blockId == 547) block = new PolishedBlackstoneStairs();
-			else if (blockId == 548) block = new PolishedBlackstoneSlab();
-			else if (blockId == 549) block = new PolishedBlackstoneDoubleSlab();
-			else if (blockId == 550) block = new PolishedBlackstonePressurePlate();
-			else if (blockId == 551) block = new PolishedBlackstoneButton();
-			else if (blockId == 552) block = new PolishedBlackstoneWall();
-			else if (blockId == 553) block = new WarpedHyphae();
-			else if (blockId == 554) block = new CrimsonHyphae();
-			else if (blockId == 555) block = new StrippedCrimsonHyphae();
-			else if (blockId == 556) block = new StrippedWarpedHyphae();
-			else if (blockId == 557) block = new ChiseledNetherBricks();
-			else if (blockId == 558) block = new CrackedNetherBricks();
-			else if (blockId == 559) block = new QuartzBricks();
-
-			else
+			block = blockId switch
 			{
-				//				Log.DebugFormat(@"
-				//	// Add this missing block to the BlockFactory
-				//	else if (blockId == {1}) block = new {0}();
-				//	
-				//	public class {0} : Block
-				//	{{
-				//		internal {0}() : base({1})
-				//		{{
-				//		}}
-				//	}}
-				//", "Missing", blockId);
-				block = new Block(blockId);
-			}
+				0 => new Air(),
+				1 => new Stone(),
+				2 => new Grass(),
+				3 => new Dirt(),
+				4 => new Cobblestone(),
+				5 => new Planks(),
+				6 => new Sapling(),
+				7 => new Bedrock(),
+				8 => new FlowingWater(),
+				9 => new Water(),
+				10 => new FlowingLava(),
+				11 => new Lava(),
+				12 => new Sand(),
+				13 => new Gravel(),
+				14 => new GoldOre(),
+				15 => new IronOre(),
+				16 => new CoalOre(),
+				17 => new Log(),
+				18 => new Leaves(),
+				19 => new Sponge(),
+				20 => new Glass(),
+				21 => new LapisOre(),
+				22 => new LapisBlock(),
+				23 => new Dispenser(),
+				24 => new Sandstone(),
+				25 => new Noteblock(),
+				26 => new Bed(),
+				27 => new GoldenRail(),
+				28 => new DetectorRail(),
+				29 => new StickyPiston(),
+				30 => new Web(),
+				31 => new Tallgrass(),
+				32 => new Deadbush(),
+				33 => new Piston(),
+				34 => new PistonArmCollision(),
+				35 => new Wool(),
+				36 => new Element0(),
+				37 => new YellowFlower(),
+				38 => new RedFlower(),
+				39 => new BrownMushroom(),
+				40 => new RedMushroom(),
+				41 => new GoldBlock(),
+				42 => new IronBlock(),
+				43 => new DoubleStoneSlab(),
+				44 => new StoneSlab(),
+				45 => new BrickBlock(),
+				46 => new Tnt(),
+				47 => new Bookshelf(),
+				48 => new MossyCobblestone(),
+				49 => new Obsidian(),
+				50 => new Torch(),
+				51 => new Fire(),
+				52 => new MobSpawner(),
+				53 => new OakStairs(),
+				54 => new Chest(),
+				55 => new RedstoneWire(),
+				56 => new DiamondOre(),
+				57 => new DiamondBlock(),
+				58 => new CraftingTable(),
+				59 => new Wheat(),
+				60 => new Farmland(),
+				61 => new Furnace(),
+				62 => new LitFurnace(),
+				63 => new StandingSign(),
+				64 => new WoodenDoor(),
+				65 => new Ladder(),
+				66 => new Rail(),
+				67 => new StoneStairs(),
+				68 => new WallSign(),
+				69 => new Lever(),
+				70 => new StonePressurePlate(),
+				71 => new IronDoor(),
+				72 => new WoodenPressurePlate(),
+				73 => new RedstoneOre(),
+				74 => new LitRedstoneOre(),
+				75 => new UnlitRedstoneTorch(),
+				76 => new RedstoneTorch(),
+				77 => new StoneButton(),
+				78 => new SnowLayer(),
+				79 => new Ice(),
+				80 => new Snow(),
+				81 => new Cactus(),
+				82 => new Clay(),
+				83 => new Reeds(),
+				84 => new Jukebox(),
+				85 => new Fence(),
+				86 => new Pumpkin(),
+				87 => new Netherrack(),
+				88 => new SoulSand(),
+				89 => new Glowstone(),
+				90 => new Portal(),
+				91 => new LitPumpkin(),
+				92 => new Cake(),
+				93 => new UnpoweredRepeater(),
+				94 => new PoweredRepeater(),
+				95 => new InvisibleBedrock(),
+				96 => new Trapdoor(),
+				97 => new MonsterEgg(),
+				98 => new Stonebrick(),
+				99 => new BrownMushroomBlock(),
+				100 => new RedMushroomBlock(),
+				101 => new IronBars(),
+				102 => new GlassPane(),
+				103 => new MelonBlock(),
+				104 => new PumpkinStem(),
+				105 => new MelonStem(),
+				106 => new Vine(),
+				107 => new FenceGate(),
+				108 => new BrickStairs(),
+				109 => new StoneBrickStairs(),
+				110 => new Mycelium(),
+				111 => new Waterlily(),
+				112 => new NetherBrick(),
+				113 => new NetherBrickFence(),
+				114 => new NetherBrickStairs(),
+				115 => new NetherWart(),
+				116 => new EnchantingTable(),
+				117 => new BrewingStand(),
+				118 => new Cauldron(),
+				119 => new EndPortal(),
+				120 => new EndPortalFrame(),
+				121 => new EndStone(),
+				122 => new DragonEgg(),
+				123 => new RedstoneLamp(),
+				124 => new LitRedstoneLamp(),
+				125 => new Dropper(),
+				126 => new ActivatorRail(),
+				127 => new Cocoa(),
+				128 => new SandstoneStairs(),
+				129 => new EmeraldOre(),
+				130 => new EnderChest(),
+				131 => new TripwireHook(),
+				132 => new TripWire(),
+				133 => new EmeraldBlock(),
+				134 => new SpruceStairs(),
+				135 => new BirchStairs(),
+				136 => new JungleStairs(),
+				137 => new CommandBlock(),
+				138 => new Beacon(),
+				139 => new CobblestoneWall(),
+				140 => new FlowerPot(),
+				141 => new Carrots(),
+				142 => new Potatoes(),
+				143 => new WoodenButton(),
+				144 => new Skull(),
+				145 => new Anvil(),
+				146 => new TrappedChest(),
+				147 => new LightWeightedPressurePlate(),
+				148 => new HeavyWeightedPressurePlate(),
+				149 => new UnpoweredComparator(),
+				150 => new PoweredComparator(),
+				151 => new DaylightDetector(),
+				152 => new RedstoneBlock(),
+				153 => new QuartzOre(),
+				154 => new Hopper(),
+				155 => new QuartzBlock(),
+				156 => new QuartzStairs(),
+				157 => new DoubleWoodenSlab(),
+				158 => new WoodenSlab(),
+				159 => new StainedHardenedClay(),
+				160 => new StainedGlassPane(),
+				161 => new Leaves2(),
+				162 => new Log2(),
+				163 => new AcaciaStairs(),
+				164 => new DarkOakStairs(),
+				165 => new Slime(),
+				167 => new IronTrapdoor(),
+				168 => new Prismarine(),
+				169 => new SeaLantern(),
+				170 => new HayBlock(),
+				171 => new Carpet(),
+				172 => new HardenedClay(),
+				173 => new CoalBlock(),
+				174 => new PackedIce(),
+				175 => new DoublePlant(),
+				176 => new StandingBanner(),
+				177 => new WallBanner(),
+				178 => new DaylightDetectorInverted(),
+				179 => new RedSandstone(),
+				180 => new RedSandstoneStairs(),
+				181 => new DoubleStoneSlab2(),
+				182 => new StoneSlab2(),
+				183 => new SpruceFenceGate(),
+				184 => new BirchFenceGate(),
+				185 => new JungleFenceGate(),
+				186 => new DarkOakFenceGate(),
+				187 => new AcaciaFenceGate(),
+				188 => new RepeatingCommandBlock(),
+				189 => new ChainCommandBlock(),
+				190 => new HardGlassPane(),
+				191 => new HardStainedGlassPane(),
+				192 => new ChemicalHeat(),
+				193 => new SpruceDoor(),
+				194 => new BirchDoor(),
+				195 => new JungleDoor(),
+				196 => new AcaciaDoor(),
+				197 => new DarkOakDoor(),
+				198 => new GrassPath(),
+				199 => new Frame(),
+				200 => new ChorusFlower(),
+				201 => new PurpurBlock(),
+				202 => new ColoredTorchRg(),
+				203 => new PurpurStairs(),
+				204 => new ColoredTorchBp(),
+				205 => new UndyedShulkerBox(),
+				206 => new EndBricks(),
+				207 => new FrostedIce(),
+				208 => new EndRod(),
+				209 => new EndGateway(),
+				210 => new Allow(),
+				211 => new Deny(),
+				212 => new BorderBlock(),
+				213 => new Magma(),
+				214 => new NetherWartBlock(),
+				215 => new RedNetherBrick(),
+				216 => new BoneBlock(),
+				217 => new StructureVoid(),
+				218 => new ShulkerBox(),
+				219 => new PurpleGlazedTerracotta(),
+				220 => new WhiteGlazedTerracotta(),
+				221 => new OrangeGlazedTerracotta(),
+				222 => new MagentaGlazedTerracotta(),
+				223 => new LightBlueGlazedTerracotta(),
+				224 => new YellowGlazedTerracotta(),
+				225 => new LimeGlazedTerracotta(),
+				226 => new PinkGlazedTerracotta(),
+				227 => new GrayGlazedTerracotta(),
+				228 => new SilverGlazedTerracotta(),
+				229 => new CyanGlazedTerracotta(),
+				231 => new BlueGlazedTerracotta(),
+				232 => new BrownGlazedTerracotta(),
+				233 => new GreenGlazedTerracotta(),
+				234 => new RedGlazedTerracotta(),
+				235 => new BlackGlazedTerracotta(),
+				236 => new Concrete(),
+				237 => new ConcretePowder(),
+				238 => new ChemistryTable(),
+				239 => new UnderwaterTorch(),
+				240 => new ChorusPlant(),
+				241 => new StainedGlass(),
+				242 => new Camera(),
+				243 => new Podzol(),
+				244 => new Beetroot(),
+				245 => new Stonecutter(),
+				246 => new Glowingobsidian(),
+				247 => new Netherreactor(),
+				248 => new InfoUpdate(),
+				249 => new InfoUpdate2(),
+				250 => new MovingBlock(),
+				251 => new Observer(),
+				252 => new StructureBlock(),
+				253 => new HardGlass(),
+				254 => new HardStainedGlass(),
+				255 => new Reserved6(),
+				257 => new PrismarineStairs(),
+				258 => new DarkPrismarineStairs(),
+				259 => new PrismarineBricksStairs(),
+				260 => new StrippedSpruceLog(),
+				261 => new StrippedBirchLog(),
+				262 => new StrippedJungleLog(),
+				263 => new StrippedAcaciaLog(),
+				264 => new StrippedDarkOakLog(),
+				265 => new StrippedOakLog(),
+				266 => new BlueIce(),
+				267 => new Element1(),
+				268 => new Element2(),
+				269 => new Element3(),
+				270 => new Element4(),
+				271 => new Element5(),
+				272 => new Element6(),
+				273 => new Element7(),
+				274 => new Element8(),
+				275 => new Element9(),
+				276 => new Element10(),
+				277 => new Element11(),
+				278 => new Element12(),
+				279 => new Element13(),
+				280 => new Element14(),
+				281 => new Element15(),
+				282 => new Element16(),
+				283 => new Element17(),
+				284 => new Element18(),
+				285 => new Element19(),
+				286 => new Element20(),
+				287 => new Element21(),
+				288 => new Element22(),
+				289 => new Element23(),
+				290 => new Element24(),
+				291 => new Element25(),
+				292 => new Element26(),
+				293 => new Element27(),
+				294 => new Element28(),
+				295 => new Element29(),
+				296 => new Element30(),
+				297 => new Element31(),
+				298 => new Element32(),
+				299 => new Element33(),
+				300 => new Element34(),
+				301 => new Element35(),
+				302 => new Element36(),
+				303 => new Element37(),
+				304 => new Element38(),
+				305 => new Element39(),
+				306 => new Element40(),
+				307 => new Element41(),
+				308 => new Element42(),
+				309 => new Element43(),
+				310 => new Element44(),
+				311 => new Element45(),
+				312 => new Element46(),
+				313 => new Element47(),
+				314 => new Element48(),
+				315 => new Element49(),
+				316 => new Element50(),
+				317 => new Element51(),
+				318 => new Element52(),
+				319 => new Element53(),
+				320 => new Element54(),
+				321 => new Element55(),
+				322 => new Element56(),
+				323 => new Element57(),
+				324 => new Element58(),
+				325 => new Element59(),
+				326 => new Element60(),
+				327 => new Element61(),
+				328 => new Element62(),
+				329 => new Element63(),
+				330 => new Element64(),
+				331 => new Element65(),
+				332 => new Element66(),
+				333 => new Element67(),
+				334 => new Element68(),
+				335 => new Element69(),
+				336 => new Element70(),
+				337 => new Element71(),
+				338 => new Element72(),
+				339 => new Element73(),
+				340 => new Element74(),
+				341 => new Element75(),
+				342 => new Element76(),
+				343 => new Element77(),
+				344 => new Element78(),
+				345 => new Element79(),
+				346 => new Element80(),
+				347 => new Element81(),
+				348 => new Element82(),
+				349 => new Element83(),
+				350 => new Element84(),
+				351 => new Element85(),
+				352 => new Element86(),
+				353 => new Element87(),
+				354 => new Element88(),
+				355 => new Element89(),
+				356 => new Element90(),
+				357 => new Element91(),
+				358 => new Element92(),
+				359 => new Element93(),
+				360 => new Element94(),
+				361 => new Element95(),
+				362 => new Element96(),
+				363 => new Element97(),
+				364 => new Element98(),
+				365 => new Element99(),
+				366 => new Element100(),
+				367 => new Element101(),
+				368 => new Element102(),
+				369 => new Element103(),
+				370 => new Element104(),
+				371 => new Element105(),
+				372 => new Element106(),
+				373 => new Element107(),
+				374 => new Element108(),
+				375 => new Element109(),
+				376 => new Element110(),
+				377 => new Element111(),
+				378 => new Element112(),
+				379 => new Element113(),
+				380 => new Element114(),
+				381 => new Element115(),
+				382 => new Element116(),
+				383 => new Element117(),
+				384 => new Element118(),
+				385 => new Seagrass(),
+				386 => new Coral(),
+				387 => new CoralBlock(),
+				388 => new CoralFan(),
+				389 => new CoralFanDead(),
+				390 => new CoralFanHang(),
+				391 => new CoralFanHang2(),
+				392 => new CoralFanHang3(),
+				393 => new Kelp(),
+				394 => new DriedKelpBlock(),
+				395 => new AcaciaButton(),
+				396 => new BirchButton(),
+				397 => new DarkOakButton(),
+				398 => new JungleButton(),
+				399 => new SpruceButton(),
+				400 => new AcaciaTrapdoor(),
+				401 => new BirchTrapdoor(),
+				402 => new DarkOakTrapdoor(),
+				403 => new JungleTrapdoor(),
+				404 => new SpruceTrapdoor(),
+				405 => new AcaciaPressurePlate(),
+				406 => new BirchPressurePlate(),
+				407 => new DarkOakPressurePlate(),
+				408 => new JunglePressurePlate(),
+				409 => new SprucePressurePlate(),
+				410 => new CarvedPumpkin(),
+				411 => new SeaPickle(),
+				412 => new Conduit(),
+				414 => new TurtleEgg(),
+				415 => new BubbleColumn(),
+				416 => new Barrier(),
+				417 => new StoneSlab3(),
+				418 => new Bamboo(),
+				419 => new BambooSapling(),
+				420 => new Scaffolding(),
+				421 => new StoneSlab4(),
+				422 => new DoubleStoneSlab3(),
+				423 => new DoubleStoneSlab4(),
+				424 => new GraniteStairs(),
+				425 => new DioriteStairs(),
+				426 => new AndesiteStairs(),
+				427 => new PolishedGraniteStairs(),
+				428 => new PolishedDioriteStairs(),
+				429 => new PolishedAndesiteStairs(),
+				430 => new MossyStoneBrickStairs(),
+				431 => new SmoothRedSandstoneStairs(),
+				432 => new SmoothSandstoneStairs(),
+				433 => new EndBrickStairs(),
+				434 => new MossyCobblestoneStairs(),
+				435 => new NormalStoneStairs(),
+				436 => new SpruceStandingSign(),
+				437 => new SpruceWallSign(),
+				438 => new SmoothStone(),
+				439 => new RedNetherBrickStairs(),
+				440 => new SmoothQuartzStairs(),
+				441 => new BirchStandingSign(),
+				442 => new BirchWallSign(),
+				443 => new JungleStandingSign(),
+				444 => new JungleWallSign(),
+				445 => new AcaciaStandingSign(),
+				446 => new AcaciaWallSign(),
+				447 => new DarkoakStandingSign(),
+				448 => new DarkoakWallSign(),
+				449 => new Lectern(),
+				450 => new Grindstone(),
+				451 => new BlastFurnace(),
+				452 => new StonecutterBlock(),
+				453 => new Smoker(),
+				454 => new LitSmoker(),
+				455 => new CartographyTable(),
+				456 => new FletchingTable(),
+				457 => new SmithingTable(),
+				458 => new Barrel(),
+				459 => new Loom(),
+				461 => new Bell(),
+				462 => new SweetBerryBush(),
+				463 => new Lantern(),
+				464 => new Campfire(),
+				465 => new LavaCauldron(),
+				466 => new Jigsaw(),
+				467 => new Wood(),
+				468 => new Composter(),
+				469 => new LitBlastFurnace(),
+				470 => new LightBlock(),
+				471 => new WitherRose(),
+				472 => new StickyPistonArmCollision(),
+				473 => new BeeNest(),
+				474 => new Beehive(),
+				475 => new HoneyBlock(),
+				476 => new HoneycombBlock(),
+				477 => new Lodestone(),
+				478 => new CrimsonRoots(),
+				479 => new WarpedRoots(),
+				480 => new CrimsonStem(),
+				481 => new WarpedStem(),
+				482 => new WarpedWartBlock(),
+				483 => new CrimsonFungus(),
+				484 => new WarpedFungus(),
+				485 => new Shroomlight(),
+				486 => new WeepingVines(),
+				487 => new CrimsonNylium(),
+				488 => new WarpedNylium(),
+				489 => new Basalt(),
+				490 => new PolishedBasalt(),
+				491 => new SoulSoil(),
+				492 => new SoulFire(),
+				493 => new NetherSprouts(),
+				494 => new Target(),
+				495 => new StrippedCrimsonStem(),
+				496 => new StrippedWarpedStem(),
+				497 => new CrimsonPlanks(),
+				498 => new WarpedPlanks(),
+				499 => new CrimsonDoor(),
+				500 => new WarpedDoor(),
+				501 => new CrimsonTrapdoor(),
+				502 => new WarpedTrapdoor(),
+				505 => new CrimsonStandingSign(),
+				506 => new WarpedStandingSign(),
+				507 => new CrimsonWallSign(),
+				508 => new WarpedWallSign(),
+				509 => new CrimsonStairs(),
+				510 => new WarpedStairs(),
+				511 => new CrimsonFence(),
+				512 => new WarpedFence(),
+				513 => new CrimsonFenceGate(),
+				514 => new WarpedFenceGate(),
+				515 => new CrimsonButton(),
+				516 => new WarpedButton(),
+				517 => new CrimsonPressurePlate(),
+				518 => new WarpedPressurePlate(),
+				519 => new CrimsonSlab(),
+				520 => new WarpedSlab(),
+				521 => new CrimsonDoubleSlab(),
+				522 => new WarpedDoubleSlab(),
+				523 => new SoulTorch(),
+				524 => new SoulLantern(),
+				525 => new NetheriteBlock(),
+				526 => new AncientDebris(),
+				527 => new RespawnAnchor(),
+				528 => new Blackstone(),
+				529 => new PolishedBlackstoneBricks(),
+				530 => new PolishedBlackstoneBrickStairs(),
+				531 => new BlackstoneStairs(),
+				532 => new BlackstoneWall(),
+				533 => new PolishedBlackstoneBrickWall(),
+				534 => new ChiseledPolishedBlackstone(),
+				535 => new CrackedPolishedBlackstoneBricks(),
+				536 => new GildedBlackstone(),
+				537 => new BlackstoneSlab(),
+				538 => new BlackstoneDoubleSlab(),
+				539 => new PolishedBlackstoneBrickSlab(),
+				540 => new PolishedBlackstoneBrickDoubleSlab(),
+				541 => new Chain(),
+				542 => new TwistingVines(),
+				543 => new NetherGoldOre(),
+				544 => new CryingObsidian(),
+				545 => new SoulCampfire(),
+				546 => new PolishedBlackstone(),
+				547 => new PolishedBlackstoneStairs(),
+				548 => new PolishedBlackstoneSlab(),
+				549 => new PolishedBlackstoneDoubleSlab(),
+				550 => new PolishedBlackstonePressurePlate(),
+				551 => new PolishedBlackstoneButton(),
+				552 => new PolishedBlackstoneWall(),
+				553 => new WarpedHyphae(),
+				554 => new CrimsonHyphae(),
+				555 => new StrippedCrimsonHyphae(),
+				556 => new StrippedWarpedHyphae(),
+				557 => new ChiseledNetherBricks(),
+				558 => new CrackedNetherBricks(),
+				559 => new QuartzBricks(),
+				_ => new Block(blockId)
+			};
 
 			return block;
 		}

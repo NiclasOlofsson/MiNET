@@ -3,6 +3,7 @@
 # Core EditorConfig Options   # 
 ############################### 
 # All files 
+root=true
 [*]
 indent_style=tab
 
@@ -130,7 +131,7 @@ dotnet_naming_rule.non_private_static_fields_should_be_pascal_case.symbols = non
 dotnet_naming_rule.non_private_static_fields_should_be_pascal_case.style = non_private_static_field_style
 
 dotnet_naming_symbols.non_private_static_fields.applicable_kinds = field
-dotnet_naming_symbols.non_private_static_fields.applicable_accessibilities = public, protected, internal, protected_internal, private_protected
+dotnet_naming_symbols.non_private_static_fields.applicable_accessibilities = public, protected, internal, protected_internal, private_protected,private
 dotnet_naming_symbols.non_private_static_fields.required_modifiers = static
 
 dotnet_naming_style.non_private_static_field_style.capitalization = pascal_case

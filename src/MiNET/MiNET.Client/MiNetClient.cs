@@ -99,6 +99,10 @@ namespace MiNET.Client
 		public string Username { get; set; }
 		public int ClientId { get; set; }
 
+		public int PlayerStatus { get; set; }
+		public bool UseBlobCache { get; set; }
+		public Dictionary<ulong, byte[]> BlobCache { get; set; } = new Dictionary<ulong, byte[]>();
+
 		public IMcpeClientMessageHandler MessageHandler { get; set; }
 
 		public McpeClientMessageDispatcher MessageDispatcher
@@ -144,8 +148,6 @@ namespace MiNET.Client
 			Connection.Stop();
 			return true;
 		}
-
-		public int PlayerStatus { get; set; }
 
 		public void SendLogin(string username)
 		{

@@ -5530,7 +5530,6 @@ namespace MiNET.Net
 		public int chunkZ; // = null;
 		public uint subChunkCount; // = null;
 		public bool cacheEnabled; // = null;
-		public byte[] chunkData; // = null;
 
 		public McpeLevelChunk()
 		{
@@ -5548,7 +5547,6 @@ namespace MiNET.Net
 			WriteSignedVarInt(chunkZ);
 			WriteUnsignedVarInt(subChunkCount);
 			Write(cacheEnabled);
-			WriteByteArray(chunkData);
 
 			AfterEncode();
 		}
@@ -5566,7 +5564,6 @@ namespace MiNET.Net
 			chunkZ = ReadSignedVarInt();
 			subChunkCount = ReadUnsignedVarInt();
 			cacheEnabled = ReadBool();
-			chunkData = ReadByteArray();
 
 			AfterDecode();
 		}
@@ -5582,7 +5579,6 @@ namespace MiNET.Net
 			chunkZ=default(int);
 			subChunkCount=default(uint);
 			cacheEnabled=default(bool);
-			chunkData=default(byte[]);
 		}
 
 	}

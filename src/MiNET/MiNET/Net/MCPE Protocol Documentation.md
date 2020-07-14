@@ -1460,7 +1460,6 @@ Wiki: [Level Chunk](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Level
 |Chunk Z | SignedVarInt |  |
 |Sub Chunk Count | UnsignedVarInt |  |
 |Cache Enabled | bool |  |
-|Chunk Data | ByteArray |  |
 -----------------------------------------------------------------------
 ### Set Commands Enabled (0x3b)
 Wiki: [Set Commands Enabled](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetCommandsEnabled)

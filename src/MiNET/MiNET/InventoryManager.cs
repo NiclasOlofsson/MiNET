@@ -28,6 +28,7 @@ using System.Linq;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
+using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -67,6 +68,19 @@ namespace MiNET
 				}
 
 				BlockEntity blockEntity = _level.GetBlockEntity(inventoryCoord);
+				if (blockEntity == null)
+				{
+					Block inventoryBlock = _level.GetBlock(inventoryCoord);
+					switch (inventoryBlock)
+					{
+						case Chest _:
+							blockEntity = new ChestBlockEntity();
+							break;
+						case ShulkerBox _:
+							blockEntity = new ShulkerBoxBlockEntity();
+							break;
+					}
+				}
 
 				if (blockEntity == null)
 				{

@@ -754,7 +754,8 @@
 		<field name="Chunk Z" type="SignedVarInt" />
 		<field name="Sub Chunk Count" type="UnsignedVarInt" />
 		<field name="Cache Enabled" type="bool" />
-		<field name="Chunk Data" type="ByteArray" />
+		<!--<field name="Blob Hashes" type="ulong[]" />
+		<field name="Chunk Data" type="ByteArray" />-->
 	</pdu>
 
 	<pdu id="0x3b" online="false" client="false" server="true" name="MCPE_SET_COMMANDS_ENABLED">
@@ -1165,6 +1166,8 @@
 	</pdu>
 
 	<pdu id="0x87" online="false" client="false" server="true" name="MCPE_CLIENT_CACHE_BLOB_STATUS">
+		<!--<field name="Hash Misses" type="ulong[]" />
+		<field name="Hash Hits" type="ulong[]" />-->
 	</pdu>
 
 	<pdu id="0x88" online="false" client="false" server="true" name="MCPE_CLIENT_CACHE_MISS_RESPONSE">

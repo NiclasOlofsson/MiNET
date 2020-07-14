@@ -116,7 +116,7 @@ namespace MiNET.Plotter
 			PlotPattern.Order();
 		}
 
-		public void Initialize()
+		public void Initialize(IWorldProvider worldProvider)
 		{
 		}
 

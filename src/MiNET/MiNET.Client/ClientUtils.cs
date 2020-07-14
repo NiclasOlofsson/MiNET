@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using fNbt;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -45,11 +46,11 @@ namespace MiNET.Client
 
 		public static ChunkColumn DecodeChunkColumn(int subChunkCount, byte[] buffer, BlockPalette bedrockPalette = null, HashSet<BlockStateContainer> internalBlockPallet = null)
 		{
-			lock (_chunkRead)
+			//lock (_chunkRead)
 			{
 				var stream = new MemoryStream(buffer);
 				{
-					var defStream = new NbtBinaryReader(stream, true);
+					var defStream = new BinaryReader(stream);
 
 					if (subChunkCount < 1)
 					{
@@ -57,31 +58,34 @@ namespace MiNET.Client
 						return null;
 					}
 
-					Log.Debug($"Reading {subChunkCount} sections");
+					//if (Log.IsTraceEnabled()) Log.Trace($"Reading {subChunkCount} sections");
 
 					var chunkColumn = new ChunkColumn(false);
 
 					for (int chunkIndex = 0; chunkIndex < subChunkCount; chunkIndex++)
 					{
-						int version = defStream.ReadByte();
-						int storageSize = defStream.ReadByte();
+						int version = stream.ReadByte();
+						int storageSize = stream.ReadByte();
 
 						var subChunk = chunkColumn[chunkIndex];
 
 						for (int storageIndex = 0; storageIndex < storageSize; storageIndex++)
 						{
-							int bitsPerBlock = defStream.ReadByte() >> 1;
+							int flags = stream.ReadByte();
+							bool isRuntime = (flags & 1) != 0;
+							int bitsPerBlock = flags >> 1;
 							int blocksPerWord = (int) Math.Floor(32f / bitsPerBlock);
 							int wordsPerChunk = (int) Math.Ceiling(4096f / blocksPerWord);
-							Log.Debug($"New section {chunkIndex}, " +
-									$"version={version}, " +
-									$"storageSize={storageSize}, " +
-									$"storageIndex={storageIndex}, " +
-									$"bitsPerBlock={bitsPerBlock}, " +
-									$"noBlocksPerWord={blocksPerWord}, " +
-									$"wordCount={wordsPerChunk}, " +
-									$"");
-
+							if (Log.IsTraceEnabled())
+								Log.Trace($"New section {chunkIndex}, " +
+										$"version={version}, " +
+										$"storageSize={storageSize}, " +
+										$"storageIndex={storageIndex}, " +
+										$"bitsPerBlock={bitsPerBlock}, " +
+										$"isRuntime={isRuntime}, " +
+										$"noBlocksPerWord={blocksPerWord}, " +
+										$"wordCount={wordsPerChunk}, " +
+										$"");
 
 							long jumpPos = stream.Position;
 							stream.Seek(wordsPerChunk * 4, SeekOrigin.Current);
@@ -90,10 +94,36 @@ namespace MiNET.Client
 							var palette = new int[paletteCount];
 							for (int j = 0; j < paletteCount; j++)
 							{
-								int runtimeId = VarInt.ReadSInt32(stream);
-								if (bedrockPalette == null || internalBlockPallet == null) continue;
+								if (!isRuntime)
+								{
+									var file = new NbtFile
+									{
+										BigEndian = false,
+										UseVarInt = true
+									};
+									file.LoadFromStream(stream, NbtCompression.None);
+									var tag = (NbtCompound) file.RootTag;
 
-								palette[j] = GetServerRuntimeId(bedrockPalette, internalBlockPallet, runtimeId);
+									Block block = BlockFactory.GetBlockByName(tag["name"].StringValue);
+									if (block != null && block.GetType() != typeof(Block) && !(block is Air))
+									{
+										List<IBlockState> blockState = ReadBlockState(tag);
+										block.SetState(blockState);
+									}
+									else
+									{
+										block = new Air();
+									}
+
+									palette[j] = block.GetRuntimeId();
+								}
+								else
+								{
+									int runtimeId = VarInt.ReadSInt32(stream);
+									if (bedrockPalette == null || internalBlockPallet == null) continue;
+
+									palette[j] = GetServerRuntimeId(bedrockPalette, internalBlockPallet, runtimeId);
+								}
 							}
 
 							long afterPos = stream.Position;
@@ -131,24 +161,31 @@ namespace MiNET.Client
 						}
 					}
 
-					if (defStream.Read(chunkColumn.biomeId, 0, 256) != 256) Log.Error($"Out of data biomeId");
+					if (stream.Read(chunkColumn.biomeId, 0, 256) != 256) return chunkColumn;
 					//Log.Debug($"biomeId:\n{Package.HexDump(chunk.biomeId)}");
 
-					//if (stream.Position >= stream.Length - 1) return chunkColumn;
+					if (stream.Position >= stream.Length - 1) return chunkColumn;
 
 					int borderBlock = VarInt.ReadSInt32(stream);
 					if (borderBlock != 0)
 					{
-						byte[] buf = new byte[borderBlock];
-						int len = defStream.Read(buf, 0, borderBlock);
-						Log.Warn($"??? Got borderblock {borderBlock}. Read {len} bytes");
-						Log.Debug($"{Packet.HexDump(buf)}");
-						for (int i = 0; i < borderBlock; i++)
-						{
-							int x = (buf[i] & 0xf0) >> 4;
-							int z = buf[i] & 0x0f;
-							Log.Debug($"x={x}, z={z}");
-						}
+						Log.Warn($"??? Got borderblock with value {borderBlock}.");
+
+						int len = (int) (stream.Length - stream.Position);
+						var bytes = new byte[len];
+						stream.Read(bytes, 0, len);
+						Log.Warn($"Data to read for border blocks\n{Packet.HexDump(new ReadOnlyMemory<byte>(bytes))}");
+
+						//byte[] buf = new byte[borderBlock];
+						//int len = stream.Read(buf, 0, borderBlock);
+						//Log.Warn($"??? Got borderblock {borderBlock}. Read {len} bytes");
+						//Log.Debug($"{Packet.HexDump(buf)}");
+						//for (int i = 0; i < borderBlock; i++)
+						//{
+						//	int x = (buf[i] & 0xf0) >> 4;
+						//	int z = buf[i] & 0x0f;
+						//	Log.Debug($"x={x}, z={z}");
+						//}
 					}
 
 					if (stream.Position < stream.Length - 1)
@@ -171,18 +208,55 @@ namespace MiNET.Client
 
 								chunkColumn.SetBlockEntity(new BlockCoordinates(x, y, z), (NbtCompound) file.RootTag);
 
-								Log.Debug($"Blockentity:\n{file.RootTag}");
+								if (Log.IsTraceEnabled()) Log.Trace($"Blockentity:\n{file.RootTag}");
 							}
 						}
 					}
+
 					if (stream.Position < stream.Length - 1)
 					{
-						Log.Warn($"Still have data to read\n{Packet.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
+						int len = (int) (stream.Length - stream.Position);
+						var bytes = new byte[len];
+						stream.Read(bytes, 0, len);
+						Log.Warn($"Still have data to read\n{Packet.HexDump(new ReadOnlyMemory<byte>(bytes))}");
 					}
 
 					return chunkColumn;
 				}
 			}
+		}
+
+		private static List<IBlockState> ReadBlockState(NbtCompound tag)
+		{
+			//Log.Debug($"Palette nbt:\n{tag}");
+
+			var states = new List<IBlockState>();
+			var nbtStates = (NbtCompound) tag["states"];
+			foreach (NbtTag stateTag in nbtStates)
+			{
+				IBlockState state = stateTag.TagType switch
+				{
+					NbtTagType.Byte => (IBlockState) new BlockStateByte()
+					{
+						Name = stateTag.Name,
+						Value = stateTag.ByteValue
+					},
+					NbtTagType.Int => new BlockStateInt()
+					{
+						Name = stateTag.Name,
+						Value = stateTag.IntValue
+					},
+					NbtTagType.String => new BlockStateString()
+					{
+						Name = stateTag.Name,
+						Value = stateTag.StringValue
+					},
+					_ => throw new ArgumentOutOfRangeException()
+				};
+				states.Add(state);
+			}
+
+			return states;
 		}
 
 		private static int GetServerRuntimeId(BlockPalette bedrockPalette, HashSet<BlockStateContainer> internalBlockPallet, int runtimeId)

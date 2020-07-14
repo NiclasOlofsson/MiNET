@@ -156,7 +156,7 @@ namespace MiNET.Net
 		{
 			if (value == null)
 			{
-				Log.Warn("Trying to write null PrefixedArray");
+				WriteLength(0);
 				return;
 			}
 
@@ -172,6 +172,35 @@ namespace MiNET.Net
 			var len = ReadLength();
 			var bytes = ReadBytes(len, slurp);
 			return bytes;
+		}
+
+		public void Write(ulong[] value)
+		{
+			if (value == null)
+			{
+				WriteLength(0);
+				return;
+			}
+
+			WriteLength(value.Length);
+
+			if (value.Length == 0) return;
+			for (int i = 0; i < value.Length; i++)
+			{
+				ulong val = value[i];
+				Write(val);
+			}
+		}
+
+		public ulong[] ReadUlongs(bool slurp = false)
+		{
+			var len = ReadLength();
+			var ulongs = new ulong[len];
+			for (int i = 0; i < ulongs.Length; i++)
+			{
+				ulongs[i] = ReadUlong();
+			}
+			return ulongs;
 		}
 
 		public void Write(short value, bool bigEndian = false)

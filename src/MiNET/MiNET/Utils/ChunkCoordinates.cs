@@ -236,16 +236,13 @@ namespace MiNET.Utils
 
 		public override bool Equals(object obj)
 		{
-			if (ReferenceEquals(null, obj)) return false;
-			return obj is ChunkCoordinates && Equals((ChunkCoordinates) obj);
+			return obj is ChunkCoordinates other && Equals(other);
 		}
+
 
 		public override int GetHashCode()
 		{
-			unchecked
-			{
-				return (X * 397) ^ Z;
-			}
+			return HashCode.Combine(X, Z);
 		}
 	}
 }

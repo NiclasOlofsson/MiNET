@@ -2023,6 +2023,7 @@ namespace MiNET
 
 		public void HandleMcpeClientCacheStatus(McpeClientCacheStatus message)
 		{
+			Log.Warn($"Cache status: {(message.enabled ? "Enabled" : "Disabled")}");
 		}
 
 		public void HandleMcpeNetworkSettings(McpeNetworkSettings message)
@@ -3024,7 +3025,7 @@ namespace MiNET
 
 				SendNetworkChunkPublisherUpdate();
 
-				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
+				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius, () => KnownPosition))
 				{
 					if (chunk != null) SendPacket(chunk);
 
@@ -3036,7 +3037,7 @@ namespace MiNET
 					}
 				}
 
-				Log.Debug($"Sent {packetCount} chunks for {chunkPosition}");
+				Log.Debug($"Sent {packetCount} chunks for {chunkPosition} with view distance {MaxViewDistance}");
 			}
 			catch (Exception e)
 			{

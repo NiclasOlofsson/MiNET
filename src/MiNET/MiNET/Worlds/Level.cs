@@ -953,11 +953,11 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public IEnumerable<McpeWrapper> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<ChunkCoordinates, McpeWrapper> chunksUsed, double radius)
+		public IEnumerable<McpeWrapper> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<ChunkCoordinates, McpeWrapper> chunksUsed, double radius, Func<Vector3> getCurrentPositionAction = null)
 		{
 			lock (chunksUsed)
 			{
-				Dictionary<ChunkCoordinates, double> newOrders = new Dictionary<ChunkCoordinates, double>();
+				var newOrders = new Dictionary<ChunkCoordinates, double>();
 
 				double radiusSquared = Math.Pow(radius, 2);
 
@@ -994,14 +994,19 @@ namespace MiNET.Worlds
 
 					if (WorldProvider == null) continue;
 
+					if (getCurrentPositionAction != null)
+					{
+						var currentPos = getCurrentPositionAction();
+						var coords = new ChunkCoordinates(currentPos);
+						if(coords.DistanceTo(pair.Key) > radius) continue;
+					}
 					ChunkColumn chunkColumn = GetChunk(pair.Key);
 					McpeWrapper chunk = null;
 					if (chunkColumn != null)
 					{
 						chunk = chunkColumn.GetBatch();
+						chunksUsed.Add(pair.Key, chunk);
 					}
-
-					chunksUsed.Add(pair.Key, chunk);
 
 					yield return chunk;
 				}

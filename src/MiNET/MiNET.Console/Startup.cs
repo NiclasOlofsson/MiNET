@@ -26,7 +26,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Threading;
 using log4net;
 using log4net.Config;
 using MiNET.Utils;
@@ -39,6 +42,19 @@ namespace MiNET.Console
 
 		static void Main(string[] args)
 		{
+			if (args.Length > 0 && args[0] == "listener")
+			{
+				// This is a brutal hack to block BDS to use the ports we are using. So we start this, and basically block BDS
+				// while it is starting. Then we close down this process again, and continue on our way.
+				var reset = new ManualResetEvent(false);
+				using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp) {ExclusiveAddressUse = true};
+				socket.Bind(new IPEndPoint(IPAddress.Any, 19132));
+				System.Console.WriteLine("LISTENING!");
+				reset.WaitOne();
+				System.Console.WriteLine("EXIT!");
+				return;
+			}
+
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 			XmlConfigurator.Configure(logRepository, new FileInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log4net.xml")));
 

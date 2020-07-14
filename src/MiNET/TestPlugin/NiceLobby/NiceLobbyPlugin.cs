@@ -484,10 +484,10 @@ namespace TestPlugin.NiceLobby
 						FireworkType = 4,
 					}
 				},
-				Flight = 2
+				Flight = 1
 			});
 
-			//player.Inventory.Slots[idx++] = fireworks;
+			player.Inventory.Slots[idx++] = fireworks;
 			//player.Inventory.Slots[idx++] = new ItemBread() {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemSnowball() {Count = 16};
 			//player.Inventory.Slots[idx++] = new ItemBow() {Count = 1};

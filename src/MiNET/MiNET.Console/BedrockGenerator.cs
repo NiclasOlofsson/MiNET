@@ -25,8 +25,8 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
@@ -44,20 +44,33 @@ namespace MiNET.Console
 		private MiNetClient _client;
 		private Process _bedrock;
 
-		public void Initialize()
+		public BedrockGenerator()
 		{
-			using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
-			{
-				socket.Bind(new IPEndPoint(IPAddress.Any, 19132));
+		}
 
-				var startInfo = new ProcessStartInfo(@"C:\Development\Other\bedrock-server-1.14.1.4\bedrock_server.exe");
+		public void Initialize(IWorldProvider worldProvider)
+		{
+			Process blocker;
+			{
+				// Block port!
+				var startInfo = new ProcessStartInfo("MiNET.Console.exe", "listener");
+				startInfo.CreateNoWindow = false;
+				startInfo.WindowStyle = ProcessWindowStyle.Normal;
+				startInfo.UseShellExecute = false;
+				blocker = Process.Start(startInfo);
+			}
+			{
+				var startInfo = new ProcessStartInfo(Path.Combine(Config.GetProperty("BDSPath", null), Config.GetProperty("BDSExe", null)));
+				startInfo.WorkingDirectory = Config.GetProperty("BDSPath", null);
 				startInfo.CreateNoWindow = false;
 				startInfo.WindowStyle = ProcessWindowStyle.Normal;
 				startInfo.UseShellExecute = false;
 
 				_bedrock = Process.Start(startInfo);
-				_client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.4"), 19162), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-				_client.MessageHandler = new ChunkGeneratorHandler(_client);
+
+				_client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.10.178"), 19162), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+				_client.MessageHandler = new ChunkGeneratorHandler(_client, worldProvider);
+				//_client.UseBlobCache = true;
 				_client.StartClient();
 
 				if (_client.ServerEndPoint != null)
@@ -75,12 +88,23 @@ namespace MiNET.Console
 
 			Task.Run(BotHelpers.DoWaitForSpawn(_client)).Wait();
 			Log.Info("Spawned on bedrock server");
+
+			blocker?.Kill(); // no need to block further once we have spawned our bot.
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
 			var sw = Stopwatch.StartNew();
 			var playerCoords = (BlockCoordinates) chunkCoordinates;
+
+			if (_client.Chunks.TryGetValue(chunkCoordinates, out ChunkColumn chunk))
+			{
+				Log.Debug($"Successful return of chunk {chunkCoordinates} from cache.");
+				_client.Chunks.TryRemove(chunkCoordinates, out _);
+				return chunk;
+			}
+
+			_client.Chunks.TryAdd(chunkCoordinates, null); // register to receive chunks. 
 
 			var movePlayerPacket = McpeMovePlayer.CreateObject();
 			movePlayerPacket.runtimeEntityId = _client.EntityId;
@@ -89,20 +113,20 @@ namespace MiNET.Console
 			movePlayerPacket.z = playerCoords.Z;
 			_client.SendPacket(movePlayerPacket);
 
-			int count = 0;
-			ChunkColumn chunk = null;
-			while (count++ < 100 && !_client.Chunks.TryGetValue(chunkCoordinates, out chunk))
+			while (sw.ElapsedMilliseconds < 2000)
 			{
+				_client.Chunks.TryGetValue(chunkCoordinates, out chunk);
+				if (chunk != null) break;
 				Thread.Sleep(50);
 			}
 
 			if (chunk == null)
 			{
-				Log.Warn($"Failed to locate chunk {chunkCoordinates}. Tried {count} times");
+				Log.Warn($"Failed to locate chunk {chunkCoordinates}. Tried {sw.ElapsedMilliseconds}ms");
 			}
 			else
 			{
-				Log.Debug($"Successful return of chunk {chunkCoordinates} in {sw.ElapsedMilliseconds}ms. Tried {count} times");
+				Log.Debug($"Successful return of chunk {chunkCoordinates} in {sw.ElapsedMilliseconds}ms. Have {_client.Chunks.Count} chunks in memory now.");
 			}
 
 			return chunk;

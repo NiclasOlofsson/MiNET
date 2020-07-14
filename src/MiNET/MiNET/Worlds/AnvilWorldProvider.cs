@@ -257,7 +257,7 @@ namespace MiNET.Worlds
 						break;
 				}
 
-				MissingChunkProvider?.Initialize();
+				MissingChunkProvider?.Initialize(this);
 
 				_isInitialized = true;
 			}
@@ -330,9 +330,14 @@ namespace MiNET.Worlds
 		{
 			if (Locked || cacheOnly)
 			{
-				ChunkColumn chunk;
-				_chunkCache.TryGetValue(chunkCoordinates, out chunk);
+				_chunkCache.TryGetValue(chunkCoordinates, out ChunkColumn chunk);
 				return chunk;
+			}
+
+			if (_chunkCache.TryGetValue(chunkCoordinates, out ChunkColumn value))
+			{
+				if (value == null) _chunkCache.TryRemove(chunkCoordinates, out value);
+				if (value != null) return value;
 			}
 
 			// Warning: The following code MAY execute the GetChunk 2 times for the same coordinate

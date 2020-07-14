@@ -49,7 +49,7 @@ namespace MiNET.Worlds
 
 	public interface IWorldGenerator
 	{
-		void Initialize();
+		void Initialize(IWorldProvider worldProvider);
 
 		ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates);
 	}

@@ -53,6 +53,7 @@ namespace MiNET.Worlds
 
 		public bool IsDirty { get; private set; }
 
+		public ulong Hash { get; set; }
 		public bool DisableCache { get; set; }
 		private byte[] _cache;
 

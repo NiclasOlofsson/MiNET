@@ -54,7 +54,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void Initialize()
+		public void Initialize(IWorldProvider worldProvider)
 		{
 			BlockLayers = ParseSeed(Seed);
 		}

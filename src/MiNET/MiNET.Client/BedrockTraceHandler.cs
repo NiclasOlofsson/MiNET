@@ -760,33 +760,51 @@ namespace MiNET.Client
 			// TODO doesn't work anymore I guess
 			if (Client.IsEmulator) return;
 
-			Client.Chunks.GetOrAdd(new ChunkCoordinates(message.chunkX, message.chunkZ), coordinates =>
+			if (message.cacheEnabled)
 			{
-				Log.Debug($"Chunk X={message.chunkX}, Z={message.chunkZ}, size={message.chunkData.Length}, Count={Client.Chunks.Count}");
+				var hits = new ulong[message.blobHashes.Length];
 
-				ChunkColumn chunk = null;
-				try
+				for (int i = 0; i < message.blobHashes.Length; i++)
 				{
-					chunk = ClientUtils.DecodeChunkColumn((int) message.subChunkCount, message.chunkData);
-					if (chunk != null)
+					ulong hash = message.blobHashes[i];
+					hits[i] = hash;
+					Log.Debug($"Got hashes for {message.chunkX}, {message.chunkZ}, {hash}");
+				}
+
+				var status = McpeClientCacheBlobStatus.CreateObject();
+				status.hashHits = hits;
+				Client.SendPacket(status);
+			}
+			else
+			{
+				Client.Chunks.GetOrAdd(new ChunkCoordinates(message.chunkX, message.chunkZ), coordinates =>
+				{
+					Log.Debug($"Chunk X={message.chunkX}, Z={message.chunkZ}, size={message.chunkData.Length}, Count={Client.Chunks.Count}");
+
+					ChunkColumn chunk = null;
+					try
 					{
-						chunk.X = coordinates.X;
-						chunk.Z = coordinates.Z;
-						chunk.RecalcHeight();
-						Log.DebugFormat("Chunk X={0}, Z={1}", chunk.X, chunk.Z);
-						foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntity in chunk.BlockEntities)
+						chunk = ClientUtils.DecodeChunkColumn((int) message.subChunkCount, message.chunkData);
+						if (chunk != null)
 						{
-							Log.Debug($"Blockentity: {blockEntity.Value}");
+							chunk.X = coordinates.X;
+							chunk.Z = coordinates.Z;
+							chunk.RecalcHeight();
+							Log.DebugFormat("Chunk X={0}, Z={1}", chunk.X, chunk.Z);
+							foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntity in chunk.BlockEntities)
+							{
+								Log.Debug($"Blockentity: {blockEntity.Value}");
+							}
 						}
 					}
-				}
-				catch (Exception e)
-				{
-					Log.Error("Reading chunk", e);
-				}
+					catch (Exception e)
+					{
+						Log.Error("Reading chunk", e);
+					}
 
-				return chunk;
-			});
+					return chunk;
+				});
+			}
 		}
 
 		public override void HandleMcpeGameRulesChanged(McpeGameRulesChanged message)
@@ -884,11 +902,25 @@ namespace MiNET.Client
 			//}
 
 			var root = message.namedtag.NbtFile.RootTag;
-			Log.Debug($"\n{root}");
-
+			//Log.Debug($"\n{root}");
 			File.WriteAllText(Path.Combine(Path.GetTempPath(), "Biomes_" + Guid.NewGuid() + ".txt"), root.ToString());
 		}
 
+		public override void HandleMcpeNetworkChunkPublisherUpdate(McpeNetworkChunkPublisherUpdate message)
+		{
+		}
 
+		public override void HandleMcpePlayStatus(McpePlayStatus message)
+		{
+
+			base.HandleMcpePlayStatus(message);
+
+			if (Client.PlayerStatus == 0)
+			{
+				var packet = McpeClientCacheStatus.CreateObject();
+				packet.enabled = Client.UseBlobCache;
+				Client.SendPacket(packet);
+			}
+		}
 	}
 }

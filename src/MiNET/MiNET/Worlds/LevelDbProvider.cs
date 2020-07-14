@@ -92,7 +92,7 @@ namespace MiNET.Worlds
 			db.Open();
 			_db = db;
 
-			MissingChunkProvider?.Initialize();
+			MissingChunkProvider?.Initialize(this);
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates, bool cacheOnly = false)

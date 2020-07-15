@@ -90,7 +90,7 @@ namespace TestPlugin.NiceLobby
 
 		public CustomFrame(List<MapEntity> frames, ItemFrameBlockEntity itemFrameBlockEntity, Level level, FrameTicker frameTicker) : base()
 		{
-			Log.Error("Created new Custom Item Frame");
+			Log.Debug("Created new Custom Item Frame");
 			_frames = frames;
 			_itemFrameBlockEntity = itemFrameBlockEntity;
 			_level = level;
@@ -121,7 +121,7 @@ namespace TestPlugin.NiceLobby
 				var currentFrame = _frameTicker.GetCurrentFrame(this);
 				if (currentFrame >= _frames.Count) return;
 
-				ItemMap map = new ItemMap(_frames[currentFrame].EntityId);
+				var map = new ItemMap(_frames[currentFrame].EntityId);
 
 				ItemFrameBlockEntity blockEntity = _itemFrameBlockEntity;
 				if (blockEntity != null)

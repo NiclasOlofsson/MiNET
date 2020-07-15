@@ -965,6 +965,7 @@
 		<field name="Skin" type="Skin" />
 		<field name="Skin Name" type="string" />
 		<field name="Old Skin Name" type="string" />
+		<field name="is Verified" type="bool" />
 	</pdu>
 
 	<pdu id="0x5e" online="false" client="false" server="true" name="MCPE_SUB_CLIENT_LOGIN">

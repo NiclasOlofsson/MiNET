@@ -24,9 +24,9 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -34,7 +34,6 @@ using System.Reflection;
 using log4net;
 using MiNET;
 using MiNET.Entities;
-using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
@@ -46,7 +45,7 @@ namespace TestPlugin.Code4Fun
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ScreenshotCommand));
 
-		Dictionary<Tuple<int, int>, PlayerMob> mobs = new Dictionary<Tuple<int, int>, PlayerMob>();
+		ConcurrentDictionary<Tuple<int, int>, PlayerMob> mobs = new ConcurrentDictionary<Tuple<int, int>, PlayerMob>();
 		private int _width = 3;
 		private int _height = 2;
 
@@ -128,8 +127,10 @@ namespace TestPlugin.Code4Fun
 						},
 						KnownPosition = new PlayerLocation(coordinates.X + direction.X + (x * 4), coordinates.Y + (y * 4), coordinates.Z + direction.Z, 0, 0)
 					};
-					mobs.Add(new Tuple<int, int>(x, y), fake);
+					mobs.TryAdd(new Tuple<int, int>(x, y), fake);
 					fake.SpawnEntity();
+					//fake.AddToPlayerList();
+					//Thread.Sleep(500);
 				}
 			}
 			mobs.First().Value.Ticking += PlayerOnTicking;
@@ -139,7 +140,7 @@ namespace TestPlugin.Code4Fun
 		{
 			{
 				var player = (PlayerMob) sender;
-				if (player.Level.TickTime % 4 != 0) return;
+				if (player.Level.TickTime % 20 != 0) return;
 			}
 
 			using var bmpScreenCapture = new Bitmap(2150, 1519);
@@ -151,33 +152,37 @@ namespace TestPlugin.Code4Fun
 			using var srcBitmap = new Bitmap(bmpScreenCapture, new Size((_width) * 62, (_height) * 62));
 			foreach (var mobCoord in mobs)
 			{
+				Log.Debug($"Updating {mobCoord.Key.Item1}, {mobCoord.Key.Item2}");
 				PlayerMob mob = mobCoord.Value;
 				mob.AddToPlayerList();
 
 				int offsetx = (mobCoord.Key.Item1) * 62;
 				int offsety = (_height - mobCoord.Key.Item2 - 1) * 62;
-				using Bitmap croppedImage = NiceLobbyPlugin.CropImage(srcBitmap, new Rectangle(offsetx, offsety, 62, 62));
+				using Bitmap croppedImage = VideoCommand.CropImage(srcBitmap, new Rectangle(offsetx, offsety, 62, 62));
 				using Bitmap textureImage = new Bitmap(64, 64);
 				var gfx = Graphics.FromImage(textureImage);
 				gfx.FillRectangle(Brushes.Black, new Rectangle(0, 0, 64, 64));
 				gfx.DrawImageUnscaled(croppedImage, new Point(1, 1));
-				//var bytes = NiceLobbyPlugin.BitmapToBytes(textureImage, true);
-				var stream = new MemoryStream();
-				textureImage.Save(stream, ImageFormat.MemoryBmp);
-				var bytes = stream.ToArray();
+				var bytes = VideoCommand.BitmapToBytes(textureImage, true);
+				//var stream = new MemoryStream();
+				//textureImage.Save(stream, ImageFormat.MemoryBmp);
+				//var bytes = stream.ToArray();
 
 				string oldSkinId = mob.Skin.SkinId;
 				var skin = (Skin) mob.Skin.Clone();
+				//var skin = (Skin) mob.Skin;
 				skin.Data = bytes;
 				skin.SkinId = "testing" + new Guid();
 				mob.Skin = skin;
 
-				var updateSkin = McpePlayerSkin.CreateObject();
-				updateSkin.uuid = mob.ClientUuid;
-				updateSkin.oldSkinName = oldSkinId;
-				updateSkin.skinName = mob.Skin.SkinId;
-				updateSkin.skin = mob.Skin;
-				mob.Level.RelayBroadcast(updateSkin);
+				// Below update doesn't work properly for unknown reasons.
+
+				//var updateSkin = McpePlayerSkin.CreateObject();
+				//updateSkin.uuid = mob.ClientUuid;
+				//updateSkin.oldSkinName = oldSkinId;
+				//updateSkin.skinName = mob.Skin.SkinId;
+				//updateSkin.skin = mob.Skin;
+				//mob.Level.RelayBroadcast(updateSkin);
 
 				mob.RemoveFromPlayerList();
 			}

@@ -50,6 +50,7 @@ namespace TestPlugin.Code4Fun
 		protected override void OnEnable()
 		{
 			Context.PluginManager.LoadCommands(new ScreenshotCommand());
+			Context.PluginManager.LoadCommands(new VideoCommand());
 		}
 
 		[Command]
@@ -119,8 +120,8 @@ namespace TestPlugin.Code4Fun
 
 			fake.SetPosition(new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, 0, 0), true);
 
-			var state = new GravityGeometryBehavior(fake, geometryModel);
-			fake.Ticking += state.FakeMeltTicking;
+			//var state = new GravityGeometryBehavior(fake, geometryModel);
+			//fake.Ticking += state.FakeMeltTicking;
 		}
 
 		public class GravityGeometryBehavior

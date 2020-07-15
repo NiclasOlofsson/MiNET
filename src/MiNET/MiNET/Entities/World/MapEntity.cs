@@ -50,10 +50,10 @@ namespace MiNET.Entities.World
 				EntityId = level.EntityManager.AddEntity(this) + 0xFFFF;
 			}
 
-			ImageProvider = new MapImageProvider();
-			//ImageProvider = new RandomColorMapImageProvider();
+			//ImageProvider = new MapImageProvider();
+			ImageProvider = new RandomColorMapImageProvider();
 
-			MapInfo mapInfo = new MapInfo
+			var mapInfo = new MapInfo
 			{
 				MapId = EntityId,
 				UpdateType = 6,
@@ -81,26 +81,27 @@ namespace MiNET.Entities.World
 
 		public override void OnTick(Entity[] entities)
 		{
-			if (Level.TickTime % 2 != 0) return;
+			//if (Level.TickTime % 2 != 0) return;
 
 			// if no image provider, do nothing
 			if (ImageProvider == null) return;
 
-			MapInfo.Decorators = new MapDecorator[1];
-			for (int i = 0; i < MapInfo.Decorators.Length; i++)
-			{
-				var decorator = new MapDecorator
-				{
-					Rotation = (byte) (Level.TickTime % 16),
-					Icon = (byte) 1,
-					X = (byte) (Level.TickTime % 255),
-					Z = (byte) (Level.TickTime % 255),
-					Label = "",
-					Color = BitConverter.ToUInt32(new byte[] {0xff, 0xff, 0xff, 0xff}, 0),
-				};
+			MapInfo.Decorators = new MapDecorator[0];
+			//MapInfo.Decorators = new MapDecorator[1];
+			//for (int i = 0; i < MapInfo.Decorators.Length; i++)
+			//{
+			//	var decorator = new MapDecorator
+			//	{
+			//		Rotation = (byte) (Level.TickTime % 16),
+			//		Icon = (byte) 1,
+			//		X = (byte) (Level.TickTime % 255),
+			//		Z = (byte) (Level.TickTime % 255),
+			//		Label = "",
+			//		Color = BitConverter.ToUInt32(new byte[] {0xff, 0xff, 0xff, 0xff}, 0),
+			//	};
 
-				MapInfo.Decorators[i] = decorator;
-			}
+			//	MapInfo.Decorators[i] = decorator;
+			//}
 
 			var data = ImageProvider.GetData(MapInfo, false);
 			if (data != null)
@@ -108,7 +109,7 @@ namespace MiNET.Entities.World
 				MapInfo.Data = data;
 				var mapInfo = (MapInfo) MapInfo.Clone();
 
-				McpeClientboundMapItemData msg = McpeClientboundMapItemData.CreateObject();
+				var msg = McpeClientboundMapItemData.CreateObject();
 				msg.mapinfo = mapInfo;
 				Level.RelayBroadcast(msg);
 

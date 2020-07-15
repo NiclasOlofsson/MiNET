@@ -2042,6 +2042,7 @@ Wiki: [Player Skin](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Playe
 |Skin | Skin |  |
 |Skin Name | string |  |
 |Old Skin Name | string |  |
+|is Verified | bool |  |
 -----------------------------------------------------------------------
 ### Sub Client Login (0x5e)
 Wiki: [Sub Client Login](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SubClientLogin)

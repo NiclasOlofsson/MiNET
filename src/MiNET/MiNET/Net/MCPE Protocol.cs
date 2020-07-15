@@ -7397,6 +7397,7 @@ namespace MiNET.Net
 		public Skin skin; // = null;
 		public string skinName; // = null;
 		public string oldSkinName; // = null;
+		public bool isVerified; // = null;
 
 		public McpePlayerSkin()
 		{
@@ -7414,6 +7415,7 @@ namespace MiNET.Net
 			Write(skin);
 			Write(skinName);
 			Write(oldSkinName);
+			Write(isVerified);
 
 			AfterEncode();
 		}
@@ -7431,6 +7433,7 @@ namespace MiNET.Net
 			skin = ReadSkin();
 			skinName = ReadString();
 			oldSkinName = ReadString();
+			isVerified = ReadBool();
 
 			AfterDecode();
 		}
@@ -7446,6 +7449,7 @@ namespace MiNET.Net
 			skin=default(Skin);
 			skinName=default(string);
 			oldSkinName=default(string);
+			isVerified=default(bool);
 		}
 
 	}

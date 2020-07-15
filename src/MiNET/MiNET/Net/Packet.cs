@@ -517,6 +517,14 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 				}
 			}
+
+			if (records is PlayerAddRecords)
+			{
+				foreach (var record in records)
+				{
+					Write(record.Skin.IsVerified); // is verified
+				}
+			}
 		}
 
 		public PlayerRecords ReadPlayerRecords()
@@ -558,8 +566,12 @@ namespace MiNET.Net
 					break;
 			}
 
-			if (!_reader.Eof) ReadBool(); // damn BS
-			if (!_reader.Eof) ReadBool(); // damn BS
+			foreach (Player player in records)
+			{
+				if (player.Skin != null) player.Skin.IsVerified = ReadBool();
+			}
+			//if (!_reader.Eof) ReadBool(); // damn BS
+			//if (!_reader.Eof) ReadBool(); // damn BS
 
 			return records;
 		}
@@ -2300,9 +2312,9 @@ namespace MiNET.Net
 		}
 
 
-		const int BITFLAG_TEXTURE_UPDATE = 0x02;
-		const int BITFLAG_DECORATION_UPDATE = 0x04;
-		const int BITFLAG_ENTITY_UPDATE = 0x08;
+		const int MapUpdateFlagTexture = 0x02;
+		const int MapUpdateFlagDecoration = 0x04;
+		const int MapUpdateFlagInitialisation = 0x08;
 
 		public void Write(MapInfo map)
 		{
@@ -2311,16 +2323,18 @@ namespace MiNET.Net
 			Write((byte) 0); // dimension
 			Write(false); // Locked
 
-			//if ((map.UpdateType & BITFLAG_ENTITY_UPDATE) == BITFLAG_ENTITY_UPDATE)
-			//{
-			//}
+			if ((map.UpdateType & MapUpdateFlagInitialisation) != 0)
+			{
+				WriteUnsignedVarInt(1);
+				WriteSignedVarLong(map.MapId);
+			}
 
-			if ((map.UpdateType & BITFLAG_TEXTURE_UPDATE) == BITFLAG_TEXTURE_UPDATE || (map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
+			if ((map.UpdateType & (MapUpdateFlagInitialisation | MapUpdateFlagDecoration | MapUpdateFlagTexture)) != 0)
 			{
 				Write((byte) map.Scale);
 			}
 
-			if ((map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
+			if ((map.UpdateType & MapUpdateFlagDecoration) != 0)
 			{
 				var count = map.Decorators.Length;
 
@@ -2349,7 +2363,7 @@ namespace MiNET.Net
 				}
 			}
 
-			if ((map.UpdateType & BITFLAG_TEXTURE_UPDATE) == BITFLAG_TEXTURE_UPDATE)
+			if ((map.UpdateType & MapUpdateFlagTexture) != 0)
 			{
 				WriteSignedVarInt(map.Col);
 				WriteSignedVarInt(map.Row);
@@ -2383,7 +2397,7 @@ namespace MiNET.Net
 			ReadByte(); // Dimension (waste)
 			ReadBool(); // Locked (waste)
 
-			if ((map.UpdateType & BITFLAG_ENTITY_UPDATE) == BITFLAG_ENTITY_UPDATE)
+			if ((map.UpdateType & MapUpdateFlagInitialisation) == MapUpdateFlagInitialisation)
 			{
 				// Entities
 				var count = ReadUnsignedVarInt();
@@ -2393,13 +2407,13 @@ namespace MiNET.Net
 				}
 			}
 
-			if ((map.UpdateType & BITFLAG_TEXTURE_UPDATE) == BITFLAG_TEXTURE_UPDATE || (map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
+			if ((map.UpdateType & MapUpdateFlagTexture) == MapUpdateFlagTexture || (map.UpdateType & MapUpdateFlagDecoration) == MapUpdateFlagDecoration)
 			{
 				map.Scale = ReadByte();
 				//Log.Warn($"Reading scale {map.Scale}");
 			}
 
-			if ((map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
+			if ((map.UpdateType & MapUpdateFlagDecoration) == MapUpdateFlagDecoration)
 			{
 				// Decorations
 				//Log.Warn("Got decoration update, reading it");
@@ -2442,7 +2456,7 @@ namespace MiNET.Net
 				}
 			}
 
-			if ((map.UpdateType & BITFLAG_TEXTURE_UPDATE) == BITFLAG_TEXTURE_UPDATE)
+			if ((map.UpdateType & MapUpdateFlagTexture) == MapUpdateFlagTexture)
 			{
 				// Full map
 				try

@@ -441,7 +441,7 @@ namespace MiNET
 
 				long mapId = message.mapId;
 
-				//Log.Warn($"Requested map with ID: {mapId} 0x{mapId:X2}");
+				Log.Trace($"Requested map with ID: {mapId} 0x{mapId:X2}");
 
 				if (mapId == 0)
 				{
@@ -454,8 +454,8 @@ namespace MiNET
 					{
 						// Create new map entity
 						// send map for that entity
-						//mapEntity = new MapEntity(Level, mapId);
-						//mapEntity.SpawnEntity();
+						mapEntity = new MapEntity(Level, mapId);
+						mapEntity.SpawnEntity();
 					}
 					else
 					{

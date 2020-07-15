@@ -31,7 +31,7 @@ namespace MiNET.Utils
 	{
 		public long MapId;
 		public byte UpdateType;
-		public MapDecorator[] Decorators;
+		public MapDecorator[] Decorators = new MapDecorator[0];
 		public byte X;
 		public byte Z;
 		public int Scale;

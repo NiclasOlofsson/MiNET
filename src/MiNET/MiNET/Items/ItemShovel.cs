@@ -33,7 +33,7 @@ namespace MiNET.Items
 {
 	public class ItemShovel : Item
 	{
-		internal ItemShovel(short id) : base(id)
+		internal ItemShovel(string name, short id) : base(name, id)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Shovel;

@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemNetheriteHoe : ItemHoe
 	{
-		public ItemNetheriteHoe() : base(747)
+		public ItemNetheriteHoe() : base("minecraft:netherite_hoe", 747)
 		{
 			ItemMaterial = ItemMaterial.Netherite;
 		}

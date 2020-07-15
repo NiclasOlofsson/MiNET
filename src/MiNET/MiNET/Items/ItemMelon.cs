@@ -25,13 +25,10 @@
 
 namespace MiNET.Items
 {
-	public class ItemGoldChestplate : ArmorChestplateBase
+	public class ItemMelon : FoodItem
 	{
-		public ItemGoldChestplate() : base(315)
+		public ItemMelon() : base("minecraft:melon", 360, 0, 2, 1.2)
 		{
-			MaxStackSize = 1;
-			ItemType = ItemType.Chestplate;
-			ItemMaterial = ItemMaterial.Gold;
 		}
 	}
 }

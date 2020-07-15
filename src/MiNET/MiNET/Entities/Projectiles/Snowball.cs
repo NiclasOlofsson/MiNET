@@ -18,12 +18,11 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2019 Niclas Olofsson.
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
 
-using MiNET.Items;
 using MiNET.Particles;
 using MiNET.Worlds;
 
@@ -49,12 +48,11 @@ namespace MiNET.Entities.Projectiles
 		{
 			for (int i = 0; i < 6; i++)
 			{
-				var particle = new LegacyParticle(ParticleType.SnowballPoof, Level) { Position = KnownPosition };
+				var particle = new LegacyParticle(ParticleType.SnowballPoof, Level) {Position = KnownPosition};
 				particle.Spawn();
 			}
 
 			base.DespawnEntity();
 		}
-
 	}
 }

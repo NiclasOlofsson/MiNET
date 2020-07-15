@@ -67,7 +67,7 @@ namespace MiNET.Blocks
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
-			if (player.Inventory.GetItemInHand() is ItemMonsterEgg monsterEgg)
+			if (player.Inventory.GetItemInHand() is ItemSpawnEgg monsterEgg)
 			{
 				if (world.GetBlockEntity(Coordinates) is MobSpawnerBlockEntity blockEntity)
 				{

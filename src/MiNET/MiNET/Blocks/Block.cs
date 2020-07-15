@@ -42,12 +42,11 @@ namespace MiNET.Blocks
 
 		public BlockCoordinates Coordinates { get; set; }
 
+		public virtual string Name { get; protected set; }
 		public int Id { get; }
 
 		[Obsolete("Use block states instead.")]
 		public byte Metadata { get; set; }
-
-		public string Name { get; set; }
 
 		public float Hardness { get; protected set; } = 0;
 		public float BlastResistance { get; protected set; } = 0;
@@ -67,9 +66,15 @@ namespace MiNET.Blocks
 
 		public byte BiomeId { get; set; }
 
-		public Block(int id)
+		//TODO: Update ALL blocks with names.
+		public Block(string name, int id)
 		{
+			Name = name;
 			Id = id;
+		}
+
+		public Block(int id) : this(string.Empty, id)
+		{
 		}
 
 		public virtual void SetState(BlockStateContainer blockstate)

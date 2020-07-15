@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemNetheriteAxe : ItemAxe
 	{
-		public ItemNetheriteAxe() : base(746)
+		public ItemNetheriteAxe() : base("minecraft:netherite_axe", 746)
 		{
 			ItemMaterial = ItemMaterial.Netherite;
 		}

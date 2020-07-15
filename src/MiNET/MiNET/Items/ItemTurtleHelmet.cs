@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemTurtleHelmet : ArmorHelmetBase
 	{
-		public ItemTurtleHelmet() : base(469)
+		public ItemTurtleHelmet() : base("minecraft:turtle_helmet", 469)
 		{
 		}
 	}

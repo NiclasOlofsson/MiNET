@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemBlazePowder : Item
 	{
-		public ItemBlazePowder() : base(377)
+		public ItemBlazePowder() : base("minecraft:blaze_powder", 377)
 		{
 			MaxStackSize = 64;
 		}

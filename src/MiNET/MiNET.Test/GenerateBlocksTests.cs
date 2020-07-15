@@ -45,6 +45,48 @@ namespace MiNET.Test
 
 
 		[TestMethod]
+		public void GetItemByName()
+		{
+			
+			foreach (KeyValuePair<string, short> keyValuePair in ItemFactory.NameToId)
+			{
+				if(keyValuePair.Key.Equals("sapling")) Console.WriteLine(keyValuePair.Key);
+			}
+			var itemId = ItemFactory.GetItemIdByName("minecraft:sapling");
+			Assert.AreEqual(6, itemId);
+
+			Item item = ItemFactory.GetItem("minecraft:sapling");
+			Assert.AreEqual("minecraft:sapling", item.Name);
+			Assert.IsNotNull(item as ItemBlock);
+		}
+
+		[TestMethod]
+		public void GenerateItemConstructorsWithNames()
+		{
+			string fileName = Path.GetTempPath() + "Items_constructors_" + Guid.NewGuid() + ".txt";
+			using FileStream file = File.OpenWrite(fileName);
+			var writer = new IndentedTextWriter(new StreamWriter(file));
+
+			writer.Indent += 2;
+			writer.WriteLine();
+
+			var itemStates = ItemFactory.Itemstates.Values;
+			foreach (Itemstate state in itemStates)
+			{
+				Item item = ItemFactory.GetItem(state.Id);
+				if(!string.IsNullOrEmpty(item.Name)) continue;
+
+				string clazzName = CodeName(state.Name.Replace("minecraft:", ""), true);
+				string minecraftName = state.Name;
+
+
+				writer.WriteLine($"public Item{clazzName}() : base(\"{minecraftName}\", {state.Id})");
+			}
+
+			writer.Flush();
+		}
+
+		[TestMethod]
 		public void GenerateMissingItemsFromItemsStates()
 		{
 			string fileName = Path.GetTempPath() + "MissingItems_" + Guid.NewGuid() + ".txt";

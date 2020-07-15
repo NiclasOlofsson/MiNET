@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemNetheriteShovel : ItemShovel
 	{
-		public ItemNetheriteShovel() : base(744)
+		public ItemNetheriteShovel() : base("minecraft:netherite_shovel", 744)
 		{
 			ItemMaterial = ItemMaterial.Netherite;
 		}

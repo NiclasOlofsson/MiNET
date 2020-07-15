@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using log4net;
 using MiNET.Worlds;
@@ -98,6 +99,13 @@ namespace MiNET.Utils
 				Log.Debug($"Adding config {key}={value}");
 				newDictionairy.Remove(key);
 				newDictionairy.Add(key, value);
+			}
+			foreach (var key in newDictionairy.Keys.ToList())
+			{
+				foreach (KeyValuePair<string, string> keyVal in newDictionairy.ToList())
+				{
+					newDictionairy[keyVal.Key] = keyVal.Value.Replace($"{{{key}}}", newDictionairy[key], StringComparison.InvariantCultureIgnoreCase);
+				}
 			}
 			KeyValues = new ReadOnlyDictionary<string, string>(newDictionairy);
 		}

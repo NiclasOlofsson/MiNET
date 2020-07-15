@@ -25,12 +25,12 @@
 
 namespace MiNET.Items
 {
-	public class ItemGoldBoots : ArmorBootsBase
+	public class ItemGoldenChestplate : ArmorChestplateBase
 	{
-		public ItemGoldBoots() : base(317)
+		public ItemGoldenChestplate() : base("minecraft:golden_chestplate", 315)
 		{
 			MaxStackSize = 1;
-			ItemType = ItemType.Boots;
+			ItemType = ItemType.Chestplate;
 			ItemMaterial = ItemMaterial.Gold;
 		}
 	}

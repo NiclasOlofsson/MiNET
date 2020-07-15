@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemGoldNugget : Item
 	{
-		public ItemGoldNugget() : base(371)
+		public ItemGoldNugget() : base("minecraft:gold_nugget", 371)
 		{
 		}
 	}

@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -39,7 +39,7 @@ namespace MiNET.Items
 		public Action<ItemCommand, Level, Player, BlockCoordinates> Action { get; set; }
 		public bool NeedBlockRevert { get; set; }
 
-		public ItemCommand(short id, short metadata, Action<ItemCommand, Level, Player, BlockCoordinates> action) : base(id, metadata)
+		public ItemCommand(short id, short metadata, Action<ItemCommand, Level, Player, BlockCoordinates> action) : base("minet:command", id, metadata)
 		{
 			Action = action ?? throw new ArgumentNullException(nameof(action));
 			Item realItem = ItemFactory.GetItem(id, metadata);

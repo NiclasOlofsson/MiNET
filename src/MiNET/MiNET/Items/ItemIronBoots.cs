@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemIronBoots : ArmorBootsBase
 	{
-		public ItemIronBoots() : base(309)
+		public ItemIronBoots() : base("minecraft:iron_boots", 309)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Boots;

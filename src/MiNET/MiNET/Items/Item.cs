@@ -49,6 +49,7 @@ namespace MiNET.Items
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Item));
 
 		public int UniqueId { get; set; } = 1;
+		public string Name { get; protected set; } = string.Empty;
 		public short Id { get; protected set; }
 		public short Metadata { get; set; }
 		public byte Count { get; set; }
@@ -66,11 +67,16 @@ namespace MiNET.Items
 
 		[JsonIgnore] public int FuelEfficiency { get; set; }
 
-		protected internal Item(short id, short metadata = 0, int count = 1)
+		protected internal Item(string name, short id, short metadata = 0, int count = 1)
 		{
+			Name = name;
 			Id = id;
 			Metadata = metadata;
 			Count = (byte) count;
+		}
+
+		protected internal Item(short id, short metadata = 0, int count = 1) : this(String.Empty, id, metadata, count)
+		{
 		}
 
 		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)

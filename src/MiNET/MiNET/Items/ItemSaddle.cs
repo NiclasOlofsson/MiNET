@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemSaddle : Item
 	{
-		protected internal ItemSaddle() : base(329)
+		public ItemSaddle() : base("minecraft:saddle", 329)
 		{
 		}
 	}

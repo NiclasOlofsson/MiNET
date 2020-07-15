@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemLeatherChestplate : ArmorChestplateBase
 	{
-		public ItemLeatherChestplate() : base(299)
+		public ItemLeatherChestplate() : base("minecraft:leather_chestplate", 299)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;

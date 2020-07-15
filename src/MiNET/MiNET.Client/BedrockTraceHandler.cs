@@ -264,6 +264,9 @@ namespace MiNET.Client
 					writer.WriteLine($"{{");
 					writer.Indent++;
 
+					writer.WriteLine($"public override string Name => \"{currentBlockState.Name}\";");
+					writer.WriteLineNoTabs("");
+
 					var bits = new List<BlockStateByte>();
 					foreach (var state in blockstateGrouping.First().States)
 					{

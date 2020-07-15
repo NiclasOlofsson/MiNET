@@ -1084,12 +1084,12 @@ namespace TestPlugin
 			inventory.Slots[slot++] = new ItemGoldenSword();
 			inventory.Slots[slot++] = new ItemDiamondSword();
 			inventory.Slots[slot++] = new ItemIronHelmet();
-			inventory.Slots[slot++] = new ItemGoldHelmet();
+			inventory.Slots[slot++] = new ItemGoldenHelmet();
 			inventory.Slots[slot++] = new ItemDiamondHelmet();
 			inventory.Slots[slot++] = new ItemIronChestplate();
 			inventory.Slots[slot++] = new ItemDiamondChestplate();
 			inventory.Slots[slot++] = new ItemIronBoots();
-			inventory.Slots[slot++] = new ItemGoldBoots();
+			inventory.Slots[slot++] = new ItemGoldenBoots();
 			inventory.Slots[slot++] = new ItemDiamondBoots();
 
 			inventory.Slots[slot++] = new ItemIronSword();
@@ -1140,10 +1140,10 @@ namespace TestPlugin
 					break;
 				case 1:
 					// Kit gold tier
-					inventory.Boots = new ItemGoldBoots();
-					inventory.Leggings = new ItemGoldLeggings();
-					inventory.Chest = new ItemGoldChestplate();
-					inventory.Helmet = new ItemGoldHelmet();
+					inventory.Boots = new ItemGoldenBoots();
+					inventory.Leggings = new ItemGoldenLeggings();
+					inventory.Chest = new ItemGoldenChestplate();
+					inventory.Helmet = new ItemGoldenHelmet();
 					break;
 				case 2:
 					// Kit chain tier

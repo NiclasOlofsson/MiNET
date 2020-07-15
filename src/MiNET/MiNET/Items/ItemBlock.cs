@@ -44,13 +44,16 @@ namespace MiNET.Items
 
 		[JsonIgnore] public Block Block { get; protected set; }
 
-		protected ItemBlock(short id, short metadata = 0) : base(id, metadata)
+		protected ItemBlock(string name, short id, short metadata = 0) : base(name, id, metadata)
 		{
+			//TODO: Problematic block
 		}
 
 		public ItemBlock([NotNull] Block block, short metadata = 0) : base((short) (block.Id > 255 ? 255 - block.Id : block.Id), metadata)
 		{
 			Block = block ?? throw new ArgumentNullException(nameof(block));
+
+			Name = Block.Name;
 	
 			if (BlockFactory.BlockStates.TryGetValue(block.GetState(), out BlockStateContainer value))
 			{

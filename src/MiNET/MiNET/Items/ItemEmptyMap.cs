@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -34,7 +34,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemEmptyMap));
 
-		public ItemEmptyMap(short metadata = 0, byte count = 1) : base(395, metadata, count)
+		public ItemEmptyMap(short metadata = 0, byte count = 1) : base("minecraft:emptymap", 395, metadata, count)
 		{
 		}
 

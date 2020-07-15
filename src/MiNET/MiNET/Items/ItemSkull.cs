@@ -32,9 +32,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemMobHead : Item
+	public class ItemSkull : Item
 	{
-		public ItemMobHead(short metadata) : base(397, metadata)
+		public ItemSkull(short metadata) : base("minecraft:skull", 397, metadata)
 		{
 			MaxStackSize = 1;
 		}

@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemNetheriteHelmet : ArmorHelmetBase
 	{
-		public ItemNetheriteHelmet() : base(748)
+		public ItemNetheriteHelmet() : base("minecraft:netherite_helmet", 748)
 		{
 			ItemMaterial = ItemMaterial.Netherite;
 		}

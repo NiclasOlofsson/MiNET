@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -32,7 +32,7 @@ namespace MiNET.Items
 {
 	public class ItemBanner : ItemBlock
 	{
-		public ItemBanner() : base(446, 0)
+		public ItemBanner() : base("minecraft:banner", 446, 0)
 		{
 			MaxStackSize = 16;
 		}

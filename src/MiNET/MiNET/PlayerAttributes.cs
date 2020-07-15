@@ -49,6 +49,7 @@ namespace MiNET
 	{
 		public static Itemstates FromJson(string json)
 		{
+			//TODO: Rebuild this to use the MiNET items instead.
 			return JsonConvert.DeserializeObject<Itemstates>(json);
 		}
 	}

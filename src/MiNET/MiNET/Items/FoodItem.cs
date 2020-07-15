@@ -33,7 +33,7 @@ namespace MiNET.Items
 		public int FoodPoints { get; set; }
 		public double SaturationRestore { get; set; }
 
-		public FoodItem(short id, short metadata, int foodPoints, double saturationRestore) : base(id, metadata)
+		public FoodItem(string name, short id, short metadata, int foodPoints, double saturationRestore) : base(name, id, metadata)
 		{
 			FoodPoints = foodPoints;
 			SaturationRestore = saturationRestore;

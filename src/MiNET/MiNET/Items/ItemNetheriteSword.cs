@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemNetheriteSword : ItemSword
 	{
-		public ItemNetheriteSword() : base(743)
+		public ItemNetheriteSword() : base("minecraft:netherite_sword", 743)
 		{
 			ItemMaterial = ItemMaterial.Netherite;
 		}

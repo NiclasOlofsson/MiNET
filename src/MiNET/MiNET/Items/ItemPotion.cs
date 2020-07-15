@@ -34,7 +34,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemPotion));
 
-		public ItemPotion(short metadata) : base(373, metadata)
+		public ItemPotion(short metadata) : base("minecraft:potion", 373, metadata)
 		{
 		}
 

@@ -25,13 +25,15 @@
 
 namespace MiNET.Items
 {
-	public class ItemGoldHelmet : ArmorHelmetBase
+	public class ItemPorkchop : Item
 	{
-		public ItemGoldHelmet() : base(314)
+		public ItemPorkchop() : base("minecraft:porkchop", 319)
 		{
-			MaxStackSize = 1;
-			ItemType = ItemType.Helmet;
-			ItemMaterial = ItemMaterial.Gold;
+		}
+
+		public override Item GetSmelt()
+		{
+			return ItemFactory.GetItem(320);
 		}
 	}
 }

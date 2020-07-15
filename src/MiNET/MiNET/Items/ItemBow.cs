@@ -38,7 +38,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBow));
 
-		public ItemBow() : base(261)
+		public ItemBow() : base("minecraft:bow", 261)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Bow;

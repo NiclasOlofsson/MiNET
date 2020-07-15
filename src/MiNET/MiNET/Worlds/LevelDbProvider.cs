@@ -183,10 +183,10 @@ namespace MiNET.Worlds
 
 			if (chunkColumn != null)
 			{
+				chunkColumn.RecalcHeight();
+
 				if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
 				{
-					chunkColumn.RecalcHeight();
-
 					var blockAccess = new SkyLightBlockAccess(this, chunkColumn);
 					new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
 					//TODO: Block lights.

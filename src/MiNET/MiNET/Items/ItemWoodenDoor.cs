@@ -36,7 +36,7 @@ namespace MiNET.Items
 	{
 		private readonly byte _blockId;
 
-		public ItemWoodenDoor(short itemId = 324, byte blockId = 64) : base(itemId)
+		public ItemWoodenDoor(string name = "minecraft:wooden_door", short itemId = 324, byte blockId = 64) : base(name, itemId)
 		{
 			_blockId = blockId;
 		}
@@ -106,57 +106,56 @@ namespace MiNET.Items
 
 	public class ItemSpruceDoor : ItemWoodenDoor
 	{
-		public ItemSpruceDoor() : base(427, 193)
+		public ItemSpruceDoor() : base("minecraft:spruce_door", 427, 193)
 		{
 		}
 	}
 
 	public class ItemBirchDoor : ItemWoodenDoor
 	{
-		public ItemBirchDoor() : base(428, 194)
+		public ItemBirchDoor() : base("minecraft:birch_door", 428, 194)
 		{
 		}
 	}
 
-
 	public class ItemJungleDoor : ItemWoodenDoor
 	{
-		public ItemJungleDoor() : base(429, 195)
+		public ItemJungleDoor() : base("minecraft:jungle_door", 429, 195)
 		{
 		}
 	}
 
 	public class ItemAcaciaDoor : ItemWoodenDoor
 	{
-		public ItemAcaciaDoor() : base(430, 196)
+		public ItemAcaciaDoor() : base("minecraft:acacia_door", 430, 196)
 		{
 		}
 	}
 
 	public class ItemDarkOakDoor : ItemWoodenDoor
 	{
-		public ItemDarkOakDoor() : base(431, 197)
+		public ItemDarkOakDoor() : base("minecraft:dark_oak_door", 431, 197)
 		{
 		}
 	}
 
 	public class ItemWarpedDoor : ItemWoodenDoor
 	{
-		public ItemWarpedDoor() : base(756)
+		public ItemWarpedDoor() : base("minecraft:warped_door", 756)
 		{
 		}
 	}
 
 	public class ItemCrimsonDoor : ItemWoodenDoor
 	{
-		public ItemCrimsonDoor() : base(755)
+		public ItemCrimsonDoor() : base("minecraft:crimson_door", 755)
 		{
 		}
 	}
 
 	public class ItemIronDoor : ItemWoodenDoor
 	{
-		public ItemIronDoor() : base(330)
+		public ItemIronDoor() : base("minecraft:iron_door", 330)
 		{
 		}
 	}

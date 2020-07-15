@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2019 Niclas Olofsson.
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -31,7 +31,7 @@ namespace MiNET.Items
 {
 	public class ItemSnowball : Item
 	{
-		public ItemSnowball() : base(332)
+		public ItemSnowball() : base("minecraft:snowball", 332)
 		{
 			MaxStackSize = 16;
 		}

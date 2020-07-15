@@ -28,9 +28,9 @@ using MiNET.Entities;
 
 namespace MiNET.Items
 {
-	public class ItemAxe : Item
+	public abstract class ItemAxe : Item
 	{
-		internal ItemAxe(short id) : base(id)
+		protected ItemAxe(string name, short id) : base(name, id)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Axe;

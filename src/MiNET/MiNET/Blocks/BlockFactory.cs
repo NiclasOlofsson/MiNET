@@ -101,6 +101,8 @@ namespace MiNET.Blocks
 
 		private static Dictionary<string, int> BuildNameToId()
 		{
+			//TODO: Refactor to use the Item.Name in hashed set instead.
+
 			var nameToId = new Dictionary<string, int>();
 			for (int idx = 0; idx < 1000; idx++)
 			{
@@ -122,8 +124,7 @@ namespace MiNET.Blocks
 
 		public static int GetBlockIdByName(string blockName)
 		{
-			blockName = blockName.ToLowerInvariant();
-			blockName = blockName.Replace("_", "");
+			blockName = blockName.ToLowerInvariant().Replace("_", "").Replace("minecraft:", "");
 
 			if (NameToId.ContainsKey(blockName))
 			{
@@ -137,9 +138,7 @@ namespace MiNET.Blocks
 		{
 			if (string.IsNullOrEmpty(blockName)) return null;
 
-			if (blockName.StartsWith("minecraft:")) blockName = blockName.Substring(10);
-			blockName = blockName.ToLowerInvariant();
-			blockName = blockName.Replace("_", "");
+			blockName = blockName.ToLowerInvariant().Replace("_", "").Replace("minecraft:", "");
 
 			if (NameToId.ContainsKey(blockName))
 			{

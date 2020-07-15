@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -35,7 +35,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBoat));
 
-		public ItemBoat(short metadata) : base(333, metadata)
+		public ItemBoat(short metadata) : base("minecraft:boat", 333, metadata)
 		{
 		}
 

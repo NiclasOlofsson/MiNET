@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemRedstone : Item
 	{
-		public ItemRedstone() : base(331)
+		public ItemRedstone() : base("minecraft:redstone", 331)
 		{
 		}
 	}

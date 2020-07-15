@@ -25,13 +25,15 @@
 
 namespace MiNET.Items
 {
-	public class ItemGoldLeggings : ArmorLeggingsBase
+	public class ItemChicken : FoodItem
 	{
-		public ItemGoldLeggings() : base(316)
+		public ItemChicken() : base("minecraft:chicken", 365, 0, 2, 1.2)
 		{
-			MaxStackSize = 1;
-			ItemType = ItemType.Leggings;
-			ItemMaterial = ItemMaterial.Gold;
+		}
+
+		public override Item GetSmelt()
+		{
+			return ItemFactory.GetItem(366);
 		}
 	}
 }

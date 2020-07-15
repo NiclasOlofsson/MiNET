@@ -32,7 +32,7 @@ namespace MiNET.Items
 {
 	public class ItemSlate : ItemBlock
 	{
-		public ItemSlate(short size = 0) : base(454, size)
+		public ItemSlate(short size = 0) : base("", 454, size)
 		{
 			MaxStackSize = 16;
 		}

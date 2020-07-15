@@ -50,22 +50,24 @@ namespace MiNET.Items
 		public static ICustomBlockItemFactory CustomBlockItemFactory { get; set; }
 
 		public static Dictionary<string, short> NameToId { get; private set; }
-		public static Itemstates Itemstates { get; set; } = new Itemstates();
+		public static Itemstates Itemstates { get; internal set; } = new Itemstates();
 
 		static ItemFactory()
 		{
 			NameToId = BuildNameToId();
 
-			var assembly = Assembly.GetAssembly(typeof(Item));
-			using (var stream = assembly.GetManifestResourceStream(typeof(Item).Namespace + ".itemstates.json"))
-			using (var reader = new StreamReader(stream))
-			{
-				Itemstates = Itemstates.FromJson(reader.ReadToEnd());
-			}
+			//var assembly = Assembly.GetAssembly(typeof(Item));
+			//using (var stream = assembly.GetManifestResourceStream(typeof(Item).Namespace + ".itemstates.json"))
+			//using (var reader = new StreamReader(stream))
+			//{
+			//	Itemstates = Itemstates.FromJson(reader.ReadToEnd());
+			//}
 		}
 
 		private static Dictionary<string, short> BuildNameToId()
 		{
+			//TODO: Refactor to use the Item.Name in hashed set instead.
+
 			var nameToId = new Dictionary<string, short>();
 			for (short idx = -600; idx < 800; idx++)
 			{
@@ -113,8 +115,7 @@ namespace MiNET.Items
 
 		public static short GetItemIdByName(string itemName)
 		{
-			itemName = itemName.ToLowerInvariant();
-			itemName = itemName.Replace("_", "");
+			itemName = itemName.ToLowerInvariant().Replace("_", "").Replace("minecraft:", "");
 
 			if (NameToId.ContainsKey(itemName))
 			{
@@ -199,12 +200,12 @@ namespace MiNET.Items
 			else if (id == 311) item = new ItemDiamondChestplate();
 			else if (id == 312) item = new ItemDiamondLeggings();
 			else if (id == 313) item = new ItemDiamondBoots();
-			else if (id == 314) item = new ItemGoldHelmet();
-			else if (id == 315) item = new ItemGoldChestplate();
-			else if (id == 316) item = new ItemGoldLeggings();
-			else if (id == 317) item = new ItemGoldBoots();
+			else if (id == 314) item = new ItemGoldenHelmet();
+			else if (id == 315) item = new ItemGoldenChestplate();
+			else if (id == 316) item = new ItemGoldenLeggings();
+			else if (id == 317) item = new ItemGoldenBoots();
 			else if (id == 318) item = new ItemFlint();
-			else if (id == 319) item = new ItemRawPorkchop();
+			else if (id == 319) item = new ItemPorkchop();
 			else if (id == 320) item = new ItemCookedPorkshop();
 			else if (id == 321) item = new ItemPainting();
 			else if (id == 322) item = new ItemGoldenApple();
@@ -242,12 +243,12 @@ namespace MiNET.Items
 			else if (id == 357) item = new ItemCookie();
 			else if (id == 358) item = new ItemMap();
 			else if (id == 359) item = new ItemShears();
-			else if (id == 360) item = new ItemMelonSlice();
+			else if (id == 360) item = new ItemMelon();
 			else if (id == 361) item = new ItemPumpkinSeeds();
 			else if (id == 362) item = new ItemMelonSeeds();
 			else if (id == 363) item = new ItemBeef();
 			else if (id == 364) item = new ItemCookedBeef();
-			else if (id == 365) item = new ItemRawChicken();
+			else if (id == 365) item = new ItemChicken();
 			else if (id == 366) item = new ItemCookedChicken();
 			else if (id == 367) item = new ItemRottenFlesh();
 			else if (id == 368) item = new ItemEnderPearl();
@@ -265,7 +266,7 @@ namespace MiNET.Items
 			else if (id == 380) item = new ItemCauldron();
 			else if (id == 381) item = new ItemEnderEye();
 			else if (id == 382) item = new ItemSpeckledMelon();
-			else if (id == 383) item = new ItemMonsterEgg(metadata);
+			else if (id == 383) item = new ItemSpawnEgg(metadata);
 			else if (id == 389) item = new ItemFrame();
 			else if (id == 384) item = new ItemExperienceBottle();
 			else if (id == 385) item = new ItemFireball();
@@ -279,7 +280,7 @@ namespace MiNET.Items
 			else if (id == 394) item = new ItemPoisonousPotato();
 			else if (id == 395) item = new ItemEmptyMap();
 			else if (id == 396) item = new ItemGoldenCarrot();
-			else if (id == 397) item = new ItemMobHead(metadata);
+			else if (id == 397) item = new ItemSkull(metadata);
 			else if (id == 398) item = new ItemCarrotonastick();
 			else if (id == 399) item = new ItemNetherstar();
 			else if (id == 400) item = new ItemPumpkinPie();
@@ -376,7 +377,7 @@ namespace MiNET.Items
 			else if (id == 734) item = new ItemSuspiciousStew();
 			else if (id == 736) item = new ItemHoneycomb();
 			else if (id == 737) item = new ItemHoneyBottle();
-			else if (id == 741) item = new ItemLodestonecompass();
+			else if (id == 741) item = new ItemLodestoneCompass();
 			else if (id == 742) item = new ItemNetheriteIngot();
 			else if (id == 743) item = new ItemNetheriteSword();
 			else if (id == 744) item = new ItemNetheriteShovel();
@@ -430,122 +431,122 @@ namespace MiNET.Items
 		}
 	}
 
-	public class ItemRabbit : Item { public ItemRabbit() : base(411) {} }
-	public class ItemMushroomStew : Item { public ItemMushroomStew() : base(282) {} }
-	public class ItemRecordWard : Item { public ItemRecordWard() : base(509) {} }
-	public class ItemAppleenchanted : Item { public ItemAppleenchanted() : base(466) {} }
-	public class ItemFish : Item { public ItemFish() : base(349) {} }
-	public class ItemSalmon : Item { public ItemSalmon() : base(460) {} }
-	public class ItemClownfish : Item { public ItemClownfish() : base(461) {} }
-	public class ItemPufferfish : Item { public ItemPufferfish() : base(462) {} }
-	public class ItemCookedFish : Item { public ItemCookedFish() : base(350) {} }
-	public class ItemCookedSalmon : Item { public ItemCookedSalmon() : base(463) {} }
-	public class ItemSparkler : Item { public ItemSparkler() : base(442) {} }
-	public class ItemDriedKelp : Item { public ItemDriedKelp() : base(464) {} }
-	public class ItemNautilusShell : Item { public ItemNautilusShell() : base(465) {} }
-	public class ItemComparator : Item { public ItemComparator() : base(404) {} }
-	public class ItemRottenFlesh : Item { public ItemRottenFlesh() : base(367) {} }
-	public class ItemRabbitFoot : Item { public ItemRabbitFoot() : base(414) {} }
-	public class ItemLingeringPotion : Item { public ItemLingeringPotion() : base(441) {} }
-	public class ItemCampfire : Item { public ItemCampfire() : base(720) {} }
-	public class ItemRecordFar : Item { public ItemRecordFar() : base(504) {} }
-	public class ItemSpiderEye : Item { public ItemSpiderEye() : base(375) {} }
-	public class ItemPoisonousPotato : Item { public ItemPoisonousPotato() : base(394) {} }
-	public class ItemBeetrootSoup : Item { public ItemBeetrootSoup() : base(459) {} }
-	public class ItemSweetBerries : Item { public ItemSweetBerries() : base(477) {} }
-	public class ItemCookedRabbit : Item { public ItemCookedRabbit() : base(412) {} }
-	public class ItemRabbitStew : Item { public ItemRabbitStew() : base(413) {} }
-	public class ItemPumpkinSeeds : Item { public ItemPumpkinSeeds() : base(361) {} }
-	public class ItemCommandBlockMinecart : Item { public ItemCommandBlockMinecart() : base(443) {} }
-	public class ItemMelonSeeds : Item { public ItemMelonSeeds() : base(362) {} }
-	public class ItemNetherWart : Item { public ItemNetherWart() : base(372) {} }
-	public class ItemRecordStrad : Item { public ItemRecordStrad() : base(508) {} }
-	public class ItemBowl : Item { public ItemBowl() : base(281) {} }
-	public class ItemString : Item { public ItemString() : base(287) {} }
-	public class ItemFeather : Item { public ItemFeather() : base(288) {} }
-	public class ItemGunpowder : Item { public ItemGunpowder() : base(289) {} }
-	public class ItemRecordMellohi : Item { public ItemRecordMellohi() : base(506) {} }
-	public class ItemEnderEye : Item { public ItemEnderEye() : base(381) {} }
-	public class ItemShield : Item { public ItemShield() : base(513) {} }
-	public class ItemFlint : Item { public ItemFlint() : base(318) {} }
-	public class ItemHeartOfTheSea : Item { public ItemHeartOfTheSea() : base(467) {} }
-	public class ItemMinecart : Item { public ItemMinecart() : base(328) {} }
-	public class ItemWrittenBook : Item { public ItemWrittenBook() : base(387) {} }
-	public class ItemLeather : Item { public ItemLeather() : base(334) {} }
-	public class ItemKelp : Item { public ItemKelp() : base(335) {} }
-	public class ItemBrick : Item { public ItemBrick() : base(336) {} }
-	public class ItemClayBall : Item { public ItemClayBall() : base(337) {} }
-	public class ItemCarrotonastick : Item { public ItemCarrotonastick() : base(398) {} }
-	public class ItemReeds : Item { public ItemReeds() : base(338) {} }
-	public class ItemPaper : Item { public ItemPaper() : base(339) {} }
-	public class ItemTrident : Item { public ItemTrident() : base(455) {} }
-	public class ItemSlimeBall : Item { public ItemSlimeBall() : base(341) {} }
-	public class ItemChestMinecart : Item { public ItemChestMinecart() : base(342) {} }
-	public class ItemFishingRod : Item { public ItemFishingRod() : base(346) {} }
-	public class ItemClock : Item { public ItemClock() : base(347) {} }
-	public class ItemGlowstoneDust : Item { public ItemGlowstoneDust() : base(348) {} }
-	public class ItemNameTag : Item { public ItemNameTag() : base(421) {} }
-	public class ItemCake : Item { public ItemCake() : base(354) {} }
-	public class ItemRepeater : Item { public ItemRepeater() : base(356) {} }
-	public class ItemEnderPearl : Item { public ItemEnderPearl() : base(368) {} }
-	public class ItemGhastTear : Item { public ItemGhastTear() : base(370) {} }
-	public class ItemGlassBottle : Item { public ItemGlassBottle() : base(374) {} }
-	public class ItemFermentedSpiderEye : Item { public ItemFermentedSpiderEye() : base(376) {} }
-	public class ItemMagmaCream : Item { public ItemMagmaCream() : base(378) {} }
-	public class ItemBrewingStand : Item { public ItemBrewingStand() : base(379) {} }
-	public class ItemRapidFertilizer : Item { public ItemRapidFertilizer() : base(449) {} }
-	public class ItemSpeckledMelon : Item { public ItemSpeckledMelon() : base(382) {} }
-	public class ItemExperienceBottle : Item { public ItemExperienceBottle() : base(384) {} }
-	public class ItemFireball : Item { public ItemFireball() : base(385) {} }
-	public class ItemWritableBook : Item { public ItemWritableBook() : base(386) {} }
-	public class ItemEmerald : Item { public ItemEmerald() : base(388) {} }
-	public class ItemRecordPigstep : Item { public ItemRecordPigstep() : base(759) {} }
-	public class ItemFlowerPot : Item { public ItemFlowerPot() : base(390) {} }
-	public class ItemNetherstar : Item { public ItemNetherstar() : base(399) {} }
-	public class ItemHopperMinecart : Item { public ItemHopperMinecart() : base(408) {} }
-	public class ItemFireworkscharge : Item { public ItemFireworkscharge() : base(402) {} }
-	public class ItemNetherbrick : Item { public ItemNetherbrick() : base(405) {} }
-	public class ItemQuartz : Item { public ItemQuartz() : base(406) {} }
-	public class ItemTntMinecart : Item { public ItemTntMinecart() : base(407) {} }
-	public class ItemHopper : Item { public ItemHopper() : base(410) {} }
-	public class ItemDragonBreath : Item { public ItemDragonBreath() : base(437) {} }
-	public class ItemRabbitHide : Item { public ItemRabbitHide() : base(415) {} }
-	public class ItemRecord13 : Item { public ItemRecord13() : base(500) {} }
-	public class ItemRecordCat : Item { public ItemRecordCat() : base(501) {} }
-	public class ItemRecordBlocks : Item { public ItemRecordBlocks() : base(502) {} }
-	public class ItemRecordChirp : Item { public ItemRecordChirp() : base(503) {} }
-	public class ItemRecordMall : Item { public ItemRecordMall() : base(505) {} }
-	public class ItemRecordStal : Item { public ItemRecordStal() : base(507) {} }
-	public class ItemRecord11 : Item { public ItemRecord11() : base(510) {} }
-	public class ItemRecordWait : Item { public ItemRecordWait() : base(511) {} }
-	public class ItemLead : Item { public ItemLead() : base(420) {} }
-	public class ItemPrismarineCrystals : Item { public ItemPrismarineCrystals() : base(422) {} }
-	public class ItemArmorStand : Item { public ItemArmorStand() : base(425) {} }
-	public class ItemPhantomMembrane : Item { public ItemPhantomMembrane() : base(470) {} }
-	public class ItemChorusFruit : Item { public ItemChorusFruit() : base(432) {} }
-	public class ItemSuspiciousStew : Item { public ItemSuspiciousStew() : base(734) {} }
-	public class ItemChorusFruitPopped : Item { public ItemChorusFruitPopped() : base(433) {} }
-	public class ItemSplashPotion : Item { public ItemSplashPotion() : base(438) {} }
-	public class ItemPrismarineShard : Item { public ItemPrismarineShard() : base(409) {} }
-	public class ItemShulkerShell : Item { public ItemShulkerShell() : base(445) {} }
-	public class ItemTotem : Item { public ItemTotem() : base(450) {} }
-	public class ItemTurtleShellPiece : Item { public ItemTurtleShellPiece() : base(468) {} }
-	public class ItemCrossbow : Item { public ItemCrossbow() : base(471) {} }
-	public class ItemBalloon : Item { public ItemBalloon() : base(448) {} }
-	public class ItemBannerPattern : Item { public ItemBannerPattern() : base(434) {} }
-	public class ItemHoneycomb : Item { public ItemHoneycomb() : base(736) {} }
-	public class ItemHoneyBottle : Item { public ItemHoneyBottle() : base(737) {} }
-	public class ItemCompound : Item { public ItemCompound() : base(499) {} }
-	public class ItemIceBomb : Item { public ItemIceBomb() : base(453) {} }
-	public class ItemBleach : Item { public ItemBleach() : base(451) {} }
-	public class ItemMedicine : Item { public ItemMedicine() : base(447) {} }
-	public class ItemLodestonecompass : Item { public ItemLodestonecompass() : base(741) {} }
-	public class ItemNetheriteIngot : Item { public ItemNetheriteIngot() : base(742) {} }
-	public class ItemNetheriteScrap : Item { public ItemNetheriteScrap() : base(752) {} }
-	public class ItemChain : Item { public ItemChain() : base(758) {} }
-	public class ItemWarpedFungusOnAStick : Item { public ItemWarpedFungusOnAStick() : base(757) {} }
-	public class ItemNetherSprouts : Item { public ItemNetherSprouts() : base(760) {} }
-	public class ItemSoulCampfire : Item { public ItemSoulCampfire() : base(801) {} }
-	public class ItemEndCrystal : Item { public ItemEndCrystal() : base(426) {} }
+	public class ItemRabbit : Item { public ItemRabbit() : base("minecraft:rabbit", 411) {} }
+	public class ItemMushroomStew : Item { public ItemMushroomStew() : base("minecraft:mushroom_stew", 282) {} }
+	public class ItemRecordWard : Item { public ItemRecordWard() : base("minecraft:record_ward", 509) {} }
+	public class ItemAppleenchanted : Item { public ItemAppleenchanted() : base("minecraft:appleenchanted", 466) {} }
+	public class ItemFish : Item { public ItemFish() : base("minecraft:fish", 349) {} }
+	public class ItemSalmon : Item { public ItemSalmon() : base("minecraft:salmon", 460) {} }
+	public class ItemClownfish : Item { public ItemClownfish() : base("minecraft:clownfish", 461) {} }
+	public class ItemPufferfish : Item { public ItemPufferfish() : base("minecraft:pufferfish", 462) {} }
+	public class ItemCookedFish : Item { public ItemCookedFish() : base("minecraft:cooked_fish", 350) {} }
+	public class ItemCookedSalmon : Item { public ItemCookedSalmon() : base("minecraft:cooked_salmon", 463) {} }
+	public class ItemSparkler : Item { public ItemSparkler() : base("minecraft:sparkler", 442) {} }
+	public class ItemDriedKelp : Item { public ItemDriedKelp() : base("minecraft:dried_kelp", 464) {} }
+	public class ItemNautilusShell : Item { public ItemNautilusShell() : base("minecraft:nautilus_shell", 465) {} }
+	public class ItemComparator : Item { public ItemComparator() : base("minecraft:comparator", 404) {} }
+	public class ItemRottenFlesh : Item { public ItemRottenFlesh() : base("minecraft:rotten_flesh", 367) {} }
+	public class ItemRabbitFoot : Item { public ItemRabbitFoot() : base("minecraft:rabbit_foot", 414) {} }
+	public class ItemLingeringPotion : Item { public ItemLingeringPotion() : base("minecraft:lingering_potion", 441) {} }
+	public class ItemCampfire : Item { public ItemCampfire() : base("minecraft:campfire", 720) {} }
+	public class ItemRecordFar : Item { public ItemRecordFar() : base("minecraft:record_far", 504) {} }
+	public class ItemSpiderEye : Item { public ItemSpiderEye() : base("minecraft:spider_eye", 375) {} }
+	public class ItemPoisonousPotato : Item { public ItemPoisonousPotato() : base("minecraft:poisonous_potato", 394) {} }
+	public class ItemBeetrootSoup : Item { public ItemBeetrootSoup() : base("minecraft:beetroot_soup", 459) {} }
+	public class ItemSweetBerries : Item { public ItemSweetBerries() : base("minecraft:sweet_berries", 477) {} }
+	public class ItemCookedRabbit : Item { public ItemCookedRabbit() : base("minecraft:cooked_rabbit", 412) {} }
+	public class ItemRabbitStew : Item { public ItemRabbitStew() : base("minecraft:rabbit_stew", 413) {} }
+	public class ItemPumpkinSeeds : Item { public ItemPumpkinSeeds() : base("minecraft:pumpkin_seeds", 361) {} }
+	public class ItemCommandBlockMinecart : Item { public ItemCommandBlockMinecart() : base("minecraft:command_block_minecart", 443) {} }
+	public class ItemMelonSeeds : Item { public ItemMelonSeeds() : base("minecraft:melon_seeds", 362) {} }
+	public class ItemNetherWart : Item { public ItemNetherWart() : base("minecraft:nether_wart", 372) {} }
+	public class ItemRecordStrad : Item { public ItemRecordStrad() : base("minecraft:record_strad", 508) {} }
+	public class ItemBowl : Item { public ItemBowl() : base("minecraft:bowl", 281) {} }
+	public class ItemString : Item { public ItemString() : base("minecraft:string", 287) {} }
+	public class ItemFeather : Item { public ItemFeather() : base("minecraft:feather", 288) {} }
+	public class ItemGunpowder : Item { public ItemGunpowder() : base("minecraft:gunpowder", 289) {} }
+	public class ItemRecordMellohi : Item { public ItemRecordMellohi() : base("minecraft:record_mellohi", 506) {} }
+	public class ItemEnderEye : Item { public ItemEnderEye() : base("minecraft:ender_eye", 381) {} }
+	public class ItemShield : Item { public ItemShield() : base("minecraft:shield", 513) {} }
+	public class ItemFlint : Item { public ItemFlint() : base("minecraft:flint", 318) {} }
+	public class ItemHeartOfTheSea : Item { public ItemHeartOfTheSea() : base("minecraft:heart_of_the_sea", 467) {} }
+	public class ItemMinecart : Item { public ItemMinecart() : base("minecraft:minecart", 328) {} }
+	public class ItemWrittenBook : Item { public ItemWrittenBook() : base("minecraft:written_book", 387) {} }
+	public class ItemLeather : Item { public ItemLeather() : base("minecraft:leather", 334) {} }
+	public class ItemKelp : Item { public ItemKelp() : base("minecraft:kelp", 335) {} }
+	public class ItemBrick : Item { public ItemBrick() : base("minecraft:brick", 336) {} }
+	public class ItemClayBall : Item { public ItemClayBall() : base("minecraft:clay_ball", 337) {} }
+	public class ItemCarrotonastick : Item { public ItemCarrotonastick() : base("minecraft:carrotonastick", 398) {} }
+	public class ItemReeds : Item { public ItemReeds() : base("minecraft:reeds", 338) {} }
+	public class ItemPaper : Item { public ItemPaper() : base("minecraft:paper", 339) {} }
+	public class ItemTrident : Item { public ItemTrident() : base("minecraft:trident", 455) {} }
+	public class ItemSlimeBall : Item { public ItemSlimeBall() : base("minecraft:slime_ball", 341) {} }
+	public class ItemChestMinecart : Item { public ItemChestMinecart() : base("minecraft:chest_minecart", 342) {} }
+	public class ItemFishingRod : Item { public ItemFishingRod() : base("minecraft:fishing_rod", 346) {} }
+	public class ItemClock : Item { public ItemClock() : base("minecraft:clock", 347) {} }
+	public class ItemGlowstoneDust : Item { public ItemGlowstoneDust() : base("minecraft:glowstone_dust", 348) {} }
+	public class ItemNameTag : Item { public ItemNameTag() : base("minecraft:name_tag", 421) {} }
+	public class ItemCake : Item { public ItemCake() : base("minecraft:cake", 354) {} }
+	public class ItemRepeater : Item { public ItemRepeater() : base("minecraft:repeater", 356) {} }
+	public class ItemEnderPearl : Item { public ItemEnderPearl() : base("minecraft:ender_pearl", 368) {} }
+	public class ItemGhastTear : Item { public ItemGhastTear() : base("minecraft:ghast_tear", 370) {} }
+	public class ItemGlassBottle : Item { public ItemGlassBottle() : base("minecraft:glass_bottle", 374) {} }
+	public class ItemFermentedSpiderEye : Item { public ItemFermentedSpiderEye() : base("minecraft:fermented_spider_eye", 376) {} }
+	public class ItemMagmaCream : Item { public ItemMagmaCream() : base("minecraft:magma_cream", 378) {} }
+	public class ItemBrewingStand : Item { public ItemBrewingStand() : base("minecraft:brewing_stand", 379) {} }
+	public class ItemRapidFertilizer : Item { public ItemRapidFertilizer() : base("minecraft:rapid_fertilizer", 449) {} } // what is this?
+	public class ItemSpeckledMelon : Item { public ItemSpeckledMelon() : base("minecraft:speckled_melon", 382) {} }
+	public class ItemExperienceBottle : Item { public ItemExperienceBottle() : base("minecraft:experience_bottle", 384) {} }
+	public class ItemFireball : Item { public ItemFireball() : base("minecraft:fireball", 385) {} }
+	public class ItemWritableBook : Item { public ItemWritableBook() : base("minecraft:writable_book", 386) {} }
+	public class ItemEmerald : Item { public ItemEmerald() : base("minecraft:emerald", 388) {} }
+	public class ItemRecordPigstep : Item { public ItemRecordPigstep() : base("minecraft:record_pigstep", 759) {} }
+	public class ItemFlowerPot : Item { public ItemFlowerPot() : base("minecraft:flower_pot", 390) {} }
+	public class ItemNetherstar : Item { public ItemNetherstar() : base("minecraft:netherstar", 399) {} }
+	public class ItemHopperMinecart : Item { public ItemHopperMinecart() : base("minecraft:hopper_minecart", 408) {} }
+	public class ItemFireworkscharge : Item { public ItemFireworkscharge() : base("minecraft:fireworkscharge", 402) {} }
+	public class ItemNetherbrick : Item { public ItemNetherbrick() : base("minecraft:netherbrick", 405) {} }
+	public class ItemQuartz : Item { public ItemQuartz() : base("minecraft:quartz", 406) {} }
+	public class ItemTntMinecart : Item { public ItemTntMinecart() : base("minecraft:tnt_minecart", 407) {} }
+	public class ItemHopper : Item { public ItemHopper() : base("minecraft:hopper", 410) {} }
+	public class ItemDragonBreath : Item { public ItemDragonBreath() : base("minecraft:dragon_breath", 437) {} }
+	public class ItemRabbitHide : Item { public ItemRabbitHide() : base("minecraft:rabbit_hide", 415) {} }
+	public class ItemRecord13 : Item { public ItemRecord13() : base("minecraft:record_13", 500) {} }
+	public class ItemRecordCat : Item { public ItemRecordCat() : base("minecraft:record_cat", 501) {} }
+	public class ItemRecordBlocks : Item { public ItemRecordBlocks() : base("minecraft:record_blocks", 502) {} }
+	public class ItemRecordChirp : Item { public ItemRecordChirp() : base("minecraft:record_chirp", 503) {} }
+	public class ItemRecordMall : Item { public ItemRecordMall() : base("minecraft:record_mall", 505) {} }
+	public class ItemRecordStal : Item { public ItemRecordStal() : base("minecraft:record_stal", 507) {} }
+	public class ItemRecord11 : Item { public ItemRecord11() : base("minecraft:record_11", 510) {} }
+	public class ItemRecordWait : Item { public ItemRecordWait() : base("minecraft:record_wait", 511) {} }
+	public class ItemLead : Item { public ItemLead() : base("minecraft:lead", 420) {} }
+	public class ItemPrismarineCrystals : Item { public ItemPrismarineCrystals() : base("minecraft:prismarine_crystals", 422) {} }
+	public class ItemArmorStand : Item { public ItemArmorStand() : base("minecraft:armor_stand", 425) {} }
+	public class ItemPhantomMembrane : Item { public ItemPhantomMembrane() : base("minecraft:phantom_membrane", 470) {} }
+	public class ItemChorusFruit : Item { public ItemChorusFruit() : base("minecraft:chorus_fruit", 432) {} }
+	public class ItemSuspiciousStew : Item { public ItemSuspiciousStew() : base("minecraft:suspicious_stew", 734) {} }
+	public class ItemChorusFruitPopped : Item { public ItemChorusFruitPopped() : base("minecraft:chorus_fruit_popped", 433) {} }
+	public class ItemSplashPotion : Item { public ItemSplashPotion() : base("minecraft:splash_potion", 438) {} }
+	public class ItemPrismarineShard : Item { public ItemPrismarineShard() : base("minecraft:prismarine_shard", 409) {} }
+	public class ItemShulkerShell : Item { public ItemShulkerShell() : base("minecraft:shulker_shell", 445) {} }
+	public class ItemTotem : Item { public ItemTotem() : base("minecraft:totem", 450) {} }
+	public class ItemTurtleShellPiece : Item { public ItemTurtleShellPiece() : base("minecraft:turtle_shell_piece", 468) {} }
+	public class ItemCrossbow : Item { public ItemCrossbow() : base("minecraft:crossbow", 471) {} }
+	public class ItemBalloon : Item { public ItemBalloon() : base("minecraft:balloon", 448) {} }
+	public class ItemBannerPattern : Item { public ItemBannerPattern() : base("minecraft:banner_pattern", 434) {} }
+	public class ItemHoneycomb : Item { public ItemHoneycomb() : base("minecraft:honeycomb", 736) {} }
+	public class ItemHoneyBottle : Item { public ItemHoneyBottle() : base("minecraft:honey_bottle", 737) {} }
+	public class ItemCompound : Item { public ItemCompound() : base("minecraft:compound", 499) {} }
+	public class ItemIceBomb : Item { public ItemIceBomb() : base("minecraft:ice_bomb", 453) {} }
+	public class ItemBleach : Item { public ItemBleach() : base("minecraft:bleach", 451) {} } // A Trump item?
+	public class ItemMedicine : Item { public ItemMedicine() : base("minecraft:medicine", 447) {} } // Corona?
+	public class ItemLodestoneCompass : Item { public ItemLodestoneCompass() : base("minecraft:lodestonecompass", 741) {} }
+	public class ItemNetheriteIngot : Item { public ItemNetheriteIngot() : base("minecraft:netherite_ingot", 742) {} }
+	public class ItemNetheriteScrap : Item { public ItemNetheriteScrap() : base("minecraft:netherite_scrap", 752) {} }
+	public class ItemChain : Item { public ItemChain() : base("minecraft:chain", 758) {} }
+	public class ItemWarpedFungusOnAStick : Item { public ItemWarpedFungusOnAStick() : base("minecraft:warped_fungus_on_a_stick", 757) {} }
+	public class ItemNetherSprouts : Item { public ItemNetherSprouts() : base("minecraft:nether_sprouts", 760) {} }
+	public class ItemSoulCampfire : Item { public ItemSoulCampfire() : base("minecraft:soul_campfire", 801) {} }
+	public class ItemEndCrystal : Item { public ItemEndCrystal() : base("minecraft:end_crystal", 426) {} }
 
 }

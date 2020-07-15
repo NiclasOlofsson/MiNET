@@ -30,7 +30,7 @@ namespace MiNET.Items
 {
 	public class ItemPickaxe : Item
 	{
-		internal ItemPickaxe(short id) : base(id)
+		internal ItemPickaxe(string name, short id) : base(name, id)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.PickAxe;

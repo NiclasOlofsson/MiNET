@@ -410,11 +410,11 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Sheep) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Wolf) {Count = 64};
 
-			player.Inventory.Slots[idx++] = new ItemEmptyMap()
-			{
-				Count = 64,
-				UniqueId = Environment.TickCount
-			};
+			//player.Inventory.Slots[idx++] = new ItemEmptyMap()
+			//{
+			//	Count = 64,
+			//	UniqueId = Environment.TickCount
+			//};
 			player.Inventory.Slots[idx++] = new ItemAir()
 			{
 				Count = 0,

@@ -23,51 +23,34 @@
 
 #endregion
 
-using System.Numerics;
-using MiNET.Blocks;
+using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Utils;
-using MiNET.Worlds;
 
-namespace MiNET.Items
+namespace MiNET.Worlds.Tests
 {
-	public class ItemSlate : ItemBlock
+	[TestClass()]
+	public class LevelDbProviderTests
 	{
-		public ItemSlate(short size = 0) : base("minecraft:board", 454, size)
+		[TestMethod()]
+		public void RoundtripTest()
 		{
-			MaxStackSize = 16;
-		}
+			var provider = new LevelDbProvider(null);
+			var flatGenerator = new SuperflatGenerator(Dimension.Overworld);
+			flatGenerator.Initialize(null);
+			SubChunk chunk = flatGenerator.GenerateChunkColumn(new ChunkCoordinates())[0];
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
-		{
-			// block 230, data 32-35 (rotations) Slate, Poster or Board
+			using var stream = new MemoryStream();
+			provider.Write(chunk, stream);
+			byte[] output = stream.ToArray();
 
-			if (face == BlockFace.Down) // At the bottom of block
-			{
-				// Doesn't work, ignore if that happen. 
-				return;
-			}
-			else
-			{
-				Block = BlockFactory.GetBlockById(230);
-			}
+			var parsedChunk = new SubChunk();
+			provider.ParseSection(parsedChunk, output);
 
-			Block.Metadata = (byte) Metadata;
-
-			base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
-		}
-	}
-
-	public class ItemPoster : ItemSlate
-	{
-		public ItemPoster() : base(1)
-		{
-		}
-	}
-
-	public class ItemBoard : ItemSlate
-	{
-		public ItemBoard() : base(2)
-		{
+			// Assert
+			CollectionAssert.AreEqual(chunk.Blocks, parsedChunk.Blocks);
+			CollectionAssert.AreEqual(chunk.LoggedBlocks, parsedChunk.LoggedBlocks);
+			CollectionAssert.AreEqual(chunk.RuntimeIds, parsedChunk.RuntimeIds);
 		}
 	}
 }

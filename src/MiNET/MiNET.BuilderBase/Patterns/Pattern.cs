@@ -82,8 +82,11 @@ namespace MiNET.BuilderBase.Patterns
 		{
 			var blockEntry = GetRandomBlock(_random, _blockList);
 
-			Block block = BlockFactory.GetBlockById(blockEntry.Id);
-			block.Metadata = blockEntry.Metadata;
+			//BlockFactory.GetBlockById()
+			int runtimeId = (int)BlockFactory.GetRuntimeId(blockEntry.Id, blockEntry.Metadata);
+			var blockState = BlockFactory.BlockPalette[runtimeId];
+			var block = BlockFactory.GetBlockById(blockState.Id);
+			block.SetState(blockState.States);
 			block.Coordinates = position;
 
 			return block;

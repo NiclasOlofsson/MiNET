@@ -42,10 +42,16 @@ namespace MiNET.Worlds
 		private bool _isAllAir = true;
 
 		private List<int> _runtimeIds = new List<int> {0}; // Add air, always as first (performance)
+		internal List<int> RuntimeIds => _runtimeIds;
+
 		private short[] _blocks;
+		internal short[] Blocks => _blocks;
 
 		private List<int> _loggedRuntimeIds = new List<int>();
+		internal List<int> LoggedRuntimeIds => _loggedRuntimeIds;
+
 		private byte[] _loggedBlocks; // We use only byte size on this palette index table, because can basically only be water and snow-levels
+		internal byte[] LoggedBlocks => _loggedBlocks;
 
 		// Consider disabling these if we don't calculate lights
 		public NibbleArray _blocklight;

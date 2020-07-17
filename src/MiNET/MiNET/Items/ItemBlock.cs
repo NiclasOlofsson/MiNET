@@ -49,11 +49,9 @@ namespace MiNET.Items
 			//TODO: Problematic block
 		}
 
-		public ItemBlock([NotNull] Block block, short metadata = 0) : base((short) (block.Id > 255 ? 255 - block.Id : block.Id), metadata)
+		public ItemBlock([NotNull] Block block, short metadata = 0) : base(block.Name, (short) (block.Id > 255 ? 255 - block.Id : block.Id), metadata)
 		{
 			Block = block ?? throw new ArgumentNullException(nameof(block));
-
-			Name = Block.Name;
 	
 			if (BlockFactory.BlockStates.TryGetValue(block.GetState(), out BlockStateContainer value))
 			{

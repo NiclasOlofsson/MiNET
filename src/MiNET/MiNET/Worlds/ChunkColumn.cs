@@ -103,6 +103,11 @@ namespace MiNET.Worlds
 			set => _subChunks[chunkIndex] = value;
 		}
 
+		public int Count()
+		{
+			return _subChunks.Count(s => s != null);
+		}
+
 		public SubChunk GetSubChunk(int by)
 		{
 			return this[by >> 4];

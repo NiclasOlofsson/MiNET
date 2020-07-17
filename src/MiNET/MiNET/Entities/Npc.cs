@@ -71,15 +71,15 @@ namespace MiNET.Entities
 				NameTag = s?.Value;
 				Log.Debug($"NameTag={NameTag}");
 			}
-			if (metadata.Contains(40))
+			if (metadata.Contains(0x27))
 			{
-				var entry = metadata[40];
+				var entry = metadata[0x27];
 				var s = entry as MetadataString;
 				DialogText = s?.Value;
 			}
-			if (metadata.Contains(41))
+			if (metadata.Contains(0x28))
 			{
-				var entry = metadata[41];
+				var entry = metadata[0x28];
 				var s = entry as MetadataString;
 				string npcType = s?.Value;
 				npcType = npcType.Substring(4);
@@ -88,9 +88,9 @@ namespace MiNET.Entities
 					NpcSkinType = t;
 				}
 			}
-			if (metadata.Contains(42))
+			if (metadata.Contains(0x29))
 			{
-				var entry = metadata[42];
+				var entry = metadata[0x29];
 				var s = entry as MetadataString;
 				AdvancedConfig = s?.Value;
 			}
@@ -100,10 +100,11 @@ namespace MiNET.Entities
 
 		public override MetadataDictionary GetMetadata()
 		{
+			//TODO: These are wrong. Have new values now for all of it
 			var metadata = base.GetMetadata();
-			metadata[40] = new MetadataString(DialogText);
-			metadata[41] = new MetadataString($"npc_{(int) NpcSkinType}");
-			metadata[42] = new MetadataString(AdvancedConfig);
+			metadata[0x27] = new MetadataString(DialogText);
+			metadata[0x28] = new MetadataString($"npc_{(int) NpcSkinType}");
+			metadata[0x29] = new MetadataString(AdvancedConfig);
 			return metadata;
 		}
 

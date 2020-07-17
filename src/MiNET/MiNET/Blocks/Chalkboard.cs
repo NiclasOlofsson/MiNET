@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using log4net;
 using MiNET.BlockEntities;
@@ -33,9 +34,11 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Chalkboard : Block
+	public partial class Chalkboard : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Chalkboard));
+
+		public override string Name => "minecraft:chalkboard";
 
 		public Chalkboard() : base(230)
 		{
@@ -44,6 +47,25 @@ namespace MiNET.Blocks
 			BlastResistance = 5;
 			Hardness = 1;
 		}
+
+		public override void SetState(List<IBlockState> states)
+		{
+			foreach (var state in states)
+			{
+				switch(state)
+				{
+				} // switch
+			} // foreach
+		} // method
+
+		public override BlockStateContainer GetState()
+		{
+			var record = new BlockStateContainer();
+			record.Name = "minecraft:chalkboard";
+			record.Id = 230;
+			return record;
+		} // method
+
 
 		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{

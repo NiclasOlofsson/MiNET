@@ -316,10 +316,10 @@ namespace MiNET.Worlds
 
 		public int Dimension { get; set; }
 		public int GameType { get; set; }
-		public string Generator { get; set; }
+		public int Generator { get; set; }
 		public long LastPlayed { get; set; }
 		public string LevelName { get; set; }
-		public string Platform { get; set; }
+		public int Platform { get; set; }
 		public long RandomSeed { get; set; }
 		public int SpawnX { get; set; }
 		public int SpawnY { get; set; }

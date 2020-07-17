@@ -387,6 +387,7 @@ namespace MiNET.Blocks
 				227 => new GrayGlazedTerracotta(),
 				228 => new SilverGlazedTerracotta(),
 				229 => new CyanGlazedTerracotta(),
+				230 => new Chalkboard(),
 				231 => new BlueGlazedTerracotta(),
 				232 => new BrownGlazedTerracotta(),
 				233 => new GreenGlazedTerracotta(),

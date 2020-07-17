@@ -48,7 +48,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Item));
 
-		public int UniqueId { get; set; } = 1;
+		public int UniqueId { get; set; } = Environment.TickCount;
 		public string Name { get; protected set; } = string.Empty;
 		public short Id { get; protected set; }
 		public short Metadata { get; set; }

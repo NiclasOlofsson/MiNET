@@ -228,13 +228,10 @@ namespace TestPlugin
 
 		[Command(Description = "Save world")]
 		[Authorize(Permission = (int) CommandPermission.Admin)]
-		public void Save(Player player)
+		public string Save(Player player)
 		{
-			AnvilWorldProvider provider = player.Level.WorldProvider as AnvilWorldProvider;
-			if (provider != null)
-			{
-				provider.SaveChunks();
-			}
+			var provider = player.Level.WorldProvider;
+			return $"Saved {provider?.SaveChunks()} chunks";
 		}
 
 		[Command]
@@ -333,11 +330,13 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void SpawnNpc(Player player, string text)
+		public void SpawnNpc(Player player, string text, Npc.NpcTypes skinType, string dialogText)
 		{
 			Npc npc = new Npc(player.Level);
 			npc.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			npc.NameTag = text;
+			npc.NpcSkinType = skinType;
+			npc.DialogText = dialogText;
 			npc.SpawnEntity();
 		}
 

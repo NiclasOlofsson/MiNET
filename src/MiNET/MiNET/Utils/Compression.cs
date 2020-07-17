@@ -36,88 +36,12 @@ namespace MiNET.Utils
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Compression));
 
-		//private static ReadOnlySpan<byte> WriteRawVarInt32(uint value)
-		//{
-		//	var buf = new Span<byte>(new byte[10]);
-		//	int i = 0;
-		//	while ((value & -128) != 0)
-		//	{
-		//		buf[i++] = ((byte) ((value & 0x7F) | 0x80));
-		//		value >>= 7;
-		//	}
-
-		//	buf[i] = (byte) value;
-
-		//	return buf.Slice(0, i + 1);
-		//}
-
 		public static byte[] Compress(Memory<byte> input, bool writeLen = false, CompressionLevel compressionLevel = CompressionLevel.Fastest)
 		{
-			//if (/*!useOld && */compressionLevel == CompressionLevel.NoCompression)
-			//{
-			//	// header 2 bytes
-			//	// compressed bytes
-			//	// - header (1 byte) 0x01
-			//	// - size total (2 bytes)
-			//	// - ~size total (2 bytes)
-			//	// - uncompressed data
-
-			//	int i = 0;
-			//	var output = new Span<byte>(new byte[2 + 1 + 2 + 2 + input.Length + 10 + 4]);
-			//	output[i++] = 0x78;
-			//	output[i++] = 0x01;
-			//	output[i++] = 0x01;
-
-			//	int lenAdd = 0;
-			//	if (writeLen)
-			//	{
-			//		ReadOnlySpan<byte> length = WriteRawVarInt32((uint) input.Length);
-			//		lenAdd += length.Length;
-			//	}
-
-			//	Span<byte> len = BitConverter.GetBytes(input.Length + lenAdd);
-			//	len.CopyTo(output.Slice(i));
-			//	i += 2;
-
-			//	Span<byte> lenCompl = BitConverter.GetBytes(~(input.Length + lenAdd));
-			//	lenCompl.CopyTo(output.Slice(i));
-			//	i += 2;
-
-
-			//	int expectedSize = 2 + 1 + 2 + 2 + input.Length + 4;
-
-			//	if (writeLen)
-			//	{
-			//		ReadOnlySpan<byte> length = WriteRawVarInt32((uint) input.Length);
-			//		length.CopyTo(output.Slice(i));
-			//		expectedSize += length.Length;
-			//		i += length.Length;
-			//	}
-
-			//	input.Span.CopyTo(output.Slice(i));
-
-			//	byte[] result = output.Slice(0, expectedSize).ToArray();
-			//	return result;
-			//}
-
-
 			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 			{
-				//stream.WriteByte(0x78); // zlib header
-				//switch (compressionLevel)
-				//{
-				//	case CompressionLevel.Optimal:
-				//		stream.WriteByte(0xda);
-				//		break;
-				//	case CompressionLevel.Fastest:
-				//		stream.WriteByte(0x9c);
-				//		break;
-				//	case CompressionLevel.NoCompression:
-				//		stream.WriteByte(0x01);
-				//		break;
-				//}
 				int checksum = 0;
-				using (var compressStream = new ZLibStream(stream, compressionLevel, true))
+				using (var compressStream = new DeflateStream(stream, compressionLevel, true))
 				{
 					if (writeLen)
 					{
@@ -125,16 +49,7 @@ namespace MiNET.Utils
 					}
 
 					compressStream.Write(input.Span);
-					checksum = compressStream.Checksum;
 				}
-
-				var checksumBytes = BitConverter.GetBytes(checksum);
-				if (BitConverter.IsLittleEndian)
-				{
-					// Adler32 checksum is big-endian
-					Array.Reverse(checksumBytes);
-				}
-				//stream.Write(checksumBytes);
 
 				byte[] bytes = stream.ToArray();
 				return bytes;
@@ -150,21 +65,8 @@ namespace MiNET.Utils
 
 			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 			{
-				//stream.WriteByte(0x78); // zlib header
-				//switch (compressionLevel)
-				//{
-				//	case CompressionLevel.Optimal:
-				//		stream.WriteByte(0xda);
-				//		break;
-				//	case CompressionLevel.Fastest:
-				//		stream.WriteByte(0x9c);
-				//		break;
-				//	case CompressionLevel.NoCompression:
-				//		stream.WriteByte(0x01);
-				//		break;
-				//}
 				int checksum;
-				using (var compressStream = new ZLibStream(stream, compressionLevel, true))
+				using (var compressStream = new DeflateStream(stream, compressionLevel, true))
 				{
 					foreach (Packet packet in packets)
 					{
@@ -176,17 +78,8 @@ namespace MiNET.Utils
 						}
 						packet.PutPool();
 					}
-					checksum = compressStream.Checksum;
 					compressStream.Flush();
 				}
-
-				var checksumBytes = BitConverter.GetBytes(checksum);
-				if (BitConverter.IsLittleEndian)
-				{
-					// Adler32 checksum is big-endian
-					Array.Reverse(checksumBytes);
-				}
-				//stream.Write(checksumBytes);
 
 				byte[] bytes = stream.ToArray();
 				return bytes;
@@ -197,11 +90,6 @@ namespace MiNET.Utils
 		public static void WriteLength(Stream stream, int lenght)
 		{
 			VarInt.WriteUInt32(stream, (uint) lenght);
-		}
-
-		public static int ReadLength(Stream stream)
-		{
-			return (int) VarInt.ReadUInt32(stream);
 		}
 	}
 }

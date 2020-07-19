@@ -491,6 +491,7 @@ namespace MiNET.Worlds
 								entityId = id.First().ToString().ToUpper() + id.Substring(1);
 								if (entityId == "Flower_pot") entityId = "FlowerPot";
 								else if (entityId == "Shulker_box") entityId = "ShulkerBox";
+								else if (entityId == "Mob_spawner") entityId = "MobSpawner";
 
 								blockEntityTag["id"] = new NbtString("id", entityId);
 							}

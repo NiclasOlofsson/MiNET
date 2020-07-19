@@ -55,15 +55,10 @@ namespace MiNET.Client
 		{
 		}
 
-		//public override void HandleMcpePlayStatus(McpePlayStatus message)
-		//{
-		//	throw new NotImplementedException();
-		//}
-
-		//public override void HandleMcpeServerToClientHandshake(McpeServerToClientHandshake message)
-		//{
-		//	throw new NotImplementedException();
-		//}
+		public override void HandleMcpeUpdateSoftEnum(McpeUpdateSoftEnum message)
+		{
+			Log.Warn($"Got soft enum update for {message}");
+		}
 
 		public override void HandleMcpeDisconnect(McpeDisconnect message)
 		{

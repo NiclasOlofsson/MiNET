@@ -1197,7 +1197,6 @@
 	public const POSITION_TRACKING_D_B_SERVER_BROADCAST_PACKET = 0x99;
 	public const POSITION_TRACKING_D_B_CLIENT_REQUEST_PACKET = 0x9a;
 	public const DEBUG_INFO_PACKET = 0x9b;
-	public const PACKET_VIOLATION_WARNING_PACKET = 0x9c;
 	-->
 	<pdu id="0x92" online="false" client="false" server="true" name="MCPE_PLAYER_ENCHANT_OPTIONS">
 		<field name="Enchant options" type="EnchantOptions" />

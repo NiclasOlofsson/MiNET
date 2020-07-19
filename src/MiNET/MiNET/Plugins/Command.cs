@@ -225,6 +225,15 @@ namespace MiNET.Plugins
 		}
 	}
 
+	public abstract class SoftEnumBase
+	{
+	}
+
+	public class TestSoftEnum : SoftEnumBase
+	{
+
+	}
+
 	public abstract class EnumBase
 	{
 		public string Value { get; set; }

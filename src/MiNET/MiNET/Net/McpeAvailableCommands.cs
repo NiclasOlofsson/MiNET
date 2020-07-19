@@ -123,19 +123,20 @@ namespace MiNET.Net
 							int commandParamEnumIndex = -1;
 							int commandParamSoftEnumIndex = -1;
 							int commandParamPostfixIndex = -1;
-							if ((tmp1 & 0x30) == 0x30)
+							if ((tmp1 & 0x0030) == 0x0030)
 							{
 								commandParamEnumIndex = tmp & 0xffff;
+							}
+							else if ((tmp1 & 0x0410) == 0x0410)
+							{
+								commandParamType = tmp & 0xffff;
+								commandParamSoftEnumIndex = tmp & 0xffff;
 							}
 							else if ((tmp1 & 0x100) == 0x100)
 							{
 								commandParamPostfixIndex = tmp & 0xffff;
 							}
 							else if ((tmp1 & 0x10) == 0x10)
-							{
-								commandParamType = tmp & 0xffff;
-							}
-							else if ((tmp1 & 0x0410) == 0x0410)
 							{
 								commandParamType = tmp & 0xffff;
 							}
@@ -158,7 +159,13 @@ namespace MiNET.Net
 				Log.Debug($"Soft enums {count}");
 				for (int i = 0; i < count; i++)
 				{
-					Log.Debug($"Soft Enum: {ReadString()}={ReadBool()}");
+					string enumName = ReadString();
+					Log.Debug($"Soft Enum {enumName}");
+					uint valCount = ReadUnsignedVarInt();
+					for (int j = 0; j < valCount; j++)
+					{
+						Log.Debug($"\t{enumName} value:{ReadString()}");
+					}
 				}
 			}
 
@@ -393,6 +400,11 @@ namespace MiNET.Net
 								Write((short) enumList.IndexOf(parameter.EnumType));
 								Write((short) 0x30);
 							}
+							else if (parameter.Type == "softenum" && parameter.EnumValues != null)
+							{
+								Write((short) 0); // soft enum index below
+								Write((short) 0x0410);
+							}
 							else
 							{
 								Write((short) GetParameterTypeId(parameter.Type)); // param type
@@ -405,7 +417,10 @@ namespace MiNET.Net
 					}
 				}
 
-				WriteUnsignedVarInt(0); //TODO: soft enums
+				WriteUnsignedVarInt(1); //TODO: soft enums
+				Write("CmdSoftEnumValues");
+				Write(false);
+
 				WriteUnsignedVarInt(0); //TODO: constraints
 			}
 			catch (Exception e)

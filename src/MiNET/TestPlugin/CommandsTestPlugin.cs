@@ -157,5 +157,11 @@ namespace TestPlugin
 		{
 			return "Success";
 		}
+
+		[Command]
+		public string CmdSoftEnum(TestSoftEnum soft)
+		{
+			return "Success";
+		}
 	}
 }

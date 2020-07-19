@@ -148,6 +148,15 @@ namespace MiNET.Blocks
 			return null;
 		}
 
+		public static Block GetBlockById(int blockId, byte metadata)
+		{
+			int runtimeId = (int) GetRuntimeId(blockId, metadata);
+			BlockStateContainer blockState = BlockPalette[runtimeId];
+			Block block = GetBlockById(blockState.Id);
+			block.SetState(blockState.States);
+			return block;
+		}
+
 		public static Block GetBlockById(int blockId)
 		{
 			Block block = null;

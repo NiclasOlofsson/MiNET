@@ -49,7 +49,7 @@ namespace MiNET
 			_level = level;
 		}
 
-		public Inventory GetInventory(int inventoryId)
+		public virtual Inventory GetInventory(int inventoryId)
 		{
 			lock (_cache)
 			{
@@ -57,7 +57,7 @@ namespace MiNET
 			}
 		}
 
-		public Inventory GetInventory(BlockCoordinates inventoryCoord)
+		public virtual Inventory GetInventory(BlockCoordinates inventoryCoord)
 		{
 			lock (_cache)
 			{

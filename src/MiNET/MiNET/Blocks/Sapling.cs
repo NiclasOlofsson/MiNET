@@ -55,8 +55,7 @@ namespace MiNET.Blocks
 
 		public override bool Interact(Level level, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
-			var itemInHand = player.Inventory.GetItemInHand();
-			if (itemInHand is ItemDye && itemInHand.Metadata == 15)
+			if (player.Inventory.GetItemInHand() is ItemDye inHand && inHand.Metadata == 15)
 			{
 				var random = new Random();
 				for (int i = 0; i < 3; i++)

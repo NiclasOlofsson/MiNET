@@ -26,10 +26,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Plugins;
 using MiNET.Utils;
+
+[assembly: InternalsVisibleTo("MiNET.BuilderBase.Tests")]
 
 namespace MiNET.BuilderBase.Patterns
 {
@@ -37,15 +41,28 @@ namespace MiNET.BuilderBase.Patterns
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Pattern));
 
-		private class BlockDataEntry
+		internal class BlockDataEntry
 		{
+			public BlockDataEntry()
+			{
+			}
+
 			public int Id { get; set; }
 			public byte Metadata { get; set; }
+			public bool HasMetadata { get; set; }
 			public int Weight { get; set; } = 100;
 			public int Accumulated { get; set; } = 100;
+			public List<BlockStateEntry> BlockStates { get; set; } = new List<BlockStateEntry>();
+			public bool HasBlockStates { get; set; }
 		}
 
-		private List<BlockDataEntry> _blockList = new List<BlockDataEntry>();
+		internal class BlockStateEntry
+		{
+			public string Name { get; set; }
+			public string Value { get; set; }
+		}
+
+		internal List<BlockDataEntry> BlockList { get; set; } = new List<BlockDataEntry>();
 		private Random _random;
 		public string OriginalPattern { get; private set; }
 
@@ -57,36 +74,73 @@ namespace MiNET.BuilderBase.Patterns
 
 		public Pattern(int blockId, int metadata)
 		{
-			_blockList.Add(new BlockDataEntry()
+			BlockList.Add(new BlockDataEntry()
 			{
 				Id = (byte) blockId,
-				Metadata = (byte) metadata
+				Metadata = (byte) metadata,
+				HasMetadata = true
 			});
 			OriginalPattern = $"{blockId}:{metadata}";
 		}
 
-		BlockDataEntry GetRandomBlock(Random random, List<BlockDataEntry> blocksa)
+		internal BlockDataEntry GetRandomBlock(Random random, List<BlockDataEntry> blockEntries)
 		{
-			var blocks = blocksa.OrderBy(entry => entry.Accumulated).ToList();
+			var blocks = blockEntries.OrderBy(entry => entry.Accumulated).ToList();
 
 			if (blocks.Count == 1) return blocks[0];
 
 			double value = random.Next(blocks.Last().Accumulated + 1);
 
-			Log.Debug($"Random value {value:F2}, lenght={blocks.Count}, high={blocks.Last().Accumulated}");
+			Log.Debug($"Random value {value:F2}, length={blocks.Count}, high={blocks.Last().Accumulated}");
 
 			return blocks.First(entry => value <= entry.Accumulated);
 		}
 
 		public Block Next(BlockCoordinates position)
 		{
-			var blockEntry = GetRandomBlock(_random, _blockList);
+			BlockDataEntry blockEntry = GetRandomBlock(_random, BlockList);
 
-			//BlockFactory.GetBlockById()
-			int runtimeId = (int)BlockFactory.GetRuntimeId(blockEntry.Id, blockEntry.Metadata);
-			var blockState = BlockFactory.BlockPalette[runtimeId];
-			var block = BlockFactory.GetBlockById(blockState.Id);
-			block.SetState(blockState.States);
+			Block block;
+			if (blockEntry.HasMetadata)
+			{
+				block = BlockFactory.GetBlockById(blockEntry.Id, blockEntry.Metadata);
+			}
+			else
+			{
+				block = BlockFactory.GetBlockById(blockEntry.Id);
+				if (blockEntry.HasBlockStates)
+				{
+					BlockStateContainer currentStates = block.GetState();
+					foreach (BlockStateEntry stateEntry in blockEntry.BlockStates)
+					{
+						IBlockState state = currentStates.States.FirstOrDefault(s => s.Name == stateEntry.Name);
+						if(state == null) continue;
+						
+						switch (state)
+						{
+							case BlockStateByte s:
+							{
+								if (byte.TryParse(stateEntry.Value, out byte v)) s.Value = v;
+								break;
+							}
+							case BlockStateInt s:
+							{
+								if (int.TryParse(stateEntry.Value, out int v)) s.Value = v;
+								break;
+							}
+							case BlockStateString s:
+							{
+								s.Value = stateEntry.Value;
+								break;
+							}
+						}
+					}
+					block.SetState(currentStates);
+				}
+			}
+
+			block ??= new Air();
+
 			block.Coordinates = position;
 
 			return block;
@@ -94,60 +148,87 @@ namespace MiNET.BuilderBase.Patterns
 
 		public virtual void Deserialize(Player player, string currentPattern)
 		{
-			// x20%1:0
-			// x<weight>%<blockId>:<blockData>,<weight>%<blockId>:<blockData> .. <weight>%<blockId>:<blockData>
+			// See documentation: https://worldedit.enginehub.org/en/latest/usage/general/patterns/
 
 			if (currentPattern.StartsWith("x")) currentPattern = currentPattern.Remove(0, 1); // remove starting x
 
-			OriginalPattern = currentPattern;
+			OriginalPattern = currentPattern.Trim();
 
-			var patterns = currentPattern.Split(',');
-
-			foreach (var pattern in patterns)
+			var patternsEx = new Regex(@",(?![^\[]*])");
+			foreach (string pattern in patternsEx.Split(currentPattern.Trim()))
 			{
-				var blockInfos = pattern.Split(':');
+				Log.Debug($"Matching {pattern}");
+				var blockDataEntry = new BlockDataEntry();
 
-				int id;
-				byte metadata = 0;
-				int weight = 100;
+				var regex = new Regex(@"(?<pattern>((?<weight>\d+)%)?((?<blockId>\d+)|(?<blockName>(minecraft:)?\w+)){1}(:(?<meta>\d+))?(\[(?<states>[a-zA-Z0-9_=,]*)])?)*");
+				var stateEx = new Regex(@"(?<name>\w+)\=(?<value>\w+)");
 
-				var weightedIn = blockInfos[0].Split('%');
-				if (weightedIn.Length == 2)
+				Match match = regex.Match(pattern.Trim());
+				if (match.Success)
 				{
-					if (!int.TryParse(weightedIn[0], out weight))
+					foreach (Group matchGroup in match.Groups)
 					{
-						weight = 100;
+						if (matchGroup.Name == "weight" && matchGroup.Success)
+						{
+							Log.Debug($"Matched weight group {matchGroup.Value}");
+							if (int.TryParse(matchGroup.Value.Trim(), out int weight)) blockDataEntry.Weight = weight;
+						}
+						else if (matchGroup.Name == "blockName" && matchGroup.Success)
+						{
+							Log.Debug($"Matched blockName group {matchGroup.Value}");
+							blockDataEntry.Id = BlockFactory.GetBlockIdByName(matchGroup.Value.Trim());
+						}
+						if (matchGroup.Name == "blockId" && matchGroup.Success)
+						{
+							Log.Debug($"Matched blockId group {matchGroup.Value}");
+							if (int.TryParse(matchGroup.Value.Trim(), out int id)) blockDataEntry.Id = id;
+						}
+						else if (matchGroup.Name == "meta" && matchGroup.Success)
+						{
+							Log.Debug($"Matched meta group {matchGroup.Value}");
+							if (byte.TryParse(matchGroup.Value.Trim(), out byte metadata))
+							{
+								blockDataEntry.Metadata = metadata;
+								blockDataEntry.HasBlockStates = true;
+							}
+						}
+						else if (matchGroup.Name == "states" && matchGroup.Success)
+						{
+							Log.Debug($"Matched states group {matchGroup.Value}");
+
+							// Parse block states
+							var stateMatches = stateEx.Matches(matchGroup.Value.Trim());
+							{
+								foreach (Match stateMatch in stateMatches)
+								{
+									Log.Debug($"State:{stateMatch.Value}");
+									blockDataEntry.BlockStates.Add(new BlockStateEntry()
+									{
+										Name = stateMatch.Groups.Values.First(g => g.Name == "name").Value,
+										Value = stateMatch.Groups.Values.First(g => g.Name == "value").Value
+									});
+									blockDataEntry.HasBlockStates = true;
+								}
+							}
+						}
 					}
 				}
-
-				string binfo = weightedIn[weightedIn.Length - 1];
-				if (!int.TryParse(binfo, out id))
+				else
 				{
-					id = BlockFactory.GetBlockIdByName(binfo);
+					throw new Exception("Deprecated code used to be here.");
 				}
 
-				if (blockInfos.Length == 2)
-				{
-					byte.TryParse(blockInfos[1], out metadata);
-				}
-
-				Log.Debug($"Parsed x{weight}%{id}:{metadata}");
-				_blockList.Add(new BlockDataEntry()
-				{
-					Id = id,
-					Metadata = metadata,
-					Weight = weight
-				});
+				BlockList.Add(blockDataEntry);
 			}
 
 			int acc = 0;
-			foreach (var entry in _blockList.OrderBy(entry => entry.Weight))
+			foreach (var entry in BlockList.OrderBy(entry => entry.Weight))
 			{
 				acc += entry.Weight;
 				entry.Accumulated = acc;
 			}
 
-			_blockList = _blockList.OrderBy(entry => entry.Accumulated).ToList();
+			BlockList = BlockList.OrderBy(entry => entry.Accumulated).ToList();
 		}
 	}
 }

@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNET.BuilderBase", "MiNET.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNETTests", "MiNET.Test\MiNETTests.csproj", "{94CA564C-DE93-4761-AF02-A2B05D8DC6D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.BuilderBase.Tests", "MiNET.BuilderBase.Tests\MiNET.BuilderBase.Tests.csproj", "{78D30EA2-F5FD-460A-943E-C9E29F2D15A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{94CA564C-DE93-4761-AF02-A2B05D8DC6D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94CA564C-DE93-4761-AF02-A2B05D8DC6D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94CA564C-DE93-4761-AF02-A2B05D8DC6D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78D30EA2-F5FD-460A-943E-C9E29F2D15A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78D30EA2-F5FD-460A-943E-C9E29F2D15A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78D30EA2-F5FD-460A-943E-C9E29F2D15A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78D30EA2-F5FD-460A-943E-C9E29F2D15A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -348,23 +348,25 @@ namespace MiNET.Plugins
 
 				var parameters = method.GetParameters();
 				bool isFirstParam = true;
-				foreach (var parameter in parameters)
+				foreach (ParameterInfo parameter in parameters)
 				{
-					if (isFirstParam && typeof(Player).IsAssignableFrom(parameter.ParameterType))
-					{
-						continue;
-					}
+					if (isFirstParam && typeof(Player).IsAssignableFrom(parameter.ParameterType)) continue;
 					isFirstParam = false;
 
 					var param = new Parameter();
 					param.Name = ToCamelCase(parameter.Name);
 					param.Type = GetParameterType(parameter);
 					param.Optional = parameter.IsOptional;
+
 					if (param.Type.Equals("bool"))
 					{
 						param.Type = "stringenum";
 						param.EnumType = "bool";
 						param.EnumValues = new string[] {"false", "true"};
+					}
+					else if (param.Type.Equals("softenum"))
+					{
+						param.EnumType = "string";
 					}
 					else if (param.Type.Equals("stringenum"))
 					{
@@ -520,6 +522,8 @@ namespace MiNET.Plugins
 				value = "stringenum";
 			else if (parameter.ParameterType.BaseType == typeof(EnumBase))
 				value = "stringenum";
+			else if (parameter.ParameterType.BaseType == typeof(SoftEnumBase))
+				value = "softenum";
 			else if (typeof(IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
 				// Custom serialization
 				value = "string";

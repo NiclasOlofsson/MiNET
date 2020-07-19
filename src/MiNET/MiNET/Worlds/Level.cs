@@ -99,9 +99,9 @@ namespace MiNET.Worlds
 		public bool AllowBuild { get; set; } = true;
 		public bool AllowBreak { get; set; } = true;
 
-		public EntityManager EntityManager { get; private set; }
-		public InventoryManager InventoryManager { get; private set; }
-		public EntitySpawnManager EntitySpawnManager { get; private set; }
+		public EntityManager EntityManager { get; protected set; }
+		public InventoryManager InventoryManager { get; protected set; }
+		public EntitySpawnManager EntitySpawnManager { get; protected set; }
 
 		public int ViewDistance { get; set; }
 

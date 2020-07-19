@@ -30,7 +30,6 @@ using LibNoise;
 using LibNoise.Primitive;
 using MiNET.Blocks;
 using MiNET.Utils;
-using MiNET.Worlds.Structures;
 
 namespace MiNET.Worlds
 {
@@ -313,7 +312,7 @@ namespace MiNET.Worlds
 
 		private void GenerateTree(ChunkColumn chunk, int x, int treebase, int z, WoodType woodType)
 		{
-			new OakTree().Create(chunk, x, treebase, z);
+			//new OakTree().Create(chunk, x, treebase, z);
 		}
 
 		private static readonly Random Getrandom = new Random();

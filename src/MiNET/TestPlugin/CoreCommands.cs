@@ -230,6 +230,8 @@ namespace TestPlugin
 		[Authorize(Permission = (int) CommandPermission.Admin)]
 		public string Save(Player player)
 		{
+			if (!Config.GetProperty("Save.Enabled", false)) return "Save is not enabled. Please check Save.Enabled settings.";
+
 			var provider = player.Level.WorldProvider;
 			return $"Saved {provider?.SaveChunks()} chunks";
 		}

@@ -158,8 +158,8 @@ namespace MiNET.Worlds
 
 			int index = _blocks[GetIndex(bx, by, bz)];
 			int runtimeId = _runtimeIds[index];
-			var blockState = BlockFactory.BlockPalette[runtimeId];
-			var block = BlockFactory.GetBlockById(blockState.Id);
+			BlockStateContainer blockState = BlockFactory.BlockPalette[runtimeId];
+			Block block = BlockFactory.GetBlockById(blockState.Id);
 			block.SetState(blockState.States);
 			block.Metadata = (byte) blockState.Data; //TODO: REMOVE metadata. Not needed.
 

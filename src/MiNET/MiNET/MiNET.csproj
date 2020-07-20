@@ -56,7 +56,7 @@
 		<PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="16.6.1" />
 		<PackageReference Include="MiNET.astar" Version="1.0.14" />
 		<PackageReference Include="MiNET.fnbt" Version="1.0.22" />
-		<PackageReference Include="MiNET.LevelDB" Version="1.0.24" />
+		<PackageReference Include="MiNET.LevelDB" Version="1.0.26" />
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 		<PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
 		<PackageReference Include="SharpAvi" Version="2.1.1" />

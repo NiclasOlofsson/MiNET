@@ -58,7 +58,7 @@
 		<PackageReference Include="MiNET.fnbt" Version="1.0.22" />
 		<PackageReference Include="MiNET.LevelDB" Version="1.0.24" />
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-		<PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
+		<PackageReference Include="Portable.BouncyCastle" Version="1.8.6.7" />
 		<PackageReference Include="SharpAvi" Version="2.1.1" />
 		<PackageReference Include="System.Drawing.Common" Version="4.7.0" />
 		<PackageReference Include="System.Net.Sockets" Version="4.3.0" />

@@ -65,6 +65,7 @@ namespace MiNET.Console
 				startInfo.CreateNoWindow = false;
 				startInfo.WindowStyle = ProcessWindowStyle.Normal;
 				startInfo.UseShellExecute = false;
+				startInfo.RedirectStandardInput = true;
 
 				_bedrock = Process.Start(startInfo);
 
@@ -90,6 +91,16 @@ namespace MiNET.Console
 			Log.Info("Spawned on bedrock server");
 
 			blocker?.Kill(); // no need to block further once we have spawned our bot.
+
+			// Shutdown hook. Must use to flush in memory log of LevelDB.
+			AppDomain.CurrentDomain.ProcessExit += (sender, args) =>
+			{
+				Log.Warn("Closing bedrock dedicated server (BDS)");
+				_bedrock.StandardInput.WriteLine("stop");
+				_bedrock.WaitForExit(1000);
+				_bedrock.Kill();
+			};
+
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)

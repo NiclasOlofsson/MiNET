@@ -449,7 +449,7 @@ namespace MiNET.Worlds
 			//	} while (position < data.Length);
 			//}
 
-			chunk.IsDirty = false;
+			//chunk.IsDirty = false;
 			chunk.NeedSave = false;
 		}
 

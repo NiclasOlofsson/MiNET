@@ -95,7 +95,7 @@ namespace MiNET.Worlds
 			// We must reuse the same DB for all providers (dimensions) in LevelDB.
 			if (Db == null)
 			{
-				var db = new Database(directory) {CreateIfMissing = true};
+				var db = new Database(directory, true);
 				db.Open();
 				Db = db;
 
@@ -418,7 +418,7 @@ namespace MiNET.Worlds
 				Db.Put(chunkDataKey, sectionBytes);
 			}
 
-			//// Biomes
+			// Biomes & heights
 			byte[] heightBytes = new byte[512];
 			Buffer.BlockCopy(chunk.height, 0, heightBytes, 0, 512);
 			byte[] data2D = Combine(heightBytes, chunk.biomeId);

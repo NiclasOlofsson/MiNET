@@ -214,7 +214,6 @@ namespace MiNET.Client
 
 			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");
 
-
 			var settings = new JsonSerializerSettings
 			{
 				PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
@@ -240,10 +239,15 @@ namespace MiNET.Client
 
 				var blocks = new List<(int, string)>();
 
-				foreach (IGrouping<string, BlockStateContainer> blockstateGrouping in blockPalette.OrderBy(record => record.Name).ThenBy(record => record.Data).GroupBy(record => record.Name))
+				foreach (IGrouping<string, BlockStateContainer> blockstateGrouping in blockPalette.OrderBy(record => record.Name).ThenBy(record => record.Data).ThenBy(record => record.RuntimeId) .GroupBy(record => record.Name))
 				{
-					var currentBlockState = blockstateGrouping.First();
-					var defaultBlockState = blockstateGrouping.FirstOrDefault(bs => bs.Data == 0);
+					BlockStateContainer currentBlockState = blockstateGrouping.First();
+					Log.Debug($"{currentBlockState.Name}, Id={currentBlockState.Id}");
+					BlockStateContainer defaultBlockState = BlockFactory.GetBlockById(currentBlockState.Id, 0)?.GetGlobalState();
+					if (defaultBlockState == null)
+					{
+						defaultBlockState = blockstateGrouping.FirstOrDefault(bs => bs.Data == 0);
+					}
 
 					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Name}, {currentBlockState.Data}");
 					Block blockById = BlockFactory.GetBlockById(currentBlockState.Id);

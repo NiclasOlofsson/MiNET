@@ -2081,7 +2081,7 @@ namespace MiNET.Net
 			{
 				int recipeType = ReadSignedVarInt();
 
-				//Log.Trace($"Read recipe no={i} type={recipeType}");
+				Log.Trace($"Read recipe no={i} type={recipeType}");
 
 				if (recipeType < 0 /*|| len == 0*/)
 				{
@@ -2182,46 +2182,52 @@ namespace MiNET.Net
 					}
 					case ShapelessChemistry:
 					{
+						var recipe = new ShapelessRecipe();
+						ReadString(); // some unique id
 						int ingrediensCount = ReadVarInt(); // 
 						for (int j = 0; j < ingrediensCount; j++)
 						{
-							ReadVarInt(); // unique id
-							ReadItem();
+							recipe.Input.Add(ReadRecipeIngredient());
 						}
-						int resultCount = ReadVarInt(); // 
+						int resultCount = ReadVarInt(); // 1?
 						for (int j = 0; j < resultCount; j++)
 						{
-							ReadVarInt(); // unique id
-							ReadItem();
+							recipe.Result.Add(ReadItem());
 						}
-
-						ReadUUID();
-						ReadString(); // block?
+						recipe.Id = ReadUUID(); // Id
+						recipe.Block = ReadString(); // block?
+						ReadSignedVarInt(); // priority
+						recipe.UniqueId = ReadVarInt(); // unique id
+						//recipes.Add(recipe);
+						//Log.Error("Read shapeless recipe");
 						break;
 					}
 					case ShapedChemistry:
 					{
+						ReadString(); // some unique id
 						int width = ReadSignedVarInt(); // Width
 						int height = ReadSignedVarInt(); // Height
+						var recipe = new ShapedRecipe(width, height);
 						if (width > 3 || height > 3) throw new Exception("Wrong number of ingredience. Width=" + width + ", height=" + height);
 						for (int w = 0; w < width; w++)
 						{
 							for (int h = 0; h < height; h++)
 							{
-								ReadVarInt(); // unique id
-								ReadItem();
+								recipe.Input[(h * width) + w] = ReadRecipeIngredient();
 							}
 						}
 
 						int resultCount = ReadVarInt(); // 1?
 						for (int j = 0; j < resultCount; j++)
 						{
-							ReadVarInt(); // unique id
-							ReadItem();
+							recipe.Result.Add(ReadItem());
 						}
-
-						ReadUUID(); // Id
-						ReadString(); // block?
+						recipe.Id = ReadUUID(); // Id
+						recipe.Block = ReadString(); // block?
+						ReadSignedVarInt(); // priority
+						recipe.UniqueId = ReadVarInt(); // unique id
+						//recipes.Add(recipe);
+						//Log.Error("Read shaped recipe");
 						break;
 					}
 					default:

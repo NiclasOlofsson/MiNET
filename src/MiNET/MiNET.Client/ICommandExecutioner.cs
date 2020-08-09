@@ -142,7 +142,7 @@ namespace MiNET.Client
 						blockstate.ItemInstance = null; // reset to nothing
 
 						string name = blockstate.Name.Replace("minecraft:", "");
-						if (name == "double_plant" || name == "air" || name.StartsWith("element")) break;
+						if (name == "double_plant" || name == "air" /*|| name.StartsWith("element")*/) break;
 
 						var pick = McpeBlockPickRequest.CreateObject();
 						pick.x = x;
@@ -293,7 +293,7 @@ namespace MiNET.Client
 					var blockstate = client.BlockPalette.FirstOrDefault(b => b.Id == id);
 					string name = blockstate.Name.Replace("minecraft:", "");
 
-					if (name.StartsWith("element")) continue;
+					//if (name.StartsWith("element")) continue;
 
 					client.BlockPalette.Where(bs => bs.Id == id).ToList().ForEach(bs =>
 					{
@@ -486,7 +486,7 @@ namespace MiNET.Client
 						continue; // don't want
 					}
 
-					if (name.StartsWith("element")) continue;
+					//if (name.StartsWith("element")) continue;
 
 					int y = yStart;
 					for (int meta = 0; meta <= 15; meta++)
@@ -525,6 +525,9 @@ namespace MiNET.Client
 			}
 
 			_runningBlockMetadataDiscovery = false;
+
+			WritePaletteToJson(client.BlockPalette);
+
 			client.SendChat($"Finished setting blocks.");
 			Log.Warn("Finished!");
 		}

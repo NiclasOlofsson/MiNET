@@ -86,36 +86,36 @@ namespace MiNET.Blocks
 
 	public partial class SpruceStandingSign : StandingSignBase
 	{
-		public SpruceStandingSign() : base(436, 472) { IsGenerated = true; }
+		public SpruceStandingSign() : base(436, 472) { }
 	}
 
 	public partial class BirchStandingSign : StandingSignBase
 	{
-		public BirchStandingSign() : base(441, 473) { IsGenerated = true; }
+		public BirchStandingSign() : base(441, 473) { }
 	}
 
 	public partial class JungleStandingSign : StandingSignBase
 	{
-		public JungleStandingSign() : base(443, 474) { IsGenerated = true; }
+		public JungleStandingSign() : base(443, 474) { }
 	}
 
 	public partial class AcaciaStandingSign : StandingSignBase
 	{
-		public AcaciaStandingSign() : base(445, 475) { IsGenerated = true; }
+		public AcaciaStandingSign() : base(445, 475) { }
 	}
 
 	public partial class DarkoakStandingSign : StandingSignBase
 	{
-		public DarkoakStandingSign() : base(447, 476) { IsGenerated = true; }
+		public DarkoakStandingSign() : base(447, 476) { }
 	}
 
 	public partial class CrimsonStandingSign : StandingSignBase
 	{
-		public CrimsonStandingSign() : base(505, 753) { IsGenerated = true; }
+		public CrimsonStandingSign() : base(505, 753) { }
 	}
 
 	public partial class WarpedStandingSign : StandingSignBase
 	{
-		public WarpedStandingSign() : base(506, 754) { IsGenerated = true; }
+		public WarpedStandingSign() : base(506, 754) { }
 	}
 }

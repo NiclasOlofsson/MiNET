@@ -1569,6 +1569,7 @@ Wiki: [Telemetry Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-T
 |Runtime Entity ID | UnsignedVarLong |  |
 |Event data | SignedVarInt |  |
 |Event type | byte |  |
+|Aux Data | byte[] | 0, true |
 -----------------------------------------------------------------------
 ### Spawn Experience Orb (0x42)
 Wiki: [Spawn Experience Orb](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SpawnExperienceOrb)
@@ -2749,7 +2750,6 @@ public const EMOTE_LIST_PACKET = 0x98;
 public const POSITION_TRACKING_D_B_SERVER_BROADCAST_PACKET = 0x99;
 public const POSITION_TRACKING_D_B_CLIENT_REQUEST_PACKET = 0x9a;
 public const DEBUG_INFO_PACKET = 0x9b;
-public const PACKET_VIOLATION_WARNING_PACKET = 0x9c;
 
 
 

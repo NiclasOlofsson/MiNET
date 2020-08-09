@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using log4net;
 using MiNET.Items;
@@ -117,12 +118,57 @@ namespace MiNET.Blocks
 
 		public virtual Item GetItem()
 		{
-			if (!BlockFactory.BlockStates.TryGetValue(GetState(), out BlockStateContainer stateContainer)) return null;
+			if (!BlockFactory.BlockStates.TryGetValue(GetState(), out BlockStateContainer stateFromPick)) return null;
 
-			ItemPickInstance stateItem = stateContainer.ItemInstance;
-			if (stateItem == null) return null;
+			var statesWithMeta = BlockFactory.BlockPalette.Where(b => b.Name == stateFromPick.Name && b.Data != -1).ToList();
+			foreach (IBlockState state in stateFromPick.States.ToArray())
+			{
+				bool same = true;
+				foreach (BlockStateContainer blockStateContainer in statesWithMeta)
+				{
+					foreach (IBlockState currentState in blockStateContainer.States)
+					{
+						if (currentState.Name != state.Name) continue;
 
-			return ItemFactory.GetItem(stateItem.Id, stateItem.Metadata);
+						if (!currentState.Equals(state))
+						{
+							same = false;
+							break;
+						}
+					}
+				}
+				if (same) stateFromPick.States.Remove(state);
+			}
+
+			Item pickedItem = null;
+
+			foreach (BlockStateContainer blockStateContainer in statesWithMeta)
+			{
+				bool match = true;
+
+				foreach (IBlockState currentState in blockStateContainer.States)
+				{
+					if (stateFromPick.States.All(s => s.Name != currentState.Name)) continue;
+
+					if (stateFromPick.States.All(state => !state.Equals(currentState)))
+					{
+						match = false;
+						break;
+					}
+				}
+				if (match)
+				{
+					var id = blockStateContainer.Id;
+					var meta = blockStateContainer.Data;
+
+					var statesWithMetaAndItem = statesWithMeta.Where(b => b.ItemInstance != null).ToList();
+					var actualState = statesWithMetaAndItem.FirstOrDefault(s => s.Id == id && s.Data == meta && s.ItemInstance != null);
+					if (actualState == null) break;
+					return ItemFactory.GetItem(actualState.ItemInstance.Id, actualState.ItemInstance.Metadata);
+				}
+			}
+
+			return null;
 		}
 
 		public bool CanPlace(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)

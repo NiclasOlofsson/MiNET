@@ -151,6 +151,7 @@ namespace MiNET.Blocks
 		public static Block GetBlockById(int blockId, byte metadata)
 		{
 			int runtimeId = (int) GetRuntimeId(blockId, metadata);
+			if (runtimeId < 0 || runtimeId >= BlockPalette.Count) return null;
 			BlockStateContainer blockState = BlockPalette[runtimeId];
 			Block block = GetBlockById(blockState.Id);
 			block.SetState(blockState.States);

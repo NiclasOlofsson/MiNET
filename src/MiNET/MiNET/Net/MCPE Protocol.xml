@@ -788,6 +788,7 @@
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Event data" type="SignedVarInt" />
 		<field name="Event type" type="byte" />
+		<field name="Aux Data" type="byte[]" size="0, true" note="Ignored" />
 	</pdu>
 
 	<pdu id="0x42" online="false" client="false" server="true" name="MCPE_SPAWN_EXPERIENCE_ORB">

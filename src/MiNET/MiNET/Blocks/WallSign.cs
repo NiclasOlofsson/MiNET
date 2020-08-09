@@ -82,36 +82,36 @@ namespace MiNET.Blocks
 
 	public partial class SpruceWallSign : WallSignBase
 	{
-		public SpruceWallSign() : base(437, 472) { IsGenerated = true; }
+		public SpruceWallSign() : base(437, 472) { }
 	}
 
 	public partial class BirchWallSign : WallSignBase
 	{
-		public BirchWallSign() : base(442, 473) { IsGenerated = true; }
+		public BirchWallSign() : base(442, 473) { }
 	}
 
 	public partial class JungleWallSign : WallSignBase
 	{
-		public JungleWallSign() : base(444, 474) { IsGenerated = true; }
+		public JungleWallSign() : base(444, 474) { }
 	}
 
 	public partial class AcaciaWallSign : WallSignBase
 	{
-		public AcaciaWallSign() : base(446, 475) { IsGenerated = true; }
+		public AcaciaWallSign() : base(446, 475) { }
 	}
 
 	public partial class DarkoakWallSign : WallSignBase
 	{
-		public DarkoakWallSign() : base(448, 476) { IsGenerated = true; }
+		public DarkoakWallSign() : base(448, 476) { }
 	}
 
 	public partial class CrimsonWallSign : WallSignBase
 	{
-		public CrimsonWallSign() : base(507, 505) { IsGenerated = true; }
+		public CrimsonWallSign() : base(507, 505) { }
 	}
 
 	public partial class WarpedWallSign : WallSignBase
 	{
-		public WarpedWallSign() : base(508, 506) { IsGenerated = true; }
+		public WarpedWallSign() : base(508, 506) { }
 	}
 }

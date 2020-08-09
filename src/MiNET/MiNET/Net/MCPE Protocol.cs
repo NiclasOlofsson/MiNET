@@ -5885,6 +5885,7 @@ namespace MiNET.Net
 		public long runtimeEntityId; // = null;
 		public int eventData; // = null;
 		public byte eventType; // = null;
+		public byte[] auxData; // = null;
 
 		public McpeTelemetryEvent()
 		{
@@ -5901,6 +5902,7 @@ namespace MiNET.Net
 			WriteUnsignedVarLong(runtimeEntityId);
 			WriteSignedVarInt(eventData);
 			Write(eventType);
+			Write(auxData);
 
 			AfterEncode();
 		}
@@ -5917,6 +5919,7 @@ namespace MiNET.Net
 			runtimeEntityId = ReadUnsignedVarLong();
 			eventData = ReadSignedVarInt();
 			eventType = ReadByte();
+			auxData = ReadBytes(0, true);
 
 			AfterDecode();
 		}
@@ -5931,6 +5934,7 @@ namespace MiNET.Net
 			runtimeEntityId=default(long);
 			eventData=default(int);
 			eventType=default(byte);
+			auxData=default(byte[]);
 		}
 
 	}

@@ -2789,6 +2789,7 @@ namespace MiNET
 			}
 
 			Block block = Level.GetBlock(message.x, message.y, message.z);
+			Log.Debug($"Picked block {block.Name} from blockstate {block.GetRuntimeId()}");
 			Item item = block.GetItem();
 			if (item == null) return;
 

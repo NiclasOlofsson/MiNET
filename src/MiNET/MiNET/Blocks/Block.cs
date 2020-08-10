@@ -120,6 +120,11 @@ namespace MiNET.Blocks
 		{
 			if (!BlockFactory.BlockStates.TryGetValue(GetState(), out BlockStateContainer stateFromPick)) return null;
 
+			if (stateFromPick.ItemInstance != null) return ItemFactory.GetItem(stateFromPick.ItemInstance.Id, stateFromPick.ItemInstance.Metadata);
+
+			// The rest of this code is to search for an state with the proper value. This is caused by blocks that have lots
+			// of states, and no easy way to map 1-1 with meta. Expensive, but rare.
+
 			var statesWithMeta = BlockFactory.BlockPalette.Where(b => b.Name == stateFromPick.Name && b.Data != -1).ToList();
 			foreach (IBlockState state in stateFromPick.States.ToArray())
 			{

@@ -121,6 +121,12 @@ namespace MiNET.Worlds
 				return chunk;
 			}
 
+			if (_chunkCache.TryGetValue(chunkCoordinates, out ChunkColumn value))
+			{
+				if (value == null) _chunkCache.TryRemove(chunkCoordinates, out value);
+				if (value != null) return value;
+			}
+
 			// Warning: The following code MAY execute the GetChunk 2 times for the same coordinate
 			// if called in rapid succession. However, for the scenario of the provider, this is highly unlikely.
 			return _chunkCache.GetOrAdd(chunkCoordinates, coordinates => GetChunk(coordinates, MissingChunkProvider));
@@ -129,6 +135,7 @@ namespace MiNET.Worlds
 		public ChunkColumn GetChunk(ChunkCoordinates coordinates, IWorldGenerator generator)
 		{
 			var sw = Stopwatch.StartNew();
+			sw.Stop();
 
 			byte[] index = Combine(BitConverter.GetBytes(coordinates.X), BitConverter.GetBytes(coordinates.Z));
 			if (Dimension == Dimension.Nether)
@@ -137,7 +144,9 @@ namespace MiNET.Worlds
 			}
 
 			byte[] versionKey = Combine(index, 0x76);
+			sw.Start();
 			byte[] version = Db.Get(versionKey);
+			sw.Stop();
 
 			ChunkColumn chunkColumn = null;
 			if (version != null && version.First() >= 10)
@@ -148,11 +157,13 @@ namespace MiNET.Worlds
 					Z = coordinates.Z
 				};
 
-				var chunkDataKey = Combine(index, new byte[] {0x2f, 0});
+				byte[] chunkDataKey = Combine(index, new byte[] {0x2f, 0});
 				for (byte y = 0; y < 16; y++)
 				{
 					chunkDataKey[^1] = y;
+					sw.Start();
 					byte[] sectionBytes = Db.Get(chunkDataKey);
+					sw.Stop();
 
 					if (sectionBytes == null)
 					{
@@ -165,7 +176,9 @@ namespace MiNET.Worlds
 				}
 
 				// Biomes
-				var flatDataBytes = Db.Get(Combine(index, 0x2D));
+				sw.Start();
+				byte[] flatDataBytes = Db.Get(Combine(index, 0x2D));
+				sw.Stop();
 				if (flatDataBytes != null)
 				{
 					Buffer.BlockCopy(flatDataBytes.AsSpan().Slice(0, 512).ToArray(), 0, chunkColumn.height, 0, 512);
@@ -173,10 +186,15 @@ namespace MiNET.Worlds
 				}
 
 				// Block entities
+				sw.Start();
 				byte[] blockEntityBytes = Db.Get(Combine(index, 0x31));
+				sw.Stop();
+
+				Log.Debug($"Read chunk from LevelDB {coordinates.X}, {coordinates.Z} in {sw.ElapsedMilliseconds} ms.");
+
 				if (blockEntityBytes != null)
 				{
-					var data = blockEntityBytes.AsMemory();
+					Memory<byte> data = blockEntityBytes.AsMemory();
 
 					var file = new NbtFile
 					{
@@ -221,7 +239,7 @@ namespace MiNET.Worlds
 				//chunkColumn.NeedSave = isGenerated;
 			}
 
-			//Log.Debug($"Read chunk {coordinates.X}, {coordinates.Z} in {sw.ElapsedMilliseconds}ms");
+			Log.Debug($"Read chunk {coordinates.X}, {coordinates.Z} in {sw.ElapsedMilliseconds} ms. Was generated: {isGenerated}");
 
 			return chunkColumn;
 		}
@@ -230,16 +248,17 @@ namespace MiNET.Worlds
 		{
 			var reader = new MemoryStreamReader(data);
 
-			var version = reader.ReadByte();
+			int version = reader.ReadByte();
 			if (version != 8) throw new Exception("Wrong chunk version");
 
-			var storageSize = reader.ReadByte();
+			int storageSize = reader.ReadByte();
 			for (int storage = 0; storage < storageSize; storage++)
 			{
+				bool isNotLoggedStorage = storage == 0;
+
 				byte paletteAndFlag = (byte) reader.ReadByte();
 				bool isRuntime = (paletteAndFlag & 1) != 0;
-				if (isRuntime)
-					throw new Exception("Can't use runtime for persistent storage.");
+				if (isRuntime) throw new Exception("Can't use runtime for persistent storage.");
 				int bitsPerBlock = paletteAndFlag >> 1;
 				int blocksPerWord = (int) Math.Floor(32d / bitsPerBlock);
 				int wordCount = (int) Math.Ceiling(4096d / blocksPerWord);
@@ -248,7 +267,8 @@ namespace MiNET.Worlds
 				reader.Position += wordCount * 4;
 
 				int paletteSize = reader.ReadInt32();
-				var palette = new Dictionary<int, int>();
+				List<int> palette = isNotLoggedStorage ? section.RuntimeIds : section.LoggedRuntimeIds;
+				palette.Clear();
 				for (int j = 0; j < paletteSize; j++)
 				{
 					var file = new NbtFile
@@ -270,7 +290,7 @@ namespace MiNET.Worlds
 						block = new Air();
 					}
 
-					palette.Add(j, block.GetRuntimeId());
+					palette.Add(block.GetRuntimeId());
 				}
 
 				long nextStore = reader.Position;
@@ -288,16 +308,15 @@ namespace MiNET.Worlds
 						int x = (position >> 8) & 0xF;
 						int y = position & 0xF;
 						int z = (position >> 4) & 0xF;
-						if (state > palette.Count)
-							Log.Error($"Got wrong state={state} from word. bitsPerBlock={bitsPerBlock}, blocksPerWord={blocksPerWord}, Word={word}");
+						if (state > palette.Count) Log.Error($"Got wrong state={state} from word. bitsPerBlock={bitsPerBlock}, blocksPerWord={blocksPerWord}, Word={word}");
 
-						if (storage == 0)
+						if (isNotLoggedStorage)
 						{
-							section.SetBlockByRuntimeId(x, y, z, palette[state]);
+							section.SetBlockIndex(x, y, z, (short) state);
 						}
 						else
 						{
-							section.SetLoggedBlockByRuntimeId(x, y, z, palette[state]);
+							section.SetLoggedBlockIndex(x, y, z, (byte) state);
 						}
 						position++;
 					}
@@ -354,7 +373,7 @@ namespace MiNET.Worlds
 			{
 				lock (_chunkCache)
 				{
-					if(Dimension == Dimension.Overworld) SaveLevelInfo(LevelInfo);
+					if (Dimension == Dimension.Overworld) SaveLevelInfo(LevelInfo);
 
 					foreach (ChunkColumn chunkColumn in _chunkCache.Values)
 					{
@@ -653,7 +672,7 @@ namespace MiNET.Worlds
 			{
 				IBlockState state = stateTag.TagType switch
 				{
-					NbtTagType.Byte => (IBlockState) new BlockStateByte()
+					NbtTagType.Byte => new BlockStateByte()
 					{
 						Name = stateTag.Name,
 						Value = stateTag.ByteValue

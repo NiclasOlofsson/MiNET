@@ -147,7 +147,7 @@ namespace MiNET.Worlds
 			int paletteIndex = _blocks[GetIndex(bx, by, bz)];
 			if (paletteIndex >= _runtimeIds.Count || paletteIndex < 0) Log.Warn($"Unexpected paletteIndex of {paletteIndex} with size of palette is {_runtimeIds.Count}");
 			int runtimeId = _runtimeIds[paletteIndex];
-			if(runtimeId < 0 || runtimeId >= BlockFactory.BlockPalette.Count) Log.Warn($"Couldn't locate runtime id {runtimeId} for block");
+			if (runtimeId < 0 || runtimeId >= BlockFactory.BlockPalette.Count) Log.Warn($"Couldn't locate runtime id {runtimeId} for block");
 			int bid = BlockFactory.BlockPalette[runtimeId].Id;
 			return bid == -1 ? 0 : bid;
 		}
@@ -176,17 +176,25 @@ namespace MiNET.Worlds
 
 		public void SetBlockByRuntimeId(int bx, int by, int bz, int runtimeId)
 		{
-			var index = _runtimeIds.IndexOf(runtimeId);
-			if (index == -1)
+			var paletteIndex = _runtimeIds.IndexOf(runtimeId);
+			if (paletteIndex == -1)
 			{
 				_runtimeIds.Add(runtimeId);
-				index = _runtimeIds.IndexOf(runtimeId);
+				paletteIndex = _runtimeIds.IndexOf(runtimeId);
 			}
 
-			_blocks[GetIndex(bx, by, bz)] = (short) index;
+			_blocks[GetIndex(bx, by, bz)] = (short) paletteIndex;
 			_cache = null;
 			IsDirty = true;
 		}
+
+		public void SetBlockIndex(int bx, int by, int bz, short paletteIndex)
+		{
+			_blocks[GetIndex(bx, by, bz)] = paletteIndex;
+			_cache = null;
+			IsDirty = true;
+		}
+
 
 		public void SetLoggedBlock(int bx, int by, int bz, Block block)
 		{
@@ -198,14 +206,21 @@ namespace MiNET.Worlds
 
 		public void SetLoggedBlockByRuntimeId(int bx, int by, int bz, int runtimeId)
 		{
-			var palettIndex = _loggedRuntimeIds.IndexOf(runtimeId);
-			if (palettIndex == -1)
+			var paletteIndex = _loggedRuntimeIds.IndexOf(runtimeId);
+			if (paletteIndex == -1)
 			{
 				_loggedRuntimeIds.Add(runtimeId);
-				palettIndex = (byte) _loggedRuntimeIds.IndexOf(runtimeId);
+				paletteIndex = (byte) _loggedRuntimeIds.IndexOf(runtimeId);
 			}
 
-			_loggedBlocks[GetIndex(bx, by, bz)] = (byte) palettIndex;
+			_loggedBlocks[GetIndex(bx, by, bz)] = (byte) paletteIndex;
+			_cache = null;
+			IsDirty = true;
+		}
+
+		public void SetLoggedBlockIndex(int bx, int by, int bz, byte paletteIndex)
+		{
+			_loggedBlocks[GetIndex(bx, by, bz)] = paletteIndex;
 			_cache = null;
 			IsDirty = true;
 		}

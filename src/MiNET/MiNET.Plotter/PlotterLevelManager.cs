@@ -39,13 +39,6 @@ namespace MiNET.Plotter
 			{
 				int viewDistance = Config.GetProperty("ViewDistance", 11);
 
-				//string basePath = Config.GetProperty("PCWorldFolder", "World").Trim();
-				//var worldProvider = new AnvilWorldProvider(basePath)
-				//{
-				//	MissingChunkProvider = new PlotWorldGenerator(),
-				//	ReadSkyLight = !Config.GetProperty("CalculateLights", false),
-				//	ReadBlockLight = !Config.GetProperty("CalculateLights", false),
-				//};
 				var worldProvider = new LevelDbProvider()
 				{
 					MissingChunkProvider = new PlotWorldGenerator(),

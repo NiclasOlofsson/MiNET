@@ -24,7 +24,7 @@
 #endregion
 
 using System.Numerics;
-using MiNET.Items;
+using MiNET.Entities;
 using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
@@ -46,9 +46,16 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			Direction = player.GetOppositeDirection();
+			Direction = Entity.DirectionByRotationFlat(player.KnownPosition.Yaw) switch
+			{
+				0 => 1, // East
+				1 => 3, // South
+				2 => 0, // West
+				3 => 2, // North 
+				_ => 0
+			};
 
-			UpsideDownBit = faceCoords.Y > 0.5 && face != BlockFace.Up || face == BlockFace.Down;
+			UpsideDownBit = (faceCoords.Y > 0.5 && face != BlockFace.Up) || face == BlockFace.Down;
 
 			return false;
 		}
@@ -64,44 +71,41 @@ namespace MiNET.Blocks
 
 	public partial class Trapdoor : TrapdoorBase
 	{
-		public Trapdoor() : base(96)
-		{
-		}
+		public Trapdoor() : base(96) { }
 	}
-
 
 	public partial class AcaciaTrapdoor : TrapdoorBase
 	{
-		public AcaciaTrapdoor() : base(400)
-		{
-		}
+		public AcaciaTrapdoor() : base(400) { }
 	}
 
 	public partial class BirchTrapdoor : TrapdoorBase
 	{
-		public BirchTrapdoor() : base(401)
-		{
-		}
+		public BirchTrapdoor() : base(401) { }
 	}
 
 	public partial class DarkOakTrapdoor : TrapdoorBase
 	{
-		public DarkOakTrapdoor() : base(402)
-		{
-		}
+		public DarkOakTrapdoor() : base(402) { }
 	}
 
 	public partial class JungleTrapdoor : TrapdoorBase
 	{
-		public JungleTrapdoor() : base(403)
-		{
-		}
+		public JungleTrapdoor() : base(403) { }
 	}
 
 	public partial class SpruceTrapdoor : TrapdoorBase
 	{
-		public SpruceTrapdoor() : base(404)
-		{
-		}
+		public SpruceTrapdoor() : base(404) { }
+	}
+
+	public partial class CrimsonTrapdoor : TrapdoorBase
+	{
+		public CrimsonTrapdoor() : base(501) { }
+	}
+
+	public partial class WarpedTrapdoor : TrapdoorBase
+	{
+		public WarpedTrapdoor() : base(502) { }
 	}
 }

@@ -1132,6 +1132,15 @@ namespace MiNET.Worlds
 			return chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 		}
 
+		public byte GetBiomeId(BlockCoordinates blockCoordinates)
+		{
+			ChunkColumn chunk = GetChunk(blockCoordinates);
+
+			if (chunk == null) return 0;
+
+			return chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Z & 0x0f);
+		}
+
 		public ChunkColumn GetChunk(BlockCoordinates blockCoordinates, bool cacheOnly = false)
 		{
 			return GetChunk((ChunkCoordinates) blockCoordinates, cacheOnly);

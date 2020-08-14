@@ -140,24 +140,25 @@ namespace MiNET
 
 
 		[Wired]
-		public virtual void SetInventorySlot(int slot, Item item)
+		public virtual void SetInventorySlot(int slot, Item item, bool forceReplace = false)
 		{
 			if (item == null || item.Count <= 0) item = new ItemAir();
 
-			UpdateInventorySlot(slot, item);
+			UpdateInventorySlot(slot, item, forceReplace);
 
 			SendSetSlot(slot);
 		}
 
-		public virtual void UpdateInventorySlot(int slot, Item item)
+		public virtual void UpdateInventorySlot(int slot, Item item, bool forceReplace = false)
 		{
 			var existing = Slots[slot];
-			if (existing.Id != item.Id)
+			if (forceReplace || existing.Id != item.Id)
 			{
 				Slots[slot] = item;
 				existing = item;
 			}
 
+			existing.UniqueId = item.UniqueId;
 			existing.Count = item.Count;
 			existing.Metadata = item.Metadata;
 			existing.ExtraData = item.ExtraData;

@@ -48,6 +48,7 @@ namespace MiNET.Items
 		protected ItemBlock(string name, short id, short metadata = 0) : base(name, id, metadata)
 		{
 			//TODO: Problematic block
+			Block = BlockFactory.GetBlockById(id);
 		}
 
 		public ItemBlock([NotNull] Block block, short metadata = 0) : base(block.Name, (short) (block.Id > 255 ? 255 - block.Id : block.Id), metadata)

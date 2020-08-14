@@ -61,7 +61,7 @@ namespace MiNET.Blocks
 				level.SetAir(Coordinates + Level.Up);
 			}
 
-			level.SetAir(Coordinates);
+			base.BreakBlock(level, face, silent);
 		}
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)

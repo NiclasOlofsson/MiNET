@@ -704,7 +704,7 @@ namespace MiNET.Client
 					writer.Indent++;
 					foreach (Item item in shapedRecipe.Result)
 					{
-						writer.WriteLine($"new Item({item.Id}, {item.Metadata}),");
+						writer.WriteLine($"new Item({item.Id}, {item.Metadata}, {item.Count}),");
 					}
 					writer.Indent--;
 					writer.WriteLine($"}},");
@@ -714,7 +714,7 @@ namespace MiNET.Client
 					writer.Indent++;
 					foreach (Item item in shapedRecipe.Input)
 					{
-						writer.WriteLine($"new Item({item.Id}, {item.Metadata}),");
+						writer.WriteLine($"new Item({item.Id}, {item.Metadata}, {item.Count}),");
 					}
 					writer.Indent--;
 					writer.WriteLine($"}}, \"{shapedRecipe.Block}\"){{ UniqueId = {shapedRecipe.UniqueId} }},");

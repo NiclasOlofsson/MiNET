@@ -3544,11 +3544,17 @@ namespace MiNET
 		public virtual void DropInventory()
 		{
 			var slots = Inventory.Slots;
+			var uiSlots = Inventory.UiInventory.Slots;
 
 			Vector3 coordinates = KnownPosition.ToVector3();
 			coordinates.Y += 0.5f;
 
 			foreach (var stack in slots.ToArray())
+			{
+				Level.DropItem(coordinates, stack);
+			}
+
+			foreach (var stack in uiSlots.ToArray())
 			{
 				Level.DropItem(coordinates, stack);
 			}

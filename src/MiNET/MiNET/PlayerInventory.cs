@@ -361,7 +361,7 @@ namespace MiNET
 				if (Slots[i] == null || Slots[i].Id != 0) Slots[i] = new ItemAir();
 			}
 			
-			UiInventory = new CursorInventory();
+			UiInventory.Clear();
 
 			if (OffHand.Id != 0) OffHand = new ItemAir();
 

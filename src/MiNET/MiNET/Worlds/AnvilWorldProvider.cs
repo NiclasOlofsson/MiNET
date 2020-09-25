@@ -1013,9 +1013,16 @@ namespace MiNET.Worlds
 								blocks[anvilIndex] = blockId;
 								
 								int index = subChunk.Blocks[(x << 8) | (z << 4) | y];
-								int runtimeId = subChunk.RuntimeIds[index];
-								BlockStateContainer blockState = BlockFactory.BlockPalette[runtimeId];
-								SetNibble4(data, anvilIndex, (byte)blockState.Data);
+								if (subChunk.RuntimeIds.Contains(index))
+								{
+									int runtimeId = subChunk.RuntimeIds[index];
+									BlockStateContainer blockState = BlockFactory.BlockPalette[runtimeId == -1 ? 0 : runtimeId];
+									SetNibble4(data, anvilIndex, (byte) blockState.Data);
+								}
+								else
+								{
+									SetNibble4(data, anvilIndex, 0);
+								}
 								
 								SetNibble4(blockLight, anvilIndex, subChunk.GetBlocklight(x, y, z));
 								SetNibble4(skyLight, anvilIndex, subChunk.GetSkylight(x, y, z));

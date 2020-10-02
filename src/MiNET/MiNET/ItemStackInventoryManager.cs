@@ -188,7 +188,7 @@ namespace MiNET
 				dropItem = (Item) sourceItem.Clone();
 				sourceItem.Count -= count;
 				dropItem.Count = count;
-				dropItem.UniqueId = Environment.TickCount;
+				dropItem.UniqueId = Environment.TickCount & Int32.MaxValue;
 			}
 
 			_player.DropItem(dropItem);
@@ -307,7 +307,7 @@ namespace MiNET
 				destItem = (Item) sourceItem.Clone();
 				sourceItem.Count -= count;
 				destItem.Count = count;
-				destItem.UniqueId = Environment.TickCount;
+				destItem.UniqueId = Environment.TickCount & Int32.MaxValue;
 			}
 
 			Item existingItem = GetContainerItem(destination.ContainerId, destination.Slot);
@@ -380,7 +380,7 @@ namespace MiNET
 				destItem = (Item) sourceItem.Clone();
 				sourceItem.Count -= count;
 				destItem.Count = count;
-				destItem.UniqueId = Environment.TickCount;
+				destItem.UniqueId = Environment.TickCount & Int32.MaxValue;
 			}
 
 			SetContainerItem(destination.ContainerId, destination.Slot, destItem);
@@ -430,7 +430,7 @@ namespace MiNET
 			Item craftingResult = action.ResultItems.FirstOrDefault();
 			if (craftingResult == null) return;
 
-			craftingResult.UniqueId = Environment.TickCount;
+			craftingResult.UniqueId = Environment.TickCount & Int32.MaxValue;
 			SetContainerItem(59, 50, craftingResult);
 		}
 
@@ -449,7 +449,7 @@ namespace MiNET
 			if (creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {action.CreativeItemNetworkId}");
 			creativeItem = ItemFactory.GetItem(creativeItem.Id, creativeItem.Metadata);
 			creativeItem.Count = (byte) creativeItem.MaxStackSize;
-			creativeItem.UniqueId = Environment.TickCount;
+			creativeItem.UniqueId = Environment.TickCount & Int32.MaxValue;
 			Log.Debug($"Creating {creativeItem}");
 			_player.Inventory.UiInventory.Slots[50] = creativeItem;
 		}

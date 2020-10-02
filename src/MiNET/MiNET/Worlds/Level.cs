@@ -1376,9 +1376,8 @@ namespace MiNET.Worlds
 
 			Item inHand = player.Inventory.GetItemInHand();
 			bool canBreak = inHand.BreakBlock(this, player, block, blockEntity);
-			List<Item> drops = new List<Item>();
-			drops.AddRange(block.GetDrops(inHand ?? new ItemAir()));
-			if (!canBreak || !AllowBreak || player.GameMode == GameMode.Spectator || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
+
+			if (!canBreak || !AllowBreak || player.GameMode == GameMode.Spectator || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, null)))
 			{
 				// Revert
 
@@ -1386,7 +1385,7 @@ namespace MiNET.Worlds
 			}
 			else
 			{
-				BreakBlock(player, block, drops, blockEntity, inHand, face);
+				BreakBlock(player, block, blockEntity, inHand, face);
 
 				player.Inventory.DamageItemInHand(ItemDamageReason.BlockBreak, null, block);
 				player.HungerManager.IncreaseExhaustion(0.025f);
@@ -1422,14 +1421,11 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void BreakBlock(Player player, Block block, List<Item> drops = null, BlockEntity blockEntity = null, Item tool = null, BlockFace face = BlockFace.None)
+		public void BreakBlock(Player player, Block block, BlockEntity blockEntity = null, Item tool = null, BlockFace face = BlockFace.None)
 		{
 			block.BreakBlock(this, face);
-			if (drops == null)
-			{
-				drops = new List<Item>();
-				drops.AddRange(block.GetDrops(tool ?? new ItemAir()));
-			}
+			var drops = new List<Item>();
+			drops.AddRange(block.GetDrops(tool ?? new ItemAir()));
 
 			if (blockEntity != null)
 			{

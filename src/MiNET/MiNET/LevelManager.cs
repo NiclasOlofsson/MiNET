@@ -41,8 +41,10 @@ namespace MiNET
 
 		public EntityManager EntityManager { get; set; } = new EntityManager();
 
-		public LevelManager()
+		protected MiNetServer Server { get; }
+		public LevelManager(MiNetServer server)
 		{
+			Server = server;
 		}
 
 		public IWorldGenerator Generator { get; set; } = new SuperflatGenerator(Dimension.Overworld);
@@ -85,7 +87,7 @@ namespace MiNET
 						break;
 				}
 
-				level = new Level(this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance)
+				level = new Level( Server,this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance)
 				{
 					EnableBlockTicking = Config.GetProperty("EnableBlockTicking", false),
 					EnableChunkTicking = Config.GetProperty("EnableChunkTicking", false),
@@ -218,7 +220,7 @@ namespace MiNET
 				MissingChunkProvider = new SuperflatGenerator(dimension),
 			};
 
-			Level newLevel = new Level(level.LevelManager, level.LevelId + "_" + dimension, worldProvider, EntityManager, level.GameMode, level.Difficulty, level.ViewDistance)
+			Level newLevel = new Level(Server, level.LevelManager, level.LevelId + "_" + dimension, worldProvider, EntityManager, level.GameMode, level.Difficulty, level.ViewDistance)
 			{
 				OverworldLevel = level,
 				Dimension = dimension,
@@ -262,7 +264,7 @@ namespace MiNET
 				MissingChunkProvider = new SuperflatGenerator(dimension),
 			};
 
-			Level newLevel = new Level(level.LevelManager, level.LevelId + "_" + dimension, worldProvider, EntityManager, level.GameMode, level.Difficulty, level.ViewDistance)
+			Level newLevel = new Level(Server, level.LevelManager, level.LevelId + "_" + dimension, worldProvider, EntityManager, level.GameMode, level.Difficulty, level.ViewDistance)
 			{
 				OverworldLevel = level,
 				Dimension = dimension,
@@ -303,7 +305,7 @@ namespace MiNET
 
 		private readonly int _numberOfLevels;
 
-		public SpreadLevelManager(int numberOfLevels)
+		public SpreadLevelManager(MiNetServer server, int numberOfLevels) : base(server)
 		{
 			Log.Warn($"Creating and caching {numberOfLevels} levels");
 
@@ -346,7 +348,7 @@ namespace MiNET
 			IWorldProvider worldProvider = null;
 			worldProvider = provider ?? new AnvilWorldProvider {MissingChunkProvider = new SuperflatGenerator(Dimension.Overworld)};
 
-			var level = new Level(this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
+			var level = new Level(Server, this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
 			level.Initialize();
 
 			OnLevelCreated(new LevelCancelEventArgs(null, level));

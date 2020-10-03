@@ -154,13 +154,14 @@ namespace MiNET
 					PluginManager.ExecuteStartup(this);
 
 					SessionManager ??= new SessionManager();
-					LevelManager ??= new LevelManager();
+					LevelManager ??= new LevelManager(this);
 					//LevelManager ??= new SpreadLevelManager(50);
 					PlayerFactory ??= new PlayerFactory();
 
 					//PluginManager.EnablePlugins(this, LevelManager);
 
 					PluginManager.EnablePlugins();
+					CommandManager.Init();
 					
 					// Cache - remove
 					LevelManager.GetLevel(null, Dimension.Overworld.ToString());

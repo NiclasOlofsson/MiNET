@@ -40,6 +40,9 @@ using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
 using MiNET.Entities.World;
+using MiNET.Events;
+using MiNET.Events.Block;
+using MiNET.Events.Level;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Net.RakNet;
@@ -110,7 +113,8 @@ namespace MiNET.Worlds
 		public int SaveInterval { get; set; } = 300;
 		public int UnloadInterval { get; set; } = -1;
 
-		public Level(LevelManager levelManager, string levelId, IWorldProvider worldProvider, EntityManager entityManager, GameMode gameMode = GameMode.Survival, Difficulty difficulty = Difficulty.Normal, int viewDistance = 11)
+		public EventDispatcher EventDispatcher { get; }
+		public Level(MiNetServer minet, LevelManager levelManager, string levelId, IWorldProvider worldProvider, EntityManager entityManager, GameMode gameMode = GameMode.Survival, Difficulty difficulty = Difficulty.Normal, int viewDistance = 11)
 		{
 			Random = new Random();
 
@@ -123,6 +127,8 @@ namespace MiNET.Worlds
 			Difficulty = difficulty;
 			ViewDistance = viewDistance;
 			WorldProvider = worldProvider;
+			
+			EventDispatcher = new EventDispatcher(minet, minet.EventDispatcher);
 		}
 
 		public LevelManager LevelManager { get; }
@@ -280,6 +286,9 @@ namespace MiNET.Worlds
 				newPlayer.IsSpawned = spawn;
 			}
 
+			LevelEntityAddedEvent addedEvent = new LevelEntityAddedEvent(this, newPlayer);
+			EventDispatcher.DispatchEventAsync(addedEvent);
+			
 			OnPlayerAdded(new LevelEventArgs(newPlayer, this));
 		}
 
@@ -349,6 +358,9 @@ namespace MiNET.Worlds
 				}
 			}
 
+			LevelEntityRemovedEvent removedEvent = new LevelEntityRemovedEvent(this, player);
+			EventDispatcher.DispatchEventAsync(removedEvent);
+			
 			OnPlayerRemoved(new LevelEventArgs(player, this));
 		}
 
@@ -387,6 +399,9 @@ namespace MiNET.Worlds
 
 				if (Entities.TryAdd(entity.EntityId, entity))
 				{
+					LevelEntityAddedEvent addedEvent = new LevelEntityAddedEvent(this, entity);
+					EventDispatcher.DispatchEvent(addedEvent);
+					
 					entity.SpawnToPlayers(GetAllPlayers());
 				}
 				else
@@ -401,6 +416,10 @@ namespace MiNET.Worlds
 			lock (Entities)
 			{
 				if (!Entities.TryRemove(entity.EntityId, out entity)) return; // It's ok. Holograms destroy this play..
+				
+				LevelEntityRemovedEvent removedEvent = new LevelEntityRemovedEvent(this, entity);
+				EventDispatcher.DispatchEvent(removedEvent);
+				
 				entity.DespawnFromPlayers(GetAllPlayers());
 			}
 		}
@@ -1317,14 +1336,12 @@ namespace MiNET.Worlds
 
 			chunk.RemoveBlockEntity(blockCoordinates);
 		}
-
-		public event EventHandler<BlockPlaceEventArgs> BlockPlace;
-
-		public virtual bool OnBlockPlace(BlockPlaceEventArgs e)
+		
+		public bool OnBlockPlace(BlockPlaceEventArgs e)
 		{
-			BlockPlace?.Invoke(this, e);
-
-			return !e.Cancel;
+			BlockPlaceEvent bb = new BlockPlaceEvent(e.Player, e.TargetBlock);
+			EventDispatcher.DispatchEvent(bb);
+			return !bb.IsCancelled;
 		}
 
 		public void Interact(Player player, Item itemInHand, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
@@ -1359,14 +1376,18 @@ namespace MiNET.Worlds
 
 			itemInHand.PlaceBlock(this, player, blockCoordinates, face, faceCoords);
 		}
-
-		public event EventHandler<BlockBreakEventArgs> BlockBreak;
-
-		protected virtual bool OnBlockBreak(BlockBreakEventArgs e)
+		
+		private bool OnBlockBreak(BlockBreakEventArgs e)
 		{
-			BlockBreak?.Invoke(this, e);
+			BlockBreakEvent ev = new BlockBreakEvent(e.Player, e.Block, e.Drops);
+			EventDispatcher.DispatchEvent(ev);
 
-			return !e.Cancel;
+			if (ev.IsCancelled)
+				return false;
+					
+			ev.OnComplete();
+
+			return true;
 		}
 
 		public void BreakBlock(Player player, BlockCoordinates blockCoordinates, BlockFace face = BlockFace.None)

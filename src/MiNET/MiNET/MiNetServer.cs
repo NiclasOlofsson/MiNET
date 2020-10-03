@@ -156,7 +156,7 @@ namespace MiNET
 					SessionManager ??= new SessionManager();
 					LevelManager ??= new LevelManager(this);
 					//LevelManager ??= new SpreadLevelManager(50);
-					PlayerFactory ??= new PlayerFactory();
+					PlayerFactory ??= new PlayerFactory(EventDispatcher);
 
 					//PluginManager.EnablePlugins(this, LevelManager);
 

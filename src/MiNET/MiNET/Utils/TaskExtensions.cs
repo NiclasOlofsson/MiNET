@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
@@ -20,41 +19,28 @@
 // 
 // All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
 // All Rights Reserved.
-
 #endregion
 
 using System;
-using System.Net;
-using MiNET.Events;
-using MiNET.Events.Player;
-using MiNET.Net.RakNet;
-using MiNET.Utils;
+using System.Threading.Tasks;
 
-namespace MiNET
+namespace MiNET.Utils
 {
-	public class PlayerFactory
+	public static class TaskExtensions
 	{
-		private EventDispatcher EventDispatcher { get; }
-		public PlayerFactory(EventDispatcher eventDispatcher)
+		/* public static Task Then(this Task task, Action<Task> continuationAction)
 		{
-			EventDispatcher = eventDispatcher;
-		}
-		
-		public virtual Player CreatePlayer(MiNetServer server, IPEndPoint endPoint, PlayerInfo playerInfo)
+			return task.ContinueWith(x => continuationAction);
+		}*/
+        
+		public static Task<TResult> Then<TResult>(this Task<TResult> task, Action<TResult> continuationAction)
 		{
-			var player = new Player(server, endPoint);
-			player.MaxViewDistance = Config.GetProperty("MaxViewDistance", 22);
-			player.MoveRenderDistance = Config.GetProperty("MoveRenderDistance", 1);
-			
-			EventDispatcher.DispatchEvent(new PlayerCreatedEvent(player));
-			
-			OnPlayerCreated(new PlayerEventArgs(player));
-			return player;
-		}
+			return task.ContinueWith(x =>
+			{
+				continuationAction(x.Result);
 
-		protected virtual void OnPlayerCreated(PlayerEventArgs e)
-		{
-			
+				return x.Result;
+			});
 		}
 	}
 }

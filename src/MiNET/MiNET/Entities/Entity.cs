@@ -48,7 +48,7 @@ namespace MiNET.Entities
 
 		public string EntityTypeId { get; protected set; }
 		public long EntityId { get; set; }
-		public bool IsSpawned { get; set; }
+		public virtual bool IsSpawned { get; set; }
 		public bool CanDespawn { get; set; } = true;
 
 		public DateTime LastUpdatedTime { get; set; }

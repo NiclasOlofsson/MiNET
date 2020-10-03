@@ -41,6 +41,9 @@ using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Entities.Passive;
 using MiNET.Entities.World;
+using MiNET.Events;
+using MiNET.Events.Entity;
+using MiNET.Events.Player;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
@@ -58,6 +61,8 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Player));
 
+		public EventDispatcher EventDispatcher => Level.EventDispatcher ?? Server.EventDispatcher;
+		
 		private MiNetServer Server { get; set; }
 		public IPEndPoint EndPoint { get; private set; }
 		public INetworkHandler NetworkHandler { get; set; }
@@ -130,7 +135,32 @@ namespace MiNET
 			IsAffectedByGravity = true;
 			NoAi = false;
 		}
+		
+		private bool _isSpawned = false;
 
+		public override bool IsSpawned
+		{
+			get
+			{
+				return _isSpawned;
+			}
+			set
+			{
+				_isSpawned = value;
+
+				if (value)
+				{
+					PlayerSpawnedEvent ev = new PlayerSpawnedEvent(this);
+					EventDispatcher.DispatchEventAsync(ev);
+				}
+				else
+				{
+					PlayerDespawnedEvent ev = new PlayerDespawnedEvent(this);
+					EventDispatcher.DispatchEventAsync(ev);
+				}
+			}
+		}
+		
 		public void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message)
 		{
 			// Beware that message might be null here.
@@ -551,6 +581,8 @@ namespace MiNET
 			{
 				case PlayerAction.StartBreak:
 				{
+					//TODO: Re-Implement the BlockBreak events
+					
 					if (message.face == (int) BlockFace.Up)
 					{
 						Block block = Level.GetBlock(message.coordinates.BlockUp());
@@ -1056,22 +1088,28 @@ namespace MiNET
 
 		public virtual void InitializePlayer()
 		{
-			// Send set health
+			PlayerLoginCompleteEvent e = new PlayerLoginCompleteEvent(this, DateTime.UtcNow);
 
-			SendSetEntityData();
+			EventDispatcher.DispatchEventAsync(e).Then(
+				result =>
+				{
+					// Send set health
 
-			SendPlayerStatus(3);
+					SendSetEntityData();
 
-			//send time again
-			SendSetTime();
-			IsSpawned = true;
+					SendPlayerStatus(3);
 
-			SetPosition(SpawnPosition);
+					//send time again
+					SendSetTime();
+					IsSpawned = true;
 
-			LastUpdatedTime = DateTime.UtcNow;
-			_haveJoined = true;
+					SetPosition(SpawnPosition);
 
-			OnPlayerJoin(new PlayerEventArgs(this));
+					LastUpdatedTime = DateTime.UtcNow;
+					_haveJoined = true;
+
+					OnPlayerJoin(new PlayerEventArgs(this));
+				});
 		}
 
 		//public virtual void HandleMcpeRespawn()
@@ -1159,40 +1197,48 @@ namespace MiNET
 
 		public virtual void Teleport(PlayerLocation newPosition)
 		{
-			if (!Monitor.TryEnter(_teleportSync)) return;
-
-			try
-			{
-				bool oldNoAi = NoAi;
-				SetNoAi(true);
-
-				if (!IsChunkInCache(newPosition))
+			EventDispatcher.DispatchEventAsync(new PlayerMoveEvent(this, KnownPosition, newPosition, true)).Then(
+				result =>
 				{
-					// send teleport straight up, no chunk loading
-					SetPosition(new PlayerLocation
+					if (result.IsCancelled)
+						return;
+
+					if (!Monitor.TryEnter(_teleportSync)) return;
+
+					try
 					{
-						X = KnownPosition.X,
-						Y = 4000,
-						Z = KnownPosition.Z,
-						Yaw = 91,
-						Pitch = 28,
-						HeadYaw = 91,
-					});
+						bool oldNoAi = NoAi;
+						SetNoAi(true);
 
-					ForcedSendChunk(newPosition);
-				}
+						if (!IsChunkInCache(newPosition))
+						{
+							// send teleport straight up, no chunk loading
+							SetPosition(
+								new PlayerLocation
+								{
+									X = KnownPosition.X,
+									Y = 4000,
+									Z = KnownPosition.Z,
+									Yaw = 91,
+									Pitch = 28,
+									HeadYaw = 91,
+								});
 
-				// send teleport to spawn
-				SetPosition(newPosition);
+							ForcedSendChunk(newPosition);
+						}
 
-				SetNoAi(oldNoAi);
-			}
-			finally
-			{
-				Monitor.Exit(_teleportSync);
-			}
+						// send teleport to spawn
+						SetPosition(newPosition);
 
-			MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
+						SetNoAi(oldNoAi);
+					}
+					finally
+					{
+						Monitor.Exit(_teleportSync);
+					}
+
+					MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
+				});
 		}
 
 		private bool IsChunkInCache(PlayerLocation position)
@@ -1886,8 +1932,15 @@ namespace MiNET
 			string text = message.message;
 
 			if (string.IsNullOrEmpty(text)) return;
-
-			Level.BroadcastMessage(text, sender: this);
+			
+			PlayerChatEvent chatEvent = new PlayerChatEvent(this, text);
+			EventDispatcher.DispatchEventAsync(chatEvent).Then(result =>
+			{
+				if (result.IsCancelled)
+					return;
+		        
+				Level.BroadcastMessage(chatEvent.Message, sender: this);
+			});
 		}
 
 		private int _lastOrderingIndex;
@@ -1952,8 +2005,20 @@ namespace MiNET
 
 		public double CurrentSpeed { get; private set; } = 0;
 
+		private bool PlayerMoveEvent(PlayerLocation from, PlayerLocation to, bool teleport = false)
+		{
+			PlayerMoveEvent playerMoveEvent = new PlayerMoveEvent(this, from, to, teleport);
+			EventDispatcher.DispatchEvent(playerMoveEvent);
+			return !playerMoveEvent.IsCancelled;
+		}
+		
 		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround, bool isFlyingHorizontally)
 		{
+			if (!PlayerMoveEvent(KnownPosition, new PlayerLocation(message.x, message.y, message.z, message.headYaw, message.yaw, message.pitch)))
+			{
+				return false;
+			}
+
 			return true;
 		}
 
@@ -2326,21 +2391,35 @@ namespace MiNET
 
 		protected virtual void HandleItemUseOnEntityTransaction(ItemUseOnEntityTransaction transaction)
 		{
-			switch ((McpeInventoryTransaction.ItemUseOnEntityAction) transaction.ActionType)
+			if (!Level.TryGetEntity<Entity>(transaction.EntityId, out var entity) || !entity.IsSpawned || entity.HealthManager.IsDead)
 			{
-				case McpeInventoryTransaction.ItemUseOnEntityAction.Interact: // Right click
-					EntityInteract(transaction);
-					break;
-				case McpeInventoryTransaction.ItemUseOnEntityAction.Attack: // Left click
-					EntityAttack(transaction);
-					break;
-				case McpeInventoryTransaction.ItemUseOnEntityAction.ItemInteract:
-					Log.Warn($"Got Entity ItemInteract. Was't sure it existed, but obviously it does :-o");
-					EntityItemInteract(transaction);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
+				return;
 			}
+			
+			var actionType = (McpeInventoryTransaction.ItemUseOnEntityAction) transaction.ActionType;
+			
+			EntityInteractEvent interactEvent = new EntityInteractEvent(entity, this, actionType);
+			EventDispatcher.DispatchEventAsync(interactEvent).Then(result =>
+			{
+				if (result.IsCancelled)
+					return;
+		        
+				switch (actionType)
+				{
+					case McpeInventoryTransaction.ItemUseOnEntityAction.Interact: // Right click
+						EntityInteract(transaction);
+						break;
+					case McpeInventoryTransaction.ItemUseOnEntityAction.Attack: // Left click
+						EntityAttack(transaction);
+						break;
+					case McpeInventoryTransaction.ItemUseOnEntityAction.ItemInteract:
+						Log.Warn($"Got Entity ItemInteract. Was't sure it existed, but obviously it does :-o");
+						EntityItemInteract(transaction);
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			});
 		}
 
 		private void EntityItemInteract(ItemUseOnEntityTransaction transaction)
@@ -2426,11 +2505,25 @@ namespace MiNET
 			{
 				case McpeInventoryTransaction.ItemReleaseAction.Release:
 				{
+					if (!DropItem(itemInHand, new ItemAir()))
+					{
+						//HandleNormalTransaction(transaction);
+						HandleTransactionRecords(transaction.TransactionRecords);
+						return;
+					}
+					
 					itemInHand.Release(Level, this, transaction.FromPosition);
+
 					break;
 				}
 				case McpeInventoryTransaction.ItemReleaseAction.Use:
 				{
+					if (!UseItem(itemInHand))
+					{
+						HandleTransactionRecords(transaction.TransactionRecords);
+						//HandleNormalTransaction(transaction);
+						return;
+					}
 					break;
 				}
 				default:
@@ -2446,20 +2539,48 @@ namespace MiNET
 
 			switch (transaction.ActionType)
 			{
-				case McpeInventoryTransaction.ItemUseAction.Place:
-				{
-					Level.Interact(this, itemInHand, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
-					break;
-				}
 				case McpeInventoryTransaction.ItemUseAction.Use:
 				{
 					itemInHand.UseItem(Level, this, transaction.Position);
 					break;
 				}
+				case McpeInventoryTransaction.ItemUseAction.Place:
+				{
+					var target = Level.GetBlock(transaction.Position);
+				    
+					PlayerInteractEvent interactEvent = new PlayerInteractEvent(this, itemInHand, transaction.Position,
+						(BlockFace) transaction.Face, (target is Air)
+							? PlayerInteractEvent.PlayerInteractType.RightClickAir
+							: PlayerInteractEvent.PlayerInteractType.RightClickBlock);
+				    
+					EventDispatcher.DispatchEventAsync(interactEvent).Then(result =>
+					{
+						if (result.IsCancelled)
+							return;
+					    
+						Level.Interact(this, itemInHand, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
+					});
+					
+					break;
+				}
 				case McpeInventoryTransaction.ItemUseAction.Destroy:
 				{
-					//TODO: Add face and other parameters to break. For logic in break block.
-					Level.BreakBlock(this, transaction.Position, (BlockFace) transaction.Face);
+					var target = Level.GetBlock(transaction.Position);
+
+					PlayerInteractEvent interactEvent = new PlayerInteractEvent(this, itemInHand, transaction.Position,
+						(BlockFace) transaction.Face,
+						(target is Air)
+							? PlayerInteractEvent.PlayerInteractType.LeftClickAir
+							: PlayerInteractEvent.PlayerInteractType.LeftClickBlock);
+				    
+					EventDispatcher.DispatchEventAsync(interactEvent).Then(result =>
+					{
+						if (result.IsCancelled)
+							return;
+					    
+						Level.BreakBlock(this, transaction.Position, (BlockFace) transaction.Face);
+					});
+					
 					break;
 				}
 			}
@@ -2548,10 +2669,12 @@ namespace MiNET
 						byte count = newItem.Count;
 
 						Item dropItem;
+						bool clearSlot = false;
 						if (sourceItem.Count == count)
 						{
 							dropItem = sourceItem;
 							Inventory.ClearInventorySlot((byte) Inventory.InHandSlot);
+							clearSlot = true;
 						}
 						else
 						{
@@ -2561,13 +2684,43 @@ namespace MiNET
 							dropItem.UniqueId = Environment.TickCount;
 						}
 
-						DropItem(dropItem);
+						if (DropItem(dropItem, clearSlot ? new ItemAir() : sourceItem))
+						{
+							DropItem(dropItem);
+						}
+
 						break;
 					}
 				}
 			}
 		}
 
+		private bool UseItem(Item usedItem)
+		{
+			PlayerItemUseEvent useEvent = new PlayerItemUseEvent(this, usedItem);
+			EventDispatcher.DispatchEvent(useEvent);
+			if (useEvent.IsCancelled)
+			{
+				return false;
+			}
+
+			return true;
+		}
+		
+		private bool DropItem(Item droppedItem, Item newInventoryItem)
+		{
+			PlayerItemDropEvent dropEvent = new PlayerItemDropEvent(this, this.KnownPosition, droppedItem, newInventoryItem);
+			EventDispatcher.DispatchEvent(dropEvent);
+			if (dropEvent.IsCancelled)
+			{
+				SendPlayerInventory();
+				return false;
+			}
+
+			return true;
+			//base.DropItem(droppedItem, newInventoryItem);
+		}
+		
 		public virtual ItemEntity DropItem(Item item)
 		{
 			var itemEntity = new ItemEntity(Level, item)
@@ -3688,12 +3841,17 @@ namespace MiNET
 		{
 			PlayerJoining?.Invoke(this, e);
 		}
-
-		public event EventHandler<PlayerEventArgs> PlayerJoin;
-
+		
+		private bool _hasJoinedServer = false;
+		private bool _isFirstJoining  = true;
 		protected virtual void OnPlayerJoin(PlayerEventArgs e)
 		{
-			PlayerJoin?.Invoke(this, e);
+			if (_hasJoinedServer) return; //Make sure this is only called once when we join the server for the first time.
+			_hasJoinedServer = true;
+
+			EventDispatcher.DispatchEventAsync(new PlayerJoinEvent(this));
+			
+				//PlayerJoin?.Invoke(this, e);
 		}
 
 		public event EventHandler<PlayerEventArgs> LocalPlayerIsInitialized;
@@ -3702,12 +3860,10 @@ namespace MiNET
 		{
 			LocalPlayerIsInitialized?.Invoke(this, e);
 		}
-
-		public event EventHandler<PlayerEventArgs> PlayerLeave;
-
+		
 		protected virtual void OnPlayerLeave(PlayerEventArgs e)
 		{
-			PlayerLeave?.Invoke(this, e);
+			EventDispatcher.DispatchEventAsync(new PlayerQuitEvent(this));
 		}
 
 		public event EventHandler<PlayerEventArgs> Ticking;

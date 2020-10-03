@@ -25,10 +25,14 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Numerics;
+using System.Reflection;
 using log4net;
 using Microsoft.IO;
+using MiNET.Commands;
+using MiNET.Events;
 using MiNET.Net;
 using MiNET.Net.RakNet;
 using MiNET.Plugins;
@@ -60,8 +64,10 @@ namespace MiNET
 		public bool IsEdu { get; set; } = Config.GetProperty("EnableEdu", false);
 		public EduTokenManager EduTokenManager { get; set; }
 
-		public PluginManager PluginManager { get; set; }
-		public SessionManager SessionManager { get; set; }
+		public CommandManager  CommandManager  { get; private set; }
+		public EventDispatcher EventDispatcher { get; set; }
+		public PluginManager   PluginManager   { get; set; }
+		public SessionManager  SessionManager  { get; set; }
 
 		public ConnectionInfo ConnectionInfo { get; set; }
 
@@ -124,15 +130,24 @@ namespace MiNET
 				}
 
 				ServerManager ??= new DefaultServerManager(this);
-
+				EventDispatcher ??= new EventDispatcher(this);
+				CommandManager ??= new CommandManager(PluginManager);
+				
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Node)
 				{
 					// This stuff needs to be in an extension to connection
 					// somehow ...
 
 					Log.Info("Loading plugins...");
-					PluginManager = new PluginManager();
-					PluginManager.LoadPlugins();
+					
+					string pluginDirectoryPaths =
+						Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+					pluginDirectoryPaths = Config.GetProperty("PluginDirectory", pluginDirectoryPaths);
+					
+					PluginManager = new PluginManager(this);
+					PluginManager.DiscoverPlugins(pluginDirectoryPaths.Split(new char[] {';'},
+						StringSplitOptions.RemoveEmptyEntries));
+					
 					Log.Info("Plugins loaded!");
 
 					// Bootstrap server
@@ -143,8 +158,10 @@ namespace MiNET
 					//LevelManager ??= new SpreadLevelManager(50);
 					PlayerFactory ??= new PlayerFactory();
 
-					PluginManager.EnablePlugins(this, LevelManager);
+					//PluginManager.EnablePlugins(this, LevelManager);
 
+					PluginManager.EnablePlugins();
+					
 					// Cache - remove
 					LevelManager.GetLevel(null, Dimension.Overworld.ToString());
 				}
@@ -195,7 +212,7 @@ namespace MiNET
 			}
 
 			Log.Info("Disabling plugins...");
-			PluginManager?.DisablePlugins();
+			PluginManager?.UnloadAll();
 			_listener?.Stop();
 		}
 	}

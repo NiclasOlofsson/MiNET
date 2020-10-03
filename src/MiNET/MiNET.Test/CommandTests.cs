@@ -30,6 +30,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Effects;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Plugins.Commands;
 
 namespace MiNET.Test
 {

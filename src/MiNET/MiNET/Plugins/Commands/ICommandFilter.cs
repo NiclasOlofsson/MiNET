@@ -23,7 +23,7 @@
 
 #endregion
 
-namespace MiNET.Plugins
+namespace MiNET.Plugins.Commands
 {
 	public interface ICommandFilter
 	{

@@ -30,6 +30,7 @@ using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Plugins.Commands;
 using MiNET.Utils;
 
 namespace MiNET.BuilderBase.Commands

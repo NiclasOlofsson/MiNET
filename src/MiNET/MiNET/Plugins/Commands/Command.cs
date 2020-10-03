@@ -28,7 +28,7 @@ using System.Reflection;
 using MiNET.Entities;
 using Newtonsoft.Json;
 
-namespace MiNET.Plugins
+namespace MiNET.Plugins.Commands
 {
 	public class CommandSet : Dictionary<string, Command>
 	{

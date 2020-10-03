@@ -29,6 +29,7 @@ using MiNET.Entities;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
+using MiNET.Plugins.Commands.Builtin;
 using MiNET.Utils;
 using MiNET.Worlds;
 

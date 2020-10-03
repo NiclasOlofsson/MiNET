@@ -23,18 +23,10 @@
 
 #endregion
 
-namespace MiNET.Plugins
+namespace MiNET.Plugins.Commands
 {
-	public interface IPlugin
+	public interface IParameterSerializer
 	{
-		/// <summary>
-		///     This function will be called on plugin initialization.
-		/// </summary>
-		void OnEnable(PluginContext context);
-
-		/// <summary>
-		///     This function will be called when the plugin will be disabled.s
-		/// </summary>
-		void OnDisable();
+		void Deserialize(Player player, string input);
 	}
 }

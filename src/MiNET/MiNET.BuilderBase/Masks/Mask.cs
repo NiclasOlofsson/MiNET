@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Plugins;
+using MiNET.Plugins.Commands;
 using MiNET.Utils;
 using MiNET.Worlds;
 

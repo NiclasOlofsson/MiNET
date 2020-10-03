@@ -26,6 +26,7 @@
 using MiNET.Effects;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Plugins.Commands;
 
 namespace TestPlugin
 {

@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using log4net;
 using MiNET.Plugins;
+using MiNET.Plugins.Commands;
 
 namespace MiNET.Net
 {

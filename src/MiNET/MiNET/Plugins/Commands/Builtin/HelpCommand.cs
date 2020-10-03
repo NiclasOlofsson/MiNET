@@ -29,15 +29,15 @@ using System.Text;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 
-namespace MiNET.Plugins.Commands
+namespace MiNET.Plugins.Commands.Builtin
 {
 	public class HelpCommand
 	{
-		private readonly PluginManager _pluginManager;
+		private readonly MiNetServer _server;
 
-		public HelpCommand(PluginManager pluginManager)
+		public HelpCommand(MiNetServer server)
 		{
-			_pluginManager = pluginManager;
+			_server = server;
 		}
 
 		public class HelpResponseByName
@@ -50,7 +50,7 @@ namespace MiNET.Plugins.Commands
 		public HelpResponseByName Help(Player player, CommandNameEnum command)
 		{
 			Command cmd;
-			if (_pluginManager.Commands.TryGetValue(command.Value, out cmd))
+			if (player.Commands.TryGetValue(command.Value, out cmd))
 			{
 				string[] aliases = cmd.Versions.First().Aliases;
 				string cmds = "";
@@ -60,7 +60,7 @@ namespace MiNET.Plugins.Commands
 				}
 				StringBuilder sb = new StringBuilder();
 				sb.Append($"{ChatColors.Green}{cmd.Name}{cmds}:{ChatFormatting.Reset}\n");
-				sb.Append($"Usage:\n{PluginManager.GetUsage(cmd, true, ChatColors.Aqua)}");
+				sb.Append($"Usage:\n{_server.CommandManager.GetUsage(cmd, true, ChatColors.Aqua)}");
 
 				return new HelpResponseByName() {Body = sb.ToString()};
 			}
@@ -84,11 +84,11 @@ namespace MiNET.Plugins.Commands
 
 			StringBuilder sb = new StringBuilder();
 
-			var commands = Enumerable.Skip<Command>(_pluginManager.Commands.Values, page * 7);
+			var commands = Enumerable.Skip<Command>(player.Commands.Values, page * 7);
 			int i = 0;
 			foreach (var command in commands)
 			{
-				sb.Append(PluginManager.GetUsage(command));
+				sb.Append(_server.CommandManager.GetUsage(command));
 				if (i++ >= 6) break;
 				sb.Append("\n");
 			}
@@ -97,7 +97,7 @@ namespace MiNET.Plugins.Commands
 			{
 				Body = sb.ToString(),
 				Page = page + 1,
-				PageCount = (int) Math.Ceiling(_pluginManager.Commands.Count / 7f)
+				PageCount = (int) Math.Ceiling(player.Commands.Count / 7f)
 			};
 		}
 	}

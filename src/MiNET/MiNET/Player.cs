@@ -44,11 +44,13 @@ using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
+using MiNET.Plugins.Commands;
 using MiNET.UI;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
 using Newtonsoft.Json;
+using Input = MiNET.UI.Input;
 
 namespace MiNET
 {
@@ -101,8 +103,8 @@ namespace MiNET
 
 		public Session Session { get; set; }
 
-		public DamageCalculator DamageCalculator { get; set; } = new DamageCalculator();
-
+		public   DamageCalculator DamageCalculator { get; set; } = new DamageCalculator();
+		internal CommandSet       Commands         { get; set; } = null;
 
 		public Player(MiNetServer server, IPEndPoint endPoint) : base(EntityType.None, null)
 		{
@@ -995,27 +997,23 @@ namespace MiNET
 
 		protected virtual void SendAvailableCommands()
 		{
-			//var settings = new JsonSerializerSettings();
-			//settings.NullValueHandling = NullValueHandling.Ignore;
-			//settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
-			//settings.MissingMemberHandling = MissingMemberHandling.Error;
-			//settings.Formatting = Formatting.Indented;
-			//settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
-			//var content = JsonConvert.SerializeObject(Server.PluginManager.Commands, settings);
-
 			McpeAvailableCommands commands = McpeAvailableCommands.CreateObject();
-			commands.CommandSet = Server.PluginManager.Commands;
-			//commands.commands = content;
-			//commands.unknown = "{}";
+			commands.CommandSet = Commands;
+
 			SendPacket(commands);
+		}
+		
+		public void RefreshCommands()
+		{
+			Commands = Server.CommandManager.GenerateCommandSet(this);
+			SendAvailableCommands();
 		}
 
 		public virtual void HandleMcpeCommandRequest(McpeCommandRequest message)
 		{
 			Log.Debug($"UUID: {message.unknownUuid}");
 
-			var result = Server.PluginManager.HandleCommand(this, message.command);
+			var result = Server.CommandManager.HandleCommand(this, message.command);
 			if (result is string)
 			{
 				string sRes = result as string;

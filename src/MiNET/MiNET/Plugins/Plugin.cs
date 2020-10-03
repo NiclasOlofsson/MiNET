@@ -24,16 +24,24 @@
 #endregion
 
 using System;
+using System.Reflection;
+using MiNET.Plugins.Attributes;
 
 namespace MiNET.Plugins
 {
-	public abstract class Plugin : IPlugin
+	public abstract class Plugin
 	{
-		protected PluginContext Context { get; set; }
+		protected MiNetServer Context { get; set; }
 
 		[ThreadStatic] public static Player CurrentPlayer = null;
 
-		public void OnEnable(PluginContext context)
+		public PluginInfo Info { get; internal set; }
+		protected Plugin()
+		{
+			Info = LoadPluginInfo();
+		}
+		
+		public void OnEnable(MiNetServer context)
 		{
 			Context = context;
 			OnEnable();
@@ -46,5 +54,37 @@ namespace MiNET.Plugins
 		public virtual void OnDisable()
 		{
 		}
+		
+		#region OpenPlugin Initialisation
+
+		private PluginInfo LoadPluginInfo()
+		{
+			var type = GetType();
+
+			//var info = new OpenPluginInfo();
+			var info = type.GetCustomAttribute<PluginInfo>();
+			if (info == null) info = new PluginInfo();
+
+			// Fill info from the plugin's type/assembly
+			var assembly = type.Assembly;
+
+			if (string.IsNullOrWhiteSpace(info.Name))
+				info.Name = type.FullName;
+
+			if (string.IsNullOrWhiteSpace(info.Version) && !string.IsNullOrEmpty(assembly.Location))
+				info.Version = AssemblyName.GetAssemblyName(assembly.Location)?.Version?.ToString() ?? "";
+
+			//info.Version = assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version ?? "";
+
+			if (string.IsNullOrWhiteSpace(info.Description))
+				info.Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description ?? "";
+
+			if (string.IsNullOrWhiteSpace(info.Author))
+				info.Author = assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? "";
+
+			return info;
+		}
+
+		#endregion
 	}
 }

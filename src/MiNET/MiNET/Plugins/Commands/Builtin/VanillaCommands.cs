@@ -39,7 +39,7 @@ using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace MiNET.Plugins.Commands
+namespace MiNET.Plugins.Commands.Builtin
 {
 	public class VanillaCommands
 	{

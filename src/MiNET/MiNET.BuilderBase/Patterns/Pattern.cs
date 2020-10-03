@@ -31,6 +31,7 @@ using System.Text.RegularExpressions;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Plugins;
+using MiNET.Plugins.Commands;
 using MiNET.Utils;
 
 [assembly: InternalsVisibleTo("MiNET.BuilderBase.Tests")]

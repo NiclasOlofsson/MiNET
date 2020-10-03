@@ -48,6 +48,7 @@ using MiNET.Particles;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
+using MiNET.Plugins.Commands.Builtin;
 using MiNET.UI;
 using MiNET.Utils;
 using MiNET.Utils.Skins;

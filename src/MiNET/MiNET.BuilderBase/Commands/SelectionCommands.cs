@@ -8,6 +8,7 @@ using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Plugins.Commands;
 using MiNET.Utils;
 using MiNET.Worlds;
 

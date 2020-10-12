@@ -1179,6 +1179,9 @@ namespace MiNET.Player
 		[Wired]
 		public void SetPosition(PlayerLocation position, bool teleport = true)
 		{
+//			if (!PlayerMoveEvent(KnownPosition, position, teleport))
+//				return;
+			
 			KnownPosition = position;
 			LastUpdatedTime = DateTime.UtcNow;
 
@@ -1964,8 +1967,6 @@ namespace MiNET.Player
 			var origin = KnownPosition.ToVector3();
 			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
 
-			CurrentSpeed = distanceTo / ((double) (DateTime.UtcNow - LastUpdatedTime).Ticks / TimeSpan.TicksPerSecond);
-
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
 
 			bool isOnGround = IsOnGround;
@@ -1978,6 +1979,8 @@ namespace MiNET.Player
 
 			if (!AcceptPlayerMove(message, isOnGround, isFlyingHorizontally)) return;
 
+			CurrentSpeed = distanceTo / ((double) (DateTime.UtcNow - LastUpdatedTime).Ticks / TimeSpan.TicksPerSecond);
+			
 			IsFlyingHorizontally = isFlyingHorizontally;
 			IsOnGround = isOnGround;
 
@@ -2016,7 +2019,7 @@ namespace MiNET.Player
 		
 		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround, bool isFlyingHorizontally)
 		{
-			if (!PlayerMoveEvent(KnownPosition, new PlayerLocation(message.x, message.y, message.z, message.headYaw, message.yaw, message.pitch)))
+			if (!PlayerMoveEvent(KnownPosition, new PlayerLocation(message.x, message.y - 1.62f, message.z, message.headYaw, message.yaw, message.pitch)))
 			{
 				return false;
 			}

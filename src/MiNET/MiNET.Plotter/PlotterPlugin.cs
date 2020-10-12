@@ -40,7 +40,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Plotter
 {
-	[Plugin(PluginName = "Plotter", Description = "Basic plot server plugin for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(Name = "Plotter", Description = "Basic plot server plugin for MiNET", Version = "1.0", Author = "MiNET Team")]
 	public class PlotterPlugin : Plugin, IStartup, IEventHandler
 	{
 		private static readonly ILog              Log = LogManager.GetLogger(typeof (PlotterPlugin));

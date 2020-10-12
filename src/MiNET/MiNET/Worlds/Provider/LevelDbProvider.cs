@@ -67,6 +67,7 @@ namespace MiNET.Worlds.Provider
 
 		public void Initialize()
 		{
+			bool saveEnabled = Config.GetProperty("Save.Enabled", false);
 			BasePath ??= Config.GetProperty("LevelDBWorldFolder", "World").Trim();
 
 			var directory = new DirectoryInfo(Path.Combine(BasePath, "db"));
@@ -91,6 +92,9 @@ namespace MiNET.Worlds.Provider
 			{
 				Log.Warn($"No level.dat found at {levelFileName}. Creating empty.");
 				LevelInfo = new LevelInfoBedrock();
+				
+				if (saveEnabled)
+					SaveLevelInfo(LevelInfo);
 			}
 
 			// We must reuse the same DB for all providers (dimensions) in LevelDB.

@@ -28,10 +28,10 @@ namespace MiNET.Plugins
 	public class LoadedPlugin
 	{
 		public bool       Enabled  { get; }
-		public PluginInfo Info     { get; }
+		public PluginAttribute Info     { get; }
 		public Plugin     Instance { get; }
 
-		internal LoadedPlugin(Plugin pluginInstance, PluginInfo info, bool enabled)
+		internal LoadedPlugin(Plugin pluginInstance, PluginAttribute info, bool enabled)
 		{
 			Instance = pluginInstance;
 			Enabled = enabled;

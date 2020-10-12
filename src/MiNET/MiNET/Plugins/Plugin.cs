@@ -35,7 +35,7 @@ namespace MiNET.Plugins
 
 		[ThreadStatic] public static Player.Player CurrentPlayer = null;
 
-		public PluginInfo Info { get; internal set; }
+		public PluginAttribute Info { get; internal set; }
 		protected Plugin()
 		{
 			Info = LoadPluginInfo();
@@ -57,13 +57,13 @@ namespace MiNET.Plugins
 		
 		#region OpenPlugin Initialisation
 
-		private PluginInfo LoadPluginInfo()
+		private PluginAttribute LoadPluginInfo()
 		{
 			var type = GetType();
 
 			//var info = new OpenPluginInfo();
-			var info = type.GetCustomAttribute<PluginInfo>();
-			if (info == null) info = new PluginInfo();
+			var info = type.GetCustomAttribute<PluginAttribute>();
+			if (info == null) info = new PluginAttribute();
 
 			// Fill info from the plugin's type/assembly
 			var assembly = type.Assembly;

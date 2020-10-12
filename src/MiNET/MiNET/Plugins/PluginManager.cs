@@ -415,7 +415,7 @@ namespace MiNET.Plugins
 
 				if (pluginInfo != null)
 				{
-					if (!Config.GetProperty($"plugin.{pluginInfo.PluginName}.enabled", true))
+					if (!Config.GetProperty($"plugin.{pluginInfo.Name}.enabled", true))
 					{
 						Log.Info($"Not creating plugin instance off type \"{type.FullName}\" as it was disabled by config.");
 						continue;
@@ -568,7 +568,7 @@ namespace MiNET.Plugins
 			    {
 				    if (Services.TryResolve(type, out object instance) && instance is Plugin p)
 				    {
-					    PluginInfo info = p.Info;
+					    PluginAttribute info = p.Info;
 
 					    return new LoadedPlugin(p, info, true)
 					    {

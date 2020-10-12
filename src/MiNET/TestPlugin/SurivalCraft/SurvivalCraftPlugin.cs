@@ -36,7 +36,7 @@ using MiNET.Worlds;
 
 namespace TestPlugin.SurivalCraft
 {
-	[Plugin(PluginName = "SurvivalCraft", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(Name = "SurvivalCraft", Description = "", Version = "1.0", Author = "MiNET Team")]
 	public class SurvivalCraftPlugin : Plugin, IEventHandler
 	{
 		protected override void OnEnable()

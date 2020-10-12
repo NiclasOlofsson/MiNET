@@ -38,7 +38,7 @@ using MiNET.Utils;
 
 namespace TestPlugin
 {
-	[Plugin(PluginName = "PushToTheLimit", Description = "Commands that pushed MCPE to the limit.", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(Name = "PushToTheLimit", Description = "Commands that pushed MCPE to the limit.", Version = "1.0", Author = "MiNET Team")]
 	public class PushToTheLimitCommands : Plugin
 	{
 		[Command]

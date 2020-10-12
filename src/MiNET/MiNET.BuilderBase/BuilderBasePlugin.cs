@@ -17,7 +17,7 @@ using MiNET.Worlds;
 
 namespace MiNET.BuilderBase
 {
-	[Plugin(PluginName = "BuilderBase", Description = "Basic builder commands for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(Name = "BuilderBase", Description = "Basic builder commands for MiNET", Version = "1.0", Author = "MiNET Team")]
 	public class BuilderBasePlugin : Plugin, IEventHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (BuilderBasePlugin));

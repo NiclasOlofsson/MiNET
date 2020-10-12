@@ -39,7 +39,7 @@ using MiNET.Utils.Skins;
 
 namespace TestPlugin.Code4Fun
 {
-	[Plugin(PluginName = "Code4Fun", Description = "Plugin with mostly fun stuff", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(Name = "Code4Fun", Description = "Plugin with mostly fun stuff", Version = "1.0", Author = "MiNET Team")]
 	public class Code4FunPlugin : Plugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Code4FunPlugin));

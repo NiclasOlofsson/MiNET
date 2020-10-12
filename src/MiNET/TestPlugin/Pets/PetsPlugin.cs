@@ -33,7 +33,7 @@ using MiNET.Utils;
 
 namespace TestPlugin.Pets
 {
-	[Plugin(PluginName = "Pets", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(Name = "Pets", Description = "", Version = "1.0", Author = "MiNET Team")]
 	public class PetsPlugin : Plugin
 	{
 		[Command]

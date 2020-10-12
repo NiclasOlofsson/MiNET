@@ -138,8 +138,6 @@ namespace MiNET
 				{
 					// This stuff needs to be in an extension to connection
 					// somehow ...
-
-					Log.Info("Loading plugins...");
 					
 					string pluginDirectoryPaths =
 						Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
@@ -150,8 +148,6 @@ namespace MiNET
 					PluginManager.Services.RegisterSingleton(this);
 					PluginManager.DiscoverPlugins(pluginDirectoryPaths.Split(new char[] {';'},
 						StringSplitOptions.RemoveEmptyEntries));
-					
-					Log.Info("Plugins loaded!");
 
 					// Bootstrap server
 					PluginManager.ExecuteStartup(this);

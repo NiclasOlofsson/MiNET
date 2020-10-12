@@ -30,7 +30,7 @@ using MiNET.Plugins.Commands;
 
 namespace TestPlugin
 {
-	[Plugin(PluginName = "CommandsTest", Description = "Test command implementation for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(Name = "CommandsTest", Description = "Test command implementation for MiNET", Version = "1.0", Author = "MiNET Team")]
 	public class CommandsTestPlugin : Plugin
 	{
 		[Command]

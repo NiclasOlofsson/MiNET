@@ -51,7 +51,7 @@ using MiNET.Worlds.Provider;
 
 namespace TestPlugin.NiceLobby
 {
-	[Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(Name = "NiceLobby", Description = "", Version = "1.0", Author = "MiNET Team")]
 	public class NiceLobbyPlugin : Plugin, IEventHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(NiceLobbyPlugin));

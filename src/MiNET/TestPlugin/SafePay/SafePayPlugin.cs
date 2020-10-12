@@ -34,7 +34,7 @@ using Input = MiNET.UI.Input;
 
 namespace TestPlugin.SafePay
 {
-	[Plugin(PluginName = "SafePay", Description = "Safe payment solution for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(Name = "SafePay", Description = "Safe payment solution for MiNET", Version = "1.0", Author = "MiNET Team")]
 	public class SafePayPlugin : Plugin
 	{
 		protected override void OnEnable()

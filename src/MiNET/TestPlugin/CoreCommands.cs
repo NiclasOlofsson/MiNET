@@ -62,7 +62,7 @@ using Input = MiNET.UI.Input;
 
 namespace TestPlugin
 {
-	[Plugin(PluginName = "CoreCommands", Description = "The core commands for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(Name = "CoreCommands", Description = "The core commands for MiNET", Version = "1.0", Author = "MiNET Team")]
 	public class CoreCommands : Plugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(CoreCommands));

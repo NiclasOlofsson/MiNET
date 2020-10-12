@@ -15,7 +15,7 @@ namespace MiNET.BuilderBase.Commands
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ClipboardCommands));
 
 		[Command(Description = "Copy the selection to the clipboard")]
-		public void Copy(Player player)
+		public void Copy(Player.Player player)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 
@@ -29,7 +29,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Cut the selection to the clipboard")]
-		public void Cut(Player player, int leaveId = 0, int leaveData = 0)
+		public void Cut(Player.Player player, int leaveId = 0, int leaveData = 0)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 
@@ -62,7 +62,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Copy the selection to the clipboard")]
-		public void Paste(Player player, bool skipAir = false, bool selectAfter = true, bool pastAtOrigin = false)
+		public void Paste(Player.Player player, bool skipAir = false, bool selectAfter = true, bool pastAtOrigin = false)
 		{
 			try
 			{
@@ -129,7 +129,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Copy the selection to the clipboard")]
-		public void Rotate(Player player, int rotY = 0, int rotX = 0, int rotZ = 0)
+		public void Rotate(Player.Player player, int rotY = 0, int rotX = 0, int rotZ = 0)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 
@@ -145,7 +145,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Flip the contents of the clipboard")]
-		public void Flip(Player player, string direction = "me")
+		public void Flip(Player.Player player, string direction = "me")
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 
@@ -169,7 +169,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Clear your clipboard")]
-		public void ClearClipboard(Player player)
+		public void ClearClipboard(Player.Player player)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 			selector.Clipboard = null;

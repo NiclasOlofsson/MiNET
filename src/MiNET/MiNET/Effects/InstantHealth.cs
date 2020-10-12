@@ -34,16 +34,16 @@ namespace MiNET.Effects
 			ParticleColor = Color.FromArgb(0xF8, 0x24, 0x23);
 		}
 
-		public override void SendAdd(Player player)
+		public override void SendAdd(Player.Player player)
 		{
 			player.HealthManager.Regen(4 * (Level + 1));
 		}
 
-		public override void SendUpdate(Player player)
+		public override void SendUpdate(Player.Player player)
 		{
 		}
 
-		public override void SendRemove(Player player)
+		public override void SendRemove(Player.Player player)
 		{
 		}
 	}

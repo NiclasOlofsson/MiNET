@@ -104,17 +104,17 @@ namespace MiNET.BuilderBase.Tools
 		}
 
 
-		public void UpdateDisplay(Player player)
+		public void UpdateDisplay(Player.Player player)
 		{
 			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
 
@@ -165,7 +165,7 @@ namespace MiNET.BuilderBase.Tools
 			selector.AddHistory(history);
 		}
 
-		public override bool Animate(Level world, Player player)
+		public override bool Animate(Level world, Player.Player player)
 		{
 			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
 

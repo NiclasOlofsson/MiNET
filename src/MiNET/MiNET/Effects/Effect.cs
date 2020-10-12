@@ -73,7 +73,7 @@ namespace MiNET.Effects
 			Particles = true;
 		}
 
-		public virtual void SendAdd(Player player)
+		public virtual void SendAdd(Player.Player player)
 		{
 			var message = McpeMobEffect.CreateObject();
 			message.runtimeEntityId = EntityManager.EntityIdSelf;
@@ -87,7 +87,7 @@ namespace MiNET.Effects
 			player.BroadcastSetEntityData();
 		}
 
-		public virtual void SendUpdate(Player player)
+		public virtual void SendUpdate(Player.Player player)
 		{
 			var message = McpeMobEffect.CreateObject();
 			message.runtimeEntityId = EntityManager.EntityIdSelf;
@@ -99,7 +99,7 @@ namespace MiNET.Effects
 			player.SendPacket(message);
 		}
 
-		public virtual void SendRemove(Player player)
+		public virtual void SendRemove(Player.Player player)
 		{
 			var message = McpeMobEffect.CreateObject();
 			message.runtimeEntityId = EntityManager.EntityIdSelf;
@@ -108,7 +108,7 @@ namespace MiNET.Effects
 			player.SendPacket(message);
 		}
 
-		public virtual void OnTick(Player player)
+		public virtual void OnTick(Player.Player player)
 		{
 			if (Duration > 0 && Duration != MaxDuration) Duration -= 1;
 			if (Duration < 20) player.RemoveEffect(this); // Need 20 tick grace for some effects that fade

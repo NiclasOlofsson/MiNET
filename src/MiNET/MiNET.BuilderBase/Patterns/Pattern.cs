@@ -147,7 +147,7 @@ namespace MiNET.BuilderBase.Patterns
 			return block;
 		}
 
-		public virtual void Deserialize(Player player, string currentPattern)
+		public virtual void Deserialize(Player.Player player, string currentPattern)
 		{
 			// See documentation: https://worldedit.enginehub.org/en/latest/usage/general/patterns/
 

@@ -49,7 +49,7 @@ namespace MiNET.Items
 			MaxStackSize = 1;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 		}
 	}

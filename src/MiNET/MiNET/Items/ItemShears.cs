@@ -37,7 +37,7 @@ namespace MiNET.Items
 			ItemType = ItemType.Sheers;
 		}
 
-		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		public override bool DamageItem(Player.Player player, ItemDamageReason reason, Entity target, Block block)
 		{
 			switch (reason)
 			{

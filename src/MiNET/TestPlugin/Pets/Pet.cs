@@ -28,6 +28,7 @@ using System.Numerics;
 using log4net;
 using MiNET;
 using MiNET.Entities;
+using MiNET.Player;
 using MiNET.Utils;
 using MiNET.Worlds;
 

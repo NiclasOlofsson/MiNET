@@ -55,7 +55,7 @@ namespace MiNET.Entities
 			return metadata;
 		}
 
-		public override void DoInteraction(int actionId, Player player)
+		public override void DoInteraction(int actionId, Player.Player player)
 		{
 			McpeCamera camera = McpeCamera.CreateObject();
 			camera.unknown1 = EntityId;

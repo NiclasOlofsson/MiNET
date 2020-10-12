@@ -11,7 +11,7 @@ namespace MiNET.Events.Player
 		/// 	The time the player completed the login
 		/// </summary>
 		public DateTime CompletionTime { get; }
-		public PlayerLoginCompleteEvent(MiNET.Player player, DateTime loginCompleteTime) : base(player)
+		public PlayerLoginCompleteEvent(MiNET.Player.Player player, DateTime loginCompleteTime) : base(player)
 		{
 			CompletionTime = loginCompleteTime;
 		}

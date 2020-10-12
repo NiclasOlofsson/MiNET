@@ -33,6 +33,7 @@ using MiNET.Blocks;
 using MiNET.Entities.ImageProviders;
 using MiNET.Entities.World;
 using MiNET.Items;
+using MiNET.Player;
 using MiNET.Utils;
 using MiNET.Worlds;
 

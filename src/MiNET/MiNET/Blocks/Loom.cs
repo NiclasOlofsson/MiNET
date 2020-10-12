@@ -39,14 +39,14 @@ namespace MiNET.Blocks
 			Hardness = 5;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Direction = player.GetOppositeDirection();
 
 			return false;
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			var containerOpen = McpeContainerOpen.CreateObject();
 			containerOpen.windowId = 24;

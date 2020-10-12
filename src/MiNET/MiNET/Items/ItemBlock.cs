@@ -92,7 +92,7 @@ namespace MiNET.Items
 			};
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block currentBlock = world.GetBlock(targetCoordinates);
 			Block newBlock = BlockFactory.GetBlockById(Block.Id);

@@ -40,7 +40,7 @@ namespace MiNET.Entities.Projectiles
 		public Item Fireworks { get; set; }
 		public int Lifetime { get; set; }
 
-		public FireworksRocket(Player shooter, Level level, Item fireworks, Random random = null) : base(shooter, EntityType.FireworksRocket, level, 0)
+		public FireworksRocket(Player.Player shooter, Level level, Item fireworks, Random random = null) : base(shooter, EntityType.FireworksRocket, level, 0)
 		{
 			random = random ?? new Random();
 

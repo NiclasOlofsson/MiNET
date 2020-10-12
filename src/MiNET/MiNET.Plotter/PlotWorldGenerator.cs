@@ -29,6 +29,7 @@ using System.Linq;
 using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
+using MiNET.Worlds.Provider;
 
 namespace MiNET.Plotter
 {

@@ -44,7 +44,7 @@ namespace MiNET.Blocks
 			IsBlockingSkylight = false; // Partial - blocks light.
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			UpsideDownBit = ((faceCoords.Y > 0.5 && face != BlockFace.Up) || face == BlockFace.Down);
 

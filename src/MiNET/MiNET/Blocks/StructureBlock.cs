@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 		{
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var blockEntity = new StructureBlockBlockEntity {Coordinates = Coordinates};
 			world.SetBlockEntity(blockEntity);

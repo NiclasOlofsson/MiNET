@@ -16,14 +16,14 @@ namespace MiNET.BuilderBase
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (EditHelper));
 
-		private Level _level;
-		private readonly Player _player;
-		private Mask _mask;
-		private bool _randomizeGeneration = false;
-		private readonly UndoRecorder _undoRecorder;
-		private Random _random = new Random();
+		private          Level         _level;
+		private readonly Player.Player _player;
+		private          Mask          _mask;
+		private          bool          _randomizeGeneration = false;
+		private readonly UndoRecorder  _undoRecorder;
+		private          Random        _random = new Random();
 
-		public EditHelper(Level level, Player player, Mask mask = null, bool randomizeGeneration = false, UndoRecorder undoRecorder = null)
+		public EditHelper(Level level, Player.Player player, Mask mask = null, bool randomizeGeneration = false, UndoRecorder undoRecorder = null)
 		{
 			_level = level;
 			_player = player;
@@ -65,7 +65,7 @@ namespace MiNET.BuilderBase
 			return returnLastAir ? lastAir : null;
 		}
 
-		public static BlockCoordinates GetDirectionVector(Player player, string direction)
+		public static BlockCoordinates GetDirectionVector(Player.Player player, string direction)
 		{
 			SelectionDirection dir;
 			if (!Enum.TryParse(direction, true, out dir))
@@ -590,7 +590,7 @@ namespace MiNET.BuilderBase
 		}
 
 
-		public void Naturalize(Player player, RegionSelector selector)
+		public void Naturalize(Player.Player player, RegionSelector selector)
 		{
 			var min = selector.GetMin();
 			var max = selector.GetMax();

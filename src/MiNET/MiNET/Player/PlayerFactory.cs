@@ -23,41 +23,36 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Net;
+using MiNET.Events;
+using MiNET.Events.Player;
+using MiNET.Utils;
 
-namespace MiNET
+namespace MiNET.Player
 {
-	public class PlayerAttributes : Dictionary<string, PlayerAttribute>
+	public class PlayerFactory
 	{
-	}
-
-	public class EntityAttributes : Dictionary<string, EntityAttribute>
-	{
-	}
-
-	public class Links : List<Tuple<long, long>>
-	{
-	}
-
-	public class GameRules : HashSet<GameRule>
-	{
-	}
-
-	public class Itemstates : Dictionary<int, Itemstate>
-	{
-		public static Itemstates FromJson(string json)
+		private EventDispatcher EventDispatcher { get; }
+		public PlayerFactory(EventDispatcher eventDispatcher)
 		{
-			//TODO: Rebuild this to use the MiNET items instead.
-			return JsonConvert.DeserializeObject<Itemstates>(json);
+			EventDispatcher = eventDispatcher;
 		}
-	}
+		
+		public virtual Player CreatePlayer(MiNetServer server, IPEndPoint endPoint, PlayerInfo playerInfo)
+		{
+			var player = new Player(server, endPoint);
+			player.MaxViewDistance = Config.GetProperty("MaxViewDistance", 22);
+			player.MoveRenderDistance = Config.GetProperty("MoveRenderDistance", 1);
+			
+			EventDispatcher.DispatchEvent(new PlayerCreatedEvent(player));
+			
+			OnPlayerCreated(new PlayerEventArgs(player));
+			return player;
+		}
 
-	public class Itemstate
-	{
-		public short Id { get; set; }
-		public string Name { get; set; }
-		public int RuntimeId { get; set; }
+		protected virtual void OnPlayerCreated(PlayerEventArgs e)
+		{
+			
+		}
 	}
 }

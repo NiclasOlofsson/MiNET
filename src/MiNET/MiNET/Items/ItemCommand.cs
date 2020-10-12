@@ -36,17 +36,17 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemCommand));
 
-		public Action<ItemCommand, Level, Player, BlockCoordinates> Action { get; set; }
-		public bool NeedBlockRevert { get; set; }
+		public Action<ItemCommand, Level, Player.Player, BlockCoordinates> Action          { get; set; }
+		public bool                                                        NeedBlockRevert { get; set; }
 
-		public ItemCommand(short id, short metadata, Action<ItemCommand, Level, Player, BlockCoordinates> action) : base("minet:command", id, metadata)
+		public ItemCommand(short id, short metadata, Action<ItemCommand, Level, Player.Player, BlockCoordinates> action) : base("minet:command", id, metadata)
 		{
 			Action = action ?? throw new ArgumentNullException(nameof(action));
 			Item realItem = ItemFactory.GetItem(id, metadata);
 			NeedBlockRevert = realItem is ItemBlock;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			if (NeedBlockRevert)
 			{

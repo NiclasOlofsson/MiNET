@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 			Hardness = 5;
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			return world.GetBlock(blockCoordinates).IsReplaceable && world.GetBlock(blockCoordinates + Level.Up).IsReplaceable;
 		}
@@ -58,7 +58,7 @@ namespace MiNET.Blocks
 			level.SetAir(Coordinates);
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			Block block = this;
 			// Remove door

@@ -27,7 +27,7 @@ namespace MiNET.Entities
 {
 	interface IEternal
 	{
-		void Praise(Player player);
+		void Praise(Player.Player player);
 
 		int Minions { get; }
 	}

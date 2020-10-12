@@ -53,7 +53,7 @@ namespace MiNET.Sounds
 			level.RelayBroadcast(levelEvent);
 		}
 
-		public virtual void SpawnToPlayers(Player[] players)
+		public virtual void SpawnToPlayers(Player.Player[] players)
 		{
 			if (players == null) return;
 			if (players.Length == 0) return;

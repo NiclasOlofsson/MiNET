@@ -661,7 +661,7 @@ namespace MiNET.Plugins
 			Log.Info($"Executed {enabled} startup plugins!");
 		}
 
-		public Packet PluginPacketHandler(Packet message, bool isReceiveHandler, Player player)
+		public Packet PluginPacketHandler(Packet message, bool isReceiveHandler, Player.Player player)
 		{
 			if (message == null) return null;
 
@@ -717,7 +717,7 @@ namespace MiNET.Plugins
 							{
 								method.Invoke(pluginInstance, new object[] {currentPacket});
 							}
-							else if (parameters.Length == 2 && typeof(Player).IsAssignableFrom(parameters[1].ParameterType))
+							else if (parameters.Length == 2 && typeof(Player.Player).IsAssignableFrom(parameters[1].ParameterType))
 							{
 								method.Invoke(pluginInstance, new object[] {currentPacket, player});
 							}
@@ -729,7 +729,7 @@ namespace MiNET.Plugins
 							{
 								returnPacket = method.Invoke(pluginInstance, new object[] {currentPacket}) as Packet;
 							}
-							else if (parameters.Length == 2 && typeof(Player).IsAssignableFrom(parameters[1].ParameterType))
+							else if (parameters.Length == 2 && typeof(Player.Player).IsAssignableFrom(parameters[1].ParameterType))
 							{
 								returnPacket = method.Invoke(pluginInstance, new object[] {currentPacket, player}) as Packet;
 							}

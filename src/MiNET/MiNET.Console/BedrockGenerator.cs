@@ -34,6 +34,7 @@ using MiNET.Client;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using MiNET.Worlds.Provider;
 
 namespace MiNET.Console
 {

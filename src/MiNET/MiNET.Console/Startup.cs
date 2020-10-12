@@ -33,6 +33,7 @@ using System.Threading;
 using log4net;
 using log4net.Config;
 using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.Console
 {

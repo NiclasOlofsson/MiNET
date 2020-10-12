@@ -33,7 +33,7 @@ namespace MiNET.Plugins
 	{
 		protected PluginContext Context { get; set; }
 
-		[ThreadStatic] public static Player CurrentPlayer = null;
+		[ThreadStatic] public static Player.Player CurrentPlayer = null;
 
 		public PluginInfo Info { get; internal set; }
 		protected Plugin()

@@ -36,12 +36,12 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			return world.GetBlock(targetCoordinates) is Water;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
 			return base.PlaceBlock(world, player, targetCoordinates, face, faceCoords);

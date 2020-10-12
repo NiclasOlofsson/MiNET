@@ -39,6 +39,7 @@ using MiNET.Entities.ImageProviders;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Player;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using TestPlugin.NiceLobby;

@@ -25,11 +25,13 @@
 
 using System;
 using log4net;
+using MiNET.Entities;
+using MiNET.Events.Player;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Worlds;
 
-namespace MiNET
+namespace MiNET.Player
 {
 	public class HungerManager
 	{
@@ -56,6 +58,12 @@ namespace MiNET
 
 		public virtual void IncreaseFoodAndSaturation(Item item, int foodPoints, double saturationRestore)
 		{
+			var e = new FoodLevelChangeEvent(Player, Hunger, Hunger + foodPoints, Exhaustion, Exhaustion, Saturation,
+				Saturation + saturationRestore);
+			Player.EventDispatcher.DispatchEvent(e);
+
+			if (e.IsCancelled) return;
+			
 			Hunger += foodPoints;
 			Saturation += saturationRestore;
 
@@ -64,6 +72,12 @@ namespace MiNET
 
 		public virtual void IncreaseExhaustion(float amount)
 		{
+			var e = new FoodLevelChangeEvent(Player, Hunger, Hunger, Exhaustion, Exhaustion + amount, Saturation,
+				Saturation);
+			Player.EventDispatcher.DispatchEvent(e);
+
+			if (e.IsCancelled) return;
+			
 			Exhaustion += amount;
 			ProcessHunger();
 		}
@@ -93,7 +107,11 @@ namespace MiNET
 
 		public virtual void ProcessHunger(bool forceSend = false)
 		{
-			bool send = forceSend;
+			int    oldHunger     = Hunger;
+			double oldExhaustion = Exhaustion;
+			double oldSaturation = Saturation;
+			
+			bool   send          = forceSend;
 
 			if (Hunger > MaxHunger)
 			{
@@ -126,6 +144,23 @@ namespace MiNET
 				}
 			}
 
+			var e = new FoodLevelChangeEvent(Player, oldHunger, Hunger, oldExhaustion, Exhaustion, oldSaturation, Saturation);
+			Player.EventDispatcher.DispatchEvent(e);
+
+			if (e.IsCancelled)
+			{
+				Hunger = oldHunger;
+				Saturation = oldSaturation;
+				Exhaustion = oldExhaustion;
+				return;
+			}
+			else
+			{
+				Hunger = e.NewLevel;
+				Saturation = e.NewSaturation;
+				Exhaustion = e.NewExhaustion;
+			}			
+			
 			if (send) SendHungerAttributes();
 		}
 

@@ -48,7 +48,7 @@ namespace MiNET.Items
 			ItemType = ItemType.FlintAndSteel;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var block = world.GetBlock(blockCoordinates);
 			if (block is Tnt)
@@ -178,7 +178,7 @@ namespace MiNET.Items
 			return block is Obsidian || portals.FirstOrDefault(b => b.Coordinates.Equals(block.Coordinates) && b is Portal) != null;
 		}
 
-		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		public override bool DamageItem(Player.Player player, ItemDamageReason reason, Entity target, Block block)
 		{
 			switch (reason)
 			{

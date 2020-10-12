@@ -42,7 +42,7 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Inventory));
 
-		public event Action<Player, Inventory, byte, Item> InventoryChange;
+		public event Action<Player.Player, Inventory, byte, Item> InventoryChange;
 
 		public int Id { get; set; }
 		public byte Type { get; set; }
@@ -76,7 +76,7 @@ namespace MiNET
 			}
 		}
 
-		public void SetSlot(Player player, byte slot, Item itemStack)
+		public void SetSlot(Player.Player player, byte slot, Item itemStack)
 		{
 			Slots[slot] = itemStack;
 
@@ -149,7 +149,7 @@ namespace MiNET
 			return slots;
 		}
 
-		protected virtual void OnInventoryChange(Player player, byte slot, Item itemStack)
+		protected virtual void OnInventoryChange(Player.Player player, byte slot, Item itemStack)
 		{
 			InventoryChange?.Invoke(player, this, slot, itemStack);
 		}
@@ -159,14 +159,14 @@ namespace MiNET
 		// updates to only peopele that is looking at this inventory.
 		// Is should be converted to some sort of event based version.
 
-		public ConcurrentBag<Player> Observers { get; } = new ConcurrentBag<Player>();
+		public ConcurrentBag<Player.Player> Observers { get; } = new ConcurrentBag<Player.Player>();
 
-		public void AddObserver(Player player)
+		public void AddObserver(Player.Player player)
 		{
 			Observers.Add(player);
 		}
 
-		public void RemoveObserver(Player player)
+		public void RemoveObserver(Player.Player player)
 		{
 			// Need to arrange for this to work when players get disconnected
 			// from crash. It will leak players for sure.

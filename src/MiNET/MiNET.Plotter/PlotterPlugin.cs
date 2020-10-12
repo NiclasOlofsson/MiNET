@@ -30,6 +30,7 @@ using MiNET.Events;
 using MiNET.Events.Block;
 using MiNET.Events.Level;
 using MiNET.Events.Player;
+using MiNET.Player;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
@@ -62,14 +63,14 @@ namespace MiNET.Plotter
 		[EventHandler(EventPriority.Monitor)]
 		public void OnEntityLevelJoin(LevelEntityAddedEvent e)
 		{
-			if (e.Entity is Player player)
+			if (e.Entity is Player.Player player)
 				SetSpawnPosition(player, e.Level);
 		}
 
 		[EventHandler(EventPriority.Monitor)]
 		public void OnEntityLevelLeave(LevelEntityRemovedEvent e)
 		{
-			if (e.Entity is Player player)
+			if (e.Entity is Player.Player player)
 			{
 				var plotPlayer = _plotManager.GetOrAddPlotPlayer(player);
 				plotPlayer.LastPosition = player.KnownPosition;
@@ -192,7 +193,7 @@ namespace MiNET.Plotter
 			}
 		}
 
-		private void SetSpawnPosition(Player player, Level level)
+		private void SetSpawnPosition(Player.Player player, Level level)
 		{
 			var plotPlayer = _plotManager.GetOrAddPlotPlayer(player);
 			var pos = plotPlayer.LastPosition ?? plotPlayer.Home;

@@ -31,6 +31,7 @@ using log4net;
 using MiNET;
 using MiNET.Entities;
 using MiNET.Net;
+using MiNET.Player;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;

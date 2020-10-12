@@ -55,7 +55,7 @@ using MiNET.Worlds;
 using Newtonsoft.Json;
 using Input = MiNET.UI.Input;
 
-namespace MiNET
+namespace MiNET.Player
 {
 	public class Player : Entity, IMcpeMessageHandler
 	{

@@ -27,7 +27,7 @@ namespace MiNET.Plugins.Commands
 {
 	public interface ICommandFilter
 	{
-		void OnCommandExecuting(Player player);
+		void OnCommandExecuting(Player.Player player);
 		void OnCommandExecuted();
 	}
 }

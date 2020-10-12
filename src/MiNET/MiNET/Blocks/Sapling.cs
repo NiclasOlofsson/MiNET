@@ -42,7 +42,7 @@ namespace MiNET.Blocks
 			IsFlammable = true;
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
 			{
@@ -53,7 +53,7 @@ namespace MiNET.Blocks
 			return false;
 		}
 
-		public override bool Interact(Level level, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level level, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			if (player.Inventory.GetItemInHand() is ItemDye inHand && inHand.Metadata == 15)
 			{

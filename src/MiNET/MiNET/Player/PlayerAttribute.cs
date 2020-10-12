@@ -23,7 +23,7 @@
 
 #endregion
 
-namespace MiNET
+namespace MiNET.Player
 {
 	public class PlayerAttribute
 	{

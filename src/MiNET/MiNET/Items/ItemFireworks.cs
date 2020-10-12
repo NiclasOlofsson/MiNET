@@ -44,7 +44,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Random random = new Random();
 			var rocket = new FireworksRocket(player, world, this, random);

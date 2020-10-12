@@ -29,7 +29,7 @@ namespace MiNET.Events.Player
 	public class LocalPlayerInitializedEvent : PlayerEvent
 	{
 		/// <inheritdoc />
-		public LocalPlayerInitializedEvent(MiNET.Player player) : base(player)
+		public LocalPlayerInitializedEvent(MiNET.Player.Player player) : base(player)
 		{
 			
 		}

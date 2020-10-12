@@ -28,13 +28,13 @@ namespace MiNET.Events.Player
         /// </summary>
         public BlockFace Face { get; }
         
-        public PlayerInteractEvent(MiNET.Player player, Item item, BlockCoordinates blockCoordinates, BlockFace face) :
+        public PlayerInteractEvent(MiNET.Player.Player player, Item item, BlockCoordinates blockCoordinates, BlockFace face) :
             this(player, item, blockCoordinates, face, PlayerInteractType.RightClickBlock)
         {
 
         }
 
-        public PlayerInteractEvent(MiNET.Player player, Item item, BlockCoordinates coordinates, BlockFace face,
+        public PlayerInteractEvent(MiNET.Player.Player player, Item item, BlockCoordinates coordinates, BlockFace face,
             PlayerInteractType type) : base(player)
         {
             Item = item;

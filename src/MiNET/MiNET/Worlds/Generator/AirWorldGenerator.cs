@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,26 +23,24 @@
 
 #endregion
 
-using MiNET.Items;
+using MiNET.Utils;
+using MiNET.Worlds.Provider;
 
-namespace MiNET
+namespace MiNET.Worlds.Generator
 {
-	public class AlwaysFullHungerManager : HungerManager
+	public class AirWorldGenerator : IWorldGenerator
 	{
-		public AlwaysFullHungerManager(Player player) : base(player)
+		public void Initialize(IWorldProvider worldProvider)
 		{
 		}
 
-		public override void IncreaseExhaustion(float amount)
+		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
-		}
-
-		public override void IncreaseFoodAndSaturation(Item item, int foodPoints, double saturationRestore)
-		{
-		}
-
-		public override void Move(double distance)
-		{
+			return new ChunkColumn()
+			{
+				X = chunkCoordinates.X,
+				Z = chunkCoordinates.Z
+			};
 		}
 	}
 }

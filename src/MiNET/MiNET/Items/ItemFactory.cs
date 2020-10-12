@@ -29,6 +29,7 @@ using System.IO;
 using System.Reflection;
 using log4net;
 using MiNET.Blocks;
+using MiNET.Player;
 
 namespace MiNET.Items
 {

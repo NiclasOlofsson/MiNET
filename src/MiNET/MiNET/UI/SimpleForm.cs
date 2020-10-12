@@ -41,7 +41,7 @@ namespace MiNET.UI
 			Type = "form";
 		}
 
-		public override void FromJson(string json, Player player)
+		public override void FromJson(string json, Player.Player player)
 		{
 			var jsonSerializerSettings = new JsonSerializerSettings
 			{

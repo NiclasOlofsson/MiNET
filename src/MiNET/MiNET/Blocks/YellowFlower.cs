@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
 			{

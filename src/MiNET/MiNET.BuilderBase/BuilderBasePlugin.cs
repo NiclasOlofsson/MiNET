@@ -54,7 +54,7 @@ namespace MiNET.BuilderBase
 		{
 			foreach (var kvp in RegionSelector.RegionSelectors)
 			{
-				Player player = kvp.Key;
+				Player.Player player = kvp.Key;
 				RegionSelector selector = kvp.Value;
 
 				//if (!(player.Inventory.GetItemInHand() is DistanceWand wand)) continue;
@@ -63,7 +63,7 @@ namespace MiNET.BuilderBase
 			}
 		}
 
-		public void SetInventory(Player player)
+		public void SetInventory(Player.Player player)
 		{
 			int idx = 0;
 			player.Inventory.Slots[idx++] = new ItemAir();

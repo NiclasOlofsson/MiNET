@@ -34,6 +34,7 @@ using System.Reflection;
 using log4net;
 using MiNET;
 using MiNET.Entities;
+using MiNET.Player;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Utils.Skins;

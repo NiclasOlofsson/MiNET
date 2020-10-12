@@ -54,7 +54,7 @@ namespace MiNET.Blocks
 			return random.Next(15, 44);
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			MobSpawnerBlockEntity blockEntity = new MobSpawnerBlockEntity()
 			{
@@ -65,7 +65,7 @@ namespace MiNET.Blocks
 			return false;
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			if (player.Inventory.GetItemInHand() is ItemSpawnEgg monsterEgg)
 			{

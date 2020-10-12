@@ -112,7 +112,7 @@ namespace MiNET.BuilderBase.Masks
 			return matches;
 		}
 
-		public virtual void Deserialize(Player player, string input)
+		public virtual void Deserialize(Player.Player player, string input)
 		{
 			Level = player.Level;
 

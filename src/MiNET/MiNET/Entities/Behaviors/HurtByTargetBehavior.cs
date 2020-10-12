@@ -35,7 +35,7 @@ namespace MiNET.Entities.Behaviors
 		{
 			if (_entity.HealthManager.LastDamageSource == null) return false;
 
-			if (!(_entity.HealthManager.LastDamageSource is Player)) return false;
+			if (!(_entity.HealthManager.LastDamageSource is Player.Player)) return false;
 
 			return true;
 		}

@@ -4,17 +4,17 @@ namespace MiNET.Commands
 {
     public abstract class CommandPermissionChecker
     {
-        public abstract bool HasPermission(CommandPermissionAttribute attr, Player player);
+        public abstract bool HasPermission(CommandPermissionAttribute attr, Player.Player player);
     }
     
     public class CommandPermissionChecker<TType> : CommandPermissionChecker where TType : CommandPermissionAttribute
     {
-        public virtual bool HasPermission(TType attr, Player player)
+        public virtual bool HasPermission(TType attr, Player.Player player)
         {
             throw new NotImplementedException();
         }
 
-        public override bool HasPermission(CommandPermissionAttribute attr, Player player)
+        public override bool HasPermission(CommandPermissionAttribute attr, Player.Player player)
         {
             if (attr is TType cmdAttribute)
                 return HasPermission(cmdAttribute, player);

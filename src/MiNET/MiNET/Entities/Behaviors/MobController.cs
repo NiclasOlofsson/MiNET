@@ -51,9 +51,9 @@ namespace MiNET.Entities.Behaviors
 				return;
 			}
 
-			Vector3 targetPos = target.KnownPosition + new Vector3(0, (float) (target is Player ? 1.62f : target.Height), 0);
+			Vector3 targetPos = target.KnownPosition + new Vector3(0, (float) (target is Player.Player ? 1.62f : target.Height), 0);
 			Vector3 entityPos = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0) + _entity.GetHorizDir() * (float) _entity.Length / 2f;
-			var d = Vector3.Normalize(targetPos - entityPos);
+			var     d         = Vector3.Normalize(targetPos - entityPos);
 
 			var dx = d.X;
 			var dy = d.Y;

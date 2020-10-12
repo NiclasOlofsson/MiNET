@@ -38,7 +38,7 @@ namespace MiNET.Effects
 		}
 
 
-		public override void OnTick(Player player)
+		public override void OnTick(Player.Player player)
 		{
 			if (Duration % (Level == 1 ? 25 : 50) == 0)
 			{

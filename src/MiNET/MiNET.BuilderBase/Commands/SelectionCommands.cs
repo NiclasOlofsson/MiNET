@@ -19,7 +19,7 @@ namespace MiNET.BuilderBase.Commands
 		private static readonly ILog Log = LogManager.GetLogger(typeof (SelectionCommands));
 
 		[Command(Description = "Set selection position 1")]
-		public void Pos1(Player player, BlockPos coordinates = null)
+		public void Pos1(Player.Player player, BlockPos coordinates = null)
 		{
 			var pos = Convert(coordinates, new BlockCoordinates(player.KnownPosition));
 
@@ -30,7 +30,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Set selection position 2")]
-		public void Pos2(Player player, BlockPos coordinates = null)
+		public void Pos2(Player.Player player, BlockPos coordinates = null)
 		{
 			var pos = Convert(coordinates, new BlockCoordinates(player.KnownPosition));
 
@@ -41,7 +41,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Set position 1 to targeted block")]
-		public void Hpos1(Player player)
+		public void Hpos1(Player.Player player)
 		{
 			var target = new EditHelper(player.Level, player).GetBlockInLineOfSight(player.Level, player.KnownPosition);
 			if (target == null)
@@ -60,7 +60,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Set position 2 to targeted block")]
-		public void Hpos2(Player player)
+		public void Hpos2(Player.Player player)
 		{
 			var target = new EditHelper(player.Level, player).GetBlockInLineOfSight(player.Level, player.KnownPosition);
 			if (target == null)
@@ -79,7 +79,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Set the selection to your current chunk")]
-		public void Chunk(Player player)
+		public void Chunk(Player.Player player)
 		{
 			BlockCoordinates blockCoordinates = (BlockCoordinates) player.KnownPosition;
 			ChunkCoordinates chunk = new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4);
@@ -89,7 +89,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Expand the selection area")]
-		public void Expand(Player player, string direction)
+		public void Expand(Player.Player player, string direction)
 		{
 			SelectionDirection dir;
 			if (Enum.TryParse(direction, true, out dir))
@@ -106,13 +106,13 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Expand the selection area")]
-		public void Expand(Player player, int amount, string direction = "me")
+		public void Expand(Player.Player player, int amount, string direction = "me")
 		{
 			Expand(player, amount, 0, direction);
 		}
 
 		[Command(Description = "Expand the selection area")]
-		public void Expand(Player player, int amount, int reverseAmount, string direction = "me")
+		public void Expand(Player.Player player, int amount, int reverseAmount, string direction = "me")
 		{
 			SelectionDirection dir;
 			if (Enum.TryParse(direction, true, out dir))
@@ -125,7 +125,7 @@ namespace MiNET.BuilderBase.Commands
 			}
 		}
 
-		private void Expand(Player player, int amount, int reverseAmount = 0, SelectionDirection direction = SelectionDirection.Me)
+		private void Expand(Player.Player player, int amount, int reverseAmount = 0, SelectionDirection direction = SelectionDirection.Me)
 		{
 			if (amount < 0 || reverseAmount < 0)
 			{
@@ -239,13 +239,13 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Contract the selection area")]
-		public void Contract(Player player, int amount, string direction = "me")
+		public void Contract(Player.Player player, int amount, string direction = "me")
 		{
 			Contract(player, amount, 0, direction);
 		}
 
 		[Command(Description = "Contract the selection area")]
-		public void Contract(Player player, int amount, int reverseAmount, string direction = "me")
+		public void Contract(Player.Player player, int amount, int reverseAmount, string direction = "me")
 		{
 			SelectionDirection dir;
 			if (Enum.TryParse(direction, true, out dir))
@@ -258,7 +258,7 @@ namespace MiNET.BuilderBase.Commands
 			}
 		}
 
-		private void Contract(Player player, int amount, int reverseAmount = 0, SelectionDirection direction = SelectionDirection.Me)
+		private void Contract(Player.Player player, int amount, int reverseAmount = 0, SelectionDirection direction = SelectionDirection.Me)
 		{
 			if (amount < 0 || reverseAmount < 0)
 			{
@@ -369,7 +369,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Shift the selection area")]
-		public void Shift(Player player, int amount, string direction = "me")
+		public void Shift(Player.Player player, int amount, string direction = "me")
 		{
 			if (amount < 0)
 			{
@@ -382,7 +382,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Outset the selection area")]
-		public void Outset(Player player, int amount, string hv = "hv")
+		public void Outset(Player.Player player, int amount, string hv = "hv")
 		{
 			if (hv.Contains("v"))
 				Expand(player, amount, amount, SelectionDirection.Up);
@@ -393,7 +393,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Inset the selection area")]
-		public void Inset(Player player, int amount, string hv = "hv")
+		public void Inset(Player.Player player, int amount, string hv = "hv")
 		{
 			if (hv.Contains("v"))
 				Contract(player, amount, amount, SelectionDirection.Up);
@@ -404,7 +404,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Get information about the selection")]
-		public void Size(Player player)
+		public void Size(Player.Player player)
 		{
 			var selector = RegionSelector.GetSelector(player);
 
@@ -416,7 +416,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Counts the number of a certain type of block")]
-		public void Count(Player player, int tileId, int tileData = 0, bool separateByData = false)
+		public void Count(Player.Player player, int tileId, int tileData = 0, bool separateByData = false)
 		{
 			var selector = RegionSelector.GetSelector(player);
 
@@ -430,7 +430,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Get the distribution of blocks in the selection")]
-		public void Distribution(Player player, bool separateByData = false)
+		public void Distribution(Player.Player player, bool separateByData = false)
 		{
 			var selector = RegionSelector.GetSelector(player);
 
@@ -455,14 +455,14 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Choose a region selector", Aliases = new[] {"sel", "desel", "deselect"})]
-		public void Select(Player player)
+		public void Select(Player.Player player)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 			selector.Select(new BlockCoordinates(), new BlockCoordinates());
 		}
 
 		[Command(Description = "Toggle particle display of current selection", Aliases = new[] {"showsel", "ss", "/ss"})]
-		public void ShowSelection(Player player)
+		public void ShowSelection(Player.Player player)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 			selector.ShowSelection = !selector.ShowSelection;

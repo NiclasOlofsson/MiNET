@@ -46,7 +46,7 @@ namespace MiNET.Blocks
 			IsReplaceable = true;
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			Block down = world.GetBlock(Coordinates.BlockDown());
 			if (down is Air)
@@ -62,7 +62,7 @@ namespace MiNET.Blocks
 			return base.CanPlace(world, player, blockCoordinates, targetCoordinates, face);
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			if (world.GetBlock(Coordinates) is SnowLayer current)
 			{

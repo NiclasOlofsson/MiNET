@@ -40,12 +40,12 @@ namespace MiNET.Blocks
 			IsSolid = false;
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			return world.GetBlock(blockCoordinates).IsReplaceable;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			FacingDirection = (int) face;
 
@@ -57,7 +57,7 @@ namespace MiNET.Blocks
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Frame));
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			Item itemInHand = player.Inventory.GetItemInHand();
 

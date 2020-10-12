@@ -27,6 +27,7 @@ using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
 using MiNET.Items;
+using MiNET.Player;
 
 namespace MiNET.Test
 {
@@ -38,7 +39,7 @@ namespace MiNET.Test
 		[TestMethod]
 		public void RemoveItemsFromInventoryTest()
 		{
-			var inventory = new PlayerInventory(new Player(null, null));
+			var inventory = new PlayerInventory(new Player.Player(null, null));
 			inventory.Slots[0] = new ItemBlock(new Cobblestone()) {Count = 64};
 			inventory.Slots[1] = new ItemBlock(new Stone()) {Count = 64};
 			inventory.Slots[2] = new ItemBlock(new Stone()) {Count = 64};

@@ -45,6 +45,7 @@ using MiNET.Entities.Passive;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
+using MiNET.Player;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
@@ -53,6 +54,9 @@ using MiNET.UI;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
+using MiNET.Worlds.Generator;
+using MiNET.Worlds.Lighting;
+using MiNET.Worlds.Provider;
 using Button = MiNET.UI.Button;
 using Input = MiNET.UI.Input;
 

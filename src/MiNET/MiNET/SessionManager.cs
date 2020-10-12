@@ -35,7 +35,7 @@ namespace MiNET
 	{
 		private ConcurrentDictionary<UUID, Session> _sessions = new ConcurrentDictionary<UUID, Session>();
 
-		public virtual Session FindSession(Player player)
+		public virtual Session FindSession(Player.Player player)
 		{
 			Session session;
 			_sessions.TryGetValue(player.ClientUuid, out session);
@@ -43,7 +43,7 @@ namespace MiNET
 			return session;
 		}
 
-		public virtual Session CreateSession(Player player)
+		public virtual Session CreateSession(Player.Player player)
 		{
 			_sessions.TryAdd(player.ClientUuid, new Session(player));
 
@@ -65,9 +65,9 @@ namespace MiNET
 
 	public class Session : Dictionary<string, object>
 	{
-		public Player Player { get; set; }
+		public Player.Player Player { get; set; }
 
-		public Session(Player player)
+		public Session(Player.Player player)
 		{
 			Player = player;
 		}

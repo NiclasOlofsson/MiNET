@@ -66,6 +66,8 @@ namespace MiNET.Net.RakNet
 
 		private long _avgSizePerPacketIn;
 		private long _avgSizePerPacketOut;
+		
+		public long EventsDispatchedPerSecond;
 
 		public ConnectionInfo(ConcurrentDictionary<IPEndPoint, RakSession> rakSessions)
 		{
@@ -121,13 +123,16 @@ namespace MiNET.Net.RakNet
 					long numberOfResend = Interlocked.Exchange(ref NumberOfResends, 0);
 					long numberOfFailed = Interlocked.Exchange(ref NumberOfFails, 0);
 
+					var eventsDispatched = Interlocked.Exchange(ref EventsDispatchedPerSecond, 0);
+					
 					var message =
 						$"Players {NumberOfPlayers}, " +
 						$"Pkt in/out(#/s) {numberOfPacketsInPerSecond}/{numberOfPacketsOutPerSecond}, " +
 						$"ACK(in-out)/NAK/RSND/FTO(#/s) ({numberOfAckIn}-{numberOfAckOut})/{numberOfNakIn}/{numberOfResend}/{numberOfFailed}, " +
 						$"THR in/out(Mbps) {mbpsPerSecondIn:F}/{mbpsPerSecondOut:F}, " +
 						$"PktSz Total in/out(B/s){packetSizeIn}/{packetSizeOut}, " +
-						$"PktSz Avg(100s) in/out(B){_avgSizePerPacketIn}/{_avgSizePerPacketOut}";
+						$"PktSz Avg(100s) in/out(B){_avgSizePerPacketIn}/{_avgSizePerPacketOut}, " + 
+						$"Events(#/s) {eventsDispatched}";
 
 					if (Config.GetProperty("ServerInfoInTitle", false))
 					{

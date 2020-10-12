@@ -29,7 +29,7 @@ using System.Numerics;
 using MiNET.Blocks;
 using MiNET.Utils;
 
-namespace MiNET.Worlds
+namespace MiNET.Worlds.Provider
 {
 	internal class ExperimentalWorldProvider : IWorldProvider
 	{

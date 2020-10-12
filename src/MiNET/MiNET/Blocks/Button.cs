@@ -44,7 +44,7 @@ namespace MiNET.Blocks
 			Hardness = 0.5f;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			FacingDirection = (int) face;
 
@@ -52,7 +52,7 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			ButtonPressedBit = true;
 			world.SetBlock(this);

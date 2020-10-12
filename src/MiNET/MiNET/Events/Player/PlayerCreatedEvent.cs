@@ -9,7 +9,7 @@
         ///     
         /// </summary>
         /// <param name="player">The player that got created</param>
-        public PlayerCreatedEvent(MiNET.Player player) : base(player)
+        public PlayerCreatedEvent(MiNET.Player.Player player) : base(player)
         {
         }
     }

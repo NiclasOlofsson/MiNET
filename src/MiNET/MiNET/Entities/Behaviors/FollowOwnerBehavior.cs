@@ -64,7 +64,7 @@ namespace MiNET.Entities.Behaviors
 		public override void OnTick(Entity[] entities)
 		{
 			if (_entity.Owner == null) return;
-			Player owner = (Player) _entity.Owner;
+			Player.Player owner = (Player.Player) _entity.Owner;
 
 			var distanceToPlayer = _entity.DistanceTo(owner);
 
@@ -138,7 +138,7 @@ namespace MiNET.Entities.Behaviors
 			return true;
 		}
 
-		public double Distance(Player player, Tile tile)
+		public double Distance(Player.Player player, Tile tile)
 		{
 			Vector2 pos1 = new Vector2(player.KnownPosition.X, player.KnownPosition.Z);
 			Vector2 pos2 = new Vector2((float) tile.X, (float) tile.Y);

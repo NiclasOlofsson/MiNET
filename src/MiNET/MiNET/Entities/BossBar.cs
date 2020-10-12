@@ -96,7 +96,7 @@ namespace MiNET.Entities
 			Level?.RelayBroadcast(bossEvent);
 		}
 
-		public override void SpawnToPlayers(Player[] players)
+		public override void SpawnToPlayers(Player.Player[] players)
 		{
 			base.SpawnToPlayers(players);
 
@@ -108,7 +108,7 @@ namespace MiNET.Entities
 			Level?.RelayBroadcast(players, bossEvent);
 		}
 
-		public override void DespawnFromPlayers(Player[] players)
+		public override void DespawnFromPlayers(Player.Player[] players)
 		{
 			base.DespawnFromPlayers(players);
 

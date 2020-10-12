@@ -79,20 +79,20 @@ namespace MiNET.Items
 		{
 		}
 
-		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public virtual void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 		}
 
-		public virtual void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public virtual void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 		}
 
-		public virtual bool BreakBlock(Level world, Player player, Block block, BlockEntity blockEntity)
+		public virtual bool BreakBlock(Level world, Player.Player player, Block block, BlockEntity blockEntity)
 		{
 			return true;
 		}
 
-		public virtual bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		public virtual bool DamageItem(Player.Player player, ItemDamageReason reason, Entity target, Block block)
 		{
 			return false;
 		}
@@ -116,7 +116,7 @@ namespace MiNET.Items
 			}
 		}
 
-		public virtual bool Animate(Level world, Player player)
+		public virtual bool Animate(Level world, Player.Player player)
 		{
 			return false;
 		}
@@ -200,7 +200,7 @@ namespace MiNET.Items
 			return null;
 		}
 
-		public virtual void Release(Level world, Player player, BlockCoordinates blockCoordinates)
+		public virtual void Release(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 		}
 
@@ -255,7 +255,7 @@ namespace MiNET.Items
 			return $"{GetType().Name}(Id={Id}, Meta={Metadata}, UniqueId={UniqueId}) Count={Count}, NBT={ExtraData}";
 		}
 
-		public bool Interact(Level level, Player player, Entity target)
+		public bool Interact(Level level, Player.Player player, Entity target)
 		{
 			return false; // Not handled
 		}

@@ -32,6 +32,7 @@ using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
 using MiNET.Items;
+using MiNET.Player;
 using MiNET.Utils;
 
 namespace MiNET.Test

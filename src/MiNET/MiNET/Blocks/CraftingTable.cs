@@ -41,7 +41,7 @@ namespace MiNET.Blocks
 			//IsFlammable = true; // Only from lava.
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			var containerOpen = McpeContainerOpen.CreateObject();
 			containerOpen.windowId = 13;

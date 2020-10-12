@@ -34,7 +34,7 @@ using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace MiNET
+namespace MiNET.Player
 {
 	public class PlayerInventory
 	{

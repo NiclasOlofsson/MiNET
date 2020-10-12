@@ -35,6 +35,7 @@ using MiNET.Entities.Passive;
 using MiNET.Entities.Vehicles;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Player;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -51,7 +52,7 @@ namespace MiNET.Plugins.Commands.Builtin
 
 		[Command(Name = "op", Description = "Make player an operator")]
 		[Authorize(Permission = 4)]
-		public string MakeOperator(Player commander, Target target)
+		public string MakeOperator(Player.Player commander, Target target)
 		{
 			string body = target.Selector;
 
@@ -82,20 +83,20 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command]
-		public void Worldbuilder(Player commander)
+		public void Worldbuilder(Player.Player commander)
 		{
 			commander.IsWorldBuilder = !commander.IsWorldBuilder;
 			commander.SendAdventureSettings();
 		}
 
 		[Command]
-		public string SetBlock(Player commander, BlockPos position, BlockTypeEnum tileName, int tileData = 0)
+		public string SetBlock(Player.Player commander, BlockPos position, BlockTypeEnum tileName, int tileData = 0)
 		{
 			return $"Set block complete. {position.XRelative} {tileName.Value}";
 		}
 
 		[Command]
-		public string Give(Player commander, Target player, ItemTypeEnum itemName, int amount = 1, int data = 0)
+		public string Give(Player.Player commander, Target player, ItemTypeEnum itemName, int amount = 1, int data = 0)
 		{
 			string body = player.Selector;
 
@@ -120,7 +121,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command]
-		public void Summon(Player player, EntityTypeEnum entityType, bool noAi = true, BlockPos spawnPos = null)
+		public void Summon(Player.Player player, EntityTypeEnum entityType, bool noAi = true, BlockPos spawnPos = null)
 		{
 			EntityType petType;
 			try
@@ -321,7 +322,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command]
-		public string Xp(Player commander, int experience, Target player)
+		public string Xp(Player.Player commander, int experience, Target player)
 		{
 			string body = player.Selector;
 
@@ -341,7 +342,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command]
-		public string Difficulty(Player commander, Difficulty difficulty)
+		public string Difficulty(Player.Player commander, Difficulty difficulty)
 		{
 			Level level = commander.Level;
 			level.Difficulty = difficulty;
@@ -354,7 +355,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command(Name = "time set", Description = "Changes or queries the world's game time")]
-		public string TimeSet(Player commander, int time = 5000)
+		public string TimeSet(Player.Player commander, int time = 5000)
 		{
 			Level level = commander.Level;
 			level.WorldTime = time;
@@ -373,7 +374,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command(Name = "time set")]
-		public string TimeSet(Player commander, DayNight time)
+		public string TimeSet(Player.Player commander, DayNight time)
 		{
 			Level level = commander.Level;
 			level.WorldTime = (int) time;
@@ -386,7 +387,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports self to given position.")]
-		public string Teleport(Player commander, BlockPos destination, int yrot = 90, int xrot = 0)
+		public string Teleport(Player.Player commander, BlockPos destination, int yrot = 90, int xrot = 0)
 		{
 			var coordinates = commander.KnownPosition;
 			if (destination != null)
@@ -424,7 +425,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given coordinates.")]
-		public string Teleport(Player commander, Target victim, BlockPos destination, int yrot = 90, int xrot = 0)
+		public string Teleport(Player.Player commander, Target victim, BlockPos destination, int yrot = 90, int xrot = 0)
 		{
 			string body = victim.Selector;
 
@@ -475,13 +476,13 @@ namespace MiNET.Plugins.Commands.Builtin
 
 
 		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to other player.")]
-		public string Teleport(Player commander, Target victim, Target target)
+		public string Teleport(Player.Player commander, Target victim, Target target)
 		{
 			string body = victim.Selector;
 
 			if (target.Players == null || target.Players.Length != 1) return "Found not target for teleport";
 
-			Player targetPlayer = target.Players.First();
+			Player.Player targetPlayer = target.Players.First();
 
 			if (victim.Players != null)
 			{
@@ -512,11 +513,11 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports self to other player.")]
-		public string Teleport(Player commander, Target target)
+		public string Teleport(Player.Player commander, Target target)
 		{
 			if (target.Players == null || target.Players.Length != 1) return "Found not target for teleport";
 
-			Player targetPlayer = target.Players.First();
+			Player.Player targetPlayer = target.Players.First();
 
 			var coordinates = targetPlayer.KnownPosition;
 
@@ -538,9 +539,9 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command]
-		public void Enchant(Player commander, Target target, EnchantmentTypeEnum enchantmentTypeName, int level = 1)
+		public void Enchant(Player.Player commander, Target target, EnchantmentTypeEnum enchantmentTypeName, int level = 1)
 		{
-			Player targetPlayer = target.Players.First();
+			Player.Player targetPlayer = target.Players.First();
 			Item item = targetPlayer.Inventory.GetItemInHand();
 			if (item is ItemAir) return;
 
@@ -559,9 +560,9 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command]
-		public string GameMode(Player commander, GameMode gameMode, Target target = null)
+		public string GameMode(Player.Player commander, GameMode gameMode, Target target = null)
 		{
-			Player targetPlayer = commander;
+			Player.Player targetPlayer = commander;
 			if (target != null) targetPlayer = target.Players.First();
 
 			switch (gameMode)
@@ -580,13 +581,13 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command]
-		public string GameRule(Player player, GameRulesEnum rule)
+		public string GameRule(Player.Player player, GameRulesEnum rule)
 		{
 			return $"{rule.ToString().ToLower()}={player.Level.GetGameRule(rule).ToString().ToLower()}.";
 		}
 
 		[Command]
-		public string GameRule(Player player, GameRulesEnum rule, bool value)
+		public string GameRule(Player.Player player, GameRulesEnum rule, bool value)
 		{
 			player.Level.SetGameRule(rule, value);
 			player.Level.BroadcastGameRules();
@@ -594,7 +595,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command]
-		public string Daylock(Player player, bool value)
+		public string Daylock(Player.Player player, bool value)
 		{
 			Level level = player.Level;
 			level.SetGameRule(GameRulesEnum.DoDaylightcycle, !value);
@@ -610,7 +611,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command]
-		public void Fill(Player commander, BlockPos from, BlockPos to, BlockTypeEnum tileName, int tileData = 0)
+		public void Fill(Player.Player commander, BlockPos from, BlockPos to, BlockTypeEnum tileName, int tileData = 0)
 		{
 		}
 	}

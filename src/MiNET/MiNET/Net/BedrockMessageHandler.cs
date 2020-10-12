@@ -53,7 +53,7 @@ namespace MiNET.Net
 
 		public override Packet OnSendCustomPacket(Packet packet)
 		{
-			if (Handler is Player player)
+			if (Handler is Player.Player player)
 			{
 				var result = _pluginManager.PluginPacketHandler(packet, false, player);
 				if (result != packet) packet.PutPool();
@@ -70,7 +70,7 @@ namespace MiNET.Net
 
 		private void HandleBedrockMessage(IMcpeMessageHandler handler, Packet message)
 		{
-			if (handler is Player player)
+			if (handler is Player.Player player)
 			{
 				Packet result = _pluginManager.PluginPacketHandler(message, true, player);
 				if (result != message) message.PutPool();

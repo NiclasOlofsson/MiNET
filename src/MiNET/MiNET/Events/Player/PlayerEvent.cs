@@ -8,10 +8,10 @@
 		/// <summary>
 		/// 	The player that the event occured for.
 		/// </summary>
-		public MiNET.Player Player { get; }
+		public MiNET.Player.Player Player { get; }
 		
 		
-		public PlayerEvent(MiNET.Player player)
+		public PlayerEvent(MiNET.Player.Player player)
 		{
 			Player = player;
 		}

@@ -34,6 +34,7 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Player;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -468,7 +469,7 @@ namespace MiNET.Entities
 			IsSpawned = true;
 		}
 
-		public virtual void SpawnToPlayers(Player[] players)
+		public virtual void SpawnToPlayers(Player.Player[] players)
 		{
 			var addEntity = McpeAddEntity.CreateObject();
 			addEntity.entityType = EntityTypeId;
@@ -545,7 +546,7 @@ namespace MiNET.Entities
 			IsSpawned = false;
 		}
 
-		public virtual void DespawnFromPlayers(Player[] players)
+		public virtual void DespawnFromPlayers(Player.Player[] players)
 		{
 			McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
 			mcpeRemoveEntity.entityIdSelf = EntityId;
@@ -751,15 +752,15 @@ namespace MiNET.Entities
 			return new Item[] { };
 		}
 
-		public virtual void DoInteraction(int actionId, Player player)
+		public virtual void DoInteraction(int actionId, Player.Player player)
 		{
 		}
 
-		public virtual void DoItemInteraction(Player player, Item itemInHand)
+		public virtual void DoItemInteraction(Player.Player player, Item itemInHand)
 		{
 		}
 
-		public virtual void DoMouseOverInteraction(byte actionId, Player player)
+		public virtual void DoMouseOverInteraction(byte actionId, Player.Player player)
 		{
 			if (!string.IsNullOrEmpty(player.ButtonText))
 			{
@@ -784,9 +785,9 @@ namespace MiNET.Entities
 			if (SeenEntities.Contains(target)) return true;
 			if (UnseenEntities.Contains(target)) return false;
 
-			Vector3 entityPos = KnownPosition + new Vector3(0, (float) (this is Player ? 1.62f : Height), 0);
-			Vector3 targetPos = target.KnownPosition + new Vector3(0, (float) (target is Player ? 1.62f : target.Height), 0);
-			float distance = Vector3.Distance(entityPos, targetPos);
+			Vector3 entityPos = KnownPosition + new Vector3(0, (float) (this is Player.Player ? 1.62f : Height), 0);
+			Vector3 targetPos = target.KnownPosition + new Vector3(0, (float) (target is Player.Player ? 1.62f : target.Height), 0);
+			float   distance  = Vector3.Distance(entityPos, targetPos);
 
 			Vector3 rayPos = entityPos;
 			var direction = Vector3.Normalize(targetPos - entityPos);

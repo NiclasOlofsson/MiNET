@@ -28,6 +28,7 @@ using MiNET.Events;
 using MiNET.Events.Block;
 using MiNET.Events.Level;
 using MiNET.Events.Player;
+using MiNET.Player;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;

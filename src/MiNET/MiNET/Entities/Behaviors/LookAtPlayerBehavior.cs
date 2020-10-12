@@ -31,10 +31,10 @@ namespace MiNET.Entities.Behaviors
 {
 	public class LookAtPlayerBehavior : BehaviorBase
 	{
-		private readonly Mob _entity;
-		private readonly double _lookDistance;
-		private int _duration = 0;
-		private Player _player;
+		private readonly Mob           _entity;
+		private readonly double        _lookDistance;
+		private          int           _duration = 0;
+		private          Player.Player _player;
 
 		public LookAtPlayerBehavior(Mob entity, double lookDistance = 6.0)
 		{
@@ -47,7 +47,7 @@ namespace MiNET.Entities.Behaviors
 			var shouldStart = _entity.Level.Random.NextDouble() < 0.02;
 			if (!shouldStart) return false;
 
-			Player player = _entity.Level.GetSpawnedPlayers().OrderBy(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition.ToVector3()))
+			Player.Player player = _entity.Level.GetSpawnedPlayers().OrderBy(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition.ToVector3()))
 				.FirstOrDefault(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition) < _lookDistance);
 
 			if (player == null) return false;

@@ -38,13 +38,13 @@ namespace MiNET.Utils
 		}
 	}
 
-	public abstract class PlayerRecords : List<Player>
+	public abstract class PlayerRecords : List<Player.Player>
 	{
 		public PlayerRecords()
 		{
 		}
 
-		public PlayerRecords(IEnumerable<Player> players) : base(players)
+		public PlayerRecords(IEnumerable<Player.Player> players) : base(players)
 		{
 		}
 	}
@@ -56,7 +56,7 @@ namespace MiNET.Utils
 		}
 
 
-		public PlayerAddRecords(IEnumerable<Player> players) : base(players)
+		public PlayerAddRecords(IEnumerable<Player.Player> players) : base(players)
 		{
 		}
 	}
@@ -68,7 +68,7 @@ namespace MiNET.Utils
 		}
 
 
-		public PlayerRemoveRecords(IEnumerable<Player> players) : base(players)
+		public PlayerRemoveRecords(IEnumerable<Player.Player> players) : base(players)
 		{
 		}
 	}

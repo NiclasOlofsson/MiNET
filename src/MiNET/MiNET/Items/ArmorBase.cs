@@ -35,7 +35,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
 			player.Inventory.SetInventorySlot(slot, player.Inventory.Helmet);
@@ -52,7 +52,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
 			player.Inventory.SetInventorySlot(slot, player.Inventory.Chest);
@@ -69,7 +69,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
 			player.Inventory.SetInventorySlot(slot, player.Inventory.Leggings);
@@ -86,7 +86,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
 			player.Inventory.SetInventorySlot(slot, player.Inventory.Boots);

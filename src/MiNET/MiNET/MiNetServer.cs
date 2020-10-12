@@ -33,8 +33,10 @@ using log4net;
 using Microsoft.IO;
 using MiNET.Commands;
 using MiNET.Events;
+using MiNET.Events.Server;
 using MiNET.Net;
 using MiNET.Net.RakNet;
+using MiNET.Player;
 using MiNET.Plugins;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -187,7 +189,8 @@ namespace MiNET
 				}
 
 				Log.Info("Server open for business on port " + Endpoint?.Port + " ...");
-
+				EventDispatcher?.DispatchEvent(new ServerReadyEvent());
+				
 				return true;
 			}
 			catch (Exception e)

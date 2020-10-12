@@ -39,7 +39,7 @@ namespace MiNET.Items
 			ItemType = ItemType.Shovel;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block block = world.GetBlock(blockCoordinates);
 			if (block is Grass)
@@ -53,7 +53,7 @@ namespace MiNET.Items
 			}
 		}
 
-		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		public override bool DamageItem(Player.Player player, ItemDamageReason reason, Entity target, Block block)
 		{
 			switch (reason)
 			{

@@ -21,6 +21,8 @@
 // All Rights Reserved.
 #endregion
 
+using MiNET.Worlds;
+
 namespace MiNET.Events.Level
 {
 	/// <summary>

@@ -46,9 +46,12 @@ using MiNET.Events.Level;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Net.RakNet;
+using MiNET.Player;
 using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Diagnostics;
+using MiNET.Worlds.Lighting;
+using MiNET.Worlds.Provider;
 
 namespace MiNET.Worlds
 {
@@ -69,7 +72,7 @@ namespace MiNET.Worlds
 
 		public PlayerLocation SpawnPoint { get; set; } = null;
 
-		public ConcurrentDictionary<long, Player> Players { get; private set; } = new ConcurrentDictionary<long, Player>();
+		public ConcurrentDictionary<long, Player.Player> Players { get; private set; } = new ConcurrentDictionary<long, Player.Player>();
 
 //TODO: Need to protect this, not threadsafe
 		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
@@ -216,7 +219,7 @@ namespace MiNET.Worlds
 
 			Entities.Clear();
 
-			foreach (Player player in Players.Values.ToArray())
+			foreach (Player.Player player in Players.Values.ToArray())
 			{
 				player.Disconnect("Unexpected player lingering on close of level: " + player.Username);
 			}
@@ -259,7 +262,7 @@ namespace MiNET.Worlds
 
 		private object _playerWriteLock = new object();
 
-		public virtual void AddPlayer(Player newPlayer, bool spawn)
+		public virtual void AddPlayer(Player.Player newPlayer, bool spawn)
 		{
 			if (newPlayer.Username == null) throw new ArgumentNullException(nameof(newPlayer.Username));
 
@@ -306,18 +309,18 @@ namespace MiNET.Worlds
 			PlayerRemoved?.Invoke(this, e);
 		}
 
-		public void SpawnToAll(Player newPlayer)
+		public void SpawnToAll(Player.Player newPlayer)
 		{
 			lock (_playerWriteLock)
 			{
 				// The player list keeps us from moving this completely to player.
 				// It's simply to slow and bad.
 
-				Player[] players = GetAllPlayers();
+				Player.Player[] players = GetAllPlayers();
 				var spawnedPlayers = players.ToList();
 				spawnedPlayers.Add(newPlayer);
 
-				Player[] sendList = spawnedPlayers.ToArray();
+				Player.Player[] sendList = spawnedPlayers.ToArray();
 
 				var playerListMessage = McpePlayerList.CreateObject();
 				playerListMessage.records = new PlayerAddRecords(spawnedPlayers);
@@ -331,21 +334,21 @@ namespace MiNET.Worlds
 
 				newPlayer.SpawnToPlayers(players);
 
-				foreach (Player spawnedPlayer in players)
+				foreach (Player.Player spawnedPlayer in players)
 				{
 					spawnedPlayer.SpawnToPlayers(new[] {newPlayer});
 				}
 			}
 		}
 
-		public virtual void RemovePlayer(Player player, bool despawn = true)
+		public virtual void RemovePlayer(Player.Player player, bool despawn = true)
 		{
 			if (Players == null) return; // Closing down the level sets players to null;
 			if (Entities == null) return; // Closing down the level sets players to null;
 
 			lock (_playerWriteLock)
 			{
-				Player removed;
+				Player.Player removed;
 				if (Players.TryRemove(player.EntityId, out removed))
 				{
 					player.IsSpawned = false;
@@ -364,13 +367,13 @@ namespace MiNET.Worlds
 			OnPlayerRemoved(new LevelEventArgs(player, this));
 		}
 
-		public void DespawnFromAll(Player player)
+		public void DespawnFromAll(Player.Player player)
 		{
 			lock (_playerWriteLock)
 			{
 				var spawnedPlayers = GetAllPlayers();
 
-				foreach (Player spawnedPlayer in spawnedPlayers)
+				foreach (Player.Player spawnedPlayer in spawnedPlayers)
 				{
 					spawnedPlayer.DespawnFromPlayers(new[] {player});
 				}
@@ -436,7 +439,7 @@ namespace MiNET.Worlds
 			//}
 		}
 
-		public virtual void BroadcastTitle(string text, TitleType type = TitleType.Title, int fadeIn = 6, int fadeOut = 6, int stayTime = 20, Player sender = null, Player[] sendList = null)
+		public virtual void BroadcastTitle(string text, TitleType type = TitleType.Title, int fadeIn = 6, int fadeOut = 6, int stayTime = 20, Player.Player sender = null, Player.Player[] sendList = null)
 		{
 			var mcpeSetTitle = McpeSetTitle.CreateObject();
 			mcpeSetTitle.fadeInTime = fadeIn;
@@ -448,7 +451,7 @@ namespace MiNET.Worlds
 			RelayBroadcast(sender, sendList, mcpeSetTitle);
 		}
 
-		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null, Player[] sendList = null, bool needsTranslation = false, string[] parameters = null)
+		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player.Player sender = null, Player.Player[] sendList = null, bool needsTranslation = false, string[] parameters = null)
 		{
 			if (type == MessageType.Chat || type == MessageType.Raw)
 			{
@@ -501,7 +504,7 @@ namespace MiNET.Worlds
 			{
 				TickTime++;
 
-				Player[] players = GetSpawnedPlayers();
+				Player.Player[] players = GetSpawnedPlayers();
 
 				if (DoDaylightcycle)
 				{
@@ -698,7 +701,7 @@ namespace MiNET.Worlds
 				// it seems better for performance since the send-tick is one for all
 				// sessions, so we need to refactor that first.
 				var tasks = new List<Task>();
-				foreach (Player player in players)
+				foreach (Player.Player player in players)
 				{
 					if (player.NetworkHandler is RakSession session) tasks.Add(session.SendQueueAsync());
 				}
@@ -764,16 +767,16 @@ namespace MiNET.Worlds
 			return f;
 		}
 
-		public Player[] GetSpawnedPlayers()
+		public Player.Player[] GetSpawnedPlayers()
 		{
-			if (Players == null) return new Player[0]; // HACK
+			if (Players == null) return new Player.Player[0]; // HACK
 
 			return Players.Values.Where(player => player.IsSpawned).ToArray();
 		}
 
-		public Player[] GetAllPlayers()
+		public Player.Player[] GetAllPlayers()
 		{
-			if (Players == null) return new Player[0]; // HACK
+			if (Players == null) return new Player.Player[0]; // HACK
 
 			return Players.Values.ToArray();
 		}
@@ -786,7 +789,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private IEnumerable<Player> GetStaledPlayers(Player[] players)
+		private IEnumerable<Player.Player> GetStaledPlayers(Player.Player[] players)
 		{
 			DateTime now = DateTime.UtcNow;
 			TimeSpan span = TimeSpan.FromSeconds(300);
@@ -796,7 +799,7 @@ namespace MiNET.Worlds
 		private DateTime _lastSendTime = DateTime.UtcNow;
 		private DateTime _lastBroadcast = DateTime.UtcNow;
 
-		protected virtual void BroadCastMovement(Player[] players, Entity[] entities)
+		protected virtual void BroadCastMovement(Player.Player[] players, Entity[] entities)
 		{
 			DateTime now = DateTime.UtcNow;
 
@@ -876,7 +879,7 @@ namespace MiNET.Worlds
 				batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
 				batch.payload = Compression.CompressPacketsForWrapper(movePackets);
 				batch.Encode();
-				foreach (Player player in players) MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPacket(batch));
+				foreach (Player.Player player in players) MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPacket(batch));
 				_lastBroadcast = DateTime.UtcNow;
 			}
 		}
@@ -886,17 +889,17 @@ namespace MiNET.Worlds
 			RelayBroadcast(null, GetAllPlayers(), message);
 		}
 
-		public void RelayBroadcast<T>(Player source, T message) where T : Packet<T>, new()
+		public void RelayBroadcast<T>(Player.Player source, T message) where T : Packet<T>, new()
 		{
 			RelayBroadcast(source, GetAllPlayers(), message);
 		}
 
-		public void RelayBroadcast<T>(Player[] sendList, T message) where T : Packet<T>, new()
+		public void RelayBroadcast<T>(Player.Player[] sendList, T message) where T : Packet<T>, new()
 		{
 			RelayBroadcast(null, sendList ?? GetAllPlayers(), message);
 		}
 
-		public void RelayBroadcast<T>(Player source, Player[] sendList, T message) where T : Packet<T>, new()
+		public void RelayBroadcast<T>(Player.Player source, Player.Player[] sendList, T message) where T : Packet<T>, new()
 		{
 			if (message == null) return;
 
@@ -926,7 +929,7 @@ namespace MiNET.Worlds
 
 			if (sendList.Length == 1)
 			{
-				Player player = sendList.First();
+				Player.Player player = sendList.First();
 
 				if (source != null && player == source)
 				{
@@ -1344,7 +1347,7 @@ namespace MiNET.Worlds
 			return !bb.IsCancelled;
 		}
 
-		public void Interact(Player player, Item itemInHand, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public void Interact(Player.Player player, Item itemInHand, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block target = GetBlock(blockCoordinates);
 			if (!player.IsSneaking && target.Interact(this, player, blockCoordinates, face, faceCoords)) return; // Handled in block interaction
@@ -1390,7 +1393,7 @@ namespace MiNET.Worlds
 			return true;
 		}
 
-		public void BreakBlock(Player player, BlockCoordinates blockCoordinates, BlockFace face = BlockFace.None)
+		public void BreakBlock(Player.Player player, BlockCoordinates blockCoordinates, BlockFace face = BlockFace.None)
 		{
 			Block block = GetBlock(blockCoordinates);
 			BlockEntity blockEntity = GetBlockEntity(blockCoordinates);
@@ -1414,7 +1417,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private static void RevertBlockAction(Player player, Block block, BlockEntity blockEntity)
+		private static void RevertBlockAction(Player.Player player, Block block, BlockEntity blockEntity)
 		{
 			var message = McpeUpdateBlock.CreateObject();
 			message.blockRuntimeId = (uint) block.GetRuntimeId();
@@ -1442,7 +1445,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void BreakBlock(Player player, Block block, BlockEntity blockEntity = null, Item tool = null, BlockFace face = BlockFace.None)
+		public void BreakBlock(Player.Player player, Block block, BlockEntity blockEntity = null, Item tool = null, BlockFace face = BlockFace.None)
 		{
 			block.BreakBlock(this, face);
 			var drops = new List<Item>();
@@ -1730,7 +1733,7 @@ namespace MiNET.Worlds
 			return rules;
 		}
 
-		public void BroadcastSound(BlockCoordinates position, LevelSoundEventType sound, int blockId = 0, Player sender = null)
+		public void BroadcastSound(BlockCoordinates position, LevelSoundEventType sound, int blockId = 0, Player.Player sender = null)
 		{
 			var packet = McpeLevelSoundEvent.CreateObject();
 			packet.position = position;
@@ -1742,10 +1745,10 @@ namespace MiNET.Worlds
 
 	public class LevelEventArgs : EventArgs
 	{
-		public Player Player { get; set; }
-		public Level Level { get; set; }
+		public Player.Player Player { get; set; }
+		public Level         Level  { get; set; }
 
-		public LevelEventArgs(Player player, Level level)
+		public LevelEventArgs(Player.Player player, Level level)
 		{
 			Player = player;
 			Level = level;
@@ -1756,7 +1759,7 @@ namespace MiNET.Worlds
 	{
 		public bool Cancel { get; set; }
 
-		public LevelCancelEventArgs(Player player, Level level) : base(player, level)
+		public LevelCancelEventArgs(Player.Player player, Level level) : base(player, level)
 		{
 		}
 	}
@@ -1766,7 +1769,7 @@ namespace MiNET.Worlds
 		public Block TargetBlock { get; private set; }
 		public Block ExistingBlock { get; private set; }
 
-		public BlockPlaceEventArgs(Player player, Level level, Block targetBlock, Block existingBlock) : base(player, level)
+		public BlockPlaceEventArgs(Player.Player player, Level level, Block targetBlock, Block existingBlock) : base(player, level)
 		{
 			TargetBlock = targetBlock;
 			ExistingBlock = existingBlock;
@@ -1779,7 +1782,7 @@ namespace MiNET.Worlds
 		public Block Block { get; private set; }
 		public List<Item> Drops { get; private set; }
 
-		public BlockBreakEventArgs(Player player, Level level, Block block, List<Item> drops) : base(player, level)
+		public BlockBreakEventArgs(Player.Player player, Level level, Block block, List<Item> drops) : base(player, level)
 		{
 			Block = block;
 			Drops = drops;

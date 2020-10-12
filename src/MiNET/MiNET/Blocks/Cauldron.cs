@@ -42,7 +42,7 @@ namespace MiNET.Blocks
 			Hardness = 2;
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			var itemInHand = player.Inventory.GetItemInHand();
 

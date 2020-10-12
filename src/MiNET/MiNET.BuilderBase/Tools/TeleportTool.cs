@@ -68,29 +68,29 @@ namespace MiNET.BuilderBase.Tools
 			};
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Teleport(player, true);
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			Teleport(player, true);
 		}
 
-		public override bool Animate(Level world, Player player)
+		public override bool Animate(Level world, Player.Player player)
 		{
 			Teleport(player, false);
 			return true;
 		}
 
-		public override bool BreakBlock(Level world, Player player, Block block, BlockEntity blockEntity)
+		public override bool BreakBlock(Level world, Player.Player player, Block block, BlockEntity blockEntity)
 		{
 			Teleport(player, false);
 			return false; // Will revert block break;
 		}
 
-		private void Teleport(Player player, bool stayOnY)
+		private void Teleport(Player.Player player, bool stayOnY)
 		{
 			var target = new EditHelper(player.Level, player).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true, limitHeight: false);
 			if (target == null)

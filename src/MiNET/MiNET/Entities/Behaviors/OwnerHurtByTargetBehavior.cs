@@ -40,7 +40,7 @@ namespace MiNET.Entities.Behaviors
 		{
 			if (!_wolf.IsTamed) return false;
 
-			Player owner = (Player) _wolf.Owner;
+			Player.Player owner = (Player.Player) _wolf.Owner;
 
 			if (owner.HealthManager.LastDamageSource == null) return false;
 

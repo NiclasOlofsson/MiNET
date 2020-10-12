@@ -104,7 +104,7 @@ namespace MiNET.Plotter
 			return jsonSerializerSettings;
 		}
 
-		public bool HasClaim(PlotCoordinates coords, Player player)
+		public bool HasClaim(PlotCoordinates coords, Player.Player player)
 		{
 			if (player == null) return false;
 
@@ -132,7 +132,7 @@ namespace MiNET.Plotter
 
 			if (plot == null) return false;
 
-			if (entity is Player player)
+			if (entity is Player.Player player)
 			{
 				if (Equals(plot.Owner, player.ClientUuid) || plot.AllowedPlayers.Contains(player.ClientUuid)) return true;
 			}
@@ -140,7 +140,7 @@ namespace MiNET.Plotter
 			return false;
 	}
 
-		public PlotPlayer GetOrAddPlotPlayer(Player player)
+		public PlotPlayer GetOrAddPlotPlayer(Player.Player player)
 		{
 			if (!_plotPlayers.TryGetValue(player.ClientUuid, out var plotPlayer))
 			{
@@ -199,7 +199,7 @@ namespace MiNET.Plotter
 			return true;
 		}
 
-		public bool TryClaim(PlotCoordinates coords, Player player, out Plot plot)
+		public bool TryClaim(PlotCoordinates coords, Player.Player player, out Plot plot)
 		{
 			plot = null;
 

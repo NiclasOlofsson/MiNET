@@ -42,7 +42,7 @@ namespace MiNET.Blocks
 			Hardness = 0.6f;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			world.ScheduleBlockTick(this, _tickRate);
 			return false;

@@ -36,6 +36,7 @@ using MiNET.Utils.Skins;
 using MiNET.Items;
 using MiNET.Crafting;
 using MiNET.Net.RakNet;
+using MiNET.Player;
 using little = MiNET.Utils.Int24; // friendly name
 using LongString = System.String;
 

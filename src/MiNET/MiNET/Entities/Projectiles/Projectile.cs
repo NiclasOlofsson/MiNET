@@ -39,17 +39,17 @@ namespace MiNET.Entities.Projectiles
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Projectile));
 
-		public Player Shooter { get; set; }
-		public int Ttl { get; set; } = 0;
-		public bool DespawnOnImpact { get; set; } = true;
-		public int Damage { get; set; }
-		public int PowerLevel { get; set; } = 0;
-		public float HitBoxPrecision { get; set; } = 0.3f;
-		public Vector3 Force { get; set; } = new Vector3();
+		public Player.Player Shooter         { get; set; }
+		public int           Ttl             { get; set; } = 0;
+		public bool          DespawnOnImpact { get; set; } = true;
+		public int           Damage          { get; set; }
+		public int           PowerLevel      { get; set; } = 0;
+		public float         HitBoxPrecision { get; set; } = 0.3f;
+		public Vector3       Force           { get; set; } = new Vector3();
 
 		public bool BroadcastMovement { get; set; } = false;
 
-		protected Projectile(Player shooter, EntityType entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
+		protected Projectile(Player.Player shooter, EntityType entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
 			Shooter = shooter;
 			Damage = damage;
@@ -134,7 +134,7 @@ namespace MiNET.Entities.Projectiles
 					damage = damage + ((PowerLevel + 1) * 0.25);
 				}
 
-				Player player = entityCollided as Player;
+				Player.Player player = entityCollided as Player.Player;
 
 				if (player != null)
 				{
@@ -227,7 +227,7 @@ namespace MiNET.Entities.Projectiles
 				if (entity == Shooter) continue;
 				if (entity == this) continue;
 				if (entity is Projectile) continue; // This should actually be handled for some projectiles
-				if (entity is Player player && player.GameMode == GameMode.Spectator) continue;
+				if (entity is Player.Player player && player.GameMode == GameMode.Spectator) continue;
 
 				if (Intersect(entity.GetBoundingBox() + HitBoxPrecision, ray))
 				{

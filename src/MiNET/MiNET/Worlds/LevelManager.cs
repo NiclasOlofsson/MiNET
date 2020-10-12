@@ -30,9 +30,11 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Events.Level;
 using MiNET.Utils;
-using MiNET.Worlds;
+using MiNET.Worlds.Generator;
+using MiNET.Worlds.Lighting;
+using MiNET.Worlds.Provider;
 
-namespace MiNET
+namespace MiNET.Worlds
 {
 	public class LevelManager
 	{
@@ -50,7 +52,7 @@ namespace MiNET
 
 		public IWorldGenerator Generator { get; set; } = new SuperflatGenerator(Dimension.Overworld);
 
-		public virtual Level GetLevel(Player player, string name)
+		public virtual Level GetLevel(Player.Player player, string name)
 		{
 			Level level = Levels.FirstOrDefault(l => l.LevelId.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 			if (level == null)
@@ -329,7 +331,7 @@ namespace MiNET
 			Log.Warn("DONE Creating and caching worlds");
 		}
 
-		public override Level GetLevel(Player player, string name)
+		public override Level GetLevel(Player.Player player, string name)
 		{
 			var rand = new Random();
 

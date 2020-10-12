@@ -14,7 +14,7 @@ namespace MiNET.BuilderBase.Commands
 		public EditHelper EditSession { get; private set; }
 		public RegionSelector Selector { get; private set; }
 
-		public void OnCommandExecuting(Player player)
+		public void OnCommandExecuting(Player.Player player)
 		{
 			Selector = RegionSelector.GetSelector(player);
 			UndoRecorder = new UndoRecorder(player.Level);

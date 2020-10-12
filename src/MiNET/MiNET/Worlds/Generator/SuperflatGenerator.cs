@@ -28,8 +28,9 @@ using System.Collections.Generic;
 using System.Numerics;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Worlds.Provider;
 
-namespace MiNET.Worlds
+namespace MiNET.Worlds.Generator
 {
 	public class SuperflatGenerator : IWorldGenerator
 	{

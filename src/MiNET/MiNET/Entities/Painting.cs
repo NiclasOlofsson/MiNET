@@ -48,7 +48,7 @@ namespace MiNET.Entities
 			return Bbox;
 		}
 
-		public override void SpawnToPlayers(Player[] players)
+		public override void SpawnToPlayers(Player.Player[] players)
 		{
 			McpeAddPainting painting = McpeAddPainting.CreateObject();
 			painting.coordinates = (BlockCoordinates) KnownPosition;
@@ -60,7 +60,7 @@ namespace MiNET.Entities
 			Level.RelayBroadcast(players, painting);
 		}
 
-		public override void DoItemInteraction(Player player, Item itemInHand)
+		public override void DoItemInteraction(Player.Player player, Item itemInHand)
 		{
 			if (itemInHand is ItemPainting)
 			{

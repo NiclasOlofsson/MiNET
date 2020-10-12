@@ -48,7 +48,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command(Description = "commands.help.description", OutputFormatStrings = new[] {"{0}"})]
-		public HelpResponseByName Help(Player player, CommandNameEnum command)
+		public HelpResponseByName Help(Player.Player player, CommandNameEnum command)
 		{
 			Command cmd;
 			if (player.Commands.TryGetValue(command.Value, out cmd))
@@ -79,7 +79,7 @@ namespace MiNET.Plugins.Commands.Builtin
 		}
 
 		[Command(Description = "commands.help.description", OutputFormatStrings = new[] {"commands.help.header", "{2}", "commands.help.footer"})]
-		public HelpResponseByPage Help(Player player, int page = 0)
+		public HelpResponseByPage Help(Player.Player player, int page = 0)
 		{
 			page = page < 1 ? 0 : page - 1;
 

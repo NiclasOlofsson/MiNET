@@ -69,7 +69,7 @@ namespace MiNET.Entities.Passive
 			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}
 
-		public override void DoInteraction(int actionId, Player player)
+		public override void DoInteraction(int actionId, Player.Player player)
 		{
 			if (IsTamed)
 			{

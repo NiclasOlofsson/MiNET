@@ -29,13 +29,13 @@ using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
 using log4net;
-using MiNET.Entities;
+using MiNET.Events.Entity;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace MiNET
+namespace MiNET.Entities
 {
 	public enum DamageCause
 	{
@@ -110,10 +110,18 @@ namespace MiNET
 
 		public virtual void Regen(int amount = 1)
 		{
+			int h = Health;
+			EntityRegainHealthEvent killedEvent = new EntityRegainHealthEvent(Entity, h, h + amount);
+			Entity.Level.EventDispatcher.DispatchEvent(killedEvent);
+			if (killedEvent.IsCancelled)
+			{
+				return;
+			}
+			
 			Health += amount * 10;
 			if (Health > MaxHealth) Health = MaxHealth;
 
-			var player = Entity as Player;
+			var player = Entity as Player.Player;
 			if (player != null)
 			{
 				player.SendUpdateAttributes();
@@ -127,7 +135,16 @@ namespace MiNET
 
 		public virtual void TakeHit(Entity source, Item tool, int damage = 1, DamageCause cause = DamageCause.Unknown)
 		{
-			var player = Entity as Player;
+			int h = Health;
+			EntityDamageEvent damageEvent = new EntityDamageEvent(Entity, source,
+				cause, h, h - damage);
+			Entity.Level.EventDispatcher.DispatchEvent(damageEvent);
+			if (damageEvent.IsCancelled)
+			{
+				return;
+			}
+			
+			var player = Entity as Player.Player;
 			if (player != null && player.GameMode != GameMode.Survival) return;
 
 
@@ -235,7 +252,7 @@ namespace MiNET
 		{
 			if (IsDead) return;
 
-			Player player = Entity as Player;
+			Player.Player player = Entity as Player.Player;
 			if (player != null)
 			{
 				ticks -= ticks * player.DamageCalculator.CalculateFireTickReduction(player);
@@ -255,6 +272,13 @@ namespace MiNET
 
 		public virtual void Kill()
 		{
+			EntityKilledEvent killedEvent = new EntityKilledEvent(Entity);
+			Entity.Level.EventDispatcher.DispatchEvent(killedEvent);
+			if (killedEvent.IsCancelled)
+			{
+				return;
+			}
+			
 			lock (_killSync)
 			{
 				if (IsDead) return;
@@ -263,7 +287,7 @@ namespace MiNET
 				Health = 0;
 			}
 
-			var player = Entity as Player;
+			var player = Entity as Player.Player;
 			if (player != null)
 			{
 				player.SendUpdateAttributes();
@@ -295,7 +319,7 @@ namespace MiNET
 			}
 			else
 			{
-				if (LastDamageSource is Player && Entity.Level.DoMobloot)
+				if (LastDamageSource is Player.Player && Entity.Level.DoMobloot)
 				{
 					var drops = Entity.GetDrops();
 					foreach (var drop in drops)
@@ -454,7 +478,7 @@ namespace MiNET
 				}
 				else if (FireTick % 20 == 0)
 				{
-					var player = Entity as Player;
+					var player = Entity as Player.Player;
 					if (player != null)
 					{
 						player.DamageCalculator.CalculatePlayerDamage(null, player, null, 1, DamageCause.FireTick);

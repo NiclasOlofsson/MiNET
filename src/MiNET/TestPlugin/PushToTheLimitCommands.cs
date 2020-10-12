@@ -30,6 +30,7 @@ using MiNET;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
+using MiNET.Player;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;

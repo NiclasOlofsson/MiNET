@@ -42,7 +42,7 @@ namespace MiNET.UI
 			Type = "modal";
 		}
 
-		public override void FromJson(string json, Player player)
+		public override void FromJson(string json, Player.Player player)
 		{
 			var jsonSerializerSettings = new JsonSerializerSettings
 			{
@@ -61,9 +61,9 @@ namespace MiNET.UI
 			}
 		}
 
-		[JsonIgnore] public Action<Player, ModalForm> ExecuteAction { get; set; }
+		[JsonIgnore] public Action<Player.Player, ModalForm> ExecuteAction { get; set; }
 
-		public void Execute(Player player)
+		public void Execute(Player.Player player)
 		{
 			ExecuteAction?.Invoke(player, this);
 		}

@@ -36,7 +36,7 @@ namespace MiNET.Items
 			ItemType = ItemType.Sword;
 		}
 
-		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		public override bool DamageItem(Player.Player player, ItemDamageReason reason, Entity target, Block block)
 		{
 			switch (reason)
 			{

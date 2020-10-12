@@ -25,6 +25,7 @@
 
 using System.Collections.Generic;
 using MiNET;
+using MiNET.Player;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.UI;
@@ -178,7 +179,7 @@ namespace TestPlugin.SafePay
 					Text = "Save payment info (safe)",
 					Value = true
 				},
-				new Label {Text = "§lWhat happens now?§r\nThis is step 1 of 2. After submitting payment information you will be able to review your order.\nWe will not bill you until confirm the order on next page (step 2)."},
+				new Label {Text = "ï¿½lWhat happens now?ï¿½r\nThis is step 1 of 2. After submitting payment information you will be able to review your order.\nWe will not bill you until confirm the order on next page (step 2)."},
 			};
 
 			player.SendForm(customForm);
@@ -189,8 +190,8 @@ namespace TestPlugin.SafePay
 			var modalForm = new ModalForm();
 			modalForm.ExecuteAction = ExecutePayment;
 			modalForm.Title = "Review Order";
-			modalForm.Content = "§lPlease review your ordering information below.§r\nProduct: Mega coins extra pack.\nYour total: $3.99 USD\nPayment method: VISA ************59 $3.99 USD\n";
-			modalForm.Button1 = "§2§lBuy now";
+			modalForm.Content = "ï¿½lPlease review your ordering information below.ï¿½r\nProduct: Mega coins extra pack.\nYour total: $3.99 USD\nPayment method: VISA ************59 $3.99 USD\n";
+			modalForm.Button1 = "ï¿½2ï¿½lBuy now";
 			modalForm.Button2 = "Cancel";
 
 			player.SendForm(modalForm);

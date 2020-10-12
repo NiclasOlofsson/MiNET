@@ -16,13 +16,13 @@ namespace MiNET.BuilderBase.Commands
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiscCommands));
 
 		[Command(Description = "Fill a hole")]
-		public void Fill(Player player, Pattern pattern, int radius, int depth = -1)
+		public void Fill(Player.Player player, Pattern pattern, int radius, int depth = -1)
 		{
 			EditSession.Fill((BlockCoordinates) player.KnownPosition, pattern, new AirBlocksMask(player.Level), radius, depth);
 		}
 
 		[Command(Description = "Drain lava and water")]
-		public void Drain(Player player, int radius)
+		public void Drain(Player.Player player, int radius)
 		{
 			EditSession.Fill((BlockCoordinates) player.KnownPosition,
 				new Pattern(0, 0),
@@ -42,7 +42,7 @@ namespace MiNET.BuilderBase.Commands
 		//}
 
 		[Command(Description = "Render block-text of any font and size.")]
-		public void Text(Player player, string text, Pattern pattern, string fontName = "Minecraft", int pxSize = 20)
+		public void Text(Player.Player player, string text, Pattern pattern, string fontName = "Minecraft", int pxSize = 20)
 		{
 			//var font = new Font("SketchFlow Print", 20, GraphicsUnit.Pixel);
 			var font = new Font(fontName, pxSize, GraphicsUnit.Pixel);
@@ -88,7 +88,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Set speed")]
-		public void Speed(Player player, int speed = 1)
+		public void Speed(Player.Player player, int speed = 1)
 		{
 			player.MovementSpeed = speed/10f;
 			player.SendUpdateAttributes();

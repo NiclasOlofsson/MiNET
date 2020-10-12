@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 			Hardness = 3;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			BeaconBlockEntity blockEntity = new BeaconBlockEntity()
 			{
@@ -68,7 +68,7 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			var containerOpen = McpeContainerOpen.CreateObject();
 			containerOpen.windowId = 5 + 9;

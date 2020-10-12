@@ -69,12 +69,12 @@ namespace MiNET.Entities.World
 			MapInfo = mapInfo;
 		}
 
-		public override void SpawnToPlayers(Player[] players)
+		public override void SpawnToPlayers(Player.Player[] players)
 		{
 			// This is a server-side only entity
 		}
 
-		public override void DespawnFromPlayers(Player[] players)
+		public override void DespawnFromPlayers(Player.Player[] players)
 		{
 			// This is a server-side only entity
 		}
@@ -131,7 +131,7 @@ namespace MiNET.Entities.World
 			}
 		}
 
-		public virtual void AddToMapListeners(Player player, long mapId)
+		public virtual void AddToMapListeners(Player.Player player, long mapId)
 		{
 			if (mapId == EntityId)
 			{

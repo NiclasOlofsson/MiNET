@@ -46,7 +46,7 @@ namespace MiNET.Entities.Hostile
 			};
 		}
 
-		public void Praise(Player player)
+		public void Praise(Player.Player player)
 		{
 			Level.BroadcastMessage(player.DisplayName + " has become one with Herobrine.");
 		}

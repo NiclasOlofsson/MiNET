@@ -36,7 +36,7 @@ namespace MiNET.Items
 			ItemType = ItemType.Elytra;
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
 			player.Inventory.SetInventorySlot(slot, player.Inventory.Chest);

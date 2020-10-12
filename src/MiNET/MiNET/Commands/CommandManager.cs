@@ -123,7 +123,7 @@ namespace MiNET.Commands
 		    }
 	    }
 
-	    internal CommandSet GenerateCommandSet(MiNET.Player player)
+	    internal CommandSet GenerateCommandSet(Player.Player player)
 	    {
 		    return GenerateCommandSet(_pluginCommands
 			    .Where(x => x.Value.PermissionAttribute == null || 
@@ -207,7 +207,7 @@ namespace MiNET.Commands
 				bool isFirstParam = true;
 				foreach (var parameter in parameters)
 				{
-					if (isFirstParam && typeof(MiNET.Player).IsAssignableFrom(parameter.ParameterType))
+					if (isFirstParam && typeof(Player.Player).IsAssignableFrom(parameter.ParameterType))
 					{
 						continue;
 					}
@@ -380,7 +380,7 @@ namespace MiNET.Commands
 		
 		#region Command Handling
 		
-		internal object HandleCommand(MiNET.Player player, string cmdline)
+		internal object HandleCommand(Player.Player player, string cmdline)
 		{
 			var split = Regex.Split(cmdline, "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)").Select(s => s.Trim('"')).ToArray();
 			string commandName = split[0].Trim('/');
@@ -447,7 +447,7 @@ namespace MiNET.Commands
 			return command;
 		}
 
-		internal object HandleCommand(MiNET.Player player, string commandName, string commandOverload, dynamic commandInputJson)
+		internal object HandleCommand(Player.Player player, string commandName, string commandOverload, dynamic commandInputJson)
 		{
 			Log.Debug($"HandleCommand {commandName}");
 			var commands = player.Commands;
@@ -485,7 +485,7 @@ namespace MiNET.Commands
 				{
 					foreach (ParameterInfo parameter in method.GetParameters())
 					{
-						if (typeof(MiNET.Player).IsAssignableFrom(parameter.ParameterType)) continue;
+						if (typeof(Player.Player).IsAssignableFrom(parameter.ParameterType)) continue;
 
 						if (HasProperty(commandInputJson, parameter.Name))
 						{
@@ -517,7 +517,7 @@ namespace MiNET.Commands
 			return Attribute.IsDefined(param, typeof(ParamArrayAttribute));
 		}
 
-		public bool ExecuteCommand(MethodInfo method, MiNET.Player player, string[] args, out object result)
+		public bool ExecuteCommand(MethodInfo method, Player.Player player, string[] args, out object result)
 		{
 			Log.Info($"Execute command {method}");
 
@@ -525,7 +525,7 @@ namespace MiNET.Commands
 
 			var parameters = method.GetParameters();
 
-			bool hasPlayerParameter = parameters.Length > 0 && typeof(Player).IsAssignableFrom(parameters[0].ParameterType);
+			bool hasPlayerParameter = parameters.Length > 0 && typeof(Player.Player).IsAssignableFrom(parameters[0].ParameterType);
 
 			object[] objectArgs = new object[parameters.Length];
 
@@ -537,7 +537,7 @@ namespace MiNET.Commands
 					ParameterInfo parameter = parameters[objArgIdx];
 					if (objArgIdx == 0 && hasPlayerParameter)
 					{
-						if (typeof(Player).IsAssignableFrom(parameter.ParameterType))
+						if (typeof(Player.Player).IsAssignableFrom(parameter.ParameterType))
 						{
 							objectArgs[objArgIdx] = player;
 							continue;
@@ -793,7 +793,7 @@ namespace MiNET.Commands
 			return false;
 		}
 
-		public Target FillTargets(MiNET.Player commander, Level level, string source)
+		public Target FillTargets(Player.Player commander, Level level, string source)
 		{
 			Target target = ParseTarget(source);
 
@@ -817,7 +817,7 @@ namespace MiNET.Commands
 			}
 			else if (target.Selector == "randomPlayer")
 			{
-				MiNET.Player[] players = level.GetAllPlayers();
+				Player.Player[] players = level.GetAllPlayers();
 				target.Players = new[] {players[new Random().Next(players.Length)]};
 			}
 

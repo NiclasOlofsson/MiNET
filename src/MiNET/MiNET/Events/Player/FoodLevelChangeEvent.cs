@@ -35,7 +35,7 @@
         /// </summary>
         public double NewSaturation { get; set; }
         
-        public FoodLevelChangeEvent(MiNET.Player player, int oldLevel, int newLevel, double oldExhaustion, double newExhaustion, double oldSaturation, double newSaturation) : base(player)
+        public FoodLevelChangeEvent(MiNET.Player.Player player, int oldLevel, int newLevel, double oldExhaustion, double newExhaustion, double oldSaturation, double newSaturation) : base(player)
         {
             OldLevel = oldLevel;
             NewLevel = newLevel;

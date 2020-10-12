@@ -38,14 +38,14 @@ namespace MiNET.Blocks
 			Hardness = 5;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			UpsideDownBit = faceCoords.Y > 0.5 && face != BlockFace.Up || face == BlockFace.Down;
 
 			return false;
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			OpenBit = !OpenBit;
 			world.SetBlock(this);

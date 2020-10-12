@@ -41,6 +41,7 @@ using Microsoft.IO;
 using MiNET.Crafting;
 using MiNET.Items;
 using MiNET.Net.RakNet;
+using MiNET.Player;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using Newtonsoft.Json;
@@ -540,7 +541,7 @@ namespace MiNET.Net
 					records = new PlayerAddRecords();
 					for (int i = 0; i < count; i++)
 					{
-						var player = new Player(null, null);
+						var player = new Player.Player(null, null);
 						player.ClientUuid = ReadUUID();
 						player.EntityId = ReadSignedVarLong();
 						player.DisplayName = ReadString();
@@ -559,14 +560,14 @@ namespace MiNET.Net
 					records = new PlayerRemoveRecords();
 					for (int i = 0; i < count; i++)
 					{
-						var player = new Player(null, null);
+						var player = new Player.Player(null, null);
 						player.ClientUuid = ReadUUID();
 						records.Add(player);
 					}
 					break;
 			}
 
-			foreach (Player player in records)
+			foreach (Player.Player player in records)
 			{
 				if (player.Skin != null) player.Skin.IsVerified = ReadBool();
 			}

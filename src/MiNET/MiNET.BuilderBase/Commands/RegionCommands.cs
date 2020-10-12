@@ -40,47 +40,47 @@ namespace MiNET.BuilderBase.Commands
 		private static readonly ILog Log = LogManager.GetLogger(typeof (RegionCommands));
 
 		[Command(Description = "Set all blocks within selection")]
-		public void SetBlock(Player player, BlockTypeEnum tileName, int tileData = 0)
+		public void SetBlock(Player.Player player, BlockTypeEnum tileName, int tileData = 0)
 		{
 			var id = BlockFactory.GetBlockIdByName(tileName.Value);
 			Set(player, id, tileData);
 		}
 
 		[Command(Description = "Set all blocks within selection")]
-		public void Set(Player player, int tileId, int tileData = 0)
+		public void Set(Player.Player player, int tileId, int tileData = 0)
 		{
 			var pattern = new Pattern(tileId, tileData);
 			EditSession.SetBlocks(Selector, pattern);
 		}
 
 		[Command(Description = "Set all blocks within selection")]
-		public void Set(Player player, Pattern pattern)
+		public void Set(Player.Player player, Pattern pattern)
 		{
 			EditSession.SetBlocks(Selector, pattern);
 		}
 
 		[Command(Description = "Draws a line segment between cuboid selection corners")]
-		public void Line(Player player, BlockTypeEnum tileName, int tileData = 0, int thickness = 1, bool shell = false)
+		public void Line(Player.Player player, BlockTypeEnum tileName, int tileData = 0, int thickness = 1, bool shell = false)
 		{
 			var id = BlockFactory.GetBlockIdByName(tileName.Value);
 			Line(player, id, tileData, thickness, shell);
 		}
 
 		[Command(Description = "Draws a line segment between cuboid selection corners")]
-		public void Line(Player player, int tileId, int tileData = 0, int thickness = 0, bool shell = false)
+		public void Line(Player.Player player, int tileId, int tileData = 0, int thickness = 0, bool shell = false)
 		{
 			var pattern = new Pattern(tileId, tileData);
 			EditSession.DrawLine(Selector, pattern, Selector.Position1, Selector.Position2, thickness, !shell);
 		}
 
 		[Command(Description = "Replace all blocks in the selection with another")]
-		public void Replace(Player player, Mask mask, Pattern pattern)
+		public void Replace(Player.Player player, Mask mask, Pattern pattern)
 		{
 			EditSession.ReplaceBlocks(Selector, mask, pattern);
 		}
 
 		[Command(Description = "Set the center block(s)")]
-		public void Center(Player player, int tileId = 1, int tileData = 0)
+		public void Center(Player.Player player, int tileId = 1, int tileData = 0)
 		{
 			var pattern = new Pattern(tileId, tileData);
 
@@ -88,7 +88,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Move the contents of the selection")]
-		public void Move(Player player, int count = 1, string direction = "me")
+		public void Move(Player.Player player, int count = 1, string direction = "me")
 		{
 			BlockCoordinates dir;
 			try
@@ -105,7 +105,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Repeat the contents of the selection")]
-		public void Stack(Player player, int count = 1, string direction = "me", bool skipAir = false, bool moveSelection = false)
+		public void Stack(Player.Player player, int count = 1, string direction = "me", bool skipAir = false, bool moveSelection = false)
 		{
 			BlockCoordinates dir;
 			try
@@ -122,25 +122,25 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Generates a hollow sphere")]
-		public void Hsphere(Player player, Pattern pattern, int radius)
+		public void Hsphere(Player.Player player, Pattern pattern, int radius)
 		{
 			Sphere(player, pattern, radius, radius, radius, false);
 		}
 
 		[Command(Description = "Generates a hollow sphere")]
-		public void Hsphere(Player player, Pattern pattern, int radiusX, int radiusY = 0, int radiusZ = 0)
+		public void Hsphere(Player.Player player, Pattern pattern, int radiusX, int radiusY = 0, int radiusZ = 0)
 		{
 			Sphere(player, pattern, radiusX, radiusY, radiusZ, false);
 		}
 
 		[Command(Description = "Generates a filled sphere")]
-		public void Sphere(Player player, Pattern pattern, int radius, bool filled = true)
+		public void Sphere(Player.Player player, Pattern pattern, int radius, bool filled = true)
 		{
 			Sphere(player, pattern, radius, radius, radius, filled);
 		}
 
 		[Command(Description = "Generates a filled sphere")]
-		public void Sphere(Player player, Pattern pattern, int radiusX, int radiusY = 0, int radiusZ = 0, bool filled = true)
+		public void Sphere(Player.Player player, Pattern pattern, int radiusX, int radiusY = 0, int radiusZ = 0, bool filled = true)
 		{
 			if (radiusY == 0) radiusY = radiusX;
 			if (radiusZ == 0) radiusZ = radiusX;
@@ -149,7 +149,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Generates a filled cylinder")]
-		public void Cylinder(Player player, Pattern pattern, int radiusX, int height = 0, int radiusZ = 0, bool filled = true)
+		public void Cylinder(Player.Player player, Pattern pattern, int radiusX, int height = 0, int radiusZ = 0, bool filled = true)
 		{
 			if (height == 0) height = 1;
 			if (radiusZ == 0) radiusZ = radiusX;
@@ -158,7 +158,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Grass, 2 layers of dirt, then rock below")]
-		public void Naturalize(Player player)
+		public void Naturalize(Player.Player player)
 		{
 			UndoRecorder.CheckForDuplicates = false;
 			EditSession.Naturalize(player, Selector);

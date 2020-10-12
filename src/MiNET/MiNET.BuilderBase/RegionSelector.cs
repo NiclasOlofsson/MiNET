@@ -43,26 +43,26 @@ namespace MiNET.BuilderBase
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(RegionSelector));
 
-		public static ConcurrentDictionary<Player, RegionSelector> RegionSelectors = new ConcurrentDictionary<Player, RegionSelector>();
+		public static ConcurrentDictionary<Player.Player, RegionSelector> RegionSelectors = new ConcurrentDictionary<Player.Player, RegionSelector>();
 
-		public static RegionSelector GetSelector(Player player)
+		public static RegionSelector GetSelector(Player.Player player)
 		{
 			RegionSelector selector;
 			RegionSelectors.TryGetValue(player, out selector);
 			return selector;
 		}
 
-		public Player Player { get; set; }
-		public bool ShowSelection { get; set; } = true;
-		public Dictionary<long, HistoryEntry> History { get; private set; } = new Dictionary<long, HistoryEntry>();
-		public Dictionary<long, HistoryEntry> RedoBuffer { get; private set; } = new Dictionary<long, HistoryEntry>();
+		public Player.Player                  Player        { get; set; }
+		public bool                           ShowSelection { get; set; }         = true;
+		public Dictionary<long, HistoryEntry> History       { get; private set; } = new Dictionary<long, HistoryEntry>();
+		public Dictionary<long, HistoryEntry> RedoBuffer    { get; private set; } = new Dictionary<long, HistoryEntry>();
 
 
 		public BlockCoordinates Position1 { get; private set; }
 		public BlockCoordinates Position2 { get; private set; }
 		public Clipboard Clipboard { get; set; }
 
-		public RegionSelector(Player player)
+		public RegionSelector(Player.Player player)
 		{
 			Player = player;
 		}

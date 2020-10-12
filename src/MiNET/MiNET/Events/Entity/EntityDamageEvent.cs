@@ -1,4 +1,6 @@
-﻿﻿namespace MiNET.Events.Entity
+﻿﻿using MiNET.Entities;
+
+namespace MiNET.Events.Entity
 {
 	/// <summary>
 	/// 	Dispatched when an Entity gets damaged

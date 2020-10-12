@@ -5,7 +5,7 @@
 	/// </summary>
 	public class PlayerQuitEvent : PlayerEvent
 	{
-		public PlayerQuitEvent(MiNET.Player player) : base(player)
+		public PlayerQuitEvent(MiNET.Player.Player player) : base(player)
 		{
 		}
 	}

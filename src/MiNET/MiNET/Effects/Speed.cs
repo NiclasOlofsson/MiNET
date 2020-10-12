@@ -37,7 +37,7 @@ namespace MiNET.Effects
 			ParticleColor = Color.FromArgb(0x7c, 0xaf, 0xc6);
 		}
 
-		public override void SendAdd(Player player)
+		public override void SendAdd(Player.Player player)
 		{
 			player.MovementSpeed = (float) (0.1 + (Level + 1) * _multiplier);
 			player.SendUpdateAttributes();
@@ -45,7 +45,7 @@ namespace MiNET.Effects
 			base.SendAdd(player);
 		}
 
-		public override void SendUpdate(Player player)
+		public override void SendUpdate(Player.Player player)
 		{
 			player.MovementSpeed = (float) (0.1 + (Level + 1) * _multiplier);
 			player.SendUpdateAttributes();
@@ -53,7 +53,7 @@ namespace MiNET.Effects
 			base.SendUpdate(player);
 		}
 
-		public override void SendRemove(Player player)
+		public override void SendRemove(Player.Player player)
 		{
 			player.MovementSpeed = 0.1f;
 			player.SendUpdateAttributes();

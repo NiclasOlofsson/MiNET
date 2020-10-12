@@ -42,7 +42,7 @@ namespace MiNET.BuilderBase.Commands
 		//}
 
 		[Command(Name = "brush sphere", Aliases = new[] {"br s", "sphere", "s"}, Description = "Choose the sphere brush")]
-		public void BrushSphere(Player player, Pattern material, int radius = 2, bool hollow = false)
+		public void BrushSphere(Player.Player player, Pattern material, int radius = 2, bool hollow = false)
 		{
 			BrushTool brush = player.Inventory.GetItemInHand() as BrushTool;
 			string op = "Set";
@@ -64,7 +64,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Name = "brush cylinder", Aliases = new[] {"br c", "cylinder", "cyl", "c"}, Description = "Choose the sphere brush")]
-		public void BrushCylinder(Player player, Pattern material, int radius = 2, int height = 1, bool hollow = false)
+		public void BrushCylinder(Player.Player player, Pattern material, int radius = 2, int height = 1, bool hollow = false)
 		{
 			BrushTool brush = player.Inventory.GetItemInHand() as BrushTool;
 			string op = "Set";
@@ -87,7 +87,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Name = "brush fill", Aliases = new[] {"br f"}, Description = "Choose the fill brush")]
-		public void BrushFill(Player player, int radius = 2)
+		public void BrushFill(Player.Player player, int radius = 2)
 		{
 			BrushTool brush = player.Inventory.GetItemInHand() as BrushTool;
 			string op = "Set";
@@ -107,7 +107,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Name = "brush melt", Aliases = new[] {"br m", "melt", "m"}, Description = "Choose the melt brush")]
-		public void BrushMelt(Player player, int radius = 2)
+		public void BrushMelt(Player.Player player, int radius = 2)
 		{
 			BrushTool brush = player.Inventory.GetItemInHand() as BrushTool;
 			string op = "Set";
@@ -126,7 +126,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Name = "brush mask", Description = "Set the brush mask")]
-		public void BrushMask(Player player, Mask mask = null)
+		public void BrushMask(Player.Player player, Mask mask = null)
 		{
 			BrushTool brush = player.Inventory.GetItemInHand() as BrushTool;
 			if (brush == null) return;
@@ -147,7 +147,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Name = "brush material", Description = "Set the brush material")]
-		public void BrushMaterial(Player player, Pattern material)
+		public void BrushMaterial(Player.Player player, Pattern material)
 		{
 			BrushTool brush = player.Inventory.GetItemInHand() as BrushTool;
 			if (brush == null) return;
@@ -159,7 +159,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Name = "brush Size", Description = "Set the brush size")]
-		public void BrushSize(Player player, int radius = 2)
+		public void BrushSize(Player.Player player, int radius = 2)
 		{
 			BrushTool brush = player.Inventory.GetItemInHand() as BrushTool;
 			if (brush == null) return;
@@ -171,7 +171,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Name = "brush range", Description = "Set the brush range")]
-		public void BrushRange(Player player, int range = 300)
+		public void BrushRange(Player.Player player, int range = 300)
 		{
 			BrushTool brush = player.Inventory.GetItemInHand() as BrushTool;
 			if (brush == null) return;

@@ -36,7 +36,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			ItemBlock itemBlock = new ItemBlock(BlockFactory.GetBlockById(142));
 			itemBlock.PlaceBlock(world, player, targetCoordinates, face, faceCoords);

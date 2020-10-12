@@ -34,7 +34,7 @@ namespace MiNET.Effects
 			ParticleColor = Color.FromArgb(0x7F, 0x83, 0x92);
 		}
 
-		public override void SendAdd(Player player)
+		public override void SendAdd(Player.Player player)
 		{
 			player.IsInvisible = true;
 			player.HideNameTag = true;
@@ -43,7 +43,7 @@ namespace MiNET.Effects
 			base.SendAdd(player);
 		}
 
-		public override void SendUpdate(Player player)
+		public override void SendUpdate(Player.Player player)
 		{
 			player.IsInvisible = true;
 			player.HideNameTag = true;
@@ -52,7 +52,7 @@ namespace MiNET.Effects
 			base.SendUpdate(player);
 		}
 
-		public override void SendRemove(Player player)
+		public override void SendRemove(Player.Player player)
 		{
 			player.IsInvisible = false;
 			player.HideNameTag = false;

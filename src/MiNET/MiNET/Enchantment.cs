@@ -67,7 +67,7 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Enchantment));
 
-		public static void SendEmptyEnchantments(Player player)
+		public static void SendEmptyEnchantments(Player.Player player)
 		{
 			var enchantOptions = McpePlayerEnchantOptions.CreateObject();
 			enchantOptions.enchantOptions = new EnchantOptions
@@ -97,7 +97,7 @@ namespace MiNET
 			player.SendPacket(enchantOptions);
 		}
 
-		public static void SendEnchantments(Player player, Item itemToEnchant)
+		public static void SendEnchantments(Player.Player player, Item itemToEnchant)
 		{
 			if (itemToEnchant.ExtraData != null)
 			{

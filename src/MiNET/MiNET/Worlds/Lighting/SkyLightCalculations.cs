@@ -36,10 +36,11 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Worlds.Provider;
 using SharpAvi;
 using SharpAvi.Output;
 
-namespace MiNET.Worlds
+namespace MiNET.Worlds.Lighting
 {
 	public class SkyLightBlockAccess : IBlockAccess
 	{

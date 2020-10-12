@@ -27,6 +27,7 @@ using System.Numerics;
 using MiNET;
 using MiNET.Entities;
 using MiNET.Particles;
+using MiNET.Player;
 
 namespace TestPlugin.Pets
 {

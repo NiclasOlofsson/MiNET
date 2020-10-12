@@ -81,7 +81,7 @@ namespace MiNET.Entities.World
 			return metadata;
 		}
 
-		public override void SpawnToPlayers(Player[] players)
+		public override void SpawnToPlayers(Player.Player[] players)
 		{
 			//McpeUpdateBlockSynced updateBlock = McpeUpdateBlockSynced.CreateObject();
 			//updateBlock.coordinates = _original.Coordinates;

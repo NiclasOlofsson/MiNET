@@ -46,7 +46,7 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
-		public override bool Interact(Level level, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level level, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			var itemInHand = player.Inventory.GetItemInHand();
 			if (Growth < MaxGrowth && itemInHand is ItemDye && itemInHand.Metadata == 15)
@@ -139,7 +139,7 @@ namespace MiNET.Blocks
 			return calculateGrowthChance;
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
 			{

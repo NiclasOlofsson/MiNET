@@ -50,7 +50,7 @@ namespace MiNET.Blocks
 		private const byte South = 0x04;
 		private const byte West = 0x08;
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			if (!base.CanPlace(world, player, blockCoordinates, targetCoordinates, face)) return false;
 
@@ -58,7 +58,7 @@ namespace MiNET.Blocks
 			return !(block is Vine);
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			if (world.GetBlock(Coordinates) is Vine block)
 			{

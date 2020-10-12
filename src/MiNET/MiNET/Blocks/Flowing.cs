@@ -58,7 +58,7 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			if (!CheckForHarden(world, blockCoordinates))
 			{

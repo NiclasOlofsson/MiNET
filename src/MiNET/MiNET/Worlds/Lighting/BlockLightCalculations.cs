@@ -28,8 +28,9 @@ using System.Collections.Generic;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Worlds.Provider;
 
-namespace MiNET.Worlds
+namespace MiNET.Worlds.Lighting
 {
 	public class BlockLightCalculations
 	{

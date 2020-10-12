@@ -30,6 +30,7 @@ using log4net;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Net.RakNet;
+using MiNET.Player;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
@@ -107,10 +108,10 @@ namespace MiNET.Entities
 			return metadata;
 		}
 
-		public override void SpawnToPlayers(Player[] players)
+		public override void SpawnToPlayers(Player.Player[] players)
 		{
 			{
-				var fake = new Player(null, null)
+				var fake = new Player.Player(null, null)
 				{
 					ClientUuid = ClientUuid,
 					EntityId = EntityId,
@@ -167,7 +168,7 @@ namespace MiNET.Entities
 			}
 
 			{
-				var fake = new Player(null, null)
+				var fake = new Player.Player(null, null)
 				{
 					ClientUuid = ClientUuid,
 					EntityId = EntityId,
@@ -192,7 +193,7 @@ namespace MiNET.Entities
 
 		public void RemoveFromPlayerList()
 		{
-			var fake = new Player(null, null)
+			var fake = new Player.Player(null, null)
 			{
 				ClientUuid = ClientUuid,
 				EntityId = EntityId,
@@ -211,7 +212,7 @@ namespace MiNET.Entities
 
 		public void AddToPlayerList()
 		{
-			Player fake = new Player(null, null)
+			Player.Player fake = new Player.Player(null, null)
 			{
 				ClientUuid = ClientUuid,
 				EntityId = EntityId,
@@ -229,10 +230,10 @@ namespace MiNET.Entities
 			playerList.PutPool();
 		}
 
-		public override void DespawnFromPlayers(Player[] players)
+		public override void DespawnFromPlayers(Player.Player[] players)
 		{
 			{
-				var fake = new Player(null, null)
+				var fake = new Player.Player(null, null)
 				{
 					ClientUuid = ClientUuid,
 					EntityId = EntityId,

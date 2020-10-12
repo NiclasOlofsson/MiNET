@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using fNbt;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MiNET.Worlds.Provider;
 
 namespace MiNET.Worlds.Tests
 {

@@ -50,6 +50,6 @@ namespace MiNET.UI
 			return content;
 		}
 
-		public abstract void FromJson(string json, Player player);
+		public abstract void FromJson(string json, Player.Player player);
 	}
 }

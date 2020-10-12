@@ -4,7 +4,7 @@ namespace MiNET.Events.Player
 {
 	public class PlayerSettingsRequestEvent : PlayerEvent
 	{
-		public PlayerSettingsRequestEvent(MiNET.Player player, McpeServerSettingsRequest request) : base(player)
+		public PlayerSettingsRequestEvent(MiNET.Player.Player player, McpeServerSettingsRequest request) : base(player)
 		{
 		}
 	}

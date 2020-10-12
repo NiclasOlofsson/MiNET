@@ -92,7 +92,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block block = world.GetBlock(targetCoordinates);
 			var emptyCoordinates = block.IsReplaceable ? targetCoordinates : GetNewCoordinatesFromFace(targetCoordinates, face);

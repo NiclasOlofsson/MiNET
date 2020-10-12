@@ -40,8 +40,9 @@ using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Worlds.Lighting;
 
-namespace MiNET.Worlds
+namespace MiNET.Worlds.Provider
 {
 	public class Mapper : Tuple<int, Func<int, byte, byte>>
 	{
@@ -273,7 +274,7 @@ namespace MiNET.Worlds
 			return _chunkCache.ContainsKey(chunkCoord);
 		}
 
-		public int UnloadChunks(Player[] players, ChunkCoordinates spawn, double maxViewDistance)
+		public int UnloadChunks(Player.Player[] players, ChunkCoordinates spawn, double maxViewDistance)
 		{
 			int removed = 0;
 

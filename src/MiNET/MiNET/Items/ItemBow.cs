@@ -29,6 +29,7 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Entities.Projectiles;
+using MiNET.Player;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -44,7 +45,7 @@ namespace MiNET.Items
 			ItemType = ItemType.Bow;
 		}
 
-		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		public override bool DamageItem(Player.Player player, ItemDamageReason reason, Entity target, Block block)
 		{
 			//TODO: This is now NBT
 			switch (reason)
@@ -66,12 +67,12 @@ namespace MiNET.Items
 
 		private long _useTime = 0;
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			_useTime = world.TickTime;
 		}
 
-		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void Release(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			long timeUsed = world.TickTime - _useTime;
 			if (timeUsed < 6) // questionable, but we go with it for now.

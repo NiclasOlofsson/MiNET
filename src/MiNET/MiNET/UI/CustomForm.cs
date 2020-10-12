@@ -41,7 +41,7 @@ namespace MiNET.UI
 
 		public List<CustomElement> Content { get; set; }
 
-		public override void FromJson(string json, Player player)
+		public override void FromJson(string json, Player.Player player)
 		{
 			var jsonSerializerSettings = new JsonSerializerSettings
 			{
@@ -67,9 +67,9 @@ namespace MiNET.UI
 			Execute(player);
 		}
 
-		[JsonIgnore] public Action<Player, CustomForm> ExecuteAction { get; set; }
+		[JsonIgnore] public Action<Player.Player, CustomForm> ExecuteAction { get; set; }
 
-		public void Execute(Player player)
+		public void Execute(Player.Player player)
 		{
 			ExecuteAction?.Invoke(player, this);
 		}

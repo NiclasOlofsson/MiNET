@@ -42,7 +42,7 @@ namespace MiNET.Entities.Behaviors
 			if (!_entity.IsTamed) return false;
 			if (_entity.IsInWater) return false;
 
-			Player owner = ((Wolf) _entity).Owner as Player;
+			Player.Player owner = ((Wolf) _entity).Owner as Player.Player;
 
 			var shouldStart = owner == null || ((!(_entity.KnownPosition.DistanceTo(owner.KnownPosition) < 144.0) || _entity.HealthManager.LastDamageSource == null) && _entity.IsSitting);
 			if (!shouldStart) return false;

@@ -26,6 +26,8 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Utils;
+using MiNET.Worlds.Generator;
+using MiNET.Worlds.Provider;
 
 namespace MiNET.Worlds.Tests
 {

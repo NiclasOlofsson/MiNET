@@ -27,6 +27,6 @@ namespace MiNET.Plugins.Commands
 {
 	public interface IParameterSerializer
 	{
-		void Deserialize(Player player, string input);
+		void Deserialize(Player.Player player, string input);
 	}
 }

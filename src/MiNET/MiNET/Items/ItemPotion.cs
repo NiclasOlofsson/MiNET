@@ -40,7 +40,7 @@ namespace MiNET.Items
 
 		private bool _isUsing;
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			if (_isUsing)
 			{
@@ -58,13 +58,13 @@ namespace MiNET.Items
 			_isUsing = true;
 		}
 
-		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void Release(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			_isUsing = false;
 		}
 
 
-		public virtual void Consume(Player player)
+		public virtual void Consume(Player.Player player)
 		{
 			Effect e = null;
 			switch (Metadata)

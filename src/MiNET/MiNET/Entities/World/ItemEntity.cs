@@ -72,7 +72,7 @@ namespace MiNET.Entities.World
 			return Item;
 		}
 
-		public override void SpawnToPlayers(Player[] players)
+		public override void SpawnToPlayers(Player.Player[] players)
 		{
 			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
 			mcpeAddItemEntity.entityIdSelf = EntityId;

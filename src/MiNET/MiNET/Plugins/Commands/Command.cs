@@ -204,8 +204,8 @@ namespace MiNET.Plugins.Commands
 		public Rule[] Rules { get; set; }
 		public string Selector { get; set; }
 
-		public Player[] Players { get; set; }
-		public Entity[] Entities { get; set; }
+		public Player.Player[] Players  { get; set; }
+		public Entity[]        Entities { get; set; }
 
 		public override string ToString()
 		{

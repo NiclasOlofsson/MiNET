@@ -24,6 +24,7 @@
 #endregion
 
 using System.Drawing;
+using MiNET.Entities;
 
 namespace MiNET.Effects
 {
@@ -34,16 +35,16 @@ namespace MiNET.Effects
 			ParticleColor = Color.FromArgb(0x43, 0x0A, 0x09);
 		}
 
-		public override void SendAdd(Player player)
+		public override void SendAdd(Player.Player player)
 		{
 			player.HealthManager.TakeHit(null, 6 * (Level + 1), DamageCause.Magic);
 		}
 
-		public override void SendUpdate(Player player)
+		public override void SendUpdate(Player.Player player)
 		{
 		}
 
-		public override void SendRemove(Player player)
+		public override void SendRemove(Player.Player player)
 		{
 		}
 	}

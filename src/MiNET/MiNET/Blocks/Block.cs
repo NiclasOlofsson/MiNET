@@ -176,12 +176,12 @@ namespace MiNET.Blocks
 			return null;
 		}
 
-		public bool CanPlace(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)
+		public bool CanPlace(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			return CanPlace(world, player, Coordinates, targetCoordinates, face);
 		}
 
-		protected virtual bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected virtual bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			var playerBbox = (player.GetBoundingBox() - 0.01f);
 			var blockBbox = GetBoundingBox();
@@ -219,7 +219,7 @@ namespace MiNET.Blocks
 			world.GetBlock(Coordinates.BlockNorth()).BlockUpdate(world, Coordinates);
 		}
 
-		public virtual bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public virtual bool PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			// No default placement. Return unhandled.
 			return false;
@@ -229,7 +229,7 @@ namespace MiNET.Blocks
 		{
 		}
 
-		public virtual bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public virtual bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			// No default interaction. Return unhandled.
 			return false;

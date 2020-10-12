@@ -44,7 +44,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot auto")]
-		public string PlotAuto(Player player)
+		public string PlotAuto(Player.Player player)
 		{
 			BlockCoordinates coords = (BlockCoordinates) player.KnownPosition;
 
@@ -81,7 +81,7 @@ namespace MiNET.Plotter
 			return "Not able to claim plot at this position.";
 		}
 
-		private string ClaimPlot(Player player, PlotCoordinates coords)
+		private string ClaimPlot(Player.Player player, PlotCoordinates coords)
 		{
 			var bbox = PlotManager.GetBoundingBoxForPlot(coords);
 			var center = bbox.Max - (bbox.Max - bbox.Min)/2;
@@ -93,7 +93,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot claim")]
-		public string PlotClaim(Player player)
+		public string PlotClaim(Player.Player player)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (coords == null) return "Not able to claim plot at this position.";
@@ -105,7 +105,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot setowner")]
-		public string PlotSetOwner(Player player, string username)
+		public string PlotSetOwner(Player.Player player, string username)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (coords == null) return "Not able to set owner for this plot.";
@@ -134,7 +134,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot add")]
-		public string PlotAddPlayer(Player player, string username)
+		public string PlotAddPlayer(Player.Player player, string username)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (coords == null) return "Not able to add player for this plot.";
@@ -168,7 +168,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot remove")]
-		public string PlotRemovePlayer(Player player, string username)
+		public string PlotRemovePlayer(Player.Player player, string username)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (coords == null) return "No plot found.";
@@ -202,7 +202,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot sethome")]
-		public string PlotSetHome(Player player)
+		public string PlotSetHome(Player.Player player)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (coords == null) return "Not able to set home plot at this position.";
@@ -217,7 +217,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot home")]
-		public string PlotHome(Player player)
+		public string PlotHome(Player.Player player)
 		{
 			PlotPlayer plotPlayer = _plotManager.GetOrAddPlotPlayer(player);
 			if (plotPlayer == null) return "Sorry, you don't exist.";
@@ -235,7 +235,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot settitle")]
-		public string PlotSetTitle(Player player, string title = null)
+		public string PlotSetTitle(Player.Player player, string title = null)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
@@ -252,7 +252,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot setdescription")]
-		public string PlotSetDescription(Player player, string description = null)
+		public string PlotSetDescription(Player.Player player, string description = null)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
@@ -269,7 +269,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot settime")]
-		public string PlotSetTime(Player player, int time = 5000)
+		public string PlotSetTime(Player.Player player, int time = 5000)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
@@ -288,7 +288,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot setdownfall")]
-		public string PlotSetDownfall(Player player, int downfall = 0)
+		public string PlotSetDownfall(Player.Player player, int downfall = 0)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
@@ -307,7 +307,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot setbiome")]
-		public string PlotSetBiome(Player player, int biomeId = 1)
+		public string PlotSetBiome(Player.Player player, int biomeId = 1)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
@@ -327,7 +327,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot visit")]
-		public string PlotVisit(Player player, string username)
+		public string PlotVisit(Player.Player player, string username)
 		{
 			PlotPlayer plotPlayer = _plotManager.GetPlotPlayer(username);
 			if (plotPlayer == null) return "Sorry, that user is homeless.";
@@ -344,7 +344,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot visit")]
-		public string PlotVisit(Player player, int x, int z)
+		public string PlotVisit(Player.Player player, int x, int z)
 		{
 			PlotCoordinates coords = new PlotCoordinates(x, z);
 
@@ -360,7 +360,7 @@ namespace MiNET.Plotter
 		}
 
 		[Command(Name = "plot clear")]
-		public string PlotClear(Player player)
+		public string PlotClear(Player.Player player)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (coords == null) return "Not able to reset plot at this position.";
@@ -375,7 +375,7 @@ namespace MiNET.Plotter
 
 		[Command(Name = "plot delete")]
 		[Authorize(Permission = 4)]
-		public string PlotDelete(Player player, bool force = false)
+		public string PlotDelete(Player.Player player, bool force = false)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (!force && !_plotManager.HasClaim(coords, player)) return "Not able to reset plot at this position.";
@@ -389,7 +389,7 @@ namespace MiNET.Plotter
 
 		[Command(Name = "plot resend")]
 		[Authorize(Permission = 4)]
-		public void PlotResendChunks(Player player)
+		public void PlotResendChunks(Player.Player player)
 		{
 			Task.Run(() =>
 			{

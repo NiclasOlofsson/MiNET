@@ -23,7 +23,7 @@ namespace MiNET.Particles
 			Level = level;
 		}
 
-		public virtual void Spawn(Player[] players)
+		public virtual void Spawn(Player.Player[] players)
 		{
 			var pk = McpeSpawnParticleEffect.CreateObject();
 			pk.particleName = Name;

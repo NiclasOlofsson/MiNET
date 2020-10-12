@@ -5,7 +5,7 @@
 	/// </summary>
 	public class PlayerSpawnedEvent : PlayerEvent
 	{
-		public PlayerSpawnedEvent(MiNET.Player player) : base(player)
+		public PlayerSpawnedEvent(MiNET.Player.Player player) : base(player)
 		{
 		}
 	}

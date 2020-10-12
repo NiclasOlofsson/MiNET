@@ -87,7 +87,7 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override bool Interact(Level level, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level level, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			var itemInHand = player.Inventory.GetItemInHand();
 			if (itemInHand is ItemDye && itemInHand.Metadata == 15)

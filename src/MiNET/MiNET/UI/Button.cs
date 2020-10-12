@@ -32,9 +32,9 @@ namespace MiNET.UI
 	{
 		public Image Image { get; set; }
 
-		[JsonIgnore] public Action<Player, SimpleForm> ExecuteAction { get; set; }
+		[JsonIgnore] public Action<Player.Player, SimpleForm> ExecuteAction { get; set; }
 
-		public void Execute(Player player, SimpleForm form)
+		public void Execute(Player.Player player, SimpleForm form)
 		{
 			ExecuteAction?.Invoke(player, form);
 		}

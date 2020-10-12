@@ -37,7 +37,7 @@ namespace MiNET.Items
 			MaxStackSize = 16;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			// block 230, data 32-35 (rotations) Slate, Poster or Board
 

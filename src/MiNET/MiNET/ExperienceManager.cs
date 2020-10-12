@@ -1,16 +1,17 @@
 using MiNET.Net;
 using MiNET.Worlds;
 using System;
+using MiNET.Player;
 
 namespace MiNET
 {
 	public class ExperienceManager
 	{
-		public Player Player { get; set; }
-		public float ExperienceLevel { get; set; } = 0f;
-		public float Experience { get; set; } = 0f;
+		public Player.Player Player          { get; set; }
+		public float         ExperienceLevel { get; set; } = 0f;
+		public float         Experience      { get; set; } = 0f;
 
-		public ExperienceManager(Player player)
+		public ExperienceManager(Player.Player player)
 		{
 			Player = player;
 		}

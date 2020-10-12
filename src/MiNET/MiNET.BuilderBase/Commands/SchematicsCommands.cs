@@ -33,6 +33,7 @@ using MiNET.Blocks;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Worlds;
+using MiNET.Worlds.Provider;
 
 namespace MiNET.BuilderBase.Commands
 {
@@ -41,7 +42,7 @@ namespace MiNET.BuilderBase.Commands
 		private static readonly ILog Log = LogManager.GetLogger(typeof (SchematicsCommands));
 
 		[Command(Name = "schematic list", Description = "List all schematics on server")]
-		public string Schematic(Player player)
+		public string Schematic(Player.Player player)
 		{
 			string[] list = Directory.EnumerateFiles(@"D:\Downloads\schematics", "*.schematic").ToArray();
 			for (int i = 0; i < list.Length; i++)
@@ -53,7 +54,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Name = "schematic load", Description = "Load a schematics into clipboard")]
-		public string Load(Player player, string schematicFile)
+		public string Load(Player.Player player, string schematicFile)
 		{
 			string filePath = Path.Combine(@"D:\Downloads\schematics", schematicFile);
 			if (!File.Exists(filePath)) return $"Sorry, this schematics did not exist <{schematicFile}>";

@@ -41,7 +41,7 @@ namespace MiNET.Blocks
 		{
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			return world.GetBlock(blockCoordinates).IsReplaceable;
 		}
@@ -51,7 +51,7 @@ namespace MiNET.Blocks
 			return new BoundingBox(Coordinates, Coordinates + new BlockCoordinates(1, 2, 1));
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			// metadata for banner is a value 0-15 that signify the orientation of the banner. Same as PC metadata.
 			GroundSignDirection = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180) * 16 / 360) + 0.5) & 0x0f);

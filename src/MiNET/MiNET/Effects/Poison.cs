@@ -24,6 +24,7 @@
 #endregion
 
 using System.Drawing;
+using MiNET.Entities;
 
 namespace MiNET.Effects
 {
@@ -34,7 +35,7 @@ namespace MiNET.Effects
 			ParticleColor = Color.FromArgb(0x4E, 0x93, 0x31);
 		}
 
-		public override void OnTick(Player player)
+		public override void OnTick(Player.Player player)
 		{
 			if (Duration % (Level == 1 ? 25 : 50) == 0)
 			{

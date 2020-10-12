@@ -28,6 +28,7 @@ using System.IO;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Entities;
+using MiNET.Player;
 using MiNET.Utils.Skins;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;

@@ -103,7 +103,7 @@ namespace MiNET.Particles
 			Level = level;
 		}
 
-		public override void Spawn(Player[] players)
+		public override void Spawn(Player.Player[] players)
 		{
 			var particleEvent = McpeLevelEvent.CreateObject();
 			particleEvent.eventId = (short) (0x4000 | Id);

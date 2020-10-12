@@ -39,7 +39,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 
@@ -55,7 +55,7 @@ namespace MiNET.Items
 			}
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			Log.Debug("Use item boat");
 			base.UseItem(world, player, blockCoordinates);

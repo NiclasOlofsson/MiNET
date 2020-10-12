@@ -25,6 +25,7 @@
 
 using MiNET.Commands;
 using MiNET.Events;
+using MiNET.Worlds;
 
 namespace MiNET.Plugins
 {

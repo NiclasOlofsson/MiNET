@@ -11,7 +11,7 @@ namespace MiNET.Events.Player
         ///     The item used
         /// </summary>
         public Item ItemUsed { get; } 
-        public PlayerItemUseEvent(MiNET.Player player, Item itemUsed) : base(player)
+        public PlayerItemUseEvent(MiNET.Player.Player player, Item itemUsed) : base(player)
         {
             ItemUsed = itemUsed;
         }

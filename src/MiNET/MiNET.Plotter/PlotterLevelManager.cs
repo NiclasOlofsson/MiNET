@@ -27,12 +27,13 @@ using System;
 using System.Linq;
 using MiNET.Utils;
 using MiNET.Worlds;
+using MiNET.Worlds.Provider;
 
 namespace MiNET.Plotter
 {
 	public class PlotterLevelManager : LevelManager
 	{
-		public override Level GetLevel(Player player, string name)
+		public override Level GetLevel(Player.Player player, string name)
 		{
 			Level level = Levels.FirstOrDefault(l => l.LevelId.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 			if (level == null)

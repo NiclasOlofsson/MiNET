@@ -210,10 +210,10 @@ namespace MiNET.Events
 				}
 			}
 
-		//	if (Api.ConnectionInfo.ServerInfo != null)
-		//	{
-		//		Interlocked.Increment(ref Api.ServerInfo.EventsDispatchedPerSecond);
-		//	}
+			if (Api.ConnectionInfo != null)
+			{
+				Interlocked.Increment(ref Api.ConnectionInfo.EventsDispatchedPerSecond);
+			}
 		}
 
 		/// <summary>
@@ -239,10 +239,10 @@ namespace MiNET.Events
 
 			await Task.WhenAll(dispatchTasks);
 
-		//	if (Api.ServerInfo != null)
-		//	{
-		//		Interlocked.Increment(ref Api.ServerInfo.EventsDispatchedPerSecond);
-		//	}
+			if (Api.ConnectionInfo != null)
+			{
+				Interlocked.Increment(ref Api.ConnectionInfo.EventsDispatchedPerSecond);
+			}
 
 			return e;
 		}

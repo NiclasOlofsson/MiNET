@@ -22,7 +22,7 @@ namespace MiNET.Events.Player
 		/// 	The location of the player at the time of dropping
 		/// </summary>
 		public PlayerLocation From { get; }
-		public PlayerItemDropEvent(MiNET.Player player, PlayerLocation dropFrom, Item droppedItem, Item newInventoryItem) : base(player)
+		public PlayerItemDropEvent(MiNET.Player.Player player, PlayerLocation dropFrom, Item droppedItem, Item newInventoryItem) : base(player)
 		{
 			DroppedItem = droppedItem;
 			NewInventoryItem = newInventoryItem;

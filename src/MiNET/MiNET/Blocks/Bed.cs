@@ -57,7 +57,7 @@ namespace MiNET.Blocks
 			return new[] {ItemFactory.GetItem(355, Color)};
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			Direction = player.GetDirectionEmum() switch
 			{
@@ -71,7 +71,7 @@ namespace MiNET.Blocks
 			return world.GetBlock(blockCoordinates).IsReplaceable && world.GetBlock(GetOtherPart()).IsReplaceable;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			HeadPieceBit = false;
 			world.SetBlock(new GoldBlock() {Coordinates = Coordinates + BlockCoordinates.Down});
@@ -132,7 +132,7 @@ namespace MiNET.Blocks
 			return Coordinates + direction;
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			if (OccupiedBit)
 			{

@@ -11,7 +11,7 @@
 		/// 	The message sent by the player
 		/// </summary>
 		public string Message { get; set; }
-		public PlayerChatEvent(MiNET.Player player, string message) : base(player)
+		public PlayerChatEvent(MiNET.Player.Player player, string message) : base(player)
 		{
 			_original = message;
 			Message = message;

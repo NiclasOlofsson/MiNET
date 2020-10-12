@@ -50,7 +50,7 @@ namespace MiNET.Entities.Vehicles
 			};
 		}
 
-		public override void DoInteraction(int actionId, Player player)
+		public override void DoInteraction(int actionId, Player.Player player)
 		{
 			player.Vehicle = EntityId;
 
@@ -63,7 +63,7 @@ namespace MiNET.Entities.Vehicles
 			SendSetEntityData(player);
 		}
 
-		public void SendSetEntityData(Player player)
+		public void SendSetEntityData(Player.Player player)
 		{
 			player.IsRiding = true;
 

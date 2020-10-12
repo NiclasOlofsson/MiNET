@@ -69,7 +69,7 @@ namespace MiNET.Entities.Behaviors
 			return true;
 		}
 
-		private double GetTargetDistance(Player player)
+		private double GetTargetDistance(Player.Player player)
 		{
 			double distance = _targetDistance;
 
@@ -95,7 +95,7 @@ namespace MiNET.Entities.Behaviors
 			if (target.HealthManager.IsDead) return false;
 
 
-			if (!(target is Player))
+			if (!(target is Player.Player))
 			{
 				if (_entity.DistanceTo(target) > _targetDistance)
 				{
@@ -104,7 +104,7 @@ namespace MiNET.Entities.Behaviors
 			}
 			else
 			{
-				if (_entity.DistanceTo(target) > GetTargetDistance((Player) target))
+				if (_entity.DistanceTo(target) > GetTargetDistance((Player.Player) target))
 				{
 					return false;
 				}

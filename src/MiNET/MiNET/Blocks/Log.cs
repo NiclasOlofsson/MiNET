@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 			IsFlammable = true;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			PillarAxis = ItemBlock.GetPillarAxisFromFace(face).ToString();
 			return false;

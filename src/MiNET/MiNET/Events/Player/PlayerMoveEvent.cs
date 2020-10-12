@@ -21,7 +21,7 @@ namespace MiNET.Events.Player
 		/// 	Whether or not the player teleported
 		/// </summary>
 		public bool IsTeleport { get; }
-		public PlayerMoveEvent(MiNET.Player player, PlayerLocation from, PlayerLocation to, bool teleport) : base(player)
+		public PlayerMoveEvent(MiNET.Player.Player player, PlayerLocation from, PlayerLocation to, bool teleport) : base(player)
 		{
 			From = from;
 			To = to;

@@ -59,7 +59,7 @@ namespace MiNET.Entities.Hostile
 			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}
 
-		public override void SpawnToPlayers(Player[] players)
+		public override void SpawnToPlayers(Player.Player[] players)
 		{
 			base.SpawnToPlayers(players);
 			SendArmor();

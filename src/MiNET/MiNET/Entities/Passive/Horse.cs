@@ -30,6 +30,7 @@ using log4net;
 using MiNET.Entities.Behaviors;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Player;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -103,7 +104,7 @@ namespace MiNET.Entities.Passive
 			return attributes;
 		}
 
-		public override void DoInteraction(int actionId, Player player)
+		public override void DoInteraction(int actionId, Player.Player player)
 		{
 			if (player.IsSneaking)
 			{
@@ -199,7 +200,7 @@ namespace MiNET.Entities.Passive
 
 		public override void Mount(Entity rider)
 		{
-			if (rider is Player player)
+			if (rider is Player.Player player)
 			{
 				Rider = player;
 				IsRidden = true;
@@ -218,7 +219,7 @@ namespace MiNET.Entities.Passive
 
 		public override void Unmount(Entity rider)
 		{
-			if (rider is Player player)
+			if (rider is Player.Player player)
 			{
 				// Unmount ridden entity
 				IsRiding = false;
@@ -240,7 +241,7 @@ namespace MiNET.Entities.Passive
 			}
 		}
 
-		public void SendSetEntityData(Player player)
+		public void SendSetEntityData(Player.Player player)
 		{
 			player.IsRiding = true;
 			player.RiderSeatPosition = new Vector3(0, 2.32001f, -0.2f);
@@ -327,7 +328,7 @@ namespace MiNET.Entities.Passive
 			_horse = horse;
 		}
 
-		public void Open(Player player)
+		public void Open(Player.Player player)
 		{
 			if (!_horse.IsTamed) return;
 

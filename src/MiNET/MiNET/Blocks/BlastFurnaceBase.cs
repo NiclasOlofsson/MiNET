@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 		{
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			FacingDirection = ItemBlock.GetFacingDirectionFromEntity(player);
 
@@ -49,7 +49,7 @@ namespace MiNET.Blocks
 			return false;
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			player.OpenInventory(blockCoordinates);
 

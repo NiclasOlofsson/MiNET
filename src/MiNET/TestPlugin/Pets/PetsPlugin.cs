@@ -26,6 +26,7 @@
 using System;
 using MiNET;
 using MiNET.Entities.Passive;
+using MiNET.Player;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;

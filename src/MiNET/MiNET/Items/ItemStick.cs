@@ -42,7 +42,7 @@ namespace MiNET.Items
 			FuelEfficiency = 5;
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			if (player.IsGliding)
 			{

@@ -34,16 +34,16 @@ namespace MiNET.Entities.Behaviors
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(TemptedBehavior));
 
-		private readonly Mob _entity;
-		private readonly Type _temptingItem;
-		private readonly double _lookDistance;
-		private readonly double _speedMultiplier;
-		private Player _temptingPlayer;
-		private int _cooldown = 0;
-		private Vector3 _lastPlayerPos;
-		private Vector3 _originalPos;
-		private Path _currentPath = null;
-		private Pathfinder _pathfinder = new Pathfinder();
+		private readonly Mob           _entity;
+		private readonly Type          _temptingItem;
+		private readonly double        _lookDistance;
+		private readonly double        _speedMultiplier;
+		private          Player.Player _temptingPlayer;
+		private          int           _cooldown = 0;
+		private          Vector3       _lastPlayerPos;
+		private          Vector3       _originalPos;
+		private          Path          _currentPath = null;
+		private          Pathfinder    _pathfinder  = new Pathfinder();
 
 		public TemptedBehavior(Mob entity, Type temptingItem, double lookDistance, double speedMultiplier)
 		{
@@ -61,7 +61,7 @@ namespace MiNET.Entities.Behaviors
 				return false;
 			}
 
-			Player player = _entity.Level.GetSpawnedPlayers().OrderBy(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition))
+			Player.Player player = _entity.Level.GetSpawnedPlayers().OrderBy(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition))
 				.FirstOrDefault(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition) < _lookDistance && p.Inventory.GetItemInHand()?.GetType() == _temptingItem);
 
 			if (player == null) return false;

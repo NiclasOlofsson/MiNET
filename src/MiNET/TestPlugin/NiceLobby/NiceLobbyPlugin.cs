@@ -40,12 +40,14 @@ using MiNET.Events.Player;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
+using MiNET.Player;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
+using MiNET.Worlds.Provider;
 
 namespace TestPlugin.NiceLobby
 {

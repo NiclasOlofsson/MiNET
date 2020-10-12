@@ -39,7 +39,7 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(DamageCalculator));
 
-		public virtual double CalculateItemDamage(Player player, Item item, Player target)
+		public virtual double CalculateItemDamage(Player.Player player, Item item, Player.Player target)
 		{
 			double damage = item.GetDamage();
 
@@ -96,7 +96,7 @@ namespace MiNET
 			return damage + increase; //Item Damage.
 		}
 
-		public virtual double CalculateFallDamage(Player player, double damage, Player target)
+		public virtual double CalculateFallDamage(Player.Player player, double damage, Player.Player target)
 		{
 			var fallDamage = new Random().Next((int) (damage / 2 + 2));
 
@@ -107,7 +107,7 @@ namespace MiNET
 			return fallDamage;
 		}
 
-		public virtual double CalculateEffectDamage(Player player, double damage, Player target)
+		public virtual double CalculateEffectDamage(Player.Player player, double damage, Player.Player target)
 		{
 			double effectDamage = 0;
 			Effect effect;
@@ -123,7 +123,7 @@ namespace MiNET
 			return effectDamage;
 		}
 
-		public virtual double CalculateDamageIncreaseFromEnchantments(Player player, Item tool, Player target)
+		public virtual double CalculateDamageIncreaseFromEnchantments(Player.Player player, Item tool, Player.Player target)
 		{
 			if (tool == null) return 0;
 			if (tool.ExtraData == null) return 0;
@@ -148,7 +148,7 @@ namespace MiNET
 			return increase;
 		}
 
-		public virtual double CalculatePlayerDamage(Entity source, Player target, Item tool, double damage, DamageCause cause)
+		public virtual double CalculatePlayerDamage(Entity source, Player.Player target, Item tool, double damage, DamageCause cause)
 		{
 			double originalDamage = damage;
 			double armorValue = 0;
@@ -356,7 +356,7 @@ namespace MiNET
 			return reduction;
 		}
 
-		public int CalculateFireTickReduction(Player target)
+		public int CalculateFireTickReduction(Player.Player target)
 		{
 			int reduction = 0;
 			reduction = Math.Max(reduction, target.Inventory.Helmet.GetEnchantingLevel(EnchantingType.FireProtection) * 15);

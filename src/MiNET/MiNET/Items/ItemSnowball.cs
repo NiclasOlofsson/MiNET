@@ -36,7 +36,7 @@ namespace MiNET.Items
 			MaxStackSize = 16;
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			float force = 1.5f;
 

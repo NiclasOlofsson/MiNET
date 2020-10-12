@@ -51,7 +51,7 @@ namespace MiNET.BuilderBase.Tools
 			set { _extraData = value; }
 		}
 
-		private void UpdateExtraData(Player player = null)
+		private void UpdateExtraData(Player.Player player = null)
 		{
 			_extraData = new NbtCompound
 			{
@@ -69,12 +69,12 @@ namespace MiNET.BuilderBase.Tools
 		}
 
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			SetPosition2(player, blockCoordinates);
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void UseItem(Level world, Player.Player player, BlockCoordinates blockCoordinates)
 		{
 			var target = new EditHelper(world, player).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
 			if (target == null)
@@ -88,7 +88,7 @@ namespace MiNET.BuilderBase.Tools
 			SetPosition2(player, target.Coordinates);
 		}
 
-		public override bool Animate(Level world, Player player)
+		public override bool Animate(Level world, Player.Player player)
 		{
 			var target = new EditHelper(world, player).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
 			if (target == null)
@@ -104,7 +104,7 @@ namespace MiNET.BuilderBase.Tools
 			return true;
 		}
 
-		public override bool BreakBlock(Level world, Player player, Block block, BlockEntity blockEntity)
+		public override bool BreakBlock(Level world, Player.Player player, Block block, BlockEntity blockEntity)
 		{
 			SetPosition1(player, block.Coordinates);
 			Log.Warn("Break");
@@ -114,7 +114,7 @@ namespace MiNET.BuilderBase.Tools
 
 		CooldownTimer _clickCooldown = new CooldownTimer(TimeSpan.FromMilliseconds(500));
 
-		public void SetPosition1(Player player, BlockCoordinates pos)
+		public void SetPosition1(Player.Player player, BlockCoordinates pos)
 		{
 			if (!_clickCooldown.Execute()) return;
 
@@ -131,7 +131,7 @@ namespace MiNET.BuilderBase.Tools
 			//UpdateExtraData(player);
 		}
 
-		public void SetPosition2(Player player, BlockCoordinates pos)
+		public void SetPosition2(Player.Player player, BlockCoordinates pos)
 		{
 			if (!_clickCooldown.Execute()) return;
 

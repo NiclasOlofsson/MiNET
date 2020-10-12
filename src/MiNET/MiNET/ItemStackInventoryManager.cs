@@ -36,9 +36,9 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemStackInventoryManager));
 
-		private readonly Player _player;
+		private readonly Player.Player _player;
 
-		public ItemStackInventoryManager(Player player)
+		public ItemStackInventoryManager(Player.Player player)
 		{
 			_player = player;
 		}

@@ -42,7 +42,7 @@ namespace MiNET.Blocks
 			Hardness = 5;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			byte direction = player.GetDirection();
 
@@ -70,7 +70,7 @@ namespace MiNET.Blocks
 		}
 
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		public override bool Interact(Level world, Player.Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			
 			player.OpenInventory(blockCoordinates);

@@ -33,7 +33,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void Consume(Player player)
+		public override void Consume(Player.Player player)
 		{
 			base.Consume(player);
 			player.SetEffect(new Absorption() {Duration = 2400});

@@ -42,8 +42,9 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.LevelDB;
 using MiNET.Utils;
+using MiNET.Worlds.Lighting;
 
-namespace MiNET.Worlds
+namespace MiNET.Worlds.Provider
 {
 	public class LevelDbProvider : IWorldProvider, ICachingWorldProvider, ICloneable
 	{
@@ -619,7 +620,7 @@ namespace MiNET.Worlds
 			_chunkCache.Clear();
 		}
 
-		public int UnloadChunks(Player[] players, ChunkCoordinates spawn, double maxViewDistance)
+		public int UnloadChunks(Player.Player[] players, ChunkCoordinates spawn, double maxViewDistance)
 		{
 			int removed = 0;
 

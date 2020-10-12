@@ -26,6 +26,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using MiNET.Commands;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 
@@ -60,7 +61,7 @@ namespace MiNET.Plugins.Commands.Builtin
 				}
 				StringBuilder sb = new StringBuilder();
 				sb.Append($"{ChatColors.Green}{cmd.Name}{cmds}:{ChatFormatting.Reset}\n");
-				sb.Append($"Usage:\n{_server.CommandManager.GetUsage(cmd, true, ChatColors.Aqua)}");
+				sb.Append($"Usage:\n{CommandManager.GetUsage(cmd, true, ChatColors.Aqua)}");
 
 				return new HelpResponseByName() {Body = sb.ToString()};
 			}
@@ -88,7 +89,7 @@ namespace MiNET.Plugins.Commands.Builtin
 			int i = 0;
 			foreach (var command in commands)
 			{
-				sb.Append(_server.CommandManager.GetUsage(command));
+				sb.Append(CommandManager.GetUsage(command));
 				if (i++ >= 6) break;
 				sb.Append("\n");
 			}

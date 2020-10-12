@@ -5,11 +5,13 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using log4net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
+using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json.Linq;
 
@@ -523,52 +525,42 @@ namespace MiNET.Commands
 
 			var parameters = method.GetParameters();
 
-			int addLenght = 0;
-			if (parameters.Length > 0 && typeof(MiNET.Player).IsAssignableFrom(parameters[0].ParameterType))
-			{
-				addLenght = 1;
-			}
+			bool hasPlayerParameter = parameters.Length > 0 && typeof(Player).IsAssignableFrom(parameters[0].ParameterType);
 
 			object[] objectArgs = new object[parameters.Length];
 
 			try
 			{
-				int i = 0;
-				for (int k = 0; k < parameters.Length; k++)
+				int argIdx = 0;
+				for (int objArgIdx = 0; objArgIdx < parameters.Length; objArgIdx++)
 				{
-					var parameter = parameters[k];
-					if (k == 0 && addLenght == 1)
+					ParameterInfo parameter = parameters[objArgIdx];
+					if (objArgIdx == 0 && hasPlayerParameter)
 					{
-						if (typeof(MiNET.Player).IsAssignableFrom(parameter.ParameterType))
+						if (typeof(Player).IsAssignableFrom(parameter.ParameterType))
 						{
-							objectArgs[k] = player;
+							objectArgs[objArgIdx] = player;
 							continue;
 						}
 						Log.WarnFormat("Command method {0} missing Player as first argument.", method.Name);
 						return false;
 					}
 
-					if (PluginManager.Services.TryResolve(parameter.ParameterType, out var param))
+					if (parameter.IsOptional && argIdx >= args.Length)
 					{
-						objectArgs[k] = param;
+						objectArgs[objArgIdx] = parameter.DefaultValue;
 						continue;
 					}
 
-					if (parameter.IsOptional && args.Length <= i)
-					{
-						objectArgs[k] = parameter.DefaultValue;
-						continue;
-					}
-
-					if (args.Length < k) return false;
+					if (argIdx >= args.Length) return false;
 
 					if (typeof(IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
 					{
-						var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
-						IParameterSerializer defaultValue = ctor.Invoke(null) as IParameterSerializer;
-						defaultValue?.Deserialize(player, args[i++]);
+						ConstructorInfo? ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
+						var defaultValue = ctor?.Invoke(null) as IParameterSerializer;
+						defaultValue?.Deserialize(player, args[argIdx++]);
 
-						objectArgs[k] = defaultValue;
+						objectArgs[objArgIdx] = defaultValue;
 
 						continue;
 					}
@@ -576,128 +568,180 @@ namespace MiNET.Commands
 					if (parameter.ParameterType.BaseType == typeof(EnumBase))
 					{
 						var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
-						EnumBase instance = (EnumBase) ctor.Invoke(null);
-						instance.Value = args[i++];
-						objectArgs[k] = instance;
+						var instance = (EnumBase) ctor.Invoke(null);
+						instance.Value = args[argIdx++];
+						objectArgs[objArgIdx] = instance;
 						continue;
 					}
 
 					if (parameter.ParameterType == typeof(Target))
 					{
-						var target = FillTargets(player, player.Level, args[i++]);
-						objectArgs[k] = target;
+						Target target = FillTargets(player, player.Level, args[argIdx++]);
+						objectArgs[objArgIdx] = target;
 						continue;
 					}
 
 					if (parameter.ParameterType == typeof(BlockPos))
 					{
-						if (args.Length < i + 3) return false;
+						if (args.Length < argIdx + 3) return false;
 
-						BlockPos blockPos = new BlockPos();
+						var blockPos = new BlockPos();
 
-						string val = args[i++];
+						string val = args[argIdx++];
 						if (val.StartsWith("~"))
 						{
 							val = val.Substring(1);
 							blockPos.XRelative = true;
 						}
 
-						int.TryParse(val, out var x);
+						int.TryParse(val, out int x);
 						blockPos.X = x;
 
-						val = args[i++];
+						val = args[argIdx++];
 						if (val.StartsWith("~"))
 						{
 							val = val.Substring(1);
 							blockPos.YRelative = true;
 						}
 
-						int.TryParse(val, out var y);
+						int.TryParse(val, out int y);
 						blockPos.Y = y;
 
-						val = args[i++];
+						val = args[argIdx++];
 						if (val.StartsWith("~"))
 						{
 							val = val.Substring(1);
 							blockPos.ZRelative = true;
 						}
 
-						int.TryParse(val, out var z);
+						int.TryParse(val, out int z);
 						blockPos.Z = z;
 
-						objectArgs[k] = blockPos;
+						objectArgs[objArgIdx] = blockPos;
+						continue;
+					}
+
+					if (parameter.ParameterType == typeof(EntityPos))
+					{
+						if (args.Length < argIdx + 3) return false;
+
+						var blockPos = new EntityPos();
+
+						string val = args[argIdx++];
+						if (val.StartsWith("~"))
+						{
+							val = val.Substring(1);
+							blockPos.XRelative = true;
+						}
+
+						double.TryParse(val, NumberStyles.Float | NumberStyles.AllowThousands, NumberFormatInfo.InvariantInfo, out double x);
+						blockPos.X = x;
+
+						val = args[argIdx++];
+						if (val.StartsWith("~"))
+						{
+							val = val.Substring(1);
+							blockPos.YRelative = true;
+						}
+
+						double.TryParse(val, NumberStyles.Float | NumberStyles.AllowThousands, NumberFormatInfo.InvariantInfo, out double y);
+						blockPos.Y = y;
+
+						val = args[argIdx++];
+						if (val.StartsWith("~"))
+						{
+							val = val.Substring(1);
+							blockPos.ZRelative = true;
+						}
+
+						double.TryParse(val, NumberStyles.Float | NumberStyles.AllowThousands, NumberFormatInfo.InvariantInfo, out double z);
+						blockPos.Z = z;
+
+						objectArgs[objArgIdx] = blockPos;
+						continue;
+					}
+
+					if (parameter.ParameterType == typeof(RelValue))
+					{
+						var relValue = new RelValue();
+
+						string val = args[argIdx++];
+						if (val.StartsWith("~"))
+						{
+							val = val.Substring(1);
+							relValue.Relative = true;
+						}
+
+						double.TryParse(val, NumberStyles.Float | NumberStyles.AllowThousands, NumberFormatInfo.InvariantInfo, out double x);
+						relValue.Value = x;
+
+						objectArgs[objArgIdx] = relValue;
 						continue;
 					}
 
 					if (parameter.ParameterType == typeof(string))
 					{
-						objectArgs[k] = args[i++];
+						objectArgs[objArgIdx] = args[argIdx++];
 						continue;
 					}
 					if (parameter.ParameterType == typeof(byte))
 					{
-						byte value;
-						if (!byte.TryParse(args[i++], out value)) return false;
-						objectArgs[k] = value;
+						if (!byte.TryParse(args[argIdx++], out byte value)) return false;
+						objectArgs[objArgIdx] = value;
 						continue;
 					}
 					if (parameter.ParameterType == typeof(short))
 					{
-						short value;
-						if (!short.TryParse(args[i++], out value)) return false;
-						objectArgs[k] = value;
+						if (!short.TryParse(args[argIdx++], out short value)) return false;
+						objectArgs[objArgIdx] = value;
 						continue;
 					}
 					if (parameter.ParameterType == typeof(int))
 					{
-						int value;
-						if (!int.TryParse(args[i++], out value)) return false;
-						objectArgs[k] = value;
+						if (!int.TryParse(args[argIdx++], out int value)) return false;
+						objectArgs[objArgIdx] = value;
 						continue;
 					}
 					if (parameter.ParameterType == typeof(bool))
 					{
-						bool value;
-						if (!bool.TryParse(args[i++], out value)) return false;
-						objectArgs[k] = value;
+						if (!bool.TryParse(args[argIdx++], out bool value)) return false;
+						objectArgs[objArgIdx] = value;
 						continue;
 					}
 					if (parameter.ParameterType == typeof(float))
 					{
-						float value;
-						if (!float.TryParse(args[i++], out value)) return false;
-						objectArgs[k] = value;
+						if (!float.TryParse(args[argIdx++], NumberStyles.Float | NumberStyles.AllowThousands, NumberFormatInfo.InvariantInfo, out float value)) return false;
+						objectArgs[objArgIdx] = value;
 						continue;
 					}
 					if (parameter.ParameterType == typeof(double))
 					{
-						double value;
-						if (!double.TryParse(args[i++], out value)) return false;
-						objectArgs[k] = value;
+						if (!double.TryParse(args[argIdx++], NumberStyles.Float | NumberStyles.AllowThousands, NumberFormatInfo.InvariantInfo, out double value)) return false;
+						objectArgs[objArgIdx] = value;
 						continue;
 					}
 					if (parameter.ParameterType.IsEnum)
 					{
-						string val = args[i++];
-						Enum value = Enum.Parse(parameter.ParameterType, val, true) as Enum;
+						string val = args[argIdx++];
+						var value = Enum.Parse(parameter.ParameterType, val, true) as Enum;
 						if (value == null)
 						{
 							Log.Error($"Could not convert to valid enum value: {val}");
 							continue;
 						}
 
-						objectArgs[k] = value;
+						objectArgs[objArgIdx] = value;
 						continue;
 					}
 
 					if (IsParams(parameter) && parameter.ParameterType == typeof(string[]))
 					{
-						List<string> strings = new List<string>();
-						for (int j = i++; j < args.Length; j++)
+						var strings = new List<string>();
+						for (int j = argIdx++; j < args.Length; j++)
 						{
 							strings.Add(args[j]);
 						}
-						objectArgs[k] = strings.ToArray();
+						objectArgs[objArgIdx] = strings.ToArray();
 						continue;
 					}
 
@@ -706,10 +750,7 @@ namespace MiNET.Commands
 			}
 			catch (Exception e)
 			{
-			//	if (Log.IsDebugEnabled)
-				{
-					Log.Error("Trying to execute command overload", e);
-				}
+				if (Log.IsDebugEnabled) Log.Error("Trying to execute command overload", e);
 
 				return false;
 			}
@@ -726,9 +767,14 @@ namespace MiNET.Commands
 					{
 						object instance = data.Instance;
 						
+						var    filter   = instance as ICommandFilter;
+						filter?.OnCommandExecuting(player);
+						
 						Plugin.CurrentPlayer = player; // Setting thread local for call
 						result = method.Invoke(instance, objectArgs);
 						Plugin.CurrentPlayer = null;
+						
+						filter?.OnCommandExecuted();
 					}
 					else
 					{
@@ -847,15 +893,39 @@ namespace MiNET.Commands
 		}
 		
 		#endregion
-
-		public string GetUsage(Command command)
+		
+		public static string GetUsage(Command command, bool includeDescription = false, string prepend = "", string postpend = "")
 		{
-			throw new NotImplementedException();
-		}
+			StringBuilder sb      = new StringBuilder();
+			bool          isFirst = true;
+			foreach (var overload in command.Versions.First().Overloads.Values)
+			{
+				if (!isFirst) sb.Append("\n");
+				isFirst = false;
 
-		public string GetUsage(Command command, bool b, string aqua)
-		{
-			throw new NotImplementedException();
+				sb.Append(prepend);
+				sb.Append("/");
+				sb.Append(command.Name);
+				sb.Append(" ");
+
+				if (overload.Input.Parameters != null)
+				{
+					foreach (var parameter in overload.Input.Parameters)
+					{
+						sb.Append(parameter.Optional ? "[" : "<");
+						sb.Append(parameter.Name);
+						sb.Append(": ");
+						sb.Append(parameter.Type);
+						sb.Append(parameter.Optional ? "]" : ">");
+						sb.Append(" ");
+					}
+				}
+				sb.Append(ChatFormatting.Reset);
+				if (includeDescription && !string.IsNullOrEmpty(overload.Description)) sb.Append($" - {overload.Description}");
+				sb.Append(postpend);
+			}
+
+			return sb.ToString();
 		}
 	}
 }

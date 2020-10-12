@@ -1168,7 +1168,7 @@ namespace MiNET.Worlds
 			ChunkColumn chunk = possibleChunk != null && possibleChunk.X == chunkCoordinates.X && possibleChunk.Z == chunkCoordinates.Z ? possibleChunk : GetChunk(chunkCoordinates);
 
 
-			if (!OnBlockPlace(new BlockPlaceEventArgs(null, this, block, null)))
+			if (!OnBlockPlace(new BlockPlaceEventArgs(null, this, block, GetBlock(block.Coordinates))))
 			{
 				return;
 			}
@@ -1339,7 +1339,7 @@ namespace MiNET.Worlds
 		
 		public bool OnBlockPlace(BlockPlaceEventArgs e)
 		{
-			BlockPlaceEvent bb = new BlockPlaceEvent(e.Player, e.TargetBlock);
+			BlockPlaceEvent bb = new BlockPlaceEvent(e.Player, e.TargetBlock, e.ExistingBlock);
 			EventDispatcher.DispatchEvent(bb);
 			return !bb.IsCancelled;
 		}

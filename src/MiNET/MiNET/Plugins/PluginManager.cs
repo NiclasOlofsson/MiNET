@@ -25,6 +25,9 @@ namespace MiNET.Plugins
 		private AssemblyManager AssemblyManager { get; }
 		private AssemblyResolver AssemblyResolver { get; }
 		
+		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetHandlerDictionary     = new Dictionary<MethodInfo, PacketHandlerAttribute>();
+		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetSendHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
+		
 		/// <summary>
 		/// 	The dependency injection service container used when loading plugins.
 		/// </summary>
@@ -658,9 +661,91 @@ namespace MiNET.Plugins
 			Log.Info($"Executed {enabled} startup plugins!");
 		}
 
-		public Packet PluginPacketHandler(Packet packet, bool incoming, Player player)
+		public Packet PluginPacketHandler(Packet message, bool isReceiveHandler, Player player)
 		{
-			return packet;
+			if (message == null) return null;
+
+			Packet currentPacket = message;
+			Packet returnPacket = currentPacket;
+
+			try
+			{
+				Dictionary<MethodInfo, PacketHandlerAttribute> packetHandlers;
+				if (isReceiveHandler)
+				{
+					packetHandlers = _packetHandlerDictionary;
+				}
+				else
+				{
+					packetHandlers = _packetSendHandlerDictionary;
+				}
+
+				if (packetHandlers == null) return message;
+
+				foreach (var handler in packetHandlers)
+				{
+					if (handler.Value == null) continue;
+					if (handler.Key == null) continue;
+
+					PacketHandlerAttribute atrib = handler.Value;
+					if (atrib.PacketType == null) continue;
+
+					if (!atrib.PacketType.IsInstanceOfType(currentPacket) && atrib.PacketType != currentPacket.GetType())
+					{
+						//Log.Warn($"No assignable {atrib.PacketType.Name} from {currentPackage.GetType().Name}");
+						continue;
+					}
+
+					//Log.Warn($"IS assignable {atrib.PacketType.Name} from {currentPackage.GetType().Name}");
+
+					MethodInfo method = handler.Key;
+					if (method == null) continue;
+					if (method.IsStatic)
+					{
+						//TODO: Move below and set pluginInstance = null instead
+						method.Invoke(null, new object[] {currentPacket, player});
+					}
+					else
+					{
+						object pluginInstance = GetLoadedPlugins().FirstOrDefault(plugin => plugin.Instance.GetType() == method.DeclaringType);
+						if (pluginInstance == null) continue;
+
+						if (method.ReturnType == typeof(void))
+						{
+							ParameterInfo[] parameters = method.GetParameters();
+							if (parameters.Length == 1)
+							{
+								method.Invoke(pluginInstance, new object[] {currentPacket});
+							}
+							else if (parameters.Length == 2 && typeof(Player).IsAssignableFrom(parameters[1].ParameterType))
+							{
+								method.Invoke(pluginInstance, new object[] {currentPacket, player});
+							}
+						}
+						else
+						{
+							ParameterInfo[] parameters = method.GetParameters();
+							if (parameters.Length == 1)
+							{
+								returnPacket = method.Invoke(pluginInstance, new object[] {currentPacket}) as Packet;
+							}
+							else if (parameters.Length == 2 && typeof(Player).IsAssignableFrom(parameters[1].ParameterType))
+							{
+								returnPacket = method.Invoke(pluginInstance, new object[] {currentPacket, player}) as Packet;
+							}
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				//For now we will just ignore this, not to big of a deal.
+				//Will have to think a bit more about this later on.
+				Log.Warn("Plugin Error: ", ex);
+				Log.Warn("Plugin Error: ", ex.InnerException);
+			}
+
+			return returnPacket;
 		}
 	}
 }

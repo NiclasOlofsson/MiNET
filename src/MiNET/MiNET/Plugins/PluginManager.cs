@@ -21,8 +21,6 @@ namespace MiNET.Plugins
         
         private Dictionary<Assembly, LoadedAssembly> LoadedAssemblies { get; }
 		
-		
-		private MiNetServer Parent { get; }
 		private Assembly HostAssembly { get; }
 		private AssemblyManager AssemblyManager { get; }
 		private AssemblyResolver AssemblyResolver { get; }
@@ -31,9 +29,8 @@ namespace MiNET.Plugins
 		/// 	The dependency injection service container used when loading plugins.
 		/// </summary>
 		public DependencyContainer Services { get; }
-        internal PluginManager(MiNetServer parent)
+        public PluginManager()
         {
-            Parent = parent;
 			HostAssembly = Assembly.GetAssembly(typeof(PluginManager));
 			
             LoadedAssemblies = new Dictionary<Assembly, LoadedAssembly>();
@@ -43,7 +40,6 @@ namespace MiNET.Plugins
 			AssemblyResolver = new AssemblyResolver(AssemblyManager);
 			
 			Services = new DependencyContainer();
-			Services.RegisterSingleton<MiNetServer>(parent);
         }
 
         /// <summary>
@@ -271,7 +267,16 @@ namespace MiNET.Plugins
 		    return true;
 	    }
 
-	    internal void EnablePlugins()
+		private PluginContext _pluginContext = null;
+		private PluginContext GetPluginContext(MiNetServer server)
+		{
+			if (_pluginContext == null)
+				_pluginContext = new PluginContext(server, this, server.LevelManager, server.CommandManager, server.EventDispatcher);
+
+			return _pluginContext;
+		}
+		
+	    internal void EnablePlugins(MiNetServer server)
 	    {
 		    int enabled = 0;
 		    foreach (var type in LoadedAssemblies.Values.SelectMany(x => x.PluginTypes))
@@ -284,7 +289,7 @@ namespace MiNET.Plugins
 					    if (plugin == null)
 						    continue;
 				    
-					    plugin.OnEnable(Parent);
+					    plugin.OnEnable(GetPluginContext(server));
 
 					    string authors = (plugin.Info.Authors == null || plugin.Info.Authors.Length == 0)
 						    ? plugin.Info.Author
@@ -292,7 +297,7 @@ namespace MiNET.Plugins
 				    
 					    Log.Info($"Enabled '{plugin.Info.Name}' version {plugin.Info.Version} by {authors}");
 
-					    Parent.EventDispatcher.DispatchEvent(new PluginEnabledEvent(type.Assembly, plugin));
+					    server.EventDispatcher.DispatchEvent(new PluginEnabledEvent(type.Assembly, plugin));
 					    
 					    enabled++;
 				    }
@@ -402,6 +407,17 @@ namespace MiNET.Plugins
 				    Log.Info($"Not creating plugin instance off type \"{type.FullName}\" as it was disabled by config.");
 				    continue;
 			    }
+
+				var pluginInfo = type.GetCustomAttribute<PluginAttribute>();
+
+				if (pluginInfo != null)
+				{
+					if (!Config.GetProperty($"plugin.{pluginInfo.PluginName}.enabled", true))
+					{
+						Log.Info($"Not creating plugin instance off type \"{type.FullName}\" as it was disabled by config.");
+						continue;
+					}
+				}
 			    
 			    if (FindEmptyConstructor(type, out var constructorInfo))
 			    {
@@ -448,7 +464,7 @@ namespace MiNET.Plugins
 	    /// 	Unloads all plugins registered by specified assembly
 	    /// </summary>
 	    /// <param name="pluginAssembly"></param>
-	    public void UnloadPluginAssembly(Assembly pluginAssembly)
+	    public void UnloadPluginAssembly(MiNetServer server, Assembly pluginAssembly)
         {
            // lock (_pluginLock)
             {
@@ -463,7 +479,7 @@ namespace MiNET.Plugins
 	            {
 		            if (LoadedAssemblies.ContainsKey(referencedAssembly))
 		            {
-			            UnloadPluginAssembly(referencedAssembly);
+			            UnloadPluginAssembly(server, referencedAssembly);
 		            }
 	            }
 	            
@@ -475,7 +491,7 @@ namespace MiNET.Plugins
 
 		            if (Services.TryResolve(type, out var instance) && instance is Plugin plugin)
 		            {
-			            UnloadPlugin(plugin);
+			            UnloadPlugin(server, plugin);
 		            }
 	            }
 
@@ -490,7 +506,7 @@ namespace MiNET.Plugins
             }
         }
 
-        private void UnloadPlugin(Plugin plugin)
+        private void UnloadPlugin(MiNetServer server, Plugin plugin)
         {
             //lock (_pluginLock)
             {
@@ -508,7 +524,7 @@ namespace MiNET.Plugins
 	            {
 		            Services.Remove(plugin.GetType());
 		            assemblyPlugins.PluginTypes.Remove(plugin.GetType());
-					Parent.CommandManager.UnloadCommands(plugin);
+					server.CommandManager.UnloadCommands(plugin);
 					
 		            if (!assemblyPlugins.PluginTypes.Any())
 		            {
@@ -525,13 +541,13 @@ namespace MiNET.Plugins
         /// <summary>
         /// 	Unloads all loaded plugins
         /// </summary>
-        public void UnloadAll()
+        public void UnloadAll(MiNetServer server)
         {
            // lock (_pluginLock)
             {
                 foreach (var pluginAssembly in LoadedAssemblies.ToArray())
                 {
-	                UnloadPluginAssembly(pluginAssembly.Key);
+	                UnloadPluginAssembly(server, pluginAssembly.Key);
                 }
             }
         }
@@ -617,12 +633,34 @@ namespace MiNET.Plugins
 
 		public void ExecuteStartup(MiNetServer miNetServer)
 		{
-			throw new NotImplementedException();
+			int enabled = 0;
+			foreach (var type in LoadedAssemblies.Values.SelectMany(x => x.PluginTypes).Where(x => typeof(IStartup).IsAssignableFrom(x)))
+			{
+				try
+				{
+					if (Services.TryResolve(type, out object pluginInstance))
+					{
+						var plugin = pluginInstance as IStartup;
+						if (plugin == null)
+							continue;
+				    
+						plugin.Configure(miNetServer);
+						enabled++;
+					}
+				}
+				catch (Exception ex)
+				{
+					Log.Error($"Error occured while executing IStartup plugin!", ex);
+					Services.Remove(type); //Could not enable plugin, so remove it from depency injection.
+				}
+			}
+
+			Log.Info($"Executed {enabled} startup plugins!");
 		}
 
 		public Packet PluginPacketHandler(Packet packet, bool incoming, Player player)
 		{
-			throw new NotImplementedException();
+			return packet;
 		}
 	}
 }

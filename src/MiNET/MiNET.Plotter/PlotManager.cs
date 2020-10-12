@@ -30,6 +30,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using log4net;
+using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Net.RakNet;
 using MiNET.Utils;
@@ -118,11 +119,12 @@ namespace MiNET.Plotter
 			return false;
 		}
 
-		public bool CanBuild(PlotCoordinates coords, Player player)
+		public bool CanBuild(PlotCoordinates coords, Entity entity)
 		{
-			if (player == null) return false;
+			if (entity == null) return false;
 
 			Plot plot = null;
+
 			if (_plots.ContainsKey(coords))
 			{
 				plot = _plots[coords];
@@ -130,10 +132,13 @@ namespace MiNET.Plotter
 
 			if (plot == null) return false;
 
-			if (Equals(plot.Owner, player.ClientUuid) || plot.AllowedPlayers.Contains(player.ClientUuid)) return true;
+			if (entity is Player player)
+			{
+				if (Equals(plot.Owner, player.ClientUuid) || plot.AllowedPlayers.Contains(player.ClientUuid)) return true;
+			}
 
 			return false;
-		}
+	}
 
 		public PlotPlayer GetOrAddPlotPlayer(Player player)
 		{

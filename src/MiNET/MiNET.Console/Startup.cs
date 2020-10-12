@@ -69,7 +69,7 @@ namespace MiNET.Console
 
 			if (Config.GetProperty("UserBedrockGenerator", false))
 			{
-				service.LevelManager = new LevelManager();
+				service.LevelManager = new LevelManager(service);
 				service.LevelManager.Generator = new BedrockGenerator();
 			}
 

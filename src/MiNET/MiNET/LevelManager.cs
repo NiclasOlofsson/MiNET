@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using log4net;
+using MiNET.Events.Level;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -170,11 +171,12 @@ namespace MiNET
 			level.Close();
 		}
 
-		public event EventHandler<LevelEventArgs> LevelCreated;
+		//public event EventHandler<LevelEventArgs> LevelCreated;
 
 		protected virtual void OnLevelCreated(LevelEventArgs e)
 		{
-			LevelCreated?.Invoke(this, e);
+			Server.EventDispatcher.DispatchEvent(new LevelCreatedEvent(this, e.Level));
+			//LevelCreated?.Invoke(this, e);
 		}
 
 		public virtual Level GetDimension(Level level, Dimension dimension)

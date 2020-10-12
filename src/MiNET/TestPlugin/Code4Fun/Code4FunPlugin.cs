@@ -49,8 +49,8 @@ namespace TestPlugin.Code4Fun
 
 		protected override void OnEnable()
 		{
-			Context.PluginManager.LoadCommands(new ScreenshotCommand());
-			Context.PluginManager.LoadCommands(new VideoCommand());
+			Context.CommandManager.LoadCommands(new ScreenshotCommand());
+			Context.CommandManager.LoadCommands(new VideoCommand());
 		}
 
 		[Command]

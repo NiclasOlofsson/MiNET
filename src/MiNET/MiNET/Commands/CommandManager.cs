@@ -515,7 +515,7 @@ namespace MiNET.Commands
 			return Attribute.IsDefined(param, typeof(ParamArrayAttribute));
 		}
 
-		private bool ExecuteCommand(MethodInfo method, MiNET.Player player, string[] args, out object result)
+		public bool ExecuteCommand(MethodInfo method, MiNET.Player player, string[] args, out object result)
 		{
 			Log.Info($"Execute command {method}");
 

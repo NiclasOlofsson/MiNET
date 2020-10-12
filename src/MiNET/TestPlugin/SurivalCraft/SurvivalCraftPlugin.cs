@@ -24,6 +24,10 @@
 #endregion
 
 using MiNET;
+using MiNET.Events;
+using MiNET.Events.Block;
+using MiNET.Events.Level;
+using MiNET.Events.Player;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
@@ -32,64 +36,33 @@ using MiNET.Worlds;
 namespace TestPlugin.SurivalCraft
 {
 	[Plugin(PluginName = "SurvivalCraft", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
-	public class SurvivalCraftPlugin : Plugin
+	public class SurvivalCraftPlugin : Plugin, IEventHandler
 	{
 		protected override void OnEnable()
 		{
 			var server = Context.Server;
-
-
-			server.LevelManager.LevelCreated += (sender, args) =>
-			{
-				Level level = args.Level;
-
-				//BossBar bossBar = new BossBar(level)
-				//{
-				//	Animate = false,
-				//	MaxProgress = 10,
-				//	Progress = 10,
-				//	NameTag = $"{ChatColors.Gold}You are playing on a {ChatColors.Gold}MiNET{ChatColors.Gold} server"
-				//};
-				//bossBar.SpawnEntity();
-
-				//level.AllowBuild = false;
-				//level.AllowBreak = false;
-
-				level.BlockBreak += LevelOnBlockBreak;
-				level.BlockPlace += LevelOnBlockPlace;
-			};
-
-			server.PlayerFactory.PlayerCreated += (sender, args) =>
-			{
-				Player player = args.Player;
-				player.PlayerJoin += OnPlayerJoin;
-				player.PlayerLeave += OnPlayerLeave;
-			};
+			Context.EventDispatcher.RegisterEvents(this);
 		}
 
-		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
+		[EventHandler]
+		private void LevelOnBlockBreak(BlockBreakEvent e)
+		{
+			if (e.Source is Player player)
+			{
+				if (e.Block.Coordinates.DistanceTo((BlockCoordinates) player.SpawnPosition) < 16 * 4)
+				{
+					e.SetCancelled(player.GameMode != GameMode.Creative);
+				}
+			}
+		}
+		
+		[EventHandler]
+		private void LevelOnBlockPlace(BlockPlaceEvent e)
 		{
 			if (e.Block.Coordinates.DistanceTo((BlockCoordinates) e.Player.SpawnPosition) < 16 * 4)
 			{
-				e.Cancel = e.Player.GameMode != GameMode.Creative;
+				e.SetCancelled(e.Player.GameMode != GameMode.Creative);
 			}
-		}
-
-		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
-		{
-			if (e.ExistingBlock.Coordinates.DistanceTo((BlockCoordinates) e.Player.SpawnPosition) < 16 * 4)
-			{
-				e.Cancel = e.Player.GameMode != GameMode.Creative;
-			}
-		}
-
-
-		private void OnPlayerLeave(object sender, PlayerEventArgs e)
-		{
-		}
-
-		private void OnPlayerJoin(object sender, PlayerEventArgs e)
-		{
 		}
 	}
 }

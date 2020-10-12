@@ -68,7 +68,7 @@ namespace TestPlugin
 		protected override void OnEnable()
 		{
 			//Context.PluginManager.LoadCommands(new HelpCommand(Context.Server.PluginManager));
-			Context.PluginManager.LoadCommands(new VanillaCommands());
+			Context.CommandManager.LoadCommands(new VanillaCommands());
 		}
 
 		//[PacketHandler, Receive, UsedImplicitly]
@@ -681,9 +681,9 @@ namespace TestPlugin
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.Append("Plugins: ");
-			foreach (var plugin in Context.PluginManager.Plugins)
+			foreach (var plugin in Context.PluginManager.GetLoadedPlugins())
 			{
-				sb.AppendLine(plugin.GetType().Name);
+				sb.AppendLine(plugin.Instance.GetType().Name);
 			}
 
 			player.SendMessage(sb.ToString(), type: MessageType.Raw);
@@ -817,7 +817,7 @@ namespace TestPlugin
 
 							if (nextLevel == null)
 							{
-								nextLevel = new Level(levelManager, world, new AnvilWorldProvider() {MissingChunkProvider = new SuperflatGenerator(Dimension.Overworld)}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+								nextLevel = new Level(Context.Server, levelManager, world, new AnvilWorldProvider() {MissingChunkProvider = new SuperflatGenerator(Dimension.Overworld)}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
 								nextLevel.Initialize();
 								Context.LevelManager.Levels.Add(nextLevel);
 							}

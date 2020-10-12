@@ -44,7 +44,7 @@ namespace MiNET.Plotter
 					MissingChunkProvider = new PlotWorldGenerator(),
 				};
 
-				level = new Level(this, name, worldProvider, EntityManager, GameMode.Creative, Difficulty.Normal, viewDistance)
+				level = new Level(Server, this, name, worldProvider, EntityManager, GameMode.Creative, Difficulty.Normal, viewDistance)
 				{
 					EnableBlockTicking = Config.GetProperty("EnableBlockTicking", false),
 					EnableChunkTicking = Config.GetProperty("EnableChunkTicking", false),
@@ -79,5 +79,8 @@ namespace MiNET.Plotter
 
 			return level;
 		}
+
+		/// <inheritdoc />
+		public PlotterLevelManager(MiNetServer server) : base(server) { }
 	}
 }

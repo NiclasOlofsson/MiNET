@@ -61,7 +61,7 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Player));
 
-		public EventDispatcher EventDispatcher => Level.EventDispatcher ?? Server.EventDispatcher;
+		public EventDispatcher EventDispatcher => Level?.EventDispatcher ?? Server.EventDispatcher;
 		
 		private MiNetServer Server { get; set; }
 		public IPEndPoint EndPoint { get; private set; }
@@ -134,6 +134,8 @@ namespace MiNET
 			HasCollision = true;
 			IsAffectedByGravity = true;
 			NoAi = false;
+
+			Commands = server.CommandManager.GenerateCommandSet(this);
 		}
 		
 		private bool _isSpawned = false;
@@ -3849,21 +3851,19 @@ namespace MiNET
 			if (_hasJoinedServer) return; //Make sure this is only called once when we join the server for the first time.
 			_hasJoinedServer = true;
 
-			EventDispatcher.DispatchEventAsync(new PlayerJoinEvent(this));
+			EventDispatcher.DispatchEvent(new PlayerJoinEvent(this));
 			
 				//PlayerJoin?.Invoke(this, e);
 		}
 
-		public event EventHandler<PlayerEventArgs> LocalPlayerIsInitialized;
-
 		protected virtual void OnLocalPlayerIsInitialized(PlayerEventArgs e)
 		{
-			LocalPlayerIsInitialized?.Invoke(this, e);
+			EventDispatcher.DispatchEvent(new LocalPlayerInitializedEvent(this));
 		}
 		
 		protected virtual void OnPlayerLeave(PlayerEventArgs e)
 		{
-			EventDispatcher.DispatchEventAsync(new PlayerQuitEvent(this));
+			EventDispatcher.DispatchEvent(new PlayerQuitEvent(this));
 		}
 
 		public event EventHandler<PlayerEventArgs> Ticking;

@@ -35,6 +35,8 @@ using MiNET;
 using MiNET.Blocks;
 using MiNET.Effects;
 using MiNET.Entities;
+using MiNET.Events;
+using MiNET.Events.Player;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
@@ -48,7 +50,7 @@ using MiNET.Worlds;
 namespace TestPlugin.NiceLobby
 {
 	[Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
-	public class NiceLobbyPlugin : Plugin
+	public class NiceLobbyPlugin : Plugin, IEventHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(NiceLobbyPlugin));
 
@@ -61,38 +63,49 @@ namespace TestPlugin.NiceLobby
 		{
 			var server = Context.Server;
 
-			server.LevelManager.LevelCreated += (sender, args) =>
-			{
-				Level level = args.Level;
-
-				//BossBar bossBar = new BossBar(level)
-				//{
-				//	Animate = false,
-				//	MaxProgress = 10,
-				//	Progress = 10,
-				//	NameTag = $"{ChatColors.Gold}You are playing on a {ChatColors.Gold}MiNET{ChatColors.Gold} server"
-				//};
-				//bossBar.SpawnEntity();
-
-				//level.AllowBuild = false;
-				//level.AllowBreak = false;
-
-				//level.BlockBreak += LevelOnBlockBreak;
-				//level.BlockPlace += LevelOnBlockPlace;
-			};
-
-			server.PlayerFactory.PlayerCreated += (sender, args) =>
+			Context.EventDispatcher.RegisterEvents(this);
+			/*server.PlayerFactory.PlayerCreated += (sender, args) =>
 			{
 				Player player = args.Player;
 				player.PlayerJoin += OnPlayerJoin;
 				player.LocalPlayerIsInitialized += OnLocalPlayerIsInitialized;
 				player.PlayerLeave += OnPlayerLeave;
-				player.Ticking += OnTicking;
-			};
+			};*/
 
 			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
 			//_tickTimer = new Timer(SkinTick, null, 0, 50);
+		}
+
+		[EventHandler]
+		public void OnPlayerInitialized(LocalPlayerInitializedEvent e)
+		{
+			Player player = e.Player;
+			Level  level  = e.Player.Level;
+
+			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username} joined the server");
+
+			var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
+			joinSound.Spawn(level);
+
+			//player.SendTitle(null, TitleType.Clear);
+			player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20 * 7); // 7 seconds
+			if (Context.Server.IsEdu)
+			{
+				player.SendTitle($"{ChatColors.White}This is a MiNET Education Edition server", TitleType.SubTitle);
+				player.SendTitle($"{ChatColors.Gold}Welcome!", TitleType.Title);
+			}
+			else
+			{
+				player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
+				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
+			}
+		}
+		
+		[EventHandler]
+		public void OnPlayerCreated(PlayerCreatedEvent e)
+		{
+			e.Player.Ticking += OnTicking;
 		}
 
 		[Command]
@@ -385,14 +398,10 @@ namespace TestPlugin.NiceLobby
 
 		private ConcurrentDictionary<string, Player> _players = new ConcurrentDictionary<string, Player>();
 
-		private void OnPlayerJoin(object o, PlayerEventArgs eventArgs)
+		[EventHandler]
+		public void OnPlayerJoin(PlayerJoinEvent e)
 		{
-			Level level = eventArgs.Level;
-			if (level == null) throw new ArgumentNullException(nameof(eventArgs.Level));
-
-			Player player = eventArgs.Player;
-			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
-
+			var player = e.Player;
 			if (player.CertificateData.ExtraData.Xuid != null && player.Username.Equals("gurunx"))
 			{
 				player.ActionPermissions = ActionPermissions.Operator;
@@ -547,39 +556,13 @@ namespace TestPlugin.NiceLobby
 			_players.TryAdd(player.Username, player);
 		}
 
-		private void OnLocalPlayerIsInitialized(object o, PlayerEventArgs eventArgs)
+		[EventHandler]
+		private void OnPlayerLeave(PlayerQuitEvent e)
 		{
-			Thread.Sleep(1000);
-			Player player = eventArgs.Player;
-			Level level = eventArgs.Level;
-
-			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username} joined the server");
-
-			var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
-			joinSound.Spawn(level);
-
-			//player.SendTitle(null, TitleType.Clear);
-			player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20 * 7); // 7 seconds
-			if (Context.Server.IsEdu)
-			{
-				player.SendTitle($"{ChatColors.White}This is a MiNET Education Edition server", TitleType.SubTitle);
-				player.SendTitle($"{ChatColors.Gold}Welcome!", TitleType.Title);
-			}
-			else
-			{
-				player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
-				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
-			}
-		}
-
-		private void OnPlayerLeave(object o, PlayerEventArgs eventArgs)
-		{
-			Level level = eventArgs.Level;
-			if (level == null) throw new ArgumentNullException(nameof(eventArgs.Level));
-
-			Player player = eventArgs.Player;
-			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
-
+			Level level = e.Player.Level;
+			
+			Player player = e.Player;
+			
 			Player trash;
 			_players.TryRemove(player.Username, out trash);
 

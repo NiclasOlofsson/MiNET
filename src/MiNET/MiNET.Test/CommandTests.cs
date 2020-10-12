@@ -27,6 +27,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MiNET.Commands;
 using MiNET.Effects;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
@@ -52,7 +53,7 @@ namespace MiNET.Test
 			MethodInfo method = plugin.GetMethodInfo(nameof(TestPlugin.CmdInt));
 
 			// act
-			bool successful = plugin.Manager.ExecuteCommand(method, new Player(null, null), new[] {"1", "2", "3"}, out object result);
+			bool successful = plugin.CommandManager.ExecuteCommand(method, new Player(null, null), new[] {"1", "2", "3"}, out object result);
 
 			// assert
 			Assert.IsTrue(successful);
@@ -67,7 +68,7 @@ namespace MiNET.Test
 			MethodInfo method = plugin.GetMethodInfo(nameof(TestPlugin.CmdFloat));
 
 			// act
-			bool successful = plugin.Manager.ExecuteCommand(method, new Player(null, null), new[] {"1.2", "3.4"}, out object result);
+			bool successful = plugin.CommandManager.ExecuteCommand(method, new Player(null, null), new[] {"1.2", "3.4"}, out object result);
 
 			// assert
 			Assert.IsTrue(successful);
@@ -82,7 +83,7 @@ namespace MiNET.Test
 			MethodInfo method = plugin.GetMethodInfo(nameof(TestPlugin.CmdBool));
 
 			// act
-			bool successful = plugin.Manager.ExecuteCommand(method, new Player(null, null), new[] {"true", "false"}, out object result);
+			bool successful = plugin.CommandManager.ExecuteCommand(method, new Player(null, null), new[] {"true", "false"}, out object result);
 
 			// assert
 			Assert.IsTrue(successful);
@@ -97,7 +98,7 @@ namespace MiNET.Test
 			MethodInfo method = plugin.GetMethodInfo(nameof(TestPlugin.CmdString));
 
 			// act
-			bool successful = plugin.Manager.ExecuteCommand(method, new Player(null, null), new[] {"text"}, out object result);
+			bool successful = plugin.CommandManager.ExecuteCommand(method, new Player(null, null), new[] {"text"}, out object result);
 
 			// assert
 			Assert.IsTrue(successful);
@@ -112,7 +113,7 @@ namespace MiNET.Test
 			MethodInfo method = plugin.GetMethodInfo(nameof(TestPlugin.CmdBlockPos));
 
 			// act
-			bool successful = plugin.Manager.ExecuteCommand(method, new Player(null, null), new[] {"1", "2", "~3"}, out object result);
+			bool successful = plugin.CommandManager.ExecuteCommand(method, new Player(null, null), new[] {"1", "2", "~3"}, out object result);
 
 			// assert
 			Assert.IsTrue(successful);
@@ -127,7 +128,7 @@ namespace MiNET.Test
 			MethodInfo method = plugin.GetMethodInfo(nameof(TestPlugin.CmdEntityPos));
 
 			// act
-			bool successful = plugin.Manager.ExecuteCommand(method, new Player(null, null), new[] {"1.2", "3.4", "~5.6"}, out object result);
+			bool successful = plugin.CommandManager.ExecuteCommand(method, new Player(null, null), new[] {"1.2", "3.4", "~5.6"}, out object result);
 
 			// assert
 			Assert.IsTrue(successful);
@@ -142,7 +143,7 @@ namespace MiNET.Test
 			MethodInfo method = plugin.GetMethodInfo(nameof(TestPlugin.CmdRelValue));
 
 			// act
-			bool successful = plugin.Manager.ExecuteCommand(method, new Player(null, null), new[] {"1.2", "~3.4"}, out object result);
+			bool successful = plugin.CommandManager.ExecuteCommand(method, new Player(null, null), new[] {"1.2", "~3.4"}, out object result);
 
 			// assert
 			Assert.IsTrue(successful);
@@ -154,7 +155,8 @@ namespace MiNET.Test
 			var manager = new PluginManager();
 			var plugin = new TestPlugin();
 			plugin.Manager = manager;
-			manager.Plugins.Add(plugin);
+			plugin.CommandManager = new CommandManager(manager);
+			//manager.Plugins.Add(plugin);
 
 			return plugin;
 		}
@@ -163,8 +165,8 @@ namespace MiNET.Test
 
 	public class TestPlugin
 	{
-		public PluginManager Manager { get; set; }
-
+		public PluginManager  Manager        { get; set; }
+		public CommandManager CommandManager { get; set; }
 		public MethodInfo GetMethodInfo(string name)
 		{
 			return GetType().GetMethod(name);

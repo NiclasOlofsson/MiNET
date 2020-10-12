@@ -26,6 +26,10 @@
 using System.Linq;
 using log4net;
 using MiNET.Entities;
+using MiNET.Events;
+using MiNET.Events.Block;
+using MiNET.Events.Level;
+using MiNET.Events.Player;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
@@ -36,15 +40,15 @@ using MiNET.Worlds;
 namespace MiNET.Plotter
 {
 	[Plugin(PluginName = "Plotter", Description = "Basic plot server plugin for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
-	public class PlotterPlugin : Plugin, IStartup
+	public class PlotterPlugin : Plugin, IStartup, IEventHandler
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (PlotterPlugin));
-		private PlotManager _plotManager;
+		private static readonly ILog              Log = LogManager.GetLogger(typeof (PlotterPlugin));
+		private                 PlotManager       _plotManager;
 
 		public void Configure(MiNetServer server)
 		{
-			server.LevelManager = new PlotterLevelManager();
-			server.LevelManager.LevelCreated += (sender, args) =>
+			server.LevelManager = new PlotterLevelManager(server);
+			/*server.LevelManager.LevelCreated += (sender, args) =>
 			{
 				Level level = args.Level;
 
@@ -52,20 +56,60 @@ namespace MiNET.Plotter
 				level.BlockPlace += LevelOnBlockPlace;
 				level.PlayerAdded += LevelOnPlayerAdded;
 				level.PlayerRemoved += LevelOnPlayerRemoved;
-			};
+			};*/
 		}
 
-
-		private void LevelOnPlayerAdded(object sender, LevelEventArgs e)
+		[EventHandler(EventPriority.Monitor)]
+		public void OnEntityLevelJoin(LevelEntityAddedEvent e)
 		{
-			SetSpawnPosition(e.Player, e.Level);
+			if (e.Entity is Player player)
+				SetSpawnPosition(player, e.Level);
 		}
 
-		private void LevelOnPlayerRemoved(object sender, LevelEventArgs e)
+		[EventHandler(EventPriority.Monitor)]
+		public void OnEntityLevelLeave(LevelEntityRemovedEvent e)
 		{
-			var plotPlayer = _plotManager.GetOrAddPlotPlayer(e.Player);
-			plotPlayer.LastPosition = e.Player.KnownPosition;
-			_plotManager.UpdatePlotPlayer(plotPlayer);
+			if (e.Entity is Player player)
+			{
+				var plotPlayer = _plotManager.GetOrAddPlotPlayer(player);
+				plotPlayer.LastPosition = player.KnownPosition;
+				_plotManager.UpdatePlotPlayer(plotPlayer);
+			}
+		}
+
+		[EventHandler]
+		public void OnBlockBreak(BlockBreakEvent e)
+		{
+			PlotCoordinates coords = (PlotCoordinates) e.Block.Coordinates;
+			if (coords == null)
+			{
+				e.SetCancelled(true);
+			}
+			else
+			{
+				if (e.Source != null) e.SetCancelled(!_plotManager.CanBuild(coords, e.Source));
+			}
+		}
+
+		
+		[EventHandler]
+		public void OnBlockPlace(BlockPlaceEvent e)
+		{
+			PlotCoordinates coords = (PlotCoordinates) e.Block.Coordinates;
+			if (coords == null)
+			{
+				e.SetCancelled(true); 
+			}
+			else
+			{
+				if (e.Player != null) e.SetCancelled(!_plotManager.CanBuild(coords, e.Player));
+			}
+		}
+
+		[EventHandler]
+		public void OnPlayerJoin(PlayerJoinEvent e)
+		{
+			e.Player.Ticking += OnTicking;
 		}
 
 		protected override void OnEnable()
@@ -73,16 +117,24 @@ namespace MiNET.Plotter
 			var server = Context.Server;
 
 			_plotManager = new PlotManager();
-			Context.PluginManager.LoadCommands(new VanillaCommands());
-			Context.PluginManager.LoadCommands(new PlotCommands(_plotManager));
-
-			server.PlayerFactory.PlayerCreated += (sender, e) =>
+			Context.CommandManager.LoadCommands(new VanillaCommands());
+			Context.CommandManager.LoadCommands(new PlotCommands(_plotManager));
+			Context.EventDispatcher.RegisterEvents(this);
+			
+			/*server.PlayerFactory.PlayerCreated += (sender, e) =>
 			{
 				Player player = e.Player;
 				player.PlayerJoining += OnPlayerJoin;
 				player.PlayerLeave += OnPlayerLeave;
 				player.Ticking += OnTicking;
-			};
+			};*/
+		}
+
+		/// <inheritdoc />
+		public override void OnDisable()
+		{
+			base.OnDisable();
+			Context.EventDispatcher.UnregisterEvents(this);
 		}
 
 		private void OnTicking(object sender, PlayerEventArgs e)
@@ -140,11 +192,6 @@ namespace MiNET.Plotter
 			}
 		}
 
-		private void OnPlayerJoin(object sender, PlayerEventArgs e)
-		{
-			SetSpawnPosition(e.Player, e.Level);
-		}
-
 		private void SetSpawnPosition(Player player, Level level)
 		{
 			var plotPlayer = _plotManager.GetOrAddPlotPlayer(player);
@@ -164,37 +211,6 @@ namespace MiNET.Plotter
 
 				player.SpawnPosition = pos;
 				player.KnownPosition = pos;
-			}
-		}
-
-		private void OnPlayerLeave(object sender, PlayerEventArgs e)
-		{
-		}
-
-
-		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
-		{
-			PlotCoordinates coords = (PlotCoordinates) e.Block.Coordinates;
-			if (coords == null)
-			{
-				e.Cancel = true;
-			}
-			else
-			{
-				if (e.Player != null) e.Cancel = !_plotManager.CanBuild(coords, e.Player);
-			}
-		}
-
-		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
-		{
-			PlotCoordinates coords = (PlotCoordinates) e.TargetBlock.Coordinates;
-			if (coords == null)
-			{
-				e.Cancel = true;
-			}
-			else
-			{
-				if (e.Player != null) e.Cancel = !_plotManager.CanBuild(coords, e.Player);
 			}
 		}
 	}

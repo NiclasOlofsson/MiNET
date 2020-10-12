@@ -6,6 +6,8 @@ using MiNET.BuilderBase.Commands;
 using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
 using MiNET.BuilderBase.Tools;
+using MiNET.Events;
+using MiNET.Events.Player;
 using MiNET.Items;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
@@ -16,45 +18,36 @@ using MiNET.Worlds;
 namespace MiNET.BuilderBase
 {
 	[Plugin(PluginName = "BuilderBase", Description = "Basic builder commands for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
-	public class BuilderBasePlugin : Plugin
+	public class BuilderBasePlugin : Plugin, IEventHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (BuilderBasePlugin));
 
 		protected override void OnEnable()
 		{
-			Context.PluginManager.LoadCommands(new MiscCommands());
-			Context.PluginManager.LoadCommands(new SelectionCommands());
-			Context.PluginManager.LoadCommands(new RegionCommands());
-			Context.PluginManager.LoadCommands(new HistoryCommands());
-			Context.PluginManager.LoadCommands(new ClipboardCommands());
-			Context.PluginManager.LoadCommands(new BrushCommands());
-			Context.PluginManager.LoadCommands(new SchematicsCommands());
+			Context.CommandManager.LoadCommands(new MiscCommands());
+			Context.CommandManager.LoadCommands(new SelectionCommands());
+			Context.CommandManager.LoadCommands(new RegionCommands());
+			Context.CommandManager.LoadCommands(new HistoryCommands());
+			Context.CommandManager.LoadCommands(new ClipboardCommands());
+			Context.CommandManager.LoadCommands(new BrushCommands());
+			Context.CommandManager.LoadCommands(new SchematicsCommands());
 
 			ItemFactory.CustomItemFactory = new BuilderBaseItemFactory();
 
-			var server = Context.Server;
-
-			server.LevelManager.LevelCreated += (sender, args) =>
-			{
-				Level level = args.Level;
-
-				//level.BlockBreak += LevelOnBlockBreak;
-				//level.BlockPlace += LevelOnBlockPlace;
-			};
-
-			server.PlayerFactory.PlayerCreated += (sender, args) =>
-			{
-				Player player = args.Player;
-				player.PlayerJoin += OnPlayerJoin;
-				player.PlayerLeave += OnPlayerLeave;
-			};
-
-
+			Context.EventDispatcher.RegisterEvents(this);
+			
 			var tickTimer = new HighPrecisionTimer(50, LevelTick);
 		}
 
 		public override void OnDisable()
 		{
+		}
+
+		[EventHandler]
+		public void OnPlayerJoin(PlayerJoinEvent e)
+		{
+			RegionSelector.RegionSelectors.TryAdd(e.Player, new RegionSelector(e.Player));
+			SetInventory(e.Player);
 		}
 
 		private void LevelTick(object o)
@@ -70,12 +63,6 @@ namespace MiNET.BuilderBase
 			}
 		}
 
-		private void OnPlayerJoin(object sender, PlayerEventArgs e)
-		{
-			RegionSelector.RegionSelectors.TryAdd(e.Player, new RegionSelector(e.Player));
-			SetInventory(e.Player);
-		}
-
 		public void SetInventory(Player player)
 		{
 			int idx = 0;
@@ -88,7 +75,8 @@ namespace MiNET.BuilderBase
 			player.SendPlayerInventory();
 		}
 
-		private void OnPlayerLeave(object sender, PlayerEventArgs e)
+		[EventHandler]
+		private void OnPlayerLeave(PlayerQuitEvent e)
 		{
 			RegionSelector value;
 			RegionSelector.RegionSelectors.TryRemove(e.Player, out value);

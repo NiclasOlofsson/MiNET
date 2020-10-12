@@ -31,7 +31,7 @@ namespace MiNET.Plugins
 {
 	public abstract class Plugin
 	{
-		protected MiNetServer Context { get; set; }
+		protected PluginContext Context { get; set; }
 
 		[ThreadStatic] public static Player CurrentPlayer = null;
 
@@ -41,7 +41,7 @@ namespace MiNET.Plugins
 			Info = LoadPluginInfo();
 		}
 		
-		public void OnEnable(MiNetServer context)
+		public void OnEnable(PluginContext context)
 		{
 			Context = context;
 			OnEnable();

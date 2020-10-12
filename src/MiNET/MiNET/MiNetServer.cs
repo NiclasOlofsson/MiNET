@@ -131,8 +131,7 @@ namespace MiNET
 
 				ServerManager ??= new DefaultServerManager(this);
 				EventDispatcher ??= new EventDispatcher(this);
-				CommandManager ??= new CommandManager(PluginManager);
-				
+
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Node)
 				{
 					// This stuff needs to be in an extension to connection
@@ -144,7 +143,9 @@ namespace MiNET
 						Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 					pluginDirectoryPaths = Config.GetProperty("PluginDirectory", pluginDirectoryPaths);
 					
-					PluginManager = new PluginManager(this);
+					PluginManager = new PluginManager();
+					CommandManager ??= new CommandManager(PluginManager);
+					PluginManager.Services.RegisterSingleton(this);
 					PluginManager.DiscoverPlugins(pluginDirectoryPaths.Split(new char[] {';'},
 						StringSplitOptions.RemoveEmptyEntries));
 					
@@ -160,7 +161,7 @@ namespace MiNET
 
 					//PluginManager.EnablePlugins(this, LevelManager);
 
-					PluginManager.EnablePlugins();
+					PluginManager.EnablePlugins(this);
 					CommandManager.Init();
 					
 					// Cache - remove
@@ -213,7 +214,7 @@ namespace MiNET
 			}
 
 			Log.Info("Disabling plugins...");
-			PluginManager?.UnloadAll();
+			PluginManager?.UnloadAll(this);
 			_listener?.Stop();
 		}
 	}

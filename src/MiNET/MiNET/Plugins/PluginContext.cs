@@ -23,19 +23,26 @@
 
 #endregion
 
+using MiNET.Commands;
+using MiNET.Events;
+
 namespace MiNET.Plugins
 {
 	public class PluginContext
 	{
-		public MiNetServer Server { get; private set; }
-		public PluginManager PluginManager { get; private set; }
-		public LevelManager LevelManager { get; private set; }
+		public MiNetServer     Server          { get; private set; }
+		public PluginManager   PluginManager   { get; private set; }
+		public LevelManager    LevelManager    { get; private set; }
+		public CommandManager  CommandManager  { get; private set; }
+		public EventDispatcher EventDispatcher { get; private set; }
 
-		public PluginContext(MiNetServer server, PluginManager pluginManager, LevelManager levelManager)
+		public PluginContext(MiNetServer server, PluginManager pluginManager, LevelManager levelManager, CommandManager commandManager, EventDispatcher eventDispatcher)
 		{
 			Server = server;
 			PluginManager = pluginManager;
 			LevelManager = levelManager;
+			CommandManager = commandManager;
+			EventDispatcher = eventDispatcher;
 		}
 	}
 }

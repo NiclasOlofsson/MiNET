@@ -1,101 +1,91 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
-
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageId>MiNET</PackageId>
-		<Version>0.0.0</Version>
-		<Authors>gurun</Authors>
-		<Company>Niclas Olofsson</Company>
-		<Description>MiNET - a Minecraft PocketEdition Server</Description>
-		<Copyright>Copyright Niclas Olofsson 2015-2018</Copyright>
-		<PackageLicenseUrl>https://raw.githubusercontent.com/NiclasOlofsson/MiNET/master/LICENSE</PackageLicenseUrl>
-		<PackageProjectUrl>https://github.com/NiclasOlofsson/MiNET</PackageProjectUrl>
-		<PackageIconUrl><![CDATA[https://secure.gravatar.com/avatar/2ba5d72bdad85108d14512c4d27ea550?s=128&r=g&d=retro]]></PackageIconUrl>
-		<PackageTags>MiNET Plugin API MCPE Minecraft PocketEdition bedrock</PackageTags>
-		<FileVersion>10.0.0.0</FileVersion>
-		<AssemblyVersion>10.0.0.0</AssemblyVersion>
-
-	</PropertyGroup>
-
-	<PropertyGroup>
-	  <LangVersion>latest</LangVersion>
-	  <NoWarn>1701;1702;1701</NoWarn>
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <DebugType>full</DebugType>
-	  <DebugSymbols>true</DebugSymbols>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<None Remove="Blocks\blockstates.json" />
-		<None Remove="Blocks\legacy_id_map.json" />
-		<None Remove="Items\itemstates.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<EmbeddedResource Include="Blocks\blockstates.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Blocks\legacy_id_map.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Items\itemstates.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</EmbeddedResource>
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="jose-jwt" Version="2.5.0" />
-		<PackageReference Include="LibNoise.NetStandart" Version="0.2.0" />
-		<PackageReference Include="log4net" Version="2.0.8" />
-		<PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.3.5" />
-		<PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="16.7.1" />
-		<PackageReference Include="MiNET.astar" Version="1.0.14" />
-		<PackageReference Include="MiNET.fnbt" Version="1.0.22" />
-		<PackageReference Include="MiNET.LevelDB" Version="1.0.36" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-		<PackageReference Include="Portable.BouncyCastle" Version="1.8.6.7" />
-		<PackageReference Include="SharpAvi" Version="2.1.2" />
-		<PackageReference Include="System.Drawing.Common" Version="4.7.0" />
-		<PackageReference Include="System.Net.Sockets" Version="4.3.0" />
-		<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Remove="Net\MCPE Protocol.xml" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="Net\MCPE Protocol.xml" />
-
-		<None Update="Net\MCPE Protocol Documentation.tt">
-			<DependentUpon>MCPE Protocol.xml</DependentUpon>
-			<Generator>TextTemplatingFileGenerator</Generator>
-			<LastGenOutput>MCPE Protocol Documentation.md</LastGenOutput>
-		</None>
-		<None Update="Net\MCPE Protocol Documentation.md">
-			<DependentUpon>MCPE Protocol Documentation.tt</DependentUpon>
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-		</None>
-		<None Update="Net\MCPE Protocol.tt">
-			<DependentUpon>MCPE Protocol.xml</DependentUpon>
-			<Generator>TextTemplatingFileGenerator</Generator>
-			<LastGenOutput>MCPE Protocol.cs</LastGenOutput>
-		</None>
-		<Compile Update="Net\MCPE Protocol.cs">
-			<DependentUpon>MCPE Protocol.tt</DependentUpon>
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-		</Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-	</ItemGroup>
-
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>MiNET</PackageId>
+    <Version>0.0.0</Version>
+    <Authors>gurun</Authors>
+    <Company>Niclas Olofsson</Company>
+    <Description>MiNET - a Minecraft PocketEdition Server</Description>
+    <Copyright>Copyright Niclas Olofsson 2015-2018</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/NiclasOlofsson/MiNET/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/NiclasOlofsson/MiNET</PackageProjectUrl>
+    <PackageIconUrl><![CDATA[https://secure.gravatar.com/avatar/2ba5d72bdad85108d14512c4d27ea550?s=128&r=g&d=retro]]></PackageIconUrl>
+    <PackageTags>MiNET Plugin API MCPE Minecraft PocketEdition bedrock</PackageTags>
+    <FileVersion>10.0.0.0</FileVersion>
+    <AssemblyVersion>10.0.0.0</AssemblyVersion>
+    <FileUpgradeFlags>40</FileUpgradeFlags>
+    <UpgradeBackupLocation>D:\Projekte\MiNET\src\MiNET\Backup\MiNET\</UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <NoWarn>1701;1702;1701</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Blocks\blockstates.json" />
+    <None Remove="Blocks\legacy_id_map.json" />
+    <None Remove="Items\itemstates.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Blocks\blockstates.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Blocks\legacy_id_map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Items\itemstates.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="jose-jwt" Version="2.5.0" />
+    <PackageReference Include="LibNoise.NetStandart" Version="0.2.0" />
+    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.3.5" />
+    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="16.7.1" />
+    <PackageReference Include="MiNET.astar" Version="1.0.14" />
+    <PackageReference Include="MiNET.fnbt" Version="1.0.22" />
+    <PackageReference Include="MiNET.LevelDB" Version="1.0.36" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.6.7" />
+    <PackageReference Include="SharpAvi" Version="2.1.2" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+    <PackageReference Include="System.Net.Sockets" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Net\MCPE Protocol.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Net\MCPE Protocol.xml" />
+    <None Update="Net\MCPE Protocol Documentation.tt">
+      <DependentUpon>MCPE Protocol.xml</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MCPE Protocol Documentation.md</LastGenOutput>
+    </None>
+    <None Update="Net\MCPE Protocol Documentation.md">
+      <DependentUpon>MCPE Protocol Documentation.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </None>
+    <None Update="Net\MCPE Protocol.tt">
+      <DependentUpon>MCPE Protocol.xml</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MCPE Protocol.cs</LastGenOutput>
+    </None>
+    <Compile Update="Net\MCPE Protocol.cs">
+      <DependentUpon>MCPE Protocol.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
 </Project>

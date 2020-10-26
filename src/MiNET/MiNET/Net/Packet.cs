@@ -1571,7 +1571,7 @@ namespace MiNET.Net
 			{
 				var record = new BlockStateContainer();
 				record.RuntimeId = runtimeId++;
-				record.Id = tag["id"].ShortValue;
+				record.Id = record.RuntimeId;
 
 				var blockTag = (NbtCompound) tag["block"];
 				record.Name = blockTag["name"].StringValue;

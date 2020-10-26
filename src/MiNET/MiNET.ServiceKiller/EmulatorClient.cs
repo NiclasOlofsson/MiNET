@@ -74,6 +74,7 @@ namespace MiNET.ServiceKiller
 				var client = new MiNetClient(EndPoint, Name, _threadPool);
 				client.ChunkRadius = ChunkRadius;
 				client.IsEmulator = true;
+				client.UseBlobCache = true;
 				client.ClientId = ClientId;
 
 				client.StartClient();

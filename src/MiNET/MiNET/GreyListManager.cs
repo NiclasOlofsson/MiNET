@@ -51,7 +51,7 @@ namespace MiNET
 
 		public virtual bool IsWhitelisted(IPAddress senderAddress)
 		{
-			return false;
+			return true;
 		}
 
 		public virtual bool IsBlacklisted(IPAddress senderAddress)

@@ -80,47 +80,44 @@ namespace MiNET.Net.RakNet
 
 			acks.Sort();
 
-
-			for (int i = 1; i < acks.Count; i++)
+			int i = 0;
+			int count = acks.Count;
+			int min = start;
+			foreach (int ack in acks.ToArray())
 			{
-				bool isLast = i + 1 == acks.Count;
-				int current = acks[i];
+				i++;
 
-				if (current - prev == 1 && !isLast)
+				bool IsLast = i == count;
+
+				if (start == ack)
 				{
-					prev = current;
+					prev = ack;//109
 					continue;
 				}
 
-				if (current - prev > 1 && !isLast)
+				if (prev + 1 == ack)
 				{
-					ranges.Add(new Tuple<int, int>(start, prev));
-
-					start = current;
-					prev = current;
-					continue;
-				}
-
-				if (current - prev == 1 && isLast)
-				{
-					ranges.Add(new Tuple<int, int>(start, current));
-				}
-
-				if (current - prev > 1 && isLast)
-				{
-					if (prev == start)
+					if (IsLast)
 					{
-						ranges.Add(new Tuple<int, int>(start, current));
-					}
-
-					if (prev != start)
-					{
-						ranges.Add(new Tuple<int, int>(start, prev));
-						ranges.Add(new Tuple<int, int>(current, current));
+						ranges.Add(new Tuple<int, int>(min, ack));
 					}
 				}
+
+				if (prev + 1 != ack)
+				{
+					if (!IsLast)
+					{
+						ranges.Add(new Tuple<int, int>(min, prev));
+						min = ack;
+					}
+					else
+					{
+						ranges.Add(new Tuple<int, int>(min, prev));
+						ranges.Add(new Tuple<int, int>(ack, ack));
+					}
+				}
+				prev = ack;
 			}
-
 			return ranges;
 		}
 	}

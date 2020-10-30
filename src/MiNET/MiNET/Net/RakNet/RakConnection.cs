@@ -197,10 +197,14 @@ namespace MiNET.Net.RakNet
 		{
 			var listener = new UdpClient();
 
-			//_listener.Client.ReceiveBufferSize = 1600*40000;
-			listener.Client.ReceiveBufferSize = int.MaxValue;
-			//_listener.Client.SendBufferSize = 1600*40000;
-			listener.Client.SendBufferSize = int.MaxValue;
+			if (Environment.OSVersion.Platform != PlatformID.MacOSX)
+			{
+				//_listener.Client.ReceiveBufferSize = 1600*40000;
+				listener.Client.ReceiveBufferSize = int.MaxValue;
+				//_listener.Client.SendBufferSize = 1600*40000;
+				listener.Client.SendBufferSize = int.MaxValue;
+			}
+
 			listener.DontFragment = false;
 			listener.EnableBroadcast = true;
 

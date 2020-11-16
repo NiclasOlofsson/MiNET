@@ -1,17 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject>MiNET.ServiceKiller.Emulator</StartupObject>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="log4net.xml" />
     <None Remove="server.conf" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Include="log4net.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -20,14 +17,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20158.1" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\MiNET.Client\MiNET.Client.csproj" />
     <ProjectReference Include="..\MiNET\MiNET.csproj" />
   </ItemGroup>
-
 </Project>

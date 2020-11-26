@@ -743,6 +743,17 @@ namespace MiNET.Net
 
 			return nbt;
 		}
+		
+		public static NbtCompound ReadLegacyNbtCompound(Stream stream)
+		{
+			NbtFile         file   = new NbtFile();
+			file.BigEndian = false;
+			file.UseVarInt = false;
+
+			file.LoadFromStream(stream, NbtCompression.None);
+
+			return (NbtCompound) file.RootTag;
+		}
 
 		public void Write(MetadataInts metadata)
 		{
@@ -818,6 +829,24 @@ namespace MiNET.Net
 
 		public void Write(Transaction transaction)
 		{
+			WriteSignedVarInt(transaction.RequestId);
+
+			if (transaction.RequestId != 0)
+			{
+				WriteUnsignedVarInt((uint) transaction.RequestRecords.Count);
+
+				foreach (var record in transaction.RequestRecords)
+				{
+					Write(record.ContainerId);
+					WriteUnsignedVarInt((uint) record.Slots.Count);
+
+					foreach (var slot in record.Slots)
+					{
+						Write(slot);
+					}
+				}
+			}
+			
 			switch (transaction)
 			{
 				case InventoryMismatchTransaction _:
@@ -836,7 +865,8 @@ namespace MiNET.Net
 					WriteVarInt((int) McpeInventoryTransaction.TransactionType.Normal);
 					break;
 			}
-
+			Write(transaction.HasNetworkIds);
+			
 			WriteUnsignedVarInt((uint) transaction.TransactionRecords.Count);
 			foreach (var record in transaction.TransactionRecords)
 			{
@@ -865,6 +895,9 @@ namespace MiNET.Net
 				WriteVarInt(record.Slot);
 				Write(record.OldItem);
 				Write(record.NewItem);
+				
+				if (transaction.HasNetworkIds)
+					WriteSignedVarInt(record.StackNetworkId);
 			}
 
 			switch (transaction)
@@ -959,7 +992,9 @@ namespace MiNET.Net
 				record.Slot = ReadVarInt();
 				record.OldItem = ReadItem();
 				record.NewItem = ReadItem();
-				if (hasItemStacks) ReadSignedVarInt();
+				if (hasItemStacks) 
+					record.StackNetworkId = ReadSignedVarInt();
+				
 				transactions.Add(record);
 			}
 
@@ -1014,8 +1049,149 @@ namespace MiNET.Net
 			return transaction;
 		}
 
+		public StackRequestSlotInfo ReadStackRequestSlotInfo()
+		{
+			var containerId    = (byte) ReadByte();
+			var slot           = (byte) ReadByte();
+			var stackNetworkId = ReadSignedVarInt();
+
+			return new StackRequestSlotInfo()
+			{
+				ContainerId = containerId,
+				Slot = slot,
+				StackNetworkId = stackNetworkId
+			};
+		}
+		
+		public void Write(StackRequestSlotInfo slotInfo)
+		{
+			Write(slotInfo.ContainerId);
+			Write(slotInfo.Slot);
+			WriteSignedVarInt(slotInfo.StackNetworkId);
+		}
+
 		public void Write(ItemStackRequests requests)
 		{
+			WriteUnsignedVarInt((uint) requests.Count);
+
+			foreach (ItemStackActionList request in requests)
+			{
+				WriteSignedVarInt(request.RequestId);
+				WriteUnsignedVarInt((uint) request.Count);
+
+				foreach (ItemStackAction action in request)
+				{
+					switch (action)
+					{
+						case TakeAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.Take);
+							Write(ta.Count);
+							Write(ta.Source);
+							Write(ta.Destination);
+							break;
+						}
+						
+						case PlaceAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.Swap);
+							Write(ta.Count);
+							Write(ta.Source);
+							Write(ta.Destination);
+							break;
+						}
+						
+						case SwapAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.Swap);
+							Write(ta.Source);
+							Write(ta.Destination);
+							break;
+						}
+						
+						case DropAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.Drop);
+							Write(ta.Count);
+							Write(ta.Source);
+							Write(ta.Randomly);
+							break;
+						}
+						
+						case DestroyAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.Destroy);
+							Write(ta.Count);
+							Write(ta.Source);
+							break;
+						}
+						
+						case ConsumeAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.Consume);
+							Write(ta.Count);
+							Write(ta.Source);
+							break;
+						}
+						
+						case CreateAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.Create);
+							Write(ta.ResultSlot);
+							break;
+						}
+
+						case LabTableCombineAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.LabTableCombine);
+							break;
+						}
+						
+						case BeaconPaymentAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.BeaconPayment);
+							WriteSignedVarInt(ta.PrimaryEffect);
+							WriteSignedVarInt(ta.SecondaryEffect);
+							break;
+						}
+						
+						case CraftAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.CraftRecipe);
+							WriteUnsignedVarInt(ta.RecipeNetworkId);
+							break;
+						}
+
+						case CraftAutoAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.CraftRecipeAuto);
+							WriteUnsignedVarInt(ta.RecipeNetworkId);
+							break;
+						}
+						
+						case CraftCreativeAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.CraftCreative);
+							WriteUnsignedVarInt(ta.CreativeItemNetworkId);
+							break;
+						}
+
+						case CraftNotImplementedDeprecatedAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.CraftNotImplementedDeprecated);
+							break;
+						}
+						
+						case CraftResultDeprecatedAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.CraftResultsDeprecated);
+							Write(ta.ResultItems);
+							Write(ta.TimesCrafted);
+							break;
+						}
+					}
+				}
+			}
 		}
 
 		//public const TAKE = 0;
@@ -1057,8 +1233,8 @@ namespace MiNET.Net
 						{
 							var action = new TakeAction();
 							action.Count = ReadByte();
-							action.Source = new StackRequestSlotInfo().Read(_reader);
-							action.Destination = new StackRequestSlotInfo().Read(_reader);
+							action.Source = ReadStackRequestSlotInfo();
+							action.Destination = ReadStackRequestSlotInfo();
 							actions.Add(action);
 							break;
 						}
@@ -1066,16 +1242,16 @@ namespace MiNET.Net
 						{
 							var action = new PlaceAction();
 							action.Count = ReadByte();
-							action.Source = new StackRequestSlotInfo().Read(_reader);
-							action.Destination = new StackRequestSlotInfo().Read(_reader);
+							action.Source = ReadStackRequestSlotInfo();
+							action.Destination = ReadStackRequestSlotInfo();
 							actions.Add(action);
 							break;
 						}
 						case McpeItemStackRequest.ActionType.Swap:
 						{
 							var action = new SwapAction();
-							action.Source = new StackRequestSlotInfo().Read(_reader);
-							action.Destination = new StackRequestSlotInfo().Read(_reader);
+							action.Source = ReadStackRequestSlotInfo();
+							action.Destination = ReadStackRequestSlotInfo();
 							actions.Add(action);
 							break;
 						}
@@ -1083,7 +1259,7 @@ namespace MiNET.Net
 						{
 							var action = new DropAction();
 							action.Count = ReadByte();
-							action.Source = new StackRequestSlotInfo().Read(_reader);
+							action.Source = ReadStackRequestSlotInfo();
 							action.Randomly = ReadBool();
 							actions.Add(action);
 							break;
@@ -1092,7 +1268,7 @@ namespace MiNET.Net
 						{
 							var action = new DestroyAction();
 							action.Count = ReadByte();
-							action.Source = new StackRequestSlotInfo().Read(_reader);
+							action.Source = ReadStackRequestSlotInfo();
 							actions.Add(action);
 							break;
 						}
@@ -1100,7 +1276,7 @@ namespace MiNET.Net
 						{
 							var action = new ConsumeAction();
 							action.Count = ReadByte();
-							action.Source = new StackRequestSlotInfo().Read(_reader);
+							action.Source = ReadStackRequestSlotInfo();
 							actions.Add(action);
 							break;
 						}
@@ -1196,7 +1372,41 @@ namespace MiNET.Net
 
 		public ItemStackResponses ReadItemStackResponses()
 		{
-			return new ItemStackResponses();
+			var responses = new ItemStackResponses();
+			var count     = ReadUnsignedVarInt();
+
+			for (var i = 0; i < count; i++)
+			{
+				var response = new ItemStackResponse();
+				response.Success = ReadBool();
+				response.RequestId = ReadSignedVarInt();
+
+				response.Responses = new List<StackResponseContainerInfo>();
+				var subCount = ReadUnsignedVarInt();
+				for (int sub = 0; sub < subCount; sub++)
+				{
+					var containerInfo = new StackResponseContainerInfo();
+					containerInfo.ContainerId = ReadByte();
+
+					var slotCount = ReadUnsignedVarInt();
+					containerInfo.Slots = new List<StackResponseSlotInfo>();
+					
+					for (int si = 0; si < slotCount; si++)
+					{
+						var slot = new StackResponseSlotInfo();
+						slot.Slot = ReadByte();
+						slot.HotbarSlot = ReadByte();
+						slot.Count = ReadByte();
+						slot.StackNetworkId = ReadSignedVarInt();
+						
+						containerInfo.Slots.Add(slot);
+					}
+					
+					response.Responses.Add(containerInfo);
+				}
+			}
+			
+			return responses;
 		}
 
 		public void Write(EnchantOptions options)
@@ -1222,12 +1432,42 @@ namespace MiNET.Net
 				Write(enchant.Id);	
 				Write(enchant.Level);	
 			}
+		}
 
+		private List<Enchant> ReadEnchants()
+		{
+			List<Enchant> enchants = new List<Enchant>();
+			var           count    = ReadUnsignedVarInt();
+
+			for (int i = 0; i < count; i++)
+			{
+				Enchant enchant = new Enchant(ReadByte(), ReadByte());
+				enchants.Add(enchant);
+			}
+
+			return enchants;
 		}
 
 		public EnchantOptions ReadEnchantOptions()
 		{
-			return new EnchantOptions();
+			var options = new EnchantOptions();
+			var count   = ReadUnsignedVarInt();
+
+			for (int i = 0; i < count; i++)
+			{
+				EnchantOption option = new EnchantOption();
+				option.Cost = ReadUnsignedVarInt();
+				option.Flags = ReadInt();
+				option.EquipActivatedEnchantments = ReadEnchants();
+				option.HeldActivatedEnchantments = ReadEnchants();
+				option.SelfActivatedEnchantments = ReadEnchants();
+				option.Name = ReadString();
+				option.OptionId = ReadVarInt();
+				
+				options.Add(option);
+			}
+			
+			return options;
 		}
 
 		public void Write(AnimationKey[] keys)
@@ -1328,9 +1568,23 @@ namespace MiNET.Net
 			Item stack = ItemFactory.GetItem((short) id, metadata, count);
 
 			ushort nbtLen = _reader.ReadUInt16(); // NbtLen
-			if (nbtLen == 0xffff && ReadByte() == 1)
+			if (nbtLen == 0xffff)
 			{
-				stack.ExtraData = (NbtCompound) ReadNbt().NbtFile.RootTag;
+				var version = ReadByte();
+
+				if (version == 1)
+				{
+					stack.ExtraData = (NbtCompound) ReadNbt().NbtFile.RootTag;
+				}
+			}
+			else if (nbtLen > 0)
+			{
+				var nbtData = ReadBytes(nbtLen);
+
+				using (MemoryStream ms = new MemoryStream(nbtData))
+				{
+					stack.ExtraData = ReadLegacyNbtCompound(ms);
+				}
 			}
 
 			var canPlace = ReadSignedVarInt();

@@ -15,6 +15,9 @@
     <None Remove="log4net.xml" />
     <None Remove="server.conf" />
     <None Remove="server.nicke.conf" />
+    <None Update="server.kenny.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="server.conf">

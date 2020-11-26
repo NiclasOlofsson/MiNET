@@ -1557,9 +1557,9 @@ namespace MiNET.Net
 		public BlockPalette ReadBlockPalette()
 		{
 			var result = new BlockPalette();
-			int runtimeId = 0;
 
-			for (int i = 0; i < ReadUnsignedVarInt(); i++)
+			uint count = ReadUnsignedVarInt();
+			for (int runtimeId = 0; runtimeId < count; runtimeId++)
 			{
 				var record = new BlockStateContainer();
 				record.RuntimeId = runtimeId++;
@@ -1622,6 +1622,11 @@ namespace MiNET.Net
 
 		public void Write(BlockPalette palette)
 		{
+			if(palette == null)
+			{
+				WriteUnsignedVarInt(0);
+				return;
+			}
 			WriteUnsignedVarInt((uint)palette.Count);
 			foreach (BlockStateContainer record in palette)
 			{

@@ -42,7 +42,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Block Pick Request | 0x22 | 34 |   
 | Entity Pick Request | 0x23 | 35 |   
 | Player Action | 0x24 | 36 |   
-| Entity Fall | 0x25 | 37 |   
 | Hurt Armor | 0x26 | 38 |   
 | Set Entity Data | 0x27 | 39 |   
 | Set Entity Motion | 0x28 | 40 |   
@@ -336,8 +335,9 @@ Wiki: [Resource Pack Stack](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 |Must accept | bool |  |
 |BehaviorPackIdVersions | ResourcePackIdVersions |  |
 |ResourcePackIdVersions | ResourcePackIdVersions |  |
-|Is experimental | bool |  |
 |Game Version | string |  |
+|unknown1 | int |  |
+|unknown2 | bool |  |
 -----------------------------------------------------------------------
 ### Resource Pack Client Response (0x08)
 Wiki: [Resource Pack Client Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackClientResponse)
@@ -452,6 +452,8 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Enable commands | bool |  |
 |Is texturepacks required | bool |  |
 |GameRules | GameRules |  |
+|unknown1 | int |  |
+|unknown2 | bool |  |
 |Bonus Chest | bool |  |
 |Map Enabled | bool |  |
 |Permission Level | SignedVarInt |  |
@@ -472,7 +474,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |World name | string |  |
 |Premium World Template Id | string |  |
 |Is Trial | bool |  |
-|Is Server Side movement enabled | bool |  |
+|Movement Type | SignedVarInt |  |
 |Current Tick | long |  |
 |Enchantment Seed | SignedVarInt |  |
 |Block Palette | BlockPalette |  |
@@ -863,6 +865,7 @@ Wiki: [Update Attributes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
 |Attributes | PlayerAttributes |  |
+|Tick | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Inventory Transaction (0x1e)
 Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventoryTransaction)
@@ -1058,23 +1061,6 @@ Wiki: [Player Action](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Pla
 |Coordinates | BlockCoordinates |  |
 |Face | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Entity Fall (0x25)
-Wiki: [Entity Fall](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EntityFall)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Runtime Entity ID | UnsignedVarLong |  |
-|Fall distance | float |  |
-|Is In Void | bool |  |
------------------------------------------------------------------------
 ### Hurt Armor (0x26)
 Wiki: [Hurt Armor](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-HurtArmor)
 
@@ -1105,6 +1091,7 @@ Wiki: [Set Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-S
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
 |Metadata | MetadataDictionary |  |
+|Tick | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Set Entity Motion (0x28)
 Wiki: [Set Entity Motion](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetEntityMotion)
@@ -1256,6 +1243,7 @@ Wiki: [Container Close](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-C
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Window ID | byte |  |
+|Server | bool |  |
 -----------------------------------------------------------------------
 ### Player Hotbar (0x30)
 Wiki: [Player Hotbar](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerHotbar)

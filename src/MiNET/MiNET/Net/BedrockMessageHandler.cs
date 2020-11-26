@@ -110,9 +110,6 @@ namespace MiNET.Net
 				case McpeAnimate msg:
 					handler.HandleMcpeAnimate(msg);
 					break;
-				case McpeEntityFall msg:
-					handler.HandleMcpeEntityFall(msg);
-					break;
 				case McpeEntityEvent msg:
 					handler.HandleMcpeEntityEvent(msg);
 					break;

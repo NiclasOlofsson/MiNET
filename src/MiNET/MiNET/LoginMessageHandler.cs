@@ -594,10 +594,6 @@ namespace MiNET
 		{
 		}
 
-		public void HandleMcpeEntityFall(McpeEntityFall message)
-		{
-		}
-
 		public void HandleMcpeSetEntityData(McpeSetEntityData message)
 		{
 		}

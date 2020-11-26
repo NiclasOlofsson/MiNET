@@ -27,6 +27,7 @@ namespace MiNET.Net
 {
 	public partial class McpeMovePlayer : Packet<McpeMovePlayer>
 	{
+		public long tick;
 		partial void AfterDecode()
 		{
 			if (mode == 2)

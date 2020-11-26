@@ -68,7 +68,6 @@ namespace MiNET.Net
 		void HandleMcpeBlockPickRequest(McpeBlockPickRequest message);
 		void HandleMcpeEntityPickRequest(McpeEntityPickRequest message);
 		void HandleMcpePlayerAction(McpePlayerAction message);
-		void HandleMcpeEntityFall(McpeEntityFall message);
 		void HandleMcpeSetEntityData(McpeSetEntityData message);
 		void HandleMcpeSetEntityMotion(McpeSetEntityMotion message);
 		void HandleMcpeAnimate(McpeAnimate message);
@@ -749,8 +748,6 @@ namespace MiNET.Net
 						return McpeEntityPickRequest.CreateObject().Decode(buffer);
 					case 0x24:
 						return McpePlayerAction.CreateObject().Decode(buffer);
-					case 0x25:
-						return McpeEntityFall.CreateObject().Decode(buffer);
 					case 0x26:
 						return McpeHurtArmor.CreateObject().Decode(buffer);
 					case 0x27:
@@ -2186,8 +2183,9 @@ namespace MiNET.Net
 		public bool mustAccept; // = null;
 		public ResourcePackIdVersions behaviorpackidversions; // = null;
 		public ResourcePackIdVersions resourcepackidversions; // = null;
-		public bool isExperimental; // = null;
 		public string gameVersion; // = null;
+		public int unknown1; // = null;
+		public bool unknown2; // = null;
 
 		public McpeResourcePackStack()
 		{
@@ -2205,8 +2203,8 @@ namespace MiNET.Net
 			Write(behaviorpackidversions);
 			Write(resourcepackidversions);
 			Write(gameVersion);
-			Write((int) 0);
-			Write(false);
+			Write(unknown1);
+			Write(unknown2);
 
 			AfterEncode();
 		}
@@ -2224,8 +2222,8 @@ namespace MiNET.Net
 			behaviorpackidversions = ReadResourcePackIdVersions();
 			resourcepackidversions = ReadResourcePackIdVersions();
 			gameVersion = ReadString();
-			ReadInt();
-			ReadBool();
+			unknown1 = ReadInt();
+			unknown2 = ReadBool();
 
 			AfterDecode();
 		}
@@ -2240,8 +2238,9 @@ namespace MiNET.Net
 			mustAccept=default(bool);
 			behaviorpackidversions=default(ResourcePackIdVersions);
 			resourcepackidversions=default(ResourcePackIdVersions);
-			isExperimental=default(bool);
 			gameVersion=default(string);
+			unknown1=default(int);
+			unknown2=default(bool);
 		}
 
 	}
@@ -2447,6 +2446,8 @@ namespace MiNET.Net
 		public bool enableCommands; // = null;
 		public bool isTexturepacksRequired; // = null;
 		public GameRules gamerules; // = null;
+		public int unknown1; // = null;
+		public bool unknown2; // = null;
 		public bool bonusChest; // = null;
 		public bool mapEnabled; // = null;
 		public int permissionLevel; // = null;
@@ -2467,7 +2468,7 @@ namespace MiNET.Net
 		public string worldName; // = null;
 		public string premiumWorldTemplateId; // = null;
 		public bool isTrial; // = null;
-		public int playerMovementType; // = null;
+		public int movementType; // = null;
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
 		public BlockPalette blockPalette; // = null;
@@ -2517,8 +2518,8 @@ namespace MiNET.Net
 			Write(enableCommands);
 			Write(isTexturepacksRequired);
 			Write(gamerules);
-			Write((int) 0);
-			Write(false);
+			Write(unknown1);
+			Write(unknown2);
 			Write(bonusChest);
 			Write(mapEnabled);
 			WriteSignedVarInt(permissionLevel);
@@ -2539,7 +2540,7 @@ namespace MiNET.Net
 			Write(worldName);
 			Write(premiumWorldTemplateId);
 			Write(isTrial);
-			WriteSignedVarInt(playerMovementType);
+			WriteSignedVarInt(movementType);
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
 			Write(blockPalette);
@@ -2589,8 +2590,8 @@ namespace MiNET.Net
 			enableCommands = ReadBool();
 			isTexturepacksRequired = ReadBool();
 			gamerules = ReadGameRules();
-			ReadInt();
-			ReadBool();
+			unknown1 = ReadInt();
+			unknown2 = ReadBool();
 			bonusChest = ReadBool();
 			mapEnabled = ReadBool();
 			permissionLevel = ReadSignedVarInt();
@@ -2611,7 +2612,7 @@ namespace MiNET.Net
 			worldName = ReadString();
 			premiumWorldTemplateId = ReadString();
 			isTrial = ReadBool();
-			playerMovementType = ReadSignedVarInt();
+			movementType = ReadSignedVarInt();
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
 			blockPalette = ReadBlockPalette();
@@ -2659,6 +2660,8 @@ namespace MiNET.Net
 			enableCommands=default(bool);
 			isTexturepacksRequired=default(bool);
 			gamerules=default(GameRules);
+			unknown1=default(int);
+			unknown2=default(bool);
 			bonusChest=default(bool);
 			mapEnabled=default(bool);
 			permissionLevel=default(int);
@@ -2679,7 +2682,7 @@ namespace MiNET.Net
 			worldName=default(string);
 			premiumWorldTemplateId=default(string);
 			isTrial=default(bool);
-			playerMovementType=default(int);
+			movementType=default(int);
 			currentTick=default(long);
 			enchantmentSeed=default(int);
 			blockPalette=default(BlockPalette);
@@ -3211,7 +3214,6 @@ namespace MiNET.Net
 		public byte mode; // = null;
 		public bool onGround; // = null;
 		public long otherRuntimeEntityId; // = null;
-		public long tick; // = null;
 
 		public McpeMovePlayer()
 		{
@@ -3279,7 +3281,6 @@ namespace MiNET.Net
 			mode=default(byte);
 			onGround=default(bool);
 			otherRuntimeEntityId=default(long);
-			tick=default(long);
 		}
 
 	}
@@ -3873,7 +3874,7 @@ namespace MiNET.Net
 
 			runtimeEntityId=default(long);
 			attributes=default(PlayerAttributes);
-			tick=default(long); 
+			tick=default(long);
 		}
 
 	}
@@ -4336,62 +4337,6 @@ namespace MiNET.Net
 			actionId=default(int);
 			coordinates=default(BlockCoordinates);
 			face=default(int);
-		}
-
-	}
-
-	public partial class McpeEntityFall : Packet<McpeEntityFall>
-	{
-
-		public long runtimeEntityId; // = null;
-		public float fallDistance; // = null;
-		public bool isInVoid; // = null;
-
-		public McpeEntityFall()
-		{
-			Id = 0x25;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			WriteUnsignedVarLong(runtimeEntityId);
-			Write(fallDistance);
-			Write(isInVoid);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			runtimeEntityId = ReadUnsignedVarLong();
-			fallDistance = ReadFloat();
-			isInVoid = ReadBool();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			runtimeEntityId=default(long);
-			fallDistance=default(float);
-			isInVoid=default(bool);
 		}
 
 	}

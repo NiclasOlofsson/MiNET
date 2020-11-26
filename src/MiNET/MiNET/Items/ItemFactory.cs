@@ -56,12 +56,12 @@ namespace MiNET.Items
 		{
 			NameToId = BuildNameToId();
 
-			//var assembly = Assembly.GetAssembly(typeof(Item));
-			//using (var stream = assembly.GetManifestResourceStream(typeof(Item).Namespace + ".itemstates.json"))
-			//using (var reader = new StreamReader(stream))
-			//{
-			//	Itemstates = Itemstates.FromJson(reader.ReadToEnd());
-			//}
+			var assembly = Assembly.GetAssembly(typeof(Item));
+			using (var stream = assembly.GetManifestResourceStream(typeof(Item).Namespace + ".itemstates.json"))
+			using (var reader = new StreamReader(stream))
+			{
+				Itemstates = Itemstates.FromJson(reader.ReadToEnd());
+			}
 		}
 
 		private static Dictionary<string, short> BuildNameToId()

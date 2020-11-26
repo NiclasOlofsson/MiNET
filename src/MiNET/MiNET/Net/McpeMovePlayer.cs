@@ -34,6 +34,19 @@ namespace MiNET.Net
 				ReadInt();
 				ReadInt();
 			}
+
+			tick = ReadUnsignedVarLong();
+		}
+
+		partial void AfterEncode()
+		{
+			if (mode == 2)
+			{
+				Write((int) 0);
+				Write((int) 0);
+			}
+
+			WriteUnsignedVarLong(tick);
 		}
 	}
 }

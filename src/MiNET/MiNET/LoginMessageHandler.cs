@@ -258,6 +258,7 @@ namespace MiNET
 									ImageHeight = animationData.ImageHeight,
 									ImageWidth = animationData.ImageWidth,
 									FrameCount = animationData.Frames,
+									Expression = animationData.AnimationExpression,
 									Type = animationData.Type,
 								}
 							);

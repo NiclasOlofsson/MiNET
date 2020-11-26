@@ -45,9 +45,9 @@ namespace MiNET.Net
 		public PlayerLocation prevSentPosition; // = null;
 		public bool isOnGround; // = null;
 
-		private int _dX;
-		private int _dY;
-		private int _dZ;
+		private float _dX;
+		private float _dY;
+		private float _dZ;
 		private int _dPitch;
 		private int _dYaw;
 		private int _dHeadYaw;
@@ -66,9 +66,9 @@ namespace MiNET.Net
 
 			if (currentPosition == null || prevSentPosition == null) return false;
 
-			_dX = ToIntDelta(currentPosition.X, prevSentPosition.X);
-			_dY = ToIntDelta(currentPosition.Y, prevSentPosition.Y);
-			_dZ = ToIntDelta(currentPosition.Z, prevSentPosition.Z);
+			_dX = currentPosition.X;
+			_dY = currentPosition.Y;
+			_dZ = currentPosition.Z;
 
 			if (_dX != 0) flags |= HasX;
 			if (_dY != 0) flags |= HasY;
@@ -88,15 +88,15 @@ namespace MiNET.Net
 			// write the values
 			if ((flags & 0x1) != 0)
 			{
-				WriteSignedVarInt(_dX);
+				Write(_dX);
 			}
 			if ((flags & 0x2) != 0)
 			{
-				WriteSignedVarInt(_dY);
+				Write(_dY);
 			}
 			if ((flags & 0x4) != 0)
 			{
-				WriteSignedVarInt(_dZ);
+				Write(_dZ);
 			}
 
 			float d = 256f / 360f;
@@ -116,29 +116,19 @@ namespace MiNET.Net
 			}
 		}
 
-		public static int ToIntDelta(float current, float prev)
-		{
-			return BitConverter.SingleToInt32Bits(current) - BitConverter.SingleToInt32Bits(prev);
-		}
-
-		public static float FromIntDelta(float prev, int delta)
-		{
-			return BitConverter.Int32BitsToSingle(BitConverter.SingleToInt32Bits(prev) + delta);
-		}
-
 		public PlayerLocation GetCurrentPosition(PlayerLocation previousPosition)
 		{
 			if ((flags & HasX) != 0)
 			{
-				currentPosition.X = FromIntDelta(previousPosition.X, _dX);
+				currentPosition.X = _dX;
 			}
 			if ((flags & HasY) != 0)
 			{
-				currentPosition.Y = FromIntDelta(previousPosition.Y, _dY);
+				currentPosition.Y = _dY;
 			}
 			if ((flags & HasZ) != 0)
 			{
-				currentPosition.Z = FromIntDelta(previousPosition.Z, _dZ);
+				currentPosition.Z = _dZ;
 			}
 
 			return currentPosition;
@@ -150,15 +140,15 @@ namespace MiNET.Net
 
 			if ((flags & HasX) != 0)
 			{
-				_dX = ReadSignedVarInt();
+				_dX = ReadFloat();
 			}
 			if ((flags & HasY) != 0)
 			{
-				_dY = ReadSignedVarInt();
+				_dY = ReadFloat();
 			}
 			if ((flags & HasZ) != 0)
 			{
-				_dZ = ReadSignedVarInt();
+				_dZ = ReadFloat();
 			}
 
 			float d = 1f / (256f / 360f);

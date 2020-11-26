@@ -45,7 +45,7 @@ namespace MiNET
 	{
 	}
 
-	public class Itemstates : Dictionary<int, Itemstate>
+	public class Itemstates : List<Itemstate>
 	{
 		public static Itemstates FromJson(string json)
 		{
@@ -56,8 +56,14 @@ namespace MiNET
 
 	public class Itemstate
 	{
+		[JsonProperty("id")]
 		public short Id { get; set; }
+
+		[JsonProperty("name")]
 		public string Name { get; set; }
-		public int RuntimeId { get; set; }
+
+		[JsonIgnore]
+		public bool ComponentBased { get; set; } = false; 
+		//public int RuntimeId { get; set; }
 	}
 }

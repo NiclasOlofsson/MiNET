@@ -2691,6 +2691,7 @@ namespace MiNET
 
 					var closePacket = McpeContainerClose.CreateObject();
 					closePacket.windowId = inventory.WindowsId;
+					closePacket.server = true;
 					SendPacket(closePacket);
 				}
 				else if (_openInventory is HorseInventory horseInventory)
@@ -2701,6 +2702,7 @@ namespace MiNET
 				{
 					var closePacket = McpeContainerClose.CreateObject();
 					closePacket.windowId = 0;
+					closePacket.server = message == null ? true : false;
 					SendPacket(closePacket);
 				}
 			}
@@ -2890,11 +2892,11 @@ namespace MiNET
 			startGame.currentTick = Level.TickTime;
 			startGame.enchantmentSeed = 123456;
 			startGame.gameVersion = "";
-			startGame.isServerSideMovementEnabled = false;
+			startGame.playerMovementType = 0;
 			startGame.hasEduFeaturesEnabled = true;
 
 			startGame.blockPalette = BlockFactory.BlockPalette;
-			//startGame.itemstates = ItemFactory.Itemstates;
+			startGame.itemstates = ItemFactory.Itemstates;
 
 			startGame.enableNewInventorySystem = true;
 

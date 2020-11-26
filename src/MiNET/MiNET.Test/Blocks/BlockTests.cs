@@ -15,7 +15,7 @@ namespace MiNET.Blocks.Tests
 		[TestMethod()]
 		public void GetItemFromBlockStateTest()
 		{
-			// Picked block minecraft:cobblestone_wall from blockstate 3313
+			// Picked block minecraft:chain from blockstate 917
 			int runtimeId = 917;
 
 			BlockStateContainer blocStateFromPick = BlockFactory.BlockPalette[runtimeId];
@@ -24,9 +24,10 @@ namespace MiNET.Blocks.Tests
 			block.SetState(blocStateFromPick.States);
 
 			Item item = block.GetItem();
+
 			Assert.AreEqual("minecraft:chain", item.Name);
-			Assert.AreEqual(541, item.Id);
-			Assert.AreEqual(1, item.Metadata);
+			Assert.AreEqual(758, item.Id);
+			Assert.AreEqual(0, item.Metadata);
 		}
 	}
 }

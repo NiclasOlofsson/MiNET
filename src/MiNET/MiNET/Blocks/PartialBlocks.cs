@@ -2031,25 +2031,31 @@ namespace MiNET.Blocks
     {
         public override string Name => "minecraft:chain";
 
+		[StateEnum("z", "y", "x")]
+		public string PillarAxis { get; set; } = "y";
 
-        public override void SetState(List<IBlockState> states)
-        {
-            foreach (var state in states)
-            {
-                switch(state)
-                {
-                } // switch
-            } // foreach
-        } // method
+		public override void SetState(List<IBlockState> states)
+		{
+			foreach (var state in states)
+			{
+				switch (state)
+				{
+					case BlockStateString s when s.Name == "pillar_axis":
+						PillarAxis = s.Value;
+						break;
+				} // switch
+			} // foreach
+		} // method
 
-        public override BlockStateContainer GetState()
-        {
-            var record = new BlockStateContainer();
-            record.Name = "minecraft:chain";
-            record.Id = 541;
-            return record;
-        } // method
-    } // class
+		public override BlockStateContainer GetState()
+		{
+			var record = new BlockStateContainer();
+			record.Name = "minecraft:chain";
+			record.Id = 541;
+			record.States.Add(new BlockStateString { Name = "pillar_axis", Value = PillarAxis });
+			return record;
+		} // method
+	} // class
 
     public partial class ChainCommandBlock // 189 typeof=ChainCommandBlock
     {

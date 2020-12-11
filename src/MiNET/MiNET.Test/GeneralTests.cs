@@ -200,7 +200,7 @@ namespace MiNET.Test
 			}
 		}
 
-		[TestMethod]
+		/*[TestMethod]
 		public void DeltaEncodeTest()
 		{
 			float curr = 0.34453f;
@@ -211,7 +211,7 @@ namespace MiNET.Test
 			float result = BitConverter.Int32BitsToSingle(BitConverter.SingleToInt32Bits((float) Math.Round(prev, 2)) + delta);
 
 			Assert.AreEqual(Math.Round(curr, 2), Math.Round(result, 2));
-		}
+		}*/
 
 		[TestMethod]
 		public void EncodePaletteChunk()

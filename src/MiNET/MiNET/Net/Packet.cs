@@ -1351,7 +1351,7 @@ namespace MiNET.Net
 			WriteUnsignedVarInt((uint) responses.Count);
 			foreach (ItemStackResponse stackResponse in responses)
 			{
-				Write(stackResponse.Success);
+				Write((byte) stackResponse.Result);
 				WriteSignedVarInt(stackResponse.RequestId);
 				WriteUnsignedVarInt((uint) stackResponse.Responses.Count);
 				foreach (StackResponseContainerInfo containerInfo in stackResponse.Responses)
@@ -1378,7 +1378,7 @@ namespace MiNET.Net
 			for (var i = 0; i < count; i++)
 			{
 				var response = new ItemStackResponse();
-				response.Success = ReadBool();
+				response.Result = (StackResponseStatus) ReadByte();
 				response.RequestId = ReadSignedVarInt();
 
 				response.Responses = new List<StackResponseContainerInfo>();

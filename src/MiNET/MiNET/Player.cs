@@ -2046,7 +2046,7 @@ namespace MiNET
 			{
 				var stackResponse = new ItemStackResponse()
 				{
-					Success = true,
+					Result = StackResponseStatus.Ok,
 					RequestId = request.RequestId,
 					Responses = new List<StackResponseContainerInfo>()
 				};
@@ -2060,7 +2060,7 @@ namespace MiNET
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to process inventory actions", e);
-					stackResponse.Success = false;
+					stackResponse.Result = StackResponseStatus.Error;
 					stackResponse.Responses.Clear();
 				}
 			}

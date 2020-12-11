@@ -137,10 +137,15 @@ namespace MiNET.Utils
 	public class ItemStackResponse
 	{
 		public int RequestId { get; set; }
-		public bool Success { get; set; } = true;
+		public StackResponseStatus Result { get; set; } = StackResponseStatus.Ok;
 		public List<StackResponseContainerInfo> Responses { get; set; } = new List<StackResponseContainerInfo>();
 	}
 
+	public enum StackResponseStatus
+	{
+		Ok = 0x00,
+		Error = 0x01
+	}
 
 	public class StackResponseContainerInfo
 	{

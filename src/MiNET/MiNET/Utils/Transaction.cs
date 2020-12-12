@@ -48,15 +48,6 @@ namespace MiNET.Utils
 		public byte ContainerId { get; set; }
 		public byte Slot { get; set; }
 		public int StackNetworkId  { get; set; }
-
-		public StackRequestSlotInfo Read(MemoryStreamReader reader)
-		{
-			ContainerId = (byte) reader.ReadByte();
-			Slot = (byte) reader.ReadByte();
-			StackNetworkId = VarInt.ReadSInt32(reader);
-
-			return this;
-		}
 	}
 
 	public class TakeAction : ItemStackAction
@@ -146,10 +137,15 @@ namespace MiNET.Utils
 	public class ItemStackResponse
 	{
 		public int RequestId { get; set; }
-		public bool Success { get; set; } = true;
+		public StackResponseStatus Result { get; set; } = StackResponseStatus.Ok;
 		public List<StackResponseContainerInfo> Responses { get; set; } = new List<StackResponseContainerInfo>();
 	}
 
+	public enum StackResponseStatus
+	{
+		Ok = 0x00,
+		Error = 0x01
+	}
 
 	public class StackResponseContainerInfo
 	{
@@ -172,8 +168,10 @@ namespace MiNET.Utils
 
 	public abstract class Transaction
 	{
-		public int RequestId { get; set; }
-		public List<RequestRecord> RequestRecords { get; set; } = new List<RequestRecord>();
+		public bool                    HasNetworkIds   { get; set; } = false;
+		
+		public int                     RequestId          { get; set; }
+		public List<RequestRecord>     RequestRecords     { get; set; } = new List<RequestRecord>();
 		public List<TransactionRecord> TransactionRecords { get; set; } = new List<TransactionRecord>();
 	}
 
@@ -219,9 +217,11 @@ namespace MiNET.Utils
 
 	public abstract class TransactionRecord
 	{
-		public int Slot { get; set; }
-		public Item OldItem { get; set; }
-		public Item NewItem { get; set; }
+		public int  StackNetworkId { get; set; }
+		
+		public int  Slot      { get;  set; }
+		public Item OldItem   { get;  set; }
+		public Item NewItem   { get;  set; }
 	}
 
 	public class ContainerTransactionRecord : TransactionRecord

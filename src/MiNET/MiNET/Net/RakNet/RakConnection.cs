@@ -45,7 +45,7 @@ namespace MiNET.Net.RakNet
 		private          UdpClient           _listener;
 		private readonly IPEndPoint          _endpoint;
 		private readonly DedicatedThreadPool _receiveThreadPool;
-		//private Thread _receiveThread;
+		private Thread _receiveThread;
 		private          HighPrecisionTimer                           _tickerHighPrecisionTimer;
 		private readonly ConcurrentDictionary<IPEndPoint, RakSession> _rakSessions = new ConcurrentDictionary<IPEndPoint, RakSession>();
 		private readonly GreyListManager                              _greyListManager;
@@ -90,75 +90,11 @@ namespace MiNET.Net.RakNet
 
 			Log.Debug($"Creating listener for packets on {_endpoint}");
 			_listener = CreateListener(_endpoint);
-			_listener.BeginReceive(ReceiveCallback, _listener);
 			
-			//_receiveThread = new Thread(ReceiveDatagram) {IsBackground = true};
-			//_receiveThread.Start(_listener);
+			_receiveThread = new Thread(ReceiveDatagram) {IsBackground = true};
+			_receiveThread.Start(_listener);
 
 			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
-		}
-
-		private void ReceiveCallback(IAsyncResult ar)
-		{
-			var listener = (UdpClient) ar.AsyncState;
-			
-			// Check if we already closed the server
-			if (listener?.Client == null) return;
-
-			// WSAECONNRESET:
-			// The virtual circuit was reset by the remote side executing a hard or abortive close. 
-			// The application should close the socket; it is no longer usable. On a UDP-datagram socket 
-			// this error indicates a previous send operation resulted in an ICMP Port Unreachable message.
-			// Note the spocket settings on creation of the server. It makes us ignore these resets.
-			IPEndPoint senderEndpoint = null;
-
-			try
-			{
-				ReadOnlyMemory<byte> receiveBytes = listener.EndReceive(ar, ref senderEndpoint);
-				_listener.BeginReceive(ReceiveCallback, listener);
-
-				Interlocked.Increment(ref ConnectionInfo.NumberOfPacketsInPerSecond);
-				Interlocked.Add(ref ConnectionInfo.TotalPacketSizeInPerSecond, receiveBytes.Length);
-
-				if (receiveBytes.Length != 0)
-				{
-					_receiveThreadPool.QueueUserWorkItem(
-						() =>
-						{
-							try
-							{
-								if (_greyListManager != null)
-								{
-									if (!_greyListManager.IsWhitelisted(senderEndpoint.Address) && _greyListManager.IsBlacklisted(senderEndpoint.Address)) return;
-									if (_greyListManager.IsGreylisted(senderEndpoint.Address)) return;
-								}
-
-								ReceiveDatagram(receiveBytes, senderEndpoint);
-							}
-							catch (Exception e)
-							{
-								Log.Warn($"Process message error from: {senderEndpoint.Address}", e);
-							}
-						});
-				}
-				else
-				{
-					Log.Warn("Unexpected end of transmission?");
-				}
-			}
-			catch (ObjectDisposedException e)
-			{
-				
-			}
-			catch (SocketException e)
-			{
-				// 10058 (just regular disconnect while listening)
-				if (e.ErrorCode == 10058) return;
-				if (e.ErrorCode == 10038) return;
-				if (e.ErrorCode == 10004) return;
-
-				if (Log.IsDebugEnabled) Log.Error("Unexpected end of receive", e);
-			}
 		}
 
 		public bool TryLocate(out (IPEndPoint serverEndPoint, string serverName) serverInfo, int numberOfAttempts = int.MaxValue)
@@ -319,7 +255,7 @@ namespace MiNET.Net.RakNet
 		}
 
 
-		/*private async void ReceiveDatagram(object state)
+		private async void ReceiveDatagram(object state)
 		{
 			var listener = (UdpClient) state;
 
@@ -336,11 +272,6 @@ namespace MiNET.Net.RakNet
 				IPEndPoint senderEndpoint = null;
 				try
 				{
-				//	ReadOnlyMemory<byte> receiveBytes = listener.Receive(ref senderEndpoint);
-					//UdpReceiveResult result = listener.ReceiveAsync().Result;
-					//senderEndpoint = result.RemoteEndPoint;
-					//byte[] receiveBytes = result.Buffer;
-
 					var received     = await listener.ReceiveAsync();
 					var receiveBytes = received.Buffer;
 					senderEndpoint = received.RemoteEndPoint;
@@ -392,7 +323,7 @@ namespace MiNET.Net.RakNet
 					return;
 				}
 			}
-		}*/
+		}
 
 		private void ReceiveDatagram(ReadOnlyMemory<byte> receivedBytes, IPEndPoint clientEndpoint)
 		{

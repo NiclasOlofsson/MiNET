@@ -112,11 +112,11 @@ namespace MiNET.Client
 			//response.responseStatus = 3;
 			//SendPackage(response);
 
-			if (message.resourcepackinfos.Count != 0)
+			if (message.behahaviorpackinfos.Count != 0)
 			{
 				var resourcePackIds = new ResourcePackIds();
 
-				foreach (ResourcePackInfo packInfo in message.resourcepackinfos)
+				foreach (ResourcePackInfo packInfo in message.behahaviorpackinfos)
 				{
 					resourcePackIds.Add(packInfo.PackIdVersion.Id);
 				}
@@ -684,6 +684,18 @@ namespace MiNET.Client
 
 		public virtual void HandleMcpeItemStackResponse(McpeItemStackResponse message)
 		{
+		}
+
+		/// <inheritdoc />
+		public virtual void HandleMcpeItemComponent(McpeItemComponent message)
+		{
+			
+		}
+
+		/// <inheritdoc />
+		public virtual void HandleMcpeFilterTextPacket(McpeFilterTextPacket message)
+		{
+			
 		}
 
 		public virtual void HandleMcpeAlexEntityAnimation(McpeAlexEntityAnimation message)

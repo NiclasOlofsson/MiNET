@@ -43,8 +43,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 419;
-		public const string GameVersion = "1.16.100";
+		public const int ProtocolVersion = 422;
+		public const string GameVersion = "1.16.200";
 	}
 
 	public interface IMcpeMessageHandler
@@ -228,6 +228,8 @@ namespace MiNET.Net
 		void HandleMcpeCreativeContent(McpeCreativeContent message);
 		void HandleMcpePlayerEnchantOptions(McpePlayerEnchantOptions message);
 		void HandleMcpeItemStackResponse(McpeItemStackResponse message);
+		void HandleMcpeItemComponent(McpeItemComponent message);
+		void HandleMcpeFilterTextPacket(McpeFilterTextPacket message);
 		void HandleMcpeAlexEntityAnimation(McpeAlexEntityAnimation message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
@@ -605,6 +607,12 @@ namespace MiNET.Net
 				case McpeItemStackResponse msg:
 					_messageHandler.HandleMcpeItemStackResponse(msg);
 					break;
+				case McpeItemComponent msg:
+					_messageHandler.HandleMcpeItemComponent(msg);
+					break;
+				case McpeFilterTextPacket msg:
+					_messageHandler.HandleMcpeFilterTextPacket(msg);
+					break;
 				case McpeAlexEntityAnimation msg:
 					_messageHandler.HandleMcpeAlexEntityAnimation(msg);
 					break;
@@ -954,6 +962,10 @@ namespace MiNET.Net
 						return McpeUpdatePlayerGameType.CreateObject().Decode(buffer);
 					case 0x9c:
 						return McpePacketViolationWarning.CreateObject().Decode(buffer);
+					case 0xa2:
+						return McpeItemComponent.CreateObject().Decode(buffer);
+					case 0xa3:
+						return McpeFilterTextPacket.CreateObject().Decode(buffer);
 					case 0xe0:
 						return McpeAlexEntityAnimation.CreateObject().Decode(buffer);
 				}
@@ -2123,7 +2135,7 @@ namespace MiNET.Net
 		public bool mustAccept; // = null;
 		public bool hasScripts; // = null;
 		public ResourcePackInfos behahaviorpackinfos; // = null;
-		public ResourcePackInfos resourcepackinfos; // = null;
+		public TexturePackInfos texturepacks; // = null;
 
 		public McpeResourcePacksInfo()
 		{
@@ -2140,7 +2152,7 @@ namespace MiNET.Net
 			Write(mustAccept);
 			Write(hasScripts);
 			Write(behahaviorpackinfos);
-			Write(resourcepackinfos);
+			Write(texturepacks);
 
 			AfterEncode();
 		}
@@ -2157,7 +2169,7 @@ namespace MiNET.Net
 			mustAccept = ReadBool();
 			hasScripts = ReadBool();
 			behahaviorpackinfos = ReadResourcePackInfos();
-			resourcepackinfos = ReadResourcePackInfos();
+			texturepacks = ReadTexturePackInfos();
 
 			AfterDecode();
 		}
@@ -2172,7 +2184,7 @@ namespace MiNET.Net
 			mustAccept=default(bool);
 			hasScripts=default(bool);
 			behahaviorpackinfos=default(ResourcePackInfos);
-			resourcepackinfos=default(ResourcePackInfos);
+			texturepacks=default(TexturePackInfos);
 		}
 
 	}
@@ -9845,6 +9857,106 @@ namespace MiNET.Net
 			severity=default(int);
 			packetId=default(int);
 			reason=default(string);
+		}
+
+	}
+
+	public partial class McpeItemComponent : Packet<McpeItemComponent>
+	{
+
+		public ItemComponentList entries; // = null;
+
+		public McpeItemComponent()
+		{
+			Id = 0xa2;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(entries);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			entries = ReadItemComponentList();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			entries=default(ItemComponentList);
+		}
+
+	}
+
+	public partial class McpeFilterTextPacket : Packet<McpeFilterTextPacket>
+	{
+
+		public string text; // = null;
+		public bool fromServer; // = null;
+
+		public McpeFilterTextPacket()
+		{
+			Id = 0xa3;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(text);
+			Write(fromServer);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			text = ReadString();
+			fromServer = ReadBool();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			text=default(string);
+			fromServer=default(bool);
 		}
 
 	}

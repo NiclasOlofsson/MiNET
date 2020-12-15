@@ -145,6 +145,8 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Item Stack Response | 0x94 | 148 |   
 | Update Player Game Type | 0x97 | 151 |   
 | Packet Violation Warning | 0x9c | 156 |   
+| Item Component | 0xa2 | 162 |   
+| Filter Text Packet | 0xa3 | 163 |   
 | Alex Entity Animation | 0xe0 | 224 |   
 
 
@@ -168,6 +170,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | IPEndPoint [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-IPEndPoint) |
 | IPEndPoint[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-IPEndPoint[]) |
 | Item [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Item) |
+| ItemComponentList [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ItemComponentList) |
 | ItemStackRequests [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ItemStackRequests) |
 | ItemStackResponses [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ItemStackResponses) |
 | ItemStacks [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ItemStacks) |
@@ -194,6 +197,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | SignedVarLong [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-SignedVarLong) |
 | Skin [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Skin) |
 | string [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-string) |
+| TexturePackInfos [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-TexturePackInfos) |
 | Transaction [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Transaction) |
 | uint [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-uint) |
 | ulong [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ulong) |
@@ -317,7 +321,7 @@ Wiki: [Resource Packs Info](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 |Must accept | bool |  |
 |Has scripts | bool |  |
 |BehahaviorPackInfos | ResourcePackInfos |  |
-|ResourcePackInfos | ResourcePackInfos |  |
+|TexturePacks | TexturePackInfos |  |
 -----------------------------------------------------------------------
 ### Resource Pack Stack (0x07)
 Wiki: [Resource Pack Stack](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackStack)
@@ -2827,6 +2831,37 @@ Wiki: [Packet Violation Warning](https://github.com/NiclasOlofsson/MiNET/wiki//P
 |Severity | SignedVarInt |  |
 |Packet Id | SignedVarInt |  |
 |Reason | string |  |
+-----------------------------------------------------------------------
+### Item Component (0xa2)
+Wiki: [Item Component](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ItemComponent)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entries | ItemComponentList |  |
+-----------------------------------------------------------------------
+### Filter Text Packet (0xa3)
+Wiki: [Filter Text Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-FilterTextPacket)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Text | string |  |
+|From server | bool |  |
 -----------------------------------------------------------------------
 ### Alex Entity Animation (0xe0)
 Wiki: [Alex Entity Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AlexEntityAnimation)

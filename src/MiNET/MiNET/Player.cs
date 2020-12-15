@@ -335,7 +335,7 @@ namespace MiNET
 			if (_serverHaveResources)
 			{
 				packInfo.mustAccept = false;
-				packInfo.resourcepackinfos = new ResourcePackInfos
+				packInfo.behahaviorpackinfos = new ResourcePackInfos
 				{
 					new ResourcePackInfo()
 					{

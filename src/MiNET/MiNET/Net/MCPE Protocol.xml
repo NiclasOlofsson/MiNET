@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.16.100" protocolVersion="419">
+<protocol gameVersion="1.16.200" protocolVersion="422">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -154,7 +154,7 @@
 		<field name="Must accept" type="bool" />
 		<field name="Has scripts" type="bool" />
 		<field name="BehahaviorPackInfos" type="ResourcePackInfos" />
-		<field name="ResourcePackInfos" type="ResourcePackInfos" />
+		<field name="TexturePacks" type="TexturePackInfos" />
 	</pdu>
 
 	<pdu id="0x07" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_STACK">
@@ -1234,6 +1234,15 @@
 		<field name="Severity" type="SignedVarInt" />
 		<field name="Packet Id" type="SignedVarInt" />
 		<field name="Reason" type="string" />
+	</pdu>
+
+	<pdu id="0xa2" online="false" client="false" server="true" name="MCPE_ITEM_COMPONENT">
+		<field name="Entries" type="ItemComponentList" />
+	</pdu>
+	
+	<pdu id="0xa3" online="false" client="false" server="true" name="MCPE_FILTER_TEXT_PACKET">
+		<field name="Text" type="string" />
+		<field name="From server" type="bool"/>
 	</pdu>
 
 	<pdu id="0xe0" online="false" client="false" server="true" name="MCPE_ALEX_ENTITY_ANIMATION">

@@ -1364,6 +1364,7 @@ namespace MiNET.Net
 						Write(slot.HotbarSlot);
 						Write(slot.Count);
 						WriteSignedVarInt(slot.StackNetworkId);
+						Write(slot.CustomName);
 					}
 				}
 			}
@@ -1398,6 +1399,7 @@ namespace MiNET.Net
 						slot.HotbarSlot = ReadByte();
 						slot.Count = ReadByte();
 						slot.StackNetworkId = ReadSignedVarInt();
+						slot.CustomName = ReadString();
 						
 						containerInfo.Slots.Add(slot);
 					}
@@ -1409,6 +1411,37 @@ namespace MiNET.Net
 			return responses;
 		}
 
+		public void Write(ItemComponentList list)
+		{
+			WriteUnsignedVarInt((uint) list.Count);
+
+			foreach (var item in list)
+			{
+				Write(item.Name);
+				Write(item.Nbt);
+			}
+		}
+		
+		public ItemComponentList ReadItemComponentList()
+		{
+			var               count = ReadUnsignedVarInt();
+			ItemComponentList l     = new ItemComponentList();
+
+			for (int i = 0; i < count; i++)
+			{
+				string        name      = ReadString();
+				var           nbt       = ReadNbt();
+				
+				ItemComponent component = new ItemComponent();
+				component.Name = name;
+				component.Nbt = nbt;
+				
+				l.Add(component);
+			}
+
+			return l;
+		}
+		
 		public void Write(EnchantOptions options)
 		{
 			WriteUnsignedVarInt((uint) options.Count);
@@ -1948,6 +1981,63 @@ namespace MiNET.Net
 			return rules;
 		}
 
+		public void Write(TexturePackInfos packInfos)
+		{
+			if (packInfos == null)
+			{
+				_writer.Write((short) 0);
+
+				return;
+			}
+			
+			_writer.Write((short) packInfos.Count); // LE
+			//WriteVarInt(packInfos.Count);
+			foreach (var info in packInfos)
+			{
+				Write(info.UUID);
+				Write(info.Version);
+				Write(info.Size);
+				Write(info.ContentKey);
+				Write(info.SubPackName);
+				Write(info.ContentIdentity);
+				Write(info.HasScripts);
+				Write(info.RtxEnabled);
+			}
+		}
+
+		public TexturePackInfos ReadTexturePackInfos()
+		{
+			int count = _reader.ReadInt16(); // LE
+			//int count = ReadVarInt(); // LE
+
+			var packInfos = new TexturePackInfos();
+			for (int i = 0; i < count; i++)
+			{
+				var info            = new TexturePackInfo();
+				var id              = ReadString();
+				var version         = ReadString();
+				var size            = ReadUlong();
+				var encryptionKey   = ReadString();
+				var subpackName     = ReadString();
+				var contentIdentity = ReadString();
+				var hasScripts      = ReadBool();
+				var rtxEnabled      = ReadBool();
+				
+				info.UUID = id;
+				info.Version = version;
+				info.Size = size;
+				info.HasScripts = hasScripts;
+				info.ContentKey = encryptionKey;
+				info.SubPackName = subpackName;
+				info.ContentIdentity = contentIdentity;
+				info.RtxEnabled = rtxEnabled;
+				
+				packInfos.Add(info);
+			}
+
+			return packInfos;
+		}
+		
 		public void Write(ResourcePackInfos packInfos)
 		{
 			if (packInfos == null)

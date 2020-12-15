@@ -74,10 +74,10 @@ namespace MiNET.Client
 			var sb = new StringBuilder();
 			sb.AppendLine();
 
-			sb.AppendLine("Resource packs:");
-			foreach (ResourcePackInfo info in message.resourcepackinfos)
+			sb.AppendLine("Texture packs:");
+			foreach (TexturePackInfo info in message.texturepacks)
 			{
-				sb.AppendLine($"ID={info.PackIdVersion.Id}, Version={info.PackIdVersion.Version}, Unknown={info.Size}");
+				sb.AppendLine($"ID={info.UUID}, Version={info.Version}, Unknown={info.Size}");
 			}
 
 			sb.AppendLine("Behavior packs:");

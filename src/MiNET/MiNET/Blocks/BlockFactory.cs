@@ -23,10 +23,12 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using fNbt;
 using log4net;
 using MiNET.Utils;
 
@@ -84,6 +86,41 @@ namespace MiNET.Blocks
 				using (var reader = new StreamReader(stream))
 				{
 					BlockPalette = BlockPalette.FromJson(reader.ReadToEnd());
+				}
+
+				foreach(var record in BlockPalette)
+				{
+					var states = new List<NbtTag>();
+					foreach (IBlockState state in record.States)
+					{
+						NbtTag stateTag = null;
+						switch (state)
+						{
+							case BlockStateByte blockStateByte:
+								stateTag = new NbtByte(state.Name, blockStateByte.Value);
+								break;
+							case BlockStateInt blockStateInt:
+								stateTag = new NbtInt(state.Name, blockStateInt.Value);
+								break;
+							case BlockStateString blockStateString:
+								stateTag = new NbtString(state.Name, blockStateString.Value);
+								break;
+							default:
+								throw new ArgumentOutOfRangeException(nameof(state));
+						}
+						states.Add(stateTag);
+					}
+
+					var nbt = new NbtFile()
+					{
+						BigEndian = false,
+						UseVarInt = true,
+						RootTag = new NbtCompound("states", states)
+					};
+
+					byte[] nbtBinary = nbt.SaveToBuffer(NbtCompression.None);
+
+					record.StatesCacheNbt = nbtBinary;
 				}
 			}
 			int palletSize = BlockPalette.Count;

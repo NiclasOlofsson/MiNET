@@ -488,16 +488,6 @@ namespace MiNET
 			}
 		}
 
-
-		public virtual void HandleMcpeEntityFall(McpeEntityFall message)
-		{
-			double damage = message.fallDistance - 3;
-			if (damage > 0)
-			{
-				HealthManager.TakeHit(null, (int) DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
-			}
-		}
-
 		public virtual void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
 		{
 			//Level.RelayBroadcast((McpeSetEntityMotion) message.Clone());
@@ -649,7 +639,7 @@ namespace MiNET
 					IsSneaking = false;
 					break;
 				}
-				case PlayerAction.DimensionChange:
+				case PlayerAction.CreativeDestroy:
 				{
 					break;
 				}
@@ -1943,6 +1933,20 @@ namespace MiNET
 
 			IsFalling = verticalMove < 0 && !IsOnGround;
 
+			if (IsFalling)
+			{
+				if (StartFallY == 0) StartFallY = KnownPosition.Y;
+			}
+			else
+			{
+				double damage = StartFallY - KnownPosition.Y;
+				if ((damage - 3) > 0)
+				{
+					HealthManager.TakeHit(null, (int) DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
+				}
+				StartFallY = 0;
+			}
+
 			LastUpdatedTime = DateTime.UtcNow;
 
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
@@ -1953,6 +1957,7 @@ namespace MiNET
 		}
 
 		public double CurrentSpeed { get; private set; } = 0;
+		public double StartFallY { get; private set; } = 0;
 
 		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround, bool isFlyingHorizontally)
 		{
@@ -2041,7 +2046,7 @@ namespace MiNET
 			{
 				var stackResponse = new ItemStackResponse()
 				{
-					Success = true,
+					Result = StackResponseStatus.Ok,
 					RequestId = request.RequestId,
 					Responses = new List<StackResponseContainerInfo>()
 				};
@@ -2055,7 +2060,7 @@ namespace MiNET
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to process inventory actions", e);
-					stackResponse.Success = false;
+					stackResponse.Result = StackResponseStatus.Error;
 					stackResponse.Responses.Clear();
 				}
 			}
@@ -2691,6 +2696,7 @@ namespace MiNET
 
 					var closePacket = McpeContainerClose.CreateObject();
 					closePacket.windowId = inventory.WindowsId;
+					closePacket.server = true;
 					SendPacket(closePacket);
 				}
 				else if (_openInventory is HorseInventory horseInventory)
@@ -2701,6 +2707,7 @@ namespace MiNET
 				{
 					var closePacket = McpeContainerClose.CreateObject();
 					closePacket.windowId = 0;
+					closePacket.server = message == null ? true : false;
 					SendPacket(closePacket);
 				}
 			}
@@ -2890,11 +2897,11 @@ namespace MiNET
 			startGame.currentTick = Level.TickTime;
 			startGame.enchantmentSeed = 123456;
 			startGame.gameVersion = "";
-			startGame.isServerSideMovementEnabled = false;
+			startGame.movementType = 0;
 			startGame.hasEduFeaturesEnabled = true;
 
-			startGame.blockPalette = BlockFactory.BlockPalette;
-			//startGame.itemstates = ItemFactory.Itemstates;
+			//startGame.blockPalette = BlockFactory.BlockPalette;
+			startGame.itemstates = ItemFactory.Itemstates;
 
 			startGame.enableNewInventorySystem = true;
 

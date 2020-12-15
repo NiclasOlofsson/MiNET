@@ -15,6 +15,7 @@ namespace MiNET.Utils.Skins
 		public int ImageWidth { get; set; }
 		public int ImageHeight { get; set; }
 		public float FrameCount { get; set; }
+		public int Expression { get; set; }
 		public int Type { get; set; } // description above
 
 		// doesn't have reference-type fields so use MemberwiseClone

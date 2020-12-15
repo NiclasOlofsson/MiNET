@@ -70,7 +70,7 @@ namespace MiNET.Test
 			writer.Indent += 2;
 			writer.WriteLine();
 
-			var itemStates = ItemFactory.Itemstates.Values;
+			var itemStates = ItemFactory.Itemstates;
 			foreach (Itemstate state in itemStates)
 			{
 				Item item = ItemFactory.GetItem(state.Id);
@@ -93,7 +93,7 @@ namespace MiNET.Test
 			using FileStream file = File.OpenWrite(fileName);
 			var writer = new IndentedTextWriter(new StreamWriter(file));
 
-			var itemStates = ItemFactory.Itemstates.Values;
+			var itemStates = ItemFactory.Itemstates;
 			List<Itemstate> newItems = new List<Itemstate>();
 			foreach (Itemstate state in itemStates)
 			{

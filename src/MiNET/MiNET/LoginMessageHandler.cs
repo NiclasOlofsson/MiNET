@@ -258,6 +258,7 @@ namespace MiNET
 									ImageHeight = animationData.ImageHeight,
 									ImageWidth = animationData.ImageWidth,
 									FrameCount = animationData.Frames,
+									Expression = animationData.AnimationExpression,
 									Type = animationData.Type,
 								}
 							);
@@ -590,10 +591,6 @@ namespace MiNET
 		}
 
 		public void HandleMcpePlayerAction(McpePlayerAction message)
-		{
-		}
-
-		public void HandleMcpeEntityFall(McpeEntityFall message)
 		{
 		}
 

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.16.0" protocolVersion="408">
+<protocol gameVersion="1.16.100" protocolVersion="419">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -161,8 +161,9 @@
 		<field name="Must accept" type="bool" />
 		<field name="BehaviorPackIdVersions" type="ResourcePackIdVersions" />
 		<field name="ResourcePackIdVersions" type="ResourcePackIdVersions" />
-		<field name="Is experimental" type="bool" />
 		<field name="Game Version" type="string" />
+		<field name="unknown1" type="int" />
+		<field name="unknown2" type="bool" />
 	</pdu>
 
 	<pdu id="0x08" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CLIENT_RESPONSE">
@@ -230,6 +231,8 @@
 		<field name="Enable commands" type="bool" />
 		<field name="Is texturepacks required" type="bool" />
 		<field name="GameRules" type="GameRules" />
+		<field name="unknown1" type="int" />
+		<field name="unknown2" type="bool" />
 		<field name="Bonus Chest" type="bool" />
 		<field name="Map Enabled" type="bool" />
 		<field name="Permission Level" type="SignedVarInt" />
@@ -256,7 +259,7 @@
 		<field name="World name" type="string" />
 		<field name="Premium World Template Id" type="string" />
 		<field name="Is Trial" type="bool" />
-		<field name="Is Server Side movement enabled" type="bool" />
+		<field name="Movement Type" type="SignedVarInt" />
 		<field name="Current Tick" type="long" />
 		<field name="Enchantment Seed" type="SignedVarInt" />
 
@@ -465,6 +468,7 @@
 	<pdu id="0x1d" online="false" client="false" server="true" name="MCPE_UPDATE_ATTRIBUTES">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Attributes" type="PlayerAttributes" />
+		<field name="Tick" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x1e" online="false" client="true" server="true" name="MCPE_INVENTORY_TRANSACTION">
@@ -565,12 +569,6 @@
 		<field name="Face" type="SignedVarInt" />
 	</pdu>
 
-	<pdu id="0x25" online="false" client="true" server="false" name="MCPE_ENTITY_FALL">
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Fall distance" type="float" />
-		<field name="Is In Void" type="bool" />
-	</pdu>
-
 	<pdu id="0x26" online="false" client="false" server="true" name="MCPE_HURT_ARMOR">
 		<field name="Health" type="SignedVarInt" />
 	</pdu>
@@ -578,6 +576,7 @@
 	<pdu id="0x27" online="false" client="true" server="true" name="MCPE_SET_ENTITY_DATA">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Metadata" type="MetadataDictionary" />
+		<field name="Tick" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x28" online="false" client="true" server="true" name="MCPE_SET_ENTITY_MOTION">
@@ -635,6 +634,7 @@
 
 	<pdu id="0x2f" online="false" client="true" server="true" name="MCPE_CONTAINER_CLOSE">
 		<field name="Window ID" type="byte" />
+		<field name="Server" type="bool" />
 	</pdu>
 
 	<pdu id="0x30" online="false" client="true" server="true" name="MCPE_PLAYER_HOTBAR">

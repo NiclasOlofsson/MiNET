@@ -43,8 +43,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 408;
-		public const string GameVersion = "1.16.0";
+		public const int ProtocolVersion = 419;
+		public const string GameVersion = "1.16.100";
 	}
 
 	public interface IMcpeMessageHandler
@@ -68,7 +68,6 @@ namespace MiNET.Net
 		void HandleMcpeBlockPickRequest(McpeBlockPickRequest message);
 		void HandleMcpeEntityPickRequest(McpeEntityPickRequest message);
 		void HandleMcpePlayerAction(McpePlayerAction message);
-		void HandleMcpeEntityFall(McpeEntityFall message);
 		void HandleMcpeSetEntityData(McpeSetEntityData message);
 		void HandleMcpeSetEntityMotion(McpeSetEntityMotion message);
 		void HandleMcpeAnimate(McpeAnimate message);
@@ -749,8 +748,6 @@ namespace MiNET.Net
 						return McpeEntityPickRequest.CreateObject().Decode(buffer);
 					case 0x24:
 						return McpePlayerAction.CreateObject().Decode(buffer);
-					case 0x25:
-						return McpeEntityFall.CreateObject().Decode(buffer);
 					case 0x26:
 						return McpeHurtArmor.CreateObject().Decode(buffer);
 					case 0x27:
@@ -2186,8 +2183,9 @@ namespace MiNET.Net
 		public bool mustAccept; // = null;
 		public ResourcePackIdVersions behaviorpackidversions; // = null;
 		public ResourcePackIdVersions resourcepackidversions; // = null;
-		public bool isExperimental; // = null;
 		public string gameVersion; // = null;
+		public int unknown1; // = null;
+		public bool unknown2; // = null;
 
 		public McpeResourcePackStack()
 		{
@@ -2204,8 +2202,9 @@ namespace MiNET.Net
 			Write(mustAccept);
 			Write(behaviorpackidversions);
 			Write(resourcepackidversions);
-			Write(isExperimental);
 			Write(gameVersion);
+			Write(unknown1);
+			Write(unknown2);
 
 			AfterEncode();
 		}
@@ -2222,8 +2221,9 @@ namespace MiNET.Net
 			mustAccept = ReadBool();
 			behaviorpackidversions = ReadResourcePackIdVersions();
 			resourcepackidversions = ReadResourcePackIdVersions();
-			isExperimental = ReadBool();
 			gameVersion = ReadString();
+			unknown1 = ReadInt();
+			unknown2 = ReadBool();
 
 			AfterDecode();
 		}
@@ -2238,8 +2238,9 @@ namespace MiNET.Net
 			mustAccept=default(bool);
 			behaviorpackidversions=default(ResourcePackIdVersions);
 			resourcepackidversions=default(ResourcePackIdVersions);
-			isExperimental=default(bool);
 			gameVersion=default(string);
+			unknown1=default(int);
+			unknown2=default(bool);
 		}
 
 	}
@@ -2445,6 +2446,8 @@ namespace MiNET.Net
 		public bool enableCommands; // = null;
 		public bool isTexturepacksRequired; // = null;
 		public GameRules gamerules; // = null;
+		public int unknown1; // = null;
+		public bool unknown2; // = null;
 		public bool bonusChest; // = null;
 		public bool mapEnabled; // = null;
 		public int permissionLevel; // = null;
@@ -2465,7 +2468,7 @@ namespace MiNET.Net
 		public string worldName; // = null;
 		public string premiumWorldTemplateId; // = null;
 		public bool isTrial; // = null;
-		public bool isServerSideMovementEnabled; // = null;
+		public int movementType; // = null;
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
 		public BlockPalette blockPalette; // = null;
@@ -2515,6 +2518,8 @@ namespace MiNET.Net
 			Write(enableCommands);
 			Write(isTexturepacksRequired);
 			Write(gamerules);
+			Write(unknown1);
+			Write(unknown2);
 			Write(bonusChest);
 			Write(mapEnabled);
 			WriteSignedVarInt(permissionLevel);
@@ -2535,7 +2540,7 @@ namespace MiNET.Net
 			Write(worldName);
 			Write(premiumWorldTemplateId);
 			Write(isTrial);
-			Write(isServerSideMovementEnabled);
+			WriteSignedVarInt(movementType);
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
 			Write(blockPalette);
@@ -2585,6 +2590,8 @@ namespace MiNET.Net
 			enableCommands = ReadBool();
 			isTexturepacksRequired = ReadBool();
 			gamerules = ReadGameRules();
+			unknown1 = ReadInt();
+			unknown2 = ReadBool();
 			bonusChest = ReadBool();
 			mapEnabled = ReadBool();
 			permissionLevel = ReadSignedVarInt();
@@ -2605,7 +2612,7 @@ namespace MiNET.Net
 			worldName = ReadString();
 			premiumWorldTemplateId = ReadString();
 			isTrial = ReadBool();
-			isServerSideMovementEnabled = ReadBool();
+			movementType = ReadSignedVarInt();
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
 			blockPalette = ReadBlockPalette();
@@ -2653,6 +2660,8 @@ namespace MiNET.Net
 			enableCommands=default(bool);
 			isTexturepacksRequired=default(bool);
 			gamerules=default(GameRules);
+			unknown1=default(int);
+			unknown2=default(bool);
 			bonusChest=default(bool);
 			mapEnabled=default(bool);
 			permissionLevel=default(int);
@@ -2673,7 +2682,7 @@ namespace MiNET.Net
 			worldName=default(string);
 			premiumWorldTemplateId=default(string);
 			isTrial=default(bool);
-			isServerSideMovementEnabled=default(bool);
+			movementType=default(int);
 			currentTick=default(long);
 			enchantmentSeed=default(int);
 			blockPalette=default(BlockPalette);
@@ -3819,6 +3828,7 @@ namespace MiNET.Net
 
 		public long runtimeEntityId; // = null;
 		public PlayerAttributes attributes; // = null;
+		public long tick; // = null;
 
 		public McpeUpdateAttributes()
 		{
@@ -3834,6 +3844,7 @@ namespace MiNET.Net
 
 			WriteUnsignedVarLong(runtimeEntityId);
 			Write(attributes);
+			WriteUnsignedVarLong(tick);
 
 			AfterEncode();
 		}
@@ -3849,6 +3860,7 @@ namespace MiNET.Net
 
 			runtimeEntityId = ReadUnsignedVarLong();
 			attributes = ReadPlayerAttributes();
+			tick = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}
@@ -3862,6 +3874,7 @@ namespace MiNET.Net
 
 			runtimeEntityId=default(long);
 			attributes=default(PlayerAttributes);
+			tick=default(long);
 		}
 
 	}
@@ -4328,62 +4341,6 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeEntityFall : Packet<McpeEntityFall>
-	{
-
-		public long runtimeEntityId; // = null;
-		public float fallDistance; // = null;
-		public bool isInVoid; // = null;
-
-		public McpeEntityFall()
-		{
-			Id = 0x25;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			WriteUnsignedVarLong(runtimeEntityId);
-			Write(fallDistance);
-			Write(isInVoid);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			runtimeEntityId = ReadUnsignedVarLong();
-			fallDistance = ReadFloat();
-			isInVoid = ReadBool();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			runtimeEntityId=default(long);
-			fallDistance=default(float);
-			isInVoid=default(bool);
-		}
-
-	}
-
 	public partial class McpeHurtArmor : Packet<McpeHurtArmor>
 	{
 
@@ -4437,6 +4394,7 @@ namespace MiNET.Net
 
 		public long runtimeEntityId; // = null;
 		public MetadataDictionary metadata; // = null;
+		public long tick; // = null;
 
 		public McpeSetEntityData()
 		{
@@ -4452,6 +4410,7 @@ namespace MiNET.Net
 
 			WriteUnsignedVarLong(runtimeEntityId);
 			Write(metadata);
+			WriteUnsignedVarLong(tick);
 
 			AfterEncode();
 		}
@@ -4467,6 +4426,7 @@ namespace MiNET.Net
 
 			runtimeEntityId = ReadUnsignedVarLong();
 			metadata = ReadMetadataDictionary();
+			tick = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}
@@ -4480,6 +4440,7 @@ namespace MiNET.Net
 
 			runtimeEntityId=default(long);
 			metadata=default(MetadataDictionary);
+			tick=default(long);
 		}
 
 	}
@@ -4896,6 +4857,7 @@ namespace MiNET.Net
 	{
 
 		public byte windowId; // = null;
+		public bool server; // = null;
 
 		public McpeContainerClose()
 		{
@@ -4910,6 +4872,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(windowId);
+			Write(server);
 
 			AfterEncode();
 		}
@@ -4924,6 +4887,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			windowId = ReadByte();
+			server = ReadBool();
 
 			AfterDecode();
 		}
@@ -4936,6 +4900,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			windowId=default(byte);
+			server=default(bool);
 		}
 
 	}

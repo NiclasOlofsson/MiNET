@@ -41,7 +41,7 @@ namespace MiNET.Worlds
 
 		private bool _isAllAir = true;
 
-		private List<int> _runtimeIds = new List<int> {0}; // Add air, always as first (performance)
+		private List<int> _runtimeIds = new List<int> { (int)BlockFactory.GetRuntimeId(0,0) }; // Add air, always as first (performance)
 		internal List<int> RuntimeIds => _runtimeIds;
 
 		private short[] _blocks;

@@ -1353,6 +1353,8 @@ namespace MiNET.Net
 			{
 				Write((byte) stackResponse.Result);
 				WriteSignedVarInt(stackResponse.RequestId);
+				if (stackResponse.Result != StackResponseStatus.Ok) 
+					continue;
 				WriteUnsignedVarInt((uint) stackResponse.Responses.Count);
 				foreach (StackResponseContainerInfo containerInfo in stackResponse.Responses)
 				{

@@ -49,6 +49,17 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
+		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		{
+			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
+			{
+				var under = world.GetBlock(Coordinates.BlockDown());
+				return under is Grass || under is Dirt;
+			}
+			
+			return false;
+		}
+
 		public override void OnTick(Level level, bool isRandom)
 		{
 			base.OnTick(level, isRandom);

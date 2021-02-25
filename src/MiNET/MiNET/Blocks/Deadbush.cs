@@ -23,6 +23,9 @@
 
 #endregion
 
+using MiNET.Utils;
+using MiNET.Worlds;
+
 namespace MiNET.Blocks
 {
 	public partial class Deadbush : Block
@@ -32,6 +35,17 @@ namespace MiNET.Blocks
 			IsSolid = false;
 			IsTransparent = true;
 			IsFlammable = true;
+		}
+		
+		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		{
+			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
+			{
+				var under = world.GetBlock(Coordinates.BlockDown());
+				return under is Sand;
+			}
+			
+			return false;
 		}
 	}
 }

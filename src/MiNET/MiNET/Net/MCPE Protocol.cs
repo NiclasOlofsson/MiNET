@@ -104,6 +104,7 @@ namespace MiNET.Net
 		void HandleMcpeItemStackRequest(McpeItemStackRequest message);
 		void HandleMcpeUpdatePlayerGameType(McpeUpdatePlayerGameType message);
 		void HandleMcpePacketViolationWarning(McpePacketViolationWarning message);
+		void HandleMcpeFilterText(McpeFilterTextPacket message);
 	}
 
 	public interface IMcpeClientMessageHandler
@@ -9660,8 +9661,9 @@ namespace MiNET.Net
 			CraftRecipe = 9,
 			CraftRecipeAuto = 10,
 			CraftCreative = 11,
-			CraftNotImplementedDeprecated = 12,
-			CraftResultsDeprecated = 13,
+			CraftRecipeOptional = 12,
+			CraftNotImplementedDeprecated = 13,
+			CraftResultsDeprecated = 14,
 		}
 
 		public ItemStackRequests requests; // = null;

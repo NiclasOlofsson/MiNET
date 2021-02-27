@@ -23,6 +23,9 @@
 
 #endregion
 
+using System;
+using MiNET.Items;
+
 namespace MiNET.Blocks
 {
 	public partial class Deadbush : Block
@@ -32,6 +35,24 @@ namespace MiNET.Blocks
 			IsSolid = false;
 			IsTransparent = true;
 			IsFlammable = true;
+		}
+		
+		public override Item[] GetDrops(Item tool)
+		{
+			// if shear drop deadbush
+			if (tool is ItemShears)
+			{
+				return new[] {ItemFactory.GetItem(32)};
+			}
+			
+			//random between 0 and 3 sticks
+			var rnd = new Random();
+			byte count = (byte) rnd.Next(3);
+			if (count > 0)
+			{
+				return new[] {ItemFactory.GetItem(280, 0, count)};
+			}
+			return new Item[0];
 		}
 	}
 }

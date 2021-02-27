@@ -58,6 +58,17 @@ namespace MiNET.Blocks
 			}
 		}
 
+		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		{
+			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
+			{
+				var under = world.GetBlock(Coordinates.BlockDown());
+				return under is Grass || under is Dirt || under is Podzol || under is Farmland;
+			}
+			
+			return false;
+		}			
+
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
 			if (Coordinates.BlockDown() == blockCoordinates)
@@ -69,6 +80,11 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
+			//if shear drop grass
+			if (tool is ItemShears)
+			{
+				return new[] {ItemFactory.GetItem(31)};
+			}
 			// 50% chance to drop seeds.
 			var rnd = new Random();
 			if (rnd.NextDouble() > 0.5)

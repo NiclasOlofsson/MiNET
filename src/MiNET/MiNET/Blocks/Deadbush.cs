@@ -25,6 +25,8 @@
 
 using System;
 using MiNET.Items;
+using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -36,6 +38,17 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 			IsFlammable = true;
 		}
+		
+		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		{
+			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
+			{
+				var under = world.GetBlock(Coordinates.BlockDown());
+				return under is Sand || under is Dirt || under is Podzol || under is HardenedClay || under is StainedHardenedClay;
+			}
+			
+			return false;
+		}		
 		
 		public override Item[] GetDrops(Item tool)
 		{

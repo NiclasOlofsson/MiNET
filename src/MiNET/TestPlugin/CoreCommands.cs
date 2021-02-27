@@ -1270,7 +1270,7 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemGoldenSword(); // Golden Sword
 			inventory.Slots[c++] = new ItemIronSword(); // Iron Sword
 			inventory.Slots[c++] = new ItemDiamondSword(); // Diamond Sword
-			inventory.Slots[c++] = new ItemArrow {Count = 64, UniqueId = Environment.TickCount}; // Arrows
+			inventory.Slots[c++] = new ItemArrow {Count = 64, UniqueId = Environment.TickCount & Int32.MaxValue}; // Arrows
 			inventory.Slots[c++] = new ItemEgg {Count = 64}; // Eggs
 			inventory.Slots[c++] = new ItemSnowball {Count = 64}; // Snowballs
 			inventory.Slots[c++] = new ItemIronSword

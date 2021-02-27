@@ -2565,7 +2565,7 @@ namespace MiNET
 							dropItem = (Item) sourceItem.Clone();
 							sourceItem.Count -= count;
 							dropItem.Count = count;
-							dropItem.UniqueId = Environment.TickCount;
+							dropItem.UniqueId = Environment.TickCount & Int32.MaxValue;
 						}
 
 						DropItem(dropItem);

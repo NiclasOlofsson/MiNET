@@ -111,7 +111,7 @@ namespace MiNET.Items
 					if (itemStack.Id == 262)
 					{
 						haveArrow = true;
-						if (isInfinity) inventory.RemoveItems(262, 1);
+						if (!isInfinity) inventory.RemoveItems(262, 1);
 						break;
 					}
 				}

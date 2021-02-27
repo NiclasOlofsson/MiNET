@@ -67,6 +67,11 @@ namespace MiNET
 						ProcessCraftNotImplementedDeprecatedAction(craftNotImplementedDeprecatedAction);
 						break;
 					}
+					case CraftRecipeOptionalAction craftRecipeOptionalAction:
+					{
+						ProcessCraftRecipeOptionalAction(craftRecipeOptionalAction);
+						break;
+					}
 					case CraftResultDeprecatedAction craftResultDeprecatedAction:
 					{
 						ProcessCraftResultDeprecatedAction(craftResultDeprecatedAction);
@@ -452,6 +457,10 @@ namespace MiNET
 			creativeItem.UniqueId = Environment.TickCount;
 			Log.Debug($"Creating {creativeItem}");
 			_player.Inventory.UiInventory.Slots[50] = creativeItem;
+		}
+
+		protected virtual void ProcessCraftRecipeOptionalAction(CraftRecipeOptionalAction action)
+		{
 		}
 
 		private Item GetContainerItem(int containerId, int slot)

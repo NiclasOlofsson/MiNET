@@ -1176,6 +1176,14 @@ namespace MiNET.Net
 							break;
 						}
 
+						case CraftRecipeOptionalAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.CraftRecipeOptional);
+							WriteUnsignedVarInt(ta.RecipeNetworkId);
+							Write(ta.FilteredStringIndex);
+							break;
+						}
+
 						case CraftNotImplementedDeprecatedAction ta:
 						{
 							Write((byte) McpeItemStackRequest.ActionType.CraftNotImplementedDeprecated);
@@ -1206,8 +1214,9 @@ namespace MiNET.Net
 		//public const CRAFTING_RECIPE = 9;
 		//public const CRAFTING_RECIPE_AUTO = 10; //recipe book?
 		//public const CREATIVE_CREATE = 11;
-		//public const CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING = 12; //anvils aren't fully implemented yet
-		//public const CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING = 13; //no idea what this is for
+		//public const CRAFT_RECIPE_OPTIONAL = 12;
+		//public const CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING = 13; 
+		//public const CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING = 14; //no idea what this is for
 
 		public ItemStackRequests ReadItemStackRequests()
 		{
@@ -1322,6 +1331,14 @@ namespace MiNET.Net
 							actions.Add(action);
 							break;
 						}
+						case McpeItemStackRequest.ActionType.CraftRecipeOptional:
+						{
+							var action = new CraftRecipeOptionalAction();
+							action.RecipeNetworkId = ReadUnsignedVarInt();
+							action.FilteredStringIndex = ReadInt();
+							actions.Add(action);
+							break;
+						}
 						case McpeItemStackRequest.ActionType.CraftNotImplementedDeprecated:
 						{
 							var action = new CraftNotImplementedDeprecatedAction();
@@ -1367,6 +1384,7 @@ namespace MiNET.Net
 						Write(slot.Count);
 						WriteSignedVarInt(slot.StackNetworkId);
 						Write(slot.CustomName);
+						WriteSignedVarInt(slot.DurabilityCorrection);
 					}
 				}
 			}
@@ -1402,6 +1420,7 @@ namespace MiNET.Net
 						slot.Count = ReadByte();
 						slot.StackNetworkId = ReadSignedVarInt();
 						slot.CustomName = ReadString();
+						slot.DurabilityCorrection = ReadSignedVarInt();
 						
 						containerInfo.Slots.Add(slot);
 					}
@@ -2162,6 +2181,7 @@ namespace MiNET.Net
 		public void Write(Skin skin)
 		{
 			Write(skin.SkinId);
+			Write(skin.PlayFabId);
 			Write(skin.ResourcePatch);
 			Write(skin.Width);
 			Write(skin.Height);
@@ -2223,6 +2243,7 @@ namespace MiNET.Net
 			Skin skin = new Skin();
 
 			skin.SkinId = ReadString();
+			skin.PlayFabId = ReadString();
 			skin.ResourcePatch = ReadString();
 			skin.Width = ReadInt();
 			skin.Height = ReadInt();

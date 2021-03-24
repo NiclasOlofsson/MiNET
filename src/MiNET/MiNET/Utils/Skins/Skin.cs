@@ -71,6 +71,8 @@ namespace MiNET.Utils.Skins
 		public Cape Cape { get; set; } = new Cape();
 		public string SkinId { get; set; }
 
+		public string PlayFabId { get; set; }
+
 		public string ResourcePatch { get; set; } // contains GeometryName
 
 		public SkinResourcePatch SkinResourcePatch

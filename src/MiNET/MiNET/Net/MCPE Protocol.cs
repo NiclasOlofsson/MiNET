@@ -43,8 +43,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 422;
-		public const string GameVersion = "1.16.200";
+		public const int ProtocolVersion = 428;
+		public const string GameVersion = "1.16.210";
 	}
 
 	public interface IMcpeMessageHandler
@@ -104,6 +104,7 @@ namespace MiNET.Net
 		void HandleMcpeItemStackRequest(McpeItemStackRequest message);
 		void HandleMcpeUpdatePlayerGameType(McpeUpdatePlayerGameType message);
 		void HandleMcpePacketViolationWarning(McpePacketViolationWarning message);
+		void HandleMcpeFilterText(McpeFilterTextPacket message);
 	}
 
 	public interface IMcpeClientMessageHandler
@@ -2481,6 +2482,8 @@ namespace MiNET.Net
 		public string premiumWorldTemplateId; // = null;
 		public bool isTrial; // = null;
 		public int movementType; // = null;
+		public int movementRewindHistorySize; // = null;
+		public bool enableNewBlockBreakingSystem; // = null;
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
 		public BlockPalette blockPalette; // = null;
@@ -2552,7 +2555,9 @@ namespace MiNET.Net
 			Write(worldName);
 			Write(premiumWorldTemplateId);
 			Write(isTrial);
-			WriteSignedVarInt(movementType);
+			WriteVarInt(movementType);
+			WriteSignedVarInt(movementRewindHistorySize);
+			Write(enableNewBlockBreakingSystem);
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
 			Write(blockPalette);
@@ -2624,7 +2629,9 @@ namespace MiNET.Net
 			worldName = ReadString();
 			premiumWorldTemplateId = ReadString();
 			isTrial = ReadBool();
-			movementType = ReadSignedVarInt();
+			movementType = ReadVarInt();
+			movementRewindHistorySize = ReadSignedVarInt();
+			enableNewBlockBreakingSystem = ReadBool();
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
 			blockPalette = ReadBlockPalette();
@@ -9657,11 +9664,13 @@ namespace MiNET.Net
 			Create = 6,
 			LabTableCombine = 7,
 			BeaconPayment = 8,
-			CraftRecipe = 9,
-			CraftRecipeAuto = 10,
-			CraftCreative = 11,
-			CraftNotImplementedDeprecated = 12,
-			CraftResultsDeprecated = 13,
+			MineBlock = 9,
+			CraftRecipe = 10,
+			CraftRecipeAuto = 11,
+			CraftCreative = 12,
+			CraftRecipeOptional = 13,
+			CraftNotImplementedDeprecated = 14,
+			CraftResultsDeprecated = 15,
 		}
 
 		public ItemStackRequests requests; // = null;

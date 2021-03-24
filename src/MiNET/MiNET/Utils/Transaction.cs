@@ -119,6 +119,12 @@ namespace MiNET.Utils
 		public uint CreativeItemNetworkId { get; set; }
 	}
 
+	public class CraftRecipeOptionalAction : ItemStackAction
+	{
+		public uint RecipeNetworkId { get; set; }
+		public int FilteredStringIndex { get; set; }
+	}
+
 	public class CraftNotImplementedDeprecatedAction : ItemStackAction
 	{
 		// nothing
@@ -160,6 +166,7 @@ namespace MiNET.Utils
 		public byte Count          { get; set; }
 		public int  StackNetworkId { get; set; }
 		public string  CustomName     { get; set; }
+		public int DurabilityCorrection { get; set; }
 	}
 
 

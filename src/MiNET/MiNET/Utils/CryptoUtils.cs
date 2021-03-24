@@ -237,6 +237,7 @@ namespace MiNET.Utils
 	""PieceTintColors"": [],
 	""PlatformOfflineId"": """",
 	""PlatformOnlineId"": """",
+	""PlayFabId"": """",
 	""PremiumSkin"": false,
 	""SelfSignedId"": ""{Guid.NewGuid().ToString()}"",
 	""ServerAddress"": ""yodamine.com:19132"",

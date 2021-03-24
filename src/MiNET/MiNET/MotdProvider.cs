@@ -75,6 +75,11 @@ namespace MiNET
 				clientVersion = "1.7.0";
 				edition = "MCEE";
 			}
+			
+			// Big brain Microjang moment here
+			if (SecondLine == "")
+				// As of 1.16.210, the sub-MOTD cannot be blank or Minecraft won't see the MOTD
+				SecondLine = "MiNET";
 
 			// 2019-12-29 20:00:46,672 [DedicatedThreadPool-8631ff8f-0339-4a0d-83c7-222335bdb410_1] WARN  MiNET.Client.MiNetClient - MOTD: MCPE;gurunx;389;1.14.1;1;8;9586953286635751800;My World;Creative;1;53387;53388;
 			return string.Format($"{edition};{Motd};{protocolVersion};{clientVersion};{NumberOfPlayers};{MaxNumberOfPlayers};{serverId};{SecondLine};{GameMode};");

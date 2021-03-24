@@ -717,6 +717,10 @@ namespace MiNET
 		public void HandleMcpeScriptCustomEvent(McpeScriptCustomEvent message)
 		{
 		}
+
+		public void HandleMcpeFilterText(McpeFilterTextPacket message)
+		{
+		}
 	}
 
 	public interface IServerManager

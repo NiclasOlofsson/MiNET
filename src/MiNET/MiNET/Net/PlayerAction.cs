@@ -53,6 +53,8 @@ namespace MiNET.Net
 		StopSwimming = 22,
 		StartSpinAttack = 23,
 		StopSpinAttack = 24,
-		InteractBlock = 25
+		InteractBlock = 25,
+		PredictDestroyBlock = 26,
+		ContinueDestroyBlock = 27
 	}
 }

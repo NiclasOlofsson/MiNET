@@ -43,8 +43,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 422;
-		public const string GameVersion = "1.16.200";
+		public const int ProtocolVersion = 428;
+		public const string GameVersion = "1.16.210";
 	}
 
 	public interface IMcpeMessageHandler
@@ -2482,6 +2482,8 @@ namespace MiNET.Net
 		public string premiumWorldTemplateId; // = null;
 		public bool isTrial; // = null;
 		public int movementType; // = null;
+		public int movementRewindHistorySize; // = null;
+		public bool enableNewBlockBreakSystem; // = null;
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
 		public BlockPalette blockPalette; // = null;
@@ -2554,6 +2556,8 @@ namespace MiNET.Net
 			Write(premiumWorldTemplateId);
 			Write(isTrial);
 			WriteSignedVarInt(movementType);
+			WriteSignedVarInt(movementRewindHistorySize);
+			Write(enableNewBlockBreakSystem);
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
 			Write(blockPalette);
@@ -2626,6 +2630,8 @@ namespace MiNET.Net
 			premiumWorldTemplateId = ReadString();
 			isTrial = ReadBool();
 			movementType = ReadSignedVarInt();
+			movementRewindHistorySize = ReadSignedVarInt();
+			enableNewBlockBreakSystem = ReadBool();
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
 			blockPalette = ReadBlockPalette();
@@ -2696,6 +2702,8 @@ namespace MiNET.Net
 			premiumWorldTemplateId=default(string);
 			isTrial=default(bool);
 			movementType=default(int);
+			movementRewindHistorySize=default(int);
+			enableNewBlockBreakSystem=default(bool);
 			currentTick=default(long);
 			enchantmentSeed=default(int);
 			blockPalette=default(BlockPalette);
@@ -9658,12 +9666,13 @@ namespace MiNET.Net
 			Create = 6,
 			LabTableCombine = 7,
 			BeaconPayment = 8,
-			CraftRecipe = 9,
-			CraftRecipeAuto = 10,
-			CraftCreative = 11,
-			CraftRecipeOptional = 12,
-			CraftNotImplementedDeprecated = 13,
-			CraftResultsDeprecated = 14,
+			MineBlock = 9,
+			CraftRecipe = 10,
+			CraftRecipeAuto = 11,
+			CraftCreative = 12,
+			CraftRecipeOptional = 13,
+			CraftNotImplementedDeprecated = 14,
+			CraftResultsDeprecated = 15,
 		}
 
 		public ItemStackRequests requests; // = null;

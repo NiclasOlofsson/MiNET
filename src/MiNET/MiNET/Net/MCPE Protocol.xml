@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.16.200" protocolVersion="422">
+<protocol gameVersion="1.16.210" protocolVersion="428">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -260,6 +260,8 @@
 		<field name="Premium World Template Id" type="string" />
 		<field name="Is Trial" type="bool" />
 		<field name="Movement Type" type="SignedVarInt" />
+		<field name="Movement Rewind History Size" type="SignedVarInt" />
+		<field name="Enable New Block Break System" type="bool" />
 		<field name="Current Tick" type="long" />
 		<field name="Enchantment Seed" type="SignedVarInt" />
 
@@ -1214,12 +1216,13 @@
 			<enum id="Create" value="6" />
 			<enum id="Lab table combine" value="7" />
 			<enum id="Beacon payment" value="8" />
-			<enum id="Craft recipe" value="9" />
-			<enum id="Craft recipe Auto" value="10" />
-			<enum id="Craft creative" value="11" />
-			<enum id="Craft recipe optional" value="12" />
-			<enum id="Craft not implemented deprecated" value="13"/>
-			<enum id="Craft results deprecated" value="14" />
+			<enum id="Mine Block" value="9"/>
+			<enum id="Craft recipe" value="10" />
+			<enum id="Craft recipe Auto" value="11" />
+			<enum id="Craft creative" value="12" />
+			<enum id="Craft recipe optional" value="13" />
+			<enum id="Craft not implemented deprecated" value="14"/>
+			<enum id="Craft results deprecated" value="15" />
 		</enums>
 		<field name="Requests" type="ItemStackRequests" />
 	</pdu>

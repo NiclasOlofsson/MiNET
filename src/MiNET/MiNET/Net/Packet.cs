@@ -1621,7 +1621,7 @@ namespace MiNET.Net
 			byte count = (byte) (tmp & 0xff);
 			Item stack = ItemFactory.GetItem((short) id, metadata, count);
 
-			ushort nbtLen = _reader.ReadUInt16(); // NbtLen
+			ushort nbtLen = ReadUshort(); // NbtLen
 			if (nbtLen == 0xffff)
 			{
 				var version = ReadByte();

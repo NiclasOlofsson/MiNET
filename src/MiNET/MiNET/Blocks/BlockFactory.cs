@@ -31,6 +31,7 @@ using System.Runtime.CompilerServices;
 using fNbt;
 using log4net;
 using MiNET.Utils;
+using Newtonsoft.Json;
 
 namespace MiNET.Blocks
 {
@@ -82,11 +83,78 @@ namespace MiNET.Blocks
 
 			lock (lockObj)
 			{
-				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
+				Dictionary<string, int> idMapping;
+				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".block_id_map.json"))
+				using (var reader = new StreamReader(stream))
+				{
+					idMapping = JsonConvert.DeserializeObject<Dictionary<string, int>>(reader.ReadToEnd());
+				}
+				
+				int runtimeId = 0;
+				BlockPalette = new BlockPalette();
+				using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(Block).Namespace + ".canonical_block_states.nbt"))
+				{
+					var reader = new NbtFile();
+					reader.UseVarInt = true;
+					reader.AllowAlternativeRootTag = true;
+
+					do
+					{
+						reader.LoadFromStream(stream, NbtCompression.AutoDetect);
+						var record = new BlockStateContainer();
+						
+						var tag = reader.RootTag;
+						string name = tag["name"].StringValue;
+						record.Name = name;
+						record.States = new List<IBlockState>();
+
+						if (idMapping.TryGetValue(name, out var id))
+						{
+							record.Id = id;
+						}
+						
+						var states = tag["states"];
+						if (states != null && states is NbtCompound compound)
+						{
+							foreach (var stateEntry in compound)
+							{
+								switch (stateEntry)
+								{
+									case NbtInt nbtInt:
+										record.States.Add(new BlockStateInt()
+										{
+											Name = nbtInt.Name,
+											Value = nbtInt.Value
+										});
+										break;
+									case NbtByte nbtByte:
+										record.States.Add(new BlockStateByte()
+										{
+											Name = nbtByte.Name,
+											Value = nbtByte.Value
+										});
+										break;
+									case NbtString nbtString:
+										record.States.Add(new BlockStateString()
+										{
+											Name = nbtString.Name,
+											Value = nbtString.Value
+										});
+										break;
+								}
+							}
+						}
+						
+						record.RuntimeId = runtimeId++;
+						BlockPalette.Add(record);
+					} while (stream.Position < stream.Length);
+				}
+				
+				/*using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
 				using (var reader = new StreamReader(stream))
 				{
 					BlockPalette = BlockPalette.FromJson(reader.ReadToEnd());
-				}
+				}*/
 
 				foreach(var record in BlockPalette)
 				{

@@ -39,6 +39,10 @@
     <EmbeddedResource Include="Items\itemstates.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <None Remove="Blocks\canonical_block_states.nbt" />
+    <EmbeddedResource Include="Blocks\canonical_block_states.nbt" />
+    <None Remove="Blocks\block_id_map.json" />
+    <EmbeddedResource Include="Blocks\block_id_map.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="jose-jwt" Version="3.0.0" />

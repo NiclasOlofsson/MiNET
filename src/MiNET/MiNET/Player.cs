@@ -2163,6 +2163,17 @@ namespace MiNET
 			Log.Error($"A level {message.severity} packet violation of type {message.violationType} for packet 0x{message.packetId:X} {message.reason}");
 		}
 
+		/// <inheritdoc />
+		public void HandleMcpeFilterTextPacket(McpeFilterTextPacket message)
+		{
+			// Allow anvil renaming to work - this packet must be sent in response
+			// You could also modify the contents to change the outcome.
+			var packet = McpeFilterTextPacket.CreateObject();
+			packet.text = message.text;
+			packet.fromServer = true;
+			SendPacket(packet);
+		}
+
 		public virtual void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)
 		{
 		}
@@ -3743,16 +3754,6 @@ namespace MiNET
 
 		public virtual void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
 		{
-		}
-
-		public void HandleMcpeFilterText(McpeFilterTextPacket message)
-		{
-			// Allow anvil renaming to work - this packet must be sent in response
-			// You could also modify the contents to change the outcome.
-			var packet = McpeFilterTextPacket.CreateObject();
-			packet.text = message.text;
-			packet.fromServer = true;
-			SendPacket(packet);
 		}
 	}
 

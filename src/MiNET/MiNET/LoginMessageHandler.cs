@@ -562,6 +562,11 @@ namespace MiNET
 		{
 		}
 
+		/// <inheritdoc />
+		public void HandleMcpeFilterTextPacket(McpeFilterTextPacket message)
+		{
+		}
+
 		public void HandleMcpeEntityEvent(McpeEntityEvent message)
 		{
 		}
@@ -715,10 +720,6 @@ namespace MiNET
 		}
 
 		public void HandleMcpeScriptCustomEvent(McpeScriptCustomEvent message)
-		{
-		}
-
-		public void HandleMcpeFilterText(McpeFilterTextPacket message)
 		{
 		}
 	}

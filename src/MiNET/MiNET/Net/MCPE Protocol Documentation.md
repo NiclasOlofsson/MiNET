@@ -2775,8 +2775,9 @@ Wiki: [Item Stack Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 |Craft Recipe | 9 |
 |Craft Recipe Auto | 10 |
 |Craft Creative | 11 |
-|Craft Not Implemented Deprecated | 12 |
-|Craft Results Deprecated | 13 |
+|Craft Recipe Optional | 12 |
+|Craft Not Implemented Deprecated | 13 |
+|Craft Results Deprecated | 14 |
 
 
 #### Fields
@@ -2851,7 +2852,7 @@ Wiki: [Item Component](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-It
 Wiki: [Filter Text Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-FilterTextPacket)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 

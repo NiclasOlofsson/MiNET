@@ -1217,8 +1217,9 @@
 			<enum id="Craft recipe" value="9" />
 			<enum id="Craft recipe Auto" value="10" />
 			<enum id="Craft creative" value="11" />
-			<enum id="Craft not implemented deprecated" value="12" />
-			<enum id="Craft results deprecated" value="13" />
+			<enum id="Craft recipe optional" value="12" />
+			<enum id="Craft not implemented deprecated" value="13"/>
+			<enum id="Craft results deprecated" value="14" />
 		</enums>
 		<field name="Requests" type="ItemStackRequests" />
 	</pdu>
@@ -1240,7 +1241,7 @@
 		<field name="Entries" type="ItemComponentList" />
 	</pdu>
 	
-	<pdu id="0xa3" online="false" client="false" server="true" name="MCPE_FILTER_TEXT_PACKET">
+	<pdu id="0xa3" online="false" client="true" server="true" name="MCPE_FILTER_TEXT_PACKET">
 		<field name="Text" type="string" />
 		<field name="From server" type="bool"/>
 	</pdu>

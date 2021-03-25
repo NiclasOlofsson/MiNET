@@ -90,9 +90,16 @@ namespace MiNET.Blocks
 					idMapping = JsonConvert.DeserializeObject<Dictionary<string, int>>(reader.ReadToEnd());
 				}
 				
+				Dictionary<string, short> itemIdMapping;
+				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".item_id_map.json"))
+				using (var reader = new StreamReader(stream))
+				{
+					itemIdMapping = JsonConvert.DeserializeObject<Dictionary<string, short>>(reader.ReadToEnd());
+				}
+				
 				int runtimeId = 0;
 				BlockPalette = new BlockPalette();
-				using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(Block).Namespace + ".canonical_block_states.nbt"))
+				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".canonical_block_states.nbt"))
 				{
 					var reader = new NbtFile();
 					reader.UseVarInt = true;
@@ -143,6 +150,16 @@ namespace MiNET.Blocks
 										break;
 								}
 							}
+						}
+
+						if (itemIdMapping.TryGetValue(name, out var itemId))
+						{
+							record.ItemInstance = new ItemPickInstance()
+							{
+								Id = itemId,
+								WantNbt = false,
+								Metadata = 0
+							};
 						}
 						
 						record.RuntimeId = runtimeId++;

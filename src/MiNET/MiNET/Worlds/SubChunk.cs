@@ -41,7 +41,7 @@ namespace MiNET.Worlds
 
 		private bool _isAllAir = true;
 
-		private List<int> _runtimeIds = new List<int> { (int)BlockFactory.GetRuntimeId(0,0) }; // Add air, always as first (performance)
+		private List<int> _runtimeIds; // Add air, always as first (performance)
 		internal List<int> RuntimeIds => _runtimeIds;
 
 		private short[] _blocks;
@@ -65,6 +65,8 @@ namespace MiNET.Worlds
 
 		public SubChunk(bool clearBuffers = true)
 		{
+			_runtimeIds = new List<int> {(int) BlockFactory.GetBlockByName("minecraft:air").GetRuntimeId()};
+				
 			_blocks = ArrayPool<short>.Shared.Rent(4096);
 			_loggedBlocks = ArrayPool<byte>.Shared.Rent(4096);
 			_blocklight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));

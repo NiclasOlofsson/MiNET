@@ -32,6 +32,7 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Commands

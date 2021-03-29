@@ -26,6 +26,7 @@
 using System;
 using log4net;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Net
 {

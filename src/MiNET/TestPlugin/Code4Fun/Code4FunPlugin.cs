@@ -35,6 +35,7 @@ using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
+using MiNET.Utils.Vectors;
 
 namespace TestPlugin.Code4Fun
 {

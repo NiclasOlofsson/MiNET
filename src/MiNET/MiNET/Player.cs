@@ -46,7 +46,10 @@ using MiNET.Net;
 using MiNET.Particles;
 using MiNET.UI;
 using MiNET.Utils;
+using MiNET.Utils.Metadata;
+using MiNET.Utils.Nbt;
 using MiNET.Utils.Skins;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 using Newtonsoft.Json;
 

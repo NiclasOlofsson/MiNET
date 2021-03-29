@@ -6,6 +6,7 @@ using MiNET.Blocks;
 using MiNET.BuilderBase.Masks;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Commands

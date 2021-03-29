@@ -43,6 +43,7 @@ using MiNET.Plugins.Attributes;
 using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace TestPlugin.NiceLobby

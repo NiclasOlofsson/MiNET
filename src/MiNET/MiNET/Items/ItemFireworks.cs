@@ -30,6 +30,7 @@ using fNbt;
 using log4net;
 using MiNET.Entities.Projectiles;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items

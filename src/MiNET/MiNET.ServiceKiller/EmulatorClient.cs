@@ -30,6 +30,8 @@ using System.Threading;
 using log4net;
 using MiNET.Client;
 using MiNET.Utils;
+using MiNET.Utils.IO;
+using MiNET.Utils.Vectors;
 
 #pragma warning disable 1591
 

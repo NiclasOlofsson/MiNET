@@ -42,7 +42,11 @@ using MiNET.Crafting;
 using MiNET.Items;
 using MiNET.Net.RakNet;
 using MiNET.Utils;
+using MiNET.Utils.IO;
+using MiNET.Utils.Metadata;
+using MiNET.Utils.Nbt;
 using MiNET.Utils.Skins;
+using MiNET.Utils.Vectors;
 using Newtonsoft.Json;
 
 namespace MiNET.Net

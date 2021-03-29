@@ -26,6 +26,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Worlds.Tests
 {

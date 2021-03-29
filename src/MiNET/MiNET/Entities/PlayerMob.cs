@@ -31,7 +31,9 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Net.RakNet;
 using MiNET.Utils;
+using MiNET.Utils.Metadata;
 using MiNET.Utils.Skins;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Entities

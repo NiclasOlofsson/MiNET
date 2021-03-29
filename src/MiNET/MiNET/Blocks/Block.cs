@@ -31,6 +31,7 @@ using log4net;
 using MiNET.Items;
 using MiNET.Particles;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks

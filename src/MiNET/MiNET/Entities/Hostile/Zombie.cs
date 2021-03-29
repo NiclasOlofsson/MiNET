@@ -26,6 +26,7 @@
 using MiNET.Blocks;
 using MiNET.Entities.Behaviors;
 using MiNET.Utils;
+using MiNET.Utils.Metadata;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Hostile

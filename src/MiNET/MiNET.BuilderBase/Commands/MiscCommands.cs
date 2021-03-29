@@ -7,6 +7,7 @@ using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Commands

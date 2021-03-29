@@ -26,6 +26,8 @@
 using System;
 using log4net;
 using MiNET.Utils;
+using MiNET.Utils.IO;
+using MiNET.Utils.Metadata;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Hostile

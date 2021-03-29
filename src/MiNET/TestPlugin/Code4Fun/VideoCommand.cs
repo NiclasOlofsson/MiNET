@@ -41,6 +41,8 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Utils.IO;
+using MiNET.Utils.Vectors;
 using TestPlugin.NiceLobby;
 
 namespace TestPlugin.Code4Fun

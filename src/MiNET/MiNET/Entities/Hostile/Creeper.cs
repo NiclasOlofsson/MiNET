@@ -25,6 +25,7 @@
 
 using MiNET.Entities.Behaviors;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Hostile

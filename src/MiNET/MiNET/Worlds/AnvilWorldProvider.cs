@@ -40,6 +40,7 @@ using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Worlds
 {

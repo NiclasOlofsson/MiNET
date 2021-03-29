@@ -33,6 +33,7 @@ using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.Nbt;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 

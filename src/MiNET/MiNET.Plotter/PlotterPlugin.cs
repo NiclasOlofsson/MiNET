@@ -30,6 +30,7 @@ using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Plotter

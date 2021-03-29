@@ -33,6 +33,7 @@ using log4net;
 using MiNET.Net;
 using MiNET.Net.RakNet;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using Newtonsoft.Json;
 
 namespace MiNET.Plotter

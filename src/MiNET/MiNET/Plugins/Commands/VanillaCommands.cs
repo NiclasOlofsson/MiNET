@@ -37,6 +37,7 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Plugins.Commands

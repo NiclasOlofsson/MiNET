@@ -28,6 +28,7 @@ using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Particles;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Entities.Behaviors
 {

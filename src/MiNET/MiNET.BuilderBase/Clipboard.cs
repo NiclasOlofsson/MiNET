@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using MiNET.Blocks;
 using MiNET.BuilderBase.Masks;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.BuilderBase

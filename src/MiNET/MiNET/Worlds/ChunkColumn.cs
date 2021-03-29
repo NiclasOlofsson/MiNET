@@ -37,6 +37,8 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.IO;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Worlds
 {

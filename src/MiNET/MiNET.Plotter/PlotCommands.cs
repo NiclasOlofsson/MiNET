@@ -31,6 +31,7 @@ using MiNET.Net;
 using MiNET.Net.RakNet;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Plotter
 {

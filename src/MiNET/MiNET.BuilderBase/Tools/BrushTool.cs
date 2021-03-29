@@ -34,6 +34,7 @@ using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
 using MiNET.Items;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 using Newtonsoft.Json;
 

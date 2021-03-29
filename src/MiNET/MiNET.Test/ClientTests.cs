@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Client;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.IO;
 using Newtonsoft.Json;
 
 namespace MiNET.Test

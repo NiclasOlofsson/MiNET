@@ -30,6 +30,7 @@ using MiNET.Blocks;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Entities.Behaviors
 {

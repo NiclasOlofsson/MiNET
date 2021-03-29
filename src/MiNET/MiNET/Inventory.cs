@@ -31,6 +31,7 @@ using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET
 {

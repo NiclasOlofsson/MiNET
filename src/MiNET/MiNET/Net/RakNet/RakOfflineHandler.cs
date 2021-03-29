@@ -30,6 +30,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
 using MiNET.Utils;
+using MiNET.Utils.Nbt;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 

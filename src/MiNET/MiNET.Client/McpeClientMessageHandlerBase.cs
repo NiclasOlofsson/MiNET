@@ -32,6 +32,8 @@ using Jose;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.Cryptography;
+using MiNET.Utils.Vectors;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 

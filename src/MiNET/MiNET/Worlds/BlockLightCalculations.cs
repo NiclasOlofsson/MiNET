@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Worlds
 {

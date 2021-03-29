@@ -8,6 +8,7 @@ using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
 using MiNET.Entities;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.BuilderBase

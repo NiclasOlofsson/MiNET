@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using log4net;
 using log4net.Config;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Client
 {

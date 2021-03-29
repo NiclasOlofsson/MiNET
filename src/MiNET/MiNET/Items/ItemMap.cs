@@ -26,6 +26,7 @@
 using System.Numerics;
 using fNbt;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items

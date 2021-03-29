@@ -29,6 +29,7 @@ using MiNET.Entities.Passive;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace TestPlugin.Pets
 {

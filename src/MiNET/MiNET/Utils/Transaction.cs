@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Utils
 {

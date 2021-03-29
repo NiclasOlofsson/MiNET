@@ -46,6 +46,9 @@ using MiNET.Net.RakNet;
 using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Diagnostics;
+using MiNET.Utils.IO;
+using MiNET.Utils.Nbt;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Worlds
 {

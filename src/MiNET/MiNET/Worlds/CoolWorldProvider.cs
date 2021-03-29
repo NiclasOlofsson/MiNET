@@ -30,6 +30,7 @@ using LibNoise;
 using LibNoise.Primitive;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Worlds
 {

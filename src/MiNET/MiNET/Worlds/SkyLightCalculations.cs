@@ -36,6 +36,8 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Utils.IO;
+using MiNET.Utils.Vectors;
 using SharpAvi;
 using SharpAvi.Output;
 

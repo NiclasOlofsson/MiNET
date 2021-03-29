@@ -30,6 +30,8 @@ using System.IO.Compression;
 using log4net;
 using MiNET.Net.RakNet;
 using MiNET.Utils;
+using MiNET.Utils.Cryptography;
+using MiNET.Utils.IO;
 
 namespace MiNET.Net
 {

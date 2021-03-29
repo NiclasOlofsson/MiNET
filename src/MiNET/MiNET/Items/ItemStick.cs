@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items

@@ -9,6 +9,7 @@ using MiNET.Entities;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Commands

@@ -31,6 +31,7 @@ using System.Security.Cryptography;
 using System.Text;
 using log4net;
 using MiNET.Utils;
+using MiNET.Utils.Cryptography;
 using Newtonsoft.Json.Linq;
 
 namespace MiNET

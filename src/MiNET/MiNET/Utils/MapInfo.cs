@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Utils
 {

@@ -32,6 +32,7 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Plugins;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 [assembly: InternalsVisibleTo("MiNET.BuilderBase.Tests")]
 

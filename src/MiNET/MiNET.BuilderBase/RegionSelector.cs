@@ -36,6 +36,8 @@ using MiNET.Blocks;
 using MiNET.BuilderBase.Commands;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.Nbt;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.BuilderBase
 {

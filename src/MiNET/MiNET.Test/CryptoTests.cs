@@ -31,6 +31,7 @@ using System.Text;
 using Jose;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Utils;
+using MiNET.Utils.Cryptography;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;

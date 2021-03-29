@@ -29,6 +29,7 @@ using log4net;
 using MiNET;
 using MiNET.Entities;
 using MiNET.Utils;
+using MiNET.Utils.Metadata;
 using MiNET.Worlds;
 
 namespace TestPlugin.Pets

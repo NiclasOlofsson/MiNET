@@ -27,6 +27,7 @@ using System;
 using MiNET.Entities.Behaviors;
 using MiNET.Items;
 using MiNET.Utils;
+using MiNET.Utils.Metadata;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Passive

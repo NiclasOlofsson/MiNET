@@ -36,6 +36,7 @@ using log4net;
 using MiNET.Net;
 using MiNET.Net.RakNet;
 using MiNET.Utils;
+using MiNET.Utils.Cryptography;
 using MiNET.Utils.Skins;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;

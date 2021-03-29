@@ -34,6 +34,7 @@ using MiNET.Entities.ImageProviders;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace TestPlugin.NiceLobby

@@ -40,6 +40,8 @@ using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.Metadata;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

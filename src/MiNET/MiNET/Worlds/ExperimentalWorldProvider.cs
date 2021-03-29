@@ -28,6 +28,7 @@ using System.Collections.Concurrent;
 using System.Numerics;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Worlds
 {

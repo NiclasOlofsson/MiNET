@@ -33,6 +33,8 @@ using log4net;
 using MiNET.Client;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.IO;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Console

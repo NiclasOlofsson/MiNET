@@ -3,6 +3,7 @@ using System.Linq;
 using MiNET.Blocks;
 using MiNET.Plugins;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Commands

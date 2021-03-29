@@ -37,6 +37,7 @@ using MiNET.Entities;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
+using MiNET.Utils.Vectors;
 using TestPlugin.NiceLobby;
 
 namespace TestPlugin.Code4Fun

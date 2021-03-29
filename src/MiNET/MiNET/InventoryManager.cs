@@ -30,6 +30,7 @@ using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET

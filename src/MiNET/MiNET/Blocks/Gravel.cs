@@ -28,6 +28,7 @@ using System.Numerics;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks

@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Plotter

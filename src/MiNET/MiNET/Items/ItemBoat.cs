@@ -27,6 +27,7 @@ using System.Numerics;
 using log4net;
 using MiNET.Entities.Vehicles;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items

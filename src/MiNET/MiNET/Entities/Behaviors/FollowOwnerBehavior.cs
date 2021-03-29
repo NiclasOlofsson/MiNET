@@ -28,6 +28,7 @@ using AStarNavigator;
 using log4net;
 using MiNET.Entities.Passive;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Entities.Behaviors
 {

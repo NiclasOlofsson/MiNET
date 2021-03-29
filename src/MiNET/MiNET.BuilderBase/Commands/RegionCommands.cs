@@ -31,6 +31,7 @@ using MiNET.BuilderBase.Patterns;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.BuilderBase.Commands
 {

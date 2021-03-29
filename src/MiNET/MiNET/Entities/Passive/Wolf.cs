@@ -30,6 +30,7 @@ using MiNET.Entities.Behaviors;
 using MiNET.Items;
 using MiNET.Particles;
 using MiNET.Utils;
+using MiNET.Utils.Metadata;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Passive

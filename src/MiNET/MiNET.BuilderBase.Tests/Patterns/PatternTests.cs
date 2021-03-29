@@ -29,6 +29,7 @@ using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.BuilderBase.Patterns.Tests
 {

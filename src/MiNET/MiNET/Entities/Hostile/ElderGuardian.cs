@@ -25,6 +25,7 @@
 
 using log4net;
 using MiNET.Utils;
+using MiNET.Utils.Metadata;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Hostile
@@ -59,7 +60,7 @@ namespace MiNET.Entities.Hostile
 		//[47] int 2 0, 
 		//[53] float 3 1,99, 
 		//[54] float 3 1,99, 
-		//[56] vector3 8 <0  0  0>, 
+		//[56] vector3 8 <0ï¿½ 0ï¿½ 0>, 
 		//[57] byte 0 0, 
 		//[58] float 3 0, 
 		//[59] float 3 0

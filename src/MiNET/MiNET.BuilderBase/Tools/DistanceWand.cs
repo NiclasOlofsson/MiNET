@@ -31,6 +31,8 @@ using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Utils;
+using MiNET.Utils.IO;
+using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Tools

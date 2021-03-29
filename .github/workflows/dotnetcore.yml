@@ -30,7 +30,8 @@ jobs:
         working-directory: src/MiNET/MiNET
         run: |
           export PKG_VERSION=1.0.${{ steps.buildnumber.outputs.build_number }}
-          dotnet pack -o ./nuget -p:PackageVersion="$PKG_VERSION" --include-symbols --include-source
+          dotnet build --configuration Release
+          dotnet pack --configuration Release -o ./nuget -p:PackageVersion="$PKG_VERSION" --include-symbols --include-source
       
       - name: Publish Artifacts
         shell: bash
@@ -39,18 +40,3 @@ jobs:
           for f in ./nuget/*.nupkg; do
             until dotnet nuget push "$f" -s "https://api.nuget.org/v3/index.json" -k ${{ secrets.NUGET_KEY }} --skip-duplicate --no-symbols true; do echo "Retrying"; sleep 1; done
           done
-    
-  build:
-
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.100
-        
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
-      working-directory: src/MiNET

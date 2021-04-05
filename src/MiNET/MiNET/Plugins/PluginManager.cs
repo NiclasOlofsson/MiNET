@@ -202,25 +202,44 @@ namespace MiNET.Plugins
 			if (assembly != null) return assembly;
 			if (_currentPath == null) return null;
 
+			if (TryLoadAssembly(_currentPath ?? "", args.Name, out assembly))
+			{
+				return assembly;
+			}
+			
+			Log.Warn($"Could not resolve assembly: {args.Name}");
+
+			return null;
+		}
+
+		private bool TryLoadAssembly(string path, string input, out Assembly assembly)
+		{
 			try
 			{
-				AssemblyName name = new AssemblyName(args.Name);
-				string assemblyPath = _currentPath + "\\" + name.Name + ".dll";
-				return Assembly.LoadFile(assemblyPath);
+				AssemblyName name = new AssemblyName(input);
+				string dllPath = Path.Combine(path, $"{name.Name}.dll");
+				string exePath = Path.Combine(path, $"{name.Name}.exe");
+
+				if (File.Exists(dllPath))
+				{
+					assembly = Assembly.Load(dllPath);
+
+					return true;
+				}
+				else if (File.Exists(exePath))
+				{
+					assembly = Assembly.Load(exePath);
+
+					return true;
+				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				try
-				{
-					AssemblyName name = new AssemblyName(args.Name);
-					string assemblyPath = _currentPath + "\\" + name.Name + ".exe";
-					return Assembly.LoadFile(assemblyPath);
-				}
-				catch (Exception)
-				{
-					return Assembly.LoadFile(args.Name + ".dll");
-				}
+				Log.Warn($"Could not load assembly: {input}", ex);
 			}
+
+			assembly = null;
+			return false;
 		}
 
 		public void LoadCommands(object instance)

@@ -222,13 +222,13 @@ namespace MiNET.Plugins
 
 				if (File.Exists(dllPath))
 				{
-					assembly = Assembly.Load(dllPath);
+					assembly = Assembly.LoadFile(dllPath);
 
 					return true;
 				}
 				else if (File.Exists(exePath))
 				{
-					assembly = Assembly.Load(exePath);
+					assembly = Assembly.LoadFile(exePath);
 
 					return true;
 				}

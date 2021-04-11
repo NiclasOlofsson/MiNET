@@ -692,7 +692,7 @@ namespace MiNET.Items
 		public override string Id { get; protected set; } = "minecraft:elder_guardian_spawn_egg";
 	}
 
-	public partial class ItemElytra : Item
+	public partial class ItemElytra
 	{
 		public override string Id { get; protected set; } = "minecraft:elytra";
 

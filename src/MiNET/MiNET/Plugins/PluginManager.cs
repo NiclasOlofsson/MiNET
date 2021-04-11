@@ -37,6 +37,7 @@ using JetBrains.Annotations;
 using log4net;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
+using MiNET.Plugins.Commands;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
@@ -66,7 +67,7 @@ namespace MiNET.Plugins
 
 		public PluginManager()
 		{
-			
+			LoadCommands(new VanillaCommands());
 		}
 
 		internal void LoadPlugins()

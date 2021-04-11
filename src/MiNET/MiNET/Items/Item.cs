@@ -46,7 +46,7 @@ namespace MiNET.Items
 	///     frames, which turn into an entity when placed, and beds, which turn into a group of blocks when placed. When
 	///     equipped, items (and blocks) briefly display their names above the HUD.
 	/// </summary>
-	public class Item : INbtSerializable, ICloneable
+	public abstract class Item : INbtSerializable, ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Item));
 
@@ -74,13 +74,6 @@ namespace MiNET.Items
 		[JsonIgnore] public int FuelEfficiency { get; set; }
 
 		private readonly Lazy<int> _runtimeId;
-
-		protected internal Item(string id, short metadata = 0, int count = 1) : this()
-		{
-			Id = id;
-			Metadata = metadata;
-			Count = (byte) count;
-		}
 
 		protected Item()
 		{

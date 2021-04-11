@@ -152,12 +152,12 @@ namespace MiNET.Inventory
 
 		public ConcurrentBag<Player> Observers { get; } = new ConcurrentBag<Player>();
 
-		public void AddObserver(Player player)
+		public virtual void AddObserver(Player player)
 		{
 			Observers.Add(player);
 		}
 
-		public void RemoveObserver(Player player)
+		public virtual void RemoveObserver(Player player)
 		{
 			// Need to arrange for this to work when players get disconnected
 			// from crash. It will leak players for sure.

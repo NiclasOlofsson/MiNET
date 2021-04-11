@@ -413,6 +413,7 @@ namespace MiNET
 		BlockBarrelClose = 271,
 		RaidHorn = 272,
 		BlockLoomUse = 273,
-		Undefined = 274
+		Undefined = 274,
+		ArmorEquipNetherite = 317
 	}
 }

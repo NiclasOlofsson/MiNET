@@ -4,10 +4,8 @@ using System.IO;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
-using MiNET.Net.Crafting;
 using MiNET.Utils;
 using MiNET.Worlds;
-using Newtonsoft.Json;
 
 namespace MiNET.Inventory
 {
@@ -31,8 +29,10 @@ namespace MiNET.Inventory
 				}
 			}
 		}
+
 		public static McpeWrapper GetCreativeInventoryData()
 		{
+			// may crash client
 			if (_creativeInventoryData == null)
 			{
 				var creativeContent = McpeCreativeContent.CreateObject();
@@ -50,7 +50,9 @@ namespace MiNET.Inventory
 		{
 			var slotData = new CreativeItemStacks();
 			for (int i = 0; i < CreativeInventoryItems.Count; i++)
+			{
 				slotData.Add(CreativeInventoryItems[i]);
+			}
 
 			return slotData;
 		}

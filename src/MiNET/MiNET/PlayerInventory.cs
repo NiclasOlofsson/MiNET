@@ -74,30 +74,7 @@ namespace MiNET
 
 		public virtual void DamageItemInHand(ItemDamageReason reason, Entity target, Block block)
 		{
-			if (Player.GameMode != GameMode.Survival) return;
-
-			var itemInHand = GetItemInHand();
-
-			var unbreakingLevel = itemInHand.GetEnchantingLevel(EnchantingType.Unbreaking);
-			if (unbreakingLevel > 0)
-			{
-				if (new Random().Next(1 + unbreakingLevel) != 0) return;
-			}
-
-
-			if (itemInHand.DamageItem(Player, reason, target, block))
-			{
-				Slots[InHandSlot] = new ItemAir();
-
-				var sound = McpeLevelSoundEventOld.CreateObject();
-				sound.soundId = 5;
-				sound.blockId = -1;
-				sound.entityType = 1;
-				sound.position = Player.KnownPosition;
-				Player.Level.RelayBroadcast(sound);
-			}
-
-			SendSetSlot(InHandSlot);
+			Slots[InHandSlot] = DamageItem(GetItemInHand(), reason, target, block);
 		}
 
 		public virtual void DamageArmor()
@@ -108,10 +85,15 @@ namespace MiNET
 			Chest = DamageArmorItem(Chest);
 			Leggings = DamageArmorItem(Leggings);
 			Boots = DamageArmorItem(Boots);
-			Player.SendEquipmentForPlayer();
+			Player.SendArmorForPlayer();
 		}
 
 		public virtual Item DamageArmorItem(Item item)
+		{
+			return DamageItem(item, ItemDamageReason.EntityAttack, null, null);
+		}
+
+		public virtual Item DamageItem(Item item, ItemDamageReason reason, Entity target, Block block)
 		{
 			if (Player.GameMode != GameMode.Survival) return item;
 
@@ -121,9 +103,7 @@ namespace MiNET
 				if (new Random().Next(1 + unbreakingLevel) != 0) return item;
 			}
 
-			item.Metadata++;
-
-			if (item.Metadata >= item.Durability)
+			if (item.DamageItem(Player, reason, target, block))
 			{
 				item = new ItemAir();
 
@@ -149,13 +129,101 @@ namespace MiNET
 			SendSetSlot(slot);
 		}
 
+		[Wired]
+		public virtual void SetArmorSlot(ArmorType type, Item item, bool forceReplace = false)
+		{
+			if (item == null || item.Count <= 0)
+			{
+				item = new ItemAir();
+			}
+
+			UpdateArmorSlot(type, item, forceReplace);
+
+			Player.SendArmorForPlayer();
+			SendSetSlot((int) type, GetArmorSlot(type), WindowId.Armor);
+		}
+
+		[Wired]
+		public virtual void SetOffHandSlot(Item item, bool forceReplace = false)
+		{
+			if (item == null || item.Count <= 0)
+			{
+				item = new ItemAir();
+			}
+
+			UpdateOffHandSlot(item, forceReplace);
+
+			Player.SendEquipmentForPlayer();
+			SendSetSlot(0, OffHand, WindowId.Offhand);
+		}
+
+		[Wired]
+		public virtual void SetUiSlot(int slot, Item item, bool forceReplace = false)
+		{
+			if (item == null || item.Count <= 0)
+			{
+				item = new ItemAir();
+			}
+
+			UpdateUiSlot(slot, item, forceReplace);
+			SendSetSlot(slot, UiInventory.Slots[slot], WindowId.UI);
+		}
+
 		public virtual void UpdateInventorySlot(int slot, Item item, bool forceReplace = false)
 		{
 			var existing = Slots[slot];
+
+			UpdateSlot(() => existing, newItem => Slots[slot] = newItem, item, forceReplace);
+		}
+
+		public virtual void UpdateOffHandSlot(Item item, bool forceReplace = false)
+		{
+			UpdateSlot(() => OffHand, newItem => OffHand = newItem, item, forceReplace);
+		}
+
+		public virtual void UpdateUiSlot(int slot, Item item, bool forceReplace = false)
+		{
+			var slots = UiInventory.Slots;
+			var existing = slots[slot];
+
+			UpdateSlot(() => existing, newItem => slots[slot] = newItem, item, forceReplace);
+		}
+
+		public virtual void UpdateArmorSlot(ArmorType type, Item item, bool forceReplace = false)
+		{
+			var existing = GetArmorSlot(type);
+
+			if (existing == null) return;
+
+			Action<Item> setItemDelegate = newItem =>
+			{
+				switch (type)
+				{
+					case ArmorType.Helmet:
+						Helmet = newItem;
+						break;
+					case ArmorType.Chestplate:
+						Chest = newItem;
+						break;
+					case ArmorType.Leggings:
+						Leggings = newItem;
+						break;
+					case ArmorType.Boots:
+						Boots = newItem;
+						break;
+				}
+			};
+
+			UpdateSlot(() => existing, setItemDelegate, item, forceReplace);
+		}
+
+		private void UpdateSlot(Func<Item> getItem, Action<Item> setItem, Item item, bool forceReplace = false)
+		{
+			var existing = getItem();
 			if (forceReplace || existing.Id != item.Id)
 			{
-				Slots[slot] = item;
-				existing = item;
+				setItem(item);
+				return;
 			}
 
 			existing.UniqueId = item.UniqueId;
@@ -193,6 +261,18 @@ namespace MiNET
 			return new ItemStacks
 			{
 				OffHand ?? new ItemAir(),
+			};
+		}
+
+		public Item GetArmorSlot(ArmorType type)
+		{
+			return type switch
+			{
+				ArmorType.Helmet => Helmet,
+				ArmorType.Chestplate => Chest,
+				ArmorType.Leggings => Leggings,
+				ArmorType.Boots => Boots,
+				_ => null
 			};
 		}
 
@@ -345,12 +425,17 @@ namespace MiNET
 			}
 		}
 
-		public virtual void SendSetSlot(int slot, uint containerId = 0)
+		public virtual void SendSetSlot(int slot)
+		{
+			SendSetSlot(slot, Slots[slot]);
+		}
+
+		public virtual void SendSetSlot(int slot, Item item, WindowId windowId = WindowId.Inventory)
 		{
 			var sendSlot = McpeInventorySlot.CreateObject();
-			sendSlot.inventoryId = containerId;
+			sendSlot.inventoryId = (uint) windowId;
 			sendSlot.slot = (uint) slot;
-			sendSlot.item = Slots[slot];
+			sendSlot.item = item;
 			Player.SendPacket(sendSlot);
 		}
 

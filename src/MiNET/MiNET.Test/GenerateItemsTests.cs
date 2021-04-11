@@ -1,14 +1,11 @@
 ﻿using System;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
 using MiNET.Items;
-using MiNET.Plugins;
-using MiNET.Utils;
 
 namespace MiNET.Test
 {

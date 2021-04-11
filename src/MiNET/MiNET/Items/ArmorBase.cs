@@ -23,76 +23,106 @@
 
 #endregion
 
+using MiNET.Blocks;
+using MiNET.Entities;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
+using System;
 
 namespace MiNET.Items
 {
-	public abstract class ItemArmorHelmetBase : Item
+	public enum ArmorType
 	{
-		protected ItemArmorHelmetBase() : base()
+		Helmet,
+		Chestplate,
+		Leggings,
+		Boots
+	}
+
+	public abstract class ArmorBase : Item
+	{
+		protected ArmorType ArmorType { get; set; }
+
+		protected ArmorBase(ArmorType armorType) : base()
 		{
+			ArmorType = armorType;
+
+			ItemType = armorType switch
+			{
+				ArmorType.Helmet => ItemType.Helmet,
+				ArmorType.Chestplate => ItemType.Chestplate,
+				ArmorType.Leggings => ItemType.Leggings,
+				ArmorType.Boots => ItemType.Boots,
+				_ => throw new ArgumentException($"Unknown armor type [{armorType}]")
+			};
+
+			MaxStackSize = 1;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
+			SwithItem(player);
+		}
+
+		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		{
+			return ++Metadata >= Durability;
+		}
+
+		private void SwithItem(Player player)
+		{
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
-			player.Inventory.SetInventorySlot(slot, player.Inventory.Helmet);
+			player.Inventory.SetInventorySlot(slot, player.Inventory.GetArmorSlot(ArmorType));
 
 			UniqueId = GetUniqueId();
-			player.Inventory.Helmet = this;
-			player.SendArmorForPlayer();
+			player.Inventory.SetArmorSlot(ArmorType, this);
+
+			PlayEquipSound(player);
+		}
+
+		private void PlayEquipSound(Player player)
+		{
+			var soundType = (ItemMaterial, ItemType) switch
+			{
+				(ItemMaterial.Leather, _) => LevelSoundEventType.ArmorEquipLeather,
+				(ItemMaterial.Chain, _) => LevelSoundEventType.ArmorEquipChain,
+				(ItemMaterial.Gold, _) => LevelSoundEventType.ArmorEquipGold,
+				(ItemMaterial.Iron, _) => LevelSoundEventType.ArmorEquipIron,
+				(ItemMaterial.Diamond, _) => LevelSoundEventType.ArmorEquipDiamond,
+				(ItemMaterial.Netherite, _) => LevelSoundEventType.ArmorEquipNetherite,
+				(_, ItemType.Elytra) => LevelSoundEventType.ArmorEquipElytra,
+				_ => LevelSoundEventType.ArmorEquipGeneric
+			};
+
+			player.Level.BroadcastSound(player.GetEyesPosition(), soundType);
 		}
 	}
 
-	public abstract class ItemArmorChestplateBase : Item
+	public abstract class ItemArmorHelmetBase : ArmorBase
 	{
-		protected ItemArmorChestplateBase() : base()
+		protected ItemArmorHelmetBase() : base(ArmorType.Helmet)
 		{
-		}
-
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
-		{
-			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
-			player.Inventory.SetInventorySlot(slot, player.Inventory.Chest);
-
-			UniqueId = GetUniqueId();
-			player.Inventory.Chest = this;
-			player.SendArmorForPlayer();
 		}
 	}
 
-	public abstract class ItemArmorLeggingsBase : Item
+	public abstract class ItemArmorChestplateBase : ArmorBase
 	{
-		protected ItemArmorLeggingsBase() : base()
+		protected ItemArmorChestplateBase() : base(ArmorType.Chestplate)
 		{
-		}
-
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
-		{
-			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
-			player.Inventory.SetInventorySlot(slot, player.Inventory.Leggings);
-
-			UniqueId = GetUniqueId();
-			player.Inventory.Leggings = this;
-			player.SendArmorForPlayer();
 		}
 	}
 
-	public abstract class ItemArmorBootsBase : Item
+	public abstract class ItemArmorLeggingsBase : ArmorBase
 	{
-		protected ItemArmorBootsBase() : base()
+		protected ItemArmorLeggingsBase() : base(ArmorType.Leggings)
 		{
 		}
+	}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+	public abstract class ItemArmorBootsBase : ArmorBase
+	{
+		protected ItemArmorBootsBase() : base(ArmorType.Boots)
 		{
-			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
-			player.Inventory.SetInventorySlot(slot, player.Inventory.Boots);
-
-			UniqueId = GetUniqueId();
-			player.Inventory.Boots = this;
-			player.SendArmorForPlayer();
 		}
 	}
 }

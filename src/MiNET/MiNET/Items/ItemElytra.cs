@@ -23,27 +23,14 @@
 
 #endregion
 
-using System;
-using MiNET.Utils.Vectors;
-using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemElytra
+	public partial class ItemElytra : ItemArmorChestplateBase
 	{
 		public ItemElytra() : base()
 		{
 
-		}
-
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
-		{
-			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
-			player.Inventory.SetInventorySlot(slot, player.Inventory.Chest);
-
-			UniqueId = GetUniqueId();
-			player.Inventory.Chest = this;
-			player.SendArmorForPlayer();
 		}
 	}
 }

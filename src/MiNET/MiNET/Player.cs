@@ -1218,6 +1218,11 @@ namespace MiNET
 			}
 		}
 
+		public PlayerLocation GetEyesPosition()
+		{
+			return KnownPosition + new PlayerLocation(0, 1.62f, 0);
+		}
+
 		[Wired]
 		public void SetPosition(PlayerLocation position, bool teleport = true)
 		{
@@ -1859,7 +1864,10 @@ namespace MiNET
 		{
 			if (!UseCreativeInventory) return;
 
-			SendPacket(InventoryUtils.GetCreativeInventoryData());
+			var creativeContent = McpeCreativeContent.CreateObject();
+			creativeContent.input = InventoryUtils.GetCreativeMetadataSlots();
+
+			SendPacket(creativeContent);
 		}
 
 		private void SendChunkRadiusUpdate()
@@ -2174,92 +2182,6 @@ namespace MiNET
 			SendPacket(response);
 		}
 
-		protected Item GetContainerItem(int containerId, int slot)
-		{
-			if (UsingAnvil && containerId < 3) containerId = 13;
-
-			Item item = null;
-			switch (containerId)
-			{
-				case 13: // crafting
-				case 21: // enchanting
-				case 22: // enchanting
-				case 41: // loom
-				case 58: // cursor
-				case 59: // creative
-					item = Inventory.UiInventory.Slots[slot];
-					break;
-				case 12: // auto
-				case 28: // hotbar
-				case 29: // player inventory
-					item = Inventory.Slots[slot];
-					break;
-				case 6: // armor
-					item = slot switch
-					{
-						0 => Inventory.Helmet,
-						1 => Inventory.Chest,
-						2 => Inventory.Leggings,
-						3 => Inventory.Boots,
-						_ => null
-					};
-					break;
-				case 7: // chest/container
-					if (_openInventory is ContainerInventory inventory) item = inventory.GetSlot((byte) slot);
-					break;
-				default:
-					Log.Warn($"Unknown containerId: {containerId}");
-					break;
-			}
-
-			return item;
-		}
-
-		protected void SetContainerItem(int containerId, int slot, Item item)
-		{
-			if (UsingAnvil && containerId < 3) containerId = 13;
-
-			switch (containerId)
-			{
-				case 13: // crafting
-				case 21: // enchanting
-				case 22: // enchanting
-				case 41: // loom
-				case 58: // cursor
-				case 59: // creative
-					Inventory.UiInventory.Slots[slot] = item;
-					break;
-				case 12: // auto
-				case 28: // hotbar
-				case 29: // player inventory
-					Inventory.Slots[slot] = item;
-					break;
-				case 6: // armor
-					switch (slot)
-					{
-						case 0:
-							Inventory.Helmet = item;
-							break;
-						case 1:
-							Inventory.Chest = item;
-							break;
-						case 2:
-							Inventory.Leggings = item;
-							break;
-						case 3:
-							Inventory.Boots = item;
-							break;
-					}
-					break;
-				case 7: // chest/container
-					if (_openInventory is ContainerInventory inventory) inventory.SetSlot(this, (byte) slot, item);
-					break;
-				default:
-					Log.Warn($"Unknown containerId: {containerId}");
-					break;
-			}
-		}
-
 		public void HandleMcpeUpdatePlayerGameType(McpeUpdatePlayerGameType message)
 		{
 		}
@@ -2369,7 +2291,7 @@ namespace MiNET
 				if (Log.IsDebugEnabled)
 					Log.Debug($"Player {Username} now holding {Inventory.GetItemInHand()}");
 			}
-			else if (message.windowsId == 119)
+			else if (message.windowsId == (byte) WindowId.Offhand)
 			{
 				if (message.slot != 1)
 				{
@@ -3808,9 +3730,16 @@ namespace MiNET
 
 		public virtual void SendEquipmentForPlayer(Player[] receivers = null)
 		{
+			SendEquipmentForPlayer(WindowId.Inventory, Inventory.GetItemInHand(), receivers);
+			SendEquipmentForPlayer(WindowId.Offhand, Inventory.OffHand, receivers);
+		}
+
+		protected virtual void SendEquipmentForPlayer(WindowId windowsId, Item item, Player[] receivers = null)
+		{
 			var mcpePlayerEquipment = McpeMobEquipment.CreateObject();
 			mcpePlayerEquipment.runtimeEntityId = EntityId;
-			mcpePlayerEquipment.item = Inventory.GetItemInHand();
+			mcpePlayerEquipment.windowsId = (byte) windowsId;
+			mcpePlayerEquipment.item = item;
 			mcpePlayerEquipment.slot = 0;
 			if (receivers == null)
 			{

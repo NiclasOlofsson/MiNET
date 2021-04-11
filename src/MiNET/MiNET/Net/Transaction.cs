@@ -119,13 +119,13 @@ namespace MiNET.Net
 
 	public class StackRequestSlotInfo : IPacketDataObject
 	{
-		public byte ContainerId { get; set; }
+		public ContainerId ContainerId { get; set; }
 		public byte Slot { get; set; }
 		public int StackNetworkId { get; set; }
 
 		public void Write(Packet packet)
 		{
-			packet.Write(ContainerId);
+			packet.Write((byte) ContainerId);
 			packet.Write(Slot);
 			packet.WriteVarInt(StackNetworkId);
 		}
@@ -134,7 +134,7 @@ namespace MiNET.Net
 		{
 			return new StackRequestSlotInfo()
 			{
-				ContainerId = packet.ReadByte(),
+				ContainerId = (ContainerId) packet.ReadByte(),
 				Slot = packet.ReadByte(),
 				StackNetworkId = packet.ReadVarInt()
 			};
@@ -593,12 +593,12 @@ namespace MiNET.Net
 
 	public class StackResponseContainerInfo : IPacketDataObject
 	{
-		public byte ContainerId { get; set; }
+		public ContainerId ContainerId { get; set; }
 		public List<StackResponseSlotInfo> Slots { get; set; } = new List<StackResponseSlotInfo>();
 
 		public void Write(Packet packet)
 		{
-			packet.Write(ContainerId);
+			packet.Write((byte) ContainerId);
 
 			packet.WriteUnsignedVarInt((uint) Slots.Count);
 			foreach (var slot in Slots)
@@ -609,7 +609,7 @@ namespace MiNET.Net
 		{
 			var response = new StackResponseContainerInfo()
 			{
-				ContainerId = packet.ReadByte()
+				ContainerId = (ContainerId) packet.ReadByte()
 			};
 
 			var count = packet.ReadUnsignedVarInt();

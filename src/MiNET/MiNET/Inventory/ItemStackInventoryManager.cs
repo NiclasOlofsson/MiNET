@@ -31,8 +31,8 @@ using MiNET.Crafting;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Net.Crafting;
+using MiNET.Utils;
 using MiNET.Worlds;
-using SharpAvi;
 
 namespace MiNET.Inventory
 {
@@ -138,14 +138,14 @@ namespace MiNET.Inventory
 						throw new ArgumentOutOfRangeException(nameof(stackAction));
 				}
 
-			foreach (IGrouping<byte, StackResponseContainerInfo> stackResponseGroup in stackResponses.GroupBy(r => r.ContainerId))
+			foreach (IGrouping<ContainerId, StackResponseContainerInfo> stackResponseGroup in stackResponses.GroupBy(r => r.ContainerId))
 				if (stackResponseGroup.Count() > 1)
 				{
-					byte containerId = stackResponseGroup.Key;
+					var containerId = stackResponseGroup.Key;
 					StackResponseSlotInfo slotToKeep = null;
 					foreach (IGrouping<byte, StackResponseSlotInfo> slotGroup in stackResponseGroup.SelectMany(d => d.Slots).GroupBy(s => s.Slot))
 					{
-						byte slot = slotGroup.Key;
+						var slot = slotGroup.Key;
 						if (slotGroup.Count() > 1)
 							slotToKeep = slotGroup.ToList().Last();
 					}
@@ -268,11 +268,20 @@ namespace MiNET.Inventory
 			SetContainerItem(source.ContainerId, source.Slot, destItem);
 			SetContainerItem(destination.ContainerId, destination.Slot, sourceItem);
 
-			if (source.ContainerId == 21 || source.ContainerId == 22 || destination.ContainerId == 21 || destination.ContainerId == 22)
-				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir))
-					Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
+			if (source.ContainerId == ContainerId.EnchantingInput
+				|| source.ContainerId == ContainerId.EnchantingMaterial
+				|| destination.ContainerId == ContainerId.EnchantingInput
+				|| destination.ContainerId == ContainerId.EnchantingMaterial)
+			{
+				if (!(GetContainerItem(ContainerId.EnchantingInput, 14) is ItemAir) && !(GetContainerItem(ContainerId.EnchantingMaterial, 15) is ItemAir))
+				{
+					Enchantment.SendEnchantments(_player, GetContainerItem(ContainerId.EnchantingInput, 14));
+				}
 				else
+				{
 					Enchantment.SendEmptyEnchantments(_player);
+				}
+			}
 
 			stackResponses.Add(new StackResponseContainerInfo
 			{
@@ -340,11 +349,17 @@ namespace MiNET.Inventory
 				SetContainerItem(destination.ContainerId, destination.Slot, destItem);
 			}
 
-			if (destination.ContainerId == 21 || destination.ContainerId == 22)
-				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir))
-					Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
+			if (destination.ContainerId == ContainerId.EnchantingInput || destination.ContainerId == ContainerId.EnchantingMaterial)
+			{
+				if (!(GetContainerItem(ContainerId.EnchantingInput, 14) is ItemAir) && !(GetContainerItem(ContainerId.EnchantingMaterial, 15) is ItemAir))
+				{
+					Enchantment.SendEnchantments(_player, GetContainerItem(ContainerId.EnchantingInput, 14));
+				}
 				else
+				{
 					Enchantment.SendEmptyEnchantments(_player);
+				}
+			}
 
 			stackResponses.Add(new StackResponseContainerInfo
 			{
@@ -413,11 +428,17 @@ namespace MiNET.Inventory
 				SetContainerItem(destination.ContainerId, destination.Slot, destItem);
 			}
 
-			if (source.ContainerId == 21 || source.ContainerId == 22)
-				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir))
-					Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
+			if (source.ContainerId == ContainerId.EnchantingInput || source.ContainerId == ContainerId.EnchantingMaterial)
+			{
+				if (!(GetContainerItem(ContainerId.EnchantingInput, 14) is ItemAir) && !(GetContainerItem(ContainerId.EnchantingMaterial, 15) is ItemAir))
+				{
+					Enchantment.SendEnchantments(_player, GetContainerItem(ContainerId.EnchantingInput, 14));
+				}
 				else
+				{
 					Enchantment.SendEmptyEnchantments(_player);
+				}
+			}
 
 			stackResponses.Add(new StackResponseContainerInfo
 			{
@@ -451,7 +472,7 @@ namespace MiNET.Inventory
 
 		protected virtual void ProcessCreateAction(CreateAction action, List<Item> createCache)
 		{
-			SetContainerItem(60, 50, createCache[action.ResultSlot]);
+			SetContainerItem(ContainerId.CreatedOutput, 50, createCache[action.ResultSlot]);
 		}
 
 		protected virtual bool ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action, Recipe recipe, List<StackResponseContainerInfo> stackResponses, out List<Item> createCache)
@@ -464,7 +485,7 @@ namespace MiNET.Inventory
 				if (action.ResultItems[i] == null) return false;
 			}
 
-			if (GetContainerItem(60, 50).UniqueId != 0) return false;
+			if (GetContainerItem(ContainerId.CreatedOutput, 50).UniqueId != 0) return false;
 
 			if (!RecipeManager.ValidateRecipe(
 				recipe,
@@ -483,17 +504,17 @@ namespace MiNET.Inventory
 
 				if (consumeItem == null) continue;
 
-				var existingItem = GetContainerItem(13, slot);
+				var existingItem = GetContainerItem(ContainerId.CraftingInput, slot);
 				existingItem.Count -= consumeItem.Count;
 
 				if (existingItem.Count <= 0)
 				{
-					SetContainerItem(13, slot, existingItem = new ItemAir());
+					SetContainerItem(ContainerId.CraftingInput, slot, existingItem = new ItemAir());
 				}
 
 				stackResponses.Add(new StackResponseContainerInfo
 				{
-					ContainerId = 13,
+					ContainerId = ContainerId.CraftingInput,
 					Slots = new List<StackResponseSlotInfo>
 					{
 						new StackResponseSlotInfo()
@@ -519,7 +540,7 @@ namespace MiNET.Inventory
 				return true;
 			}
 
-			SetContainerItem(60, 50, resultItems.Single());
+			SetContainerItem(ContainerId.CreatedOutput, 50, resultItems.Single());
 			return true;
 		}
 
@@ -556,47 +577,44 @@ namespace MiNET.Inventory
 		{
 		}
 
-		private Item GetContainerItem(int containerId, int slot)
+		private Item GetContainerItem(ContainerId containerId, int slot)
 		{
-			if (_player.UsingAnvil && containerId < 3)
-				containerId = 13;
+			if (_player.UsingAnvil && containerId <= ContainerId.AnvilResultPreview)
+			{
+				containerId = ContainerId.CraftingInput;
+			}
 
 			Item item = null;
 			switch (containerId)
 			{
-				case 13: // crafting
-				case 21: // enchanting
-				case 22: // enchanting
-				case 41: // loom
-				case 59: // cursor
-				case 60: // creative
+				case ContainerId.CraftingInput:
+				case ContainerId.EnchantingInput:
+				case ContainerId.EnchantingMaterial:
+				case ContainerId.LoomInput:
+				case ContainerId.Cursor:
+				case ContainerId.CreatedOutput:
 					item = _player.Inventory.UiInventory.Slots[slot];
 					break;
-				case 12: // auto
-				case 28: // hotbar
-				case 29: // player inventory
+				case ContainerId.CombinedHotbarAndInventory:
+				case ContainerId.Hotbar:
+				case ContainerId.Inventory:
 					item = _player.Inventory.Slots[slot];
 					break;
-				case 33: // off-hand
+				case ContainerId.Offhand:
 					item = _player.Inventory.OffHand;
 					break;
-				case 6: // armor
-					item = slot switch
-					{
-						0 => _player.Inventory.Helmet,
-						1 => _player.Inventory.Chest,
-						2 => _player.Inventory.Leggings,
-						3 => _player.Inventory.Boots,
-						_ => null
-					};
+				case ContainerId.Armor:
+					item = _player.Inventory.GetArmorSlot((ArmorType) slot);
 					break;
-				case 7: // chest/container
-				case 24: // furnace/container
-				case 25: // furnace/container
-				case 26: // furnace/container
-				case 45: // blast_furnace/container
+				case ContainerId.LevelEntity:
+				case ContainerId.FurnaceFuel:
+				case ContainerId.FurnaceIngredient:
+				case ContainerId.FurnaceResult:
+				case ContainerId.BlastFurnaceIngredient:
 					if (_player._openInventory is ContainerInventory inventory)
+					{
 						item = inventory.GetSlot((byte) slot);
+					}
 					break;
 				default:
 					Log.Warn($"Unknown containerId: {containerId}");
@@ -606,53 +624,43 @@ namespace MiNET.Inventory
 			return item;
 		}
 
-		private void SetContainerItem(int containerId, int slot, Item item)
+		private void SetContainerItem(ContainerId containerId, int slot, Item item)
 		{
-			if (_player.UsingAnvil && containerId < 3)
-				containerId = 13;
+			if (_player.UsingAnvil && containerId <= ContainerId.AnvilResultPreview)
+			{
+				containerId = ContainerId.CraftingInput;
+			}
 
 			switch (containerId)
 			{
-				case 13: // crafting
-				case 21: // enchanting
-				case 22: // enchanting
-				case 41: // loom
-				case 59: // cursor
-				case 60: // creative
+				case ContainerId.CraftingInput:
+				case ContainerId.EnchantingInput:
+				case ContainerId.EnchantingMaterial:
+				case ContainerId.LoomInput:
+				case ContainerId.Cursor:
+				case ContainerId.CreatedOutput:
 					_player.Inventory.UiInventory.Slots[slot] = item;
 					break;
-				case 12: // auto
-				case 28: // hotbar
-				case 29: // player inventory
+				case ContainerId.CombinedHotbarAndInventory:
+				case ContainerId.Hotbar:
+				case ContainerId.Inventory:
 					_player.Inventory.Slots[slot] = item;
 					break;
-				case 33: // off-hand
+				case ContainerId.Offhand:
 					_player.Inventory.OffHand = item;
 					break;
-				case 6: // armor
-					switch (slot)
-					{
-						case 0:
-							_player.Inventory.Helmet = item;
-							break;
-						case 1:
-							_player.Inventory.Chest = item;
-							break;
-						case 2:
-							_player.Inventory.Leggings = item;
-							break;
-						case 3:
-							_player.Inventory.Boots = item;
-							break;
-					}
+				case ContainerId.Armor:
+					_player.Inventory.UpdateArmorSlot((ArmorType) slot, item, true);
 					break;
-				case 7: // chest/container
-				case 24: // furnace/container
-				case 25: // furnace/container
-				case 26: // furnace/container
-				case 45: // blast_furnace/container
+				case ContainerId.LevelEntity:
+				case ContainerId.FurnaceFuel:
+				case ContainerId.FurnaceIngredient:
+				case ContainerId.FurnaceResult:
+				case ContainerId.BlastFurnaceIngredient:
 					if (_player._openInventory is ContainerInventory inventory)
+					{
 						inventory.SetSlot(_player, (byte) slot, item);
+					}
 					break;
 				default:
 					Log.Warn($"Unknown containerId: {containerId}");

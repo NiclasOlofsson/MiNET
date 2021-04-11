@@ -107,7 +107,7 @@ namespace MiNET.Plugins.Commands
 				{
 					names.Add(p.Username);
 
-					Item item = ItemFactory.GetItem(itemName.Value, (short) data, (byte) amount);
+					Item item = ItemFactory.GetItem($"minecraft:{itemName.Value}", (short) data, (byte) amount);
 
 					if (item.Count > item.MaxStackSize) return $"The number you have entered ({amount}) is too big. It must be at most {item.MaxStackSize}";
 

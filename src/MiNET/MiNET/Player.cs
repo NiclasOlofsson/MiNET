@@ -1757,6 +1757,7 @@ namespace MiNET
 			mobEquipment.runtimeEntityId = EntityManager.EntityIdSelf;
 			mobEquipment.item = Inventory.GetItemInHand();
 			mobEquipment.slot = (byte) Inventory.InHandSlot;
+			mobEquipment.selectedSlot = (byte) Inventory.InHandSlot;
 			SendPacket(mobEquipment);
 		}
 

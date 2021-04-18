@@ -2710,7 +2710,7 @@ namespace MiNET
 
 					var closePacket = McpeContainerClose.CreateObject();
 					closePacket.windowId = inventory.WindowsId;
-					closePacket.server = true;
+					closePacket.server = message == null ? true : false;
 					SendPacket(closePacket);
 				}
 				else if (_openInventory is HorseInventory horseInventory)

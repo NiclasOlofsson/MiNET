@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using MiNET.Utils;
 
 namespace MiNET.Net.RakNet
 {
@@ -67,6 +68,37 @@ namespace MiNET.Net.RakNet
 					ranges.Add(range);
 				}
 			}
+		}
+		
+		/// <inheritdoc />
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+			
+			Write((short) ranges.Count, true);
+
+			
+			foreach (var range in ranges)
+			{
+				if (range.Item1 == range.Item2)
+				{
+					Write((byte) 1);
+					Write(new Int24(range.Item1));
+				}
+				else
+				{
+					Write((byte) 0);
+					Write(new Int24(range.Item1));
+					Write(new Int24(range.Item2));
+				}
+			}
+		}
+
+		/// <inheritdoc />
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+			ranges.Clear();
 		}
 
 		partial void BeforeDecode();

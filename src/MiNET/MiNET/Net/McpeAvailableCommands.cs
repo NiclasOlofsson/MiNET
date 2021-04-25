@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using log4net;
 using MiNET.Plugins;
+using Version = MiNET.Plugins.Version;
 
 namespace MiNET.Net
 {
@@ -39,6 +40,7 @@ namespace MiNET.Net
 
 		partial void AfterDecode()
 		{
+			CommandSet = new CommandSet();
 			var stringValues = new List<string>();
 			{
 				uint count = ReadUnsignedVarInt();
@@ -100,17 +102,29 @@ namespace MiNET.Net
 				Log.Debug($"Commands definitions {count}");
 				for (int i = 0; i < count; i++)
 				{
+					Command command = new Command();
+					command.Versions = new Version[1];
 					string commandName = ReadString();
 					string description = ReadString();
 					int flags = ReadByte();
 					int permissions = ReadByte();
 
+					command.Name = commandName;
+
+					Version version = new Version();
+					version.Description = description;
+
 					int aliasEnumIndex = ReadInt();
 
 					uint overloadCount = ReadUnsignedVarInt();
+					version.Overloads = new Dictionary<string, Overload>();
 					for (int j = 0; j < overloadCount; j++)
 					{
+						Overload overload = new Overload();
+						overload.Input = new Input();
+						
 						uint parameterCount = ReadUnsignedVarInt();
+						overload.Input.Parameters = new Parameter[parameterCount];
 						Log.Debug($"{commandName}, {description}, flags={flags}, {((CommandPermission) permissions)}, alias={aliasEnumIndex}, overloads={overloadCount}, params={parameterCount}");
 						for (int k = 0; k < parameterCount; k++)
 						{
@@ -147,9 +161,22 @@ namespace MiNET.Net
 
 							bool optional = ReadBool();
 							byte unknown = ReadByte();
+
+							overload.Input.Parameters[k] = new Parameter()
+							{
+								Name = commandParamName,
+								Optional = optional,
+								Type = GetParameterTypeName(commandParamType)
+							};
+							
 							Log.Debug($"\t{commandParamName}, 0x{tmp:X4}, 0x{tmp1:X4}, {isEnum}, {isSoftEnum}, {(GetParameterTypeName(commandParamType))}, {commandParamEnumIndex}, {commandParamSoftEnumIndex}, {commandParamPostfixIndex}, {optional}, {unknown}");
 						}
+						
+						version.Overloads.Add(j.ToString(), overload);
 					}
+					
+					command.Versions[0] = version;
+					CommandSet.Add(commandName, command);
 				}
 			}
 			{

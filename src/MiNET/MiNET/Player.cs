@@ -2599,6 +2599,11 @@ namespace MiNET
 			return itemEntity;
 		}
 
+		public virtual bool PickUpItem(ItemEntity item)
+		{
+			return Inventory.SetFirstEmptySlot(item.Item, true);
+		}
+
 		private bool VerifyRecipe(List<Item> craftingInput, Item result)
 		{
 			Log.Debug($"Looking for matching recipes with the result {result}");

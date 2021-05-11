@@ -33,24 +33,14 @@ namespace MiNET.Utils
 
 	public class ResourcePackInfo
 	{
-		public PackIdVersion PackIdVersion { get; set; }
-		public ulong Size { get; set; }
-		public bool HasScripts { get; set; }
-	}
-
-	public class TexturePackInfos : List<TexturePackInfo>
-	{
-		
-	}
-	
-	public class TexturePackInfo
-	{
-		//public PackIdVersion PackIdVersion { get; set; }
+		/// <summary>
+		///		The unique identifier for the pack
+		/// </summary>
 		public string UUID    { get; set; }
 		
 		/// <summary>
-		/// Version is the version of the texture pack. The client will cache texture packs sent by the server as
-		/// long as they carry the same version. Sending a texture pack with a different version than previously
+		/// Version is the version of the pack. The client will cache packs sent by the server as
+		/// long as they carry the same version. Sending a pack with a different version than previously
 		/// </summary>
 		public string Version { get; set; }
 		
@@ -77,7 +67,15 @@ namespace MiNET.Utils
 		///		HasScripts specifies if the texture packs has any scripts in it. A client will only download the behaviour pack if it supports scripts, which, up to 1.11, only includes Windows 10.
 		/// </summary>
 		public bool   HasScripts      { get; set; }
+	}
+
+	public class TexturePackInfos : List<TexturePackInfo>
+	{
 		
+	}
+	
+	public class TexturePackInfo : ResourcePackInfo
+	{
 		/// <summary>
 		/// RTXEnabled specifies if the texture pack uses the raytracing technology introduced in 1.16.200.
 		/// </summary>
@@ -92,10 +90,22 @@ namespace MiNET.Utils
 	{
 		public string Id { get; set; }
 		public string Version { get; set; }
-		public string Unknown { get; set; }
+		public string SubPackName { get; set; }
 	}
 
 	public class ResourcePackIds : List<string>
 	{
+	}
+	
+	public enum ResourcePackType : byte
+	{
+		Addon = 1,
+		Cached = 2,
+		CopyProtected = 3,
+		Behaviour = 4,
+		PersonaPiece = 5,
+		Resources = 6,
+		Skins = 7,
+		WorldTemplate = 8
 	}
 }

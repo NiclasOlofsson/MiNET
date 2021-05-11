@@ -556,7 +556,7 @@ namespace MiNET.Net
 						ReadBool(); // is host
 
 						records.Add(player);
-						Log.Debug($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', {platformChatId}");
+						//Log.Debug($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', {platformChatId}");
 					}
 					break;
 				case 1:
@@ -2076,12 +2076,12 @@ namespace MiNET.Net
 			//WriteVarInt(packInfos.Count);
 			foreach (var info in packInfos)
 			{
-				Write(info.PackIdVersion.Id);
-				Write(info.PackIdVersion.Version);
+				Write(info.UUID);
+				Write(info.Version);
 				Write(info.Size);
-				Write(""); //TODO: encryption key
-				Write(""); //TODO: subpack name
-				Write(""); //TODO: content identity
+				Write(info.ContentKey);
+				Write(info.SubPackName);
+				Write(info.ContentIdentity);
 				Write(info.HasScripts);
 			}
 		}
@@ -2095,6 +2095,7 @@ namespace MiNET.Net
 			for (int i = 0; i < count; i++)
 			{
 				var info = new ResourcePackInfo();
+				
 				var id = ReadString();
 				var version = ReadString();
 				var size = ReadUlong();
@@ -2102,13 +2103,15 @@ namespace MiNET.Net
 				var subpackName = ReadString();
 				var contentIdentity = ReadString();
 				var hasScripts = ReadBool();
-				info.PackIdVersion = new PackIdVersion
-				{
-					Id = id,
-					Version = version,
-				};
+				
+				info.UUID = id;
+				info.Version = version;
 				info.Size = size;
+				info.ContentKey = encryptionKey;
+				info.SubPackName = subpackName;
+				info.ContentIdentity = contentIdentity;
 				info.HasScripts = hasScripts;
+				
 				packInfos.Add(info);
 			}
 
@@ -2127,7 +2130,7 @@ namespace MiNET.Net
 			{
 				Write(info.Id);
 				Write(info.Version);
-				Write(info.Unknown);
+				Write(info.SubPackName);
 			}
 		}
 
@@ -2140,12 +2143,12 @@ namespace MiNET.Net
 			{
 				var id = ReadString();
 				var version = ReadString();
-				var unknown = ReadString();
+				var subPackName = ReadString();
 				var info = new PackIdVersion
 				{
 					Id = id,
 					Version = version,
-					Unknown = unknown
+					SubPackName = subPackName
 				};
 				packInfos.Add(info);
 			}

@@ -342,11 +342,8 @@ namespace MiNET
 				{
 					new ResourcePackInfo()
 					{
-						PackIdVersion = new PackIdVersion()
-						{
-							Id = "5abdb963-4f3f-4d97-8482-88e2049ab149",
-							Version = "0.0.1"
-						},
+						UUID = "5abdb963-4f3f-4d97-8482-88e2049ab149",
+						Version = "0.0.1",
 						Size = 359901
 					},
 				};

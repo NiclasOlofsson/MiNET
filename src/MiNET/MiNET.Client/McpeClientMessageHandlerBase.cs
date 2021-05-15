@@ -120,7 +120,7 @@ namespace MiNET.Client
 
 				foreach (ResourcePackInfo packInfo in message.behahaviorpackinfos)
 				{
-					resourcePackIds.Add(packInfo.PackIdVersion.Id);
+					resourcePackIds.Add(packInfo.UUID);
 				}
 
 				var response = new McpeResourcePackClientResponse();

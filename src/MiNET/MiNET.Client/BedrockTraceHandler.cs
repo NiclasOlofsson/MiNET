@@ -85,7 +85,7 @@ namespace MiNET.Client
 			sb.AppendLine("Behavior packs:");
 			foreach (ResourcePackInfo info in message.behahaviorpackinfos)
 			{
-				sb.AppendLine($"ID={info.PackIdVersion.Id}, Version={info.PackIdVersion.Version}");
+				sb.AppendLine($"ID={info.UUID}, Version={info.Version}");
 			}
 
 			Log.Debug(sb.ToString());
@@ -103,13 +103,13 @@ namespace MiNET.Client
 			sb.AppendLine("Resource pack stacks:");
 			foreach (var info in message.resourcepackidversions)
 			{
-				sb.AppendLine($"ID={info.Id}, Version={info.Version}, Unknown={info.Unknown}");
+				sb.AppendLine($"ID={info.Id}, Version={info.Version}, Subpackname={info.SubPackName}");
 			}
 
 			sb.AppendLine("Behavior pack stacks:");
 			foreach (var info in message.behaviorpackidversions)
 			{
-				sb.AppendLine($"ID={info.Id}, Version={info.Version}, Unknown={info.Unknown}");
+				sb.AppendLine($"ID={info.Id}, Version={info.Version}, Subpackname={info.SubPackName}");
 			}
 
 			Log.Debug(sb.ToString());

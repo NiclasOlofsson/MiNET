@@ -49,6 +49,9 @@ using MiNET.Crafting;
 using MiNET.Net.RakNet;
 using little = MiNET.Utils.Int24; // friendly name
 using LongString = System.String;
+using MiNET.Utils.Metadata;
+using MiNET.Utils.Vectors;
+using MiNET.Utils.Nbt;
 
 namespace MiNET.Net
 {

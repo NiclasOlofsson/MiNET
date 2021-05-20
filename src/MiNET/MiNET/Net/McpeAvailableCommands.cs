@@ -32,6 +32,16 @@ using Version = MiNET.Plugins.Version;
 
 namespace MiNET.Net
 {
+	public class EnumData
+	{
+		public string Name { get; set; }
+		public string[] Values { get; set; }
+		public EnumData(string name, string[] values)
+		{
+			Name = name;
+			Values = values;
+		}
+	}
 	public partial class McpeAvailableCommands
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(McpeAvailableCommands));
@@ -64,8 +74,10 @@ namespace MiNET.Net
 				}
 			}
 
+			EnumData[] enums;
 			{
 				uint count = ReadUnsignedVarInt();
+				enums = new EnumData[count];
 				Log.Debug($"Enum indexes {count}");
 
 				string last = null;
@@ -75,6 +87,8 @@ namespace MiNET.Net
 				{
 					string enumName = ReadString();
 					uint enumValueCount = ReadUnsignedVarInt();
+					string[] enumValues = new string[enumValueCount];
+					
 					Log.Debug($"{i} - {enumName}:{enumValueCount}");
 					for (int j = 0; j < enumValueCount; j++)
 					{
@@ -92,8 +106,11 @@ namespace MiNET.Net
 							idx = ReadInt();
 						}
 
+						enumValues[j] = stringValues[idx];
 						Log.Debug($"{enumName}, {idx} - {stringValues[idx]}");
 					}
+
+					enums[i] = new EnumData(enumName, enumValues);
 				}
 			}
 
@@ -129,7 +146,10 @@ namespace MiNET.Net
 						for (int k = 0; k < parameterCount; k++)
 						{
 							string commandParamName = ReadString();
-							int tmp = ReadShort();
+							var paramType = ReadInt();
+							var optional = ReadBool();
+							var paramFlags = ReadByte();
+							/*int tmp = ReadShort();
 							int tmp1 = ReadShort();
 							bool isEnum = (tmp1 & 0x30) == 0x30;
 							bool isSoftEnum = (tmp1 & 0x0410) == 0x0410;
@@ -157,19 +177,32 @@ namespace MiNET.Net
 							else
 							{
 								Log.Warn("No parameter style read (enum, valid, postfix)");
-							}
+							}*/
 
-							bool optional = ReadBool();
-							byte unknown = ReadByte();
+							//bool optional = ReadBool();
+							//byte unknown = ReadByte();
 
-							overload.Input.Parameters[k] = new Parameter()
+							Parameter parameter = new Parameter()
 							{
 								Name = commandParamName,
 								Optional = optional,
-								Type = GetParameterTypeName(commandParamType)
+								Type = GetParameterTypeName((paramType & 0xffff))
 							};
+
+							overload.Input.Parameters[k] = parameter;
+
+							if ((paramType & 0x200000) != 0) //Enum
+							{
+								var paramEnum = enums[paramType & 0xffff];
+								parameter.EnumValues = paramEnum.Values;
+							}
+							else if ((paramType & 0x1000000) != 0) //Postfix
+							{
+								var paramEnum = enums[paramType & 0xffff];
+								parameter.EnumValues = paramEnum.Values;
+							}
 							
-							Log.Debug($"\t{commandParamName}, 0x{tmp:X4}, 0x{tmp1:X4}, {isEnum}, {isSoftEnum}, {(GetParameterTypeName(commandParamType))}, {commandParamEnumIndex}, {commandParamSoftEnumIndex}, {commandParamPostfixIndex}, {optional}, {unknown}");
+							//Log.Debug($"\t{commandParamName}, 0x{tmp:X4}, 0x{tmp1:X4}, {isEnum}, {isSoftEnum}, {(GetParameterTypeName(commandParamType))}, {commandParamEnumIndex}, {commandParamSoftEnumIndex}, {commandParamPostfixIndex}, {optional}, {unknown}");
 						}
 						
 						version.Overloads.Add(j.ToString(), overload);
@@ -463,44 +496,48 @@ namespace MiNET.Net
 			{
 				"enum" => -1,
 				"unknown" => 0,
-				"int" => 1,
-				"float" => 2,
-				"value" => 3,
-				"wildcardint" => 4,
-				"operator" => 5,
-				"target" => 6,
-				"string" => 29,
-				"blockpos" => 37,
-				"entitypos" => 38,
-				"message" => 41,
-				"rawtext" => 43,
-				"json" => 47,
-				"command" => 54,
+				"int" => 0x01,
+				"float" => 0x03,
+				"mixed" => 0x04,
+				"wildcardint" => 0x05,
+				"operator" => 0x06,
+				"target" => 0x07,
+				"filename" => 0x10,
+				"string" => 0x20,
+				"blockpos" => 0x25,
+				"entitypos" => 0x26,
+				"xyz" => 0x28,
+				"message" => 0x2c,
+				"rawtext" => 0x2e,
+				"json" => 0x32,
+				"command" => 0x3f,
 				_ => 0
 			};
 		}
 
 		private string GetParameterTypeName(int type)
 		{
+
 			return type switch
 			{
-				-1 => "enum",
-				0 => "unknown",
-				1 => "int",
-				2 => "float",
-				3 => "value",
-				4 => "wildcardint",
-				5 => "operator",
-				6 => "target",
-				14 => "filename",
-				29 => "string",
-				37 => "blockpos",
-				38 => "entitypos",
-				41 => "message", // kick, me, etc
-				43 => "rawtext", // kick, me, etc
-				47 => "son", // give, replace
-				54 => "command",
-				_ => $"undefined({type})"
+				-1   => "enum",
+				0    => "unknown",
+				0x01 => "int",
+				0x03 => "float",
+				0x04 => "mixed",
+				0x05 => "wildcardint",
+				0x06 => "operator",
+				0x07 => "target",
+				0x10 => "filename",
+				0x20 => "string",
+				0x25   => "blockpos",
+				0x26   => "entitypos",
+				0x28 => "xyz",
+				0x2c => "message", // kick, me, etc
+				0x2e => "rawtext", // kick, me, etc
+				0x32 => "json", // give, replace
+				0x3f => "command",
+				_    => $"undefined({type})"
 			};
 		}
 	}

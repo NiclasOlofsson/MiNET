@@ -74,30 +74,7 @@ namespace MiNET
 
 		public virtual void DamageItemInHand(ItemDamageReason reason, Entity target, Block block)
 		{
-			if (Player.GameMode != GameMode.Survival) return;
-
-			var itemInHand = GetItemInHand();
-
-			var unbreakingLevel = itemInHand.GetEnchantingLevel(EnchantingType.Unbreaking);
-			if (unbreakingLevel > 0)
-			{
-				if (new Random().Next(1 + unbreakingLevel) != 0) return;
-			}
-
-
-			if (itemInHand.DamageItem(Player, reason, target, block))
-			{
-				Slots[InHandSlot] = new ItemAir();
-
-				var sound = McpeLevelSoundEventOld.CreateObject();
-				sound.soundId = 5;
-				sound.blockId = -1;
-				sound.entityType = 1;
-				sound.position = Player.KnownPosition;
-				Player.Level.RelayBroadcast(sound);
-			}
-
-			SendSetSlot(InHandSlot);
+			Slots[InHandSlot] = DamageItem(GetItemInHand(), reason, target, block);
 		}
 
 		public virtual void DamageArmor()
@@ -108,10 +85,15 @@ namespace MiNET
 			Chest = DamageArmorItem(Chest);
 			Leggings = DamageArmorItem(Leggings);
 			Boots = DamageArmorItem(Boots);
-			Player.SendEquipmentForPlayer();
+			Player.SendArmorForPlayer();
 		}
 
 		public virtual Item DamageArmorItem(Item item)
+		{
+			return DamageItem(item, ItemDamageReason.EntityAttack, null, null);
+		}
+
+		public virtual Item DamageItem(Item item, ItemDamageReason reason, Entity target, Block block)
 		{
 			if (Player.GameMode != GameMode.Survival) return item;
 
@@ -121,9 +103,7 @@ namespace MiNET
 				if (new Random().Next(1 + unbreakingLevel) != 0) return item;
 			}
 
-			item.Metadata++;
-
-			if (item.Metadata >= item.Durability)
+			if (item.DamageItem(Player, reason, target, block))
 			{
 				item = new ItemAir();
 
@@ -149,15 +129,101 @@ namespace MiNET
 			SendSetSlot(slot);
 		}
 
+		[Wired]
+		public virtual void SetArmorSlot(ArmorType type, Item item)
+		{
+			if (item == null || item.Count <= 0) item = new ItemAir();
+
+			UpdateArmorSlot(type, item);
+
+			Player.SendArmorForPlayer();
+			SendSetSlot((int) type, 0x78);
+		}
+
+		[Wired]
+		public virtual void SetOffHandSlot(Item item)
+		{
+			if (item == null || item.Count <= 0) item = new ItemAir();
+
+			UpdateOffHandSlot(item);
+
+			Player.SendEquipmentForPlayer();
+			SendSetSlot(0, 0x77);
+		}
+
+		[Wired]
+		public virtual void SetUiSlot(int slot, Item item)
+		{
+			if (item == null || item.Count <= 0) item = new ItemAir();
+
+			UpdateUiSlot(slot, item);
+
+			SendSetSlot(slot, 0x7c);
+		}
+
 		public virtual void UpdateInventorySlot(int slot, Item item)
 		{
 			var existing = Slots[slot];
+
+			UpdateSlot(() => existing, newItem => Slots[slot] = newItem, item);
+		}
+
+		public virtual void UpdateOffHandSlot(Item item)
+		{
+			UpdateSlot(() => OffHand, newItem => OffHand = newItem, item);
+		}
+
+		public virtual void UpdateUiSlot(int slot, Item item)
+		{
+			var slots = UiInventory.Slots;
+			var existing = slots[slot];
+			
+			UpdateSlot(() => existing, newItem => slots[slot] = newItem, item);
+		}
+
+		public virtual void UpdateArmorSlot(ArmorType type, Item item)
+		{
+			var existing = type switch
+			{
+				ArmorType.Helmet => Helmet,
+				ArmorType.Chestplate => Chest,
+				ArmorType.Leggings => Leggings,
+				ArmorType.Boots => Boots,
+				_ => null
+			};
+
+			if (existing == null) return;
+
+			Action<Item> setItemDelegate = newItem =>
+			{
+				switch (type)
+				{
+					case ArmorType.Helmet:
+						Helmet = newItem;
+						break;
+					case ArmorType.Chestplate:
+						Chest = newItem;
+						break;
+					case ArmorType.Leggings:
+						Leggings = newItem;
+						break;
+					case ArmorType.Boots:
+						Boots = newItem;
+						break;
+				}
+			};
+
+			UpdateSlot(() => existing, setItemDelegate, item);
+		}
+
+		private void UpdateSlot(Func<Item> getItem, Action<Item> setItem, Item item)
+		{
+			var existing = getItem();
 			if (existing.Id != item.Id)
 			{
-				Slots[slot] = item;
+				setItem(item);
 				existing = item;
 			}
-
 			existing.Count = item.Count;
 			existing.Metadata = item.Metadata;
 			existing.ExtraData = item.ExtraData;
@@ -346,8 +412,13 @@ namespace MiNET
 
 		public virtual void SendSetSlot(int slot)
 		{
+			SendSetSlot(slot, 0);
+		}
+
+		public virtual void SendSetSlot(int slot, uint inventoryId)
+		{
 			var sendSlot = McpeInventorySlot.CreateObject();
-			sendSlot.inventoryId = 0;
+			sendSlot.inventoryId = inventoryId;
 			sendSlot.slot = (uint) slot;
 			sendSlot.uniqueid = Slots[slot].UniqueId;
 			sendSlot.item = Slots[slot];

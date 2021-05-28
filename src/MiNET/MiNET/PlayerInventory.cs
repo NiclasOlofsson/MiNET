@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Entities;
@@ -74,7 +75,7 @@ namespace MiNET
 
 		public virtual void DamageItemInHand(ItemDamageReason reason, Entity target, Block block)
 		{
-			Slots[InHandSlot] = DamageItem(GetItemInHand(), reason, target, block);
+			SetInventorySlot(InHandSlot, DamageItem(GetItemInHand(), reason, target, block));
 		}
 
 		public virtual void DamageArmor()

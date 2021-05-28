@@ -409,6 +409,7 @@ namespace MiNET
 				resultItem = (Item) sourceItem.Clone();
 				sourceItem.Count -= count;
 				resultItem.Count = count;
+				resultItem.UniqueId = Environment.TickCount;
 			}
 
 			return resultItem;

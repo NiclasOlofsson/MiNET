@@ -86,6 +86,12 @@ namespace MiNET
 			Chest = DamageArmorItem(Chest);
 			Leggings = DamageArmorItem(Leggings);
 			Boots = DamageArmorItem(Boots);
+
+			var armorContent = McpeInventoryContent.CreateObject();
+			armorContent.inventoryId = 0x78;
+			armorContent.input = GetArmor();
+			Player.SendPacket(armorContent);
+
 			Player.SendArmorForPlayer();
 		}
 

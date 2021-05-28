@@ -55,7 +55,7 @@ namespace MiNET.Items
 			player.Inventory.SetInventorySlot(slot, item);
 
 			UniqueId = Environment.TickCount;
-			player.Inventory.SetArmorSlot(ArmorType, this);
+			player.Inventory.SetArmorSlot(ArmorType, this, false);
 		}
 
 		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)

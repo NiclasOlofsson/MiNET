@@ -130,25 +130,25 @@ namespace MiNET
 		}
 
 		[Wired]
-		public virtual void SetArmorSlot(ArmorType type, Item item)
+		public virtual void SetArmorSlot(ArmorType type, Item item, bool sendToPlayer = true)
 		{
 			if (item == null || item.Count <= 0) item = new ItemAir();
 
 			UpdateArmorSlot(type, item);
 
 			Player.SendArmorForPlayer();
-			SendSetSlot((int) type, 0x78);
+			if (sendToPlayer) SendSetSlot((int) type, item, 0x78);
 		}
 
 		[Wired]
-		public virtual void SetOffHandSlot(Item item)
+		public virtual void SetOffHandSlot(Item item, bool sendToPlayer = true)
 		{
 			if (item == null || item.Count <= 0) item = new ItemAir();
 
 			UpdateOffHandSlot(item);
 
 			Player.SendEquipmentForPlayer();
-			SendSetSlot(0, 0x77);
+			if (sendToPlayer) SendSetSlot(0, item, 0x77);
 		}
 
 		[Wired]
@@ -158,7 +158,7 @@ namespace MiNET
 
 			UpdateUiSlot(slot, item);
 
-			SendSetSlot(slot, 0x7c);
+			SendSetSlot(slot, item, 0x7c);
 		}
 
 		public virtual void UpdateInventorySlot(int slot, Item item)
@@ -412,16 +412,16 @@ namespace MiNET
 
 		public virtual void SendSetSlot(int slot)
 		{
-			SendSetSlot(slot, 0);
+			SendSetSlot(slot, Slots[slot], 0);
 		}
 
-		public virtual void SendSetSlot(int slot, uint inventoryId)
+		public virtual void SendSetSlot(int slot, Item item, uint inventoryId)
 		{
 			var sendSlot = McpeInventorySlot.CreateObject();
 			sendSlot.inventoryId = inventoryId;
 			sendSlot.slot = (uint) slot;
-			sendSlot.uniqueid = Slots[slot].UniqueId;
-			sendSlot.item = Slots[slot];
+			sendSlot.uniqueid = item.UniqueId;
+			sendSlot.item = item;
 			Player.SendPacket(sendSlot);
 		}
 

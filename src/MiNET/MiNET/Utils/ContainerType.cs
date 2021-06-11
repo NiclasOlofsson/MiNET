@@ -2,6 +2,8 @@
 {
 	public enum ContainerType
 	{
+		Unknown = -1,
+
 		Armor = 6,
 		Chest = 7,
 		Auto = 12,

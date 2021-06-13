@@ -195,7 +195,7 @@ namespace MiNET.Entities.World
 			{
 				if (player.GameMode != GameMode.Spectator && bbox.Intersects(player.GetBoundingBox() + 1))
 				{
-					if (player.Inventory.SetFirstEmptySlot(Item, true))
+					if (player.PickUpItem(this))
 					{
 						{
 							var takeItemEntity = McpeTakeItemEntity.CreateObject();

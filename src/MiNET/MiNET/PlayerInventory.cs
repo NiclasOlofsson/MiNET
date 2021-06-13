@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Entities;
@@ -127,11 +126,11 @@ namespace MiNET
 
 
 		[Wired]
-		public virtual void SetInventorySlot(int slot, Item item)
+		public virtual void SetInventorySlot(int slot, Item item, bool forceReplace = false)
 		{
 			if (item == null || item.Count <= 0) item = new ItemAir();
 
-			UpdateInventorySlot(slot, item);
+			UpdateInventorySlot(slot, item, forceReplace);
 
 			SendSetSlot(slot);
 		}
@@ -168,11 +167,11 @@ namespace MiNET
 			SendSetSlot(slot, item, 0x7c);
 		}
 
-		public virtual void UpdateInventorySlot(int slot, Item item)
+		public virtual void UpdateInventorySlot(int slot, Item item, bool forceReplace = false)
 		{
 			var existing = Slots[slot];
 
-			UpdateSlot(() => existing, newItem => Slots[slot] = newItem, item);
+			UpdateSlot(() => existing, newItem => Slots[slot] = newItem, item, forceReplace);
 		}
 
 		public virtual void UpdateOffHandSlot(Item item)
@@ -223,14 +222,17 @@ namespace MiNET
 			UpdateSlot(() => existing, setItemDelegate, item);
 		}
 
-		private void UpdateSlot(Func<Item> getItem, Action<Item> setItem, Item item)
+		private void UpdateSlot(Func<Item> getItem, Action<Item> setItem, Item item, bool forceReplace = false)
 		{
 			var existing = getItem();
 			if (existing.Id != item.Id)
+			if (forceReplace || existing.Id != item.Id)
 			{
 				setItem(item);
 				existing = item;
 			}
+
+			existing.UniqueId = item.UniqueId;
 			existing.Count = item.Count;
 			existing.Metadata = item.Metadata;
 			existing.ExtraData = item.ExtraData;

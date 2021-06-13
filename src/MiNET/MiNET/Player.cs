@@ -2514,6 +2514,11 @@ namespace MiNET
 			return itemEntity;
 		}
 
+		public virtual bool PickUpItem(ItemEntity item)
+		{
+			return Inventory.SetFirstEmptySlot(item.Item, true);
+		}
+
 		private bool VerifyRecipe(List<Item> craftingInput, Item result)
 		{
 			Log.Debug($"Looking for matching recipes with the result {result}");
@@ -2723,11 +2728,15 @@ namespace MiNET
 			}
 
 			Block block = Level.GetBlock(message.x, message.y, message.z);
-			Log.Debug($"Picked block {block.Name} from blockstate {block.GetRuntimeId()}");
+			Log.Debug($"Picked block {block.Name} from blockstate {block.GetRuntimeId()}. Expected block to be in slot {message.selectedSlot}");
 			Item item = block.GetItem();
+			if (item is ItemBlock blockItem)
+			{
+				Log.Debug($"Have BlockItem with block state {blockItem.Block.GetRuntimeId()}");
+			}
 			if (item == null) return;
 
-			Inventory.SetInventorySlot(Inventory.InHandSlot, item);
+			Inventory.SetInventorySlot(Inventory.InHandSlot, item, true);
 		}
 
 		public virtual void HandleMcpeEntityPickRequest(McpeEntityPickRequest message)

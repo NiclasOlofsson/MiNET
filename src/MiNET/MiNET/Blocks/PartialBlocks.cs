@@ -3466,9 +3466,9 @@ namespace MiNET.Blocks
     {
         public override string Name => "minecraft:crimson_trapdoor";
 
-        [StateRange(0, 3)] public int Direction { get; set; } = 0;
-        [StateBit] public bool OpenBit { get; set; } = false;
-        [StateBit] public bool UpsideDownBit { get; set; } = false;
+		[StateRange(0, 3)] public override int Direction { get; set; } = 0;
+		[StateBit] public override bool OpenBit { get; set; } = false;
+		[StateBit] public override bool UpsideDownBit { get; set; } = false;
 
         public override void SetState(List<IBlockState> states)
         {
@@ -15532,9 +15532,9 @@ namespace MiNET.Blocks
     {
         public override string Name => "minecraft:warped_trapdoor";
 
-        [StateRange(0, 3)] public int Direction { get; set; } = 0;
-        [StateBit] public bool OpenBit { get; set; } = false;
-        [StateBit] public bool UpsideDownBit { get; set; } = false;
+		[StateRange(0, 3)] public override int Direction { get; set; } = 0;
+		[StateBit] public override bool OpenBit { get; set; } = false;
+		[StateBit] public override bool UpsideDownBit { get; set; } = false;
 
         public override void SetState(List<IBlockState> states)
         {
@@ -16327,8 +16327,6 @@ namespace MiNET.Blocks
     public partial class WarpedPlanks : Block { public WarpedPlanks() : base(498) { IsGenerated = true; } }
     public partial class CrimsonDoor : Block { public CrimsonDoor() : base(499) { IsGenerated = true; } }
     public partial class WarpedDoor : Block { public WarpedDoor() : base(500) { IsGenerated = true; } }
-    public partial class CrimsonTrapdoor : Block { public CrimsonTrapdoor() : base(501) { IsGenerated = true; } }
-    public partial class WarpedTrapdoor : Block { public WarpedTrapdoor() : base(502) { IsGenerated = true; } }
     public partial class CrimsonFence : Block { public CrimsonFence() : base(511) { IsGenerated = true; } }
     public partial class WarpedFence : Block { public WarpedFence() : base(512) { IsGenerated = true; } }
     public partial class CrimsonFenceGate : Block { public CrimsonFenceGate() : base(513) { IsGenerated = true; } }

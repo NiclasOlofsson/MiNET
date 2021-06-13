@@ -136,33 +136,33 @@ namespace MiNET
 		}
 
 		[Wired]
-		public virtual void SetArmorSlot(ArmorType type, Item item, bool sendToPlayer = true)
+		public virtual void SetArmorSlot(ArmorType type, Item item, bool forceReplace = false, bool sendToPlayer = true)
 		{
 			if (item == null || item.Count <= 0) item = new ItemAir();
 
-			UpdateArmorSlot(type, item);
+			UpdateArmorSlot(type, item, forceReplace);
 
 			Player.SendArmorForPlayer();
 			if (sendToPlayer) SendSetSlot((int) type, item, 0x78);
 		}
 
 		[Wired]
-		public virtual void SetOffHandSlot(Item item, bool sendToPlayer = true)
+		public virtual void SetOffHandSlot(Item item, bool forceReplace = false, bool sendToPlayer = true)
 		{
 			if (item == null || item.Count <= 0) item = new ItemAir();
 
-			UpdateOffHandSlot(item);
+			UpdateOffHandSlot(item, forceReplace);
 
 			Player.SendEquipmentForPlayer();
 			if (sendToPlayer) SendSetSlot(0, item, 0x77);
 		}
 
 		[Wired]
-		public virtual void SetUiSlot(int slot, Item item)
+		public virtual void SetUiSlot(int slot, Item item, bool forceReplace = false)
 		{
 			if (item == null || item.Count <= 0) item = new ItemAir();
 
-			UpdateUiSlot(slot, item);
+			UpdateUiSlot(slot, item, forceReplace);
 
 			SendSetSlot(slot, item, 0x7c);
 		}
@@ -174,20 +174,20 @@ namespace MiNET
 			UpdateSlot(() => existing, newItem => Slots[slot] = newItem, item, forceReplace);
 		}
 
-		public virtual void UpdateOffHandSlot(Item item)
+		public virtual void UpdateOffHandSlot(Item item, bool forceReplace = false)
 		{
-			UpdateSlot(() => OffHand, newItem => OffHand = newItem, item);
+			UpdateSlot(() => OffHand, newItem => OffHand = newItem, item, forceReplace);
 		}
 
-		public virtual void UpdateUiSlot(int slot, Item item)
+		public virtual void UpdateUiSlot(int slot, Item item, bool forceReplace = false)
 		{
 			var slots = UiInventory.Slots;
 			var existing = slots[slot];
 			
-			UpdateSlot(() => existing, newItem => slots[slot] = newItem, item);
+			UpdateSlot(() => existing, newItem => slots[slot] = newItem, item, forceReplace);
 		}
 
-		public virtual void UpdateArmorSlot(ArmorType type, Item item)
+		public virtual void UpdateArmorSlot(ArmorType type, Item item, bool forceReplace = false)
 		{
 			var existing = type switch
 			{
@@ -219,7 +219,7 @@ namespace MiNET
 				}
 			};
 
-			UpdateSlot(() => existing, setItemDelegate, item);
+			UpdateSlot(() => existing, setItemDelegate, item, forceReplace);
 		}
 
 		private void UpdateSlot(Func<Item> getItem, Action<Item> setItem, Item item, bool forceReplace = false)

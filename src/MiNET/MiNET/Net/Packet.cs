@@ -1973,6 +1973,8 @@ namespace MiNET.Net
 			{
 				Tuple<long, long> link = new Tuple<long, long>(ReadSignedVarLong(), ReadSignedVarLong());
 				_reader.ReadInt16();
+				
+				links.Add(link);
 			}
 
 			return links;

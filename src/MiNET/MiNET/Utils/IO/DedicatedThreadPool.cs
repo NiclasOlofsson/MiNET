@@ -343,16 +343,26 @@ namespace MiNET.Utils.IO
 			{
 				try
 				{
-					foreach (var action in _pool._workQueue.GetConsumingEnumerable())
+					while (true)
 					{
-						try
+						Action work;
+						while (_pool._workQueue.TryDequeue(out work))
 						{
-							action();
+							try
+							{
+								work.Invoke();
+							}
+							catch (Exception ex)
+							{
+								_pool.Settings.ExceptionHandler(ex);
+							}
 						}
-						catch (Exception ex)
-						{
-							_pool.Settings.ExceptionHandler(ex);
-						}
+
+						if (_pool._workQueue.IsAddingCompleted)
+							break;
+						
+						_pool._workQueue._semaphore.Wait();
+						_pool._workQueue.MarkThreadRequestSatisfied();
 					}
 				}
 				finally
@@ -372,7 +382,7 @@ namespace MiNET.Utils.IO
 			private const int CompletedState = 1;
 
 			private readonly ConcurrentQueue<Action> _queue = new ConcurrentQueue<Action>();
-			private readonly UnfairSemaphore _semaphore = new UnfairSemaphore();
+			public readonly UnfairSemaphore _semaphore = new UnfairSemaphore();
 			private int _outstandingRequests;
 			private int _isAddingCompleted;
 
@@ -395,28 +405,9 @@ namespace MiNET.Utils.IO
 				return true;
 			}
 
-			public IEnumerable<Action> GetConsumingEnumerable()
+			public bool TryDequeue(out Action action)
 			{
-				while (true)
-				{
-					Action work;
-					if (_queue.TryDequeue(out work))
-					{
-						yield return work;
-					}
-					else if (IsAddingCompleted)
-					{
-						while (_queue.TryDequeue(out work))
-							yield return work;
-
-						break;
-					}
-					else
-					{
-						_semaphore.Wait();
-						MarkThreadRequestSatisfied();
-					}
-				}
+				return _queue.TryDequeue(out action);
 			}
 
 			public void CompleteAdding()
@@ -473,7 +464,7 @@ namespace MiNET.Utils.IO
 				}
 			}
 
-			private void MarkThreadRequestSatisfied()
+			public void MarkThreadRequestSatisfied()
 			{
 				int count = Volatile.Read(ref _outstandingRequests);
 				while (count > 0)

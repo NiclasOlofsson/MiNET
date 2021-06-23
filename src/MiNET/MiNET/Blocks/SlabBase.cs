@@ -44,8 +44,14 @@ namespace MiNET.Blocks
 
 		public override BoundingBox GetBoundingBox()
 		{
-			//TODO: Fix for top-slab
-			return new BoundingBox(Coordinates, (Vector3) Coordinates + new Vector3(1f, 0.5f, 1f));
+			var bottom = (Vector3)Coordinates;
+
+			if (TopSlotBit)
+				bottom.Y += 0.5f;
+			
+			var top = bottom + new Vector3(1f, 0.5f, 1f);
+			
+			return new BoundingBox(bottom, top);
 		}
 
 		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)

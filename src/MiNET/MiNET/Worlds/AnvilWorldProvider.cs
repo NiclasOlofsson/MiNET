@@ -640,7 +640,9 @@ namespace MiNET.Worlds
 
 						int anvilIndex = (y << 8) + (z << 4) + x;
 						int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
-
+						
+						if (blockId == 0) continue;
+						
 						// Anvil to PE friendly converstion
 
 						Func<int, byte, byte> dataConverter = (i, b) => b; // Default no-op converter

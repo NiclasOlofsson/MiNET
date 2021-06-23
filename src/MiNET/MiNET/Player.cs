@@ -496,7 +496,7 @@ namespace MiNET
 		public void HandleMcpeMoveEntity(McpeMoveEntity message)
 		{
 			//Level.RelayBroadcast((McpeMoveEntity) message.Clone());
-			if (Level.TryGetEntity(message.runtimeEntityId, out Entity entity))
+			if (Vehicle == message.runtimeEntityId && Level.TryGetEntity(message.runtimeEntityId, out Entity entity))
 			{
 				entity.KnownPosition = message.position;
 				entity.IsOnGround = (message.flags & 1) == 1;

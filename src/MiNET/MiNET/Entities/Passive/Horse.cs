@@ -37,7 +37,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities.Passive
 {
-	public class Horse : PassiveMob
+	public class Horse : PassiveMob, IRideable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Horse));
 

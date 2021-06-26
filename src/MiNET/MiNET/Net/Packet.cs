@@ -548,13 +548,25 @@ namespace MiNET.Net
 						player.ClientUuid = ReadUUID();
 						player.EntityId = ReadSignedVarLong();
 						player.DisplayName = ReadString();
-						ReadString(); // TODO: xuid
-						var platformChatId = ReadString(); // TODO: platform chat ID
-						ReadInt(); // TODO: device os
+						var xuid =  ReadString();
+						var platformChatId = ReadString();
+						var deviceOS = ReadInt();
 						player.Skin = ReadSkin();
 						ReadBool(); // is teacher
 						ReadBool(); // is host
 
+						player.PlayerInfo = new PlayerInfo()
+						{
+							PlatformChatId = platformChatId,
+							DeviceOS = deviceOS,
+							CertificateData = new CertificateData()
+							{
+								ExtraData = new ExtraData()
+								{
+									Xuid = xuid
+								}
+							}
+						};
 						records.Add(player);
 						//Log.Debug($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', {platformChatId}");
 					}
@@ -570,9 +582,15 @@ namespace MiNET.Net
 					break;
 			}
 
-			foreach (Player player in records)
+			if (records is PlayerAddRecords)
 			{
-				if (player.Skin != null) player.Skin.IsVerified = ReadBool();
+				foreach (Player player in records)
+				{
+					bool isVerified = ReadBool();
+
+					if (player.Skin != null) 
+						player.Skin.IsVerified = isVerified;
+				}
 			}
 			//if (!_reader.Eof) ReadBool(); // damn BS
 			//if (!_reader.Eof) ReadBool(); // damn BS

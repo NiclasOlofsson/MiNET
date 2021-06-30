@@ -146,101 +146,33 @@ namespace MiNET
 
 		protected virtual void ProcessConsumeAction(ConsumeAction action, List<StackResponseContainerInfo> stackResponses)
 		{
-			byte count = action.Count;
 			StackRequestSlotInfo source = action.Source;
 
 			Item sourceItem = GetContainerItem(source.ContainerId, source.Slot);
-			sourceItem.Count -= count;
-			if (sourceItem.Count <= 0)
-			{
-				sourceItem = new ItemAir();
-				SetContainerItem(source.ContainerId, source.Slot, sourceItem);
-			}
+			ProcessSourceItem(source, action.Count, ref sourceItem);
 
-			stackResponses.Add(new StackResponseContainerInfo
-			{
-				ContainerId = source.ContainerId,
-				Slots = new List<StackResponseSlotInfo>
-				{
-					new StackResponseSlotInfo()
-					{
-						Count = sourceItem.Count,
-						Slot = source.Slot,
-						HotbarSlot = source.Slot,
-						StackNetworkId = sourceItem.UniqueId
-					}
-				}
-			});
+			stackResponses.Add(BuildBaseContainerInfo(source, sourceItem));
 		}
 
 		protected virtual void ProcessDropAction(DropAction action, List<StackResponseContainerInfo> stackResponses)
 		{
-			byte count = action.Count;
-			Item dropItem;
 			StackRequestSlotInfo source = action.Source;
 
 			Item sourceItem = GetContainerItem(source.ContainerId, source.Slot);
-
-			if (sourceItem.Count == count || sourceItem.Count - count <= 0)
-			{
-				dropItem = sourceItem;
-				sourceItem = new ItemAir();
-				sourceItem.UniqueId = 0;
-				SetContainerItem(source.ContainerId, source.Slot, sourceItem);
-			}
-			else
-			{
-				dropItem = (Item) sourceItem.Clone();
-				sourceItem.Count -= count;
-				dropItem.Count = count;
-				dropItem.UniqueId = Environment.TickCount;
-			}
-
+			Item dropItem = ProcessSourceItem(source, action.Count, ref sourceItem);
 			_player.DropItem(dropItem);
 
-			stackResponses.Add(new StackResponseContainerInfo
-			{
-				ContainerId = source.ContainerId,
-				Slots = new List<StackResponseSlotInfo>
-				{
-					new StackResponseSlotInfo()
-					{
-						Count = sourceItem.Count,
-						Slot = source.Slot,
-						HotbarSlot = source.Slot,
-						StackNetworkId = sourceItem.UniqueId
-					}
-				}
-			});
+			stackResponses.Add(BuildBaseContainerInfo(source, sourceItem));
 		}
 
 		protected virtual void ProcessDestroyAction(DestroyAction action, List<StackResponseContainerInfo> stackResponses)
 		{
-			byte count = action.Count;
 			StackRequestSlotInfo source = action.Source;
 
 			Item sourceItem = GetContainerItem(source.ContainerId, source.Slot);
-			sourceItem.Count -= count;
-			if (sourceItem.Count <= 0)
-			{
-				sourceItem = new ItemAir();
-				SetContainerItem(source.ContainerId, source.Slot, sourceItem);
-			}
+			ProcessSourceItem(source, action.Count, ref sourceItem);
 
-			stackResponses.Add(new StackResponseContainerInfo
-			{
-				ContainerId = source.ContainerId,
-				Slots = new List<StackResponseSlotInfo>
-				{
-					new StackResponseSlotInfo()
-					{
-						Count = sourceItem.Count,
-						Slot = source.Slot,
-						HotbarSlot = source.Slot,
-						StackNetworkId = sourceItem.UniqueId
-					}
-				}
-			});
+			stackResponses.Add(BuildBaseContainerInfo(source, sourceItem));
 		}
 
 		protected virtual void ProcessSwapAction(SwapAction action, List<StackResponseContainerInfo> stackResponses)
@@ -254,68 +186,37 @@ namespace MiNET
 			SetContainerItem(source.ContainerId, source.Slot, destItem);
 			SetContainerItem(destination.ContainerId, destination.Slot, sourceItem);
 
-			if (source.ContainerId == 21 || source.ContainerId == 22 || destination.ContainerId == 21 || destination.ContainerId == 22)
+			if (source.ContainerId == (int) ContainerType.Enchanting21
+				|| source.ContainerId == (int) ContainerType.Enchanting22
+				|| destination.ContainerId == (int) ContainerType.Enchanting21
+				|| destination.ContainerId == (int) ContainerType.Enchanting22)
 			{
-				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir)) Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
-				else Enchantment.SendEmptyEnchantments(_player);
+				if (GetContainerItem((int) ContainerType.Enchanting21, 14) is not ItemAir
+					&& GetContainerItem((int) ContainerType.Enchanting22, 15) is not ItemAir)
+				{
+					Item item = GetContainerItem((int) ContainerType.Enchanting21, 14);
+					Enchantment.SendEnchantments(_player, item);
+				}
+				else
+				{
+					Enchantment.SendEmptyEnchantments(_player);
+				}
 			}
 
-			stackResponses.Add(new StackResponseContainerInfo
-			{
-				ContainerId = source.ContainerId,
-				Slots = new List<StackResponseSlotInfo>
-				{
-					new StackResponseSlotInfo()
-					{
-						Count = destItem.Count,
-						Slot = source.Slot,
-						HotbarSlot = source.Slot,
-						StackNetworkId = destItem.UniqueId
-					}
-				}
-			});
-			stackResponses.Add(new StackResponseContainerInfo
-			{
-				ContainerId = destination.ContainerId,
-				Slots = new List<StackResponseSlotInfo>
-				{
-					new StackResponseSlotInfo()
-					{
-						Count = sourceItem.Count,
-						Slot = destination.Slot,
-						HotbarSlot = destination.Slot,
-						StackNetworkId = sourceItem.UniqueId
-					}
-				}
-			});
+			stackResponses.Add(BuildBaseContainerInfo(source, destItem));
+			stackResponses.Add(BuildBaseContainerInfo(destination, sourceItem));
 		}
 
 		protected virtual void ProcessPlaceAction(PlaceAction action, List<StackResponseContainerInfo> stackResponses)
 		{
 			byte count = action.Count;
-			Item sourceItem;
-			Item destItem;
 			StackRequestSlotInfo source = action.Source;
 			StackRequestSlotInfo destination = action.Destination;
 
-			sourceItem = GetContainerItem(source.ContainerId, source.Slot);
-
-			if (sourceItem.Count == count || sourceItem.Count - count <= 0)
-			{
-				destItem = sourceItem;
-				sourceItem = new ItemAir();
-				sourceItem.UniqueId = 0;
-				SetContainerItem(source.ContainerId, source.Slot, sourceItem);
-			}
-			else
-			{
-				destItem = (Item) sourceItem.Clone();
-				sourceItem.Count -= count;
-				destItem.Count = count;
-				destItem.UniqueId = Environment.TickCount;
-			}
-
+			Item sourceItem = GetContainerItem(source.ContainerId, source.Slot);
+			Item destItem = ProcessSourceItem(source, action.Count, ref sourceItem);
 			Item existingItem = GetContainerItem(destination.ContainerId, destination.Slot);
+
 			if (existingItem.UniqueId > 0) // is empty/air is what this means
 			{
 				existingItem.Count += count;
@@ -326,117 +227,66 @@ namespace MiNET
 				SetContainerItem(destination.ContainerId, destination.Slot, destItem);
 			}
 
-			if (destination.ContainerId == 21 || destination.ContainerId == 22)
+			if (destination.ContainerId == (int) ContainerType.Enchanting21 
+				|| destination.ContainerId == (int) ContainerType.Enchanting22)
 			{
-				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir)) Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
-				else Enchantment.SendEmptyEnchantments(_player);
+				if (GetContainerItem((int) ContainerType.Enchanting21, 14) is not ItemAir 
+					&& GetContainerItem((int) ContainerType.Enchanting22, 15) is not ItemAir)
+				{
+					Item item = GetContainerItem((int) ContainerType.Enchanting21, 14);
+					Enchantment.SendEnchantments(_player, item);
+				}
+				else
+				{
+					Enchantment.SendEmptyEnchantments(_player);
+				}
 			}
 
-			stackResponses.Add(new StackResponseContainerInfo
-			{
-				ContainerId = source.ContainerId,
-				Slots = new List<StackResponseSlotInfo>
-				{
-					new StackResponseSlotInfo()
-					{
-						Count = sourceItem.Count,
-						Slot = source.Slot,
-						HotbarSlot = source.Slot,
-						StackNetworkId = sourceItem.UniqueId
-					}
-				}
-			});
-			stackResponses.Add(new StackResponseContainerInfo
-			{
-				ContainerId = destination.ContainerId,
-				Slots = new List<StackResponseSlotInfo>
-				{
-					new StackResponseSlotInfo()
-					{
-						Count = destItem.Count,
-						Slot = destination.Slot,
-						HotbarSlot = destination.Slot,
-						StackNetworkId = destItem.UniqueId
-					}
-				}
-			});
+			stackResponses.Add(BuildBaseContainerInfo(source, sourceItem));
+			stackResponses.Add(BuildBaseContainerInfo(destination, destItem));
 		}
 
 		protected virtual void ProcessTakeAction(TakeAction action, List<StackResponseContainerInfo> stackResponses)
 		{
-			byte count = action.Count;
-			Item sourceItem;
-			Item destItem;
 			StackRequestSlotInfo source = action.Source;
 			StackRequestSlotInfo destination = action.Destination;
 
-			sourceItem = GetContainerItem(source.ContainerId, source.Slot);
+			Item sourceItem = GetContainerItem(source.ContainerId, source.Slot);
 			Log.Debug($"Take {sourceItem}");
-
-			if (sourceItem.Count == count || sourceItem.Count - count <= 0)
-			{
-				destItem = sourceItem;
-				sourceItem = new ItemAir();
-				sourceItem.UniqueId = 0;
-				SetContainerItem(source.ContainerId, source.Slot, sourceItem);
-			}
-			else
-			{
-				destItem = (Item) sourceItem.Clone();
-				sourceItem.Count -= count;
-				destItem.Count = count;
-				destItem.UniqueId = Environment.TickCount;
-			}
+			Item destItem = ProcessSourceItem(source, action.Count, ref sourceItem);
 
 			SetContainerItem(destination.ContainerId, destination.Slot, destItem);
 
-			if (source.ContainerId == 21 || source.ContainerId == 22)
+			if (source.ContainerId == (int) ContainerType.Enchanting21
+				|| source.ContainerId == (int) ContainerType.Enchanting22)
 			{
-				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir)) Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
-				else Enchantment.SendEmptyEnchantments(_player);
+				if (GetContainerItem((int) ContainerType.Enchanting21, 14) is not ItemAir 
+					&& GetContainerItem((int) ContainerType.Enchanting22, 15) is not ItemAir)
+				{
+					Item item = GetContainerItem((int) ContainerType.Enchanting21, 14);
+					Enchantment.SendEnchantments(_player, item);
+				}
+				else
+				{
+					Enchantment.SendEmptyEnchantments(_player);
+				}
 			}
 
-			stackResponses.Add(new StackResponseContainerInfo
-			{
-				ContainerId = source.ContainerId,
-				Slots = new List<StackResponseSlotInfo>
-				{
-					new StackResponseSlotInfo()
-					{
-						Count = sourceItem.Count,
-						Slot = source.Slot,
-						HotbarSlot = source.Slot,
-						StackNetworkId = sourceItem.UniqueId
-					}
-				}
-			});
-			stackResponses.Add(new StackResponseContainerInfo
-			{
-				ContainerId = destination.ContainerId,
-				Slots = new List<StackResponseSlotInfo>
-				{
-					new StackResponseSlotInfo()
-					{
-						Count = destItem.Count,
-						Slot = destination.Slot,
-						HotbarSlot = destination.Slot,
-						StackNetworkId = destItem.UniqueId
-					}
-				}
-			});
+			stackResponses.Add(BuildBaseContainerInfo(source, sourceItem));
+			stackResponses.Add(BuildBaseContainerInfo(destination, destItem));
 		}
 
 		protected virtual void ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action)
 		{
 			//BUG: Won't work proper with anvil anymore.
-			if (GetContainerItem(59, 50).UniqueId > 0) return;
+			if (GetContainerItem((int) ContainerType.Creative, 50).UniqueId > 0) return;
 
 			//TODO: We only use this for anvils right now. Until we fixed the anvil merge ourselves.
 			Item craftingResult = action.ResultItems.FirstOrDefault();
 			if (craftingResult == null) return;
 
 			craftingResult.UniqueId = Environment.TickCount;
-			SetContainerItem(59, 50, craftingResult);
+			SetContainerItem((int) ContainerType.Creative, 50, craftingResult);
 		}
 
 		protected virtual void ProcessCraftNotImplementedDeprecatedAction(CraftNotImplementedDeprecatedAction action)
@@ -456,7 +306,7 @@ namespace MiNET
 			creativeItem.Count = (byte) creativeItem.MaxStackSize;
 			creativeItem.UniqueId = Environment.TickCount;
 			Log.Debug($"Creating {creativeItem}");
-			_player.Inventory.UiInventory.Slots[50] = creativeItem;
+			SetContainerItem((int) ContainerType.Creative, 50, creativeItem);
 		}
 
 		protected virtual void ProcessCraftRecipeOptionalAction(CraftRecipeOptionalAction action)
@@ -468,35 +318,35 @@ namespace MiNET
 			if (_player.UsingAnvil && containerId < 3) containerId = 13;
 
 			Item item = null;
-			switch (containerId)
+			switch ((ContainerType) containerId)
 			{
-				case 13: // crafting
-				case 21: // enchanting
-				case 22: // enchanting
-				case 41: // loom
-				case 58: // cursor
-				case 59: // creative
+				case ContainerType.Crafting:
+				case ContainerType.Enchanting21:
+				case ContainerType.Enchanting22:
+				case ContainerType.Loom:
+				case ContainerType.Cursor:
+				case ContainerType.Creative:
 					item = _player.Inventory.UiInventory.Slots[slot];
 					break;
-				case 12: // auto
-				case 27: // hotbar
-				case 28: // player inventory
+				case ContainerType.Auto:
+				case ContainerType.Hotbar:
+				case ContainerType.PlayerInventory:
 					item = _player.Inventory.Slots[slot];
 					break;
-				case 33: // off-hand
+				case ContainerType.OffHand:
 					item = _player.Inventory.OffHand;
 					break;
-				case 6: // armor
-					item = slot switch
+				case ContainerType.Armor:
+					item = (ArmorType) slot switch
 					{
-						0 => _player.Inventory.Helmet,
-						1 => _player.Inventory.Chest,
-						2 => _player.Inventory.Leggings,
-						3 => _player.Inventory.Boots,
+						ArmorType.Helmet => _player.Inventory.Helmet,
+						ArmorType.Chestplate => _player.Inventory.Chest,
+						ArmorType.Leggings => _player.Inventory.Leggings,
+						ArmorType.Boots => _player.Inventory.Boots,
 						_ => null
 					};
 					break;
-				case 7: // chest/container
+				case ContainerType.Chest:
 					if (_player._openInventory is Inventory inventory) item = inventory.GetSlot((byte) slot);
 					break;
 				default:
@@ -511,42 +361,29 @@ namespace MiNET
 		{
 			if (_player.UsingAnvil && containerId < 3) containerId = 13;
 
-			switch (containerId)
+			switch ((ContainerType) containerId)
 			{
-				case 13: // crafting
-				case 21: // enchanting
-				case 22: // enchanting
-				case 41: // loom
-				case 58: // cursor
-				case 59: // creative
-					_player.Inventory.UiInventory.Slots[slot] = item;
+				case ContainerType.Crafting:
+				case ContainerType.Enchanting21:
+				case ContainerType.Enchanting22:
+				case ContainerType.Loom:
+				case ContainerType.Cursor:
+				case ContainerType.Creative:
+					_player.Inventory.UpdateUiSlot(slot, item);
 					break;
-				case 12: // auto
-				case 27: // hotbar
-				case 28: // player inventory
-					_player.Inventory.Slots[slot] = item;
+				case ContainerType.Auto:
+				case ContainerType.Hotbar:
+				case ContainerType.PlayerInventory:
+					_player.Inventory.UpdateInventorySlot(slot, item);
 					break;
-				case 33: // off-hand
-					_player.Inventory.OffHand = item;
+				case ContainerType.OffHand:
+					_player.Inventory.UpdateOffHandSlot(item);
 					break;
-				case 6: // armor
-					switch (slot)
-					{
-						case 0:
-							_player.Inventory.Helmet = item;
-							break;
-						case 1:
-							_player.Inventory.Chest = item;
-							break;
-						case 2:
-							_player.Inventory.Leggings = item;
-							break;
-						case 3:
-							_player.Inventory.Boots = item;
-							break;
-					}
+				case ContainerType.Armor:
+					_player.Inventory.UpdateArmorSlot((ArmorType) slot, item);
+					_player.SendArmorForPlayer();
 					break;
-				case 7: // chest/container
+				case ContainerType.Chest:
 					if (_player._openInventory is Inventory inventory) inventory.SetSlot(_player, (byte) slot, item);
 					break;
 				default:
@@ -554,5 +391,50 @@ namespace MiNET
 					break;
 			}
 		}
+
+		#region StackResponse helper
+
+		private Item ProcessSourceItem(StackRequestSlotInfo slotInfo, byte count, ref Item sourceItem)
+		{
+			Item resultItem;
+
+			if (sourceItem.Count <= count)
+			{
+				resultItem = sourceItem;
+				sourceItem = new ItemAir();
+				SetContainerItem(slotInfo.ContainerId, slotInfo.Slot, sourceItem);
+			}
+			else
+			{
+				resultItem = (Item) sourceItem.Clone();
+				sourceItem.Count -= count;
+				resultItem.Count = count;
+				resultItem.UniqueId = Environment.TickCount;
+			}
+
+			return resultItem;
+		}
+
+		private static StackResponseContainerInfo BuildBaseContainerInfo(StackRequestSlotInfo slotInfo, Item item)
+		{
+			return new StackResponseContainerInfo
+			{
+				ContainerId = slotInfo.ContainerId,
+				Slots = new List<StackResponseSlotInfo> { BuildBaseSlotInfo(item, slotInfo.Slot) }
+			};
+		}
+
+		private static StackResponseSlotInfo BuildBaseSlotInfo(Item item, byte slot)
+		{
+			return new StackResponseSlotInfo()
+			{
+				Count = item.Count,
+				Slot = slot,
+				HotbarSlot = slot,
+				StackNetworkId = item.UniqueId
+			};
+		}
+
+		#endregion
 	}
 }

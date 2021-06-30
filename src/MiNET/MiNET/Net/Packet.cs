@@ -1116,7 +1116,7 @@ namespace MiNET.Net
 						
 						case PlaceAction ta:
 						{
-							Write((byte) McpeItemStackRequest.ActionType.Swap);
+							Write((byte) McpeItemStackRequest.ActionType.Place);
 							Write(ta.Count);
 							Write(ta.Source);
 							Write(ta.Destination);
@@ -1423,7 +1423,10 @@ namespace MiNET.Net
 				var response = new ItemStackResponse();
 				response.Result = (StackResponseStatus) ReadByte();
 				response.RequestId = ReadSignedVarInt();
-
+				
+				if (response.Result != StackResponseStatus.Ok)
+					continue;
+				
 				response.Responses = new List<StackResponseContainerInfo>();
 				var subCount = ReadUnsignedVarInt();
 				for (int sub = 0; sub < subCount; sub++)
@@ -1449,6 +1452,8 @@ namespace MiNET.Net
 					
 					response.Responses.Add(containerInfo);
 				}
+				
+				responses.Add(response);
 			}
 			
 			return responses;

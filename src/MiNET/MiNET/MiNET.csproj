@@ -49,7 +49,7 @@
     <EmbeddedResource Include="Blocks\r12_to_current_block_map.bin" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="jose-jwt" Version="3.1.1" />
+    <PackageReference Include="jose-jwt" Version="3.2.0" />
     <PackageReference Include="LibNoise.NetStandart" Version="0.2.0" />
     <PackageReference Include="log4net" Version="2.0.12" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.4.0" />

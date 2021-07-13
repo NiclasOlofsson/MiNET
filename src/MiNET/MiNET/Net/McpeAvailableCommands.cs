@@ -195,11 +195,15 @@ namespace MiNET.Net
 							{
 								var paramEnum = enums[paramType & 0xffff];
 								parameter.EnumValues = paramEnum.Values;
+								parameter.EnumType = paramEnum.Name;
+								parameter.Type = "stringenum";
 							}
 							else if ((paramType & 0x1000000) != 0) //Postfix
 							{
 								var paramEnum = enums[paramType & 0xffff];
 								parameter.EnumValues = paramEnum.Values;
+								parameter.EnumType = paramEnum.Name;
+								parameter.Type = "stringenum";
 							}
 							
 							//Log.Debug($"\t{commandParamName}, 0x{tmp:X4}, 0x{tmp1:X4}, {isEnum}, {isSoftEnum}, {(GetParameterTypeName(commandParamType))}, {commandParamEnumIndex}, {commandParamSoftEnumIndex}, {commandParamPostfixIndex}, {optional}, {unknown}");

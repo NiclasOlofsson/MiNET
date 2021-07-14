@@ -29,7 +29,17 @@ using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
-{
+{	
+	public enum ArmorType
+	{
+		Helmet,
+		Chestplate,
+		Leggings,
+		Boots,
+
+		Unknown
+	}
+
 	public abstract class ArmorHelmetBase : Item
 	{
 		protected ArmorHelmetBase(string name, short id, short metadata = 0, int count = 1) : base(name, id, metadata, count)

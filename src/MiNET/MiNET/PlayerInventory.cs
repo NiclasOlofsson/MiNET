@@ -142,20 +142,109 @@ namespace MiNET
 		[Wired]
 		public virtual void SetInventorySlot(int slot, Item item, bool forceReplace = false)
 		{
-			if (item == null || item.Count <= 0) item = new ItemAir();
+			if (item == null || item.Count <= 0)
+				item = new ItemAir();
 
 			UpdateInventorySlot(slot, item, forceReplace);
 
 			SendSetSlot(slot);
 		}
 
+		[Wired]
+		public virtual void SetArmorSlot(ArmorType type, Item item, bool forceReplace = false, bool sendToPlayer = true)
+		{
+			if (item == null || item.Count <= 0)
+				item = new ItemAir();
+
+			UpdateArmorSlot(type, item, forceReplace);
+
+			Player.SendArmorForPlayer();
+			if (sendToPlayer) SendSetSlot((int) type, item, 0x78);
+		}
+
+		[Wired]
+		public virtual void SetOffHandSlot(Item item, bool forceReplace = false, bool sendToPlayer = true)
+		{
+			if (item == null || item.Count <= 0)
+				item = new ItemAir();
+
+			UpdateOffHandSlot(item, forceReplace);
+
+			Player.SendEquipmentForPlayer();
+			if (sendToPlayer) SendSetSlot(0, item, 0x77);
+		}
+
+		[Wired]
+		public virtual void SetUiSlot(int slot, Item item, bool forceReplace = false)
+		{
+			if (item == null || item.Count <= 0) item = new ItemAir();
+
+			UpdateUiSlot(slot, item, forceReplace);
+
+			SendSetSlot(slot, item, 0x7c);
+		}
+
 		public virtual void UpdateInventorySlot(int slot, Item item, bool forceReplace = false)
 		{
-			var existing = Slots[slot];
-			if (forceReplace || existing.Id != item.Id)
+			UpdateSlot(Slots[slot], newItem => Slots[slot] = newItem, item, forceReplace);
+		}
+
+		public virtual void UpdateOffHandSlot(Item item, bool forceReplace = false)
+		{
+			UpdateSlot(OffHand, newItem => OffHand = newItem, item, forceReplace);
+		}
+
+		public virtual void UpdateUiSlot(int slot, Item item, bool forceReplace = false)
+		{
+			var slots = UiInventory.Slots;
+			var existing = slots[slot];
+
+			UpdateSlot(existing, newItem => slots[slot] = newItem, item, forceReplace);
+		}
+
+		public virtual void UpdateArmorSlot(ArmorType type, Item item, bool forceReplace = false)
+		{
+			var existing = type switch
 			{
-				Slots[slot] = item;
-				existing = item;
+				ArmorType.Helmet => Helmet,
+				ArmorType.Chestplate => Chest,
+				ArmorType.Leggings => Leggings,
+				ArmorType.Boots => Boots,
+				_ => null
+			};
+
+			if (existing == null) return;
+
+			Action<Item> setItemDelegate = newItem =>
+			{
+				switch (type)
+				{
+					case ArmorType.Helmet:
+						Helmet = newItem;
+						break;
+					case ArmorType.Chestplate:
+						Chest = newItem;
+						break;
+					case ArmorType.Leggings:
+						Leggings = newItem;
+						break;
+					case ArmorType.Boots:
+						Boots = newItem;
+						break;
+				}
+			};
+
+			UpdateSlot(existing, setItemDelegate, item, forceReplace);
+		}
+
+		private void UpdateSlot(Item existing, Action<Item> setItem, Item item, bool forceReplace = false)
+		{
+			if (forceReplace 
+				|| existing.Id != item.Id 
+				|| existing.Metadata != item.Metadata) //also need to check the ExtraData
+			{
+				setItem(item);
+				return;
 			}
 
 			existing.UniqueId = item.UniqueId;
@@ -347,11 +436,16 @@ namespace MiNET
 
 		public virtual void SendSetSlot(int slot)
 		{
+			SendSetSlot(slot, Slots[slot], 0);
+		}
+
+		public virtual void SendSetSlot(int slot, Item item, uint inventoryId)
+		{
 			var sendSlot = McpeInventorySlot.CreateObject();
-			sendSlot.inventoryId = 0;
+			sendSlot.inventoryId = inventoryId;
 			sendSlot.slot = (uint) slot;
-			sendSlot.uniqueid = Slots[slot].UniqueId;
-			sendSlot.item = Slots[slot];
+			sendSlot.uniqueid = item.UniqueId;
+			sendSlot.item = item;
 			Player.SendPacket(sendSlot);
 		}
 

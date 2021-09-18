@@ -479,12 +479,15 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Premium World Template Id | string |  |
 |Is Trial | bool |  |
 |Movement Type | SignedVarInt |  |
+|Movement Rewind History Size | SignedVarInt |  |
+|Enable New Block Break System | bool |  |
 |Current Tick | long |  |
 |Enchantment Seed | SignedVarInt |  |
 |Block Palette | BlockPalette |  |
 |Itemstates | Itemstates |  |
 |Multiplayer Correlation ID | string |  |
-|Enable New Inventory System  | bool |  |
+|Enable New Inventory System | bool |  |
+|Server version | string |  |
 -----------------------------------------------------------------------
 ### Add Player (0x0c)
 Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPlayer)
@@ -2772,12 +2775,13 @@ Wiki: [Item Stack Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 |Create | 6 |
 |Lab Table Combine | 7 |
 |Beacon Payment | 8 |
-|Craft Recipe | 9 |
-|Craft Recipe Auto | 10 |
-|Craft Creative | 11 |
-|Craft Recipe Optional | 12 |
-|Craft Not Implemented Deprecated | 13 |
-|Craft Results Deprecated | 14 |
+|Mine Block | 9 |
+|Craft Recipe | 10 |
+|Craft Recipe Auto | 11 |
+|Craft Creative | 12 |
+|Craft Recipe Optional | 13 |
+|Craft Not Implemented Deprecated | 14 |
+|Craft Results Deprecated | 15 |
 
 
 #### Fields

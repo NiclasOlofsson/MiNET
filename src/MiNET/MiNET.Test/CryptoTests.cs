@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2021 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -30,11 +30,13 @@ using System.Security.Cryptography;
 using System.Text;
 using Jose;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MiNET.Utils;
 using MiNET.Utils.Cryptography;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
+using SicStream;
 
 namespace MiNET.Test
 {
@@ -217,6 +219,60 @@ namespace MiNET.Test
 			string val = JWT.Encode(handshakeJson, signKey, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64PublicKey}});
 			//Log.Warn($"Headers: {string.Join(";", JWT.Headers(val))}");
 			//Log.Warn($"Return salt:\n{JWT.Payload(val)}");
+		}
+
+		[TestMethod]
+		public void TestAES_GCM()
+		{
+			byte[] secret = "YYpS7Z92bpTazDa9exkclGF1RZoObERCfk6T123PELA=".DecodeBase64();
+			Assert.AreEqual(32, secret.Length);
+
+			//Assert.AreEqual("", decryptor.GetType().Name);
+			//var encryptor = (SicBlockCipher) CipherUtilities.GetCipher("AES/CTR/NoPadding");
+			//Assert.AreEqual("BufferedBlockCipher", encryptor.GetType().Name);
+			//Assert.AreEqual("AES/SIC", encryptor.AlgorithmName);
+			//var decryptor = CipherUtilities.GetCipher("AES/CTR/NoPadding") as BufferedBlockCipher;
+			//decryptor.Init(false, new ParametersWithIV(new KeyParameter(secret), secret.Take(12).Concat(new byte[] {0, 0, 0, 2}).ToArray()));
+			//encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(12).Concat(new byte[] {0, 0, 0, 2}).ToArray()));
+
+
+			var encryptor = new StreamingSicBlockCipher(new SicBlockCipher(new AesEngine()));
+			var decryptor = new StreamingSicBlockCipher(new SicBlockCipher(new AesEngine()));
+			decryptor.Init(false, new ParametersWithIV(new KeyParameter(secret), secret.Take(12).Concat(new byte[] {0, 0, 0, 2}).ToArray()));
+			encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(12).Concat(new byte[] {0, 0, 0, 2}).ToArray()));
+
+			//Log.Warn($"Headers: {string.Join(";", JWT.Headers(val))}");
+			//Log.Warn($"Return salt:\n{JWT.Payload(val)}");
+			byte[] payload = Encoding.UTF8.GetBytes("gurun");
+			Assert.AreEqual(5, payload.Length);
+
+
+			//encrypted = encryptor.ProcessBytes(payload, 0, payload.Length);
+			int originalLen = payload.Length;
+			//payload = PaddTo16(payload);
+			//Assert.AreEqual(16, payload.Length);
+			var encrypted = new byte[payload.Length];
+			var encrypted2 = new byte[payload.Length];
+			var encrypted3 = new byte[payload.Length];
+			encryptor.ProcessBytes(payload, 0, payload.Length, encrypted, 0);
+			encryptor.ProcessBytes(payload, 0, payload.Length, encrypted2, 0);
+			encryptor.ProcessBytes(payload, 0, payload.Length, encrypted3, 0);
+
+			Assert.AreEqual("41EgP6s=", encrypted.Take(originalLen).ToArray().EncodeBase64());
+			Assert.AreEqual("IDeJqk8=", encrypted2.Take(originalLen).ToArray().EncodeBase64());
+			Assert.AreEqual("6SAjD+8=", encrypted3.Take(originalLen).ToArray().EncodeBase64());
+
+			Assert.AreEqual(5, encrypted.Length);
+			Assert.AreEqual("gurun", Encoding.UTF8.GetString(decryptor.ProcessBytes(encrypted)));
+			Assert.AreEqual("gurun", Encoding.UTF8.GetString(decryptor.ProcessBytes(encrypted2)));
+			Assert.AreEqual("gurun", Encoding.UTF8.GetString(decryptor.ProcessBytes(encrypted3)));
+		}
+
+		private static byte[] PaddTo16(byte[] payload)
+		{
+			int len = payload.Length;
+			int padding = (16 - len) % 16;
+			return (byte[]) payload.Concat(new byte[padding]).ToArray();
 		}
 	}
 }

@@ -46,8 +46,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 428;
-		public const string GameVersion = "1.16.210";
+		public const int ProtocolVersion = 440;
+		public const string GameVersion = "1.17.2";
 	}
 
 	public interface IMcpeMessageHandler
@@ -2493,6 +2493,7 @@ namespace MiNET.Net
 		public Itemstates itemstates; // = null;
 		public string multiplayerCorrelationId; // = null;
 		public bool enableNewInventorySystem; // = null;
+		public string serverVersion; // = null;
 
 		public McpeStartGame()
 		{
@@ -2567,6 +2568,7 @@ namespace MiNET.Net
 			Write(itemstates);
 			Write(multiplayerCorrelationId);
 			Write(enableNewInventorySystem);
+			Write(serverVersion);
 
 			AfterEncode();
 		}
@@ -2641,6 +2643,7 @@ namespace MiNET.Net
 			itemstates = ReadItemstates();
 			multiplayerCorrelationId = ReadString();
 			enableNewInventorySystem = ReadBool();
+			serverVersion = ReadString();
 
 			AfterDecode();
 		}
@@ -2713,6 +2716,7 @@ namespace MiNET.Net
 			itemstates=default(Itemstates);
 			multiplayerCorrelationId=default(string);
 			enableNewInventorySystem=default(bool);
+			serverVersion=default(string);
 		}
 
 	}

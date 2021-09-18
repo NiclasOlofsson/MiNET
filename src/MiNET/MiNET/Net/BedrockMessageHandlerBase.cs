@@ -122,6 +122,8 @@ namespace MiNET.Net
 
 		public void HandlePacket(Packet message)
 		{
+			if (message == null) throw new NullReferenceException();
+
 			if (message is McpeWrapper wrapper)
 			{
 				var messages = new List<Packet>();
@@ -149,41 +151,49 @@ namespace MiNET.Net
 				//}
 				//stream.ReadByte();
 				var stream = new MemoryStreamReader(payload);
-				using (var deflateStream = new DeflateStream(stream, CompressionMode.Decompress, false))
+				try
 				{
-					using var s = new MemoryStream();
-					deflateStream.CopyTo(s);
-					s.Position = 0;
-
-					int count = 0;
-					// Get actual packet out of bytes
-					while (s.Position < s.Length)
+					using (var deflateStream = new DeflateStream(stream, CompressionMode.Decompress, false))
 					{
-						count++;
+						using var s = new MemoryStream();
+						deflateStream.CopyTo(s);
+						s.Position = 0;
 
-						uint len = VarInt.ReadUInt32(s);
-						long pos = s.Position;
-						ReadOnlyMemory<byte> internalBuffer = s.GetBuffer().AsMemory((int) s.Position, (int) len);
-						int id = VarInt.ReadInt32(s);
-						try
+						int count = 0;
+						// Get actual packet out of bytes
+						while (s.Position < s.Length)
 						{
-							//if (Log.IsDebugEnabled)
-							//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Packet.HexDump(internalBuffer)}");
+							count++;
 
-							messages.Add(PacketFactory.Create((byte) id, internalBuffer, "mcpe") ??
-										new UnknownPacket((byte) id, internalBuffer));
-						}
-						catch (Exception e)
-						{
-							if (Log.IsDebugEnabled) Log.Warn($"Error parsing bedrock message #{count} id={id}\n{Packet.HexDump(internalBuffer)}", e);
-							//throw;
-							return; // Exit, but don't crash.
+							uint len = VarInt.ReadUInt32(s);
+							long pos = s.Position;
+							ReadOnlyMemory<byte> internalBuffer = s.GetBuffer().AsMemory((int) s.Position, (int) len);
+							int id = VarInt.ReadInt32(s);
+							try
+							{
+								//if (Log.IsDebugEnabled)
+								//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Packet.HexDump(internalBuffer)}");
+
+								messages.Add(PacketFactory.Create((byte) id, internalBuffer, "mcpe") ??
+											new UnknownPacket((byte) id, internalBuffer));
+							}
+							catch (Exception e)
+							{
+								if (Log.IsDebugEnabled) Log.Warn($"Error parsing bedrock message #{count} id={id}\n{Packet.HexDump(internalBuffer)}", e);
+								//throw;
+								return; // Exit, but don't crash.
+							}
+
+							s.Position = pos + len;
 						}
 
-						s.Position = pos + len;
+						if (s.Length > s.Position) throw new Exception("Have more data");
 					}
-
-					if (s.Length > s.Position) throw new Exception("Have more data");
+				}
+				catch (Exception e)
+				{
+					if (Log.IsDebugEnabled) Log.Warn($"Error parsing bedrock message \n{Packet.HexDump(payload)}", e);
+					throw;
 				}
 
 				foreach (Packet msg in messages)

@@ -192,7 +192,7 @@ namespace MiNET.Worlds
 				byte[] blockEntityBytes = Db.Get(Combine(index, 0x31));
 				sw.Stop();
 
-				Log.Debug($"Read chunk from LevelDB {coordinates.X}, {coordinates.Z} in {sw.ElapsedMilliseconds} ms.");
+				//Log.Debug($"Read chunk from LevelDB {coordinates.X}, {coordinates.Z} in {sw.ElapsedMilliseconds} ms.");
 
 				if (blockEntityBytes != null)
 				{
@@ -241,7 +241,7 @@ namespace MiNET.Worlds
 				//chunkColumn.NeedSave = isGenerated;
 			}
 
-			Log.Debug($"Read chunk {coordinates.X}, {coordinates.Z} in {sw.ElapsedMilliseconds} ms. Was generated: {isGenerated}");
+			//Log.Debug($"Read chunk {coordinates.X}, {coordinates.Z} in {sw.ElapsedMilliseconds} ms. Was generated: {isGenerated}");
 
 			return chunkColumn;
 		}

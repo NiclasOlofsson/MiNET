@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2021 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -39,12 +39,14 @@ using MiNET.Utils;
 using MiNET.Utils.Cryptography;
 using MiNET.Utils.Skins;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Agreement;
+using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
+using SicStream;
 
 namespace MiNET
 {
@@ -424,11 +426,16 @@ namespace MiNET
 
 							if (Log.IsDebugEnabled) Log.Debug($"SECRET KEY (b64):\n{secret.EncodeBase64()}");
 
-							IBufferedCipher decryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
-							decryptor.Init(false, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
+							var encryptor = new StreamingSicBlockCipher(new SicBlockCipher(new AesEngine()));
+							var decryptor = new StreamingSicBlockCipher(new SicBlockCipher(new AesEngine()));
+							decryptor.Init(false, new ParametersWithIV(new KeyParameter(secret), secret.Take(12).Concat(new byte[] {0, 0, 0, 2}).ToArray()));
+							encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(12).Concat(new byte[] {0, 0, 0, 2}).ToArray()));
 
-							IBufferedCipher encryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
-							encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
+							//IBufferedCipher decryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
+							//decryptor.Init(false, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
+
+							//IBufferedCipher encryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
+							//encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
 
 							_bedrockHandler.CryptoContext.Key = secret;
 							_bedrockHandler.CryptoContext.Decryptor = decryptor;

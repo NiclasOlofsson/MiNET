@@ -768,7 +768,7 @@ namespace MiNET.Net
 		
 		public static NbtCompound ReadLegacyNbtCompound(Stream stream)
 		{
-			NbtFile         file   = new NbtFile();
+			NbtFile file = new NbtFile();
 			file.BigEndian = false;
 			file.UseVarInt = false;
 
@@ -833,17 +833,14 @@ namespace MiNET.Net
 			var metadata = new ItemStacks();
 
 			var count = ReadUnsignedVarInt();
-
 			for (int i = 0; i < count; i++)
 			{
-				int uniqueId = 1;
-				if (!(this is McpeCraftingEvent))
-				{
-					uniqueId = ReadVarInt();
-				}
-				Item item = ReadItem();
-				item.UniqueId = uniqueId;
+				int networkId = 0;
+				if (this is McpeCreativeContent) networkId = ReadVarInt();
+				Item item = ReadItem(this is not McpeCreativeContent);
+				item.NetworkId = networkId;
 				metadata.Add(item);
+				Log.Debug(item);
 			}
 
 			return metadata;
@@ -1593,7 +1590,7 @@ namespace MiNET.Net
 
 			for (int i = 0; i < count; i++)
 			{
-				items.Add(ReadItem());
+				items.Add(ReadItem(false));
 			}
 
 			return items;
@@ -1634,7 +1631,7 @@ namespace MiNET.Net
 			}
 		}
 
-		public Item ReadItem()
+		public Item ReadItem(bool readUniqueId = true)
 		{
 			int id = ReadSignedVarInt();
 			if (id == 0)
@@ -1642,47 +1639,57 @@ namespace MiNET.Net
 				return new ItemAir();
 			}
 
-			int tmp = ReadSignedVarInt();
-			short metadata = (short) (tmp >> 8);
-			if (metadata == short.MaxValue) metadata = -1;
-			byte count = (byte) (tmp & 0xff);
+			short count = (short) ReadUshort();
+			short metadata = (short) ReadUnsignedVarInt();
 			Item stack = ItemFactory.GetItem((short) id, metadata, count);
+
+			if (readUniqueId)
+			{
+				if (ReadBool()) stack.UniqueId = ReadVarInt();
+			}
+
+			stack.RuntimeId = ReadSignedVarInt();
+
+			int length = ReadLength();
+			long offset = _reader.Position;
 
 			ushort nbtLen = ReadUshort(); // NbtLen
 			if (nbtLen == 0xffff)
 			{
-				var version = ReadByte();
+				byte version = ReadByte();
 
-				if (version == 1)
+				if (version != 1)
 				{
-					stack.ExtraData = (NbtCompound) ReadNbt().NbtFile.RootTag;
+					throw new Exception("Fringe nbt version when reading item extra NBT");
 				}
+
+				//byte[] nbtData = ReadBytes(nbtLen);
+
+				//using var ms = new MemoryStream(nbtData);
+				stack.ExtraData = ReadLegacyNbtCompound(_reader);
 			}
 			else if (nbtLen > 0)
 			{
-				var nbtData = ReadBytes(nbtLen);
-
-				using (MemoryStream ms = new MemoryStream(nbtData))
-				{
-					stack.ExtraData = ReadLegacyNbtCompound(ms);
-				}
+				throw new Exception("Fringe nbt length when reading item extra NBT");
 			}
 
-			var canPlace = ReadSignedVarInt();
+			int canPlace = ReadInt();
 			for (int i = 0; i < canPlace; i++)
 			{
-				ReadString();
+				ReadBytes(ReadUshort());
 			}
-			var canBreak = ReadSignedVarInt();
+			int canBreak = ReadInt();
 			for (int i = 0; i < canBreak; i++)
 			{
-				ReadString();
+				ReadBytes(ReadUshort());
 			}
 
-			if (id == 513) // shield
+			if (id == 355) // shield
 			{
-				ReadSignedVarLong(); // something about tick, crap code
+				ReadLong(); // something about tick, crap code
 			}
+
+			if (length != _reader.Position - offset) throw new Exception($"Didn't read item {id} correctly: Read {_reader.Position - offset} bytes, but expected to have read {length} bytes");
 
 			return stack;
 		}
@@ -1758,6 +1765,7 @@ namespace MiNET.Net
 			for (int i = 0; i < count; i++)
 			{
 				string name = ReadString();
+				bool isPlayerModifiable = ReadBool();
 				byte type = ReadByte();
 				switch (type)
 				{
@@ -1797,6 +1805,8 @@ namespace MiNET.Net
 			foreach (var rule in gameRules)
 			{
 				Write(rule.Name.ToLower());
+				Write(true); // bool isPlayerModifiable
+
 				if (rule is GameRule<bool>)
 				{
 					Write((byte) 1);
@@ -1862,6 +1872,12 @@ namespace MiNET.Net
 				var name = ReadString();
 				var legacyId = ReadShort();
 				var component = ReadBool();
+
+				if (name == "minecraft:shield")
+				{
+					Log.Warn($"Got shield with runtime id {runtimeId}, legacy {legacyId}");
+				}
+
 				result.Add(new Itemstate
 				{
 					Id = legacyId,
@@ -2468,7 +2484,7 @@ namespace MiNET.Net
 						int resultCount = ReadVarInt(); // 1?
 						for (int j = 0; j < resultCount; j++)
 						{
-							recipe.Result.Add(ReadItem());
+							recipe.Result.Add(ReadItem(false));
 						}
 						recipe.Id = ReadUUID(); // Id
 						recipe.Block = ReadString(); // block?
@@ -2496,7 +2512,7 @@ namespace MiNET.Net
 						int resultCount = ReadVarInt(); // 1?
 						for (int j = 0; j < resultCount; j++)
 						{
-							recipe.Result.Add(ReadItem());
+							recipe.Result.Add(ReadItem(false));
 						}
 						recipe.Id = ReadUUID(); // Id
 						recipe.Block = ReadString(); // block?
@@ -2510,7 +2526,7 @@ namespace MiNET.Net
 					{
 						var recipe = new SmeltingRecipe();
 						short id = (short) ReadSignedVarInt(); // input (with metadata) 
-						Item result = ReadItem(); // Result
+						Item result = ReadItem(false); // Result
 						recipe.Block = ReadString(); // block?
 						recipe.Input = ItemFactory.GetItem(id, 0);
 						recipe.Result = result;
@@ -2525,7 +2541,7 @@ namespace MiNET.Net
 						var recipe = new SmeltingRecipe();
 						short id = (short) ReadSignedVarInt(); // input (with metadata) 
 						short meta = (short) ReadSignedVarInt(); // input (with metadata) 
-						Item result = ReadItem(); // Result
+						Item result = ReadItem(false); // Result
 						recipe.Block = ReadString(); // block?
 						recipe.Input = ItemFactory.GetItem(id, meta);
 						recipe.Result = result;
@@ -2556,7 +2572,7 @@ namespace MiNET.Net
 						int resultCount = ReadVarInt(); // 1?
 						for (int j = 0; j < resultCount; j++)
 						{
-							recipe.Result.Add(ReadItem());
+							recipe.Result.Add(ReadItem(false));
 						}
 						recipe.Id = ReadUUID(); // Id
 						recipe.Block = ReadString(); // block?
@@ -2584,7 +2600,7 @@ namespace MiNET.Net
 						int resultCount = ReadVarInt(); // 1?
 						for (int j = 0; j < resultCount; j++)
 						{
-							recipe.Result.Add(ReadItem());
+							recipe.Result.Add(ReadItem(false));
 						}
 						recipe.Id = ReadUUID(); // Id
 						recipe.Block = ReadString(); // block?

@@ -57,8 +57,11 @@ using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Agreement;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
+using SicStream;
 
 //[assembly: XmlConfigurator(Watch = true)]
 // This will cause log4net to look for a configuration file
@@ -207,11 +210,10 @@ namespace MiNET.Client
 				Log.Debug($"SECRET KEY (raw):\n{Encoding.UTF8.GetString(secret)}");
 
 				// Create a decrytor to perform the stream transform.
-				IBufferedCipher decryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
-				decryptor.Init(false, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
-
-				IBufferedCipher encryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
-				encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
+				var encryptor = new StreamingSicBlockCipher(new SicBlockCipher(new AesEngine()));
+				var decryptor = new StreamingSicBlockCipher(new SicBlockCipher(new AesEngine()));
+				decryptor.Init(false, new ParametersWithIV(new KeyParameter(secret), secret.Take(12).Concat(new byte[] {0, 0, 0, 2}).ToArray()));
+				encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(12).Concat(new byte[] {0, 0, 0, 2}).ToArray()));
 
 				bedrockHandler.CryptoContext = new CryptoContext
 				{

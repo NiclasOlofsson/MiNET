@@ -123,18 +123,10 @@ namespace MiNET.Utils.Cryptography
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static byte[] Decrypt(byte[] payload, CryptoContext cryptoContext)
-		{
-			IBufferedCipher cipher = cryptoContext.Decryptor;
-			byte[] clear = cipher.ProcessBytes(payload);
-			//TODO: Verify hash!
-			return clear.AsSpan(0, clear.Length - 8).ToArray();
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static ReadOnlyMemory<byte> Decrypt(ReadOnlyMemory<byte> payload, CryptoContext cryptoContext)
 		{
 			IBufferedCipher cipher = cryptoContext.Decryptor;
+
 			ReadOnlyMemory<byte> clear = cipher.ProcessBytes(payload.ToArray());
 			//TODO: Verify hash!
 			return clear.Slice(0, clear.Length - 8);

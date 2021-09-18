@@ -32,6 +32,11 @@ namespace MiNET.Utils
 	{
 	}
 
+	public class CreativeItemStacks : ItemStacks
+	{
+		
+	}
+
 	/// <summary>
 	/// An item stack without unique identifiers
 	/// </summary>

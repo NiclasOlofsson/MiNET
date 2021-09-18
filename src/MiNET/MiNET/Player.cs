@@ -355,6 +355,8 @@ namespace MiNET
 		public virtual void SendResourcePackStack()
 		{
 			McpeResourcePackStack packStack = McpeResourcePackStack.CreateObject();
+			packStack.gameVersion = McpeProtocolInfo.GameVersion;
+			
 			if (_serverHaveResources)
 			{
 				packStack.mustAccept = false;
@@ -2161,7 +2163,7 @@ namespace MiNET
 
 		public void HandleMcpePacketViolationWarning(McpePacketViolationWarning message)
 		{
-			Log.Error($"A level {message.severity} packet violation of type {message.violationType} for packet 0x{message.packetId:X} {message.reason}");
+			Log.Error($"A level {message.severity} packet violation of type {message.violationType} for packet 0x{message.packetId:X2}: {message.reason}");
 		}
 
 		/// <inheritdoc />
@@ -2298,7 +2300,7 @@ namespace MiNET
 				var sendSlot = McpeInventorySlot.CreateObject();
 				sendSlot.inventoryId = inventory.WindowsId;
 				sendSlot.slot = slot;
-				sendSlot.uniqueid = itemStack.UniqueId;
+				//sendSlot.uniqueid = itemStack.UniqueId;
 				sendSlot.item = itemStack;
 				SendPacket(sendSlot);
 			}
@@ -2899,7 +2901,7 @@ namespace MiNET
 			startGame.y = (int) (SpawnPosition.Y + Height);
 			startGame.z = (int) SpawnPosition.Z;
 			startGame.hasAchievementsDisabled = true;
-			startGame.dayCycleStopTime = (int) Level.WorldTime;
+			startGame.time = (int) Level.WorldTime;
 			startGame.eduOffer = PlayerInfo.Edition == 1 ? 1 : 0;
 			startGame.rainLevel = 0;
 			startGame.lightningLevel = 0;

@@ -86,6 +86,7 @@ namespace MiNET
 	public abstract class GameRule
 	{
 		public string Name { get; }
+		public bool IsPlayerModifiable { get; set; } = true;
 
 		protected GameRule(string name)
 		{

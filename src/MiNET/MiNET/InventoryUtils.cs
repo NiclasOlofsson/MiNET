@@ -33,9 +33,9 @@ namespace MiNET
 	// ReSharper disable RedundantArgumentDefaultValue
 	public static class InventoryUtils
 	{
-		public static ItemStacks GetCreativeMetadataSlots()
+		public static CreativeItemStacks GetCreativeMetadataSlots()
 		{
-			ItemStacks slotData = new ItemStacks();
+			CreativeItemStacks slotData = new CreativeItemStacks();
 			for (int i = 0; i < CreativeInventoryItems.Count; i++)
 			{
 				slotData.Add(CreativeInventoryItems[i]);

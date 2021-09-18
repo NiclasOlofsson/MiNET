@@ -38,6 +38,7 @@ using System.Threading;
 using fNbt;
 using log4net;
 using Microsoft.IO;
+using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Items;
 using MiNET.Net.RakNet;
@@ -754,18 +755,20 @@ namespace MiNET.Net
 			return ReadNbt(_reader);
 		}
 
-		public static Nbt ReadNbt(Stream stream)
+		public static Nbt ReadNbt(Stream stream, bool allowAlternativeRootTag = true)
 		{
 			Nbt nbt = new Nbt();
-			NbtFile file = new NbtFile();
-			file.BigEndian = false;
-			file.UseVarInt = true;
-			nbt.NbtFile = file;
-			file.LoadFromStream(stream, NbtCompression.None);
+			NbtFile nbtFile = new NbtFile();
+			nbtFile.BigEndian = false;
+			nbtFile.UseVarInt = true;
+			nbtFile.AllowAlternativeRootTag = allowAlternativeRootTag;
+
+			nbt.NbtFile = nbtFile;
+			nbtFile.LoadFromStream(stream, NbtCompression.None);
 
 			return nbt;
 		}
-		
+
 		public static NbtCompound ReadLegacyNbtCompound(Stream stream)
 		{
 			NbtFile file = new NbtFile();
@@ -810,20 +813,51 @@ namespace MiNET.Net
 			return metadata;
 		}
 
+		public void Write(CreativeItemStacks itemStacks)
+		{
+			if (itemStacks == null)
+			{
+				WriteUnsignedVarInt(0);
+				return;
+			}
+			
+			WriteUnsignedVarInt((uint) itemStacks.Count);
+
+			foreach(var item in itemStacks)
+			{
+				WriteVarInt(item.UniqueId);
+				Write(item, false);
+			}
+		}
+
+		public CreativeItemStacks ReadCreativeItemStacks()
+		{
+			var metadata = new CreativeItemStacks();
+
+			var count = ReadUnsignedVarInt();
+			for (int i = 0; i < count; i++)
+			{
+				var networkId = ReadVarInt();
+				Item item = ReadItem(false);
+				item.NetworkId = networkId;
+				metadata.Add(item);
+				Log.Debug(item);
+			}
+
+			return metadata;
+		}
+
 		public void Write(ItemStacks itemStacks)
 		{
 			if (itemStacks == null)
 			{
-				WriteSignedVarInt(0);
 				WriteUnsignedVarInt(0);
 				return;
 			}
 
 			WriteUnsignedVarInt((uint) itemStacks.Count);
-
 			for (int i = 0; i < itemStacks.Count; i++)
 			{
-				WriteVarInt(itemStacks[i].UniqueId);
 				Write(itemStacks[i]);
 			}
 		}
@@ -1597,7 +1631,7 @@ namespace MiNET.Net
 		}
 
 
-		public void Write(Item stack)
+		public void Write(Item stack, bool writeUniqueId = true)
 		{
 			if (stack == null || stack.Id == 0)
 			{
@@ -1606,10 +1640,23 @@ namespace MiNET.Net
 			}
 
 			WriteSignedVarInt(stack.Id);
-			short metadata = stack.Metadata;
-			if (metadata == -1) metadata = short.MaxValue;
-			WriteSignedVarInt((metadata << 8) + (stack.Count & 0xff));
+			Write((ushort) stack.Count);
+			//short metadata = stack.Metadata;
+			//if (metadata == -1) metadata = short.MaxValue;
+			WriteSignedVarInt(stack.Metadata);
 
+			if (writeUniqueId)
+			{
+				Write(stack.UniqueId != 0);
+
+				if (stack.UniqueId != 0)
+				{
+					WriteVarInt(stack.UniqueId);
+				}
+			}
+
+			var blockRuntimeId = stack.RuntimeId;
+			WriteVarInt(blockRuntimeId);
 			if (stack.ExtraData != null)
 			{
 				byte[] bytes = GetNbtData(stack.ExtraData);
@@ -1622,12 +1669,12 @@ namespace MiNET.Net
 				Write((short) 0);
 			}
 
-			WriteSignedVarInt(0);
-			WriteSignedVarInt(0);
+			Write(0);
+			Write(0);
 
-			if (stack.Id == 513) // shield
+			if (stack.Id == ItemFactory.GetItemIdByName("minecraft:shield")) // shield
 			{
-				WriteSignedVarInt(0); // something about tick, crap code
+				Write((long)0); // something about tick, crap code
 			}
 		}
 
@@ -1684,7 +1731,7 @@ namespace MiNET.Net
 				ReadBytes(ReadUshort());
 			}
 
-			if (id == 355) // shield
+			if (id == ItemFactory.GetItemIdByName("minecraft:shield")) // shield
 			{
 				ReadLong(); // something about tick, crap code
 			}
@@ -1771,19 +1818,28 @@ namespace MiNET.Net
 				{
 					case 1:
 					{
-						GameRule<bool> rule = new GameRule<bool>(name, ReadBool());
+						GameRule<bool> rule = new GameRule<bool>(name, ReadBool())
+						{
+							IsPlayerModifiable = isPlayerModifiable
+						};
 						gameRules.Add(rule);
 						break;
 					}
 					case 2:
 					{
-						GameRule<int> rule = new GameRule<int>(name, ReadVarInt());
+						GameRule<int> rule = new GameRule<int>(name, ReadVarInt())
+						{
+							IsPlayerModifiable = isPlayerModifiable
+						};
 						gameRules.Add(rule);
 						break;
 					}
 					case 3:
 					{
-						GameRule<float> rule = new GameRule<float>(name, ReadFloat());
+						GameRule<float> rule = new GameRule<float>(name, ReadFloat())
+						{
+							IsPlayerModifiable = isPlayerModifiable
+						};
 						gameRules.Add(rule);
 						break;
 					}
@@ -1805,7 +1861,7 @@ namespace MiNET.Net
 			foreach (var rule in gameRules)
 			{
 				Write(rule.Name.ToLower());
-				Write(true); // bool isPlayerModifiable
+				Write(rule.IsPlayerModifiable); // bool isPlayerModifiable
 
 				if (rule is GameRule<bool>)
 				{
@@ -1907,68 +1963,110 @@ namespace MiNET.Net
 
 		public BlockPalette ReadBlockPalette()
 		{
-			var result = new BlockPalette();
-
-			uint count = ReadUnsignedVarInt();
+			var  result = new BlockPalette();
+			uint count  = ReadUnsignedVarInt();
+			
 			for (int runtimeId = 0; runtimeId < count; runtimeId++)
 			{
 				var record = new BlockStateContainer();
-				record.RuntimeId = runtimeId++;
-				record.Id = record.RuntimeId;
+				record.Id = record.RuntimeId = runtimeId;
 				record.Name = ReadString();
+				record.States = new List<IBlockState>();
 
-				var nbt = new Nbt();
-				var file = new NbtFile();
-				file.BigEndian = false;
-				file.UseVarInt = true;
-				file.AllowAlternativeRootTag = true;
-				nbt.NbtFile = file;
+				var nbt     = ReadNbt(_reader);
+				var rootTag = nbt.NbtFile.RootTag;
 
-				file.LoadFromStream(_reader, NbtCompression.None);
-
-				var rootTag = (NbtList) file.RootTag;
-				foreach (NbtTag tag in rootTag)
+				foreach (var state in GetBlockStates(rootTag))
 				{
-					var states = (NbtCompound) tag["states"];
-
-					record.States = new List<IBlockState>();
-
-					foreach (NbtTag stateTag in states)
-					{
-						IBlockState state = null;
-						switch (stateTag.TagType)
-						{
-							case NbtTagType.Byte:
-								state = new BlockStateByte()
-								{
-									Name = stateTag.Name,
-									Value = stateTag.ByteValue
-								};
-								break;
-							case NbtTagType.Int:
-								state = new BlockStateInt()
-								{
-									Name = stateTag.Name,
-									Value = stateTag.IntValue
-								};
-								break;
-							case NbtTagType.String:
-								state = new BlockStateString()
-								{
-									Name = stateTag.Name,
-									Value = stateTag.StringValue
-								};
-								break;
-							default:
-								throw new ArgumentOutOfRangeException();
-						}
-						record.States.Add(state);
-					}
-
-					result.Add(record);
+					record.States.Add(state);
 				}
 			}
 			return result;
+		}
+		
+		private IEnumerable<IBlockState> GetBlockStates(NbtTag tag)
+		{
+			switch (tag.TagType)
+			{
+				case NbtTagType.List:
+				{
+					foreach (var state in GetBlockStatesFromList((NbtList) tag))
+						yield return state;
+				} break;
+
+				case NbtTagType.Compound:
+				{
+					foreach (var state in GetBlockStatesFromCompound((NbtCompound) tag))
+						yield return state;
+				} break;
+
+				default:
+				{
+					if (TryGetStateFromTag(tag, out var state))
+						yield return state;
+				} break;
+			}
+		}
+
+		private IEnumerable<IBlockState> GetBlockStatesFromCompound(NbtCompound list)
+		{
+			if (list.TryGet("states", out NbtTag states))
+			{
+				foreach (var state in GetBlockStates(states))
+				{
+					yield return state;
+				}
+			}
+		}
+		
+		
+		private IEnumerable<IBlockState> GetBlockStatesFromList(NbtList list)
+		{
+			foreach (NbtTag tag in list)
+			{
+				if (TryGetStateFromTag(tag, out var state))
+				{
+					yield return state;
+				}
+				else
+				{
+					foreach (var s in GetBlockStates(tag))
+					{
+						yield return s;
+					}
+				}
+			}
+		}
+
+		private bool TryGetStateFromTag(NbtTag tag, out IBlockState state)
+		{
+			switch (tag.TagType)
+			{
+				case NbtTagType.Byte:
+					state = new BlockStateByte()
+					{
+						Name = tag.Name, Value = tag.ByteValue
+					};
+					return true;
+
+				case NbtTagType.Int:
+					state = new BlockStateInt()
+					{
+						Name = tag.Name, Value = tag.IntValue
+					};
+					return true;
+
+				case NbtTagType.String:
+					state = new BlockStateString()
+					{
+						Name = tag.Name, Value = tag.StringValue
+					};
+					return true;
+			}
+
+			state = null;
+
+			return false;
 		}
 
 		public void Write(BlockPalette palette)
@@ -2161,7 +2259,7 @@ namespace MiNET.Net
 
 		public void Write(ResourcePackIdVersions packInfos)
 		{
-			if (packInfos == null)
+			if (packInfos == null || packInfos.Count == 0)
 			{
 				WriteUnsignedVarInt(0);
 				return;
@@ -3043,6 +3141,36 @@ namespace MiNET.Net
 			return list;
 		}
 
+		public Experiments ReadExperiments()
+		{
+			Experiments experiments = new Experiments();
+			var count = ReadInt();
+
+			for (int i = 0; i < count; i++)
+			{
+				var experimentName = ReadString();
+				var enabled = ReadBool();
+				experiments.Add(new Experiments.Experiment(experimentName, enabled));
+			}
+			return experiments;
+		}
+
+		public void Write(Experiments experiments)
+		{
+			if (experiments == null)
+			{
+				Write(0);
+				return;
+			}
+			Write(experiments.Count);
+
+			foreach (var experiment in experiments)
+			{
+				Write(experiment.Name);
+				Write(experiment.Enabled);
+			}
+		}
+		
 
 		public bool CanRead()
 		{

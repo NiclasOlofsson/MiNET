@@ -2204,8 +2204,8 @@ namespace MiNET.Net
 		public ResourcePackIdVersions behaviorpackidversions; // = null;
 		public ResourcePackIdVersions resourcepackidversions; // = null;
 		public string gameVersion; // = null;
-		public int unknown1; // = null;
-		public bool unknown2; // = null;
+		public Experiments experiments; // = null;
+		public bool experimentsPreviouslyToggled; // = null;
 
 		public McpeResourcePackStack()
 		{
@@ -2223,8 +2223,8 @@ namespace MiNET.Net
 			Write(behaviorpackidversions);
 			Write(resourcepackidversions);
 			Write(gameVersion);
-			Write(unknown1);
-			Write(unknown2);
+			Write(experiments);
+			Write(experimentsPreviouslyToggled);
 
 			AfterEncode();
 		}
@@ -2242,8 +2242,8 @@ namespace MiNET.Net
 			behaviorpackidversions = ReadResourcePackIdVersions();
 			resourcepackidversions = ReadResourcePackIdVersions();
 			gameVersion = ReadString();
-			unknown1 = ReadInt();
-			unknown2 = ReadBool();
+			experiments = ReadExperiments();
+			experimentsPreviouslyToggled = ReadBool();
 
 			AfterDecode();
 		}
@@ -2259,8 +2259,8 @@ namespace MiNET.Net
 			behaviorpackidversions=default(ResourcePackIdVersions);
 			resourcepackidversions=default(ResourcePackIdVersions);
 			gameVersion=default(string);
-			unknown1=default(int);
-			unknown2=default(bool);
+			experiments=default(Experiments);
+			experimentsPreviouslyToggled=default(bool);
 		}
 
 	}
@@ -2436,68 +2436,6 @@ namespace MiNET.Net
 	public partial class McpeStartGame : Packet<McpeStartGame>
 	{
 
-		public long entityIdSelf; // = null;
-		public long runtimeEntityId; // = null;
-		public int playerGamemode; // = null;
-		public Vector3 spawn; // = null;
-		public Vector2 rotation; // = null;
-		public int seed; // = null;
-		public short biomeType; // = null;
-		public string biomeName; // = null;
-		public int dimension; // = null;
-		public int generator; // = null;
-		public int gamemode; // = null;
-		public int difficulty; // = null;
-		public int x; // = null;
-		public int y; // = null;
-		public int z; // = null;
-		public bool hasAchievementsDisabled; // = null;
-		public int dayCycleStopTime; // = null;
-		public int eduOffer; // = null;
-		public bool hasEduFeaturesEnabled; // = null;
-		public string eduProductUuid; // = null;
-		public float rainLevel; // = null;
-		public float lightningLevel; // = null;
-		public bool hasConfirmedPlatformLockedContent; // = null;
-		public bool isMultiplayer; // = null;
-		public bool broadcastToLan; // = null;
-		public int xboxLiveBroadcastMode; // = null;
-		public int platformBroadcastMode; // = null;
-		public bool enableCommands; // = null;
-		public bool isTexturepacksRequired; // = null;
-		public GameRules gamerules; // = null;
-		public int unknown1; // = null;
-		public bool unknown2; // = null;
-		public bool bonusChest; // = null;
-		public bool mapEnabled; // = null;
-		public int permissionLevel; // = null;
-		public int serverChunkTickRange; // = null;
-		public bool hasLockedBehaviorPack; // = null;
-		public bool hasLockedResourcePack; // = null;
-		public bool isFromLockedWorldTemplate; // = null;
-		public bool useMsaGamertagsOnly; // = null;
-		public bool isFromWorldTemplate; // = null;
-		public bool isWorldTemplateOptionLocked; // = null;
-		public bool onlySpawnV1Villagers; // = null;
-		public string gameVersion; // = null;
-		public int limitedWorldWidth; // = null;
-		public int limitedWorldLength; // = null;
-		public bool isNewNether; // = null;
-		public bool experimentalGameplayOverride; // = null;
-		public string levelId; // = null;
-		public string worldName; // = null;
-		public string premiumWorldTemplateId; // = null;
-		public bool isTrial; // = null;
-		public int movementType; // = null;
-		public int movementRewindHistorySize; // = null;
-		public bool enableNewBlockBreakSystem; // = null;
-		public long currentTick; // = null;
-		public int enchantmentSeed; // = null;
-		public BlockPalette blockPalette; // = null;
-		public Itemstates itemstates; // = null;
-		public string multiplayerCorrelationId; // = null;
-		public bool enableNewInventorySystem; // = null;
-		public string serverVersion; // = null;
 
 		public McpeStartGame()
 		{
@@ -2511,68 +2449,6 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteSignedVarLong(entityIdSelf);
-			WriteUnsignedVarLong(runtimeEntityId);
-			WriteSignedVarInt(playerGamemode);
-			Write(spawn);
-			Write(rotation);
-			WriteSignedVarInt(seed);
-			Write(biomeType);
-			Write(biomeName);
-			WriteSignedVarInt(dimension);
-			WriteSignedVarInt(generator);
-			WriteSignedVarInt(gamemode);
-			WriteSignedVarInt(difficulty);
-			WriteSignedVarInt(x);
-			WriteVarInt(y);
-			WriteSignedVarInt(z);
-			Write(hasAchievementsDisabled);
-			WriteSignedVarInt(dayCycleStopTime);
-			WriteSignedVarInt(eduOffer);
-			Write(hasEduFeaturesEnabled);
-			Write(eduProductUuid);
-			Write(rainLevel);
-			Write(lightningLevel);
-			Write(hasConfirmedPlatformLockedContent);
-			Write(isMultiplayer);
-			Write(broadcastToLan);
-			WriteVarInt(xboxLiveBroadcastMode);
-			WriteVarInt(platformBroadcastMode);
-			Write(enableCommands);
-			Write(isTexturepacksRequired);
-			Write(gamerules);
-			Write(unknown1);
-			Write(unknown2);
-			Write(bonusChest);
-			Write(mapEnabled);
-			WriteSignedVarInt(permissionLevel);
-			Write(serverChunkTickRange);
-			Write(hasLockedBehaviorPack);
-			Write(hasLockedResourcePack);
-			Write(isFromLockedWorldTemplate);
-			Write(useMsaGamertagsOnly);
-			Write(isFromWorldTemplate);
-			Write(isWorldTemplateOptionLocked);
-			Write(onlySpawnV1Villagers);
-			Write(gameVersion);
-			Write(limitedWorldWidth);
-			Write(limitedWorldLength);
-			Write(isNewNether);
-			Write(experimentalGameplayOverride);
-			Write(levelId);
-			Write(worldName);
-			Write(premiumWorldTemplateId);
-			Write(isTrial);
-			WriteSignedVarInt(movementType);
-			WriteSignedVarInt(movementRewindHistorySize);
-			Write(enableNewBlockBreakSystem);
-			Write(currentTick);
-			WriteSignedVarInt(enchantmentSeed);
-			Write(blockPalette);
-			Write(itemstates);
-			Write(multiplayerCorrelationId);
-			Write(enableNewInventorySystem);
-			Write(serverVersion);
 
 			AfterEncode();
 		}
@@ -2586,68 +2462,6 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityIdSelf = ReadSignedVarLong();
-			runtimeEntityId = ReadUnsignedVarLong();
-			playerGamemode = ReadSignedVarInt();
-			spawn = ReadVector3();
-			rotation = ReadVector2();
-			seed = ReadSignedVarInt();
-			biomeType = ReadShort();
-			biomeName = ReadString();
-			dimension = ReadSignedVarInt();
-			generator = ReadSignedVarInt();
-			gamemode = ReadSignedVarInt();
-			difficulty = ReadSignedVarInt();
-			x = ReadSignedVarInt();
-			y = ReadVarInt();
-			z = ReadSignedVarInt();
-			hasAchievementsDisabled = ReadBool();
-			dayCycleStopTime = ReadSignedVarInt();
-			eduOffer = ReadSignedVarInt();
-			hasEduFeaturesEnabled = ReadBool();
-			eduProductUuid = ReadString();
-			rainLevel = ReadFloat();
-			lightningLevel = ReadFloat();
-			hasConfirmedPlatformLockedContent = ReadBool();
-			isMultiplayer = ReadBool();
-			broadcastToLan = ReadBool();
-			xboxLiveBroadcastMode = ReadVarInt();
-			platformBroadcastMode = ReadVarInt();
-			enableCommands = ReadBool();
-			isTexturepacksRequired = ReadBool();
-			gamerules = ReadGameRules();
-			unknown1 = ReadInt();
-			unknown2 = ReadBool();
-			bonusChest = ReadBool();
-			mapEnabled = ReadBool();
-			permissionLevel = ReadSignedVarInt();
-			serverChunkTickRange = ReadInt();
-			hasLockedBehaviorPack = ReadBool();
-			hasLockedResourcePack = ReadBool();
-			isFromLockedWorldTemplate = ReadBool();
-			useMsaGamertagsOnly = ReadBool();
-			isFromWorldTemplate = ReadBool();
-			isWorldTemplateOptionLocked = ReadBool();
-			onlySpawnV1Villagers = ReadBool();
-			gameVersion = ReadString();
-			limitedWorldWidth = ReadInt();
-			limitedWorldLength = ReadInt();
-			isNewNether = ReadBool();
-			experimentalGameplayOverride = ReadBool();
-			levelId = ReadString();
-			worldName = ReadString();
-			premiumWorldTemplateId = ReadString();
-			isTrial = ReadBool();
-			movementType = ReadSignedVarInt();
-			movementRewindHistorySize = ReadSignedVarInt();
-			enableNewBlockBreakSystem = ReadBool();
-			currentTick = ReadLong();
-			enchantmentSeed = ReadSignedVarInt();
-			blockPalette = ReadBlockPalette();
-			itemstates = ReadItemstates();
-			multiplayerCorrelationId = ReadString();
-			enableNewInventorySystem = ReadBool();
-			serverVersion = ReadString();
 
 			AfterDecode();
 		}
@@ -2659,68 +2473,6 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			entityIdSelf=default(long);
-			runtimeEntityId=default(long);
-			playerGamemode=default(int);
-			spawn=default(Vector3);
-			rotation=default(Vector2);
-			seed=default(int);
-			biomeType=default(short);
-			biomeName=default(string);
-			dimension=default(int);
-			generator=default(int);
-			gamemode=default(int);
-			difficulty=default(int);
-			x=default(int);
-			y=default(int);
-			z=default(int);
-			hasAchievementsDisabled=default(bool);
-			dayCycleStopTime=default(int);
-			eduOffer=default(int);
-			hasEduFeaturesEnabled=default(bool);
-			eduProductUuid=default(string);
-			rainLevel=default(float);
-			lightningLevel=default(float);
-			hasConfirmedPlatformLockedContent=default(bool);
-			isMultiplayer=default(bool);
-			broadcastToLan=default(bool);
-			xboxLiveBroadcastMode=default(int);
-			platformBroadcastMode=default(int);
-			enableCommands=default(bool);
-			isTexturepacksRequired=default(bool);
-			gamerules=default(GameRules);
-			unknown1=default(int);
-			unknown2=default(bool);
-			bonusChest=default(bool);
-			mapEnabled=default(bool);
-			permissionLevel=default(int);
-			serverChunkTickRange=default(int);
-			hasLockedBehaviorPack=default(bool);
-			hasLockedResourcePack=default(bool);
-			isFromLockedWorldTemplate=default(bool);
-			useMsaGamertagsOnly=default(bool);
-			isFromWorldTemplate=default(bool);
-			isWorldTemplateOptionLocked=default(bool);
-			onlySpawnV1Villagers=default(bool);
-			gameVersion=default(string);
-			limitedWorldWidth=default(int);
-			limitedWorldLength=default(int);
-			isNewNether=default(bool);
-			experimentalGameplayOverride=default(bool);
-			levelId=default(string);
-			worldName=default(string);
-			premiumWorldTemplateId=default(string);
-			isTrial=default(bool);
-			movementType=default(int);
-			movementRewindHistorySize=default(int);
-			enableNewBlockBreakSystem=default(bool);
-			currentTick=default(long);
-			enchantmentSeed=default(int);
-			blockPalette=default(BlockPalette);
-			itemstates=default(Itemstates);
-			multiplayerCorrelationId=default(string);
-			enableNewInventorySystem=default(bool);
-			serverVersion=default(string);
 		}
 
 	}
@@ -5050,7 +4802,6 @@ namespace MiNET.Net
 
 		public uint inventoryId; // = null;
 		public uint slot; // = null;
-		public int uniqueid; // = null;
 		public Item item; // = null;
 
 		public McpeInventorySlot()
@@ -5067,7 +4818,6 @@ namespace MiNET.Net
 
 			WriteUnsignedVarInt(inventoryId);
 			WriteUnsignedVarInt(slot);
-			WriteSignedVarInt(uniqueid);
 			Write(item);
 
 			AfterEncode();
@@ -5084,7 +4834,6 @@ namespace MiNET.Net
 
 			inventoryId = ReadUnsignedVarInt();
 			slot = ReadUnsignedVarInt();
-			uniqueid = ReadSignedVarInt();
 			item = ReadItem();
 
 			AfterDecode();
@@ -5099,7 +4848,6 @@ namespace MiNET.Net
 
 			inventoryId=default(uint);
 			slot=default(uint);
-			uniqueid=default(int);
 			item=default(Item);
 		}
 
@@ -9579,7 +9327,7 @@ namespace MiNET.Net
 	public partial class McpeCreativeContent : Packet<McpeCreativeContent>
 	{
 
-		public ItemStacks input; // = null;
+		public CreativeItemStacks input; // = null;
 
 		public McpeCreativeContent()
 		{
@@ -9607,7 +9355,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			input = ReadItemStacks();
+			input = ReadCreativeItemStacks();
 
 			AfterDecode();
 		}
@@ -9619,7 +9367,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			input=default(ItemStacks);
+			input=default(CreativeItemStacks);
 		}
 
 	}

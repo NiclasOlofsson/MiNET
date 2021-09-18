@@ -320,6 +320,7 @@ Wiki: [Resource Packs Info](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 |:-----|:-----|:-----|
 |Must accept | bool |  |
 |Has scripts | bool |  |
+|Force Server Packs | bool |  |
 |BehahaviorPackInfos | ResourcePackInfos |  |
 |TexturePacks | TexturePackInfos |  |
 -----------------------------------------------------------------------
@@ -1961,6 +1962,8 @@ Wiki: [Set Title](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetTitl
 |Fade In Time | SignedVarInt |  |
 |Stay Time | SignedVarInt |  |
 |Fade Out Time | SignedVarInt |  |
+|Xuid | string |  |
+|Platform Online Id | string |  |
 -----------------------------------------------------------------------
 ### Add Behavior Tree (0x59)
 Wiki: [Add Behavior Tree](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddBehaviorTree)

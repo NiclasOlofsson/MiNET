@@ -46,8 +46,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 440;
-		public const string GameVersion = "1.17.2";
+		public const int ProtocolVersion = 448;
+		public const string GameVersion = "1.17.10";
 	}
 
 	public interface IMcpeMessageHandler
@@ -2138,6 +2138,7 @@ namespace MiNET.Net
 
 		public bool mustAccept; // = null;
 		public bool hasScripts; // = null;
+		public bool forceServerPacks; // = null;
 		public ResourcePackInfos behahaviorpackinfos; // = null;
 		public TexturePackInfos texturepacks; // = null;
 
@@ -2155,6 +2156,7 @@ namespace MiNET.Net
 
 			Write(mustAccept);
 			Write(hasScripts);
+			Write(forceServerPacks);
 			Write(behahaviorpackinfos);
 			Write(texturepacks);
 
@@ -2172,6 +2174,7 @@ namespace MiNET.Net
 
 			mustAccept = ReadBool();
 			hasScripts = ReadBool();
+			forceServerPacks = ReadBool();
 			behahaviorpackinfos = ReadResourcePackInfos();
 			texturepacks = ReadTexturePackInfos();
 
@@ -2187,6 +2190,7 @@ namespace MiNET.Net
 
 			mustAccept=default(bool);
 			hasScripts=default(bool);
+			forceServerPacks=default(bool);
 			behahaviorpackinfos=default(ResourcePackInfos);
 			texturepacks=default(TexturePackInfos);
 		}
@@ -7143,6 +7147,8 @@ namespace MiNET.Net
 		public int fadeInTime; // = null;
 		public int stayTime; // = null;
 		public int fadeOutTime; // = null;
+		public string xuid; // = null;
+		public string platformOnlineId; // = null;
 
 		public McpeSetTitle()
 		{
@@ -7161,6 +7167,8 @@ namespace MiNET.Net
 			WriteSignedVarInt(fadeInTime);
 			WriteSignedVarInt(stayTime);
 			WriteSignedVarInt(fadeOutTime);
+			Write(xuid);
+			Write(platformOnlineId);
 
 			AfterEncode();
 		}
@@ -7179,6 +7187,8 @@ namespace MiNET.Net
 			fadeInTime = ReadSignedVarInt();
 			stayTime = ReadSignedVarInt();
 			fadeOutTime = ReadSignedVarInt();
+			xuid = ReadString();
+			platformOnlineId = ReadString();
 
 			AfterDecode();
 		}
@@ -7195,6 +7205,8 @@ namespace MiNET.Net
 			fadeInTime=default(int);
 			stayTime=default(int);
 			fadeOutTime=default(int);
+			xuid=default(string);
+			platformOnlineId=default(string);
 		}
 
 	}

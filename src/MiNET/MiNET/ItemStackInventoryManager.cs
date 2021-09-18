@@ -251,8 +251,8 @@ namespace MiNET
 			Item sourceItem = GetContainerItem(source.ContainerId, source.Slot);
 			Item destItem = GetContainerItem(destination.ContainerId, destination.Slot);
 
-			SetContainerItem(source.ContainerId, source.Slot, destItem);
-			SetContainerItem(destination.ContainerId, destination.Slot, sourceItem);
+			SetContainerItem(source.ContainerId, source.Slot, destItem, true);
+			SetContainerItem(destination.ContainerId, destination.Slot, sourceItem, true);
 
 			if (source.ContainerId == 21 || source.ContainerId == 22 || destination.ContainerId == 21 || destination.ContainerId == 22)
 			{
@@ -507,7 +507,7 @@ namespace MiNET
 			return item;
 		}
 
-		private void SetContainerItem(int containerId, int slot, Item item)
+		private void SetContainerItem(int containerId, int slot, Item item, bool forceReplace = false)
 		{
 			if (_player.UsingAnvil && containerId < 3) containerId = 13;
 
@@ -519,32 +519,18 @@ namespace MiNET
 				case 41: // loom
 				case 58: // cursor
 				case 59: // creative
-					_player.Inventory.UiInventory.Slots[slot] = item;
+					_player.Inventory.UpdateUiSlot(slot, item, forceReplace);
 					break;
 				case 12: // auto
 				case 27: // hotbar
 				case 28: // player inventory
-					_player.Inventory.Slots[slot] = item;
+					_player.Inventory.UpdateInventorySlot(slot, item, forceReplace);
 					break;
 				case 33: // off-hand
-					_player.Inventory.OffHand = item;
+					_player.Inventory.UpdateOffHandSlot(item, forceReplace);
 					break;
 				case 6: // armor
-					switch (slot)
-					{
-						case 0:
-							_player.Inventory.Helmet = item;
-							break;
-						case 1:
-							_player.Inventory.Chest = item;
-							break;
-						case 2:
-							_player.Inventory.Leggings = item;
-							break;
-						case 3:
-							_player.Inventory.Boots = item;
-							break;
-					}
+					_player.Inventory.UpdateArmorSlot((ArmorType) slot, item, forceReplace);
 					break;
 				case 7: // chest/container
 					if (_player._openInventory is Inventory inventory) inventory.SetSlot(_player, (byte) slot, item);

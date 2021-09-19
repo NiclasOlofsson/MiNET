@@ -119,20 +119,17 @@ namespace MiNET.Net
 
 		public PlayerLocation GetCurrentPosition(PlayerLocation previousPosition)
 		{
-			if ((flags & HasX) != 0)
-			{
-				currentPosition.X = _dX;
-			}
-			if ((flags & HasY) != 0)
-			{
-				currentPosition.Y = _dY;
-			}
-			if ((flags & HasZ) != 0)
-			{
-				currentPosition.Z = _dZ;
-			}
+			var pos = previousPosition;
+			pos.X = ((flags & HasX) != 0) ? currentPosition.X : previousPosition.X;
+			pos.Y = ((flags & HasY) != 0) ? currentPosition.Y : previousPosition.Y;
+			pos.Z = ((flags & HasZ) != 0) ? currentPosition.Z : previousPosition.Z;
+      
+			pos.HeadYaw = ((flags & HasRotZ) != 0) ? -currentPosition.HeadYaw : previousPosition.HeadYaw;
+			pos.Yaw = ((flags & HasRotY) != 0) ? -currentPosition.Yaw : previousPosition.Yaw;
+			pos.Pitch = ((flags & HasRotX) != 0) ? -currentPosition.Pitch : previousPosition.Pitch;
 
-			return currentPosition;
+			//pos.OnGround = this.isOnGround;
+			return pos;
 		}
 
 		partial void AfterDecode()
@@ -141,15 +138,15 @@ namespace MiNET.Net
 
 			if ((flags & HasX) != 0)
 			{
-				_dX = ReadFloat();
+				currentPosition.X = ReadFloat();
 			}
 			if ((flags & HasY) != 0)
 			{
-				_dY = ReadFloat();
+				currentPosition.Y = ReadFloat();
 			}
 			if ((flags & HasZ) != 0)
 			{
-				_dZ = ReadFloat();
+				currentPosition.Z = ReadFloat();
 			}
 
 			float d = 1f / (256f / 360f);

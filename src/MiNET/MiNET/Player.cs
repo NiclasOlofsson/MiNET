@@ -775,7 +775,7 @@ namespace MiNET
 			mcpeAdventureSettings.actionPermissions = (uint) ActionPermissions;
 			mcpeAdventureSettings.permissionLevel = (uint) PermissionLevel;
 			mcpeAdventureSettings.customStoredPermissions = (uint) 0;
-			mcpeAdventureSettings.userId = BinaryPrimitives.ReverseEndianness(EntityId);
+			mcpeAdventureSettings.entityUniqueId = BinaryPrimitives.ReverseEndianness(EntityId);
 
 			SendPacket(mcpeAdventureSettings);
 		}

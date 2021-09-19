@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.17.10" protocolVersion="448">
+<protocol gameVersion="1.17.11" protocolVersion="448">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -667,7 +667,7 @@
 		<field name="Action permissions" type="UnsignedVarInt" />
 		<field name="Permission level" type="UnsignedVarInt" />
 		<field name="Custom stored permissions" type="UnsignedVarInt" />
-		<field name="User Id" type="long" />
+		<field name="Entity Unique Id" type="long" />
 	</pdu>
 
 	<pdu id="0x38" online="false" client="true" server="true" name="MCPE_BLOCK_ENTITY_DATA">

@@ -47,7 +47,7 @@ namespace MiNET.Net
 	public class McpeProtocolInfo
 	{
 		public const int ProtocolVersion = 448;
-		public const string GameVersion = "1.17.10";
+		public const string GameVersion = "1.17.11";
 	}
 
 	public interface IMcpeMessageHandler
@@ -5096,7 +5096,7 @@ namespace MiNET.Net
 		public uint actionPermissions; // = null;
 		public uint permissionLevel; // = null;
 		public uint customStoredPermissions; // = null;
-		public long userId; // = null;
+		public long entityUniqueId; // = null;
 
 		public McpeAdventureSettings()
 		{
@@ -5115,7 +5115,7 @@ namespace MiNET.Net
 			WriteUnsignedVarInt(actionPermissions);
 			WriteUnsignedVarInt(permissionLevel);
 			WriteUnsignedVarInt(customStoredPermissions);
-			Write(userId);
+			Write(entityUniqueId);
 
 			AfterEncode();
 		}
@@ -5134,7 +5134,7 @@ namespace MiNET.Net
 			actionPermissions = ReadUnsignedVarInt();
 			permissionLevel = ReadUnsignedVarInt();
 			customStoredPermissions = ReadUnsignedVarInt();
-			userId = ReadLong();
+			entityUniqueId = ReadLong();
 
 			AfterDecode();
 		}
@@ -5151,7 +5151,7 @@ namespace MiNET.Net
 			actionPermissions=default(uint);
 			permissionLevel=default(uint);
 			customStoredPermissions=default(uint);
-			userId=default(long);
+			entityUniqueId=default(long);
 		}
 
 	}

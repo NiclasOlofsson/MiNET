@@ -78,6 +78,8 @@ namespace MiNET.Net
 			WriteSignedVarInt(playerGamemode);
 			Write(spawn);
 			Write(rotation);
+			
+			//Level settings
 			WriteSignedVarInt(seed);
 			Write(biomeType);
 			Write(biomeName);
@@ -85,9 +87,11 @@ namespace MiNET.Net
 			WriteSignedVarInt(generator);
 			WriteSignedVarInt(gamemode);
 			WriteSignedVarInt(difficulty);
+			
 			WriteSignedVarInt(x);
 			WriteVarInt(y);
 			WriteSignedVarInt(z);
+			
 			Write(hasAchievementsDisabled);
 			WriteSignedVarInt(time);
 			WriteSignedVarInt(eduOffer);
@@ -104,6 +108,7 @@ namespace MiNET.Net
 			Write(isTexturepacksRequired);
 			Write(gamerules);
 			Write(experiments);
+			Write(false);//ExperimentsPreviouslyToggled
 			Write(bonusChest);
 			Write(mapEnabled);
 			WriteSignedVarInt(permissionLevel);
@@ -119,19 +124,26 @@ namespace MiNET.Net
 			Write(limitedWorldWidth);
 			Write(limitedWorldLength);
 			Write(isNewNether);
-			Write(true);
-			Write(experimentalGameplayOverride);
+			Write(false);
+		//	Write(experimentalGameplayOverride);
+			//End of level settings
+			
 			Write(levelId);
 			Write(worldName);
 			Write(premiumWorldTemplateId);
 			Write(isTrial);
+			
+			//Player movement settings
 			WriteSignedVarInt(movementType);
 			WriteSignedVarInt(movementRewindHistorySize);
 			Write(enableNewBlockBreakSystem);
+			
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
+			
 			Write(blockPalette);
 			Write(itemstates);
+			
 			Write(multiplayerCorrelationId);
 			Write(enableNewInventorySystem);
 			Write(serverVersion);
@@ -144,16 +156,14 @@ namespace MiNET.Net
 			playerGamemode = ReadSignedVarInt();
 			spawn = ReadVector3();
 			rotation = ReadVector2();
+
+			//Level Settings
 			seed = ReadSignedVarInt();
-			
-			//Spawn Settings
 			biomeType = ReadShort();
 			biomeName = ReadString();
 			dimension = ReadSignedVarInt();
-			
 			generator = ReadSignedVarInt();
 			gamemode = ReadSignedVarInt();
-			
 			difficulty = ReadSignedVarInt();
 			
 			x = ReadSignedVarInt();
@@ -176,6 +186,7 @@ namespace MiNET.Net
 			isTexturepacksRequired = ReadBool();
 			gamerules = ReadGameRules();
 			experiments = ReadExperiments();
+			ReadBool();
 			bonusChest = ReadBool();
 			mapEnabled = ReadBool();
 			permissionLevel = ReadSignedVarInt();
@@ -199,6 +210,7 @@ namespace MiNET.Net
 			{
 				experimentalGameplayOverride = false;
 			}
+			//End of level settings.
 			
 			levelId = ReadString();
 			worldName = ReadString();

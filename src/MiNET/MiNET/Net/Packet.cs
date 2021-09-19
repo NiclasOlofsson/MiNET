@@ -755,12 +755,12 @@ namespace MiNET.Net
 			return ReadNbt(_reader);
 		}
 
-		public static Nbt ReadNbt(Stream stream, bool allowAlternativeRootTag = true)
+		public static Nbt ReadNbt(Stream stream, bool allowAlternativeRootTag = true, bool useVarInt = true)
 		{
 			Nbt nbt = new Nbt();
 			NbtFile nbtFile = new NbtFile();
 			nbtFile.BigEndian = false;
-			nbtFile.UseVarInt = true;
+			nbtFile.UseVarInt = useVarInt;
 			nbtFile.AllowAlternativeRootTag = allowAlternativeRootTag;
 
 			nbt.NbtFile = nbtFile;
@@ -769,11 +769,12 @@ namespace MiNET.Net
 			return nbt;
 		}
 
-		public static NbtCompound ReadLegacyNbtCompound(Stream stream)
+		public static NbtCompound ReadNbtCompound(Stream stream, bool useVarInt = false)
 		{
 			NbtFile file = new NbtFile();
 			file.BigEndian = false;
-			file.UseVarInt = false;
+			file.UseVarInt = useVarInt;
+			file.AllowAlternativeRootTag = false;
 
 			file.LoadFromStream(stream, NbtCompression.None);
 
@@ -825,7 +826,7 @@ namespace MiNET.Net
 
 			foreach(var item in itemStacks)
 			{
-				WriteVarInt(item.UniqueId);
+				WriteUnsignedVarInt((uint)item.UniqueId);
 				Write(item, false);
 			}
 		}
@@ -903,22 +904,22 @@ namespace MiNET.Net
 			switch (transaction)
 			{
 				case InventoryMismatchTransaction _:
-					WriteVarInt((int) McpeInventoryTransaction.TransactionType.InventoryMismatch);
+					WriteUnsignedVarInt((int) McpeInventoryTransaction.TransactionType.InventoryMismatch);
 					break;
 				case ItemReleaseTransaction _:
-					WriteVarInt((int) McpeInventoryTransaction.TransactionType.ItemRelease);
+					WriteUnsignedVarInt((int) McpeInventoryTransaction.TransactionType.ItemRelease);
 					break;
 				case ItemUseOnEntityTransaction _:
-					WriteVarInt((int) McpeInventoryTransaction.TransactionType.ItemUseOnEntity);
+					WriteUnsignedVarInt((int) McpeInventoryTransaction.TransactionType.ItemUseOnEntity);
 					break;
 				case ItemUseTransaction _:
-					WriteVarInt((int) McpeInventoryTransaction.TransactionType.ItemUse);
+					WriteUnsignedVarInt((int) McpeInventoryTransaction.TransactionType.ItemUse);
 					break;
 				case NormalTransaction _:
-					WriteVarInt((int) McpeInventoryTransaction.TransactionType.Normal);
+					WriteUnsignedVarInt((int) McpeInventoryTransaction.TransactionType.Normal);
 					break;
 			}
-			Write(transaction.HasNetworkIds);
+			//Write(transaction.HasNetworkIds);
 			
 			WriteUnsignedVarInt((uint) transaction.TransactionRecords.Count);
 			foreach (var record in transaction.TransactionRecords)
@@ -949,8 +950,8 @@ namespace MiNET.Net
 				Write(record.OldItem);
 				Write(record.NewItem);
 				
-				if (transaction.HasNetworkIds)
-					WriteSignedVarInt(record.StackNetworkId);
+				//if (transaction.HasNetworkIds)
+				//	WriteSignedVarInt(record.StackNetworkId);
 			}
 
 			switch (transaction)
@@ -959,26 +960,26 @@ namespace MiNET.Net
 				case InventoryMismatchTransaction _:
 					break;
 				case ItemUseTransaction t:
-					WriteVarInt((int) t.ActionType);
+					WriteUnsignedVarInt((uint) t.ActionType);
 					Write(t.Position);
-					WriteSignedVarInt(t.Face);
-					WriteSignedVarInt(t.Slot);
+					WriteVarInt(t.Face);
+					WriteVarInt(t.Slot);
 					Write(t.Item);
 					Write(t.FromPosition);
 					Write(t.ClickPosition);
 					WriteUnsignedVarInt(t.BlockRuntimeId);
 					break;
 				case ItemUseOnEntityTransaction t:
-					WriteVarLong(t.EntityId);
-					WriteVarInt((int) t.ActionType);
-					WriteSignedVarInt(t.Slot);
+					WriteUnsignedVarLong(t.EntityId);
+					WriteUnsignedVarInt((uint) t.ActionType);
+					WriteVarInt(t.Slot);
 					Write(t.Item);
 					Write(t.FromPosition);
 					Write(t.ClickPosition);
 					break;
 				case ItemReleaseTransaction t:
-					WriteVarInt((int) t.ActionType);
-					WriteSignedVarInt(t.Slot);
+					WriteUnsignedVarInt((uint) t.ActionType);
+					WriteVarInt(t.Slot);
 					Write(t.Item);
 					Write(t.FromPosition);
 					break;
@@ -1010,8 +1011,8 @@ namespace MiNET.Net
 			}
 
 			var transactionType = (McpeInventoryTransaction.TransactionType) ReadVarInt();
-			bool hasItemStacks = ReadBool();
-			if(hasItemStacks) Log.Warn($"Got item stacks in old transaction");
+			//bool hasItemStacks = ReadBool();
+			//if(hasItemStacks) Log.Warn($"Got item stacks in old transaction");
 
 			var transactions = new List<TransactionRecord>();
 			uint count = ReadUnsignedVarInt();
@@ -1045,8 +1046,8 @@ namespace MiNET.Net
 				record.Slot = ReadVarInt();
 				record.OldItem = ReadItem();
 				record.NewItem = ReadItem();
-				if (hasItemStacks) 
-					record.StackNetworkId = ReadSignedVarInt();
+			//	if (hasItemStacks) 
+				//	record.StackNetworkId = ReadSignedVarInt();
 				
 				transactions.Add(record);
 			}
@@ -1630,7 +1631,7 @@ namespace MiNET.Net
 			return items;
 		}
 
-
+		private const int ShieldId = 355;
 		public void Write(Item stack, bool writeUniqueId = true)
 		{
 			if (stack == null || stack.Id == 0)
@@ -1640,9 +1641,7 @@ namespace MiNET.Net
 			}
 
 			WriteSignedVarInt(stack.Id);
-			Write((ushort) stack.Count);
-			//short metadata = stack.Metadata;
-			//if (metadata == -1) metadata = short.MaxValue;
+			Write((short) stack.Count);
 			WriteSignedVarInt(stack.Metadata);
 
 			if (writeUniqueId)
@@ -1655,27 +1654,40 @@ namespace MiNET.Net
 				}
 			}
 
-			var blockRuntimeId = stack.RuntimeId;
-			WriteVarInt(blockRuntimeId);
-			if (stack.ExtraData != null)
-			{
-				byte[] bytes = GetNbtData(stack.ExtraData);
-				Write((ushort) 0xffff); //(short) bytes.Length
-				Write((byte) 0x01);
-				Write(bytes);
-			}
-			else
-			{
-				Write((short) 0);
-			}
+			WriteVarInt(stack.RuntimeId);
 
-			Write(0);
-			Write(0);
-
-			if (stack.Id == ItemFactory.GetItemIdByName("minecraft:shield")) // shield
+			byte[] extraData = null;
+			//Write extra data
+			using (var ms = new MemoryStream())
 			{
-				Write((long)0); // something about tick, crap code
+				using (BinaryWriter binaryWriter = new BinaryWriter(ms, Encoding.UTF8, true))
+				{
+					if (stack.ExtraData != null)
+					{
+						binaryWriter.Write((ushort) 0xffff);
+						binaryWriter.Write((byte)1);
+						var nbtData = GetNbtData(stack.ExtraData, false);
+						binaryWriter.Write(nbtData);
+					}
+					else
+					{
+						binaryWriter.Write((short) 0);
+					}
+
+					binaryWriter.Write(0); //Write Int
+					binaryWriter.Write(0); //Write Int
+
+					if (stack.Id == 513)
+					{
+						binaryWriter.Write((long) 0);
+					}
+				}
+
+				extraData = ms.ToArray();
 			}
+			
+			WriteLength(extraData.Length);
+			Write(extraData);
 		}
 
 		public Item ReadItem(bool readUniqueId = true)
@@ -1686,8 +1698,8 @@ namespace MiNET.Net
 				return new ItemAir();
 			}
 
-			short count = (short) ReadUshort();
-			short metadata = (short) ReadUnsignedVarInt();
+			short count = (short) ReadShort();
+			short metadata = (short) ReadSignedVarInt();
 			Item stack = ItemFactory.GetItem((short) id, metadata, count);
 
 			if (readUniqueId)
@@ -1695,59 +1707,64 @@ namespace MiNET.Net
 				if (ReadBool()) stack.UniqueId = ReadVarInt();
 			}
 
-			stack.RuntimeId = ReadSignedVarInt();
+			stack.RuntimeId = ReadVarInt();
 
 			int length = ReadLength();
-			long offset = _reader.Position;
+			var data = ReadBytes(length);
 
-			ushort nbtLen = ReadUshort(); // NbtLen
-			if (nbtLen == 0xffff)
+			using (MemoryStream ms = new MemoryStream(data))
 			{
-				byte version = ReadByte();
-
-				if (version != 1)
+				using (BinaryReader binaryReader = new BinaryReader(ms))
 				{
-					throw new Exception("Fringe nbt version when reading item extra NBT");
+					ushort nbtLen = binaryReader.ReadUInt16();
+					if (nbtLen == 0xffff)
+					{
+						byte version = binaryReader.ReadByte();
+
+						if (version != 1)
+						{
+							throw new Exception($"Fringe nbt version when reading item extra NBT: {version}");
+						}
+
+						var beforeRead = ms.Position;
+						stack.ExtraData = ReadNbtCompound(ms, false);
+						var afterRead = ms.Position;
+						var nbtCompoundLength = afterRead - beforeRead;
+					}
+					else if (nbtLen > 0)
+					{
+						throw new Exception($"Fringe nbt length when reading item extra NBT: {nbtLen}");
+					}
+					
+					int canPlace = binaryReader.ReadInt32();
+					for (int i = 0; i < canPlace; i++)
+					{
+						var l = binaryReader.ReadInt16();
+						binaryReader.ReadBytes(l);
+					}
+					int canBreak = binaryReader.ReadInt32();
+					for (int i = 0; i < canBreak; i++)
+					{
+						var l = binaryReader.ReadInt16();
+						binaryReader.ReadBytes(l);
+					}
+
+					if (stack.RuntimeId == ShieldId) // shield
+					{
+						binaryReader.ReadInt64(); // something about tick, crap code
+					}
 				}
-
-				//byte[] nbtData = ReadBytes(nbtLen);
-
-				//using var ms = new MemoryStream(nbtData);
-				stack.ExtraData = ReadLegacyNbtCompound(_reader);
 			}
-			else if (nbtLen > 0)
-			{
-				throw new Exception("Fringe nbt length when reading item extra NBT");
-			}
-
-			int canPlace = ReadInt();
-			for (int i = 0; i < canPlace; i++)
-			{
-				ReadBytes(ReadUshort());
-			}
-			int canBreak = ReadInt();
-			for (int i = 0; i < canBreak; i++)
-			{
-				ReadBytes(ReadUshort());
-			}
-
-			if (id == ItemFactory.GetItemIdByName("minecraft:shield")) // shield
-			{
-				ReadLong(); // something about tick, crap code
-			}
-
-			if (length != _reader.Position - offset) throw new Exception($"Didn't read item {id} correctly: Read {_reader.Position - offset} bytes, but expected to have read {length} bytes");
-
 			return stack;
 		}
 
 
-		public static byte[] GetNbtData(NbtCompound nbtCompound)
+		public static byte[] GetNbtData(NbtCompound nbtCompound, bool useVarInt = true)
 		{
 			nbtCompound.Name = string.Empty;
 			var file = new NbtFile(nbtCompound);
 			file.BigEndian = false;
-			file.UseVarInt = true;
+			file.UseVarInt = useVarInt;
 
 			return file.SaveToBuffer(NbtCompression.None);
 		}
@@ -1813,7 +1830,7 @@ namespace MiNET.Net
 			{
 				string name = ReadString();
 				bool isPlayerModifiable = ReadBool();
-				byte type = ReadByte();
+				var type = ReadUnsignedVarInt();
 				switch (type)
 				{
 					case 1:
@@ -1865,17 +1882,17 @@ namespace MiNET.Net
 
 				if (rule is GameRule<bool>)
 				{
-					Write((byte) 1);
+					WriteUnsignedVarInt(1);
 					Write(((GameRule<bool>) rule).Value);
 				}
 				else if (rule is GameRule<int>)
 				{
-					Write((byte) 2);
+					WriteUnsignedVarInt(2);
 					WriteVarInt(((GameRule<int>) rule).Value);
 				}
 				else if (rule is GameRule<float>)
 				{
-					Write((byte) 3);
+					WriteUnsignedVarInt(3);
 					Write(((GameRule<float>) rule).Value);
 				}
 			}
@@ -1964,8 +1981,8 @@ namespace MiNET.Net
 		public BlockPalette ReadBlockPalette()
 		{
 			var  result = new BlockPalette();
-			uint count  = ReadUnsignedVarInt();
-			
+			var count  = ReadUnsignedVarInt();
+
 			for (int runtimeId = 0; runtimeId < count; runtimeId++)
 			{
 				var record = new BlockStateContainer();
@@ -1973,7 +1990,7 @@ namespace MiNET.Net
 				record.Name = ReadString();
 				record.States = new List<IBlockState>();
 
-				var nbt     = ReadNbt(_reader);
+				var nbt = ReadNbt(_reader);
 				var rootTag = nbt.NbtFile.RootTag;
 
 				foreach (var state in GetBlockStates(rootTag))
@@ -1981,6 +1998,7 @@ namespace MiNET.Net
 					record.States.Add(state);
 				}
 			}
+
 			return result;
 		}
 		
@@ -2574,19 +2592,19 @@ namespace MiNET.Net
 					{
 						var recipe = new ShapelessRecipe();
 						ReadString(); // some unique id
-						int ingrediensCount = ReadVarInt(); // 
+						var ingrediensCount = ReadUnsignedVarInt(); // 
 						for (int j = 0; j < ingrediensCount; j++)
 						{
 							recipe.Input.Add(ReadRecipeIngredient());
 						}
-						int resultCount = ReadVarInt(); // 1?
+						var resultCount = ReadUnsignedVarInt(); // 1?
 						for (int j = 0; j < resultCount; j++)
 						{
 							recipe.Result.Add(ReadItem(false));
 						}
 						recipe.Id = ReadUUID(); // Id
 						recipe.Block = ReadString(); // block?
-						ReadSignedVarInt(); // priority
+						ReadVarInt(); // priority
 						recipe.UniqueId = ReadVarInt(); // unique id
 						recipes.Add(recipe);
 						//Log.Error("Read shapeless recipe");
@@ -2598,7 +2616,8 @@ namespace MiNET.Net
 						int width = ReadSignedVarInt(); // Width
 						int height = ReadSignedVarInt(); // Height
 						var recipe = new ShapedRecipe(width, height);
-						if (width > 3 || height > 3) throw new Exception("Wrong number of ingredience. Width=" + width + ", height=" + height);
+						if (width > 3 || height > 3) 
+							throw new Exception("Wrong number of ingredients, Width=" + width + ", height=" + height);
 						for (int w = 0; w < width; w++)
 						{
 							for (int h = 0; h < height; h++)
@@ -2607,14 +2626,14 @@ namespace MiNET.Net
 							}
 						}
 
-						int resultCount = ReadVarInt(); // 1?
+						var resultCount = ReadUnsignedVarInt(); // 1?
 						for (int j = 0; j < resultCount; j++)
 						{
 							recipe.Result.Add(ReadItem(false));
 						}
 						recipe.Id = ReadUUID(); // Id
 						recipe.Block = ReadString(); // block?
-						ReadSignedVarInt(); // priority
+						ReadVarInt(); // priority
 						recipe.UniqueId = ReadVarInt(); // unique id
 						recipes.Add(recipe);
 						//Log.Error("Read shaped recipe");
@@ -2623,7 +2642,7 @@ namespace MiNET.Net
 					case Furnace:
 					{
 						var recipe = new SmeltingRecipe();
-						short id = (short) ReadSignedVarInt(); // input (with metadata) 
+						short id = (short) ReadVarInt(); // input (with metadata) 
 						Item result = ReadItem(false); // Result
 						recipe.Block = ReadString(); // block?
 						recipe.Input = ItemFactory.GetItem(id, 0);
@@ -2637,8 +2656,8 @@ namespace MiNET.Net
 					{
 						//const ENTRY_FURNACE_DATA = 3;
 						var recipe = new SmeltingRecipe();
-						short id = (short) ReadSignedVarInt(); // input (with metadata) 
-						short meta = (short) ReadSignedVarInt(); // input (with metadata) 
+						short id = (short) ReadVarInt(); // input (with metadata) 
+						short meta = (short) ReadVarInt(); // input (with metadata) 
 						Item result = ReadItem(false); // Result
 						recipe.Block = ReadString(); // block?
 						recipe.Input = ItemFactory.GetItem(id, meta);
@@ -2686,7 +2705,7 @@ namespace MiNET.Net
 						int width = ReadSignedVarInt(); // Width
 						int height = ReadSignedVarInt(); // Height
 						var recipe = new ShapedRecipe(width, height);
-						if (width > 3 || height > 3) throw new Exception("Wrong number of ingredience. Width=" + width + ", height=" + height);
+						if (width > 3 || height > 3) throw new Exception("Wrong number of ingredients. Width=" + width + ", height=" + height);
 						for (int w = 0; w < width; w++)
 						{
 							for (int h = 0; h < height; h++)
@@ -2724,25 +2743,25 @@ namespace MiNET.Net
 		{
 			if (stack == null || stack.Id == 0)
 			{
-				WriteSignedVarInt(0);
+				WriteVarInt(0);
 				return;
 			}
 
-			WriteSignedVarInt(stack.Id);
-			WriteSignedVarInt(stack.Metadata);
-			WriteSignedVarInt(stack.Count);
+			WriteVarInt(stack.Id);
+			WriteVarInt(stack.Metadata);
+			WriteVarInt(stack.Count);
 		}
 
 		public Item ReadRecipeIngredient()
 		{
-			short id = (short) ReadSignedVarInt();
+			short id = (short) ReadVarInt();
 			if (id == 0)
 			{
 				return new ItemAir();
 			}
 
-			short metadata = (short) ReadSignedVarInt();
-			int count = ReadSignedVarInt();
+			short metadata = (short) ReadVarInt();
+			int count = ReadVarInt();
 
 			return ItemFactory.GetItem(id, metadata, count);
 		}

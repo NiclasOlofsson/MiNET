@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace MiNET
@@ -49,20 +50,19 @@ namespace MiNET
 	{
 		public static Itemstates FromJson(string json)
 		{
-			//TODO: Rebuild this to use the MiNET items instead.
 			return JsonConvert.DeserializeObject<Itemstates>(json);
 		}
 	}
 
 	public class Itemstate
 	{
-		[JsonProperty("id")]
+		[JsonProperty("runtime_id")]
 		public short Id { get; set; }
 
 		[JsonProperty("name")]
 		public string Name { get; set; }
 
-		[JsonIgnore]
+		[JsonProperty("component_based")]
 		public bool ComponentBased { get; set; } = false; 
 		//public int RuntimeId { get; set; }
 	}

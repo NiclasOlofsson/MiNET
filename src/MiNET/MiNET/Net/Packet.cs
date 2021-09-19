@@ -826,7 +826,7 @@ namespace MiNET.Net
 
 			foreach(var item in itemStacks)
 			{
-				WriteUnsignedVarInt((uint)item.UniqueId);
+				WriteUnsignedVarInt((uint)item.NetworkId);
 				Write(item, false);
 			}
 		}
@@ -838,9 +838,9 @@ namespace MiNET.Net
 			var count = ReadUnsignedVarInt();
 			for (int i = 0; i < count; i++)
 			{
-				var networkId = ReadVarInt();
+				var networkId = ReadUnsignedVarInt();
 				Item item = ReadItem(false);
-				item.NetworkId = networkId;
+				item.NetworkId = (int)networkId;
 				metadata.Add(item);
 				Log.Debug(item);
 			}
@@ -1642,7 +1642,7 @@ namespace MiNET.Net
 
 			WriteSignedVarInt(stack.Id);
 			Write((short) stack.Count);
-			WriteSignedVarInt(stack.Metadata);
+			WriteUnsignedVarInt((uint)stack.Metadata);
 
 			if (writeUniqueId)
 			{
@@ -1654,7 +1654,7 @@ namespace MiNET.Net
 				}
 			}
 
-			WriteVarInt(stack.RuntimeId);
+			WriteSignedVarInt(stack.RuntimeId);
 
 			byte[] extraData = null;
 			//Write extra data
@@ -1699,15 +1699,15 @@ namespace MiNET.Net
 			}
 
 			short count = (short) ReadShort();
-			short metadata = (short) ReadSignedVarInt();
-			Item stack = ItemFactory.GetItem((short) id, metadata, count);
+			var metadata = ReadUnsignedVarInt();
+			Item stack = ItemFactory.GetItem((short) id, (short)metadata, count);
 
 			if (readUniqueId)
 			{
 				if (ReadBool()) stack.UniqueId = ReadVarInt();
 			}
 
-			stack.RuntimeId = ReadVarInt();
+			stack.RuntimeId = ReadSignedVarInt();
 
 			int length = ReadLength();
 			var data = ReadBytes(length);

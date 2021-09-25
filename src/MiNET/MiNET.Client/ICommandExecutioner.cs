@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using log4net;
 using MiNET.Blocks;
@@ -60,7 +61,8 @@ namespace MiNET.Client
 					|| text.Contains("discover drops")
 					|| text.Contains("write palette")
 					|| text.Contains("pick blocks")
-					|| text.Contains("print palette");
+					|| text.Contains("print palette")
+					|| text.Contains("all items");
 		}
 
 		private bool _runningBlockMetadataDiscovery;
@@ -87,12 +89,129 @@ namespace MiNET.Client
 			{
 				PrintPalette(caller);
 			}
+			else if (text.Contains("all items"))
+			{
+				DiscoverItems(caller);
+			}
 			else
 			{
 				Log.Debug($"Found no matching method for '{text}'");
 			}
 		}
 
+		private void ClearInventory(BedrockTraceHandler caller)
+		{
+			var client = caller.Client;
+			SendCommand(client, $"/clear TheGrey");
+		}
+		
+		private AutoResetEvent _resetEventInventorySlot = new AutoResetEvent(false);
+		private Item _lastItem = new ItemAir()
+		{
+			Count = 0
+		};
+
+		private void HandleInventorySlot(McpeInventorySlot packet)
+		{
+			lock (_lastItem)
+			{
+				var item = packet.item;
+
+				if (item != null && item is not ItemAir && item.Count > 0)
+				{
+					_lastItem = item;
+					_resetEventInventorySlot.Set();
+				}
+			}
+		}
+
+		private void DiscoverItems(BedrockTraceHandler caller)
+		{
+			var client = caller.Client;
+			client.SendChat("Starting item discovery...");
+			
+			ClearInventory(caller);
+
+			Dictionary<string, short> idMapping = new Dictionary<string, short>();
+			
+			//for(int i = -400; i < 900; i++)
+			{
+			//	for (short meta = 0; meta < 15; meta++)
+				{
+					foreach (var itemType in typeof(Item).Assembly.GetTypes().Where(x => typeof(Item).IsAssignableFrom(x)))
+					{
+						try
+						{
+							var item = Activator.CreateInstance(itemType) as Item;
+
+							if (item == null || string.IsNullOrWhiteSpace(item?.Name) || item is ItemAir)
+							{
+								continue;
+							}
+
+							if (idMapping.ContainsKey(item.Name))
+								continue;
+
+							ClearInventory(caller);
+							SendCommand(client, $"/give TheGrey {item.Name}");
+
+							if (!_resetEventInventorySlot.WaitOne(500))
+							{
+								Log.Warn($"Failed to get item: {item.Name}");
+
+								continue;
+							}
+
+							lock (_lastItem)
+							{
+								var newItem = _lastItem;
+
+								if (newItem != null && (newItem is not ItemAir && newItem.Count > 0))
+								{
+									if (!idMapping.TryAdd(item.Name, newItem.Id) || idMapping.ContainsValue(newItem.Id))
+									{
+										Log.Warn($"Duplicate map! Name={item.Name} Id={item.Id} NewName={newItem.Name} NewId={newItem.Id}");
+									}
+								}
+
+								_lastItem = new ItemAir() { Count = 0 };
+							}
+						}catch{}
+					}
+				}
+			}
+			
+			client.SendChat($"Finished item discovery...");
+			var fileNameItemstates = Path.GetTempPath() + "itemdiscovery_" + Guid.NewGuid() + ".json";
+			/*File.WriteAllText(fileNameItemstates, JsonConvert.SerializeObject(items.Distinct(new ItemEqualityComparer()).Select(x => new
+			{
+				Name = x.Name,
+				Id = x.Id
+			}).ToArray(), Formatting.Indented));*/
+			
+			File.WriteAllText(fileNameItemstates, JsonConvert.SerializeObject(idMapping, Formatting.Indented));
+		}
+
+		public class ItemEqualityComparer : IEqualityComparer<Item>
+		{
+			public bool Equals(Item x, Item y)
+			{
+				if (ReferenceEquals(x, y)) return true;
+				if (ReferenceEquals(x, null)) return false;
+				if (ReferenceEquals(y, null)) return false;
+
+				return string.Equals(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase);
+			}
+
+			public int GetHashCode(Item obj)
+			{
+				var hashCode = new HashCode();
+				hashCode.Add(obj.Name);
+
+				return hashCode.ToHashCode();
+			}
+		}
+		
 		private void PrintPalette(BedrockTraceHandler caller)
 		{
 			var client = caller.Client;
@@ -355,14 +474,9 @@ namespace MiNET.Client
 			client.SendPacket(request);
 		}
 
-		private void ExecuteAllBlocks(BedrockTraceHandler caller)
+		private void SetGameRules(BedrockTraceHandler caller)
 		{
 			var client = caller.Client;
-
-			if (_runningBlockMetadataDiscovery) return;
-
-			client.SendChat("Starting...");
-
 			SendCommand(client, $"/gamerule randomtickspeed 0");
 			SendCommand(client, $"/gamerule doentitydrops false");
 			SendCommand(client, $"/gamerule domobloot false");
@@ -373,6 +487,17 @@ namespace MiNET.Client
 			SendCommand(client, $"/gamerule showcoordinates true");
 			
 			SendCommand(client, $"/gamerule dotiledrops false");
+		}
+		
+		private void ExecuteAllBlocks(BedrockTraceHandler caller)
+		{
+			var client = caller.Client;
+
+			if (_runningBlockMetadataDiscovery) return;
+
+			client.SendChat("Starting...");
+
+			SetGameRules(caller);
 
 			int x = 0;
 			int yStart = 100;
@@ -458,7 +583,8 @@ namespace MiNET.Client
 			Log.Warn("Staring to run in 1s");
 			Thread.Sleep(1000);
 			Log.Warn("Running!");
-
+			
+			client.BlockPalette = BlockFactory.BlockPalette;
 			client.BlockPalette.ForEach(bs => { bs.Data = -1; });
 			_runningBlockMetadataDiscovery = true;
 			_resetEventUpdateBlock.Reset();
@@ -525,7 +651,7 @@ namespace MiNET.Client
 				}
 			}
 
-			_runningBlockMetadataDiscovery = false;
+		_runningBlockMetadataDiscovery = false;
 
 			WritePaletteToJson(client.BlockPalette);
 
@@ -567,11 +693,13 @@ namespace MiNET.Client
 				case McpeInventoryContent mcpePacket:
 					HandleMcpeInventoryContent(mcpePacket);
 					break;
+				case McpeInventorySlot mcpePacket:
+					HandleInventorySlot(mcpePacket);
+					break;
 				default:
 					return;
 			}
 		}
-
 
 		private AutoResetEvent _resetEventPlayerHotbar = new AutoResetEvent(false);
 
@@ -593,6 +721,20 @@ namespace MiNET.Client
 			if (message.inventoryId == 0x00)
 			{
 				_inventory = message.input;
+
+				if (message.input.Count > 0)
+				{
+					lock (_lastItem)
+					{
+						var item = message.input.FirstOrDefault(x => x.Count > 0);
+
+						if (item != null && item is not ItemAir && item.Count > 0)
+						{
+							_lastItem = item;
+							_resetEventInventorySlot.Set();
+						}
+					}
+				}
 			}
 		}
 

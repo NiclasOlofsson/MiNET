@@ -27,7 +27,7 @@ namespace MiNET.Items
 {
 	public class ItemMuttonRaw : FoodItem
 	{
-		public ItemMuttonRaw() : base("minecraft:muttonraw", 423, 0, 3, 1.8)
+		public ItemMuttonRaw() : base("minecraft:mutton", 423, 0, 3, 1.8)
 		{
 		}
 

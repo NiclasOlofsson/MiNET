@@ -35,7 +35,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemEmptyMap));
 
-		public ItemEmptyMap(short metadata = 0, byte count = 1) : base("minecraft:emptymap", 395, metadata, count)
+		public ItemEmptyMap(short metadata = 0, byte count = 1) : base("minecraft:empty_map", 395, metadata, count)
 		{
 		}
 

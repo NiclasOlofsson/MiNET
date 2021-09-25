@@ -94,11 +94,13 @@ namespace MiNET.Net
 				case ChatTypes.Whisper:
 				case ChatTypes.Announcement:
 					source = ReadString();
-					goto case ChatTypes.Raw;
+					message = ReadString();
+					break;
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:
 				case ChatTypes.System:
 				case ChatTypes.Json:
+				case ChatTypes.Jsonwhisper:
 					message = ReadString();
 					break;
 

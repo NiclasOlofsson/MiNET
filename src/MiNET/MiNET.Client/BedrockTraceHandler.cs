@@ -231,9 +231,8 @@ namespace MiNET.Client
 			using(FileStream file = File.OpenWrite(fileName))
 			{
 				var writer = new IndentedTextWriter(new StreamWriter(file));
-
-				Log.Warn($"Directory:\n{Path.GetTempPath()}");
-				Log.Warn($"Filename:\n{fileName}");
+				
+				Log.Warn($"BlockPalette ({blockPalette.Count}) Filename:\n{fileName}");
 
 				writer.WriteLine($"namespace MiNET.Blocks");
 				writer.WriteLine($"{{");
@@ -925,6 +924,17 @@ namespace MiNET.Client
 				packet.enabled = Client.UseBlobCache;
 				Client.SendPacket(packet);
 			}
+		}
+
+		/// <inheritdoc />
+		public override void HandleMcpeCommandOutput(McpeCommandOutput message)
+		{
+			base.HandleMcpeCommandOutput(message);
+
+			//foreach (var msg in message.Messages)
+			//{
+			//	Log.Warn($"Received command output: {msg}");
+			//}
 		}
 	}
 }

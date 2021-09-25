@@ -52,7 +52,7 @@ namespace MiNET.Items
 		public int UniqueId { get; set; } = Environment.TickCount;
 		public string Name { get; protected set; } = string.Empty;
 		public short Id { get; protected set; }
-		public int NetworkId { get; set; }
+		public int NetworkId { get; set; } = -1;
 		public int RuntimeId { get; set; }
 		public short Metadata { get; set; }
 		public byte Count { get; set; }

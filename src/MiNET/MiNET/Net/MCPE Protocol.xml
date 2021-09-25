@@ -191,6 +191,7 @@
 			<enum id="Whisper" value="7" />
 			<enum id="Announcement" value="8" />
 			<enum id="Json" value="9" />
+			<enum id="JsonWhisper" value="10" />
 		</enums>
 
 		<field name="Type" type="byte" />

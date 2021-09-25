@@ -2338,6 +2338,7 @@ namespace MiNET.Net
 			Whisper = 7,
 			Announcement = 8,
 			Json = 9,
+			Jsonwhisper = 10,
 		}
 
 		public byte type; // = null;

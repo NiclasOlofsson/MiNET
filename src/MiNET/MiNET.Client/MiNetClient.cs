@@ -376,7 +376,7 @@ namespace MiNET.Client
 
 		public void WriteInventoryToFile(string fileName, ItemStacks slots)
 		{
-			Log.Info($"Writing inventory to filename: {fileName}");
+			Log.Warn($"Writing inventory to filename: {fileName}");
 			FileStream file = File.OpenWrite(fileName);
 
 			IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));

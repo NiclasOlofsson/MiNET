@@ -1640,7 +1640,23 @@ namespace MiNET.Net
 				return;
 			}
 
-			WriteSignedVarInt(stack.Id);
+			var id = (int)stack.Id;
+			if (stack.NetworkId == -1)
+			{
+				var result = ItemFactory.Itemstates.FirstOrDefault(x => x.Name.Equals(stack.Name, StringComparison.InvariantCultureIgnoreCase));
+
+				if (result != null)
+				{
+					id = result.Id;
+				}
+			}
+			else
+			{
+				id = stack.NetworkId;
+			}
+			
+			WriteSignedVarInt(id);
+
 			Write((short) stack.Count);
 			WriteUnsignedVarInt((uint)stack.Metadata);
 
@@ -1653,7 +1669,7 @@ namespace MiNET.Net
 					WriteVarInt(stack.UniqueId);
 				}
 			}
-
+			
 			WriteSignedVarInt(stack.RuntimeId);
 
 			byte[] extraData = null;
@@ -1700,7 +1716,18 @@ namespace MiNET.Net
 
 			short count = (short) ReadShort();
 			var metadata = ReadUnsignedVarInt();
-			Item stack = ItemFactory.GetItem((short) id, (short)metadata, count);
+
+			Item stack = null;
+			var result = ItemFactory.Itemstates.FirstOrDefault(x => x.Id == id);
+
+			if (result != null)
+			{
+				stack = ItemFactory.GetItem(result.Name, (short) metadata, count);
+			}
+			else
+			{
+				stack = ItemFactory.GetItem((short) id, (short) metadata, count);
+			}
 
 			if (readUniqueId)
 			{

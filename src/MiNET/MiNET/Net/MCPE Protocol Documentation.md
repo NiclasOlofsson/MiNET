@@ -390,6 +390,7 @@ Wiki: [Text](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Text)
 |Whisper | 7 |
 |Announcement | 8 |
 |Json | 9 |
+|Jsonwhisper | 10 |
 
 
 #### Fields

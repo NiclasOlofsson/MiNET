@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemHorseArmorLeather : Item
+	public class ItemLeatherHorseArmor : Item
 	{
-		public ItemHorseArmorLeather() : base("minecraft:leather_horse_armor", 416)
+		public ItemLeatherHorseArmor() : base("minecraft:leather_horse_armor", 416)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;
@@ -35,9 +35,9 @@ namespace MiNET.Items
 		}
 	}
 
-	public class ItemHorseArmorIron : Item
+	public class ItemIronHorseArmor : Item
 	{
-		public ItemHorseArmorIron() : base("minecraft:iron_horse_armor", 417)
+		public ItemIronHorseArmor() : base("minecraft:iron_horse_armor", 417)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;
@@ -45,9 +45,9 @@ namespace MiNET.Items
 		}
 	}
 
-	public class ItemHorseArmorGold : Item
+	public class ItemGoldenHorseArmor : Item
 	{
-		public ItemHorseArmorGold() : base("minecraft:golden_horse_armor", 417)
+		public ItemGoldenHorseArmor() : base("minecraft:golden_horse_armor", 417)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;
@@ -55,9 +55,9 @@ namespace MiNET.Items
 		}
 	}
 
-	public class ItemHorseArmorDiamond : Item
+	public class ItemDiamondHorseArmor : Item
 	{
-		public ItemHorseArmorDiamond() : base("minecraft:diamond_horse_armor", 419)
+		public ItemDiamondHorseArmor() : base("minecraft:diamond_horse_armor", 419)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;

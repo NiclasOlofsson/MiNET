@@ -145,7 +145,7 @@ namespace MiNET.Utils
 	{
 		public int RequestId { get; set; }
 		public StackResponseStatus Result { get; set; } = StackResponseStatus.Ok;
-		public List<StackResponseContainerInfo> Responses { get; set; } = new List<StackResponseContainerInfo>();
+		public List<StackResponseContainerInfo> ResponseContainerInfos { get; set; } = new List<StackResponseContainerInfo>();
 	}
 
 	public enum StackResponseStatus

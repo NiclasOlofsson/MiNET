@@ -29,8 +29,11 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using fNbt;
 using log4net;
+using MiNET.Items;
+using MiNET.Net;
 using MiNET.Utils;
 using Newtonsoft.Json;
 
@@ -43,9 +46,16 @@ namespace MiNET.Blocks
 
 	public class R12ToCurrentBlockMapEntry
 	{
-		public string Id { get; set; }
-		public int Meta { get; set; }
-		public List<IBlockState> States { get; set; }
+		public string StringId { get; set; }
+		public short Meta { get; set; }
+		public BlockStateContainer State { get; set; }
+
+		public R12ToCurrentBlockMapEntry(string id, short meta, BlockStateContainer state)
+		{
+			StringId = id;
+			Meta = meta;
+			State = state;
+		}
 	}
 	
 	public static class BlockFactory
@@ -91,7 +101,6 @@ namespace MiNET.Blocks
 
 			lock (lockObj)
 			{
-				//Dictionary<string, int> idMapping;
 				Dictionary<string, int> idMapping;
 				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".block_id_map.json"))
 				using (var reader = new StreamReader(stream))
@@ -99,48 +108,22 @@ namespace MiNET.Blocks
 					idMapping = JsonConvert.DeserializeObject<Dictionary<string, int>>(reader.ReadToEnd());
 				}
 				
-				Dictionary<string, short> itemIdMapping;
-				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".item_id_map.json"))
-				using (var reader = new StreamReader(stream))
-				{
-					itemIdMapping = JsonConvert.DeserializeObject<Dictionary<string, short>>(reader.ReadToEnd());
-				}
-
 				int runtimeId = 0;
 				BlockPalette = new BlockPalette();
+				
 				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".canonical_block_states.nbt"))
 				{
-					var reader = new NbtFile();
-					reader.UseVarInt = true;
-					reader.AllowAlternativeRootTag = true;
-
 					do
 					{
-						reader.LoadFromStream(stream, NbtCompression.AutoDetect);
+						var compound = Packet.ReadNbtCompound(stream, true);
+						var container = GetBlockStateContainer(compound);
 						
-						var tag = reader.RootTag;
-						BlockStateContainer record = GetBlockStateContainer(tag);
-						if (idMapping.TryGetValue(record.Name, out var id))
-						{
-							record.Id = id;
-							record.Data = -1;
-						}
-
-						if (itemIdMapping.TryGetValue(record.Name, out var itemId))
-						{
-							record.ItemInstance = new ItemPickInstance()
-							{
-								Id = itemId,
-								WantNbt = false,
-								Metadata = 0
-							};
-						}
-
-						record.RuntimeId = runtimeId++;
-						BlockPalette.Add(record);
+						container.RuntimeId = runtimeId++;
+						BlockPalette.Add(container);
 					} while (stream.Position < stream.Length);
 				}
-				
+
+				List<R12ToCurrentBlockMapEntry> legacyStateMap = new List<R12ToCurrentBlockMapEntry>();
 				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".r12_to_current_block_map.bin"))
 				{
 					while (stream.Position < stream.Length)
@@ -154,39 +137,75 @@ namespace MiNET.Blocks
 						bytes = new byte[2];
 						stream.Read(bytes, 0, bytes.Length);
 						var meta = BitConverter.ToInt16(bytes);
-						
-						var reader = new NbtFile();
-						reader.UseVarInt = true;
-						reader.LoadFromStream(stream, NbtCompression.AutoDetect);
 
-					//	if (meta < 15)
-						{
-							BlockStateContainer bsc = GetBlockStateContainer(reader.RootTag);
+						var compound = Packet.ReadNbtCompound(stream, true);
 
-							if (idMapping.TryGetValue(stringId, out var id))
-							{
-								bsc.Id = id;
-
-								var result = BlockPalette.FindIndex(x => x.Equals(bsc));
-
-								if (result != -1 && BlockPalette[result].Data == -1)
-								{
-									BlockPalette[result].Data = meta;
-									//result.Data = meta;
-									//Log.Info($"ID={stringId} Meta={meta} Nbt={reader.RootTag}");
-								}
-							}
-						}
-						//using (BinaryReader bnr = new BinaryReader(stream)) { }
+						legacyStateMap.Add(new R12ToCurrentBlockMapEntry(stringId, meta, GetBlockStateContainer(compound)));
 					}
 				}
 				
-				/*using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
-				using (var reader = new StreamReader(stream))
-				{
-					BlockPalette = BlockPalette.FromJson(reader.ReadToEnd());
-				}*/
+				Dictionary<string, List<int>> idToStatesMap = new Dictionary<string, List<int>>(StringComparer.OrdinalIgnoreCase);
 
+				for (var index = 0; index < BlockPalette.Count; index++)
+				{
+					var state = BlockPalette[index];
+					List<int> candidates;
+
+					if (!idToStatesMap.TryGetValue(state.Name, out candidates))
+						candidates = new List<int>();
+
+					candidates.Add(index);
+
+					idToStatesMap[state.Name] = candidates;
+				}
+
+				foreach (var pair in legacyStateMap)
+				{
+					if (idMapping.TryGetValue(pair.StringId, out int id))
+					{
+						var data = pair.Meta;
+
+						if (data > 15)
+						{
+							continue;
+						}
+
+						var mappedState = pair.State;
+						var mappedName = pair.State.Name;
+
+						if (!idToStatesMap.TryGetValue(mappedName, out var matching))
+						{
+							continue;	
+						}
+
+						foreach (var match in matching)
+						{
+							var networkState = BlockPalette[match];
+
+							var thisStates = new HashSet<IBlockState>(mappedState.States);
+							var otherStates = new HashSet<IBlockState>(networkState.States);
+
+							otherStates.IntersectWith(thisStates);
+							
+							if (otherStates.Count == thisStates.Count)
+							{
+								BlockPalette[match].Id = id;
+								BlockPalette[match].Data = data;
+
+								BlockPalette[match].ItemInstance = new ItemPickInstance()
+								{
+									Id = (short)id,
+									Metadata = data,
+									WantNbt = false
+								};
+								
+								LegacyToRuntimeId[(id << 4) | (byte) data] = match;
+								break;
+							}
+						}
+					}
+				}
+				
 				foreach(var record in BlockPalette)
 				{
 					var states = new List<NbtTag>();
@@ -222,14 +241,7 @@ namespace MiNET.Blocks
 					record.StatesCacheNbt = nbtBinary;
 				}
 			}
-			int palletSize = BlockPalette.Count;
-			for (int i = 0; i < palletSize; i++)
-			{
-				if (BlockPalette[i].Data > 15) continue; // TODO: figure out why palette contains blocks with meta more than 15
-				if (BlockPalette[i].Data == -1) continue; // These are blockstates that does not have a metadata mapping
-				LegacyToRuntimeId[(BlockPalette[i].Id << 4) | (byte) BlockPalette[i].Data] = i;
-			}
-
+			
 			BlockStates = new HashSet<BlockStateContainer>(BlockPalette);
 		}
 		

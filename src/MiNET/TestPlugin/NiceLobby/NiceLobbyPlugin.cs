@@ -442,13 +442,13 @@ namespace TestPlugin.NiceLobby
 			idx = 8;
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
 
-			var fireworks = new ItemFireworks() {Count = 64};
+			var fireworks = new ItemFireworkRocket() {Count = 64};
 
-			fireworks.ExtraData = ItemFireworks.ToNbt(new ItemFireworks.FireworksData()
+			fireworks.ExtraData = ItemFireworkRocket.ToNbt(new ItemFireworkRocket.FireworksData()
 			{
-				Explosions = new List<ItemFireworks.FireworksExplosion>()
+				Explosions = new List<ItemFireworkRocket.FireworksExplosion>()
 				{
-					new ItemFireworks.FireworksExplosion()
+					new ItemFireworkRocket.FireworksExplosion()
 					{
 						FireworkColor = new[] {(byte) 0},
 						FireworkFade = new[] {(byte) 1},
@@ -456,7 +456,7 @@ namespace TestPlugin.NiceLobby
 						FireworkTrail = false,
 						FireworkType = 0,
 					},
-					new ItemFireworks.FireworksExplosion()
+					new ItemFireworkRocket.FireworksExplosion()
 					{
 						FireworkColor = new[] {(byte) 1},
 						FireworkFade = new[] {(byte) 2},
@@ -464,7 +464,7 @@ namespace TestPlugin.NiceLobby
 						FireworkTrail = false,
 						FireworkType = 1,
 					},
-					new ItemFireworks.FireworksExplosion()
+					new ItemFireworkRocket.FireworksExplosion()
 					{
 						FireworkColor = new[] {(byte) 2},
 						FireworkFade = new[] {(byte) 3},
@@ -472,7 +472,7 @@ namespace TestPlugin.NiceLobby
 						FireworkTrail = false,
 						FireworkType = 2,
 					},
-					new ItemFireworks.FireworksExplosion()
+					new ItemFireworkRocket.FireworksExplosion()
 					{
 						FireworkColor = new[] {(byte) 3},
 						FireworkFade = new[] {(byte) 4},
@@ -480,7 +480,7 @@ namespace TestPlugin.NiceLobby
 						FireworkTrail = false,
 						FireworkType = 3,
 					},
-					new ItemFireworks.FireworksExplosion()
+					new ItemFireworkRocket.FireworksExplosion()
 					{
 						FireworkColor = new[] {(byte) 4},
 						FireworkFade = new[] {(byte) 5},
@@ -515,19 +515,19 @@ namespace TestPlugin.NiceLobby
 				Metadata = 0,
 				UniqueId = Environment.TickCount
 			};
-			player.Inventory.Slots[idx++] = new ItemIronSword()
+			player.Inventory.Slots[idx++] = new ItemIronShovel()
 			{
 				Count = 1,
 				Metadata = 0,
 				UniqueId = Environment.TickCount
 			};
-			player.Inventory.Slots[idx++] = new ItemIronSword()
+			player.Inventory.Slots[idx++] = new ItemIronAxe()
 			{
 				Count = 1,
 				Metadata = 0,
 				UniqueId = Environment.TickCount
 			};
-			player.Inventory.Slots[idx++] = new ItemIronSword()
+			player.Inventory.Slots[idx++] = new ItemIronPickaxe()
 			{
 				Count = 1,
 				Metadata = 0,

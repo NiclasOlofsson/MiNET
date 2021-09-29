@@ -68,7 +68,7 @@ namespace MiNET.Items
 
 	public class ItemSign : ItemSignBase
 	{
-		public ItemSign() : base("minecraft:sign", 323, 63, 68) { }
+		public ItemSign() : base("minecraft:oak_sign", 323, 63, 68) { }
 	}
 
 	public class ItemAcaciaSign : ItemSignBase

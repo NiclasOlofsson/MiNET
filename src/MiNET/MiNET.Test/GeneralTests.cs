@@ -435,13 +435,13 @@ namespace MiNET.Test
 		[TestMethod]
 		public void NbtCheckPerformanceTests()
 		{
-			var firework = new ItemFireworks();
+			var firework = new ItemFireworkRocket();
 
-			firework.ExtraData = ItemFireworks.ToNbt(new ItemFireworks.FireworksData()
+			firework.ExtraData = ItemFireworkRocket.ToNbt(new ItemFireworkRocket.FireworksData()
 			{
-				Explosions = new List<ItemFireworks.FireworksExplosion>()
+				Explosions = new List<ItemFireworkRocket.FireworksExplosion>()
 				{
-					new ItemFireworks.FireworksExplosion()
+					new ItemFireworkRocket.FireworksExplosion()
 					{
 						FireworkColor = new[] {(byte) 0},
 						FireworkFade = new[] {(byte) 1},
@@ -449,7 +449,7 @@ namespace MiNET.Test
 						FireworkTrail = false,
 						FireworkType = 0,
 					},
-					new ItemFireworks.FireworksExplosion()
+					new ItemFireworkRocket.FireworksExplosion()
 					{
 						FireworkColor = new[] {(byte) 1},
 						FireworkFade = new[] {(byte) 2},
@@ -457,7 +457,7 @@ namespace MiNET.Test
 						FireworkTrail = false,
 						FireworkType = 1,
 					},
-					new ItemFireworks.FireworksExplosion()
+					new ItemFireworkRocket.FireworksExplosion()
 					{
 						FireworkColor = new[] {(byte) 2},
 						FireworkFade = new[] {(byte) 3},
@@ -465,7 +465,7 @@ namespace MiNET.Test
 						FireworkTrail = false,
 						FireworkType = 2,
 					},
-					new ItemFireworks.FireworksExplosion()
+					new ItemFireworkRocket.FireworksExplosion()
 					{
 						FireworkColor = new[] {(byte) 3},
 						FireworkFade = new[] {(byte) 4},
@@ -473,7 +473,7 @@ namespace MiNET.Test
 						FireworkTrail = false,
 						FireworkType = 3,
 					},
-					new ItemFireworks.FireworksExplosion()
+					new ItemFireworkRocket.FireworksExplosion()
 					{
 						FireworkColor = new[] {(byte) 4},
 						FireworkFade = new[] {(byte) 5},

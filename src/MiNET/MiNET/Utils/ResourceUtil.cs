@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
@@ -18,17 +17,31 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2021 Niclas Olofsson.
 // All Rights Reserved.
-
 #endregion
 
-namespace MiNET.Items
+using System;
+using System.IO;
+using System.Reflection;
+using MiNET.Items;
+using Newtonsoft.Json;
+
+namespace MiNET.Utils
 {
-	public class ItemCookedPorkshop : FoodItem
+	public static class ResourceUtil
 	{
-		public ItemCookedPorkshop() : base("minecraft:cooked_porkchop", 320, 0, 8, 12.8)
+		public static T ReadResource<T>(string filename, Type namespaceProvider = null)
 		{
+			if (namespaceProvider == null)
+				namespaceProvider = typeof(T);
+			
+			var assembly = Assembly.GetAssembly(namespaceProvider);
+			using (var stream = assembly.GetManifestResourceStream(namespaceProvider.Namespace + $".{filename}"))
+			using (var reader = new StreamReader(stream))
+			{
+				return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+			}
 		}
 	}
 }

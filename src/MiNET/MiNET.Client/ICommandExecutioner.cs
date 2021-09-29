@@ -148,16 +148,24 @@ namespace MiNET.Client
 							{
 								continue;
 							}
+							
+							string itemName = item.Name;
+
+							if (ItemFactory.Translator.TryGetName(itemName, out var newName))
+							{
+								Log.Warn($"Name mistmatch for item: {item} (Current={item.Name} New={newName})");
+								itemName = newName;
+							}
 
 							if (idMapping.ContainsKey(item.Name))
 								continue;
 
 							ClearInventory(caller);
-							SendCommand(client, $"/give TheGrey {item.Name}");
+							SendCommand(client, $"/give TheGrey {itemName}");
 
 							if (!_resetEventInventorySlot.WaitOne(500))
 							{
-								Log.Warn($"Failed to get item: {item.Name}");
+								Log.Warn($"Failed to get item: {itemName}");
 
 								continue;
 							}
@@ -168,9 +176,9 @@ namespace MiNET.Client
 
 								if (newItem != null && (newItem is not ItemAir && newItem.Count > 0))
 								{
-									if (!idMapping.TryAdd(item.Name, newItem.Id) || idMapping.ContainsValue(newItem.Id))
+									if (!idMapping.TryAdd(item.Name, newItem.Id))
 									{
-										Log.Warn($"Duplicate map! Name={item.Name} Id={item.Id} NewName={newItem.Name} NewId={newItem.Id}");
+										Log.Warn($"Duplicate key! Name={item.Name} Id={item.Id} NewName={newItem.Name} NewId={newItem.Id}");
 									}
 								}
 
@@ -192,26 +200,6 @@ namespace MiNET.Client
 			File.WriteAllText(fileNameItemstates, JsonConvert.SerializeObject(idMapping, Formatting.Indented));
 		}
 
-		public class ItemEqualityComparer : IEqualityComparer<Item>
-		{
-			public bool Equals(Item x, Item y)
-			{
-				if (ReferenceEquals(x, y)) return true;
-				if (ReferenceEquals(x, null)) return false;
-				if (ReferenceEquals(y, null)) return false;
-
-				return string.Equals(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase);
-			}
-
-			public int GetHashCode(Item obj)
-			{
-				var hashCode = new HashCode();
-				hashCode.Add(obj.Name);
-
-				return hashCode.ToHashCode();
-			}
-		}
-		
 		private void PrintPalette(BedrockTraceHandler caller)
 		{
 			var client = caller.Client;
@@ -618,7 +606,7 @@ namespace MiNET.Client
 					int y = yStart;
 					for (int meta = 0; meta <= 15; meta++)
 					{
-						Log.Warn($"Setting block {id} {meta} {name}");
+					//	Log.Warn($"Setting block {id} {meta} {name}");
 
 						SendCommand(client, $"/setblock {x} {y} {z} {name} {meta} replace");
 
@@ -630,7 +618,7 @@ namespace MiNET.Client
 
 						lock (_lastUpdatedBlockstate)
 						{
-							if (_lastUpdatedBlockstate.Id != blockstate.Id) Log.Warn($"Got wrong ID for blockstate. Expected {blockstate.Id}, got {_lastUpdatedBlockstate.Id}");
+							if (_lastUpdatedBlockstate.Id != blockstate.Id) Log.Warn($"Got wrong ID for blockstate. Expected {blockstate.Id}, got {_lastUpdatedBlockstate.Id} (Expected: {blockstate.Name} Got: {_lastUpdatedBlockstate.Name})");
 
 							var minetBlockstate = GetServerRuntimeId(client.BlockPalette, _internalStates, _lastUpdatedBlockstate.RuntimeId);
 							if (minetBlockstate != null)
@@ -818,7 +806,7 @@ namespace MiNET.Client
 					}
 					finally
 					{
-						Log.Warn($"Got {blockstate.Id}, {meta} storage {message.storage}, {message.blockPriority}");
+						Log.Warn($"Got {blockstate.Id}, {meta} storage {message.storage}, {message.blockPriority} (Name={blockstate.Name} Id={blockstate.Id})");
 						_lastUpdatedBlockstate = blockstate;
 						_resetEventUpdateBlock.Set();
 					}

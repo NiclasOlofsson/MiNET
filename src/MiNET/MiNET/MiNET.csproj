@@ -47,6 +47,10 @@
     <EmbeddedResource Include="Blocks\item_id_map.json" />
     <None Remove="Blocks\r12_to_current_block_map.bin" />
     <EmbeddedResource Include="Blocks\r12_to_current_block_map.bin" />
+    <None Remove="Items\item_id_map.json" />
+    <EmbeddedResource Include="Items\item_id_map.json" />
+    <None Remove="Items\r16_to_current_item_map.json" />
+    <EmbeddedResource Include="Items\r16_to_current_item_map.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="jose-jwt" Version="3.1.1" />

@@ -2054,20 +2054,20 @@ namespace MiNET
 				{
 					Result = StackResponseStatus.Ok,
 					RequestId = request.RequestId,
-					Responses = new List<StackResponseContainerInfo>()
+					ResponseContainerInfos = new List<StackResponseContainerInfo>()
 				};
 
 				response.responses.Add(stackResponse);
 
 				try
 				{
-					stackResponse.Responses.AddRange(ItemStackInventoryManager.HandleItemStackActions(request.RequestId, request));
+					stackResponse.ResponseContainerInfos.AddRange(ItemStackInventoryManager.HandleItemStackActions(request.RequestId, request));
 				}
 				catch (Exception e)
 				{
 					Log.Warn($"Failed to process inventory actions", e);
 					stackResponse.Result = StackResponseStatus.Error;
-					stackResponse.Responses.Clear();
+					stackResponse.ResponseContainerInfos.Clear();
 				}
 			}
 

@@ -116,7 +116,7 @@ namespace MiNET.Utils
 
 		protected bool Equals(BlockStateContainer other)
 		{
-			bool result = Id == other.Id && Name == other.Name;
+			bool result = /*Id == other.Id && */Name == other.Name;
 			if (!result) return false;
 
 			var thisStates = new HashSet<IBlockState>(States);

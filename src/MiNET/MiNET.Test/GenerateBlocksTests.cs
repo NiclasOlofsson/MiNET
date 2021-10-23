@@ -161,7 +161,7 @@ namespace MiNET.Test
 		[TestMethod]
 		public void GeneratePartialBlocksFromBlockstates()
 		{
-			BlockPalette blockPalette = BlockFactory.BlockPalette;
+			var blockPalette = BlockFactory.BlockPalette;
 
 			string fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
 			using (FileStream file = File.OpenWrite(fileName))

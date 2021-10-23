@@ -101,17 +101,12 @@ namespace MiNET.Blocks
 
 			lock (lockObj)
 			{
-				Dictionary<string, int> idMapping;
-				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".block_id_map.json"))
-				using (var reader = new StreamReader(stream))
-				{
-					idMapping = JsonConvert.DeserializeObject<Dictionary<string, int>>(reader.ReadToEnd());
-				}
-				
+				Dictionary<string, int> idMapping = new Dictionary<string, int>(ResourceUtil.ReadResource<Dictionary<string, int>>("block_id_map.json", typeof(Block), "Data"), StringComparer.OrdinalIgnoreCase);
+
 				int runtimeId = 0;
 				BlockPalette = new BlockPalette();
 				
-				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".canonical_block_states.nbt"))
+				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".Data.canonical_block_states.nbt"))
 				{
 					do
 					{
@@ -124,7 +119,7 @@ namespace MiNET.Blocks
 				}
 
 				List<R12ToCurrentBlockMapEntry> legacyStateMap = new List<R12ToCurrentBlockMapEntry>();
-				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".r12_to_current_block_map.bin"))
+				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".Data.r12_to_current_block_map.bin"))
 				{
 					while (stream.Position < stream.Length)
 					{
@@ -161,51 +156,52 @@ namespace MiNET.Blocks
 
 				foreach (var pair in legacyStateMap)
 				{
-					if (idMapping.TryGetValue(pair.StringId, out int id))
+					if (!idMapping.TryGetValue(pair.StringId, out int id))
+						continue;
+
+					var data = pair.Meta;
+
+					if (data > 15)
 					{
-						var data = pair.Meta;
+						continue;
+					}
 
-						if (data > 15)
+					var mappedState = pair.State;
+					var mappedName = pair.State.Name;
+
+					if (!idToStatesMap.TryGetValue(mappedName, out var matching))
+					{
+						continue;
+					}
+
+					foreach (var match in matching)
+					{
+						var networkState = BlockPalette[match];
+
+						var thisStates = new HashSet<IBlockState>(mappedState.States);
+						var otherStates = new HashSet<IBlockState>(networkState.States);
+
+						otherStates.IntersectWith(thisStates);
+
+						if (otherStates.Count == thisStates.Count)
 						{
-							continue;
-						}
+							BlockPalette[match].Id = id;
+							BlockPalette[match].Data = data;
 
-						var mappedState = pair.State;
-						var mappedName = pair.State.Name;
-
-						if (!idToStatesMap.TryGetValue(mappedName, out var matching))
-						{
-							continue;	
-						}
-
-						foreach (var match in matching)
-						{
-							var networkState = BlockPalette[match];
-
-							var thisStates = new HashSet<IBlockState>(mappedState.States);
-							var otherStates = new HashSet<IBlockState>(networkState.States);
-
-							otherStates.IntersectWith(thisStates);
-							
-							if (otherStates.Count == thisStates.Count)
+							BlockPalette[match].ItemInstance = new ItemPickInstance()
 							{
-								BlockPalette[match].Id = id;
-								BlockPalette[match].Data = data;
+								Id = (short) id,
+								Metadata = data,
+								WantNbt = false
+							};
 
-								BlockPalette[match].ItemInstance = new ItemPickInstance()
-								{
-									Id = (short)id,
-									Metadata = data,
-									WantNbt = false
-								};
-								
-								LegacyToRuntimeId[(id << 4) | (byte) data] = match;
-								break;
-							}
+							LegacyToRuntimeId[(id << 4) | (byte) data] = match;
+
+							break;
 						}
 					}
 				}
-				
+
 				foreach(var record in BlockPalette)
 				{
 					var states = new List<NbtTag>();

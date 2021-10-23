@@ -33,24 +33,24 @@
     <EmbeddedResource Include="Blocks\blockstates.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Blocks\legacy_id_map.json">
+    <EmbeddedResource Include="Blocks\Data\block_id_map.json" />
+    <EmbeddedResource Include="Blocks\Data\canonical_block_states.nbt" />
+    <EmbeddedResource Include="Blocks\Data\item_id_map.json" />
+    <EmbeddedResource Include="Blocks\Data\legacy_id_map.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Items\itemstates.json">
+    <EmbeddedResource Include="Blocks\Data\r12_to_current_block_map.bin" />
+    <EmbeddedResource Include="Items\Data\itemstates.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Items\Data\item_id_map.json" />
+    <EmbeddedResource Include="Items\Data\r16_to_current_item_map.json" />
     <None Remove="Blocks\canonical_block_states.nbt" />
-    <EmbeddedResource Include="Blocks\canonical_block_states.nbt" />
     <None Remove="Blocks\block_id_map.json" />
-    <EmbeddedResource Include="Blocks\block_id_map.json" />
     <None Remove="Blocks\item_id_map.json" />
-    <EmbeddedResource Include="Blocks\item_id_map.json" />
     <None Remove="Blocks\r12_to_current_block_map.bin" />
-    <EmbeddedResource Include="Blocks\r12_to_current_block_map.bin" />
     <None Remove="Items\item_id_map.json" />
-    <EmbeddedResource Include="Items\item_id_map.json" />
     <None Remove="Items\r16_to_current_item_map.json" />
-    <EmbeddedResource Include="Items\r16_to_current_item_map.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="jose-jwt" Version="3.1.1" />

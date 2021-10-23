@@ -45,8 +45,8 @@ namespace MiNET.Net.Items
 		public ItemTranslator(Itemstates itemstates)
 		{
 			var internalNameToNetworkName = new Dictionary<string, string>(StringComparer.Ordinal);
-			var legacyTranslations = ResourceUtil.ReadResource<Dictionary<string, short>>("item_id_map.json", typeof(Item));
-			var r16Mapping = ResourceUtil.ReadResource<R16ToCurrentMap>("r16_to_current_item_map.json", typeof(Item));
+			var legacyTranslations = ResourceUtil.ReadResource<Dictionary<string, short>>("item_id_map.json", typeof(Item), "Data");
+			var r16Mapping = ResourceUtil.ReadResource<R16ToCurrentMap>("r16_to_current_item_map.json", typeof(Item), "Data");
 
 			var simpleMappings = new Dictionary<string, short>();
 

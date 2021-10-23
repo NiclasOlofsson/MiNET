@@ -35,6 +35,7 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Utils.Nbt;
+using MiNET.Utils.Vectors;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -394,6 +395,7 @@ namespace MiNET.Client
 
 			int count = 600;
 			int y = yStart;
+
 			for (int id = 1; id < count; id++)
 			{
 				try
@@ -403,15 +405,13 @@ namespace MiNET.Client
 
 					//if (name.StartsWith("element")) continue;
 
-					client.BlockPalette.Where(bs => bs.Id == id).ToList().ForEach(bs =>
-					{
-						bs.Data = -1;
-					});
-
-					{
-						SendCommand(client, $"/setblock {x} {y} {z} air 0 replace");
-					}
-
+					client.BlockPalette.Where(bs => bs.Id == id).ToList().ForEach(
+						bs =>
+						{
+							bs.Data = -1;
+						});
+					
+					SendCommand(client, $"/setblock {x} {y} {z} air 0 replace");
 					Log.Warn($"Setting block {id} {name}");
 
 					for (int meta = 0; meta <= 15; meta++)
@@ -419,35 +419,22 @@ namespace MiNET.Client
 						try
 						{
 							Log.Debug($"Setting block {id} {meta} {name}");
-
-							{
-								SendCommand(client, $"/setblock {x} {y} {z} {name} {meta} replace");
-							}
-
-							{
-								SendCommand(client, $"/setblock {x} {y} {z} air 0 destroy");
-
-								if (!_resetEventAddItemEntity.WaitOne(1000))
-								{
-									break;
-								}
-							}
+							SendCommand(client, $"/setblock {x} {y} {z} {name} {meta} replace");
+							SendCommand(client, $"/setblock {x} {y} {z} air 0 destroy");
+							
+							if (!_resetEventAddItemEntity.WaitOne(1000))
+								break;
 						}
 						finally
 						{
-							{
-								SendCommand(client, $"/kill @e[r=150]");
-							}
+							SendCommand(client, $"/kill @e[r=150]");
 						}
-
 
 						if (blockstate.States.Count == 0)
 							break;
 					}
 				}
-				finally
-				{
-				}
+				finally { }
 			}
 
 			client.SendChat($"Finished setting blocks.");
@@ -456,7 +443,7 @@ namespace MiNET.Client
 
 		private static void SendCommand(MiNetClient client, string command)
 		{
-			var request = new McpeCommandRequest();
+			var request = McpeCommandRequest.CreateObject();
 			request.command = command;
 			request.unknownUuid = new UUID(Guid.NewGuid().ToString());
 			client.SendPacket(request);
@@ -486,93 +473,83 @@ namespace MiNET.Client
 			client.SendChat("Starting...");
 
 			SetGameRules(caller);
-
-			int x = 0;
-			int yStart = 100;
-			int z = 0;
-
 			int count = 600;
-			//for (int t = 0; t < count; t++)
-			//{
-			//	for (int xd = x - 1; xd <= x + 1; xd++)
-			//	{
-			//		for (int zd = z - 1; zd <= z + 1; zd++)
-			//		{
-			//			{
-			//				var request = new McpeCommandRequest();
-			//				request.command = $"/tp TheGrey {xd} {150} {zd}";
-			//				request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-			//				client.SendPacket(request);
-			//			}
-			//			for (int yd = yStart - 1; yd < yStart + 34; yd++)
-			//			{
-			//				{
-			//					var request = new McpeCommandRequest();
-			//					request.command = $"/setblock {xd} {yd} {zd} air 0 replace";
-			//					request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-			//					client.SendPacket(request);
-			//					//_resetEventUpdateBlock.WaitOne();
-			//				}
 
-			//				{
-			//					var request = new McpeCommandRequest();
-			//					request.command = $"/setblock {xd} {yd} {zd} barrier 0 replace";
-			//					request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-			//					client.SendPacket(request);
-			//					//_resetEventUpdateBlock.WaitOne();
-			//				}
-			//			}
-			//		}
-			//	}
-			//	x += 2;
-			//}
-
-			_resetEventUpdateBlock.Reset();
-			_resetEventPlayerHotbar.Reset();
-
+			void Report(string message)
 			{
-				for (int xd = 0; xd <= count * 2; xd++)
+				Log.Warn(message);
+				client.SendChat(message);
+			}
+
+			var width = (int)MathF.Ceiling(MathF.Sqrt(count));
+			var depth = (int)MathF.Ceiling((float)count / width);
+			
+			
+			const int yStart = 100;
+			_blockCoordinates.Clear();
+			var prevProgress = -1d;
+			for (int bx = -width; bx < width; bx += 2)
+			{
+				if (_blockCoordinates.Count >= count)
+					break;
+				
+				for (int bz = -depth; bz < depth; bz += 2)
 				{
-					for (int zd = z; zd <= z; zd++)
+					if (_blockCoordinates.Count >= count)
+						break;
+					
+					if (bx % 10 == 0)
 					{
-						if (xd % 10 == 0)
+						SendCommand(client, $"/tp TheGrey {bx} {(yStart + 50)} {bz}");
+					}
+
+					_blockCoordinates.Add(new BlockCoordinates(bx, 0, bz));
+					
+					for (int yd = yStart; yd < yStart + 33; yd++)
+					{
+
+						SendCommand(client, $"/setblock {bx} {yd} {bz} log 0 replace");
+							//if (!_resetEventUpdateBlock.WaitOne(250)) Log.Warn("wait timeout");
+
+						SendCommand(client, $"/setblock {bx} {yd} {bz} barrier 0 replace");
+							//if (!_resetEventUpdateBlock.WaitOne(250)) Log.Warn("wait timeout");
+
+						for (int xd = bx - 1; xd <= bx + 1; xd++)
 						{
-							SendCommand(client, $"/tp TheGrey {xd} {150} {zd}");
+							for (int zd = bz - 1; zd <= bz + 1; zd++)
+							{
+								SendCommand(client, $"/setblock {xd} {yd} {zd} air 0 replace");
+								SendCommand(client, $"/setblock {xd} {yd} {zd} barrier 0 replace");
+							}
 						}
+					}
 
-						for (int yd = yStart; yd < yStart + 33; yd++)
+					//if (bx % 2 == 0 && bz % 2 == 0)
+					{
+					
+						var progress = ((double)_blockCoordinates.Count / (count)) * 100d;
+
+						if ((int)progress > prevProgress)
 						{
-							//if (yd != yStart - 1 && yd % 2 != 0)
-							//	continue;
-							//if (yd != yStart - 1 && xd % 2 == 0)
-							//	continue;
-							if (yd % 2 != 0)
-								continue;
-							if (xd % 2 != 0)
-								continue;
-
-							SendCommand(client, $"/setblock {xd} {yd} {zd} log 0 replace");
-							if (!_resetEventUpdateBlock.WaitOne(1000)) Log.Warn("wait timeout");
-
-							SendCommand(client, $"/setblock {xd} {yd} {zd} barrier 0 replace");
-							if (!_resetEventUpdateBlock.WaitOne(1000)) Log.Warn("wait timeout");
+							Report($"Prep Progress: {(int)progress}%");
+							prevProgress = progress;
 						}
 					}
 				}
 			}
 
-			x = 0;
-			z = 0;
-
-			{
-				SendCommand(client, $"/tp TheGrey {x} {150} {z}");
-			}
-
-			Log.Warn("Staring to run in 1s");
-			Thread.Sleep(1000);
-			Log.Warn("Running!");
+			prevProgress = -1;
+			_resetEventUpdateBlock.Reset();
+			_resetEventPlayerHotbar.Reset();
 			
-			client.BlockPalette = BlockFactory.BlockPalette;
+			var cQueue = new Queue<BlockCoordinates>(_blockCoordinates);
+			SendCommand(client, $"/tp TheGrey 0 150 0");
+
+			Report("Staring to run in 1s");
+			Thread.Sleep(1000);
+			Report("Running!");
+			
+		//	client.BlockPalette = BlockFactory.BlockPalette;
 			client.BlockPalette.ForEach(bs => { bs.Data = -1; });
 			_runningBlockMetadataDiscovery = true;
 			_resetEventUpdateBlock.Reset();
@@ -580,9 +557,18 @@ namespace MiNET.Client
 
 			for (int id = 0; id < count; id++)
 			{
+				var progress = ((double)id / (count)) * 100d;
+
+				if ((int)progress > prevProgress)
+				{
+					Report($"Place Progress: {(int)progress}%");
+					prevProgress = progress;
+				}
+
+				var c = cQueue.Dequeue();
 				try
 				{
-					SendCommand(client, $"/tp TheGrey {x} {150} {z}");
+					SendCommand(client, $"/tp TheGrey {c.X} {150} {c.Z}");
 
 					//var block = BlockFactory.GetBlockById(id);
 					//if (block.GetType() == typeof(Block))
@@ -608,11 +594,11 @@ namespace MiNET.Client
 					{
 					//	Log.Warn($"Setting block {id} {meta} {name}");
 
-						SendCommand(client, $"/setblock {x} {y} {z} {name} {meta} replace");
+						SendCommand(client, $"/setblock {c.X} {y} {c.Z} {name} {meta} replace");
 
 						if (!_resetEventUpdateBlock.WaitOne(500))
 						{
-							SendCommand(client, $"/setblock {x} {y} {z} air 0 replace");
+							SendCommand(client, $"/setblock {c.X} {y} {c.Z} air 0 replace");
 							//break;
 						}
 
@@ -635,16 +621,15 @@ namespace MiNET.Client
 				}
 				finally
 				{
-					x += 2;
+					//x += 2;
 				}
 			}
 
-		_runningBlockMetadataDiscovery = false;
+			_runningBlockMetadataDiscovery = false;
 
 			WritePaletteToJson(client.BlockPalette);
 
-			client.SendChat($"Finished setting blocks.");
-			Log.Warn("Finished!");
+			Report($"Finished setting blocks.");
 		}
 
 		HashSet<BlockStateContainer> _internalStates = new HashSet<BlockStateContainer>(BlockFactory.BlockPalette);
@@ -739,6 +724,7 @@ namespace MiNET.Client
 		private BlockStateContainer _lastUpdatedBlockstate = new BlockStateContainer();
 
 		private int lastNumber = 0;
+		private List<BlockCoordinates> _blockCoordinates = new List<BlockCoordinates>();
 
 		private void HandleMcpeUpdateBlock(BedrockTraceHandler caller, McpeUpdateBlock message)
 		{
@@ -760,7 +746,7 @@ namespace MiNET.Client
 
 			//TODO: Fix for doors and beds. They get 2 updates.
 			BlockStateContainer blockstate = caller.Client.BlockPalette[runtimeId];
-			if (message.coordinates.X % 2 != 0 || message.coordinates.Y % 2 != 0)
+			if (!_blockCoordinates.Contains(new BlockCoordinates(message.coordinates.X, 0, message.coordinates.Z)))
 			{
 				Log.Warn($"Update block outside of grid {message.coordinates}, {caller.Client.BlockPalette[runtimeId]}");
 

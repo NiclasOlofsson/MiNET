@@ -41,6 +41,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using fNbt;
+using fNbt.Tags;
 using Jose;
 using log4net;
 using MiNET.Blocks;
@@ -374,6 +375,163 @@ namespace MiNET.Client
 			}
 		}
 
+		private string SerializeCompound(NbtCompound compound)
+		{
+			if (compound == null)
+				return "null";
+
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append("new NbtCompound { ");
+			var array = compound.ToArray();
+
+			for (var index = 0; index < array.Length; index++)
+			{
+				var tag = array[index];
+				WriteTag(sb, tag, index == array.Length - 1);
+			}
+
+			sb.Append(" }");
+			
+			return sb.ToString();
+		}
+
+		private void WriteTag(StringBuilder sb, NbtTag tag, bool isLast = false)
+		{
+			var parameters = new List<string>();
+			
+			if (!string.IsNullOrWhiteSpace(tag.Name))
+			{
+				parameters.Add($"\"{tag.Name}\"");
+			}
+			
+			bool hasProperties = false;
+			switch (tag)
+			{
+				case NbtByte nd:
+				{
+					parameters.Add($"{nd.Value}");
+				} break;
+
+				case NbtInt nd:
+				{
+					parameters.Add($"{nd.Value}");
+				} break;
+				
+				case NbtDouble nd:
+				{
+					parameters.Add($"{nd.Value}");
+				} break;
+				
+				case NbtLong ni:
+				{
+					parameters.Add($"{ni.Value}l");
+				} break;
+				
+				case NbtShort ni:
+				{
+					parameters.Add($"{ni.Value}");
+				} break;
+				
+				case NbtFloat ni:
+				{
+					parameters.Add($"{ni.Value}f");
+				} break;
+
+				case NbtString ns:
+				{
+					parameters.Add($"\"{ns.Value}\"");
+				} break;
+
+				case NbtByteArray array:
+				{
+					StringBuilder subBuilder = new StringBuilder();
+					subBuilder.Append($"new byte[{array.Value.Length}]{{");
+					subBuilder.Append(string.Join(",", array.Value));
+					subBuilder.Append("}");
+					
+					parameters.Add(subBuilder.ToString());
+				} break;
+				
+				case NbtLongArray array:
+				{
+					StringBuilder subBuilder = new StringBuilder();
+					subBuilder.Append($"new long[{array.Value.Length}]{{");
+
+					for (var index = 0; index < array.Value.Length; index++)
+					{
+						var l = array.Value[index];
+						subBuilder.Append($"{l}l");
+
+						if (index != array.Value.Length - 1)
+						{
+							subBuilder.Append(",");
+						}
+					}
+					
+					subBuilder.Append("}");
+					
+					parameters.Add(subBuilder.ToString());
+				} break;
+				
+				case NbtIntArray array:
+				{
+					StringBuilder subBuilder = new StringBuilder();
+					subBuilder.Append($"new int[{array.Value.Length}]{{");
+					subBuilder.Append(string.Join(",", array.Value));
+					subBuilder.Append("}");
+					
+					parameters.Add(subBuilder.ToString());
+				} break;
+
+				case NbtList nbtList:
+				{
+					parameters.Add($"(NbtTagType){((int)nbtList.ListType)}");
+					hasProperties = nbtList.Count > 0;
+				} break;
+
+				case IEnumerable:
+				{
+					hasProperties = true;
+				} break;
+			}
+
+			sb.Append($"new {tag.GetType().Name}");
+			if (parameters.Count > 0)
+			{
+				sb.Append("(");
+				string joinedParams = string.Join(", ", parameters);
+				sb.Append(joinedParams);
+				sb.Append(")");
+			}
+
+			if (hasProperties)
+			{
+				sb.Append(" { ");
+			}
+			
+			if (tag is IEnumerable<NbtTag> enumerable)
+			{
+				var array = enumerable.ToArray();
+
+				for (var index = 0; index < array.Length; index++)
+				{
+					var t = array[index];
+					WriteTag(sb, t, index == array.Length - 1);
+				}
+			}
+
+			if (hasProperties)
+			{
+				sb.Append(" }");
+			}
+
+			if (!isLast)
+			{
+				sb.Append(", ");
+			}
+		}
+		
 		public void WriteInventoryToFile(string fileName, ItemStacks slots)
 		{
 			Log.Warn($"Writing inventory to filename: {fileName}");
@@ -391,45 +549,14 @@ namespace MiNET.Client
 			foreach (var entry in slots)
 			{
 				var slot = entry;
+
 				NbtCompound extraData = slot.ExtraData;
-				if (extraData == null)
-				{
-					writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ NetworkId={slot.NetworkId} }}, /*{slot.Name}*/");
-				}
-				else
-				{
-					//Log.Debug("Extradata: \n" + extraData);
-					if (extraData.Contains("ench"))
-					{
-						NbtList ench = (NbtList) extraData["ench"];
 
-						NbtCompound enchComp = (NbtCompound) ench[0];
-						var id = enchComp["id"].ShortValue;
-						var lvl = enchComp["lvl"].ShortValue;
-						writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ NetworkId={slot.NetworkId}, ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},/*{slot.Name}*/");
-					}
-					else if (extraData.Contains("Fireworks"))
-					{
-						NbtCompound fireworks = (NbtCompound) extraData["Fireworks"];
-						NbtList explosions = (NbtList) fireworks["Explosions"];
-						byte flight = fireworks["Flight"].ByteValue;
-						if (explosions.Count > 0)
-						{
-							NbtCompound compound = (NbtCompound) explosions[0];
-							byte[] fireworkColor = compound["FireworkColor"].ByteArrayValue;
-							byte[] fireworkFade = compound["FireworkFade"].ByteArrayValue;
-							byte fireworkFlicker = compound["FireworkFlicker"].ByteValue;
-							byte fireworkTrail = compound["FireworkTrail"].ByteValue;
-							byte fireworkType = compound["FireworkType"].ByteValue;
-
-							writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ NetworkId={slot.NetworkId}, ExtraData = new NbtCompound {{ new NbtCompound(\"Fireworks\") {{ new NbtList(\"Explosions\") {{ new NbtCompound {{ new NbtByteArray(\"FireworkColor\", new byte[]{{{fireworkColor[0]}}}), new NbtByteArray(\"FireworkFade\", new byte[0]), new NbtByte(\"FireworkFlicker\", {fireworkFlicker}), new NbtByte(\"FireworkTrail\", {fireworkTrail}), new NbtByte(\"FireworkType\", {fireworkType})  }} }}, new NbtByte(\"Flight\", {flight}) }} }} }},/*{slot.Name}*/");
-						}
-						else
-						{
-							writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ NetworkId={slot.NetworkId}, ExtraData = new NbtCompound {{new NbtCompound(\"Fireworks\") {{new NbtList(\"Explosions\", NbtTagType.Compound), new NbtByte(\"Flight\", {flight}) }} }} }},/*{slot.Name}*/");
-						}
-					}
-				}
+				
+				//var matchingBlock = BlockFactory.BlockPalette[slot.RuntimeId];
+				
+				var serialized = SerializeCompound(extraData);
+				writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ RuntimeId={slot.RuntimeId}, NetworkId={slot.NetworkId}, ExtraData = {serialized} }}, /*{slot.Name}*/");
 			}
 
 			// Template

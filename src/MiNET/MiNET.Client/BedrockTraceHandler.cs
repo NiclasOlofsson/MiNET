@@ -212,8 +212,9 @@ namespace MiNET.Client
 			Client.CurrentLocation = new PlayerLocation(Client.SpawnPoint, message.rotation.X, message.rotation.X, message.rotation.Y);
 
 			BlockPalette blockPalette = message.blockPalette;
-			Client.BlockPalette = blockPalette;
+			Client.BlockPalette = message.blockPalette;
 
+			//var blockPalette = BlockFactory.BlockStates;
 			Log.Warn($"Got position from startgame packet: {Client.CurrentLocation}");
 
 			var settings = new JsonSerializerSettings
@@ -283,7 +284,7 @@ namespace MiNET.Client
 							case BlockStateByte blockStateByte:
 							{
 								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateByte) d).Value).Distinct().OrderBy(s => s).ToList();
-								byte defaultVal = ((BlockStateByte) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? 0;
+								byte defaultVal = ((BlockStateByte) defaultBlockState?.States.FirstOrDefault(s => s.Name.Equals(state.Name, StringComparison.OrdinalIgnoreCase)))?.Value ?? 0;
 								if (values.Min() == 0 && values.Max() == 1)
 								{
 									bits.Add(blockStateByte);
@@ -300,7 +301,7 @@ namespace MiNET.Client
 							case BlockStateInt blockStateInt:
 							{
 								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateInt) d).Value).Distinct().OrderBy(s => s).ToList();
-								int defaultVal = ((BlockStateInt) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? 0;
+								int defaultVal = ((BlockStateInt) defaultBlockState?.States.FirstOrDefault(s => s.Name.Equals(state.Name, StringComparison.OrdinalIgnoreCase)))?.Value ?? 0;
 								writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
 								writer.WriteLine($"public{(propOverride ? " override" : "")} int {CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
 								break;
@@ -308,7 +309,7 @@ namespace MiNET.Client
 							case BlockStateString blockStateString:
 							{
 								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateString) d).Value).Distinct().ToList();
-								string defaultVal = ((BlockStateString) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? "";
+								string defaultVal = ((BlockStateString) defaultBlockState?.States.FirstOrDefault(s => s.Name.Equals(state.Name, StringComparison.OrdinalIgnoreCase)))?.Value ?? "";
 								if (values.Count > 1)
 								{
 									writer.WriteLine($"[StateEnum({string.Join(',', values.Select(v => $"\"{v}\""))})]");

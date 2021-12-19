@@ -295,6 +295,23 @@ namespace MiNET
 
 			return newLevel;
 		}
+		
+		public void Close()
+		{
+			var levels = Levels;
+			Levels.Clear();
+			foreach (Level level in levels)
+			{
+				try
+				{
+					level.Close();
+				}
+				catch (Exception e)
+				{
+					Log.Warn($"Error while stopping server", e);
+				}
+			}
+		}
 	}
 
 	public class SpreadLevelManager : LevelManager

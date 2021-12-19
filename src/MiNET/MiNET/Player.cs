@@ -476,12 +476,16 @@ namespace MiNET
 
 		public int ChunkRadius { get; private set; } = -1;
 
+		public void SetChunkRadius(int radius)
+		{
+			ChunkRadius = Math.Max(5, Math.Min(radius, MaxViewDistance));
+		}
+		
 		public virtual void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
 		{
 			Log.Debug($"Requested chunk radius of: {message.chunkRadius}");
 
-			ChunkRadius = Math.Max(5, Math.Min(message.chunkRadius, MaxViewDistance));
-
+			SetChunkRadius(message.chunkRadius);
 			SendChunkRadiusUpdate();
 
 			//if (_completedStartSequence)
@@ -987,7 +991,7 @@ namespace MiNET
 
 		protected virtual void SendAvailableCommands()
 		{
-			return;
+			//return;
 			//var settings = new JsonSerializerSettings();
 			//settings.NullValueHandling = NullValueHandling.Ignore;
 			//settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;

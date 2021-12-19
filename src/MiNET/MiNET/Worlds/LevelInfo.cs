@@ -41,6 +41,7 @@ namespace MiNET.Worlds
 			LoadFromNbt(dataTag);
 		}
 
+		public int DataVersion { get; set; }
 		public int Version { get; set; }
 		public bool Initialized { get; set; }
 		public string LevelName { get; set; }
@@ -249,6 +250,7 @@ namespace MiNET.Worlds
 
 		public void LoadFromNbt(NbtTag dataTag)
 		{
+			GetPropertyValue(dataTag, () => DataVersion);
 			GetPropertyValue(dataTag, () => Version);
 			GetPropertyValue(dataTag, () => Initialized);
 			GetPropertyValue(dataTag, () => LevelName);

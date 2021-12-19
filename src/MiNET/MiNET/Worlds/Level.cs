@@ -199,12 +199,13 @@ namespace MiNET.Worlds
 
 		public virtual void Close()
 		{
-			WorldProvider.SaveChunks();
+			WorldProvider?.SaveChunks();
 
 			NetherLevel?.Close();
 			TheEndLevel?.Close();
 
-			_tickerHighPrecisionTimer.Dispose();
+			_tickerHighPrecisionTimer?.Dispose();
+			_tickerHighPrecisionTimer = null;
 
 			foreach (var entity in Entities.Values.ToArray())
 			{
@@ -1149,7 +1150,7 @@ namespace MiNET.Worlds
 		public ChunkColumn GetChunk(ChunkCoordinates chunkCoordinates, bool cacheOnly = false)
 		{
 			var chunk = WorldProvider.GenerateChunkColumn(chunkCoordinates, cacheOnly);
-			if (chunk == null) Log.Error($"Got <null> chunk at {chunkCoordinates}");
+			if (chunk == null) Log.Debug($"Got <null> chunk at {chunkCoordinates}");
 			return chunk;
 		}
 

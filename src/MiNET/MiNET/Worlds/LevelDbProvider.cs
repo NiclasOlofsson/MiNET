@@ -65,6 +65,11 @@ namespace MiNET.Worlds
 		{
 			Db = db;
 		}
+		
+		public LevelDbProvider(string basePath)
+		{
+			BasePath = basePath;
+		}
 
 		public void Initialize()
 		{
@@ -397,6 +402,7 @@ namespace MiNET.Worlds
 
 		private void SaveLevelInfo(LevelInfoBedrock levelInfo)
 		{
+			levelInfo.LastPlayed = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 			string levelFileName = Path.Combine(BasePath, "level.dat");
 			Log.Debug($"Saving level.dat to {levelFileName}");
 

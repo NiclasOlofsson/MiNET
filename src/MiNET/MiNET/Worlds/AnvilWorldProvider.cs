@@ -230,7 +230,7 @@ namespace MiNET.Worlds
 			{
 				if (_isInitialized) return;
 
-				BasePath = BasePath ?? Config.GetProperty("PCWorldFolder", "World").Trim();
+				BasePath ??= Config.GetProperty("PCWorldFolder", "World").Trim();
 
 				NbtFile file = new NbtFile();
 				var levelFileName = Path.Combine(BasePath, "level.dat");
@@ -766,7 +766,8 @@ namespace MiNET.Worlds
 		public void SaveLevelInfo(LevelInfo level)
 		{
 			if (Dimension != Dimension.Overworld) return;
-
+			
+			level.LastPlayed = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 			var leveldat = Path.Combine(BasePath, "level.dat");
 
 			if (!Directory.Exists(BasePath))
@@ -775,7 +776,7 @@ namespace MiNET.Worlds
 				return; // What if this is changed? Need a dirty flag on this
 
 			if (LevelInfo.SpawnY <= 0) LevelInfo.SpawnY = 256;
-
+			
 			NbtFile file = new NbtFile();
 			NbtTag dataTag = new NbtCompound("Data");
 			NbtCompound rootTag = (NbtCompound) file.RootTag;
@@ -793,7 +794,7 @@ namespace MiNET.Worlds
 			{
 				lock (_chunkCache)
 				{
-					SaveLevelInfo(new LevelInfo());
+					if (Dimension == Dimension.Overworld) SaveLevelInfo(LevelInfo);
 
 					var regions = new Dictionary<Tuple<int, int>, List<ChunkColumn>>();
 					foreach (var chunkColumn in _chunkCache.OrderBy(pair => pair.Key.X >> 5).ThenBy(pair => pair.Key.Z >> 5))

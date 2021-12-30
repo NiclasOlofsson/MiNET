@@ -558,6 +558,12 @@ namespace MiNET
 		{
 		}
 
+		/// <inheritdoc />
+		public void HandleMcpePlayerAuthInput(McpePlayerAuthInput message)
+		{
+			
+		}
+
 		public void HandleMcpeItemStackRequest(McpeItemStackRequest message)
 		{
 		}

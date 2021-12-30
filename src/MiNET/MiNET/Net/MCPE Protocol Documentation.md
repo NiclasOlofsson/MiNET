@@ -139,6 +139,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Client Cache Blob Status | 0x87 | 135 |   
 | Client Cache Miss Response | 0x88 | 136 |   
 | Network Settings | 0x8f | 143 |   
+| Player Auth Input | 0x90 | 144 |   
 | Creative Content | 0x91 | 145 |   
 | Player Enchant Options | 0x92 | 146 |   
 | Item Stack Request | 0x93 | 147 |   
@@ -2654,6 +2655,20 @@ Wiki: [Network Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 |:-----|:-----|:-----|
 |Unknown | byte |  |
 |Compression threshold | byte |  |
+-----------------------------------------------------------------------
+### Player Auth Input (0x90)
+Wiki: [Player Auth Input](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerAuthInput)
+
+**Sent from server:** false  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Creative Content (0x91)
 Wiki: [Creative Content](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CreativeContent)

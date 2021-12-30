@@ -104,6 +104,7 @@ namespace MiNET.Net
 		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
 		void HandleMcpeClientCacheStatus(McpeClientCacheStatus message);
 		void HandleMcpeNetworkSettings(McpeNetworkSettings message);
+		void HandleMcpePlayerAuthInput(McpePlayerAuthInput message);
 		void HandleMcpeItemStackRequest(McpeItemStackRequest message);
 		void HandleMcpeUpdatePlayerGameType(McpeUpdatePlayerGameType message);
 		void HandleMcpePacketViolationWarning(McpePacketViolationWarning message);
@@ -954,6 +955,8 @@ namespace MiNET.Net
 						return McpeClientCacheMissResponse.CreateObject().Decode(buffer);
 					case 0x8f:
 						return McpeNetworkSettings.CreateObject().Decode(buffer);
+					case 0x90:
+						return McpePlayerAuthInput.CreateObject().Decode(buffer);
 					case 0x91:
 						return McpeCreativeContent.CreateObject().Decode(buffer);
 					case 0x92:
@@ -9321,6 +9324,50 @@ namespace MiNET.Net
 
 			unknown=default(byte);
 			compressionThreshold=default(byte);
+		}
+
+	}
+
+	public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
+	{
+
+
+		public McpePlayerAuthInput()
+		{
+			Id = 0x90;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
 		}
 
 	}

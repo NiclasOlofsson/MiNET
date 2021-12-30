@@ -2045,6 +2045,12 @@ namespace MiNET
 		{
 		}
 
+		/// <inheritdoc />
+		public void HandleMcpePlayerAuthInput(McpePlayerAuthInput message)
+		{
+			
+		}
+
 
 		public bool UsingAnvil { get; set; }
 

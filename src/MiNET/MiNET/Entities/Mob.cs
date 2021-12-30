@@ -510,7 +510,7 @@ namespace MiNET.Entities
 						{
 							new Bone()
 							{
-								Name = BoneName.Body,
+								Name = BoneName.Body.ToString(),
 								Pivot = new float[3],
 								Cubes = new List<Cube>()
 								{

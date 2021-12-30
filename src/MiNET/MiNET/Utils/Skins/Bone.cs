@@ -59,14 +59,14 @@ namespace MiNET.Utils.Skins
 
 	public class Bone : ICloneable
 	{
-		public BoneName Name { get; set; }
-
+		public string Name { get; set; }
+		
 		[JsonProperty(PropertyName = "META_BoneType")]
 		public string BoneType { get; set; }
 
 		public string Material { get; set; }
 
-		public BoneName Parent { get; set; }
+		public string Parent { get; set; }
 		public float[] Pivot { get; set; } = new float[3];
 		public float[] Pos { get; set; } = new float[3];
 		public float[] Rotation { get; set; } = new float[3];

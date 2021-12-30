@@ -166,7 +166,7 @@ namespace MiNET.Utils.Skins
 											Velocity = Vector3.Zero
 										};
 										{
-											bool isHead = bone.Name == BoneName.Head;
+											bool isHead = bone.Name.Equals(BoneName.Head.ToString(), StringComparison.InvariantCultureIgnoreCase);// == BoneName.Head.ToString();
 											if (packInBody)
 											{
 												if (keepHead && isHead)
@@ -214,7 +214,7 @@ namespace MiNET.Utils.Skins
 										Uv = bone.Mirror ? new[] {uvx - w, uvy--} : new[] {uvx + w, uvy--},
 										Velocity = new Vector3(0, (float) (random.NextDouble() * -0.01), 0)
 									};
-									bool isHead = bone.Name == BoneName.Head;
+									bool isHead = bone.Name == BoneName.Head.ToString();
 									if (isHead || random.NextDouble() < CubeFilterFactor)
 									{
 										if (packInBody)
@@ -265,7 +265,7 @@ namespace MiNET.Utils.Skins
 									};
 									if (random.NextDouble() < CubeFilterFactor)
 									{
-										bool isHead = bone.Name == BoneName.Head;
+										bool isHead = bone.Name == BoneName.Head.ToString();
 										if (packInBody)
 										{
 											if (keepHead && isHead)
@@ -310,7 +310,7 @@ namespace MiNET.Utils.Skins
 									};
 									if (random.NextDouble() < CubeFilterFactor)
 									{
-										bool isHead = bone.Name == BoneName.Head;
+										bool isHead = bone.Name == BoneName.Head.ToString();
 										if (packInBody)
 										{
 											if (keepHead && isHead)
@@ -353,7 +353,7 @@ namespace MiNET.Utils.Skins
 									};
 									if (random.NextDouble() < CubeFilterFactor)
 									{
-										bool isHead = bone.Name == BoneName.Head;
+										bool isHead = bone.Name == BoneName.Head.ToString();
 										if (packInBody)
 										{
 											if (keepHead && isHead)
@@ -399,7 +399,7 @@ namespace MiNET.Utils.Skins
 									};
 									if (random.NextDouble() < CubeFilterFactor)
 									{
-										bool isHead = bone.Name == BoneName.Head;
+										bool isHead = bone.Name == BoneName.Head.ToString();
 										if (packInBody)
 										{
 											if (keepHead && isHead)
@@ -445,7 +445,7 @@ namespace MiNET.Utils.Skins
 									};
 									if (random.NextDouble() < CubeFilterFactor)
 									{
-										bool isHead = bone.Name == BoneName.Head;
+										bool isHead = bone.Name == BoneName.Head.ToString();
 										if (packInBody)
 										{
 											if (keepHead && isHead)
@@ -469,11 +469,11 @@ namespace MiNET.Utils.Skins
 			if (packInBody)
 			{
 				Bone newBone = new Bone();
-				newBone.Name = BoneName.Body;
+				newBone.Name = BoneName.Body.ToString();
 				newBone.Pivot = new float[3];
 				newBone.Cubes = newCubes;
 
-				Bone head = Bones.SingleOrDefault(b => b.Name == BoneName.Head);
+				Bone head = Bones.SingleOrDefault(b => b.Name == BoneName.Head.ToString());
 				Bones = new List<Bone> {newBone};
 				if (keepHead && head != null)
 				{

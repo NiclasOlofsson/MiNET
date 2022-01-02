@@ -49,19 +49,19 @@ public enum AuthInputFlags : long
 	/// <summary>
 	/// Pressing the forward key (typically W on keyboard).
 	/// </summary>
-	Up = 1L <<10,
+	WalkForwards = 1L <<10,
 	/// <summary>
 	/// Pressing the backward key (typically S on keyboard).
 	/// </summary>
-	Down = 1L <<11,
+	WalkBackwards = 1L <<11,
 	/// <summary>
 	/// Pressing the left key (typically A on keyboard).
 	/// </summary>
-	Left = 1L <<12,
+	StrafeLeft = 1L <<12,
 	/// <summary>
 	///  Pressing the right key (typically D on keyboard). 
 	/// </summary>
-	Right = 1L <<13,
+	StrafeRight = 1L <<13,
 	
 	UpLeft = 1L <<14,
 	UpRight = 1L <<15,
@@ -70,8 +70,9 @@ public enum AuthInputFlags : long
 	/// Client wants to go upwards. Sent when Ascend or Jump is pressed, irrespective of whether flight is enabled
 	/// </summary>
 	WantUp = 1L <<16,
+	
 	/// <summary>
-	/// Client wants to go downwards. Sent when Ascend or Jump is pressed, irrespective of whether flight is enabled
+	/// Client wants to go downwards. Sent when Descend or Sneak is pressed, irrespective of whether flight is enabled
 	/// </summary>
 	WantDown = 1L <<17,
 	WantDownSlow = 1L <<18,
@@ -87,10 +88,24 @@ public enum AuthInputFlags : long
 	SneakToggleDown = 1L <<23,
 	PersistSneak = 1L <<24,
 	
+	/// <summary>
+	///		 Pressing the sprint toggle while NOT sprinting.
+	/// </summary>
 	StartSprinting = 1L <<25,
+	
+	/// <summary>
+	///		 Pressing the sprint toggle while sprinting.
+	/// </summary>
 	StopSprinting = 1L <<26,
 	
+	/// <summary>
+	///		 Pressing the sneak toggle while NOT sneaking.
+	/// </summary>
 	StartSneaking = 1L <<27,
+	
+	/// <summary>
+	///		 Pressing the sneak toggle while sneaking.
+	/// </summary>
 	StopSneaking = 1L <<28,
 	
 	StartSwimming = 1L <<29,

@@ -4,15 +4,60 @@ namespace MiNET.Net;
 
 public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 {
-	public float Pitch, Yaw;
-	public Vector3 Position;
-	public float MoveVecX, MoveVecZ;
+	/// <summary>
+	///		Pitch and Yaw hold the rotation that the player reports it has.
+	/// </summary>
+	public float Pitch;
+	
+	/// <summary>
+	/// Pitch and Yaw hold the rotation that the player reports it has.
+	/// </summary>
+	public float Yaw;
+	
+	/// <summary>
+	///		Pitch and Yaw hold the rotation that the player reports it has.
+	/// </summary>
 	public float HeadYaw;
+	
+	/// <summary>
+	///		 Position holds the position that the player reports it has.
+	/// </summary>
+	public Vector3 Position;
+	
+	/// <summary>
+	///		MoveVector is a Vec2 that specifies the direction in which the player moved, as a combination of X/Z
+	///		values which are created using the WASD/controller stick state.
+	/// </summary>
+	public Vector2 MoveVector;
+	
+	/// <summary>
+	///		InputData is a combination of bit flags that together specify the way the player moved last tick.
+	/// </summary>
 	public AuthInputFlags InputFlags;
-	public uint InputMode;
+	
+	/// <summary>
+	///  InputMode specifies the way that the client inputs data to the screen.
+	/// </summary>
+	public PlayerInputMode InputMode;
+	
+	/// <summary>
+	/// PlayMode specifies the way that the player is playing. 
+	/// </summary>
 	public PlayerPlayMode PlayMode;
-	public Vector3 VirtualRealityGazeDirection;
+	
+	/// <summary>
+	///		GazeDirection is the direction in which the player is gazing, when the PlayMode is PlayModeReality: In other words, when the player is playing in virtual reality.
+	/// </summary>
+	public Vector3 GazeDirection;
+	
+	/// <summary>
+	///		Tick is the server tick at which the packet was sent. It is used in relation to CorrectPlayerMovePrediction.
+	/// </summary>
 	public long Tick;
+	
+	/// <summary>
+	///		Delta was the delta between the old and the new position.
+	/// </summary>
 	public Vector3 Delta;
 
 	partial void AfterDecode()
@@ -20,16 +65,15 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		Pitch = ReadFloat();
 		Yaw = ReadFloat();
 		Position = ReadVector3();
-		MoveVecX = ReadFloat();
-		MoveVecZ = ReadFloat();
+		MoveVector = ReadVector2();
 		HeadYaw = ReadFloat();
 		InputFlags = (AuthInputFlags)ReadUnsignedVarLong();
-		InputMode = ReadUnsignedVarInt();
+		InputMode = (PlayerInputMode)ReadUnsignedVarInt();
 		PlayMode = (PlayerPlayMode)ReadUnsignedVarInt();
 		//IF VR.
 		if (PlayMode == PlayerPlayMode.VR)
 		{
-			VirtualRealityGazeDirection = ReadVector3();
+			GazeDirection = ReadVector3();
 		}
 
 		Tick = ReadUnsignedVarLong();
@@ -46,16 +90,15 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		Write(Pitch);
 		Write(Yaw);
 		Write(Position);
-		Write(MoveVecX);
-		Write(MoveVecZ);
+		Write(MoveVector);
 		Write(HeadYaw);
 		WriteUnsignedVarLong((long)InputFlags);
-		WriteUnsignedVarInt(InputMode);
+		WriteUnsignedVarInt((uint)InputMode);
 		WriteUnsignedVarInt((uint) PlayMode);
 
 		if (PlayMode == PlayerPlayMode.VR)
 		{
-			Write(VirtualRealityGazeDirection);
+			Write(GazeDirection);
 		}
 		
 		WriteUnsignedVarLong(Tick);
@@ -66,10 +109,11 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 	public override void Reset()
 	{
 		base.Reset();
-		Pitch = Yaw = MoveVecX = MoveVecZ = HeadYaw = 0f;
+		Pitch = Yaw = HeadYaw = 0f;
+		MoveVector = Vector2.Zero;
 		Position = Vector3.Zero;
 		InputFlags = 0;
-		InputMode = 0;
+		InputMode = PlayerInputMode.Mouse;
 		PlayMode = PlayerPlayMode.Normal;
 		Tick = 0;
 		Delta = Vector3.Zero;
@@ -86,5 +130,13 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		LivingRoom = 6,
 		ExitLevel = 7,
 		ExitLevelLivingRoom = 8
+	}
+	
+	public enum PlayerInputMode
+	{
+		Mouse = 1,
+		Touch = 2,
+		GamePad = 3,
+		MotionController = 4
 	}
 }

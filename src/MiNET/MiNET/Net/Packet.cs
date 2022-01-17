@@ -962,8 +962,8 @@ namespace MiNET.Net
 				case ItemUseTransaction t:
 					WriteUnsignedVarInt((uint) t.ActionType);
 					Write(t.Position);
-					WriteVarInt(t.Face);
-					WriteVarInt(t.Slot);
+					WriteSignedVarInt(t.Face);
+					WriteSignedVarInt(t.Slot);
 					Write(t.Item);
 					Write(t.FromPosition);
 					Write(t.ClickPosition);
@@ -972,14 +972,14 @@ namespace MiNET.Net
 				case ItemUseOnEntityTransaction t:
 					WriteUnsignedVarLong(t.EntityId);
 					WriteUnsignedVarInt((uint) t.ActionType);
-					WriteVarInt(t.Slot);
+					WriteSignedVarInt(t.Slot);
 					Write(t.Item);
 					Write(t.FromPosition);
 					Write(t.ClickPosition);
 					break;
 				case ItemReleaseTransaction t:
 					WriteUnsignedVarInt((uint) t.ActionType);
-					WriteVarInt(t.Slot);
+					WriteSignedVarInt(t.Slot);
 					Write(t.Item);
 					Write(t.FromPosition);
 					break;

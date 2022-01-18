@@ -204,15 +204,25 @@ namespace MiNET.Utils.IO
 				finally
 				{
 					_running = false;
-					Dispose();
+					
+					_cancelSource?.Dispose();
+					_cancelSource = null;
+
+					AutoReset?.Dispose();
+					AutoReset = null;
 				}
 			}, _cancelSource.Token, TaskCreationOptions.LongRunning);
 
 			task.Start();
 		}
 
+		private bool _disposed = false;
 		public void Dispose()
 		{
+			if (_disposed)
+				return;
+
+			_disposed = true;
 			//Console.WriteLine("Called Disposed");
 
 			_action = null; // Make sure this will not fire again
@@ -241,11 +251,7 @@ namespace MiNET.Utils.IO
 			}
 			else
 			{
-				_cancelSource?.Dispose();
-				_cancelSource = null;
-
-				AutoReset?.Dispose();
-				AutoReset = null;
+			
 				//Console.WriteLine("Disposed from same thread");
 			}
 		}

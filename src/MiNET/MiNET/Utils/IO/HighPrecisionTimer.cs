@@ -227,15 +227,19 @@ namespace MiNET.Utils.IO
 
 			_action = null; // Make sure this will not fire again
 
-			if (_cancelSource == null) return;
-			if (AutoReset == null) return;
+			var autoReset = AutoReset;
+			var cancelSource = _cancelSource;
+			if (cancelSource == null) return;
+			if (autoReset == null) return;
 
 			if (_timerThread != Thread.CurrentThread)
 			{
 				if (_running)
 				{
-					_cancelSource.Cancel();
-					AutoReset?.Set();
+					cancelSource.Cancel();
+
+					if (!autoReset.SafeWaitHandle.IsClosed)
+						autoReset.Set();
 				}
 
 				while (_running) Thread.Yield();
@@ -246,8 +250,10 @@ namespace MiNET.Utils.IO
 
 			if (_running)
 			{
-				_cancelSource.Cancel();
-				AutoReset?.Set();
+				cancelSource.Cancel();
+				
+				if (!autoReset.SafeWaitHandle.IsClosed)
+					autoReset.Set();
 			}
 			else
 			{

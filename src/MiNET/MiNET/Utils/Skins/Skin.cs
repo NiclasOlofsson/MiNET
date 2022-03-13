@@ -86,7 +86,8 @@ namespace MiNET.Utils.Skins
 		public byte[] Data { get; set; }
 		public string GeometryName { get; set; }
 		public string GeometryData { get; set; }
-
+		public string GeometryDataVersion { get; set; }
+		
 		public string ArmSize { get; set; }
 
 		public string SkinColor { get; set; }
@@ -97,6 +98,7 @@ namespace MiNET.Utils.Skins
 		public List<PersonaPiece> PersonaPieces { get; set; } = new List<PersonaPiece>();
 		public List<SkinPiece> SkinPieces { get; set; } = new List<SkinPiece>();
 		public bool IsVerified { get; set; }
+		public bool IsPrimaryUser { get; set; }
 
 		public static byte[] GetTextureFromFile(string filename)
 		{

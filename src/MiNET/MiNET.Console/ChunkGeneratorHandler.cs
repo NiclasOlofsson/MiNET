@@ -78,7 +78,7 @@ namespace MiNET.Console
 
 			Client.LevelInfo.LevelName = message.levelId;
 			Client.LevelInfo.Version = 19133;
-			Client.LevelInfo.GameType = message.gamemode;
+			Client.LevelInfo.GameType = message.levelSettings.gamemode;
 
 			BlockPalette = message.blockPalette;
 
@@ -187,7 +187,7 @@ namespace MiNET.Console
 
 		public override void HandleMcpeLevelChunk(McpeLevelChunk message)
 		{
-			if (message.cacheEnabled)
+			if (message.blobHashes != null) 
 			{
 				var chunk = new CachedChunk
 				{

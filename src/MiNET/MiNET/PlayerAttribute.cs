@@ -35,7 +35,7 @@ namespace MiNET
 
 		public override string ToString()
 		{
-			return $"Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}, Default: {Default}";
+			return $"{{Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}, Default: {Default}}}";
 		}
 	}
 
@@ -48,7 +48,7 @@ namespace MiNET
 
 		public override string ToString()
 		{
-			return $"Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}";
+			return $"{{Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}}}";
 		}
 	}
 

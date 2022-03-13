@@ -88,7 +88,7 @@ namespace MiNET.Worlds
 		public void SetSkyLight(BlockCoordinates coordinates, byte skyLight)
 		{
 			ChunkColumn chunk = GetChunk(coordinates, true);
-			chunk?.SetSkyLight(coordinates.X & 0x0f, coordinates.Y & 0xff, coordinates.Z & 0x0f, skyLight);
+			chunk?.SetSkyLight(coordinates.X & 0x0f, coordinates.Y, coordinates.Z & 0x0f, skyLight);
 		}
 
 		public int GetHeight(BlockCoordinates coordinates)
@@ -586,14 +586,14 @@ namespace MiNET.Worlds
 
 		public static void SetSkyLight(BlockCoordinates coordinates, byte skyLight, ChunkColumn chunk)
 		{
-			chunk?.SetSkyLight(coordinates.X & 0x0f, coordinates.Y & 0xff, coordinates.Z & 0x0f, skyLight);
+			chunk?.SetSkyLight(coordinates.X & 0x0f, coordinates.Y, coordinates.Z & 0x0f, skyLight);
 		}
 
 		public static bool IsNotBlockingSkylight(BlockCoordinates blockCoordinates, ChunkColumn chunk)
 		{
 			if (chunk == null) return true;
 
-			int bid = chunk.GetBlockId(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			int bid = chunk.GetBlockId(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 			return bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 161 && bid != 30 && bid != 8 && bid != 9);
 		}
 
@@ -603,7 +603,7 @@ namespace MiNET.Worlds
 			if (section == null) return 15;
 
 			int bx = blockCoordinates.X & 0x0f;
-			int by = blockCoordinates.Y & 0xff;
+			int by = blockCoordinates.Y;
 			int bz = blockCoordinates.Z & 0x0f;
 
 			int bid = section.GetBlockId(bx, by - 16 * (by >> 4), bz);
@@ -615,7 +615,7 @@ namespace MiNET.Worlds
 			if (section == null) return true;
 
 			int bx = blockCoordinates.X & 0x0f;
-			int by = blockCoordinates.Y & 0xff;
+			int by = blockCoordinates.Y;
 			int bz = blockCoordinates.Z & 0x0f;
 
 			int bid = section.GetBlockId(bx, by - 16 * (by >> 4), bz);
@@ -627,7 +627,7 @@ namespace MiNET.Worlds
 			if (chunk == null) return 15;
 
 			int bx = blockCoordinates.X & 0x0f;
-			int by = blockCoordinates.Y & 0xff;
+			int by = blockCoordinates.Y;
 			int bz = blockCoordinates.Z & 0x0f;
 
 			return chunk.GetSkylight(bx, by - 16 * (by >> 4), bz);
@@ -637,7 +637,7 @@ namespace MiNET.Worlds
 		{
 			if (chunk == null) return 15;
 
-			return chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			return chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 		}
 
 		public static int GetHeight(BlockCoordinates blockCoordinates, ChunkColumn chunk)

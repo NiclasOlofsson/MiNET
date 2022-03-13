@@ -126,6 +126,27 @@ namespace MiNET.Utils
 		public int FilteredStringIndex { get; set; }
 	}
 
+	public class GrindstoneStackRequestAction : ItemStackAction
+	{
+		public uint RecipeNetworkId { get; set; }
+		public int RepairCost { get; set; }
+	}
+
+	public class LoomStackRequestAction : ItemStackAction
+	{
+		public string PatternId { get; set; }
+	}
+
+	public class PlaceIntoBundleAction : ItemStackAction
+	{
+		
+	}
+	
+	public class TakeFromBundleAction : ItemStackAction
+	{
+		
+	}
+
 	public class CraftNotImplementedDeprecatedAction : ItemStackAction
 	{
 		// nothing

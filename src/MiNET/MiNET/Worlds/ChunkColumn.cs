@@ -44,6 +44,10 @@ namespace MiNET.Worlds
 {
 	public class ChunkColumn : ICloneable, IEnumerable<SubChunk>, IDisposable
 	{
+		public const int WorldHeight = 384;
+		public const int WorldMaxY = WorldHeight + WorldMinY;
+		public const int WorldMinY = -64;
+		
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ChunkColumn));
 
 		public int X { get; set; }
@@ -57,7 +61,7 @@ namespace MiNET.Worlds
 		//TODO: This dictionary need to be concurrent. Investigate performance before changing.
 		public IDictionary<BlockCoordinates, NbtCompound> BlockEntities { get; private set; } = new Dictionary<BlockCoordinates, NbtCompound>();
 
-		private SubChunk[] _subChunks = new SubChunk[16];
+		private SubChunk[] _subChunks = new SubChunk[WorldHeight / 16];
 
 		// Cache related. Should actually all be private, but well
 		public bool IsDirty { get; set; }
@@ -112,7 +116,10 @@ namespace MiNET.Worlds
 
 		public SubChunk GetSubChunk(int by)
 		{
-			return this[by >> 4];
+			by >>= 4;
+			by += WorldMinY < 0 ? Math.Abs(WorldMinY >> 4) : 0;
+			
+			return this[Math.Clamp(by, 0, _subChunks.Length - 1)];
 		}
 
 		public int GetBlockId(int bx, int by, int bz)
@@ -412,7 +419,7 @@ namespace MiNET.Worlds
 		{
 			bool isInAir = true;
 
-			for (int y = 255; y >= 0; y--)
+			for (int y = WorldHeight; y >= WorldMinY; y--)
 			{
 				{
 					SubChunk chunk = GetSubChunk(y);
@@ -472,6 +479,7 @@ namespace MiNET.Worlds
 
 				var fullChunkPacket = McpeLevelChunk.CreateObject();
 				fullChunkPacket.cacheEnabled = false;
+				fullChunkPacket.subChunkRequestMode = SubChunkRequestMode.SubChunkRequestModeLegacy;
 				fullChunkPacket.chunkX = X;
 				fullChunkPacket.chunkZ = Z;
 				fullChunkPacket.subChunkCount = (uint) topEmpty;
@@ -546,8 +554,8 @@ namespace MiNET.Worlds
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal int GetTopEmpty()
 		{
-			int topEmpty = 16;
-			for (int ci = 15; ci >= 0; ci--)
+			int topEmpty = WorldHeight / 16;
+			for (int ci = (WorldHeight / 16) - 1; ci >= 0; ci--)
 			{
 				// Maybe reconsider if this is what we really want to do. Pooling buffers may remove the need for it. It's just an object.
 				if (_subChunks[ci] == null || _subChunks[ci].IsAllAir())
@@ -568,7 +576,7 @@ namespace MiNET.Worlds
 		{
 			ChunkColumn cc = (ChunkColumn) MemberwiseClone();
 
-			cc._subChunks = new SubChunk[16];
+			cc._subChunks = new SubChunk[_subChunks.Length];
 			for (int i = 0; i < _subChunks.Length; i++)
 			{
 				cc._subChunks[i] = (SubChunk) _subChunks[i]?.Clone();

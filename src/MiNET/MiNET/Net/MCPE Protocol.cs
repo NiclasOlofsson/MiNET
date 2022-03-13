@@ -46,8 +46,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 448;
-		public const string GameVersion = "1.17.11";
+		public const int ProtocolVersion = 486;
+		public const string GameVersion = "1.18.10";
 	}
 
 	public interface IMcpeMessageHandler
@@ -109,6 +109,8 @@ namespace MiNET.Net
 		void HandleMcpeUpdatePlayerGameType(McpeUpdatePlayerGameType message);
 		void HandleMcpePacketViolationWarning(McpePacketViolationWarning message);
 		void HandleMcpeFilterTextPacket(McpeFilterTextPacket message);
+		void HandleMcpeUpdateSubChunkBlocksPacket(McpeUpdateSubChunkBlocksPacket message);
+		void HandleMcpeSubChunkRequestPacket(McpeSubChunkRequestPacket message);
 	}
 
 	public interface IMcpeClientMessageHandler
@@ -235,6 +237,8 @@ namespace MiNET.Net
 		void HandleMcpeItemStackResponse(McpeItemStackResponse message);
 		void HandleMcpeItemComponent(McpeItemComponent message);
 		void HandleMcpeFilterTextPacket(McpeFilterTextPacket message);
+		void HandleMcpeUpdateSubChunkBlocksPacket(McpeUpdateSubChunkBlocksPacket message);
+		void HandleMcpeSubChunkPacket(McpeSubChunkPacket message);
 		void HandleMcpeAlexEntityAnimation(McpeAlexEntityAnimation message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
@@ -618,6 +622,12 @@ namespace MiNET.Net
 				case McpeFilterTextPacket msg:
 					_messageHandler.HandleMcpeFilterTextPacket(msg);
 					break;
+				case McpeUpdateSubChunkBlocksPacket msg:
+					_messageHandler.HandleMcpeUpdateSubChunkBlocksPacket(msg);
+					break;
+				case McpeSubChunkPacket msg:
+					_messageHandler.HandleMcpeSubChunkPacket(msg);
+					break;
 				case McpeAlexEntityAnimation msg:
 					_messageHandler.HandleMcpeAlexEntityAnimation(msg);
 					break;
@@ -973,6 +983,12 @@ namespace MiNET.Net
 						return McpeItemComponent.CreateObject().Decode(buffer);
 					case 0xa3:
 						return McpeFilterTextPacket.CreateObject().Decode(buffer);
+					case 0xac:
+						return McpeUpdateSubChunkBlocksPacket.CreateObject().Decode(buffer);
+					case 0xae:
+						return McpeSubChunkPacket.CreateObject().Decode(buffer);
+					case 0xaf:
+						return McpeSubChunkRequestPacket.CreateObject().Decode(buffer);
 					case 0xe0:
 						return McpeAlexEntityAnimation.CreateObject().Decode(buffer);
 				}
@@ -4022,6 +4038,7 @@ namespace MiNET.Net
 
 		public ulong runtimeEntityId; // = null;
 		public byte selectedSlot; // = null;
+		public bool addUserData; // = null;
 
 		public McpeEntityPickRequest()
 		{
@@ -4037,6 +4054,7 @@ namespace MiNET.Net
 
 			Write(runtimeEntityId);
 			Write(selectedSlot);
+			Write(addUserData);
 
 			AfterEncode();
 		}
@@ -4052,6 +4070,7 @@ namespace MiNET.Net
 
 			runtimeEntityId = ReadUlong();
 			selectedSlot = ReadByte();
+			addUserData = ReadBool();
 
 			AfterDecode();
 		}
@@ -4065,6 +4084,7 @@ namespace MiNET.Net
 
 			runtimeEntityId=default(ulong);
 			selectedSlot=default(byte);
+			addUserData=default(bool);
 		}
 
 	}
@@ -4132,7 +4152,9 @@ namespace MiNET.Net
 	public partial class McpeHurtArmor : Packet<McpeHurtArmor>
 	{
 
+		public int cause; // = null;
 		public int health; // = null;
+		public long armorSlotFlags; // = null;
 
 		public McpeHurtArmor()
 		{
@@ -4146,7 +4168,9 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			WriteVarInt(cause);
 			WriteSignedVarInt(health);
+			WriteUnsignedVarLong(armorSlotFlags);
 
 			AfterEncode();
 		}
@@ -4160,7 +4184,9 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			cause = ReadVarInt();
 			health = ReadSignedVarInt();
+			armorSlotFlags = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}
@@ -4172,7 +4198,9 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+			cause=default(int);
 			health=default(int);
+			armorSlotFlags=default(long);
 		}
 
 	}
@@ -4919,6 +4947,7 @@ namespace MiNET.Net
 		public Recipes recipes; // = null;
 		public PotionTypeRecipe[] potionTypeRecipes; // = null;
 		public PotionContainerChangeRecipe[] potionContainerRecipes; // = null;
+		public MaterialReducerRecipe[] materialReducerRecipes; // = null;
 		public bool isClean; // = null;
 
 		public McpeCraftingData()
@@ -4936,6 +4965,7 @@ namespace MiNET.Net
 			Write(recipes);
 			Write(potionTypeRecipes);
 			Write(potionContainerRecipes);
+			Write(materialReducerRecipes);
 			Write(isClean);
 
 			AfterEncode();
@@ -4953,6 +4983,7 @@ namespace MiNET.Net
 			recipes = ReadRecipes();
 			potionTypeRecipes = ReadPotionTypeRecipes();
 			potionContainerRecipes = ReadPotionContainerChangeRecipes();
+			materialReducerRecipes = ReadMaterialReducerRecipes();
 			isClean = ReadBool();
 
 			AfterDecode();
@@ -4968,6 +4999,7 @@ namespace MiNET.Net
 			recipes=default(Recipes);
 			potionTypeRecipes=default(PotionTypeRecipe[]);
 			potionContainerRecipes=default(PotionContainerChangeRecipe[]);
+			materialReducerRecipes=default(MaterialReducerRecipe[]);
 			isClean=default(bool);
 		}
 
@@ -5277,8 +5309,6 @@ namespace MiNET.Net
 
 		public int chunkX; // = null;
 		public int chunkZ; // = null;
-		public uint subChunkCount; // = null;
-		public bool cacheEnabled; // = null;
 
 		public McpeLevelChunk()
 		{
@@ -5294,8 +5324,6 @@ namespace MiNET.Net
 
 			WriteSignedVarInt(chunkX);
 			WriteSignedVarInt(chunkZ);
-			WriteUnsignedVarInt(subChunkCount);
-			Write(cacheEnabled);
 
 			AfterEncode();
 		}
@@ -5311,8 +5339,6 @@ namespace MiNET.Net
 
 			chunkX = ReadSignedVarInt();
 			chunkZ = ReadSignedVarInt();
-			subChunkCount = ReadUnsignedVarInt();
-			cacheEnabled = ReadBool();
 
 			AfterDecode();
 		}
@@ -5326,8 +5352,6 @@ namespace MiNET.Net
 
 			chunkX=default(int);
 			chunkZ=default(int);
-			subChunkCount=default(uint);
-			cacheEnabled=default(bool);
 		}
 
 	}
@@ -6092,6 +6116,7 @@ namespace MiNET.Net
 			UpdateName = 5,
 			UpdateOptions = 6,
 			UpdateStyle = 7,
+			Query = 8,
 		}
 
 		public long bossEntityId; // = null;
@@ -9479,15 +9504,19 @@ namespace MiNET.Net
 			Destroy = 4,
 			Consume = 5,
 			Create = 6,
-			LabTableCombine = 7,
-			BeaconPayment = 8,
-			MineBlock = 9,
-			CraftRecipe = 10,
-			CraftRecipeAuto = 11,
-			CraftCreative = 12,
-			CraftRecipeOptional = 13,
-			CraftNotImplementedDeprecated = 14,
-			CraftResultsDeprecated = 15,
+			PlaceIntoBundle = 7,
+			TakeFromBundle = 8,
+			LabTableCombine = 9,
+			BeaconPayment = 10,
+			MineBlock = 11,
+			CraftRecipe = 12,
+			CraftRecipeAuto = 13,
+			CraftCreative = 14,
+			CraftRecipeOptional = 15,
+			CraftGrindstone = 16,
+			CraftLoom = 17,
+			CraftNotImplementedDeprecated = 18,
+			CraftResultsDeprecated = 19,
 		}
 
 		public ItemStackRequests requests; // = null;
@@ -9783,6 +9812,174 @@ namespace MiNET.Net
 
 			text=default(string);
 			fromServer=default(bool);
+		}
+
+	}
+
+	public partial class McpeUpdateSubChunkBlocksPacket : Packet<McpeUpdateSubChunkBlocksPacket>
+	{
+
+		public BlockCoordinates subchunkCoordinates; // = null;
+		public UpdateSubChunkBlocksPacketEntry[] layerZeroUpdates; // = null;
+		public UpdateSubChunkBlocksPacketEntry[] layerOneUpdates; // = null;
+
+		public McpeUpdateSubChunkBlocksPacket()
+		{
+			Id = 0xac;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(subchunkCoordinates);
+			Write(layerZeroUpdates);
+			Write(layerOneUpdates);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			subchunkCoordinates = ReadBlockCoordinates();
+			layerZeroUpdates = ReadUpdateSubChunkBlocksPacketEntrys();
+			layerOneUpdates = ReadUpdateSubChunkBlocksPacketEntrys();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			subchunkCoordinates=default(BlockCoordinates);
+			layerZeroUpdates=default(UpdateSubChunkBlocksPacketEntry[]);
+			layerOneUpdates=default(UpdateSubChunkBlocksPacketEntry[]);
+		}
+
+	}
+
+	public partial class McpeSubChunkPacket : Packet<McpeSubChunkPacket>
+	{
+
+		public bool cacheEnabled; // = null;
+		public int dimension; // = null;
+		public BlockCoordinates subchunkCoordinates; // = null;
+
+		public McpeSubChunkPacket()
+		{
+			Id = 0xae;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(cacheEnabled);
+			WriteVarInt(dimension);
+			Write(subchunkCoordinates);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			cacheEnabled = ReadBool();
+			dimension = ReadVarInt();
+			subchunkCoordinates = ReadBlockCoordinates();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			cacheEnabled=default(bool);
+			dimension=default(int);
+			subchunkCoordinates=default(BlockCoordinates);
+		}
+
+	}
+
+	public partial class McpeSubChunkRequestPacket : Packet<McpeSubChunkRequestPacket>
+	{
+
+		public int dimension; // = null;
+		public BlockCoordinates basePosition; // = null;
+		public SubChunkPositionOffset[] offsets; // = null;
+
+		public McpeSubChunkRequestPacket()
+		{
+			Id = 0xaf;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteVarInt(dimension);
+			Write(basePosition);
+			Write(offsets);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			dimension = ReadVarInt();
+			basePosition = ReadBlockCoordinates();
+			offsets = ReadSubChunkPositionOffsets();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			dimension=default(int);
+			basePosition=default(BlockCoordinates);
+			offsets=default(SubChunkPositionOffset[]);
 		}
 
 	}

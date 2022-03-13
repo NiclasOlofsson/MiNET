@@ -413,11 +413,11 @@ namespace MiNET.Client
 				writer.Flush();
 			}
 
-			LogGamerules(message.gamerules);
+			LogGamerules(message.levelSettings.gamerules);
 
 			Client.LevelInfo.LevelName = "Default";
 			Client.LevelInfo.Version = 19133;
-			Client.LevelInfo.GameType = message.gamemode;
+			Client.LevelInfo.GameType = message.levelSettings.gamemode;
 
 			//ClientUtils.SaveLevel(_level);
 
@@ -764,7 +764,7 @@ namespace MiNET.Client
 			// TODO doesn't work anymore I guess
 			if (Client.IsEmulator) return;
 
-			if (message.cacheEnabled)
+			if (message.blobHashes != null)
 			{
 				var hits = new ulong[message.blobHashes.Length];
 

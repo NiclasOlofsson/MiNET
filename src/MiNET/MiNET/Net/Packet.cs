@@ -1195,6 +1195,18 @@ namespace MiNET.Net
 							break;
 						}
 
+						case PlaceIntoBundleAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.PlaceIntoBundle);
+							break;
+						}
+						
+						case TakeFromBundleAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.TakeFromBundle);
+							break;
+						}
+						
 						case LabTableCombineAction ta:
 						{
 							Write((byte) McpeItemStackRequest.ActionType.LabTableCombine);
@@ -1235,6 +1247,21 @@ namespace MiNET.Net
 							Write((byte) McpeItemStackRequest.ActionType.CraftRecipeOptional);
 							WriteUnsignedVarInt(ta.RecipeNetworkId);
 							Write(ta.FilteredStringIndex);
+							break;
+						}
+
+						case GrindstoneStackRequestAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.CraftGrindstone);
+							WriteUnsignedVarInt(ta.RecipeNetworkId);
+							WriteVarInt(ta.RepairCost);
+							break;
+						}
+						
+						case LoomStackRequestAction ta:
+						{
+							Write((byte) McpeItemStackRequest.ActionType.CraftLoom);
+							Write(ta.PatternId);
 							break;
 						}
 
@@ -1352,6 +1379,20 @@ namespace MiNET.Net
 							actions.Add(action);
 							break;
 						}
+
+						case McpeItemStackRequest.ActionType.PlaceIntoBundle:
+						{
+							var action = new PlaceIntoBundleAction();
+							actions.Add(action);
+							break;
+						}
+
+						case McpeItemStackRequest.ActionType.TakeFromBundle:
+						{
+							var action = new TakeFromBundleAction();
+							actions.Add(action);
+							break;
+						}
 						case McpeItemStackRequest.ActionType.LabTableCombine:
 						{
 							var action = new LabTableCombineAction();
@@ -1392,6 +1433,22 @@ namespace MiNET.Net
 							var action = new CraftRecipeOptionalAction();
 							action.RecipeNetworkId = ReadUnsignedVarInt();
 							action.FilteredStringIndex = ReadInt();
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.CraftGrindstone:
+						{
+							var action = new GrindstoneStackRequestAction();
+							action.RecipeNetworkId = ReadUnsignedVarInt();
+							action.RepairCost = ReadVarInt();
+							
+							actions.Add(action);
+							break;
+						}
+						case McpeItemStackRequest.ActionType.CraftLoom:
+						{
+							var action = new LoomStackRequestAction();
+							action.PatternId = ReadString();
 							actions.Add(action);
 							break;
 						}
@@ -2390,10 +2447,9 @@ namespace MiNET.Net
 			Write(skin.Cape.ImageHeight);
 			WriteByteArray(skin.Cape.Data);
 			Write(skin.GeometryData);
+			Write(skin.GeometryDataVersion);
 			Write(skin.AnimationData);
-			Write(skin.IsPremiumSkin);
-			Write(skin.IsPersonaSkin);
-			Write(skin.Cape.OnClassicSkin);
+
 			Write(skin.Cape.Id);
 			Write(skin.SkinId + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()); // some unique skin id
 			Write(skin.ArmSize);
@@ -2417,6 +2473,11 @@ namespace MiNET.Net
 					Write(color);
 				}
 			}
+			
+			Write(skin.IsPremiumSkin);
+			Write(skin.IsPersonaSkin);
+			Write(skin.Cape.OnClassicSkin);
+			Write(skin.IsPrimaryUser);
 		}
 
 		public Skin ReadSkin()
@@ -2450,10 +2511,9 @@ namespace MiNET.Net
 			skin.Cape.ImageHeight = ReadInt();
 			skin.Cape.Data = ReadByteArray(false);
 			skin.GeometryData = ReadString();
+			skin.GeometryDataVersion = ReadString();
 			skin.AnimationData = ReadString();
-			skin.IsPremiumSkin = ReadBool();
-			skin.IsPersonaSkin = ReadBool();
-			skin.Cape.OnClassicSkin = ReadBool();
+
 			skin.Cape.Id = ReadString();
 			ReadString(); // fullSkinId
 			skin.ArmSize = ReadString();
@@ -2482,7 +2542,11 @@ namespace MiNET.Net
 				}
 				skin.SkinPieces.Add(piece);
 			}
-
+			
+			skin.IsPremiumSkin = ReadBool();
+			skin.IsPersonaSkin = ReadBool();
+			skin.Cape.OnClassicSkin = ReadBool();
+			skin.IsPrimaryUser = ReadBool();
 			//Log.Debug($"SkinId={skin.SkinId}");
 			//Log.Debug($"SkinData lenght={skin.Data.Length}");
 			//Log.Debug($"CapeData lenght={skin.Cape.Data.Length}");
@@ -2799,6 +2863,53 @@ namespace MiNET.Net
 				recipe.Input = ReadVarInt();
 				recipe.Ingredient = ReadVarInt();
 				recipe.Output = ReadVarInt();
+
+				recipes[i] = recipe;
+			}
+
+			return recipes;
+		}
+
+		public void Write(MaterialReducerRecipe[] reducerRecipes)
+		{
+			WriteUnsignedVarInt((uint) reducerRecipes.Length);
+
+			for (int i = 0; i < reducerRecipes.Length; i++)
+			{
+				var recipe = reducerRecipes[i];
+				WriteVarInt((recipe.Input << 16) | recipe.InputMeta);
+				WriteUnsignedVarInt((uint) recipe.Output.Length);
+
+				foreach (var output in recipe.Output)
+				{
+					WriteVarInt(output.ItemId);
+					WriteVarInt(output.ItemCount);
+				}
+			}
+		} 
+
+		public MaterialReducerRecipe[] ReadMaterialReducerRecipes()
+		{
+			int count = (int) ReadUnsignedVarInt();
+			var recipes = new MaterialReducerRecipe[count];
+			for (int i = 0; i < recipes.Length; i++)
+			{
+				var inputIdAndMeta = ReadVarInt();
+				var inputId = inputIdAndMeta >> 16;
+				var inputMeta = inputIdAndMeta & 0x7fff;
+
+				var outputCount = (int) ReadUnsignedVarInt();
+				MaterialReducerRecipe.MaterialReducerRecipeOutput[] outputs = new MaterialReducerRecipe.MaterialReducerRecipeOutput[outputCount];
+
+				for (int o = 0; o < outputs.Length; o++)
+				{
+					var itemId = ReadVarInt();
+					var itemCount = ReadVarInt();
+
+					outputs[o] = new MaterialReducerRecipe.MaterialReducerRecipeOutput(itemId, itemCount);
+				}
+				
+				var recipe = new MaterialReducerRecipe(inputId, inputMeta, outputs);
 
 				recipes[i] = recipe;
 			}
@@ -3206,8 +3317,149 @@ namespace MiNET.Net
 				Write(experiment.Enabled);
 			}
 		}
-		
 
+		public void Write(EducationUriResource resource)
+		{
+			Write(resource.ButtonName);
+			Write(resource.LinkUri);
+		}
+		
+		public EducationUriResource ReadEducationUriResource()
+		{
+			string name = ReadString();
+			var uri = ReadString();
+
+			return new EducationUriResource(name, uri);
+		}
+
+		public void Write(UpdateSubChunkBlocksPacketEntry entry)
+		{
+			Write(entry.Coordinates);
+			WriteUnsignedVarInt(entry.BlockRuntimeId);
+			WriteUnsignedVarInt(entry.Flags);
+			WriteUnsignedVarLong(entry.SyncedUpdatedEntityUniqueId);
+			WriteUnsignedVarInt(entry.SyncedUpdateType);
+		}
+
+		public UpdateSubChunkBlocksPacketEntry ReadUpdateSubChunkBlocksPacketEntry()
+		{
+			var entry = new UpdateSubChunkBlocksPacketEntry();
+			entry.Coordinates = ReadBlockCoordinates();
+			entry.BlockRuntimeId = ReadUnsignedVarInt();
+			entry.Flags = ReadUnsignedVarInt();
+			entry.SyncedUpdatedEntityUniqueId = ReadUnsignedVarLong();
+			entry.SyncedUpdateType = ReadUnsignedVarInt();
+
+			return entry;
+		}
+
+		public void Write(UpdateSubChunkBlocksPacketEntry[] entries)
+		{
+			WriteUnsignedVarInt((uint) entries.Length);
+			foreach(var entry in entries)
+				Write(entry);
+		}
+
+		public UpdateSubChunkBlocksPacketEntry[] ReadUpdateSubChunkBlocksPacketEntrys()
+		{
+			var count = ReadUnsignedVarInt();
+			UpdateSubChunkBlocksPacketEntry[] entries = new UpdateSubChunkBlocksPacketEntry[(int) count];
+
+			for (int i = 0; i < entries.Length; i++)
+			{
+				entries[i] = ReadUpdateSubChunkBlocksPacketEntry();
+			}
+
+			return entries;
+		}
+
+		public void Write(HeightMapData data)
+		{
+			if (data == null)
+			{
+				Write((byte) SubChunkPacketHeightMapType.NoData);
+
+				return;
+			}
+
+			if (data.IsAllTooHigh)
+			{
+				Write((byte) SubChunkPacketHeightMapType.AllTooHigh);
+
+				return;
+			}
+
+			if (data.IsAllTooLow)
+			{
+				Write((byte) SubChunkPacketHeightMapType.AllTooLow);
+
+				return;
+			}
+			
+			Write((byte) SubChunkPacketHeightMapType.Data);
+
+			for (int i = 0; i < data.Heights.Length; i++)
+			{
+				Write((byte) data.Heights[i]);
+			}
+		}
+
+		public HeightMapData ReadHeightMapData()
+		{
+			SubChunkPacketHeightMapType type = (SubChunkPacketHeightMapType) ReadByte();
+
+			if (type != SubChunkPacketHeightMapType.Data)
+				return null;
+
+			short[] heights = new short[256];
+
+			for (int i = 0; i < heights.Length; i++)
+			{
+				heights[i] = (short) ReadByte();
+			}
+
+			return new HeightMapData(heights);
+		}
+
+		public void Write(SubChunkPositionOffset offset)
+		{
+			Write((byte) offset.XOffset);
+			Write((byte) offset.YOffset);
+			Write((byte) offset.ZOffset);
+		}
+
+		public SubChunkPositionOffset ReadSubChunkPositionOffset()
+		{
+			SubChunkPositionOffset result = new SubChunkPositionOffset();
+			result.XOffset = ReadByte();
+			result.YOffset = ReadByte();
+			result.ZOffset = ReadByte();
+			return result;
+		}
+
+		public void Write(SubChunkPositionOffset[] offsets)
+		{
+			Write(offsets.Length);
+
+			foreach (var offset in offsets)
+			{
+				Write(offset);
+			}
+		}
+		
+		public SubChunkPositionOffset[] ReadSubChunkPositionOffsets()
+		{
+			var count = ReadInt();
+			SubChunkPositionOffset[] offsets = new SubChunkPositionOffset[count];
+
+			for (int i = 0; i < offsets.Length; i++)
+			{
+				offsets[i] = ReadSubChunkPositionOffset();
+			}
+
+			return offsets;
+		}
+		
 		public bool CanRead()
 		{
 			return _reader.Position < _reader.Length;

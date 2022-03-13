@@ -173,7 +173,7 @@ namespace MiNET.Client
 			client.BlockPalette = blockPalette;
 			client.LevelInfo.LevelName = message.worldName;
 			client.LevelInfo.Version = 19133;
-			client.LevelInfo.GameType = message.gamemode;
+			client.LevelInfo.GameType = message.levelSettings.gamemode;
 
 			var packet = McpeRequestChunkRadius.CreateObject();
 			client.ChunkRadius = 5;
@@ -696,6 +696,18 @@ namespace MiNET.Client
 
 		/// <inheritdoc />
 		public virtual void HandleMcpeFilterTextPacket(McpeFilterTextPacket message)
+		{
+			
+		}
+
+		/// <inheritdoc />
+		public void HandleMcpeUpdateSubChunkBlocksPacket(McpeUpdateSubChunkBlocksPacket message)
+		{
+			
+		}
+
+		/// <inheritdoc />
+		public void HandleMcpeSubChunkPacket(McpeSubChunkPacket message)
 		{
 			
 		}

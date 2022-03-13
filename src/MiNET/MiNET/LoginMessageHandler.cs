@@ -581,6 +581,18 @@ namespace MiNET
 		{
 		}
 
+		/// <inheritdoc />
+		public void HandleMcpeUpdateSubChunkBlocksPacket(McpeUpdateSubChunkBlocksPacket message)
+		{
+			
+		}
+
+		/// <inheritdoc />
+		public void HandleMcpeSubChunkRequestPacket(McpeSubChunkRequestPacket message)
+		{
+			
+		}
+
 		public void HandleMcpeEntityEvent(McpeEntityEvent message)
 		{
 		}

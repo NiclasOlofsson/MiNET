@@ -118,7 +118,7 @@ namespace MiNET.Items
 				}
 				catch (Exception e)
 				{
-					Log.Error($"Tried to add duplicate item for {name} {idx}");
+					Log.Error($"Tried to add duplicate item for {name} {idx}", e);
 				}
 			}
 

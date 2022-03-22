@@ -110,7 +110,7 @@ namespace MiNET.Utils.Cryptography
 			BitConverter.GetBytes(Interlocked.Increment(ref cryptoContext.SendCounter)).CopyTo(hashBuffer.Slice(0, 8));
 			payload.Span.CopyTo(hashBuffer.Slice(8));
 			cryptoContext.Key.CopyTo(hashBuffer.Slice(8 + payload.Length));
-			using var hasher = new SHA256Managed();
+			using var hasher =  SHA256.Create();
 			Span<byte> validationCheckSum = hasher.ComputeHash(hashBufferPooled, 0, hashPoolLen).AsSpan(0, 8);
 			ArrayPool<byte>.Shared.Return(hashBufferPooled);
 

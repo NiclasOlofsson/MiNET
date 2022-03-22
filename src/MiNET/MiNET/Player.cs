@@ -430,9 +430,6 @@ namespace MiNET
 
 		private object _mapInfoSync = new object();
 
-		private Timer _mapSender;
-		private ConcurrentQueue<McpeWrapper> _mapBatches = new ConcurrentQueue<McpeWrapper>();
-
 		public virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
 		{
 			lock (_mapInfoSync)
@@ -1882,8 +1879,6 @@ namespace MiNET
 			}
 		}
 
-		private string _prevText = null;
-
 		public virtual void HandleMcpeText(McpeText message)
 		{
 			string text = message.message;
@@ -3001,6 +2996,7 @@ namespace MiNET
 
 			startGame.enableNewInventorySystem = true;
 			startGame.blockPaletteChecksum = 0;
+			startGame.serverVersion = McpeProtocolInfo.GameVersion;
 
 			SendPacket(startGame);
 		}
@@ -3506,7 +3502,6 @@ namespace MiNET
 			}
 			else
 			{
-				int a = 0xff;
 				int r = 0, g = 0, b = 0;
 				int levels = 0;
 				foreach (var effect in Effects.Values)
@@ -3531,7 +3526,7 @@ namespace MiNET
 					g /= levels;
 					b /= levels;
 
-					PotionColor = (int) (0xff000000 | (r << 16) | (g << 8) | b);
+					PotionColor = (int) (0xff000000 | (r << 16) | (uint) (g << 8) | (uint) b);
 				}
 			}
 

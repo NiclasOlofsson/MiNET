@@ -460,12 +460,6 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private static long max = 0;
-		private static long count = 0;
-		private static double average = 0;
-		private static double averageSize = 0;
-		private static double averageCompressedSize = 0;
-
 		public McpeWrapper GetBatch()
 		{
 			lock (_cacheSync)
@@ -492,8 +486,6 @@ namespace MiNET.Worlds
 
 				_cachedBatch = batch;
 				IsDirty = false;
-
-				count++;
 
 				return _cachedBatch;
 			}

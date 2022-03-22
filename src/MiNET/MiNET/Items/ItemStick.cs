@@ -77,7 +77,7 @@ namespace MiNET.Items
 				motions.velocity = velocity;
 				player.SendPacket(motions);
 
-				SendWithDelay(200, () =>
+				_ = SendWithDelay(200, () =>
 				{
 					player.IsGliding = true;
 					player.Height = 0.6;

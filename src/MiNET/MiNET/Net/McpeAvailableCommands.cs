@@ -80,9 +80,6 @@ namespace MiNET.Net
 				enums = new EnumData[count];
 				Log.Debug($"Enum indexes {count}");
 
-				string last = null;
-
-				string clazzType = null;
 				for (int i = 0; i < count; i++)
 				{
 					string enumName = ReadString();

@@ -223,14 +223,12 @@ namespace MiNET.Worlds
 				}
 			}
 
-			bool isGenerated = false;
 			if (chunkColumn == null)
 			{
 				if (version != null) Log.Error($"Expected other version, but got version={version.First()}");
 
 				chunkColumn = generator?.GenerateChunkColumn(coordinates);
 				chunkColumn?.RecalcHeight();
-				isGenerated = true;
 			}
 
 			if (chunkColumn != null)

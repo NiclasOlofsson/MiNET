@@ -147,8 +147,6 @@ namespace MiNET.Blocks
 				if (remove) stateFromPick.States.Remove(state);
 			}
 
-			Item pickedItem = null;
-
 			foreach (BlockStateContainer blockStateContainer in statesWithMeta)
 			{
 				bool match = true;

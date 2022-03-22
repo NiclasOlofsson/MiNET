@@ -195,7 +195,6 @@ namespace MiNET.Worlds
 		}
 
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
-		private MultiMediaTimer _mmTickTimer = null;
 
 		public virtual void Close()
 		{

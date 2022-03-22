@@ -65,7 +65,7 @@ namespace MiNET.Utils.Skins
 
 			return derived;
 
-			var collapsed = (Geometry) derived.Clone();
+			/*var collapsed = (Geometry) derived.Clone();
 
 			if (collapsed.BaseGeometry != null)
 			{
@@ -80,7 +80,7 @@ namespace MiNET.Utils.Skins
 				}
 			}
 
-			return collapsed;
+			return collapsed;*/
 		}
 
 		public object Clone()

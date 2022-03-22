@@ -306,8 +306,8 @@ namespace MiNET
 				}
 
 				// This is semi-good, but we need to give the death-animation time to play.
-
-				SendWithDelay(2000, () =>
+				
+				_ = SendWithDelay(2000, () =>
 				{
 					Entity.BroadcastSetEntityData();
 					Entity.DespawnEntity();

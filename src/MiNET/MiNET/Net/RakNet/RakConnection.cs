@@ -306,7 +306,7 @@ namespace MiNET.Net.RakNet
 						continue;
 					}
 				}
-				catch (ObjectDisposedException e)
+				catch (ObjectDisposedException)
 				{
 					return;
 				}
@@ -773,10 +773,10 @@ namespace MiNET.Net.RakNet
 				Interlocked.Increment(ref ConnectionInfo.NumberOfPacketsOutPerSecond);
 				Interlocked.Add(ref ConnectionInfo.TotalPacketSizeOutPerSecond, data.Length);
 			}
-			catch (ObjectDisposedException e)
+			catch (ObjectDisposedException)
 			{
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				//if (_listener == null || _listener.Client != null) Log.Error(string.Format("Send data lenght: {0}", data.Length), e);
 			}

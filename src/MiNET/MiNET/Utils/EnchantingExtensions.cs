@@ -73,17 +73,15 @@ namespace MiNET.Utils
 			if (tool == null) return enchantings;
 			if (tool.ExtraData == null) return enchantings;
 
-			NbtList enchantingsNbt;
-			if (!tool.ExtraData.TryGet("ench", out enchantingsNbt)) return enchantings;
+			if (!tool.ExtraData.TryGet("ench", out NbtList enchantingsNbt)) return enchantings;
 
-			double increase = 0;
-			foreach (NbtCompound enchantingNbt in enchantingsNbt)
+			foreach (var enchantingNbt in enchantingsNbt)
 			{
 				short level = enchantingNbt["lvl"].ShortValue;
 
 				if (level == 0) continue;
 
-				Enchanting enchanting = new Enchanting();
+				var enchanting = new Enchanting();
 				enchanting.Level = level;
 
 				short id = enchantingNbt["id"].ShortValue;
@@ -102,7 +100,6 @@ namespace MiNET.Utils
 			NbtList enchantingsNbt;
 			if (!tool.ExtraData.TryGet("ench", out enchantingsNbt)) return 0;
 
-			double increase = 0;
 			foreach (NbtCompound enchantingNbt in enchantingsNbt)
 			{
 				short level = enchantingNbt["lvl"].ShortValue;

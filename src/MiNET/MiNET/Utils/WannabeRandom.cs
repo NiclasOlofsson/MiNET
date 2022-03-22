@@ -56,12 +56,12 @@ namespace MiNET.Utils
 			return x & (1L << nbits) - 1; // In java they actually care about variable assignments..
 		}
 
-		public new int Next(int bound) // You have to ask slikey about the name of that parameter. Sounds kinky ...
+		public int Next(int bound) // You have to ask slikey about the name of that parameter. Sounds kinky ...
 		{
 			return (int) NextBits(31) % bound; // Slikey wanted his random postive, so do I.
 		}
 
-		public new int Next(int min, int max) // You have to ask slikey about the name of that parameter. Sounds kinky ...
+		public int Next(int min, int max) // You have to ask slikey about the name of that parameter. Sounds kinky ...
 		{
 			return (int) (min + NextBits(31)) % max; // Slikey wanted his random postive, so do I.
 		}
@@ -71,7 +71,7 @@ namespace MiNET.Utils
 			return NextBits(63); // 64 would give random from - to +. Don't want that.
 		}
 
-		public new double NextDouble() // .. said I.
+		public double NextDouble() // .. said I.
 		{
 			return Next(32) * (1.0 / int.MaxValue);
 		}

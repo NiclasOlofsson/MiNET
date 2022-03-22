@@ -210,7 +210,7 @@ namespace MiNET.Net.RakNet
 					}
 				}
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 			}
 		}

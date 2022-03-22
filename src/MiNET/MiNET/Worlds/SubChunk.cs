@@ -337,8 +337,6 @@ namespace MiNET.Worlds
 			int blocksPerWord = (int) Math.Floor(32f / bitsPerBlock); // Floor to remove padding bits
 			int wordsPerChunk = (int) Math.Ceiling(4096f / blocksPerWord);
 
-			byte t = 0;
-
 			uint[] indexes = new uint[wordsPerChunk];
 
 			int position = 0;

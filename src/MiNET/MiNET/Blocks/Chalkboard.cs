@@ -51,12 +51,7 @@ namespace MiNET.Blocks
 
 		public override void SetState(List<IBlockState> states)
 		{
-			foreach (var state in states)
-			{
-				switch(state)
-				{
-				} // switch
-			} // foreach
+			
 		} // method
 
 		public override BlockStateContainer GetState()

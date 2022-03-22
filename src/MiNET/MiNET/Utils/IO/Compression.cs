@@ -40,7 +40,6 @@ namespace MiNET.Utils.IO
 		{
 			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 			{
-				int checksum = 0;
 				using (var compressStream = new DeflateStream(stream, compressionLevel, true))
 				{
 					if (writeLen)
@@ -65,7 +64,6 @@ namespace MiNET.Utils.IO
 
 			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 			{
-				int checksum;
 				using (var compressStream = new DeflateStream(stream, compressionLevel, true))
 				{
 					foreach (Packet packet in packets)

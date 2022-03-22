@@ -27,7 +27,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -40,6 +39,14 @@ using MiNET.Utils.IO;
 using MiNET.Utils.Vectors;
 using SharpAvi;
 using SharpAvi.Output;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using Color = System.Drawing.Color;
 
 namespace MiNET.Worlds
 {
@@ -115,6 +122,20 @@ namespace MiNET.Worlds
 
 	public class SkyLightCalculations
 	{
+		private static FontCollection _fontCollection;
+		private static Font _font = null;
+
+		static SkyLightCalculations()
+		{
+			_fontCollection = new FontCollection();
+			_fontCollection.AddSystemFonts();
+
+			if (_fontCollection.TryGet("Arial", out var family))
+			{
+				_font = family.CreateFont(9);
+			}
+		}
+		
 		private static readonly ILog Log = LogManager.GetLogger(typeof(SkyLightCalculations));
 
 		// Debug tracking, don't enable unless you really need to "see it".
@@ -239,8 +260,7 @@ namespace MiNET.Worlds
 		public int CalculateSkyLights(IBlockAccess level, ChunkColumn[] chunks)
 		{
 			int calcCount = 0;
-			Stopwatch calcTime = new Stopwatch();
-			int lastCount = 0;
+			var calcTime = new Stopwatch();
 
 			foreach (var chunk in chunks)
 			{
@@ -682,7 +702,7 @@ namespace MiNET.Worlds
 		private object _imageSync = new object();
 		private static int _chunkCount;
 
-		public List<Task<Bitmap>> RenderingTasks { get; } = new List<Task<Bitmap>>();
+		public List<Task<Image>> RenderingTasks { get; } = new List<Task<Image>>();
 
 		public void SnapshotVisits()
 		{
@@ -696,7 +716,7 @@ namespace MiNET.Worlds
 
 				long time = Environment.TickCount;
 
-				Task<Bitmap> t = new Task<Bitmap>(v =>
+				Task<Image> t = new Task<Image>(v =>
 				{
 					var fileId = time;
 
@@ -704,22 +724,22 @@ namespace MiNET.Worlds
 					{
 						var visits = v as KeyValuePair<BlockCoordinates, int>[];
 
-						int valMax = Visits.OrderByDescending(kvp => kvp.Value).First().Value;
-						int valMin = visits.OrderBy(kvp => kvp.Value).First().Value;
+						int valMax = Visits.MaxBy(kvp => kvp.Value).Value;
+						int valMin = visits.MinBy(kvp => kvp.Value).Value;
 
-						int xMin = visits.OrderBy(kvp => kvp.Key.X).First().Key.X;
-						int xMax = visits.OrderByDescending(kvp => kvp.Key.X).First().Key.X;
+						int xMin = visits.MinBy(kvp => kvp.Key.X).Key.X;
+						int xMax = visits.MaxBy(kvp => kvp.Key.X).Key.X;
 						int xd = Math.Abs(xMax - xMin);
 
-						int zMin = visits.OrderBy(kvp => kvp.Key.Z).First().Key.Z;
-						int zMax = visits.OrderByDescending(kvp => kvp.Key.Z).First().Key.Z;
+						int zMin = visits.MinBy(kvp => kvp.Key.Z).Key.Z;
+						int zMax = visits.MaxBy(kvp => kvp.Key.Z).Key.Z;
 						int zd = Math.Abs(zMax - zMin);
 
 						int zMov = zMin < 0 ? Math.Abs(zMin) : zMin * -1;
 						int xMov = xMin < 0 ? Math.Abs(xMin) : xMin * -1;
 
 						//Bitmap bitmap = new Bitmap(xd + 1, zd + 1, PixelFormat.Format32bppArgb);
-						Bitmap bitmap = new Bitmap(GetWidth(), GetHeight(), PixelFormat.Format32bppArgb);
+						var bitmap = new Image<Rgba32>(GetWidth(), GetHeight()); // new Bitmap(GetWidth(), GetHeight(), PixelFormat.Format32bppArgb);
 
 						foreach (var visit in visits)
 						{
@@ -727,9 +747,10 @@ namespace MiNET.Worlds
 							{
 								double logBase = 4;
 								double min = Math.Abs(Math.Ceiling(Math.Log(1, logBase)));
+
 								if (visit.Value == 0) continue;
 								//bitmap.SetPixel(visit.Key.X + xMov, visit.Key.Z + zMov, new ColorHeatMap().GetColorForValue(visit.Value, valMax));
-								bitmap.SetPixel(visit.Key.X + xMov, visit.Key.Z + zMov, new ColorHeatMap().GetColorForValue(Math.Log(visit.Value, logBase) + min, Math.Log(valMax, logBase) + min));
+								bitmap[visit.Key.X + xMov, visit.Key.Z + zMov] = new ColorHeatMap().GetColorForValue(Math.Log(visit.Value, logBase) + min, Math.Log(valMax, logBase) + min);
 								//bitmap.SetPixel(visit.Key.X + xMov, visit.Key.Z + zMov, CreateHeatColor(Math.Log(visit.Value, logBase) + min, Math.Log(valMax, logBase) + min));
 								//bitmap.SetPixel(visit.Key.X + xMov, visit.Key.Z + zMov, CreateHeatColor(Math.Log(visit.Value + 3), Math.Log(valMax + 3)));
 								//bitmap.SetPixel(visit.Key.X + xMov, visit.Key.Z + zMov, CreateHeatColor(Math.Pow(visit.Value, 10), Math.Pow(valMax, 10)));
@@ -738,6 +759,7 @@ namespace MiNET.Worlds
 							catch (Exception e)
 							{
 								Log.Error($"{xd}, {zd}, {xMin}, {zMin}, {xMax}, {zMax}, X={visit.Key.X}, Z={visit.Key.Z}, {xMov}, {zMov}", e);
+
 								break;
 							}
 						}
@@ -775,10 +797,19 @@ namespace MiNET.Worlds
 						//    }
 						//}
 
-						using (Graphics g = Graphics.FromImage(bitmap))
+						if (_font != null)
 						{
-							g.DrawString($"MiNET skylight calculation\nTime (ms): {fileId - StartTimeInMilliseconds:N0}\n{_chunkCount:N0} chunks with {(_chunkCount * 16 * 16 * 256):N0} blocks\n{visits.Sum(pair => pair.Value):N0} visits", new Font("Arial", 8), new SolidBrush(Color.White), 1, 0); // requires font, brush etc
+
+							bitmap.Mutate(
+								x =>
+								{
+									x.DrawText($"MiNET skylight calculation\nTime (ms): {fileId - StartTimeInMilliseconds:N0}\n{_chunkCount:N0} chunks with {(_chunkCount * 16 * 16 * 256):N0} blocks\n{visits.Sum(pair => pair.Value):N0} visits", _font, new SolidBrush(SixLabors.ImageSharp.Color.Black), new PointF(1, 0));
+								});
 						}
+						/*using (Graphics g = Graphics.FromImage(bitmap))
+						{
+							g.DrawString(, new Font("Arial", 8), new SolidBrush(Color.White), 1, 0); // requires font, brush etc
+						}*/
 
 						//Directory.CreateDirectory(@"D:\Temp\Light\");
 
@@ -889,7 +920,7 @@ namespace MiNET.Worlds
 				var stream = writer.AddVideoStream();
 				stream.Width = GetWidth();
 				stream.Height = GetHeight();
-				stream.Codec = KnownFourCCs.Codecs.Uncompressed;
+				stream.Codec = CodecIds.Uncompressed;
 
 				stream.BitsPerPixel = BitsPerPixel.Bpp32;
 
@@ -897,7 +928,7 @@ namespace MiNET.Worlds
 				foreach (var renderingTask in RenderingTasks)
 				{
 					renderingTask.RunSynchronously();
-					Bitmap image = renderingTask.Result;
+					var image = renderingTask.Result;
 					//}
 
 					//foreach (var file in files)
@@ -907,7 +938,7 @@ namespace MiNET.Worlds
 						//Bitmap image = (Bitmap) Image.FromFile(file);
 						//image = new Bitmap(image, stream.Width, stream.Height);
 
-						byte[] imageData = (byte[]) ToByteArray(image, ImageFormat.Bmp);
+						byte[] imageData = (byte[]) ToByteArray(image, PngFormat.Instance);
 
 						if (imageData == null)
 						{
@@ -939,11 +970,11 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public static byte[] ToByteArray(Image image, ImageFormat format)
+		public static byte[] ToByteArray(Image image, IImageFormat imageFormat)
 		{
 			using (MemoryStream ms = new MemoryStream())
 			{
-				image.Save(ms, format);
+				image.Save(ms, imageFormat);
 				return ms.ToArray();
 			}
 		}
@@ -1072,19 +1103,19 @@ namespace MiNET.Worlds
 
 		private void InitColorsBlocks()
 		{
-			ColorsOfMap.AddRange(new Color[]
+			ColorsOfMap.AddRange(new Rgba32[]
 			{
-				Color.FromArgb(Alpha, 0, 0, 0), //Black
-				Color.FromArgb(Alpha, 0, 0, 0xFF), //Blue
-				Color.FromArgb(Alpha, 0, 0xFF, 0xFF), //Cyan
-				Color.FromArgb(Alpha, 0, 0xFF, 0), //Green
-				Color.FromArgb(Alpha, 0xFF, 0xFF, 0), //Yellow
-				Color.FromArgb(Alpha, 0xFF, 0, 0), //Red
-				Color.FromArgb(Alpha, 0xFF, 0xFF, 0xFF) // White
+				new Rgba32(0, 0, 0, Alpha), //Black
+				new Rgba32(0, 0, 0xFF, Alpha), //Blue
+				new Rgba32(0, 0xFF, 0xFF, Alpha), //Cyan
+				new Rgba32(0, 0xFF, 0, Alpha), //Green
+				new Rgba32(0xFF, 0xFF, 0, Alpha), //Yellow
+				new Rgba32(0xFF, 0, 0, Alpha), //Red
+				new Rgba32(0xFF, 0xFF, 0xFF, Alpha), //White
 			});
 		}
 
-		public Color GetColorForValue(double val, double maxVal)
+		public Rgba32 GetColorForValue(double val, double maxVal)
 		{
 			double valPerc = val / maxVal; // value%
 			if (valPerc < 0) valPerc = 0.1;
@@ -1095,8 +1126,8 @@ namespace MiNET.Worlds
 			double valPercResidual = valPerc - (blockIdx * colorPerc); //remove the part represented of block 
 			double percOfColor = valPercResidual / colorPerc; // % of color of this block that will be filled
 
-			Color cTarget = ColorsOfMap[blockIdx];
-			Color cNext = ColorsOfMap[blockIdx + 1];
+			var cTarget = ColorsOfMap[blockIdx];
+			var cNext = ColorsOfMap[blockIdx + 1];
 
 			var deltaR = cNext.R - cTarget.R;
 			var deltaG = cNext.G - cTarget.G;
@@ -1106,18 +1137,18 @@ namespace MiNET.Worlds
 			var G = cTarget.G + (deltaG * percOfColor);
 			var B = cTarget.B + (deltaB * percOfColor);
 
-			Color c = ColorsOfMap[0];
+			Rgba32 c = ColorsOfMap[0];
 			try
 			{
-				c = Color.FromArgb(Alpha, (byte) R, (byte) G, (byte) B);
+				c = new Rgba32((byte) R, (byte) G, (byte) B, Alpha);// Color.FromArgb(Alpha, (byte) R, (byte) G, (byte) B);
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 			}
 			return c;
 		}
 
 		public byte Alpha = 0xff;
-		public List<Color> ColorsOfMap = new List<Color>();
+		public List<Rgba32> ColorsOfMap = new List<Rgba32>();
 	}
 }

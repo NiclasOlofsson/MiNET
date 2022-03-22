@@ -96,16 +96,14 @@ namespace MiNET.Entities.Hostile
 			return metadata;
 		}
 
-		private bool _isDead = false;
-
 		private long _tick = 0;
-		private CooldownTimer cooldown = new CooldownTimer(TimeSpan.FromMilliseconds(10000));
+		private readonly CooldownTimer _cooldown = new CooldownTimer(TimeSpan.FromMilliseconds(10000));
 
 		public override void OnTick(Entity[] entities)
 		{
 			//base.OnTick();
 
-			if (cooldown.Execute())
+			if (_cooldown.Execute())
 			{
 				_tick = 2;
 				ShowAuora = false;

@@ -25,11 +25,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using Color = System.Drawing.Color;
 
 namespace MiNET.Utils.Skins
 {
@@ -102,7 +105,7 @@ namespace MiNET.Utils.Skins
 
 		public static byte[] GetTextureFromFile(string filename)
 		{
-			Bitmap bitmap = new Bitmap(filename);
+			var bitmap = Image.Load<Rgba32>(filename);// new Image<Rgba32>(filename);
 
 			var size = bitmap.Height * bitmap.Width * 4;
 
@@ -115,7 +118,7 @@ namespace MiNET.Utils.Skins
 			{
 				for (int x = 0; x < bitmap.Width; x++)
 				{
-					Color color = bitmap.GetPixel(x, y);
+					var color = bitmap[x, y];
 					bytes[i++] = color.R;
 					bytes[i++] = color.G;
 					bytes[i++] = color.B;
@@ -133,7 +136,7 @@ namespace MiNET.Utils.Skins
 			int width = size == 0x10000 ? 128 : 64;
 			var height = size == 0x2000 ? 32 : (size == 0x4000 ? 64 : 128);
 
-			Bitmap bitmap = new Bitmap(width, height);
+			var bitmap = new Image<Rgba32>(width, height);
 
 			int i = 0;
 			for (int y = 0; y < bitmap.Height; y++)
@@ -145,12 +148,11 @@ namespace MiNET.Utils.Skins
 					byte b = bytes[i++];
 					byte a = bytes[i++];
 
-					Color color = Color.FromArgb(a, r, g, b);
-					bitmap.SetPixel(x, y, color);
+					bitmap[x, y] = new Rgba32(r, g, b, a);
 				}
 			}
-
-			bitmap.Save(filename, ImageFormat.Png);
+			
+			bitmap.Save(filename);
 		}
 
 		public static GeometryModel Parse(string json)
@@ -187,7 +189,10 @@ namespace MiNET.Utils.Skins
 			settings.MissingMemberHandling = MissingMemberHandling.Error;
 			//settings.Formatting = Formatting.Indented;
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-			settings.Converters.Add(new StringEnumConverter {CamelCaseText = true});
+			settings.Converters.Add(new StringEnumConverter
+			{
+				NamingStrategy = new CamelCaseNamingStrategy()
+			});
 
 			string json = JsonConvert.SerializeObject(model, settings);
 
@@ -202,7 +207,10 @@ namespace MiNET.Utils.Skins
 			settings.MissingMemberHandling = MissingMemberHandling.Error;
 			//settings.Formatting = Formatting.Indented;
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-			settings.Converters.Add(new StringEnumConverter {CamelCaseText = true});
+			settings.Converters.Add(new StringEnumConverter
+			{
+				NamingStrategy = new CamelCaseNamingStrategy()
+			});
 
 			var obj = JsonConvert.DeserializeObject<SkinResourcePatch>(json, settings);
 

@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -159,12 +160,14 @@ namespace MiNET.Items
 		{
 			var dir = direction switch
 			{
-				BlockFace.Down => BlockAxis.X,
-				BlockFace.Up => BlockAxis.X,
+				BlockFace.Down  => BlockAxis.X,
+				BlockFace.Up    => BlockAxis.X,
 				BlockFace.North => BlockAxis.X,
 				BlockFace.South => BlockAxis.X,
-				BlockFace.West => BlockAxis.Z,
-				BlockFace.East => BlockAxis.Z,
+				BlockFace.West  => BlockAxis.Z,
+				BlockFace.East  => BlockAxis.Z,
+				BlockFace.None  => default,
+				_               => default
 			};
 
 			blocks.Add(new Portal

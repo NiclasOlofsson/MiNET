@@ -74,7 +74,7 @@ namespace MiNET.Plugins
 			if (Config.GetProperty("PluginDisabled", false)) return;
 
 			// Default it is the directory we are executing, and below.
-			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetEntryAssembly().CodeBase).LocalPath);
+			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetEntryAssembly().Location).LocalPath);
 			pluginDirectoryPaths = Config.GetProperty("PluginDirectory", pluginDirectoryPaths);
 			//HACK: Make it possible to define multiple PATH;PATH;PATH
 
@@ -253,7 +253,6 @@ namespace MiNET.Plugins
 
 		private void DebugPrintCommands()
 		{
-			return;
 			if (!Log.IsDebugEnabled) return;
 
 			var settings = new JsonSerializerSettings();
@@ -841,7 +840,7 @@ namespace MiNET.Plugins
 
 					if (typeof(IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
 					{
-						ConstructorInfo? ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
+						ConstructorInfo ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
 						var defaultValue = ctor?.Invoke(null) as IParameterSerializer;
 						defaultValue?.Deserialize(player, args[argIdx++]);
 

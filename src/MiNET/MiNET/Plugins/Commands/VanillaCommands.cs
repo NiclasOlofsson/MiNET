@@ -128,7 +128,7 @@ namespace MiNET.Plugins.Commands
 			{
 				petType = (EntityType) Enum.Parse(typeof(EntityType), entityType.Value, true);
 			}
-			catch (ArgumentException e)
+			catch (ArgumentException)
 			{
 				return;
 			}

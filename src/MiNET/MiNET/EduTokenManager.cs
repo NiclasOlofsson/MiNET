@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using log4net;
@@ -47,6 +48,9 @@ namespace MiNET
 
 		public EduTokenManager()
 		{
+			if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				throw new NotSupportedException("Minecraft Education Edition requires a Windows host.");
+			
 			_username = Config.GetProperty("AAD.username", "");
 			_password = Config.GetProperty("AAD.password", "");
 
@@ -113,9 +117,9 @@ namespace MiNET
 			return payload.signedToken;
 		}
 
-		string resourceUri = "https://meeservices.minecraft.net";
-		string clientId = "b36b1432-1a1c-4c82-9b76-24de1cab42f2";
-		string redirectUri = "https://login.live.com/oauth20_desktop.srf"; // Standard void redirect AAD stuff
+		private readonly string _resourceUri = "https://meeservices.minecraft.net";
+		private readonly string _clientId = "b36b1432-1a1c-4c82-9b76-24de1cab42f2";
+		//private readonly string _redirectUri = "https://login.live.com/oauth20_desktop.srf"; // Standard void redirect AAD stuff
 
 		public (string IdToken, string AccessToken) GetTokens(string tenantId, string username, string password)
 		{
@@ -132,10 +136,10 @@ namespace MiNET
 
 			string content = $@"
 			grant_type = password
-			&resource ={resourceUri}
+			&resource ={_resourceUri}
 			&username ={username}
 			&password ={password}
-			&client_id ={clientId}";
+			&client_id ={_clientId}";
 
 			message.Content = new StringContent(content, Encoding.UTF8, "application/x-www-form-urlencoded");
 

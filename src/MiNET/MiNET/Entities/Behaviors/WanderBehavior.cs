@@ -95,9 +95,9 @@ namespace MiNET.Entities.Behaviors
 				}
 
 				_entity.Controller.RotateTowards(new Vector3((float) next.X + 0.5f, _entity.KnownPosition.Y, (float) next.Y + 0.5f));
-				_entity.Direction = Mob.ClampDegrees(_entity.Direction);
-				_entity.KnownPosition.HeadYaw = (float) _entity.Direction;
-				_entity.KnownPosition.Yaw = (float) _entity.Direction;
+				_entity.EntityDirection = Mob.ClampDegrees(_entity.EntityDirection);
+				_entity.KnownPosition.HeadYaw = (float) _entity.EntityDirection;
+				_entity.KnownPosition.Yaw = (float) _entity.EntityDirection;
 
 				_entity.Controller.MoveForward(_speedMultiplier, entities);
 			}

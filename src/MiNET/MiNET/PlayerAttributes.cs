@@ -38,7 +38,32 @@ namespace MiNET
 	{
 	}
 
-	public class Links : List<Tuple<long, long>>
+	public class EntityLink
+	{
+		public long FromEntityId { get; set; }
+		public long ToEntityId { get; set; }
+		public EntityLinkType Type { get; set; }
+		public bool Immediate { get; set; }
+		public bool CausedByRider { get; set; }
+
+		public EntityLink(long fromEntityId, long toEntityId, EntityLinkType type, bool immediate, bool causedByRider)
+		{
+			FromEntityId = fromEntityId;
+			ToEntityId = toEntityId;
+			Type = type;
+			Immediate = immediate;
+			CausedByRider = causedByRider;
+		}
+		
+		public enum EntityLinkType : byte
+		{
+			Remove = 0,
+			Rider = 1,
+			Passenger = 2
+		}
+	}
+	
+	public class EntityLinks : List<EntityLink>
 	{
 	}
 

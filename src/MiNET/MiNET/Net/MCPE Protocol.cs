@@ -2522,7 +2522,7 @@ namespace MiNET.Net
 		public uint permissionLevel; // = null;
 		public uint customStoredPermissions; // = null;
 		public long userId; // = null;
-		public Links links; // = null;
+		public EntityLinks links; // = null;
 		public string deviceId; // = null;
 		public int deviceOs; // = null;
 
@@ -2598,7 +2598,7 @@ namespace MiNET.Net
 			permissionLevel = ReadUnsignedVarInt();
 			customStoredPermissions = ReadUnsignedVarInt();
 			userId = ReadLong();
-			links = ReadLinks();
+			links = ReadEntityLinks();
 			deviceId = ReadString();
 			deviceOs = ReadInt();
 
@@ -2634,7 +2634,7 @@ namespace MiNET.Net
 			permissionLevel=default(uint);
 			customStoredPermissions=default(uint);
 			userId=default(long);
-			links=default(Links);
+			links=default(EntityLinks);
 			deviceId=default(string);
 			deviceOs=default(int);
 		}
@@ -2658,7 +2658,7 @@ namespace MiNET.Net
 		public float headYaw; // = null;
 		public EntityAttributes attributes; // = null;
 		public MetadataDictionary metadata; // = null;
-		public Links links; // = null;
+		public EntityLinks links; // = null;
 
 		public McpeAddEntity()
 		{
@@ -2714,7 +2714,7 @@ namespace MiNET.Net
 			headYaw = ReadFloat();
 			attributes = ReadEntityAttributes();
 			metadata = ReadMetadataDictionary();
-			links = ReadLinks();
+			links = ReadEntityLinks();
 
 			AfterDecode();
 		}
@@ -2740,7 +2740,7 @@ namespace MiNET.Net
 			headYaw=default(float);
 			attributes=default(EntityAttributes);
 			metadata=default(MetadataDictionary);
-			links=default(Links);
+			links=default(EntityLinks);
 		}
 
 	}

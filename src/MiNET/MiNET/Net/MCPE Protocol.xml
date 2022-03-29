@@ -229,7 +229,7 @@
 		<field name="Permission Level" type="UnsignedVarInt" />
 		<field name="Custom stored permissions" type="UnsignedVarInt" />
 		<field name="User Id" type="long" />
-		<field name="Links" type="Links" />
+		<field name="Links" type="EntityLinks" />
 		<field name="Device ID" type="string" />
 		<field name="Device OS" type="int" />
 	</pdu>
@@ -263,7 +263,7 @@
 		<field name="Head Yaw" type="float" />
 		<field name="Attributes" type="EntityAttributes" />
 		<field name="Metadata" type="MetadataDictionary" />
-		<field name="Links" type="Links" />
+		<field name="Links" type="EntityLinks" />
 	</pdu>
 
 	<pdu id="0x0e" online="false" client="false" server="true" name="MCPE_REMOVE_ENTITY">

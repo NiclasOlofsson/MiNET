@@ -36,7 +36,6 @@ using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Net;
-using MiNET.Utils;
 using MiNET.Utils.IO;
 using MiNET.Utils.Vectors;
 
@@ -501,7 +500,8 @@ namespace MiNET.Worlds
 				this[ci].Write(stream);
 			}
 
-			stream.Write(biomeId, 0, biomeId.Length);
+			var biomePalette = GetBiomePalette(biomeId);
+			stream.Write(biomePalette, 0, biomePalette.Length);
 
 			stream.WriteByte(0); // Border blocks - nope (EDU)
 
@@ -518,26 +518,30 @@ namespace MiNET.Worlds
 				}
 			}
 
-			// Alex data
+			return stream.ToArray();
+		}
 
-			if (Config.GetProperty("UseAlexChunks", false))
+		private byte[] GetBiomePalette(byte[] biomes)
+		{
+			using var stream = new MemoryStream();
+
+			var uniqueBiomes = biomes.Distinct().Select(x => (int)x).ToList();
+			short[] newBiomes = new short[16 * 16 * WorldHeight];
+
+			for (int x = 0; x < 16; x++)
 			{
-				var alexRoot = new NbtCompound("alex");
-				for (int ci = 0; ci < topEmpty; ci++)
+				for (int z = 0; z < 16; z++)
 				{
-					SubChunk subChunk = this[ci];
-					alexRoot.Add(new NbtByteArray($"skylight-{ci}", subChunk._skylight.Data));
-					alexRoot.Add(new NbtByteArray($"blocklight-{ci}", subChunk._blocklight.Data));
-				}
-				{
-					var file = new NbtFile(alexRoot)
+					var biomeId = GetBiome(x, z);
+					for (int y = 0; y < WorldHeight; y++)
 					{
-						BigEndian = false,
-						UseVarInt = true
-					};
-					file.SaveToStream(stream, NbtCompression.None);
+						var index = ((y >> 2) << 4) | ((z >> 2) << 2) | (x >> 2);
+						newBiomes[index] = biomeId;
+					}
 				}
 			}
+			
+			SubChunk.WriteStore(stream, newBiomes, null, false, uniqueBiomes);
 
 			return stream.ToArray();
 		}

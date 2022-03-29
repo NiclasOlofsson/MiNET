@@ -2176,7 +2176,27 @@ namespace MiNET.Net
 			}
 		}
 
-		public void Write(Links links)
+		public void Write(EntityLink link)
+		{
+			WriteVarLong(link.FromEntityId);
+			WriteVarLong(link.ToEntityId);
+			Write((byte)link.Type);
+			Write(link.Immediate);
+			Write(link.CausedByRider);
+		}
+
+		public EntityLink ReadEntityLink()
+		{
+			var from = ReadVarLong();
+			var to = ReadVarLong();
+			var type = (EntityLink.EntityLinkType) ReadByte();
+			var immediate = ReadBool();
+			var causedByRider = ReadBool();
+
+			return new EntityLink(from, to, type, immediate, causedByRider);
+		}
+		
+		public void Write(EntityLinks links)
 		{
 			if (links == null)
 			{
@@ -2186,24 +2206,18 @@ namespace MiNET.Net
 			WriteUnsignedVarInt((uint) links.Count); // LE
 			foreach (var link in links)
 			{
-				WriteVarLong(link.Item1);
-				WriteVarLong(link.Item2);
-				_writer.Write((byte) 1);
-				_writer.Write((byte) 0);
+				Write(link);
 			}
 		}
 
-		public Links ReadLinks()
+		public EntityLinks ReadEntityLinks()
 		{
 			var count = ReadUnsignedVarInt();
 
-			var links = new Links();
+			var links = new EntityLinks();
 			for (int i = 0; i < count; i++)
 			{
-				Tuple<long, long> link = new Tuple<long, long>(ReadSignedVarLong(), ReadSignedVarLong());
-				_reader.ReadInt16();
-				
-				links.Add(link);
+				links.Add(ReadEntityLink());
 			}
 
 			return links;

@@ -60,7 +60,7 @@ namespace MiNET.Worlds
 		public bool IsDirty { get; private set; }
 
 		public ulong Hash { get; set; }
-		public bool DisableCache { get; set; }
+		public bool DisableCache { get; set; } = true;
 		private byte[] _cache;
 
 		public SubChunk(bool clearBuffers = true)
@@ -258,24 +258,36 @@ namespace MiNET.Worlds
 			var startPos = stream.Position;
 
 			stream.WriteByte(8); // version
-
-			long storePosition = stream.Position;
+			
 			int numberOfStores = 0;
-			stream.WriteByte((byte) numberOfStores); // storage size
 
-			if (WriteStore(stream, _blocks, null, false, _runtimeIds))
-			{
+			var runtimeIds = _runtimeIds;
+			var blocks = _blocks;
+			
+			if (runtimeIds != null && runtimeIds.Count > 0)
 				numberOfStores++;
-				if (WriteStore(stream, null, _loggedBlocks, false, _loggedRuntimeIds))
+			
+			var loggedRuntimeIds = _loggedRuntimeIds;
+			var loggedBlocks = _loggedBlocks;
+
+			if (loggedRuntimeIds != null && loggedRuntimeIds.Count > 0)
+				numberOfStores++;
+			
+			stream.WriteByte((byte) numberOfStores); // storage size
+			
+			if (WriteStore(stream, blocks, null, false, runtimeIds))
+			{
+				//numberOfStores++;
+				if (WriteStore(stream, null, loggedBlocks, false, loggedRuntimeIds))
 				{
-					numberOfStores++;
+					//numberOfStores++;
 				}
 			}
 
 			int length = (int) (stream.Position - startPos);
 
-			stream.Position = storePosition;
-			stream.WriteByte((byte) numberOfStores); // storage size
+			//stream.Position = storePosition;
+			//stream.WriteByte((byte) numberOfStores); // storage size
 
 			//if (DisableCache)
 			{
@@ -293,7 +305,7 @@ namespace MiNET.Worlds
 			IsDirty = false;
 		}
 
-		private bool WriteStore(MemoryStream stream, short[] blocks, byte[] loggedBlocks, bool forceWrite, List<int> palette)
+		public static bool WriteStore(MemoryStream stream, short[] blocks, byte[] loggedBlocks, bool forceWrite, List<int> palette)
 		{
 			if (palette.Count == 0) return false;
 
@@ -332,7 +344,7 @@ namespace MiNET.Worlds
 					break;
 			}
 
-			stream.WriteByte((byte) ((bitsPerBlock << 1) | 1)); // version
+			stream.WriteByte((byte) ((bitsPerBlock << 1) | 1)); // flags
 
 			int blocksPerWord = (int) Math.Floor(32f / bitsPerBlock); // Floor to remove padding bits
 			int wordsPerChunk = (int) Math.Ceiling(4096f / blocksPerWord);

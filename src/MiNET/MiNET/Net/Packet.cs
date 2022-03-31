@@ -3437,17 +3437,17 @@ namespace MiNET.Net
 
 		public void Write(SubChunkPositionOffset offset)
 		{
-			Write((byte) offset.XOffset);
-			Write((byte) offset.YOffset);
-			Write((byte) offset.ZOffset);
+			Write((byte)offset.XOffset);
+			Write((byte)offset.YOffset);
+			Write((byte)offset.ZOffset);
 		}
 
 		public SubChunkPositionOffset ReadSubChunkPositionOffset()
 		{
 			SubChunkPositionOffset result = new SubChunkPositionOffset();
-			result.XOffset = ReadByte();
-			result.YOffset = ReadByte();
-			result.ZOffset = ReadByte();
+			result.XOffset = (sbyte)ReadByte();
+			result.YOffset = (sbyte)ReadByte();
+			result.ZOffset = (sbyte)ReadByte();
 			return result;
 		}
 

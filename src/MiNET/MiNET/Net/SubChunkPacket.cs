@@ -81,9 +81,9 @@ public abstract class SubChunkEntryCommon
 
 public class SubChunkPositionOffset
 {
-	public int XOffset { get; set; }
-	public int YOffset { get; set; }
-	public int ZOffset { get; set; }
+	public sbyte XOffset { get; set; }
+	public sbyte YOffset { get; set; }
+	public sbyte ZOffset { get; set; }
 }
 
 public class SubChunkEntryWithCache : SubChunkEntryCommon

@@ -2805,6 +2805,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public virtual void HandleMcpeInteract(McpeInteract message)
 		{
+			//Log.Info($"Interact. Target={message.targetRuntimeEntityId} Action={message.actionId} Position={message.Position}");
 			Entity target = null;
 			long runtimeEntityId = message.targetRuntimeEntityId;
 			if (runtimeEntityId == EntityManager.EntityIdSelf)
@@ -2823,9 +2824,9 @@ namespace MiNET
 			}
 
 			if (target == null) return;
-			switch (message.actionId)
+			switch ((McpeInteract.Actions)message.actionId)
 			{
-				case 3:
+				case McpeInteract.Actions.LeaveVehicle:
 				{
 					if (Level.TryGetEntity(Vehicle, out Mob mob))
 					{
@@ -2834,14 +2835,14 @@ namespace MiNET
 
 					break;
 				}
-				case 4:
+				case McpeInteract.Actions.MouseOver:
 				{
 					// Mouse over
 					DoMouseOverInteraction(message.actionId, this);
 					target.DoMouseOverInteraction(message.actionId, this);
 					break;
 				}
-				case 6:
+				case McpeInteract.Actions.OpenInventory:
 				{
 					if (target == this)
 					{

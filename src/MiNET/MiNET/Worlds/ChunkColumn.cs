@@ -375,7 +375,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void RecalcHeight(int x, int z, int startY = 255)
+		public void RecalcHeight(int x, int z, int startY = WorldMaxY)
 		{
 			bool isInLight = true;
 			bool isInAir = true;
@@ -523,25 +523,34 @@ namespace MiNET.Worlds
 
 		private byte[] GetBiomePalette(byte[] biomes)
 		{
+			for (int b = 0; b < biomes.Length; b++)
+			{
+				if (biomes[b] == 255)
+					biomes[b] = 0;
+			}
 			using var stream = new MemoryStream();
-
+			
 			var uniqueBiomes = biomes.Distinct().Select(x => (int)x).ToList();
-			short[] newBiomes = new short[16 * 16 * WorldHeight];
 
+			short[] newBiomes = new short[16 * 16 * 16];
 			for (int x = 0; x < 16; x++)
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					var biomeId = GetBiome(x, z);
-					for (int y = 0; y < WorldHeight; y++)
+					var currentBiome = (int)biomes[(z << 4) + (x)];
+
+					for (int y = 0; y < 16; y++)
 					{
-						var index = ((y >> 2) << 4) | ((z >> 2) << 2) | (x >> 2);
-						newBiomes[index] = biomeId;
+						//var index = ((y >> 2) << 4) | ((z >> 2) << 2) | (x >> 2);
+						newBiomes[(x << 8 | z << 4 | y)] = (short) uniqueBiomes.IndexOf(currentBiome);
 					}
 				}
 			}
 			
-			SubChunk.WriteStore(stream, newBiomes, null, false, uniqueBiomes);
+			for (int i = 0; i < 25; i++)
+			{
+				SubChunk.WriteStore(stream, newBiomes, null, false, uniqueBiomes);
+			}
 
 			return stream.ToArray();
 		}

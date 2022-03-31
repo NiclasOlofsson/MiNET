@@ -179,7 +179,7 @@ namespace MiNET.Worlds
 						continue;
 					}
 
-					ParseSection(chunkColumn[y], sectionBytes);
+					ParseSection(chunkColumn[4 + y], sectionBytes); //Offset by 4 because of 1.18 world update.
 				}
 
 				// Biomes

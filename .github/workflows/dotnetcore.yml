@@ -37,7 +37,4 @@ jobs:
       - name: Publish Artifacts
         shell: bash
         working-directory: src/MiNET/MiNET
-        run: |
-          for f in ./nuget/*.nupkg; do
-            until dotnet nuget push "$f" -s "https://api.nuget.org/v3/index.json" -k ${{ secrets.NUGET_KEY }} --skip-duplicate --no-symbols true; do echo "Retrying"; sleep 1; done
-          done
+        run: dotnet nuget push ./nuget/*.nupkg -s "https://api.nuget.org/v3/index.json" -k ${{ secrets.NUGET_KEY }} --skip-duplicate --no-symbols true

@@ -36,11 +36,13 @@ namespace MiNET.Utils
 		private ulong _a;
 		private ulong _b;
 
+		private readonly Guid _guid;
 		public UUID(byte[] rfc4122Bytes)
 		{
 			//Log.Warn($"Input hex\n{Package.HexDump(rfc4122Bytes)}");
 			_a = BitConverter.ToUInt64(rfc4122Bytes.Skip(0).Take(8).Reverse().ToArray(), 0);
 			_b = BitConverter.ToUInt64(rfc4122Bytes.Skip(8).Take(8).Reverse().ToArray(), 0);
+			_guid = new Guid(GetBytes());
 		}
 
 		public UUID(string uuidString)
@@ -49,6 +51,7 @@ namespace MiNET.Utils
 			var bytes = StringToByteArray(uuidString);
 			_a = BitConverter.ToUInt64(bytes.Skip(0).Take(8).ToArray(), 0);
 			_b = BitConverter.ToUInt64(bytes.Skip(8).Take(8).ToArray(), 0);
+			_guid = new Guid(GetBytes());
 		}
 
 		public static byte[] StringToByteArray(string hex)
@@ -65,6 +68,16 @@ namespace MiNET.Utils
 			return bytes.Concat(BitConverter.GetBytes(_a).Reverse())
 				.Concat(BitConverter.GetBytes(_b).Reverse())
 				.ToArray();
+		}
+
+		public static implicit operator Guid(UUID uuid)
+		{
+			return uuid._guid;
+		}
+
+		public static explicit operator UUID(Guid guid)
+		{
+			return new UUID(guid.ToByteArray());
 		}
 
 		protected bool Equals(UUID other)

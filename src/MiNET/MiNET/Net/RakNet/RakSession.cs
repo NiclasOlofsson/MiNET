@@ -450,6 +450,13 @@ namespace MiNET.Net.RakNet
 
 			lock (_queueSync)
 			{
+				if (packet is McpeWrapper wrapper && _sendQueueNotConcurrent.Contains(packet))
+				{
+					var clone = McpeWrapper.CreateObject();
+					clone.payload = wrapper.payload;
+					packet = clone;
+				}
+
 				_sendQueueNotConcurrent.Enqueue(packet);
 			}
 		}

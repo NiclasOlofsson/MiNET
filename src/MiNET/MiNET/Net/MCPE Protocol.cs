@@ -46,8 +46,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 486;
-		public const string GameVersion = "1.18.10";
+		public const int ProtocolVersion = 503;
+		public const string GameVersion = "1.18.30";
 	}
 
 	public interface IMcpeMessageHandler
@@ -239,6 +239,7 @@ namespace MiNET.Net
 		void HandleMcpeFilterTextPacket(McpeFilterTextPacket message);
 		void HandleMcpeUpdateSubChunkBlocksPacket(McpeUpdateSubChunkBlocksPacket message);
 		void HandleMcpeSubChunkPacket(McpeSubChunkPacket message);
+		void HandleMcpeDimensionData(McpeDimensionData message);
 		void HandleMcpeAlexEntityAnimation(McpeAlexEntityAnimation message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
@@ -628,6 +629,9 @@ namespace MiNET.Net
 				case McpeSubChunkPacket msg:
 					_messageHandler.HandleMcpeSubChunkPacket(msg);
 					break;
+				case McpeDimensionData msg:
+					_messageHandler.HandleMcpeDimensionData(msg);
+					break;
 				case McpeAlexEntityAnimation msg:
 					_messageHandler.HandleMcpeAlexEntityAnimation(msg);
 					break;
@@ -989,6 +993,8 @@ namespace MiNET.Net
 						return McpeSubChunkPacket.CreateObject().Decode(buffer);
 					case 0xaf:
 						return McpeSubChunkRequestPacket.CreateObject().Decode(buffer);
+					case 0xb4:
+						return McpeDimensionData.CreateObject().Decode(buffer);
 					case 0xe0:
 						return McpeAlexEntityAnimation.CreateObject().Decode(buffer);
 				}
@@ -2515,6 +2521,7 @@ namespace MiNET.Net
 		public float yaw; // = null;
 		public float headYaw; // = null;
 		public Item item; // = null;
+		public uint gameType; // = null;
 		public MetadataDictionary metadata; // = null;
 		public uint flags; // = null;
 		public uint commandPermission; // = null;
@@ -2553,6 +2560,7 @@ namespace MiNET.Net
 			Write(yaw);
 			Write(headYaw);
 			Write(item);
+			WriteUnsignedVarInt(gameType);
 			Write(metadata);
 			WriteUnsignedVarInt(flags);
 			WriteUnsignedVarInt(commandPermission);
@@ -2591,6 +2599,7 @@ namespace MiNET.Net
 			yaw = ReadFloat();
 			headYaw = ReadFloat();
 			item = ReadItem();
+			gameType = ReadUnsignedVarInt();
 			metadata = ReadMetadataDictionary();
 			flags = ReadUnsignedVarInt();
 			commandPermission = ReadUnsignedVarInt();
@@ -2627,6 +2636,7 @@ namespace MiNET.Net
 			yaw=default(float);
 			headYaw=default(float);
 			item=default(Item);
+			gameType=default(uint);
 			metadata=default(MetadataDictionary);
 			flags=default(uint);
 			commandPermission=default(uint);
@@ -8447,6 +8457,7 @@ namespace MiNET.Net
 		public long entityId; // = null;
 		public Vector3 position; // = null;
 		public string particleName; // = null;
+		public string molangVariablesJson; // = null;
 
 		public McpeSpawnParticleEffect()
 		{
@@ -8464,6 +8475,7 @@ namespace MiNET.Net
 			WriteSignedVarLong(entityId);
 			Write(position);
 			Write(particleName);
+			Write(molangVariablesJson);
 
 			AfterEncode();
 		}
@@ -8481,6 +8493,7 @@ namespace MiNET.Net
 			entityId = ReadSignedVarLong();
 			position = ReadVector3();
 			particleName = ReadString();
+			molangVariablesJson = ReadString();
 
 			AfterDecode();
 		}
@@ -8496,6 +8509,7 @@ namespace MiNET.Net
 			entityId=default(long);
 			position=default(Vector3);
 			particleName=default(string);
+			molangVariablesJson=default(string);
 		}
 
 	}
@@ -9980,6 +9994,54 @@ namespace MiNET.Net
 			dimension=default(int);
 			basePosition=default(BlockCoordinates);
 			offsets=default(SubChunkPositionOffset[]);
+		}
+
+	}
+
+	public partial class McpeDimensionData : Packet<McpeDimensionData>
+	{
+
+		public DimensionDefinitions definitions; // = null;
+
+		public McpeDimensionData()
+		{
+			Id = 0xb4;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(definitions);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			definitions = ReadDimensionDefinitions();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			definitions=default(DimensionDefinitions);
 		}
 
 	}

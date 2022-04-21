@@ -712,6 +712,12 @@ namespace MiNET.Client
 			
 		}
 
+		/// <inheritdoc />
+		public void HandleMcpeDimensionData(McpeDimensionData message)
+		{
+			
+		}
+
 		public virtual void HandleMcpeAlexEntityAnimation(McpeAlexEntityAnimation message)
 		{
 		}

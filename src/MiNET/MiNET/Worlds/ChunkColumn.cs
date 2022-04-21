@@ -547,7 +547,7 @@ namespace MiNET.Worlds
 				}
 			}
 			
-			for (int i = 0; i < 25; i++)
+			for (int i = 0; i < 24; i++)
 			{
 				SubChunk.WriteStore(stream, newBiomes, null, false, uniqueBiomes);
 			}

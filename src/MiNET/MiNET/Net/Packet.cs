@@ -3473,6 +3473,50 @@ namespace MiNET.Net
 
 			return offsets;
 		}
+
+		public DimensionData ReadDimensionData()
+		{
+			DimensionData data = new DimensionData();
+			data.MaxHeight = ReadVarInt();
+			data.MinHeight = ReadVarInt();
+			data.Generator = ReadVarInt();
+
+			return data;
+		}
+
+		public void Write(DimensionData data)
+		{
+			WriteVarInt(data.MaxHeight);
+			WriteVarInt(data.MinHeight);
+			WriteVarInt(data.Generator);
+		}
+		
+		public void Write(DimensionDefinitions definitions)
+		{
+			WriteUnsignedVarInt((uint) definitions.Count);
+
+			foreach (var def in definitions)
+			{
+				Write(def.Key);
+				Write(def.Value);
+			}
+		}
+		
+		public DimensionDefinitions ReadDimensionDefinitions()
+		{
+			DimensionDefinitions definitions = new DimensionDefinitions();
+			
+			var count = ReadUnsignedVarInt();
+			for (int i = 0; i < count; i++)
+			{
+				var stringId = ReadString();
+				var data = ReadDimensionData();
+
+				definitions.TryAdd(stringId, data);
+			}
+
+			return definitions;
+		}
 		
 		public bool CanRead()
 		{

@@ -28,7 +28,7 @@ namespace MiNET.Net
 	
 	public class LevelSettings
 	{
-			public int seed; // = null;
+			public long seed; // = null;
 			public SpawnSettings spawnSettings;
 			
     		public int generator; // = null;
@@ -73,7 +73,7 @@ namespace MiNET.Net
     		
 		public void Write(Packet packet)
 		{
-			packet.WriteSignedVarInt(seed);
+			packet.Write(seed);
 			
 			var s = spawnSettings ?? new SpawnSettings();
 			s.Write(packet);
@@ -124,7 +124,7 @@ namespace MiNET.Net
 
 		public void Read(Packet packet)
 		{
-			seed = packet.ReadSignedVarInt();
+			seed = packet.ReadLong();
 			
 			spawnSettings = new SpawnSettings();
 			spawnSettings.Read(packet);

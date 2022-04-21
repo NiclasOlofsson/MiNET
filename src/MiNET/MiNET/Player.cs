@@ -3710,6 +3710,7 @@ namespace MiNET
 			mcpeAddPlayer.userId = -1;
 			mcpeAddPlayer.deviceId = PlayerInfo.DeviceId;
 			mcpeAddPlayer.deviceOs = PlayerInfo.DeviceOS;
+			mcpeAddPlayer.gameType = (uint) GameMode;
 
 			int[] a = new int[5];
 

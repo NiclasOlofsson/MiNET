@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.18.10" protocolVersion="486">
+<protocol gameVersion="1.18.30" protocolVersion="503">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -221,6 +221,7 @@
 		<field name="Yaw" type="float" />
 		<field name="Head Yaw" type="float" />
 		<field name="Item" type="Item" />
+		<field name="Game Type" type="UnsignedVarInt" />
 		<field name="Metadata" type="MetadataDictionary" />
 
 		<field name="Flags" type="UnsignedVarInt" />
@@ -1041,6 +1042,7 @@
 		<field name="Entity ID" type="SignedVarLong" />
 		<field name="Position" type="Vector3" />
 		<field name="Particle name" type="string" />
+		<field name="Molang Variables Json" type="string" />
 	</pdu>
 
 	<pdu id="0x77" online="false" client="false" server="true" name="MCPE_AVAILABLE_ENTITY_IDENTIFIERS">
@@ -1213,6 +1215,10 @@
 		<field name="Dimension" type="VarInt" />
 		<field name="Base Position" type="BlockCoordinates"/>
 		<field name="Offsets" type="SubChunkPositionOffset[]"/>
+	</pdu>
+	
+	<pdu id="0xb4" online="false" client="false" server="true" name="MCPE_DIMENSION_DATA">
+		<field name="Definitions" type="DimensionDefinitions" />
 	</pdu>
 	
 	<pdu id="0xe0" online="false" client="false" server="true" name="MCPE_ALEX_ENTITY_ANIMATION">

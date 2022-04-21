@@ -151,6 +151,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Update Sub Chunk Blocks Packet | 0xac | 172 |   
 | Sub Chunk Packet | 0xae | 174 |   
 | Sub Chunk Request Packet | 0xaf | 175 |   
+| Dimension Data | 0xb4 | 180 |   
 | Alex Entity Animation | 0xe0 | 224 |   
 
 
@@ -165,6 +166,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | byte[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte[]) |
 | ByteArray [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ByteArray) |
 | CreativeItemStacks [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-CreativeItemStacks) |
+| DimensionDefinitions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-DimensionDefinitions) |
 | EnchantOptions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-EnchantOptions) |
 | EntityAttributes [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-EntityAttributes) |
 | EntityLinks [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-EntityLinks) |
@@ -463,6 +465,7 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |Yaw | float |  |
 |Head Yaw | float |  |
 |Item | Item |  |
+|Game Type | UnsignedVarInt |  |
 |Metadata | MetadataDictionary |  |
 |Flags | UnsignedVarInt |  |
 |Command permission | UnsignedVarInt |  |
@@ -2394,6 +2397,7 @@ Wiki: [Spawn Particle Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Entity ID | SignedVarLong |  |
 |Position | Vector3 |  |
 |Particle name | string |  |
+|Molang Variables Json | string |  |
 -----------------------------------------------------------------------
 ### Available Entity Identifiers (0x77)
 Wiki: [Available Entity Identifiers](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AvailableEntityIdentifiers)
@@ -2886,6 +2890,21 @@ Wiki: [Sub Chunk Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//P
 |Dimension | VarInt |  |
 |Base Position | BlockCoordinates |  |
 |Offsets | SubChunkPositionOffset[] |  |
+-----------------------------------------------------------------------
+### Dimension Data (0xb4)
+Wiki: [Dimension Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-DimensionData)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Definitions | DimensionDefinitions |  |
 -----------------------------------------------------------------------
 ### Alex Entity Animation (0xe0)
 Wiki: [Alex Entity Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AlexEntityAnimation)

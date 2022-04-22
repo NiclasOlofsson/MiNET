@@ -49,7 +49,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Item));
 
-		public int UniqueId { get; set; } = Environment.TickCount;
+		public int UniqueId { get; set; } = Environment.TickCount & Int32.MaxValue;
 		public string Name { get; protected set; } = string.Empty;
 		public short Id { get; protected set; }
 		public int NetworkId { get; set; } = -1;

@@ -41,7 +41,7 @@ namespace MiNET.Items
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
 			player.Inventory.SetInventorySlot(slot, player.Inventory.Helmet);
 
-			UniqueId = Environment.TickCount;
+			UniqueId = Environment.TickCount & Int32.MaxValue;
 			player.Inventory.Helmet = this;
 			player.SendArmorForPlayer();
 		}
@@ -58,7 +58,7 @@ namespace MiNET.Items
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
 			player.Inventory.SetInventorySlot(slot, player.Inventory.Chest);
 
-			UniqueId = Environment.TickCount;
+			UniqueId = Environment.TickCount & Int32.MaxValue;
 			player.Inventory.Chest = this;
 			player.SendArmorForPlayer();
 		}
@@ -75,7 +75,7 @@ namespace MiNET.Items
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
 			player.Inventory.SetInventorySlot(slot, player.Inventory.Leggings);
 
-			UniqueId = Environment.TickCount;
+			UniqueId = Environment.TickCount & Int32.MaxValue;
 			player.Inventory.Leggings = this;
 			player.SendArmorForPlayer();
 		}
@@ -92,7 +92,7 @@ namespace MiNET.Items
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
 			player.Inventory.SetInventorySlot(slot, player.Inventory.Boots);
 
-			UniqueId = Environment.TickCount;
+			UniqueId = Environment.TickCount & Int32.MaxValue;
 			player.Inventory.Boots = this;
 			player.SendArmorForPlayer();
 		}

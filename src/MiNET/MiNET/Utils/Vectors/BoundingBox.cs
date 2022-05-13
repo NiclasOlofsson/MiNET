@@ -119,7 +119,7 @@ namespace MiNET.Utils.Vectors
 
 		public BoundingBox OffsetBy(Vector3 offset)
 		{
-			return new BoundingBox(Min + offset, Max + offset);
+			return new BoundingBox(Min - offset, Max + offset);
 		}
 
 		public Vector3[] GetCorners()

@@ -29,7 +29,6 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -54,7 +53,7 @@ namespace MiNET.Entities.World
 			Gravity = 0.04;
 			Drag = 0.02;
 
-			PickupDelay = 10;
+			PickupDelay = 25;
 			TimeToLive = 6000;
 
 			HealthManager.IsInvulnerable = true;
@@ -187,13 +186,13 @@ namespace MiNET.Entities.World
 
 
 			if (PickupDelay > 0) return;
-
+			
 			var bbox = GetBoundingBox();
 
 			var players = Level.GetSpawnedPlayers();
 			foreach (var player in players)
 			{
-				if (player.GameMode != GameMode.Spectator && bbox.Intersects(player.GetBoundingBox() + 1))
+				if (player.GameMode != GameMode.Spectator && bbox.Intersects(player.GetBoundingBox().OffsetBy(new Vector3(1, 0.5f, 1))))
 				{
 					if (player.PickUpItem(this))
 					{

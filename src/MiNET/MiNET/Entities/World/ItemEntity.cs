@@ -241,7 +241,7 @@ namespace MiNET.Entities.World
 					if (distance.HasValue)
 					{
 						float dist = (float) ((float) distance - (Length / 4));
-						return ray.Direction * new Vector3(dist);
+						return ray.Direction * new Vector3(dist, (float) distance, dist);
 					}
 				}
 			}

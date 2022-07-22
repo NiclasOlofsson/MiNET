@@ -413,6 +413,52 @@ namespace MiNET.Items
 			else if (id == 760) item = new ItemNetherSprouts();
 			else if (id == 801) item = new ItemSoulCampfire();
 
+			else if (id == 436) item = new ItemCowSpawnEgg();
+            else if (id == 439) item = new ItemWolfSpawnEgg();
+            else if (id == 440) item = new ItemMooshroomSpawnEgg();
+            else if (id == 456) item = new ItemBlazeSpawnEgg();
+            else if (id == 478) item = new ItemParrotSpawnEgg();
+            else if (id == 479) item = new ItemTropicalFishSpawnEgg();
+            else if (id == 480) item = new ItemCodSpawnEgg();
+            else if (id == 481) item = new ItemPufferfishSpawnEgg();
+            else if (id == 482) item = new ItemSalmonSpawnEgg();
+            else if (id == 483) item = new ItemDrownedSpawnEgg();
+            else if (id == 484) item = new ItemDolphinSpawnEgg();
+            else if (id == 485) item = new ItemTurtleSpawnEgg();
+            else if (id == 486) item = new ItemPhantomSpawnEgg();
+            else if (id == 487) item = new ItemAgentSpawnEgg();
+            else if (id == 488) item = new ItemCatSpawnEgg();
+            else if (id == 489) item = new ItemPandaSpawnEgg();
+            else if (id == 490) item = new ItemFoxSpawnEgg();
+            else if (id == 491) item = new ItemPillagerSpawnEgg();
+            else if (id == 492) item = new ItemWanderingTraderSpawnEgg();
+            else if (id == 493) item = new ItemRavagerSpawnEgg();
+            else if (id == 494) item = new ItemBeeSpawnEgg();
+            else if (id == 495) item = new ItemStriderSpawnEgg();
+            else if (id == 496) item = new ItemHoglinSpawnEgg();
+            else if (id == 497) item = new ItemPiglinSpawnEgg();
+            else if (id == 517) item = new ItemCarrotOnAStick();
+            else if (id == 518) item = new ItemNetherStar();
+            else if (id == 527) item = new ItemHopper();
+            else if (id == 544) item = new ItemMusicDisc11();
+            else if (id == 550) item = new ItemMutton();
+            else if (id == 551) item = new ItemCookedMutton();
+            else if (id == 567) item = new ItemBanner();
+            else if (id == 572) item = new ItemScute();
+            else if (id == 580) item = new ItemDarkOakSign();
+            else if (id == 581) item = new ItemFlowerBannerPattern();
+            else if (id == 582) item = new ItemCreeperBannerPattern();
+            else if (id == 583) item = new ItemSkullBannerPattern();
+            else if (id == 584) item = new ItemMojangBannerPattern();
+            else if (id == 585) item = new ItemFieldMasonedBannerPattern();
+            else if (id == 586) item = new ItemBordureIndentedBannerPattern();
+            else if (id == 587) item = new ItemPiglinBannerPattern();
+            else if (id == 621) item = new ItemGlowFrame();
+            else if (id == 622) item = new ItemGoatHorn();
+            else if (id == 623) item = new ItemAmethystShard();
+            else if (id == 624) item = new ItemSpyglass();
+            else if (id == 630) item = new ItemGlowBerries();
+			
 			else if (id <= 255)
 			{
 				int blockId = id;
@@ -573,5 +619,47 @@ namespace MiNET.Items
 	public class ItemNetherSprouts : Item { public ItemNetherSprouts() : base("minecraft:nether_sprouts", 760) {} }
 	public class ItemSoulCampfire : Item { public ItemSoulCampfire() : base("minecraft:soul_campfire", 801) {} }
 	public class ItemEndCrystal : Item { public ItemEndCrystal() : base("minecraft:end_crystal", 426) {} }
-
+	public class ItemGlowBerries : Item { public ItemGlowBerries() : base(630) {} }
+	public class ItemPandaSpawnEgg : Item { public ItemPandaSpawnEgg() : base(489) {} }
+	public class ItemParrotSpawnEgg : Item { public ItemParrotSpawnEgg() : base(478) {} }
+	public class ItemDrownedSpawnEgg : Item { public ItemDrownedSpawnEgg() : base(483) {} }
+	public class ItemSalmonSpawnEgg : Item { public ItemSalmonSpawnEgg() : base(482) {} }
+	public class ItemPufferfishSpawnEgg : Item { public ItemPufferfishSpawnEgg() : base(481) {} }
+	public class ItemSpyglass : Item { public ItemSpyglass() : base(624) {} }
+	public class ItemBlazeSpawnEgg : Item { public ItemBlazeSpawnEgg() : base(456) {} }
+	public class ItemStriderSpawnEgg : Item { public ItemStriderSpawnEgg() : base(495) {} }
+	public class ItemCowSpawnEgg : Item { public ItemCowSpawnEgg() : base(436) {} }
+	public class ItemPillagerSpawnEgg : Item { public ItemPillagerSpawnEgg() : base(491) {} }
+	public class ItemBeeSpawnEgg : Item { public ItemBeeSpawnEgg() : base(494) {} }
+	public class ItemAgentSpawnEgg : Item { public ItemAgentSpawnEgg() : base(487) {} }
+	public class ItemTurtleSpawnEgg : Item { public ItemTurtleSpawnEgg() : base(485) {} }
+	public class ItemHoglinSpawnEgg : Item { public ItemHoglinSpawnEgg() : base(496) {} }
+	public class ItemGlowFrame : Item { public ItemGlowFrame() : base(621) {} }
+	public class ItemTropicalFishSpawnEgg : Item { public ItemTropicalFishSpawnEgg() : base(479) {} }
+	public class ItemFoxSpawnEgg : Item { public ItemFoxSpawnEgg() : base(490) {} }
+	public class ItemChickenSpawnEgg : Item { public ItemChickenSpawnEgg() : base(435) {} }
+	public class ItemWanderingTraderSpawnEgg : Item { public ItemWanderingTraderSpawnEgg() : base(492) {} }
+	public class ItemPiglinBannerPattern : Item { public ItemPiglinBannerPattern() : base(587) {} }
+	public class ItemPiglinSpawnEgg : Item { public ItemPiglinSpawnEgg() : base(497) {} }
+	public class ItemMojangBannerPattern : Item { public ItemMojangBannerPattern() : base(584) {} }
+	public class ItemSkullBannerPattern : Item { public ItemSkullBannerPattern() : base(583) {} }
+	public class ItemMooshroomSpawnEgg : Item { public ItemMooshroomSpawnEgg() : base(440) {} }
+	public class ItemCookedMutton : Item { public ItemCookedMutton() : base(551) {} }
+	public class ItemGoatHorn : Item { public ItemGoatHorn() : base(622) {} }
+	public class ItemCodSpawnEgg : Item { public ItemCodSpawnEgg() : base(480) {} }
+	public class ItemRavagerSpawnEgg : Item { public ItemRavagerSpawnEgg() : base(493) {} }
+	public class ItemDarkOakSign : Item { public ItemDarkOakSign() : base(580) {} }
+	public class ItemCarrotOnAStick : Item { public ItemCarrotOnAStick() : base(517) {} }
+	public class ItemNetherStar : Item { public ItemNetherStar() : base(518) {} }
+	public class ItemMutton : Item { public ItemMutton() : base(550) {} }
+	public class ItemBordureIndentedBannerPattern : Item { public ItemBordureIndentedBannerPattern() : base(586) {} }
+	public class ItemScute : Item { public ItemScute() : base(572) {} }
+	public class ItemFlowerBannerPattern : Item { public ItemFlowerBannerPattern() : base(581) {} }
+	public class ItemCreeperBannerPattern : Item { public ItemCreeperBannerPattern() : base(582) {} }
+	public class ItemFieldMasonedBannerPattern : Item { public ItemFieldMasonedBannerPattern() : base(585) {} }
+	public class ItemAmethystShard : Item { public ItemAmethystShard() : base(623) {} }
+	public class ItemPhantomSpawnEgg : Item { public ItemPhantomSpawnEgg() : base(486) {} }
+	public class ItemWolfSpawnEgg : Item { public ItemWolfSpawnEgg() : base(439) {} }
+	public class ItemCatSpawnEgg : Item { public ItemCatSpawnEgg() : base(488) {} }
+	public class ItemDolphinSpawnEgg : Item { public ItemDolphinSpawnEgg() : base(484) {} }
 }

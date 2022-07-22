@@ -63,6 +63,12 @@ namespace MiNET.Net.Items
 				}
 
 
+				if (!legacyTranslations.ContainsKey(oldId))
+				{
+					Log.Warn($"Could not translate item! OldId={oldId} NewId={newId}");
+					continue;
+				}
+				
 				simpleMappings[newId] = legacyTranslations[oldId];
 				internalNameToNetworkName[oldId] = newId;
 			}
@@ -82,6 +88,9 @@ namespace MiNET.Net.Items
 			foreach (var entry in r16Mapping.Complex)
 			{
 				string oldId = entry.Key;
+				if (!legacyTranslations.ContainsKey(oldId))
+					continue;
+				
 				var legacyIntegerId = legacyTranslations[oldId];
 				foreach (var mappingEntry in entry.Value)
 				{

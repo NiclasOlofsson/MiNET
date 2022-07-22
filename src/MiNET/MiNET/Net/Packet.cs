@@ -2176,6 +2176,49 @@ namespace MiNET.Net
 			}
 		}
 
+		public void Write(AbilityLayer layer)
+		{
+			Write((ushort)layer.Type);
+			Write((uint)layer.Ability);
+			Write((uint)layer.Values);
+			Write(layer.FlySpeed);
+			Write(layer.WalkSpeed);
+		}
+
+		public AbilityLayer ReadAbilityLayer()
+		{
+			AbilityLayer layer = new AbilityLayer();
+			layer.Type = (AbilityLayerType) ReadUint();
+			layer.Ability = (PlayerAbility) ReadUint();
+			layer.Values = ReadUint();
+			layer.FlySpeed = ReadFloat();
+			layer.WalkSpeed = ReadFloat();
+
+			return layer;
+		}
+
+		public void Write(AbilityLayers layers)
+		{
+			Write((byte)layers.Count);
+
+			foreach (var layer in layers)
+			{
+				Write(layer);
+			}
+		}
+		
+		public AbilityLayers ReadAbilityLayers()
+		{
+			AbilityLayers layers = new AbilityLayers();
+			var count = ReadByte();
+
+			for (int i = 0; i < count; i++)
+			{
+				layers.Add(ReadAbilityLayer());
+			}
+			return layers;
+		}
+
 		public void Write(EntityLink link)
 		{
 			WriteVarLong(link.FromEntityId);

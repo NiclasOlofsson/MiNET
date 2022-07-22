@@ -159,6 +159,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 
 | Data type | 
 |:--- |
+| AbilityLayers [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-AbilityLayers) |
 | AnimationKey[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-AnimationKey[]) |
 | BlockCoordinates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockCoordinates) |
 | bool [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-bool) |
@@ -452,7 +453,6 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |:-----|:-----|:-----|
 |UUID | UUID |  |
 |Username | string |  |
-|Entity ID Self | SignedVarLong |  |
 |Runtime Entity ID | UnsignedVarLong |  |
 |Platform Chat ID | string |  |
 |X | float |  |
@@ -467,12 +467,10 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |Item | Item |  |
 |Game Type | UnsignedVarInt |  |
 |Metadata | MetadataDictionary |  |
-|Flags | UnsignedVarInt |  |
-|Command permission | UnsignedVarInt |  |
-|Action Permissions | UnsignedVarInt |  |
-|Permission Level | UnsignedVarInt |  |
-|Custom stored permissions | UnsignedVarInt |  |
-|User Id | long |  |
+|Entity ID Self | SignedVarLong |  |
+|Player Permissions | byte |  |
+|Command Permissions | byte |  |
+|Layers | AbilityLayers |  |
 |Links | EntityLinks |  |
 |Device ID | string |  |
 |Device OS | int |  |
@@ -514,6 +512,7 @@ val2 float
 |Pitch | float |  |
 |Yaw | float |  |
 |Head Yaw | float |  |
+|Body Yaw | float |  |
 |Attributes | EntityAttributes |  |
 |Metadata | MetadataDictionary |  |
 |Links | EntityLinks |  |
@@ -1016,6 +1015,7 @@ Wiki: [Player Action](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Pla
 |Runtime Entity ID | UnsignedVarLong |  |
 |Action ID | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
+|Result Coordinates | BlockCoordinates |  |
 |Face | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Hurt Armor (0x26)

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.18.30" protocolVersion="503">
+<protocol gameVersion="1.19.10" protocolVersion="534">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -208,7 +208,6 @@
 	<pdu id="0x0c" online="false" client="false" server="true" name="MCPE_ADD_PLAYER">
 		<field name="UUID" type="UUID" />
 		<field name="Username" type="string" />
-		<field name="Entity ID Self" type="SignedVarLong" />
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Platform Chat ID" type="string" />
 		<field name="X" type="float" />
@@ -223,13 +222,12 @@
 		<field name="Item" type="Item" />
 		<field name="Game Type" type="UnsignedVarInt" />
 		<field name="Metadata" type="MetadataDictionary" />
+		<field name="Entity ID Self" type="SignedVarLong" />
+		
+		<field name="Player Permissions" type="byte" />
+		<field name="Command Permissions" type="byte" />
+		<field name="Layers" type="AbilityLayers" />
 
-		<field name="Flags" type="UnsignedVarInt" />
-		<field name="Command permission" type="UnsignedVarInt" />
-		<field name="Action Permissions" type="UnsignedVarInt" />
-		<field name="Permission Level" type="UnsignedVarInt" />
-		<field name="Custom stored permissions" type="UnsignedVarInt" />
-		<field name="User Id" type="long" />
 		<field name="Links" type="EntityLinks" />
 		<field name="Device ID" type="string" />
 		<field name="Device OS" type="int" />
@@ -262,6 +260,7 @@
 		<field name="Pitch" type="float" />
 		<field name="Yaw" type="float" />
 		<field name="Head Yaw" type="float" />
+		<field name="Body Yaw" type="float" />
 		<field name="Attributes" type="EntityAttributes" />
 		<field name="Metadata" type="MetadataDictionary" />
 		<field name="Links" type="EntityLinks" />
@@ -503,6 +502,7 @@
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Action ID" type="SignedVarInt" />
 		<field name="Coordinates" type="BlockCoordinates" />
+		<field name="Result Coordinates" type="BlockCoordinates" />
 		<field name="Face" type="SignedVarInt" />
 	</pdu>
 

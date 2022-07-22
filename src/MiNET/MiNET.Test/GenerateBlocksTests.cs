@@ -157,6 +157,23 @@ namespace MiNET.Test
 			}
 		}
 
+		[TestMethod]
+		public void GenerateMissingBlocks()
+		{
+			foreach (var block in BlockFactory.BlockStates)
+			{
+				var b = BlockFactory.GetBlockByName(block.Name);
+				if (b == null)
+				{
+					Console.WriteLine($"Missing {block.Name}");
+					continue;
+				}
+
+
+				b.SetState(block.States);
+				//block.RuntimeId
+			}
+		}
 
 		[TestMethod]
 		public void GeneratePartialBlocksFromBlockstates()

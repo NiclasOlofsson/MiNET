@@ -2972,7 +2972,7 @@ namespace MiNET
 			levelSettings.gamerules = Level.GetGameRules();
 			levelSettings.bonusChest = false;
 			levelSettings.mapEnabled = false;
-			levelSettings.permissionLevel = (int) PermissionLevel;
+			levelSettings.permissionLevel = (byte) PermissionLevel;
 			levelSettings.gameVersion = "";
 			levelSettings.hasEduFeaturesEnabled = true;
 			
@@ -2998,7 +2998,9 @@ namespace MiNET
 			startGame.enableNewInventorySystem = true;
 			startGame.blockPaletteChecksum = 0;
 			startGame.serverVersion = McpeProtocolInfo.GameVersion;
-
+			startGame.propertyData = new Nbt() {NbtFile = new NbtFile()};
+			startGame.worldTemplateId = new UUID(Guid.NewGuid().ToByteArray());
+			
 			SendPacket(startGame);
 		}
 
@@ -3703,11 +3705,11 @@ namespace MiNET
 			mcpeAddPlayer.headYaw = KnownPosition.HeadYaw;
 			mcpeAddPlayer.pitch = KnownPosition.Pitch;
 			mcpeAddPlayer.metadata = GetMetadata();
-			mcpeAddPlayer.flags = GetAdventureFlags();
+			/*mcpeAddPlayer.flags = GetAdventureFlags();
 			mcpeAddPlayer.commandPermission = (uint) CommandPermission;
 			mcpeAddPlayer.actionPermissions = (uint) ActionPermissions;
 			mcpeAddPlayer.permissionLevel = (uint) PermissionLevel;
-			mcpeAddPlayer.userId = -1;
+			mcpeAddPlayer.userId = -1;*/
 			mcpeAddPlayer.deviceId = PlayerInfo.DeviceId;
 			mcpeAddPlayer.deviceOs = PlayerInfo.DeviceOS;
 			mcpeAddPlayer.gameType = (uint) GameMode;

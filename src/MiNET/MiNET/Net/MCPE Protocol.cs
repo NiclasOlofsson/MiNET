@@ -46,8 +46,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 503;
-		public const string GameVersion = "1.18.30";
+		public const int ProtocolVersion = 534;
+		public const string GameVersion = "1.19.10";
 	}
 
 	public interface IMcpeMessageHandler
@@ -2508,7 +2508,6 @@ namespace MiNET.Net
 
 		public UUID uuid; // = null;
 		public string username; // = null;
-		public long entityIdSelf; // = null;
 		public long runtimeEntityId; // = null;
 		public string platformChatId; // = null;
 		public float x; // = null;
@@ -2523,12 +2522,10 @@ namespace MiNET.Net
 		public Item item; // = null;
 		public uint gameType; // = null;
 		public MetadataDictionary metadata; // = null;
-		public uint flags; // = null;
-		public uint commandPermission; // = null;
-		public uint actionPermissions; // = null;
-		public uint permissionLevel; // = null;
-		public uint customStoredPermissions; // = null;
-		public long userId; // = null;
+		public long entityIdSelf; // = null;
+		public byte playerPermissions; // = null;
+		public byte commandPermissions; // = null;
+		public AbilityLayers layers; // = null;
 		public EntityLinks links; // = null;
 		public string deviceId; // = null;
 		public int deviceOs; // = null;
@@ -2547,7 +2544,6 @@ namespace MiNET.Net
 
 			Write(uuid);
 			Write(username);
-			WriteSignedVarLong(entityIdSelf);
 			WriteUnsignedVarLong(runtimeEntityId);
 			Write(platformChatId);
 			Write(x);
@@ -2562,12 +2558,10 @@ namespace MiNET.Net
 			Write(item);
 			WriteUnsignedVarInt(gameType);
 			Write(metadata);
-			WriteUnsignedVarInt(flags);
-			WriteUnsignedVarInt(commandPermission);
-			WriteUnsignedVarInt(actionPermissions);
-			WriteUnsignedVarInt(permissionLevel);
-			WriteUnsignedVarInt(customStoredPermissions);
-			Write(userId);
+			WriteSignedVarLong(entityIdSelf);
+			Write(playerPermissions);
+			Write(commandPermissions);
+			Write(layers);
 			Write(links);
 			Write(deviceId);
 			Write(deviceOs);
@@ -2586,7 +2580,6 @@ namespace MiNET.Net
 
 			uuid = ReadUUID();
 			username = ReadString();
-			entityIdSelf = ReadSignedVarLong();
 			runtimeEntityId = ReadUnsignedVarLong();
 			platformChatId = ReadString();
 			x = ReadFloat();
@@ -2601,12 +2594,10 @@ namespace MiNET.Net
 			item = ReadItem();
 			gameType = ReadUnsignedVarInt();
 			metadata = ReadMetadataDictionary();
-			flags = ReadUnsignedVarInt();
-			commandPermission = ReadUnsignedVarInt();
-			actionPermissions = ReadUnsignedVarInt();
-			permissionLevel = ReadUnsignedVarInt();
-			customStoredPermissions = ReadUnsignedVarInt();
-			userId = ReadLong();
+			entityIdSelf = ReadSignedVarLong();
+			playerPermissions = ReadByte();
+			commandPermissions = ReadByte();
+			layers = ReadAbilityLayers();
 			links = ReadEntityLinks();
 			deviceId = ReadString();
 			deviceOs = ReadInt();
@@ -2623,7 +2614,6 @@ namespace MiNET.Net
 
 			uuid=default(UUID);
 			username=default(string);
-			entityIdSelf=default(long);
 			runtimeEntityId=default(long);
 			platformChatId=default(string);
 			x=default(float);
@@ -2638,12 +2628,10 @@ namespace MiNET.Net
 			item=default(Item);
 			gameType=default(uint);
 			metadata=default(MetadataDictionary);
-			flags=default(uint);
-			commandPermission=default(uint);
-			actionPermissions=default(uint);
-			permissionLevel=default(uint);
-			customStoredPermissions=default(uint);
-			userId=default(long);
+			entityIdSelf=default(long);
+			playerPermissions=default(byte);
+			commandPermissions=default(byte);
+			layers=default(AbilityLayers);
 			links=default(EntityLinks);
 			deviceId=default(string);
 			deviceOs=default(int);
@@ -2666,6 +2654,7 @@ namespace MiNET.Net
 		public float pitch; // = null;
 		public float yaw; // = null;
 		public float headYaw; // = null;
+		public float bodyYaw; // = null;
 		public EntityAttributes attributes; // = null;
 		public MetadataDictionary metadata; // = null;
 		public EntityLinks links; // = null;
@@ -2694,6 +2683,7 @@ namespace MiNET.Net
 			Write(pitch);
 			Write(yaw);
 			Write(headYaw);
+			Write(bodyYaw);
 			Write(attributes);
 			Write(metadata);
 			Write(links);
@@ -2722,6 +2712,7 @@ namespace MiNET.Net
 			pitch = ReadFloat();
 			yaw = ReadFloat();
 			headYaw = ReadFloat();
+			bodyYaw = ReadFloat();
 			attributes = ReadEntityAttributes();
 			metadata = ReadMetadataDictionary();
 			links = ReadEntityLinks();
@@ -2748,6 +2739,7 @@ namespace MiNET.Net
 			pitch=default(float);
 			yaw=default(float);
 			headYaw=default(float);
+			bodyYaw=default(float);
 			attributes=default(EntityAttributes);
 			metadata=default(MetadataDictionary);
 			links=default(EntityLinks);
@@ -4105,6 +4097,7 @@ namespace MiNET.Net
 		public long runtimeEntityId; // = null;
 		public int actionId; // = null;
 		public BlockCoordinates coordinates; // = null;
+		public BlockCoordinates resultCoordinates; // = null;
 		public int face; // = null;
 
 		public McpePlayerAction()
@@ -4122,6 +4115,7 @@ namespace MiNET.Net
 			WriteUnsignedVarLong(runtimeEntityId);
 			WriteSignedVarInt(actionId);
 			Write(coordinates);
+			Write(resultCoordinates);
 			WriteSignedVarInt(face);
 
 			AfterEncode();
@@ -4139,6 +4133,7 @@ namespace MiNET.Net
 			runtimeEntityId = ReadUnsignedVarLong();
 			actionId = ReadSignedVarInt();
 			coordinates = ReadBlockCoordinates();
+			resultCoordinates = ReadBlockCoordinates();
 			face = ReadSignedVarInt();
 
 			AfterDecode();
@@ -4154,6 +4149,7 @@ namespace MiNET.Net
 			runtimeEntityId=default(long);
 			actionId=default(int);
 			coordinates=default(BlockCoordinates);
+			resultCoordinates=default(BlockCoordinates);
 			face=default(int);
 		}
 

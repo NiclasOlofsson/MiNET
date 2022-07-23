@@ -77,7 +77,17 @@ namespace MiNET.Net
 		{
 			Timer.Start();
 		}
+		
+		public void Write(sbyte value)
+		{
+			_writer.Write(value);
+		}
 
+		public sbyte ReadSByte()
+		{
+			return (sbyte)_reader.ReadByte();
+		}
+		
 		public void Write(byte value)
 		{
 			_writer.Write(value);
@@ -3480,17 +3490,17 @@ namespace MiNET.Net
 
 		public void Write(SubChunkPositionOffset offset)
 		{
-			Write((byte)offset.XOffset);
-			Write((byte)offset.YOffset);
-			Write((byte)offset.ZOffset);
+			Write(offset.XOffset);
+			Write(offset.YOffset);
+			Write(offset.ZOffset);
 		}
 
 		public SubChunkPositionOffset ReadSubChunkPositionOffset()
 		{
 			SubChunkPositionOffset result = new SubChunkPositionOffset();
-			result.XOffset = (sbyte)ReadByte();
-			result.YOffset = (sbyte)ReadByte();
-			result.ZOffset = (sbyte)ReadByte();
+			result.XOffset = ReadSByte();
+			result.YOffset = ReadSByte();
+			result.ZOffset = ReadSByte();
 			return result;
 		}
 

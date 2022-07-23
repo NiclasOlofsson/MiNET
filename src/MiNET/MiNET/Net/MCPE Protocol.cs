@@ -240,6 +240,8 @@ namespace MiNET.Net
 		void HandleMcpeUpdateSubChunkBlocksPacket(McpeUpdateSubChunkBlocksPacket message);
 		void HandleMcpeSubChunkPacket(McpeSubChunkPacket message);
 		void HandleMcpeDimensionData(McpeDimensionData message);
+		void HandleMcpeUpdateAbilities(McpeUpdateAbilities message);
+		void HandleMcpeUpdateAdventureSettings(McpeUpdateAdventureSettings message);
 		void HandleMcpeAlexEntityAnimation(McpeAlexEntityAnimation message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
@@ -632,6 +634,12 @@ namespace MiNET.Net
 				case McpeDimensionData msg:
 					_messageHandler.HandleMcpeDimensionData(msg);
 					break;
+				case McpeUpdateAbilities msg:
+					_messageHandler.HandleMcpeUpdateAbilities(msg);
+					break;
+				case McpeUpdateAdventureSettings msg:
+					_messageHandler.HandleMcpeUpdateAdventureSettings(msg);
+					break;
 				case McpeAlexEntityAnimation msg:
 					_messageHandler.HandleMcpeAlexEntityAnimation(msg);
 					break;
@@ -995,6 +1003,10 @@ namespace MiNET.Net
 						return McpeSubChunkRequestPacket.CreateObject().Decode(buffer);
 					case 0xb4:
 						return McpeDimensionData.CreateObject().Decode(buffer);
+					case 0xbb:
+						return McpeUpdateAbilities.CreateObject().Decode(buffer);
+					case 0xbc:
+						return McpeUpdateAdventureSettings.CreateObject().Decode(buffer);
 					case 0xe0:
 						return McpeAlexEntityAnimation.CreateObject().Decode(buffer);
 				}
@@ -10038,6 +10050,130 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			definitions=default(DimensionDefinitions);
+		}
+
+	}
+
+	public partial class McpeUpdateAbilities : Packet<McpeUpdateAbilities>
+	{
+
+		public long entityUniqueId; // = null;
+		public byte playerPermissions; // = null;
+		public byte commandPermissions; // = null;
+		public AbilityLayers layers; // = null;
+
+		public McpeUpdateAbilities()
+		{
+			Id = 0xbb;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(entityUniqueId);
+			Write(playerPermissions);
+			Write(commandPermissions);
+			Write(layers);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			entityUniqueId = ReadLong();
+			playerPermissions = ReadByte();
+			commandPermissions = ReadByte();
+			layers = ReadAbilityLayers();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			entityUniqueId=default(long);
+			playerPermissions=default(byte);
+			commandPermissions=default(byte);
+			layers=default(AbilityLayers);
+		}
+
+	}
+
+	public partial class McpeUpdateAdventureSettings : Packet<McpeUpdateAdventureSettings>
+	{
+
+		public bool noPvm; // = null;
+		public bool noMvp; // = null;
+		public bool immutableWorld; // = null;
+		public bool showNametags; // = null;
+		public bool autoJump; // = null;
+
+		public McpeUpdateAdventureSettings()
+		{
+			Id = 0xbc;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(noPvm);
+			Write(noMvp);
+			Write(immutableWorld);
+			Write(showNametags);
+			Write(autoJump);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			noPvm = ReadBool();
+			noMvp = ReadBool();
+			immutableWorld = ReadBool();
+			showNametags = ReadBool();
+			autoJump = ReadBool();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			noPvm=default(bool);
+			noMvp=default(bool);
+			immutableWorld=default(bool);
+			showNametags=default(bool);
+			autoJump=default(bool);
 		}
 
 	}

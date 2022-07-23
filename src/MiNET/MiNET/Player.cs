@@ -768,18 +768,66 @@ namespace MiNET
 
 		public virtual void SendAdventureSettings()
 		{
-			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
+			McpeUpdateAdventureSettings settings = McpeUpdateAdventureSettings.CreateObject();
+			settings.noPvm = IsNoPvm;
+			settings.noMvp = IsNoMvp;
+			settings.autoJump = IsAutoJump;
+			settings.immutableWorld = IsWorldImmutable;
+			settings.showNametags = true;
+			SendPacket(settings);
+		}
 
-			var flags = GetAdventureFlags();
+		public virtual void SendAbilities()
+		{
+			McpeUpdateAbilities packet = McpeUpdateAbilities.CreateObject();
+			packet.layers = GetAbilities();
+			packet.commandPermissions = (byte) CommandPermission;
+			packet.playerPermissions = (byte) PermissionLevel;
+			packet.entityUniqueId = BinaryPrimitives.ReverseEndianness(EntityId);
+			SendPacket(packet);
+		}
 
-			mcpeAdventureSettings.flags = flags;
-			mcpeAdventureSettings.commandPermission = (uint) CommandPermission;
-			mcpeAdventureSettings.actionPermissions = (uint) ActionPermissions;
-			mcpeAdventureSettings.permissionLevel = (uint) PermissionLevel;
-			mcpeAdventureSettings.customStoredPermissions = (uint) 0;
-			mcpeAdventureSettings.entityUniqueId = BinaryPrimitives.ReverseEndianness(EntityId);
+		private AbilityLayers GetAbilities()
+		{
+			PlayerAbility abilities = 0;
 
-			SendPacket(mcpeAdventureSettings);
+			if (GameMode.AllowsFlying())
+			{
+				abilities |= PlayerAbility.MayFly;
+
+				if (IsFlying)
+					abilities |= PlayerAbility.Flying;
+			}
+
+			if (!GameMode.HasCollision())
+				abilities |= PlayerAbility.NoClip;
+
+			if (!GameMode.AllowsTakingDamage())
+				abilities |= PlayerAbility.Invulnerable;
+
+			if (GameMode.HasCreativeInventory())
+				abilities |= PlayerAbility.InstantBuild;
+
+			if (GameMode.AllowsEditing())
+				abilities |= PlayerAbility.Build | PlayerAbility.Mine;
+
+			if (GameMode.AllowsInteraction())
+				abilities |= PlayerAbility.DoorsAndSwitches | PlayerAbility.OpenContainers | PlayerAbility.AttackPlayers | PlayerAbility.AttackMobs;
+
+			var layers = new AbilityLayers();
+
+			var baseLayer = new AbilityLayer()
+			{
+				Type = AbilityLayerType.Base,
+				Abilities = (uint) Enum.GetValues(typeof(PlayerAbility)).Length,
+				Values = abilities,
+				FlySpeed = 0.05f,
+				WalkSpeed = 0.1f
+			};
+
+			layers.Add(baseLayer);
+
+			return layers;
 		}
 
 		private uint GetAdventureFlags()
@@ -1802,6 +1850,7 @@ namespace MiNET
 			GameMode = gameMode;
 
 			SendSetPlayerGameType();
+			SendAbilities();
 		}
 
 
@@ -2999,8 +3048,8 @@ namespace MiNET
 			startGame.blockPaletteChecksum = 0;
 			startGame.serverVersion = McpeProtocolInfo.GameVersion;
 			startGame.propertyData = new Nbt() {NbtFile = new NbtFile()};
-			startGame.worldTemplateId = new UUID(Guid.NewGuid().ToByteArray());
-			
+			startGame.worldTemplateId = new UUID(Guid.Empty.ToByteArray());
+
 			SendPacket(startGame);
 		}
 
@@ -3713,6 +3762,7 @@ namespace MiNET
 			mcpeAddPlayer.deviceId = PlayerInfo.DeviceId;
 			mcpeAddPlayer.deviceOs = PlayerInfo.DeviceOS;
 			mcpeAddPlayer.gameType = (uint) GameMode;
+			mcpeAddPlayer.layers = GetAbilities();
 
 			int[] a = new int[5];
 

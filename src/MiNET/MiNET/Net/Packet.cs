@@ -2179,7 +2179,7 @@ namespace MiNET.Net
 		public void Write(AbilityLayer layer)
 		{
 			Write((ushort)layer.Type);
-			Write((uint)layer.Ability);
+			Write(layer.Abilities);
 			Write((uint)layer.Values);
 			Write(layer.FlySpeed);
 			Write(layer.WalkSpeed);
@@ -2188,9 +2188,9 @@ namespace MiNET.Net
 		public AbilityLayer ReadAbilityLayer()
 		{
 			AbilityLayer layer = new AbilityLayer();
-			layer.Type = (AbilityLayerType) ReadUint();
-			layer.Ability = (PlayerAbility) ReadUint();
-			layer.Values = ReadUint();
+			layer.Type = (AbilityLayerType) ReadUshort();
+			layer.Abilities = ReadUint();
+			layer.Values = (PlayerAbility)ReadUint();
 			layer.FlySpeed = ReadFloat();
 			layer.WalkSpeed = ReadFloat();
 

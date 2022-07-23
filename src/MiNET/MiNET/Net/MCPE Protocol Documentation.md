@@ -152,6 +152,8 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Sub Chunk Packet | 0xae | 174 |   
 | Sub Chunk Request Packet | 0xaf | 175 |   
 | Dimension Data | 0xb4 | 180 |   
+| Update Abilities | 0xbb | 187 |   
+| Update Adventure Settings | 0xbc | 188 |   
 | Alex Entity Animation | 0xe0 | 224 |   
 
 
@@ -2905,6 +2907,43 @@ Wiki: [Dimension Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Di
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Definitions | DimensionDefinitions |  |
+-----------------------------------------------------------------------
+### Update Abilities (0xbb)
+Wiki: [Update Abilities](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateAbilities)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity Unique ID | long |  |
+|Player Permissions | byte |  |
+|Command Permissions | byte |  |
+|Layers | AbilityLayers |  |
+-----------------------------------------------------------------------
+### Update Adventure Settings (0xbc)
+Wiki: [Update Adventure Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateAdventureSettings)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|No PvM | bool |  |
+|No MvP | bool |  |
+|Immutable World | bool |  |
+|Show NameTags | bool |  |
+|Auto Jump | bool |  |
 -----------------------------------------------------------------------
 ### Alex Entity Animation (0xe0)
 Wiki: [Alex Entity Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AlexEntityAnimation)

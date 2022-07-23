@@ -718,6 +718,18 @@ namespace MiNET.Client
 			
 		}
 
+		/// <inheritdoc />
+		public void HandleMcpeUpdateAbilities(McpeUpdateAbilities message)
+		{
+			
+		}
+
+		/// <inheritdoc />
+		public void HandleMcpeUpdateAdventureSettings(McpeUpdateAdventureSettings message)
+		{
+			
+		}
+
 		public virtual void HandleMcpeAlexEntityAnimation(McpeAlexEntityAnimation message)
 		{
 		}

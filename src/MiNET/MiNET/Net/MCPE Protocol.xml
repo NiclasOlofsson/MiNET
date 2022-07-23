@@ -1221,6 +1221,21 @@
 		<field name="Definitions" type="DimensionDefinitions" />
 	</pdu>
 	
+	<pdu id="0xbb" online="false" client="false" server="true" name="MCPE_UPDATE_ABILITIES">
+		<field name="Entity Unique ID" type="long" />
+		<field name="Player Permissions" type="byte" />
+		<field name="Command Permissions" type="byte" />
+		<field name="Layers" type="AbilityLayers" />
+	</pdu>
+	
+	<pdu id="0xbc" online="false" client="false" server="true" name="MCPE_UPDATE_ADVENTURE_SETTINGS">
+		<field name="No PvM" type="bool" />
+		<field name="No MvP" type="bool" />
+		<field name="Immutable World" type="bool" />
+		<field name="Show NameTags" type="bool" />
+		<field name="Auto Jump" type="bool" />
+	</pdu>
+	
 	<pdu id="0xe0" online="false" client="false" server="true" name="MCPE_ALEX_ENTITY_ANIMATION">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Bone Id" type="string" />

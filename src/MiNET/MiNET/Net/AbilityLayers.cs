@@ -21,6 +21,7 @@
 // All Rights Reserved.
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace MiNET.Net;
@@ -33,8 +34,8 @@ public class AbilityLayers : List<AbilityLayer>
 public class AbilityLayer
 {
 	public AbilityLayerType Type;
-	public PlayerAbility Ability;
-	public uint Values;
+	public uint Abilities;
+	public PlayerAbility Values;
 	public float FlySpeed;
 	public float WalkSpeed;
 }
@@ -47,7 +48,8 @@ public enum AbilityLayerType
 	Commands = 3
 }
 
-public enum PlayerAbility
+[Flags]
+public enum PlayerAbility : uint
 {
 	Build,
 	Mine,

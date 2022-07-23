@@ -88,13 +88,15 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MCPE Protocol.cs</LastGenOutput>
     </None>
-    <Compile Update="Net\MCPE Protocol.cs">
-      <DependentUpon>MCPE Protocol.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Net\MCPE Protocol.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MCPE Protocol.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

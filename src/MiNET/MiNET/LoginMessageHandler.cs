@@ -593,6 +593,12 @@ namespace MiNET
 			
 		}
 
+		/// <inheritdoc />
+		public void HandleMcpeRequestAbility(McpeRequestAbility message)
+		{
+			
+		}
+
 		public void HandleMcpeEntityEvent(McpeEntityEvent message)
 		{
 		}

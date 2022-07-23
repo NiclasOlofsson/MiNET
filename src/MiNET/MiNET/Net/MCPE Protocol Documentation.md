@@ -152,6 +152,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Sub Chunk Packet | 0xae | 174 |   
 | Sub Chunk Request Packet | 0xaf | 175 |   
 | Dimension Data | 0xb4 | 180 |   
+| Request Ability | 0xb8 | 184 |   
 | Update Abilities | 0xbb | 187 |   
 | Update Adventure Settings | 0xbc | 188 |   
 | Alex Entity Animation | 0xe0 | 224 |   
@@ -2944,6 +2945,21 @@ Wiki: [Update Adventure Settings](https://github.com/NiclasOlofsson/MiNET/wiki//
 |Immutable World | bool |  |
 |Show NameTags | bool |  |
 |Auto Jump | bool |  |
+-----------------------------------------------------------------------
+### Request Ability (0xb8)
+Wiki: [Request Ability](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-RequestAbility)
+
+**Sent from server:** false  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Ability | VarInt |  |
 -----------------------------------------------------------------------
 ### Alex Entity Animation (0xe0)
 Wiki: [Alex Entity Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AlexEntityAnimation)

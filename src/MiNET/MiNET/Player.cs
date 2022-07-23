@@ -790,37 +790,60 @@ namespace MiNET
 		private AbilityLayers GetAbilities()
 		{
 			PlayerAbility abilities = 0;
+			PlayerAbility values = 0;
 
 			if (GameMode.AllowsFlying())
 			{
 				abilities |= PlayerAbility.MayFly;
 
 				if (IsFlying)
+				{
 					abilities |= PlayerAbility.Flying;
+				}
 			}
 
 			if (!GameMode.HasCollision())
+			{
 				abilities |= PlayerAbility.NoClip;
+			}
 
 			if (!GameMode.AllowsTakingDamage())
+			{
 				abilities |= PlayerAbility.Invulnerable;
+			}
 
 			if (GameMode.HasCreativeInventory())
+			{
 				abilities |= PlayerAbility.InstantBuild;
+			}
 
 			if (GameMode.AllowsEditing())
+			{
 				abilities |= PlayerAbility.Build | PlayerAbility.Mine;
+			}
 
 			if (GameMode.AllowsInteraction())
+			{
 				abilities |= PlayerAbility.DoorsAndSwitches | PlayerAbility.OpenContainers | PlayerAbility.AttackPlayers | PlayerAbility.AttackMobs;
+			}
+
+			if (PermissionLevel == PermissionLevel.Operator)
+			{
+				abilities |= PlayerAbility.OperatorCommands;
+			}
+
+			if (IsMuted)
+			{
+				abilities |= PlayerAbility.Muted;
+			}
 
 			var layers = new AbilityLayers();
 
 			var baseLayer = new AbilityLayer()
 			{
 				Type = AbilityLayerType.Base,
-				Abilities = (uint) Enum.GetValues(typeof(PlayerAbility)).Length,
-				Values = abilities,
+				Abilities = abilities,
+				Values = (uint) abilities,
 				FlySpeed = 0.05f,
 				WalkSpeed = 0.1f
 			};
@@ -2283,6 +2306,12 @@ namespace MiNET
 			}
 			
 			SendPacket(response);*/
+		}
+
+		/// <inheritdoc />
+		public void HandleMcpeRequestAbility(McpeRequestAbility message)
+		{
+			//TODO: Implement ability requests
 		}
 
 		public virtual void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)

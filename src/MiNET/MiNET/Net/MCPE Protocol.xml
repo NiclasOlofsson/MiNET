@@ -1235,6 +1235,11 @@
 		<field name="Show NameTags" type="bool" />
 		<field name="Auto Jump" type="bool" />
 	</pdu>
+
+	<pdu id="0xb8" online="false" client="true" server="false" name="MCPE_REQUEST_ABILITY">
+		<field name="Ability" type="VarInt" />
+		
+	</pdu>
 	
 	<pdu id="0xe0" online="false" client="false" server="true" name="MCPE_ALEX_ENTITY_ANIMATION">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />

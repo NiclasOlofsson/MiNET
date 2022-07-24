@@ -23,7 +23,6 @@
 
 #endregion
 
-using System.Drawing.Drawing2D;
 using MiNET.Net;
 using MiNET.Utils;
 using SixLabors.Fonts;

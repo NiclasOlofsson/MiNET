@@ -25,8 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using fNbt;
-using Microsoft.VisualBasic.CompilerServices;
 using Newtonsoft.Json;
 
 namespace MiNET.Utils

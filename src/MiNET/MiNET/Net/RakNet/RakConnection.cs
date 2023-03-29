@@ -43,15 +43,18 @@ namespace MiNET.Net.RakNet
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(RakConnection));
 
-		private          UdpClient           _listener;
-		private readonly IPEndPoint          _endpoint;
-		private readonly DedicatedThreadPool _receiveThreadPool;
-		private Thread _receiveThread;
-		private          HighPrecisionTimer                           _tickerHighPrecisionTimer;
 		private readonly ConcurrentDictionary<IPEndPoint, RakSession> _rakSessions = new ConcurrentDictionary<IPEndPoint, RakSession>();
-		private readonly GreyListManager                              _greyListManager;
-		public readonly  RakOfflineHandler                            _rakOfflineHandler;
-		public           ConnectionInfo                               ConnectionInfo { get; }
+		private readonly IPEndPoint _endpoint;
+		private readonly DedicatedThreadPool _receiveThreadPool;
+		private readonly GreyListManager _greyListManager;
+
+		public readonly RakOfflineHandler _rakOfflineHandler;
+
+		private UdpClient _listener;
+		private Thread _receiveThread;
+		private HighPrecisionTimer _tickerHighPrecisionTimer;
+
+		public ConnectionInfo ConnectionInfo { get; }
 
 		public bool FoundServer => _rakOfflineHandler.HaveServer;
 
@@ -288,8 +291,8 @@ namespace MiNET.Net.RakNet
 							{
 								if (_greyListManager != null)
 								{
-									if (!_greyListManager.IsWhitelisted(senderEndpoint.Address) && _greyListManager.IsBlacklisted(senderEndpoint.Address)) return;
-									if (_greyListManager.IsGreylisted(senderEndpoint.Address)) return;
+									if (!_greyListManager.IsWhitelisted(senderEndpoint) && _greyListManager.IsBlacklisted(senderEndpoint)) return;
+									if (_greyListManager.IsGreylisted(senderEndpoint)) return;
 								}
 
 								ReceiveDatagram(receiveBytes, senderEndpoint);
@@ -426,7 +429,7 @@ namespace MiNET.Net.RakNet
 
 				Log.Warn($"Bad packet {receivedBytes.Span[0]}\n{Packet.HexDump(receivedBytes)}", e);
 
-				_greyListManager.Blacklist(clientEndpoint.Address);
+				_greyListManager.Blacklist(clientEndpoint);
 
 				return;
 			}
@@ -673,7 +676,7 @@ namespace MiNET.Net.RakNet
 
 					long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 					long datagramTimeout = rto * (datagram.TransmissionCount + session.ResendCount + 1);
-					datagramTimeout = Math.Min(datagramTimeout, 3000);
+					//datagramTimeout = Math.Min(datagramTimeout, 3000);
 					datagramTimeout = Math.Max(datagramTimeout, 100);
 
 					if (datagram.RetransmitImmediate || elapsedTime >= datagramTimeout)

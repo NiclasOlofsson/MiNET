@@ -49,31 +49,31 @@ namespace MiNET
 			ConnectionInfo = connectionInfo;
 		}
 
-		public virtual bool IsWhitelisted(IPAddress senderAddress)
+		public virtual bool IsWhitelisted(IPEndPoint endPoint)
 		{
 			return true;
 		}
 
-		public virtual bool IsBlacklisted(IPAddress senderAddress)
+		public virtual bool IsBlacklisted(IPEndPoint endPoint)
 		{
 			lock (_blacklist)
 			{
 				//if (senderAddress.ToString().StartsWith("185.89.216")) return true;
-				return _blacklist.Contains(senderAddress);
+				return _blacklist.Contains(endPoint.Address);
 			}
 		}
 
-		public virtual void Blacklist(IPAddress senderAddress)
+		public virtual void Blacklist(IPEndPoint endPoint)
 		{
 			lock (_blacklist)
 			{
-				_blacklist.Add(senderAddress);
+				_blacklist.Add(endPoint.Address);
 			}
 		}
 
-		public virtual bool AcceptConnection(IPAddress senderAddress)
+		public virtual bool AcceptConnection(IPEndPoint endPoint)
 		{
-			if (IsWhitelisted(senderAddress)) return true;
+			if (IsWhitelisted(endPoint)) return true;
 
 			ConnectionInfo connectionInfo = ConnectionInfo;
 			if (connectionInfo == null) return true;
@@ -81,7 +81,7 @@ namespace MiNET
 			if (connectionInfo.NumberOfPlayers >= connectionInfo.MaxNumberOfPlayers || connectionInfo.ConnectionsInConnectPhase >= connectionInfo.MaxNumberOfConcurrentConnects)
 			{
 				if (Log.IsInfoEnabled)
-					Log.InfoFormat("Rejected connection (server full) from: {0}", senderAddress);
+					Log.InfoFormat("Rejected connection (server full) from: {0}", endPoint);
 
 				return false;
 			}
@@ -89,8 +89,10 @@ namespace MiNET
 			return true;
 		}
 
-		public virtual bool IsGreylisted(IPAddress address)
+		public virtual bool IsGreylisted(IPEndPoint endPoint)
 		{
+			var address = endPoint.Address;
+
 			if (_greylist.ContainsKey(address))
 			{
 				if (_greylist[address] > DateTime.UtcNow)
@@ -104,10 +106,10 @@ namespace MiNET
 			return false;
 		}
 
-		public virtual void Greylist(IPAddress address, int time)
+		public virtual void Greylist(IPEndPoint endPoint, int time)
 		{
 			var dateTime = DateTime.UtcNow.AddMilliseconds(time);
-			_greylist.TryAdd(address, dateTime);
+			_greylist.TryAdd(endPoint.Address, dateTime);
 		}
 	}
 }

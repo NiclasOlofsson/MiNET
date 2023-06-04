@@ -52,7 +52,7 @@ namespace TestPlugin.Code4Fun
 		private static readonly ILog Log = LogManager.GetLogger(typeof(VideoCommand));
 
 		/// <summary>
-		///     This command will send each fram one time in a unique map. And then replace
+		///     This command will send each frame one time in a unique map. And then replace
 		///     the maps in the frame on ticks.
 		/// </summary>
 		[Command]

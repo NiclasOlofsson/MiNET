@@ -67,12 +67,17 @@ namespace MiNET.Net
 		public bool isFromWorldTemplate; // = null;
 		public bool isWorldTemplateOptionLocked; // = null;
 		public bool onlySpawnV1Villagers; // = null;
+		public bool isDisablingPersonas; // = null;
+		public bool isDisablingCustomSkins; // = null;
 		public string gameVersion; // = null;
 		public int limitedWorldWidth; // = null;
 		public int limitedWorldLength; // = null;
 		public bool isNewNether; // = null;
 		public EducationUriResource eduSharedUriResource = null;
 		public bool experimentalGameplayOverride; // = null;
+		public byte chatRestrictionLevel; // = null;
+		public bool isDisablePlayerInteractions; // = null;
+
 
 		public void Write(Packet packet)
 		{
@@ -118,12 +123,16 @@ namespace MiNET.Net
 			packet.Write(isFromWorldTemplate);
 			packet.Write(isWorldTemplateOptionLocked);
 			packet.Write(onlySpawnV1Villagers);
+			packet.Write(isDisablingPersonas);
+			packet.Write(isDisablingCustomSkins);
 			packet.Write(gameVersion);
 			packet.Write(limitedWorldWidth);
 			packet.Write(limitedWorldLength);
 			packet.Write(isNewNether);
 			packet.Write(eduSharedUriResource ?? new EducationUriResource("", ""));
 			packet.Write(false);
+			packet.Write(chatRestrictionLevel);
+			packet.Write(isDisablePlayerInteractions);
 		}
 
 		public void Read(Packet packet)
@@ -170,6 +179,8 @@ namespace MiNET.Net
 			isFromWorldTemplate = packet.ReadBool();
 			isWorldTemplateOptionLocked = packet.ReadBool();
 			onlySpawnV1Villagers = packet.ReadBool();
+			isDisablingPersonas = packet.ReadBool();
+			isDisablingCustomSkins = packet.ReadBool();
 			gameVersion = packet.ReadString();
 
 			limitedWorldWidth = packet.ReadInt();
@@ -185,6 +196,8 @@ namespace MiNET.Net
 			{
 				experimentalGameplayOverride = false;
 			}
+			chatRestrictionLevel = packet.ReadByte();
+			isDisablePlayerInteractions = packet.ReadBool();
 		}
 	}
 
@@ -215,6 +228,7 @@ namespace MiNET.Net
 		public string serverVersion; // = null;
 		public Nbt propertyData;
 		public UUID worldTemplateId;
+		public bool clientSideGenerationEnabled;
 
 		public LevelSettings levelSettings = new LevelSettings();
 		
@@ -252,6 +266,7 @@ namespace MiNET.Net
 			Write(propertyData);
 			Write(blockPaletteChecksum);
 			Write(worldTemplateId);
+			Write(clientSideGenerationEnabled);
 		}
 		
 		partial void AfterDecode()
@@ -296,6 +311,7 @@ namespace MiNET.Net
 			propertyData = ReadNbt();
 			blockPaletteChecksum = ReadUlong();
 			worldTemplateId = ReadUUID();
+			clientSideGenerationEnabled = ReadBool();
 		}
 
 		/// <inheritdoc />
@@ -323,6 +339,7 @@ namespace MiNET.Net
 			serverVersion=default(string);
 			propertyData = default;
 			worldTemplateId = default;
+			clientSideGenerationEnabled = default(bool);
 			base.Reset();
 		}
 	}

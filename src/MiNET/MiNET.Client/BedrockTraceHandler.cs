@@ -227,7 +227,7 @@ namespace MiNET.Client
 
 			var fileNameItemstates = Path.GetTempPath() + "itemstates_" + Guid.NewGuid() + ".json";
 			File.WriteAllText(fileNameItemstates, JsonConvert.SerializeObject(message.itemstates, settings));
-
+			Log.Warn($"itemstates_ Filename:\n{fileNameItemstates}");
 			string fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
 			using(FileStream file = File.OpenWrite(fileName))
 			{

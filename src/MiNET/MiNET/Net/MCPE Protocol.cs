@@ -46,8 +46,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 534;
-		public const string GameVersion = "1.19.10";
+		public const int ProtocolVersion = 544;
+		public const string GameVersion = "1.19.20";
 	}
 
 	public interface IMcpeMessageHandler
@@ -7564,8 +7564,7 @@ namespace MiNET.Net
 	public partial class McpeModalFormRequest : Packet<McpeModalFormRequest>
 	{
 
-		public uint formId; // = null;
-		public string data; // = null;
+		public ModalFormInfo modalforminfo; // = null;
 
 		public McpeModalFormRequest()
 		{
@@ -7579,8 +7578,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteUnsignedVarInt(formId);
-			Write(data);
+			Write(modalforminfo);
 
 			AfterEncode();
 		}
@@ -7594,8 +7592,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			formId = ReadUnsignedVarInt();
-			data = ReadString();
+			modalforminfo = ReadModalFormInfo();
 
 			AfterDecode();
 		}
@@ -7607,8 +7604,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			formId=default(uint);
-			data=default(string);
+			modalforminfo=default(ModalFormInfo);
 		}
 
 	}
@@ -8646,6 +8642,7 @@ namespace MiNET.Net
 
 		public BlockCoordinates coordinates; // = null;
 		public uint radius; // = null;
+		public int savedChunks; // = null;
 
 		public McpeNetworkChunkPublisherUpdate()
 		{
@@ -8661,6 +8658,7 @@ namespace MiNET.Net
 
 			Write(coordinates);
 			WriteUnsignedVarInt(radius);
+			Write(savedChunks);
 
 			AfterEncode();
 		}
@@ -8676,6 +8674,7 @@ namespace MiNET.Net
 
 			coordinates = ReadBlockCoordinates();
 			radius = ReadUnsignedVarInt();
+			savedChunks = ReadInt();
 
 			AfterDecode();
 		}
@@ -8689,6 +8688,7 @@ namespace MiNET.Net
 
 			coordinates=default(BlockCoordinates);
 			radius=default(uint);
+			savedChunks=default(int);
 		}
 
 	}

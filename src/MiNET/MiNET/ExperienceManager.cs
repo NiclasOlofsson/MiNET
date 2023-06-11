@@ -1,4 +1,4 @@
-using MiNET.Net;
+﻿using MiNET.Net;
 using MiNET.Worlds;
 using System;
 
@@ -77,6 +77,7 @@ namespace MiNET
 				MaxValue = 1,
 				Value = CalculateXp(),
 				Default = 0,
+				Modifiers = new AttributeModifiers()
 			};
 			attributes["minecraft:player.level"] = new PlayerAttribute
 			{
@@ -85,6 +86,7 @@ namespace MiNET
 				MaxValue = 24791,
 				Value = ExperienceLevel,
 				Default = 0,
+				Modifiers = new AttributeModifiers()
 			};
 			return attributes;
 		}

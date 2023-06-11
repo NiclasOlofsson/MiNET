@@ -207,6 +207,7 @@ namespace MiNET
 				MaxValue = MaxHunger,
 				Value = Hunger,
 				Default = MaxHunger,
+				Modifiers = new AttributeModifiers()
 			};
 
 			attributes["minecraft:player.saturation"] = new PlayerAttribute
@@ -216,6 +217,7 @@ namespace MiNET
 				MaxValue = MaxHunger,
 				Value = (float) Saturation,
 				Default = MaxHunger,
+				Modifiers = new AttributeModifiers()
 			};
 			attributes["minecraft:player.exhaustion"] = new PlayerAttribute
 			{
@@ -224,11 +226,11 @@ namespace MiNET
 				MaxValue = 5,
 				Value = (float) Exhaustion,
 				Default = 5,
+				Modifiers = new AttributeModifiers()
 			};
 
 			return attributes;
 		}
-
 
 		public virtual void SendHungerAttributes()
 		{

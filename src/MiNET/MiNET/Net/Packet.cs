@@ -35,6 +35,7 @@ using System.Net.Sockets;
 using System.Numerics;
 using System.Text;
 using System.Threading;
+using System.Xml.Linq;
 using fNbt;
 using log4net;
 using Microsoft.IO;
@@ -1870,6 +1871,41 @@ namespace MiNET.Net
 			return dictionary;
 		}
 
+		public AttributeModifiers ReadAttributeModifiers()
+		{
+			var modifiers = new AttributeModifiers();
+			uint count = ReadUnsignedVarInt();
+			for (int i = 0; i < count; i++)
+			{
+				AttributeModifier modifier = new AttributeModifier
+				{
+					Id = ReadString(),
+					Name = ReadString(),
+					Amount = ReadFloat(),
+					Operations = ReadInt(),
+					Operand = ReadInt(),
+					Serializable = ReadBool(),
+				};
+				modifiers[modifier.Name] = modifier;
+			}
+
+			return modifiers;
+		}
+
+		public void Write(AttributeModifiers modifiers)
+		{
+			WriteUnsignedVarInt((uint) modifiers.Count);
+			foreach (AttributeModifier modifier in modifiers.Values)
+			{
+				Write(modifier.Id);
+				Write(modifier.Name);
+				Write(modifier.Amount);
+				Write(modifier.Operations); // unknown
+				Write(modifier.Operand);
+				Write(modifier.Serializable);
+			}
+		}
+
 		public PlayerAttributes ReadPlayerAttributes()
 		{
 			var attributes = new PlayerAttributes();
@@ -1883,8 +1919,8 @@ namespace MiNET.Net
 					Value = ReadFloat(),
 					Default = ReadFloat(),
 					Name = ReadString(),
+					Modifiers = ReadAttributeModifiers()
 				};
-
 				attributes[attribute.Name] = attribute;
 			}
 
@@ -1901,6 +1937,7 @@ namespace MiNET.Net
 				Write(attribute.Value);
 				Write(attribute.Default); // unknown
 				Write(attribute.Name);
+				Write(attribute.Modifiers);
 			}
 		}
 
@@ -3020,11 +3057,12 @@ namespace MiNET.Net
 			WriteUnsignedVarInt((uint) map.UpdateType);
 			Write((byte) 0); // dimension
 			Write(false); // Locked
+			Write(map.Origin);
 
 			if ((map.UpdateType & MapUpdateFlagInitialisation) != 0)
 			{
-				WriteUnsignedVarInt(1);
-				WriteSignedVarLong(map.MapId);
+				WriteUnsignedVarInt(0);
+				//WriteSignedVarLong(map.MapId);
 			}
 
 			if ((map.UpdateType & (MapUpdateFlagInitialisation | MapUpdateFlagDecoration | MapUpdateFlagTexture)) != 0)
@@ -3034,6 +3072,23 @@ namespace MiNET.Net
 
 			if ((map.UpdateType & MapUpdateFlagDecoration) != 0)
 			{
+				var countTrackedObj = map.TrackedObjects.Length;
+
+				WriteUnsignedVarInt((uint) countTrackedObj);
+				foreach (var trackedObject in map.TrackedObjects)
+				{
+					if (trackedObject is EntityMapTrackedObject entity)
+					{
+						Write(0);
+						WriteSignedVarLong(entity.EntityId);
+					}
+					else if (trackedObject is BlockMapTrackedObject block)
+					{
+						Write(1);
+						Write(block.Coordinates);
+					}
+				}
+
 				var count = map.Decorators.Length;
 
 				WriteUnsignedVarInt((uint) count);
@@ -3079,7 +3134,7 @@ namespace MiNET.Net
 						byte g = map.Data[i++];
 						byte b = map.Data[i++];
 						byte a = map.Data[i++];
-						uint color = BitConverter.ToUInt32(new byte[] {r, g, b, 0xff}, 0);
+						uint color = BitConverter.ToUInt32(new byte[] { r, g, b, 0xff }, 0);
 						WriteUnsignedVarInt(color);
 					}
 				}
@@ -3570,7 +3625,33 @@ namespace MiNET.Net
 
 			return definitions;
 		}
-		
+
+		public ModalFormInfo ReadModalFormInfo()
+		{
+			ModalFormInfo form = new ModalFormInfo();
+			form.formId = ReadUnsignedVarInt();
+			if (form.isData = ReadBool())
+			{
+				form.data = ReadString();
+			}
+			if (form.isCancelReason = ReadBool())
+			{
+				form.cancelReason = ReadByte();
+			}
+			return form;
+		}
+
+		public void Write(ModalFormInfo form)
+		{
+			Write(form.formId);
+			Write(form.isData);
+			if (form.isData)
+				Write(form.data);
+			Write(form.isCancelReason);
+			if (form.isCancelReason)
+				Write(form.cancelReason);
+		}
+
 		public bool CanRead()
 		{
 			return _reader.Position < _reader.Length;

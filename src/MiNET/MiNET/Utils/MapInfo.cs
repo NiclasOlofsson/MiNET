@@ -32,7 +32,9 @@ namespace MiNET.Utils
 	{
 		public long MapId;
 		public byte UpdateType;
+		public BlockCoordinates Origin = new BlockCoordinates();
 		public MapDecorator[] Decorators = new MapDecorator[0];
+		public MapTrackedObject[] TrackedObjects = new MapTrackedObject[0];
 		public byte X;
 		public byte Z;
 		public int Scale;
@@ -81,6 +83,31 @@ namespace MiNET.Utils
 		public EntityMapDecorator()
 		{
 			Type = 0;
+		}
+	}
+
+	public class MapTrackedObject
+	{
+		protected int Type;
+	}
+
+	public class EntityMapTrackedObject : MapTrackedObject
+	{
+		public long EntityId;
+
+		public EntityMapTrackedObject()
+		{
+			Type = 0;
+		}
+	}
+
+	public class BlockMapTrackedObject : MapTrackedObject
+	{
+		public BlockCoordinates Coordinates;
+
+		public BlockMapTrackedObject()
+		{
+			Type = 1;
 		}
 	}
 }

@@ -3076,7 +3076,15 @@ namespace MiNET
 			startGame.enableNewInventorySystem = true;
 			startGame.blockPaletteChecksum = 0;
 			startGame.serverVersion = McpeProtocolInfo.GameVersion;
-			startGame.propertyData = new Nbt() {NbtFile = new NbtFile()};
+			startGame.propertyData = new Nbt
+			{
+				NbtFile = new NbtFile
+				{
+					BigEndian = false,
+					UseVarInt = true,
+					RootTag = new NbtCompound("")
+				}
+			};
 			startGame.worldTemplateId = new UUID(Guid.Empty.ToByteArray());
 
 			SendPacket(startGame);
@@ -3241,6 +3249,7 @@ namespace MiNET
 				MaxValue = 1,
 				Value = 1,
 				Default = 1,
+				Modifiers = new AttributeModifiers()
 			};
 			attributes["minecraft:absorption"] = new PlayerAttribute
 			{
@@ -3249,6 +3258,7 @@ namespace MiNET
 				MaxValue = float.MaxValue,
 				Value = HealthManager.Absorption,
 				Default = 0,
+				Modifiers = new AttributeModifiers()
 			};
 			attributes["minecraft:health"] = new PlayerAttribute
 			{
@@ -3257,6 +3267,7 @@ namespace MiNET
 				MaxValue = HealthManager.MaxHearts,
 				Value = HealthManager.Hearts,
 				Default = HealthManager.MaxHearts,
+				Modifiers = new AttributeModifiers()
 			};
 			attributes["minecraft:movement"] = new PlayerAttribute
 			{
@@ -3265,6 +3276,7 @@ namespace MiNET
 				MaxValue = 0.5f,
 				Value = MovementSpeed,
 				Default = MovementSpeed,
+				Modifiers = new AttributeModifiers()
 			};
 			attributes["minecraft:knockback_resistance"] = new PlayerAttribute
 			{
@@ -3273,6 +3285,7 @@ namespace MiNET
 				MaxValue = 1,
 				Value = 0,
 				Default = 0,
+				Modifiers = new AttributeModifiers()
 			};
 			attributes["minecraft:luck"] = new PlayerAttribute
 			{
@@ -3281,6 +3294,7 @@ namespace MiNET
 				MaxValue = 1024,
 				Value = 0,
 				Default = 0,
+				Modifiers = new AttributeModifiers()
 			};
 			attributes["minecraft:follow_range"] = new PlayerAttribute
 			{
@@ -3289,6 +3303,7 @@ namespace MiNET
 				MaxValue = 2048,
 				Value = 16,
 				Default = 16,
+				Modifiers = new AttributeModifiers()
 			};
 			// Workaround, bad design.
 			attributes = HungerManager.AddHungerAttributes(attributes);
@@ -3305,8 +3320,11 @@ namespace MiNET
 			CurrentForm = form;
 
 			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.formId = form.Id; // whatever
-			message.data = form.ToJson();
+			message.modalforminfo.formId = form.Id; // whatever
+			message.modalforminfo.data = form.ToJson();
+			message.modalforminfo.isData = true;
+			message.modalforminfo.isCancelReason = false;//????
+			message.modalforminfo.cancelReason = 0;
 			SendPacket(message);
 		}
 

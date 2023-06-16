@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.19.20" protocolVersion="544">
+<protocol gameVersion="1.19.30" protocolVersion="554">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -192,6 +192,7 @@
 			<enum id="Announcement" value="8" />
 			<enum id="Json" value="9" />
 			<enum id="JsonWhisper" value="10" />
+			<enum id="JsonAnnouncement" value="11" />
 		</enums>
 
 		<field name="Type" type="byte" />
@@ -1123,9 +1124,12 @@
 			<enum id="Nothing" value="0" />
 			<enum id="Everything" value="1" />
 		</enums>
-
-		<field name="Unknown" type="byte" />
-		<field name="Compression threshold" type="byte" />
+		
+		<field name="Compression Threshold" type="short" />
+		<field name="Compression Algorithm" type="short" />
+		<field name="Client Throttle Enabled" type="bool" />
+		<field name="Client Throttle Threshold" type="byte" />
+		<field name="Client Throttle Scalar" type="float" />
 	</pdu>
 
 	<pdu id="0x90" online="false" client="true" server="false" name="MCPE_PLAYER_AUTH_INPUT">
@@ -1239,6 +1243,11 @@
 	<pdu id="0xb8" online="false" client="true" server="false" name="MCPE_REQUEST_ABILITY">
 		<field name="Ability" type="VarInt" />
 		
+	</pdu>
+
+	<pdu id="0xc1" online="false" client="true" server="false" name="MCPE_REQUEST_NETWORK_SETTINGS">
+		<field name="Protocol Version" type="int" endianess="BE" />
+
 	</pdu>
 	
 	<pdu id="0xe0" online="false" client="false" server="true" name="MCPE_ALEX_ENTITY_ANIMATION">

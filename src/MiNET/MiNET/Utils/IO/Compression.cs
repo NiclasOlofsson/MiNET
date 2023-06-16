@@ -58,29 +58,51 @@ namespace MiNET.Utils.IO
 		public static byte[] CompressPacketsForWrapper(List<Packet> packets, CompressionLevel compressionLevel = CompressionLevel.Fastest)
 		{
 			long length = 0;
-			foreach (Packet packet in packets) length += packet.Encode().Length;
+			foreach (Packet packet in packets)
+				length += packet.Encode().Length;
 
-			compressionLevel = length > 1000 ? compressionLevel : CompressionLevel.NoCompression;
-
-			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
+			if (compressionLevel == CompressionLevel.NoCompression)
 			{
-				using (var compressStream = new DeflateStream(stream, compressionLevel, true))
+				using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 				{
 					foreach (Packet packet in packets)
 					{
 						byte[] bs = packet.Encode();
 						if (bs != null && bs.Length > 0)
 						{
-							BatchUtils.WriteLength(compressStream, bs.Length);
-							compressStream.Write(bs, 0, bs.Length);
+							BatchUtils.WriteLength(stream, bs.Length);
+							stream.Write(bs, 0, bs.Length);
 						}
 						packet.PutPool();
 					}
-					compressStream.Flush();
-				}
 
-				byte[] bytes = stream.ToArray();
-				return bytes;
+					byte[] bytes = stream.ToArray();
+					return bytes;
+				}
+			}
+			else
+			{
+				compressionLevel = length > 1000 ? compressionLevel : CompressionLevel.NoCompression;
+				using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
+				{
+					using (var compressStream = new DeflateStream(stream, compressionLevel, true))
+					{
+						foreach (Packet packet in packets)
+						{
+							byte[] bs = packet.Encode();
+							if (bs != null && bs.Length > 0)
+							{
+								BatchUtils.WriteLength(compressStream, bs.Length);
+								compressStream.Write(bs, 0, bs.Length);
+							}
+							packet.PutPool();
+						}
+						compressStream.Flush();
+					}
+
+					byte[] bytes = stream.ToArray();
+					return bytes;
+				}
 			}
 		}
 

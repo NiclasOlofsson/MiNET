@@ -230,7 +230,7 @@ namespace MiNET.Net.RakNet
 			MtuSize = mtuSize; // This is what we will use from connections this point forward
 
 			var packet = OpenConnectionRequest1.CreateObject();
-			packet.raknetProtocolVersion = 10;
+			packet.raknetProtocolVersion = 11;
 			packet.mtuSize = mtuSize;
 
 			byte[] data = packet.Encode();

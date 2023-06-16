@@ -55,7 +55,6 @@ namespace MiNET.Net
 		{
 			var sendList = new List<Packet>();
 			var sendInBatch = new List<Packet>();
-
 			foreach (Packet packet in packetsToSend)
 			{
 				// We must send forced clear messages in single message batch because
@@ -67,7 +66,7 @@ namespace MiNET.Net
 					var wrapper = McpeWrapper.CreateObject();
 					wrapper.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
 					wrapper.ForceClear = true;
-					wrapper.payload = Compression.CompressPacketsForWrapper(new List<Packet> {packet});
+					wrapper.payload = Compression.CompressPacketsForWrapper(new List<Packet> {packet}, _session.EnableCompression ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
 					wrapper.Encode(); // prepare
 					packet.PutPool();
 					sendList.Add(wrapper);
@@ -97,7 +96,7 @@ namespace MiNET.Net
 			{
 				var batch = McpeWrapper.CreateObject();
 				batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
-				batch.payload = Compression.CompressPacketsForWrapper(sendInBatch);
+				batch.payload = Compression.CompressPacketsForWrapper(sendInBatch, _session.EnableCompression ? CompressionLevel.Fastest : CompressionLevel.NoCompression);
 				batch.Encode(); // prepare
 				sendList.Add(batch);
 			}
@@ -153,10 +152,52 @@ namespace MiNET.Net
 				var stream = new MemoryStreamReader(payload);
 				try
 				{
-					using (var deflateStream = new DeflateStream(stream, CompressionMode.Decompress, false))
+					bool сompress = _session != null ? _session.EnableCompression : false;
+					if (сompress)
+					{
+						using (var deflateStream = new DeflateStream(stream, CompressionMode.Decompress, false))
+						{
+							using var s = new MemoryStream();
+							deflateStream.CopyTo(s);
+							s.Position = 0;
+
+							int count = 0;
+							// Get actual packet out of bytes
+							while (s.Position < s.Length)
+							{
+								count++;
+
+								uint len = VarInt.ReadUInt32(s);
+								long pos = s.Position;
+								ReadOnlyMemory<byte> internalBuffer = s.GetBuffer().AsMemory((int) s.Position, (int) len);
+								int id = VarInt.ReadInt32(s);
+								try
+								{
+									//if (Log.IsDebugEnabled)
+									//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Packet.HexDump(internalBuffer)}");
+
+									messages.Add(PacketFactory.Create((byte) id, internalBuffer, "mcpe") ??
+												new UnknownPacket((byte) id, internalBuffer));
+								}
+								catch (Exception e)
+								{
+									if (Log.IsDebugEnabled)
+										Log.Warn($"Error parsing bedrock message #{count} id={id}\n{Packet.HexDump(internalBuffer)}", e);
+									//throw;
+									return; // Exit, but don't crash.
+								}
+
+								s.Position = pos + len;
+							}
+
+							if (s.Length > s.Position)
+								throw new Exception("Have more data");
+						}
+					}
+					else
 					{
 						using var s = new MemoryStream();
-						deflateStream.CopyTo(s);
+						stream.CopyTo(s);
 						s.Position = 0;
 
 						int count = 0;
@@ -179,7 +220,8 @@ namespace MiNET.Net
 							}
 							catch (Exception e)
 							{
-								if (Log.IsDebugEnabled) Log.Warn($"Error parsing bedrock message #{count} id={id}\n{Packet.HexDump(internalBuffer)}", e);
+								if (Log.IsDebugEnabled)
+									Log.Warn($"Error parsing bedrock message #{count} id={id}\n{Packet.HexDump(internalBuffer)}", e);
 								//throw;
 								return; // Exit, but don't crash.
 							}
@@ -187,7 +229,8 @@ namespace MiNET.Net
 							s.Position = pos + len;
 						}
 
-						if (s.Length > s.Position) throw new Exception("Have more data");
+						if (s.Length > s.Position)
+							throw new Exception("Have more data");
 					}
 				}
 				catch (Exception e)

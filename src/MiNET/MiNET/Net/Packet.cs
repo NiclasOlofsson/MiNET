@@ -2928,12 +2928,13 @@ namespace MiNET.Net
 		{
 			if (stack == null || stack.Id == 0)
 			{
+				Write(false);
 				WriteVarInt(0);
 				return;
 			}
-
-			WriteVarInt(stack.Id);
-			WriteVarInt(stack.Metadata);
+			Write(true);
+			Write(stack.Id);
+			Write(stack.Metadata);
 			WriteVarInt(stack.Count);
 		}
 
@@ -2945,8 +2946,8 @@ namespace MiNET.Net
 				return new ItemAir();
 			}
 
-			short metadata = (short) ReadVarInt();
-			int count = ReadVarInt();
+			short metadata = (short) ReadShort();
+			int count = ReadShort();
 
 			return ItemFactory.GetItem(id, metadata, count);
 		}

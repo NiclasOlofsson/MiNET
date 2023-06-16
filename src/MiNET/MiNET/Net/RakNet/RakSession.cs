@@ -58,6 +58,8 @@ namespace MiNET.Net.RakNet
 
 		public ICustomMessageHandler CustomMessageHandler { get; set; }
 
+		public bool EnableCompression { get; set; } = false;
+
 		public string Username { get; set; }
 		public IPEndPoint EndPoint { get; private set; }
 		public short MtuSize { get; set; }
@@ -621,6 +623,28 @@ namespace MiNET.Net.RakNet
 				packet.ReliabilityHeader.Reliability = Reliability.Reliable; // Questionable practice
 
 			_packetSender.SendPacketAsync(this, packet).Wait();
+		}
+
+		public void SendPrepareDirectPacket(Packet packet)
+		{
+			List<Packet> prepareSend = CustomMessageHandler.PrepareSend(new List<Packet> { packet });
+			var preppedSendList = new List<Packet>();
+			foreach (Packet preparePacket in prepareSend)
+			{
+				Packet message = preparePacket;
+
+				if (CustomMessageHandler != null)
+					message = CustomMessageHandler.HandleOrderedSend(message);
+
+				Reliability reliability = message.ReliabilityHeader.Reliability;
+				if (reliability == Reliability.Undefined)
+					reliability = Reliability.Reliable; // Questionable practice
+
+				if (reliability == Reliability.ReliableOrdered)
+					message.ReliabilityHeader.OrderingIndex = Interlocked.Increment(ref OrderingIndex);
+
+				_packetSender.SendPacketAsync(this, message).Wait();
+			}
 		}
 
 		public IPEndPoint GetClientEndPoint()

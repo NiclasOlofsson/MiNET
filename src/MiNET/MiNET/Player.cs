@@ -149,6 +149,10 @@ namespace MiNET
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
+		public void HandleMcpeRequestNetworkSettings(McpeRequestNetworkSettings message)
+		{
+		}
+
 		public virtual void HandleMcpeScriptCustomEvent(McpeScriptCustomEvent message)
 		{
 		}
@@ -3937,6 +3941,7 @@ namespace MiNET
 		public virtual void HandleMcpeLevelSoundEventV2(McpeLevelSoundEventV2 message)
 		{
 		}
+
 	}
 
 	public class PlayerEventArgs : EventArgs

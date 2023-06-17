@@ -3627,6 +3627,48 @@ namespace MiNET.Net
 			return definitions;
 		}
 
+		public void Write(PropertySyncData syncData)
+		{
+			if (syncData == null)
+			{
+				WriteUnsignedVarInt(0);
+				WriteUnsignedVarInt(0);
+				return;
+			}
+			WriteUnsignedVarInt((uint) syncData.intProperties.Count);
+
+			foreach (var intP in syncData.intProperties)
+			{
+				WriteUnsignedVarInt(intP.Key);
+				WriteSignedVarInt(intP.Value);
+			}
+
+			WriteUnsignedVarInt((uint) syncData.floatProperties.Count);
+
+			foreach (var intF in syncData.floatProperties)
+			{
+				WriteUnsignedVarInt(intF.Key);
+				Write(intF.Value);
+			}
+		}
+
+		public PropertySyncData ReadPropertySyncData()
+		{
+			PropertySyncData syncData = new PropertySyncData();
+			var countInt = ReadUnsignedVarInt();
+			for (int i = 0; i < countInt; i++)
+			{
+				syncData.intProperties.Add(ReadUnsignedVarInt(), ReadVarInt());
+			}
+
+			var countFloat = ReadUnsignedVarInt();
+			for (int i = 0; i < countFloat; i++)
+			{
+				syncData.floatProperties.Add(ReadUnsignedVarInt(), ReadFloat());
+			}
+			return syncData;
+		}
+
 		public ModalFormInfo ReadModalFormInfo()
 		{
 			ModalFormInfo form = new ModalFormInfo();

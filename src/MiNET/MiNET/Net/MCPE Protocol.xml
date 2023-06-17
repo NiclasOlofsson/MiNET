@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.19.30" protocolVersion="554">
+<protocol gameVersion="1.19.40" protocolVersion="557">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -223,6 +223,7 @@
 		<field name="Item" type="Item" />
 		<field name="Game Type" type="UnsignedVarInt" />
 		<field name="Metadata" type="MetadataDictionary" />
+		<field name="SyncData" type="PropertySyncData" />
 		<field name="Entity ID Self" type="SignedVarLong" />
 		
 		<field name="Player Permissions" type="byte" />
@@ -264,6 +265,7 @@
 		<field name="Body Yaw" type="float" />
 		<field name="Attributes" type="EntityAttributes" />
 		<field name="Metadata" type="MetadataDictionary" />
+		<field name="SyncData" type="PropertySyncData" />
 		<field name="Links" type="EntityLinks" />
 	</pdu>
 
@@ -516,6 +518,7 @@
 	<pdu id="0x27" online="false" client="true" server="true" name="MCPE_SET_ENTITY_DATA">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Metadata" type="MetadataDictionary" />
+		<field name="SyncData" type="PropertySyncData" />
 		<field name="Tick" type="UnsignedVarLong" />
 	</pdu>
 

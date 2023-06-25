@@ -46,8 +46,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 557;
-		public const string GameVersion = "1.19.40";
+		public const int ProtocolVersion = 567;
+		public const string GameVersion = "1.19.60";
 	}
 
 	public interface IMcpeMessageHandler
@@ -6308,7 +6308,8 @@ namespace MiNET.Net
 		public uint commandType; // = null;
 		public UUID unknownUuid; // = null;
 		public string requestId; // = null;
-		public bool unknown; // = null;
+		public bool isinternal; // = null;
+		public int version; // = null;
 
 		public McpeCommandRequest()
 		{
@@ -6326,7 +6327,8 @@ namespace MiNET.Net
 			WriteUnsignedVarInt(commandType);
 			Write(unknownUuid);
 			Write(requestId);
-			Write(unknown);
+			Write(isinternal);
+			WriteSignedVarInt(version);
 
 			AfterEncode();
 		}
@@ -6344,7 +6346,8 @@ namespace MiNET.Net
 			commandType = ReadUnsignedVarInt();
 			unknownUuid = ReadUUID();
 			requestId = ReadString();
-			unknown = ReadBool();
+			isinternal = ReadBool();
+			version = ReadSignedVarInt();
 
 			AfterDecode();
 		}
@@ -6360,7 +6363,8 @@ namespace MiNET.Net
 			commandType=default(uint);
 			unknownUuid=default(UUID);
 			requestId=default(string);
-			unknown=default(bool);
+			isinternal=default(bool);
+			version=default(int);
 		}
 
 	}

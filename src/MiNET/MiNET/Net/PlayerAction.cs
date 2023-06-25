@@ -55,6 +55,9 @@ namespace MiNET.Net
 		StopSpinAttack = 24,
 		InteractBlock = 25,
 		PredictDestroyBlock = 26,
-		ContinueDestroyBlock = 27
+		ContinueDestroyBlock = 27,
+		StartItemUse = 28,
+		StopItemUse = 29,
+		HandledTeleport = 30
 	}
 }

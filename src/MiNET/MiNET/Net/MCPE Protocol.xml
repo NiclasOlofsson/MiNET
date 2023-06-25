@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.19.40" protocolVersion="557">
+<protocol gameVersion="1.19.60" protocolVersion="567">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -803,7 +803,8 @@
 		<field name="Command type" type="UnsignedVarInt" />
 		<field name="Unknown UUID" type="UUID" />
 		<field name="Request ID" type="string" />
-		<field name="Unknown" type="bool" />
+		<field name="IsInternal" type="bool" />
+		<field name="Version" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x4e" online="false" client="true" server="false" name="MCPE_COMMAND_BLOCK_UPDATE">

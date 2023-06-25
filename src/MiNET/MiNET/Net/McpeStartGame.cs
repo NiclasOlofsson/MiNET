@@ -69,6 +69,7 @@ namespace MiNET.Net
 		public bool onlySpawnV1Villagers; // = null;
 		public bool isDisablingPersonas; // = null;
 		public bool isDisablingCustomSkins; // = null;
+		public bool emoteChatMuted;  // = null;
 		public string gameVersion; // = null;
 		public int limitedWorldWidth; // = null;
 		public int limitedWorldLength; // = null;
@@ -125,6 +126,7 @@ namespace MiNET.Net
 			packet.Write(onlySpawnV1Villagers);
 			packet.Write(isDisablingPersonas);
 			packet.Write(isDisablingCustomSkins);
+			packet.Write(emoteChatMuted);
 			packet.Write(gameVersion);
 			packet.Write(limitedWorldWidth);
 			packet.Write(limitedWorldLength);
@@ -181,6 +183,7 @@ namespace MiNET.Net
 			onlySpawnV1Villagers = packet.ReadBool();
 			isDisablingPersonas = packet.ReadBool();
 			isDisablingCustomSkins = packet.ReadBool();
+			emoteChatMuted = packet.ReadBool();
 			gameVersion = packet.ReadString();
 
 			limitedWorldWidth = packet.ReadInt();

@@ -2582,6 +2582,7 @@ namespace MiNET.Net
 			Write(skin.IsPersonaSkin);
 			Write(skin.Cape.OnClassicSkin);
 			Write(skin.IsPrimaryUser);
+			Write(skin.isOverride);
 		}
 
 		public Skin ReadSkin()
@@ -2651,6 +2652,7 @@ namespace MiNET.Net
 			skin.IsPersonaSkin = ReadBool();
 			skin.Cape.OnClassicSkin = ReadBool();
 			skin.IsPrimaryUser = ReadBool();
+			skin.isOverride = ReadBool();
 			//Log.Debug($"SkinId={skin.SkinId}");
 			//Log.Debug($"SkinData lenght={skin.Data.Length}");
 			//Log.Debug($"CapeData lenght={skin.Cape.Data.Length}");
@@ -2669,6 +2671,7 @@ namespace MiNET.Net
 		const byte ShulkerBox = 5;
 		const byte ShapelessChemistry = 6;
 		const byte ShapedChemistry = 7;
+		const byte SmithingTransform = 8;
 
 		public void Write(Recipes recipes)
 		{
@@ -2739,6 +2742,18 @@ namespace MiNET.Net
 						Write(rec.Result);
 						Write(rec.Block);
 						break;
+					}
+					case SmithingTransformRecipe smithingTransformRecipe:
+					{
+							//WriteSignedVarInt(SmithingTransform); // Type
+							var rec = smithingTransformRecipe;
+							Write(rec.Id.ToString());
+							WriteRecipeIngredient(rec.Input);
+							WriteRecipeIngredient(rec.Addition);
+							Write(rec.Output, false);
+							Write(rec.Block);
+							WriteVarInt(smithingTransformRecipe.UniqueId); // unique id
+							break;
 					}
 					case MultiRecipe multiRecipe:
 					{
@@ -2822,6 +2837,20 @@ namespace MiNET.Net
 						recipe.UniqueId = ReadVarInt(); // unique id
 						recipes.Add(recipe);
 						//Log.Error("Read shaped recipe");
+						break;
+					}
+					case SmithingTransform:
+					{
+						var recipe = new SmithingTransformRecipe();
+						ReadString(); // some unique id
+						recipe.Input = ReadRecipeIngredient();
+						recipe.Addition = ReadRecipeIngredient();
+						recipe.Output = ReadItem(false);
+						recipe.Id = ReadUUID(); // Id
+						recipe.Block = ReadString(); // block?
+						recipe.UniqueId = ReadVarInt(); // unique id
+						recipes.Add(recipe);
+						//Log.Error("Read smithing recipe");
 						break;
 					}
 					case Furnace:

@@ -142,6 +142,25 @@ namespace MiNET.Crafting
 		}
 	}
 
+	public class SmithingTransformRecipe : Recipe
+	{
+		public int UniqueId { get; set; }
+		public Item Input { get; set; }
+		public Item Addition { get; set; }
+		public Item Output { get; set; }
+
+		public SmithingTransformRecipe()
+		{
+		}
+
+		public SmithingTransformRecipe(Item result, Item input, string block = null) : this()
+		{
+			Result = result;
+			Input = input;
+			Block = block;
+		}
+	}
+
 	public class PotionContainerChangeRecipe
 	{
 		public int Input { get; set; }

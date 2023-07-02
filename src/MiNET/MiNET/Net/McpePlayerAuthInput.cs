@@ -65,6 +65,8 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 	/// </summary>
 	public Vector3 Delta;
 
+	public Vector2 AnalogMoveVector;
+
 	partial void AfterDecode()
 	{
 		Pitch = ReadFloat();
@@ -89,6 +91,8 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		{
 			
 		}
+
+		AnalogMoveVector = ReadVector2();
 	}
 
 	partial void AfterEncode()
@@ -110,6 +114,7 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		
 		WriteUnsignedVarLong(Tick);
 		Write(Delta);
+		Write(AnalogMoveVector);
 	}
 
 	/// <inheritdoc />
@@ -125,6 +130,7 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		InteractionModel = PlayerInteractionModel.Touch;
 		Tick = 0;
 		Delta = Vector3.Zero;
+		AnalogMoveVector = Vector2.Zero;
 	}
 
 	public enum PlayerPlayMode

@@ -69,5 +69,6 @@ public enum PlayerAbility : uint
 	WalkSpeed = 1 << 14,
 	Muted = 1 << 15,
 	WorldBuilder = 1 << 16,
-	NoClip = 1 << 17
+	NoClip = 1 << 17,
+	PrivilegedBuilder= 1 << 18
 }

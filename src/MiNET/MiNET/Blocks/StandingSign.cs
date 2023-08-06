@@ -28,6 +28,7 @@ using System.Linq;
 using System.Numerics;
 using MiNET.BlockEntities;
 using MiNET.Items;
+using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
@@ -63,7 +64,13 @@ namespace MiNET.Blocks
 
 			var signBlockEntity = new SignBlockEntity {Coordinates = Coordinates};
 			world.SetBlockEntity(signBlockEntity);
-
+			if (player != null)
+			{
+				McpeOpenSign openSign = McpeOpenSign.CreateObject();
+				openSign.coordinates = Coordinates;
+				openSign.front = true;
+				player.SendPacket(openSign);
+			}
 			return false;
 		}
 

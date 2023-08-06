@@ -737,6 +737,16 @@ namespace MiNET.Client
 		public virtual void HandleFtlCreatePlayer(FtlCreatePlayer message)
 		{
 		}
+
+		public void HandleMcpeTrimData(McpeTrimData message)
+		{
+			
+		}
+
+		public void HandleMcpeOpenSign(McpeOpenSign message)
+		{
+			
+		}
 	}
 
 	public class DefaultMessageHandler : McpeClientMessageHandlerBase

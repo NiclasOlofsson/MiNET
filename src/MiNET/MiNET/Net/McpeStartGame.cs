@@ -41,6 +41,8 @@ namespace MiNET.Net
 		public int z; // = null;
 		public bool hasAchievementsDisabled; // = null;
 		public bool editorWorld;
+		public bool createdInEditorMode; // = null;
+		public bool exportedFromEditorMode; // = null;
 		public int time; // = null;
 		public int eduOffer; // = null;
 		public bool hasEduFeaturesEnabled; // = null;
@@ -97,6 +99,8 @@ namespace MiNET.Net
 
 			packet.Write(hasAchievementsDisabled);
 			packet.Write(editorWorld);
+			packet.Write(createdInEditorMode);
+			packet.Write(exportedFromEditorMode);
 			packet.WriteSignedVarInt(time);
 			packet.WriteSignedVarInt(eduOffer);
 			packet.Write(hasEduFeaturesEnabled);
@@ -154,6 +158,8 @@ namespace MiNET.Net
 
 			hasAchievementsDisabled = packet.ReadBool();
 			editorWorld = packet.ReadBool();
+			createdInEditorMode = packet.ReadBool();
+			exportedFromEditorMode= packet.ReadBool();
 			time = packet.ReadSignedVarInt();
 			eduOffer = packet.ReadSignedVarInt();
 			hasEduFeaturesEnabled = packet.ReadBool();
@@ -232,6 +238,7 @@ namespace MiNET.Net
 		public Nbt propertyData;
 		public UUID worldTemplateId;
 		public bool clientSideGenerationEnabled;
+		public bool blockNetworkIdsAreHashes = false;
 
 		public LevelSettings levelSettings = new LevelSettings();
 		
@@ -270,6 +277,7 @@ namespace MiNET.Net
 			Write(blockPaletteChecksum);
 			Write(worldTemplateId);
 			Write(clientSideGenerationEnabled);
+			Write(blockNetworkIdsAreHashes);
 		}
 		
 		partial void AfterDecode()
@@ -315,6 +323,7 @@ namespace MiNET.Net
 			blockPaletteChecksum = ReadUlong();
 			worldTemplateId = ReadUUID();
 			clientSideGenerationEnabled = ReadBool();
+			blockNetworkIdsAreHashes = ReadBool();
 		}
 
 		/// <inheritdoc />
@@ -343,6 +352,7 @@ namespace MiNET.Net
 			propertyData = default;
 			worldTemplateId = default;
 			clientSideGenerationEnabled = default(bool);
+			blockNetworkIdsAreHashes =default(bool);
 			base.Reset();
 		}
 	}

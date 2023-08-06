@@ -34,6 +34,6 @@ namespace MiNET.Net.RakNet
 	/// </summary>
 	public interface ICustomPacketFactory
 	{
-		public Packet Create(byte messageId, ReadOnlyMemory<byte> buffer, string ns);
+		public Packet Create(short messageId, ReadOnlyMemory<byte> buffer, string ns);
 	}
 }

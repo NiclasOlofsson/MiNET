@@ -46,8 +46,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 567;
-		public const string GameVersion = "1.19.60";
+		public const int ProtocolVersion = 582;
+		public const string GameVersion = "1.19.80";
 	}
 
 	public interface IMcpeMessageHandler
@@ -244,6 +244,8 @@ namespace MiNET.Net
 		void HandleMcpeDimensionData(McpeDimensionData message);
 		void HandleMcpeUpdateAbilities(McpeUpdateAbilities message);
 		void HandleMcpeUpdateAdventureSettings(McpeUpdateAdventureSettings message);
+		void HandleMcpeTrimData(McpeTrimData message);
+		void HandleMcpeOpenSign(McpeOpenSign message);
 		void HandleMcpeAlexEntityAnimation(McpeAlexEntityAnimation message);
 		void HandleFtlCreatePlayer(FtlCreatePlayer message);
 	}
@@ -642,6 +644,12 @@ namespace MiNET.Net
 				case McpeUpdateAdventureSettings msg:
 					_messageHandler.HandleMcpeUpdateAdventureSettings(msg);
 					break;
+				case McpeTrimData msg:
+					_messageHandler.HandleMcpeTrimData(msg);
+					break;
+				case McpeOpenSign msg:
+					_messageHandler.HandleMcpeOpenSign(msg);
+					break;
 				case McpeAlexEntityAnimation msg:
 					_messageHandler.HandleMcpeAlexEntityAnimation(msg);
 					break;
@@ -660,7 +668,7 @@ namespace MiNET.Net
 	{
 		public static ICustomPacketFactory CustomPacketFactory { get; set; } = null;
 
-		public static Packet Create(byte messageId, ReadOnlyMemory<byte> buffer, string ns)
+		public static Packet Create(short messageId, ReadOnlyMemory<byte> buffer, string ns)
 		{
 			Packet packet = CustomPacketFactory?.Create(messageId, buffer, ns);
 			if (packet != null) return packet;
@@ -1013,6 +1021,10 @@ namespace MiNET.Net
 						return McpeRequestAbility.CreateObject().Decode(buffer);
 					case 0xc1:
 						return McpeRequestNetworkSettings.CreateObject().Decode(buffer);
+					case 0x12e:
+						return McpeTrimData.CreateObject().Decode(buffer);
+					case 0x12f:
+						return McpeOpenSign.CreateObject().Decode(buffer);
 					case 0xe0:
 						return McpeAlexEntityAnimation.CreateObject().Decode(buffer);
 				}
@@ -5054,6 +5066,8 @@ namespace MiNET.Net
 			ShulkerBox = 5,
 			ChemistryShapeless = 6,
 			ChemistryShaped = 7,
+			SmithingTransform = 8,
+			SmithingTrim = 9,
 		}
 
 		public byte windowId; // = null;
@@ -5901,6 +5915,7 @@ namespace MiNET.Net
 	{
 
 		public int chunkRadius; // = null;
+		public byte maxRadius; // = null;
 
 		public McpeRequestChunkRadius()
 		{
@@ -5915,6 +5930,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			WriteSignedVarInt(chunkRadius);
+			Write(maxRadius);
 
 			AfterEncode();
 		}
@@ -5929,6 +5945,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			chunkRadius = ReadSignedVarInt();
+			maxRadius = ReadByte();
 
 			AfterDecode();
 		}
@@ -5941,6 +5958,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			chunkRadius=default(int);
+			maxRadius=default(byte);
 		}
 
 	}
@@ -10305,6 +10323,102 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			protocolVersion=default(int);
+		}
+
+	}
+
+	public partial class McpeTrimData : Packet<McpeTrimData>
+	{
+
+
+		public McpeTrimData()
+		{
+			Id = 0x12e;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+		}
+
+	}
+
+	public partial class McpeOpenSign : Packet<McpeOpenSign>
+	{
+
+		public BlockCoordinates coordinates; // = null;
+		public bool front; // = null;
+
+		public McpeOpenSign()
+		{
+			Id = 0x12f;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(coordinates);
+			Write(front);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			coordinates = ReadBlockCoordinates();
+			front = ReadBool();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			coordinates=default(BlockCoordinates);
+			front=default(bool);
 		}
 
 	}

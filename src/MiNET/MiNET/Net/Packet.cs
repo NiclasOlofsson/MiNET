@@ -64,7 +64,7 @@ namespace MiNET.Net
 		[JsonIgnore] public bool ForceClear;
 		[JsonIgnore] public bool NoBatch { get; set; }
 
-		[JsonIgnore] public byte Id;
+		[JsonIgnore] public int Id;
 		[JsonIgnore] public bool IsMcpe;
 
 		protected MemoryStreamReader _reader; // new construct for reading
@@ -2748,12 +2748,25 @@ namespace MiNET.Net
 							//WriteSignedVarInt(SmithingTransform); // Type
 							var rec = smithingTransformRecipe;
 							Write(rec.Id.ToString());
+							WriteRecipeIngredient(rec.Template);
 							WriteRecipeIngredient(rec.Input);
 							WriteRecipeIngredient(rec.Addition);
 							Write(rec.Output, false);
 							Write(rec.Block);
 							WriteVarInt(smithingTransformRecipe.UniqueId); // unique id
 							break;
+					}
+					case SmithingTrimRecipe smithingTrimRecipe:
+					{
+						//WriteSignedVarInt(SmithingTransform); // Type
+						var rec = smithingTrimRecipe;
+						Write(rec.Id.ToString());
+						WriteRecipeIngredient(rec.Template);
+						WriteRecipeIngredient(rec.Input);
+						WriteRecipeIngredient(rec.Addition);
+						Write(rec.Block);
+						WriteVarInt(smithingTrimRecipe.UniqueId); // unique id
+						break;
 					}
 					case MultiRecipe multiRecipe:
 					{
@@ -3807,7 +3820,7 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			if (IsMcpe) WriteVarInt(Id);
-			else Write(Id);
+			else Write((byte)Id);
 		}
 
 		[Obsolete("Use decode with ReadOnlyMemory<byte> instead.")]
@@ -3836,7 +3849,7 @@ namespace MiNET.Net
 
 		protected virtual void DecodePacket()
 		{
-			Id = IsMcpe ? (byte) ReadVarInt() : ReadByte();
+			Id = IsMcpe ? ReadVarInt() : ReadByte();
 		}
 
 		public abstract void PutPool();

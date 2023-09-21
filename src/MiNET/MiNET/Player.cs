@@ -1044,7 +1044,7 @@ namespace MiNET
 				{
 					BigEndian = false,
 					UseVarInt = true,
-					RootTag = BiomeUtils.GenerateDefinitionList(),
+					RootTag = BiomeUtils.BiomesCache,
 				}
 			};
 

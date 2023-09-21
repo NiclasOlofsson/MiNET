@@ -252,7 +252,7 @@ namespace MiNET.Worlds
 
 			for (int i = 0; i <= treeheight; i++)
 			{
-				chunk.SetBlock(x, treebase + i, z, new Log());
+				chunk.SetBlock(x, treebase + i, z, new OakLog());
 			}
 		}
 

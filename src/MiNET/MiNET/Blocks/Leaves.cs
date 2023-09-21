@@ -102,7 +102,7 @@ namespace MiNET.Blocks
 			if (visited.Contains(coord)) return false;
 
 			var block = level.GetBlock(coord);
-			if (block is Log) return true;
+			if (block is LogBase) return true;
 
 			visited.Add(coord);
 

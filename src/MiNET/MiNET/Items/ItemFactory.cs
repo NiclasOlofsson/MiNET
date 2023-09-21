@@ -463,8 +463,9 @@ namespace MiNET.Items
 			{
 				int blockId = id;
 				if (blockId < 0) blockId = (short) (Math.Abs(id) + 255); // hehe
-				Block block = BlockFactory.GetBlockById(blockId);
+
 				var runtimeId = BlockFactory.GetRuntimeId(blockId, (byte) metadata);
+				var block = BlockFactory.GetBlockByRuntimeId((int) runtimeId);
 
 				if (runtimeId < BlockFactory.BlockPalette.Count)
 				{

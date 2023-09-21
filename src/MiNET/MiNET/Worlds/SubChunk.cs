@@ -53,6 +53,9 @@ namespace MiNET.Worlds
 		private byte[] _loggedBlocks; // We use only byte size on this palette index table, because can basically only be water and snow-levels
 		internal byte[] LoggedBlocks => _loggedBlocks;
 
+		private byte[] _biomes;
+		internal byte[] Biomes => _biomes;
+
 		// Consider disabling these if we don't calculate lights
 		public NibbleArray _blocklight;
 		public NibbleArray _skylight;
@@ -66,8 +69,10 @@ namespace MiNET.Worlds
 		public SubChunk(bool clearBuffers = true)
 		{
 			_runtimeIds = new List<int> {(int) BlockFactory.GetBlockByName("minecraft:air").GetRuntimeId()};
-				
+			_loggedRuntimeIds = new List<int> { (int) BlockFactory.GetBlockByName("minecraft:air").GetRuntimeId() };
+
 			_blocks = ArrayPool<short>.Shared.Rent(4096);
+			_biomes = ArrayPool<byte>.Shared.Rent(4096);
 			_loggedBlocks = ArrayPool<byte>.Shared.Rent(4096);
 			_blocklight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));
 			_skylight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));
@@ -78,9 +83,11 @@ namespace MiNET.Worlds
 		public void ClearBuffers()
 		{
 			Array.Clear(_blocks, 0, 4096);
+			Array.Clear(_biomes, 0, 4096);
 			Array.Clear(_loggedBlocks, 0, 4096);
 			Array.Clear(_blocklight.Data, 0, 2048);
 			ChunkColumn.Fill<byte>(_skylight.Data, 0xff);
+			ChunkColumn.Fill<byte>(_biomes, 1);
 		}
 
 
@@ -197,6 +204,15 @@ namespace MiNET.Worlds
 			IsDirty = true;
 		}
 
+		public byte GetBiome(int bx, int by, int bz)
+		{
+			return _biomes[GetIndex(bx, by, bz)];
+		}
+
+		public void SetBiome(int bx, int by, int bz, byte biome)
+		{
+			_biomes[GetIndex(bx, by, bz)] = biome;
+		}
 
 		public void SetLoggedBlock(int bx, int by, int bz, Block block)
 		{
@@ -398,6 +414,7 @@ namespace MiNET.Worlds
 
 			cc._runtimeIds = new List<int>(_runtimeIds);
 			_blocks.CopyTo(cc._blocks, 0);
+			_biomes.CopyTo(cc._biomes, 0);
 			cc._loggedRuntimeIds = new List<int>(_loggedRuntimeIds);
 			_loggedBlocks.CopyTo(cc._loggedBlocks, 0);
 			_blocklight.Data.CopyTo(cc._blocklight.Data, 0);
@@ -431,6 +448,7 @@ namespace MiNET.Worlds
 			_isAllAir = true;
 			_runtimeIds.Clear();
 			Array.Clear(_blocks, 0, _blocks.Length);
+			Array.Clear(_biomes, 0, _biomes.Length);
 			_loggedRuntimeIds.Clear();
 			Array.Clear(_loggedBlocks, 0, _blocks.Length);
 			Array.Clear(_blocklight.Data, 0, _blocklight.Data.Length);
@@ -444,6 +462,7 @@ namespace MiNET.Worlds
 			if (disposing)
 			{
 				if (_blocks != null) ArrayPool<short>.Shared.Return(_blocks);
+				if (_biomes != null) ArrayPool<byte>.Shared.Return(_biomes);
 				if (_loggedBlocks != null) ArrayPool<byte>.Shared.Return(_loggedBlocks);
 				if (_blocklight != null) ArrayPool<byte>.Shared.Return(_blocklight.Data);
 				if (_skylight != null) ArrayPool<byte>.Shared.Return(_skylight.Data);

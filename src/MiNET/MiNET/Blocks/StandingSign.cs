@@ -35,7 +35,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public partial class StandingSignBase : Block
+	public abstract partial class StandingSignBase : Block
 	{
 		private readonly int _itemDropId;
 

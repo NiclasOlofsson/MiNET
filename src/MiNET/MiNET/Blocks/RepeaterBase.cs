@@ -25,7 +25,7 @@
 
 namespace MiNET.Blocks
 {
-	public partial class RepeaterBase : Block
+	public abstract partial class RepeaterBase : Block
 	{
 		public RepeaterBase(byte id) : base(id)
 		{

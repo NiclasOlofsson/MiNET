@@ -75,7 +75,7 @@ namespace MiNET.Worlds
 			biomeId = ArrayPool<byte>.Shared.Rent(256);
 			height = ArrayPool<short>.Shared.Rent(256);
 
-			if (clearBuffers) ClearBuffers();
+			//if (clearBuffers) ClearBuffers();
 
 			IsDirty = false;
 		}
@@ -500,7 +500,7 @@ namespace MiNET.Worlds
 				this[ci].Write(stream);
 			}
 
-			var biomePalette = GetBiomePalette(biomeId);
+			var biomePalette = GetBiomePalette();
 			stream.Write(biomePalette, 0, biomePalette.Length);
 
 			stream.WriteByte(0); // Border blocks - nope (EDU)
@@ -521,35 +521,26 @@ namespace MiNET.Worlds
 			return stream.ToArray();
 		}
 
-		private byte[] GetBiomePalette(byte[] biomes)
+		private byte[] GetBiomePalette()
 		{
-			for (int b = 0; b < biomes.Length; b++)
-			{
-				if (biomes[b] == 255)
-					biomes[b] = 0;
-			}
 			using var stream = new MemoryStream();
-			
-			var uniqueBiomes = biomes.Distinct().Select(x => (int)x).ToList();
 
-			short[] newBiomes = new short[16 * 16 * 16];
-			for (int x = 0; x < 16; x++)
-			{
-				for (int z = 0; z < 16; z++)
-				{
-					var currentBiome = (int)biomes[(z << 4) + (x)];
+			var emptySubChunkBiomes = new byte[16 * 16 * 16];
+			var emptySubChunkUniqueBiomes = new List<int>() { 1 };
+			Array.Fill(emptySubChunkBiomes, (byte) emptySubChunkUniqueBiomes.Single());
 
-					for (int y = 0; y < 16; y++)
-					{
-						//var index = ((y >> 2) << 4) | ((z >> 2) << 2) | (x >> 2);
-						newBiomes[(x << 8 | z << 4 | y)] = (short) uniqueBiomes.IndexOf(currentBiome);
-					}
-				}
-			}
-			
 			for (int i = 0; i < 24; i++)
 			{
-				SubChunk.WriteStore(stream, newBiomes, null, false, uniqueBiomes);
+				var subChunk = this[i];
+
+				if (subChunk == null)
+				{
+					SubChunk.WriteStore(stream, null, emptySubChunkBiomes, false, emptySubChunkUniqueBiomes);
+				}
+
+				var biomes = this[i].Biomes;
+				var uniqueBiomes = biomes.Distinct().Select(b => (int) b).ToList();
+				SubChunk.WriteStore(stream, null, biomes, false, uniqueBiomes);
 			}
 
 			return stream.ToArray();

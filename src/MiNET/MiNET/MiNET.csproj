@@ -26,8 +26,13 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Blocks\blockstates.json" />
+    <None Remove="Blocks\Data\canonical_block_states.nbt" />
+    <None Remove="Blocks\Data\r12_to_current_block_map.bin" />
     <None Remove="Blocks\legacy_id_map.json" />
     <None Remove="Items\itemstates.json" />
+    <None Remove="Worlds\Data\biome_definitions.nbt" />
+    <None Remove="Worlds\Data\biome_definitions_full.nbt" />
+    <None Remove="Worlds\Data\biome_id_map.json" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Blocks\blockstates.json">
@@ -45,6 +50,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Items\Data\item_id_map.json" />
     <EmbeddedResource Include="Items\Data\r16_to_current_item_map.json" />
+    <EmbeddedResource Include="Worlds\Data\biome_definitions.nbt" />
+    <EmbeddedResource Include="Worlds\Data\biome_definitions_full.nbt" />
+    <EmbeddedResource Include="Worlds\Data\biome_id_map.json" />
     <None Remove="Blocks\canonical_block_states.nbt" />
     <None Remove="Blocks\block_id_map.json" />
     <None Remove="Blocks\item_id_map.json" />

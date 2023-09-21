@@ -37,7 +37,7 @@ using MiNET.Utils;
 namespace MiNET.Test
 {
 	[TestClass
-	, Ignore("Manual code generation")
+	//, Ignore("Manual code generation")
 	]
 	public class GenerateBlocksTests
 	{
@@ -202,7 +202,7 @@ namespace MiNET.Test
 
 					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Name}, {currentBlockState.Data}");
 					Block blockById = BlockFactory.GetBlockById(currentBlockState.Id);
-					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
+					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated && blockById.Name == currentBlockState.Name;
 					int id = existingBlock ? currentBlockState.Id : -1;
 
 					string blockClassName = CodeName(currentBlockState.Name.Replace("minecraft:", ""), true);
@@ -382,7 +382,7 @@ namespace MiNET.Test
 
 				foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
 				{
-					writer.WriteLine($"else if (blockId == {block.Item1}) block = new {block.Item2}();");
+					writer.WriteLine($"{block.Item1} => block = new {block.Item2}(),");
 				}
 
 				writer.Flush();

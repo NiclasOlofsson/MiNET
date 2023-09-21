@@ -33,7 +33,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public partial class WallSignBase : Block
+	public abstract partial class WallSignBase : Block
 	{
 		private readonly int _itemDropId;
 

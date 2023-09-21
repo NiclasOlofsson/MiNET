@@ -31,7 +31,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public partial class TrapdoorBase : Block
+	public abstract partial class TrapdoorBase : Block
 	{
 		[StateRange(0, 3)] public virtual int Direction { get; set; } = 0;
 		[StateBit] public virtual bool OpenBit { get; set; } = false;

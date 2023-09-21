@@ -42,7 +42,7 @@ namespace MiNET.Blocks
 			var slab = obj as StoneSlab4;
 			if (slab == null) return false;
 
-			return slab.StoneSlabType4 == StoneSlabType4;
+			return true;
 		}
 	}
 }

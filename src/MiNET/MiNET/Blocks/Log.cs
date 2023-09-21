@@ -25,15 +25,17 @@
 
 using System.Numerics;
 using MiNET.Items;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public partial class Log : Block
+	public abstract class LogBase : Block
 	{
-		public Log() : base(17)
+		[StateEnum("x", "z", "y")]
+		public string PillarAxis { get; set; } = "";
+
+		public LogBase(int id) : base(id)
 		{
 			FuelEfficiency = 15;
 			BlastResistance = 10;

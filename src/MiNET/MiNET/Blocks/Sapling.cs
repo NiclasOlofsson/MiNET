@@ -27,7 +27,6 @@ using System;
 using System.Numerics;
 using MiNET.Items;
 using MiNET.Particles;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -97,32 +96,32 @@ namespace MiNET.Blocks
 				switch (SaplingType)
 				{
 					case "oak":
-						log = new Log {OldLogType = SaplingType};
+						log = new OakLog();
 						leaves = new Leaves {OldLeafType = SaplingType};
 						generator = new SmallTreeGenerator(log, leaves, 4);
 						break;
 					case "spruce":
-						log = new Log {OldLogType = SaplingType};
+						log = new SpruceLog();
 						leaves = new Leaves {OldLeafType = SaplingType};
 						//generator = new SmallTreeGenerator(log, leaves, 4);
 						break;
 					case "birch":
-						log = new Log {OldLogType = SaplingType};
+						log = new BirchLog();
 						leaves = new Leaves {OldLeafType = SaplingType};
 						generator = new SmallTreeGenerator(log, leaves, 5);
 						break;
 					case "jungle":
-						log = new Log {OldLogType = SaplingType};
+						log = new JungleLog();
 						leaves = new Leaves {OldLeafType = SaplingType};
 						//generator = new SmallTreeGenerator(log, leaves, 4 + new Random().Next(7));
 						break;
 					case "acacia":
-						log = new Log {OldLogType = SaplingType};
+						log = new AcaciaLog();
 						leaves = new Leaves {OldLeafType = SaplingType};
 						//generator = new SmallTreeGenerator(log, leaves, 5);
 						break;
 					case "dark_oak":
-						log = new Log {OldLogType = SaplingType};
+						log = new DarkOakLog();
 						leaves = new Leaves {OldLeafType = SaplingType};
 						//generator = new SmallTreeGenerator(log, leaves, 5);
 						break;
@@ -144,7 +143,7 @@ namespace MiNET.Blocks
 	{
 		protected bool CanGrowInto(Block material)
 		{
-			return material is Air || material is Leaves || material is Leaves2 || material is Grass || material is Dirt || material is Log || material is Log2 || material is Sapling || material is Vine;
+			return material is Air || material is Leaves || material is Leaves2 || material is Grass || material is Dirt || material is LogBase || material is Log2 || material is Sapling || material is Vine;
 		}
 	}
 

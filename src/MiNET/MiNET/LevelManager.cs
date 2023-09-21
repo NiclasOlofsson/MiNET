@@ -76,7 +76,7 @@ namespace MiNET
 					case "flat":
 					case "flatland":
 					default:
-						worldProvider = new AnvilWorldProvider
+						worldProvider = new AnvilWorldProviderNew
 						{
 							MissingChunkProvider = Generator,
 							ReadSkyLight = !Config.GetProperty("CalculateLights", false),
@@ -183,7 +183,7 @@ namespace MiNET
 
 			switch (level.WorldProvider)
 			{
-				case AnvilWorldProvider anvilWorldProvider:
+				case AnvilWorldProviderNew anvilWorldProvider:
 					return GetDimensionForAnvilProvider(level, dimension, anvilWorldProvider);
 				case LevelDbProvider levelDbProvider:
 					return GetDimensionForLevelDbProvider(level, dimension, levelDbProvider);
@@ -250,9 +250,9 @@ namespace MiNET
 			return newLevel;
 		}
 
-		private Level GetDimensionForAnvilProvider(Level level, Dimension dimension, AnvilWorldProvider overworld)
+		private Level GetDimensionForAnvilProvider(Level level, Dimension dimension, AnvilWorldProviderNew overworld)
 		{
-			var worldProvider = new AnvilWorldProvider(overworld.BasePath)
+			var worldProvider = new AnvilWorldProviderNew(overworld.BasePath)
 			{
 				ReadBlockLight = overworld.ReadBlockLight,
 				ReadSkyLight = overworld.ReadSkyLight,
@@ -359,7 +359,7 @@ namespace MiNET
 			int viewDistance = Config.GetProperty("ViewDistance", 11);
 
 			IWorldProvider worldProvider = null;
-			worldProvider = provider ?? new AnvilWorldProvider {MissingChunkProvider = new SuperflatGenerator(Dimension.Overworld)};
+			worldProvider = provider ?? new AnvilWorldProviderNew {MissingChunkProvider = new SuperflatGenerator(Dimension.Overworld)};
 
 			var level = new Level(this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
 			level.Initialize();

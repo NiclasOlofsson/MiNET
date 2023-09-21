@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -67,6 +68,8 @@ namespace MiNET.Blocks
 		public static readonly byte[] TransparentBlocks = new byte[600];
 		public static readonly byte[] LuminousBlocks = new byte[600];
 		public static Dictionary<string, int> NameToId { get; private set; }
+		public static Dictionary<int, string> RuntimeIdToName { get; private set; }
+		public static Dictionary<string, Type> NameToType { get; private set; }
 		public static BlockPalette BlockPalette { get; set; } = null;
 		public static HashSet<BlockStateContainer> BlockStates { get; set; } = null;
 
@@ -202,7 +205,7 @@ namespace MiNET.Blocks
 					}
 				}
 
-				foreach(var record in BlockPalette)
+				foreach (var record in BlockPalette)
 				{
 					var states = new List<NbtTag>();
 					foreach (IBlockState state in record.States)
@@ -239,6 +242,9 @@ namespace MiNET.Blocks
 			}
 			
 			BlockStates = new HashSet<BlockStateContainer>(BlockPalette);
+
+			NameToType = BuildNameToType();
+			RuntimeIdToName = BuildRuntimeIdToName();
 		}
 		
 		private static BlockStateContainer GetBlockStateContainer(NbtTag tag)
@@ -316,6 +322,39 @@ namespace MiNET.Blocks
 			return nameToId;
 		}
 
+		private static Dictionary<string, Type> BuildNameToType()
+		{
+			var nameToType = new Dictionary<string, Type>();
+
+			var blockTypes = typeof(BlockFactory).Assembly.GetTypes().Where(type => type.IsAssignableTo(typeof(Block)) && !type.IsAbstract);
+
+			foreach (var type in blockTypes)
+			{
+				if (type == typeof(Block)) continue;
+
+				var block = (Block) Activator.CreateInstance(type);
+				var state = block.GetState();
+
+				if (state == null) continue;
+
+				nameToType[state.Name.ToLowerInvariant().Replace("_", "").Replace("minecraft:", "")] = type;
+			}
+
+			return nameToType;
+		}
+
+		private static Dictionary<int, string> BuildRuntimeIdToName()
+		{
+			var idToName = new Dictionary<int, string>();
+
+			for (var i = 0; i < BlockPalette.Count; i++)
+			{
+				idToName.Add(i, BlockPalette[i].Name);
+			}
+
+			return idToName;
+		}
+
 		public static int GetBlockIdByName(string blockName)
 		{
 			blockName = blockName.ToLowerInvariant().Replace("_", "").Replace("minecraft:", "");
@@ -328,28 +367,40 @@ namespace MiNET.Blocks
 			return 0;
 		}
 
+		public static string GetNameByRuntimeId(int id)
+		{
+			return RuntimeIdToName.GetValueOrDefault(id);
+		}
+
 		public static Block GetBlockByName(string blockName)
 		{
 			if (string.IsNullOrEmpty(blockName)) return null;
 
 			blockName = blockName.ToLowerInvariant().Replace("_", "").Replace("minecraft:", "");
 
-			if (NameToId.ContainsKey(blockName))
-			{
-				return GetBlockById(NameToId[blockName]);
-			}
+			var type = NameToType.GetValueOrDefault(blockName);
 
-			return null;
+			if (type == null) return null;
+
+			return (Block) Activator.CreateInstance(type);
+		}
+
+		public static Block GetBlockByRuntimeId(int runtimeId)
+		{
+			if (runtimeId < 0 || runtimeId >= BlockPalette.Count) return null;
+
+			var blockState = BlockPalette[runtimeId];
+			var block = GetBlockById(blockState.Id);
+			block.SetState(blockState.States);
+
+			return block;
 		}
 
 		public static Block GetBlockById(int blockId, byte metadata)
 		{
-			int runtimeId = (int) GetRuntimeId(blockId, metadata);
-			if (runtimeId < 0 || runtimeId >= BlockPalette.Count) return null;
-			BlockStateContainer blockState = BlockPalette[runtimeId];
-			Block block = GetBlockById(blockState.Id);
-			block.SetState(blockState.States);
-			return block;
+			var runtimeId = (short) GetRuntimeId(blockId, metadata);
+
+			return GetBlockByRuntimeId(runtimeId);
 		}
 
 		public static Block GetBlockById(int blockId)
@@ -379,7 +430,7 @@ namespace MiNET.Blocks
 				14 => new GoldOre(),
 				15 => new IronOre(),
 				16 => new CoalOre(),
-				17 => new Log(),
+				17 => new OakLog(),
 				18 => new Leaves(),
 				19 => new Sponge(),
 				20 => new Glass(),

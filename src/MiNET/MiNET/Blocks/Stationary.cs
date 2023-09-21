@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Stationary : Block
+	public abstract class Stationary : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Stationary));
 

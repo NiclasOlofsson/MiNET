@@ -177,7 +177,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			if (tool.Id != 359) return new Item[0];
+			if (tool.LegacyId != 359) return new Item[0];
 
 			return base.GetDrops(tool);
 		}

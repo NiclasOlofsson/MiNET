@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemNetheritePickaxe : ItemPickaxe
+	public partial class ItemNetheritePickaxe : ItemPickaxeBase
 	{
-		public ItemNetheritePickaxe() : base("minecraft:netherite_pickaxe", 745)
+		public ItemNetheritePickaxe() : base()
 		{
 			ItemMaterial = ItemMaterial.Netherite;
 		}

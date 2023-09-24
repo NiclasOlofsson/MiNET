@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemNetheriteBoots : ArmorBootsBase
+	public partial class ItemNetheriteBoots : ItemArmorBootsBase
 	{
-		public ItemNetheriteBoots() : base("minecraft:netherite_boots", 751)
+		public ItemNetheriteBoots() : base()
 		{
 			ItemMaterial = ItemMaterial.Netherite;
 		}

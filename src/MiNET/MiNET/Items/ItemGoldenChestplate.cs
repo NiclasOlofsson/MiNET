@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemGoldenChestplate : ArmorChestplateBase
+	public partial class ItemGoldenChestplate : ItemArmorChestplateBase
 	{
-		public ItemGoldenChestplate() : base("minecraft:golden_chestplate", 315)
+		public ItemGoldenChestplate() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;

@@ -31,6 +31,7 @@ using Newtonsoft.Json;
 
 namespace MiNET.Net.Items
 {
+	[Obsolete]
 	public class ItemTranslator
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemTranslator));
@@ -250,7 +251,7 @@ namespace MiNET.Net.Items
 	internal class ComplexMappingEntry
 	{
 		private Dictionary<short, int> _mapping = new Dictionary<short, int>();
-		public void Add(short meta, short translatedItem)
+		public void Add(short meta, int translatedItem)
 		{
 			_mapping.Add(meta, translatedItem);
 		}

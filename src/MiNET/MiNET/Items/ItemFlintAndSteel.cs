@@ -37,14 +37,14 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemFlintAndSteel : Item
+	public partial class ItemFlintAndSteel : Item
 	{
 		public static int MaxPortalHeight = 30;
 		public static int MaxPortalWidth = 30;
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemFlintAndSteel));
 
-		public ItemFlintAndSteel() : base("minecraft:flint_and_steel", 259)
+		public ItemFlintAndSteel() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.FlintAndSteel;

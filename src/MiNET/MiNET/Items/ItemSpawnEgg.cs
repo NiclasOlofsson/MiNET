@@ -29,22 +29,37 @@ using log4net;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemSpawnEgg : Item
+	public partial class ItemSpawnEgg : ItemSpawnEggBase
+	{
+		public ItemSpawnEgg() : base()
+		{ 
+		
+		}
+
+		public ItemSpawnEgg(EntityType entityType) : base(entityType)
+		{
+
+		}
+	}
+
+	public abstract class ItemSpawnEggBase : Item
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemSpawnEgg));
 
-		public ItemSpawnEgg(EntityType type) : this((short) type)
+		protected ItemSpawnEggBase(EntityType entityType) : base()
 		{
+			Metadata = (short) entityType;
+			MaxStackSize = 1;
 		}
 
-		public ItemSpawnEgg(short metadata) : base("minecraft:spawn_egg", 383, metadata)
+		public ItemSpawnEggBase() : base()
 		{
+			EntityHelpers.ToEntityType(Id.Replace("_spawn_egg", ""));
 			MaxStackSize = 1;
 		}
 

@@ -28,9 +28,9 @@ using MiNET.Entities;
 
 namespace MiNET.Items
 {
-	public class ItemPickaxe : Item
+	public abstract class ItemPickaxeBase : Item
 	{
-		internal ItemPickaxe(string name, short id) : base(name, id)
+		internal ItemPickaxeBase() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.PickAxe;

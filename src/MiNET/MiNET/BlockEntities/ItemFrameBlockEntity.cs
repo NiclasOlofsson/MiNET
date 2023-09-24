@@ -103,7 +103,7 @@ namespace MiNET.BlockEntities
 			{
 				var newItem = new NbtCompound("Item")
 				{
-					new NbtShort("id", item.Id),
+					new NbtShort("id", item.LegacyId),
 					new NbtShort("Damage", item.Metadata),
 					new NbtByte("Count", 1)
 				};

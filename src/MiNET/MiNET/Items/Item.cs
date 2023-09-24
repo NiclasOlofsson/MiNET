@@ -48,20 +48,22 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Item));
 
+		[Obsolete]
+		public short LegacyId { get; protected set; }
+
+		public virtual string Id { get; protected set; } = string.Empty;
+		public virtual int RuntimeId => _runtimeId.Value;
 		public int UniqueId { get; set; } = Environment.TickCount;
-		public string Name { get; protected set; } = string.Empty;
-		public short Id { get; protected set; }
-		public int NetworkId { get; set; } = -1;
-		public virtual int RuntimeId { get; set; }
+		public virtual int BlockRuntimeId { get; set; }
 		public short Metadata { get; set; }
 		public byte Count { get; set; }
 		public virtual NbtCompound ExtraData { get; set; }
 
-		[JsonIgnore] public ItemMaterial ItemMaterial { get; set; } = ItemMaterial.None;
+		[JsonIgnore] public virtual ItemMaterial ItemMaterial { get; set; } = ItemMaterial.None;
 
-		[JsonIgnore] public ItemType ItemType { get; set; } = ItemType.Item;
+		[JsonIgnore] public virtual ItemType ItemType { get; set; } = ItemType.Item;
 
-		[JsonIgnore] public int MaxStackSize { get; set; } = 64;
+		[JsonIgnore] public virtual int MaxStackSize { get; set; } = 64;
 
 		[JsonIgnore] public bool IsStackable => MaxStackSize > 1;
 
@@ -69,19 +71,18 @@ namespace MiNET.Items
 
 		[JsonIgnore] public int FuelEfficiency { get; set; }
 
-		//protected internal Item(string name, short metadata = 0, int count = 1)
-		//{
-		//	Name = name;
-		//	Metadata = metadata;
-		//	Count = (byte) count;
-		//}
+		private readonly Lazy<int> _runtimeId;
 
-		protected internal Item(string name, short id, short metadata = 0, int count = 1)
+		protected internal Item(string id, short metadata = 0, int count = 1) : this()
 		{
-			Name = name;
 			Id = id;
 			Metadata = metadata;
 			Count = (byte) count;
+		}
+
+		protected Item()
+		{
+			_runtimeId = new Lazy<int>(() => ItemFactory.GetRuntimeIdById(Id));
 		}
 
 		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
@@ -211,7 +212,7 @@ namespace MiNET.Items
 
 		protected bool Equals(Item other)
 		{
-			if (Id != other.Id || Metadata != other.Metadata) return false;
+			if (LegacyId != other.LegacyId || Metadata != other.Metadata) return false;
 			if (ExtraData == null ^ other.ExtraData == null) return false;
 
 			//TODO: This doesn't work in  most cases. We need to fix comparison when name == null
@@ -246,7 +247,7 @@ namespace MiNET.Items
 		{
 			unchecked
 			{
-				return (Id * 397) ^ Metadata.GetHashCode();
+				return (LegacyId * 397) ^ Metadata.GetHashCode();
 			}
 		}
 
@@ -257,7 +258,7 @@ namespace MiNET.Items
 
 		public override string ToString()
 		{
-			return $"{GetType().Name}(Id={Id}, Meta={Metadata}, UniqueId={UniqueId}) Count={Count}, NBT={ExtraData}";
+			return $"{GetType().Name}(Id={LegacyId}, Meta={Metadata}, UniqueId={UniqueId}) Count={Count}, NBT={ExtraData}";
 		}
 
 		public bool Interact(Level level, Player player, Entity target)

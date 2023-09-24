@@ -36,7 +36,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemPainting : Item
+	public partial class ItemPainting : Item
 	{
 		public class PaintingData
 		{
@@ -89,7 +89,7 @@ namespace MiNET.Items
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemPainting));
 
-		public ItemPainting() : base("minecraft:painting", 321)
+		public ItemPainting() : base()
 		{
 		}
 

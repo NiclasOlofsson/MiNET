@@ -145,20 +145,14 @@ namespace MiNET.Client
 						{
 							var item = Activator.CreateInstance(itemType) as Item;
 
-							if (item == null || string.IsNullOrWhiteSpace(item?.Name) || item is ItemAir)
+							if (item == null || string.IsNullOrWhiteSpace(item?.Id) || item is ItemAir)
 							{
 								continue;
 							}
 							
-							string itemName = item.Name;
+							string itemName = item.Id;
 
-							if (ItemFactory.Translator.TryGetName(itemName, out var newName))
-							{
-								Log.Warn($"Name mistmatch for item: {item} (Current={item.Name} New={newName})");
-								itemName = newName;
-							}
-
-							if (idMapping.ContainsKey(item.Name))
+							if (idMapping.ContainsKey(item.Id))
 								continue;
 
 							ClearInventory(caller);
@@ -177,9 +171,9 @@ namespace MiNET.Client
 
 								if (newItem != null && (newItem is not ItemAir && newItem.Count > 0))
 								{
-									if (!idMapping.TryAdd(item.Name, newItem.Id))
+									if (!idMapping.TryAdd(item.Id, newItem.LegacyId))
 									{
-										Log.Warn($"Duplicate key! Name={item.Name} Id={item.Id} NewName={newItem.Name} NewId={newItem.Id}");
+										Log.Warn($"Duplicate key! Name={item.Id} Id={item.LegacyId} NewName={newItem.Id} NewId={newItem.LegacyId}");
 									}
 								}
 

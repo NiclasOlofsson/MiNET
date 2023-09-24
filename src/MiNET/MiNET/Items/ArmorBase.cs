@@ -30,9 +30,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public abstract class ArmorHelmetBase : Item
+	public abstract class ItemArmorHelmetBase : Item
 	{
-		protected ArmorHelmetBase(string name, short id, short metadata = 0, int count = 1) : base(name, id, metadata, count)
+		protected ItemArmorHelmetBase() : base()
 		{
 		}
 
@@ -47,9 +47,9 @@ namespace MiNET.Items
 		}
 	}
 
-	public abstract class ArmorChestplateBase : Item
+	public abstract class ItemArmorChestplateBase : Item
 	{
-		protected ArmorChestplateBase(string name, short id, short metadata = 0, int count = 1) : base(name, id, metadata, count)
+		protected ItemArmorChestplateBase() : base()
 		{
 		}
 
@@ -64,9 +64,9 @@ namespace MiNET.Items
 		}
 	}
 
-	public abstract class ArmorLeggingsBase : Item
+	public abstract class ItemArmorLeggingsBase : Item
 	{
-		protected ArmorLeggingsBase(string name, short id, short metadata = 0, int count = 1) : base(name, id, metadata, count)
+		protected ItemArmorLeggingsBase() : base()
 		{
 		}
 
@@ -81,9 +81,9 @@ namespace MiNET.Items
 		}
 	}
 
-	public abstract class ArmorBootsBase : Item
+	public abstract class ItemArmorBootsBase : Item
 	{
-		protected ArmorBootsBase(string name, short id, short metadata = 0, int count = 1) : base(name, id, metadata, count)
+		protected ItemArmorBootsBase() : base()
 		{
 		}
 

@@ -25,13 +25,14 @@
 
 using System.Numerics;
 using fNbt;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemMap : Item
+	public partial class ItemMap : ItemFilledMap { }
+
+	public partial class ItemFilledMap : Item
 	{
 		public long MapId
 		{
@@ -44,9 +45,8 @@ namespace MiNET.Items
 			set { ExtraData = new NbtCompound("tag") {new NbtLong("map_uuid", value)}; }
 		}
 
-		public ItemMap(long mapId = 0, byte count = 1) : base("minecraft:filled_map", 358, 0, count)
+		public ItemFilledMap() : base()
 		{
-			MapId = mapId;
 			MaxStackSize = 1;
 		}
 

@@ -35,13 +35,13 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemFireworkRocket : Item
+	public partial class ItemFireworkRocket : Item
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemFireworkRocket));
 
 		public float Spread { get; set; } = 5f;
 
-		public ItemFireworkRocket() : base("minecraft:firework_rocket", 401)
+		public ItemFireworkRocket() : base()
 		{
 		}
 

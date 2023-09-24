@@ -32,9 +32,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemShovel : Item
+	public abstract class ItemShovelBase : Item
 	{
-		internal ItemShovel(string name, short id) : base(name, id)
+		internal ItemShovelBase() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Shovel;

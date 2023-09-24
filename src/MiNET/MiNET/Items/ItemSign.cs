@@ -25,7 +25,6 @@
 
 using System.Numerics;
 using MiNET.Blocks;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -33,76 +32,69 @@ namespace MiNET.Items
 {
 	public class ItemSignBase : ItemBlock
 	{
-		private readonly int _standingId;
-		private readonly int _wallId;
 
-		public ItemSignBase(string name, short id, int standingId, int wallId) : base(name, id)
+		public ItemSignBase() : base()
 		{
-			_standingId = standingId;
-			_wallId = wallId;
 			MaxStackSize = 1;
 		}
 
 		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			if (face == BlockFace.Down) // At the bottom of block
-			{
-				// Doesn't work, ignore if that happen. 
-				return;
-			}
+			// TODO - 1.19-update
 
-			if (face == BlockFace.Up) // On top of block
-			{
-				// Standing sign
-				Block = BlockFactory.GetBlockById(_standingId);
-			}
-			else
-			{
-				// Wall sign
-				Block = BlockFactory.GetBlockById(_wallId);
-			}
+			//if (face == BlockFace.Down) // At the bottom of block
+			//{
+			//	// Doesn't work, ignore if that happen. 
+			//	return;
+			//}
+
+			//if (face == BlockFace.Up) // On top of block
+			//{
+			//	// Standing sign
+			//	Block = BlockFactory.GetBlockById(_standingId);
+			//}
+			//else
+			//{
+			//	// Wall sign
+			//	Block = BlockFactory.GetBlockById(_wallId);
+			//}
 
 			base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
 		}
 	}
 
-	public class ItemSign : ItemSignBase
+	public partial class ItemAcaciaSign : ItemSignBase
 	{
-		public ItemSign() : base("minecraft:oak_sign", 323, 63, 68) { }
+		public ItemAcaciaSign() : base() { }
 	}
 
-	public class ItemAcaciaSign : ItemSignBase
+	public partial class ItemSpruceSign : ItemSignBase
 	{
-		public ItemAcaciaSign() : base("minecraft:acacia_sign", 475, 445, 456) { }
+		public ItemSpruceSign() : base() { }
 	}
 
-	public class ItemSpruceSign : ItemSignBase
+	public partial class ItemBirchSign : ItemSignBase
 	{
-		public ItemSpruceSign() : base("minecraft:spruce_sign", 472, 436, 437) { }
+		public ItemBirchSign() : base() { }
 	}
 
-	public class ItemBirchSign : ItemSignBase
+	public partial class ItemJungleSign : ItemSignBase
 	{
-		public ItemBirchSign() : base("minecraft:birch_sign", 473, 441, 442) { }
+		public ItemJungleSign() : base() { }
 	}
 
-	public class ItemJungleSign : ItemSignBase
+	public partial class ItemDarkOakSign : ItemSignBase
 	{
-		public ItemJungleSign() : base("minecraft:jungle_sign", 474, 443, 444) { }
+		public ItemDarkOakSign() : base() { }
 	}
 
-	public class ItemDarkoakSign : ItemSignBase
+	public partial class ItemCrimsonSign : ItemSignBase
 	{
-		public ItemDarkoakSign() : base("minecraft:dark_oak_sign", 476, 447, 448) { }
+		public ItemCrimsonSign() : base() { }
 	}
 
-	public class ItemCrimsonSign : ItemSignBase
+	public partial class ItemWarpedSign : ItemSignBase
 	{
-		public ItemCrimsonSign() : base("minecraft:crimson_sign", 753, 505, 507) { }
-	}
-
-	public class ItemWarpedSign : ItemSignBase
-	{
-		public ItemWarpedSign() : base("minecraft:warped_sign", 754, 506, 508) { }
+		public ItemWarpedSign() : base() { }
 	}
 }

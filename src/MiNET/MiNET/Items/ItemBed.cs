@@ -27,9 +27,9 @@ using MiNET.Blocks;
 
 namespace MiNET.Items
 {
-	public class ItemBed : ItemBlock
+	public partial class ItemBed : ItemBlock
 	{
-		public ItemBed() : base("minecraft:bed", 0)
+		public ItemBed() : base()
 		{
 			Block = BlockFactory.GetBlockById(26);
 		}

@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemLeatherLeggings : ArmorLeggingsBase
+	public partial class ItemLeatherLeggings : ItemArmorLeggingsBase
 	{
-		public ItemLeatherLeggings() : base("minecraft:leather_leggings", 300)
+		public ItemLeatherLeggings() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Leggings;

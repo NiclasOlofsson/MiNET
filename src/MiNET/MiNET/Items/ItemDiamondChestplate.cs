@@ -29,9 +29,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemDiamondChestplate : ArmorChestplateBase
+	public partial class ItemDiamondChestplate : ItemArmorChestplateBase
 	{
-		public ItemDiamondChestplate() : base("minecraft:diamond_chestplate", 311)
+		public ItemDiamondChestplate() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;

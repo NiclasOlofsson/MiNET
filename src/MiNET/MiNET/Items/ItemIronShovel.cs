@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemIronShovel : ItemShovel
+	public partial class ItemIronShovel : ItemShovelBase
 	{
-		public ItemIronShovel() : base("minecraft:iron_shovel", 256)
+		public ItemIronShovel() : base()
 		{
 			ItemMaterial = ItemMaterial.Iron;
 		}

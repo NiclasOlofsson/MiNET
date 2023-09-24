@@ -32,7 +32,7 @@ namespace MiNET.Particles
 	{
 		public ItemBreakParticle(Level level, Item item) : base(ParticleType.ItemBreak, level)
 		{
-			Data = (item.Id << 16) | (ushort) item.Metadata;
+			Data = (item.LegacyId << 16) | (ushort) item.Metadata;
 		}
 	}
 }

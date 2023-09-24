@@ -75,9 +75,9 @@ namespace MiNET.Test
 			foreach (var state in itemStates)
 			{
 				Item item = ItemFactory.GetItem(state.Value.RuntimeId);
-				if(!string.IsNullOrEmpty(item.Name)) continue;
+				if(!string.IsNullOrEmpty(item.Id)) continue;
 
-				string clazzName = CodeName(state.Key.Replace("minecraft:", ""), true);
+				string clazzName = GenerationUtils.CodeName(state.Key.Replace("minecraft:", ""), true);
 				string minecraftName = state.Key;
 
 
@@ -103,7 +103,7 @@ namespace MiNET.Test
 				{
 					newItems.Add(state.Key, state.Value);
 					Console.WriteLine($"New item: {state.Value.RuntimeId}, {state.Key}");
-					string clazzName = CodeName(state.Key.Replace("minecraft:", ""), true);
+					string clazzName = GenerationUtils.CodeName(state.Key.Replace("minecraft:", ""), true);
 
 					string baseClazz = "Item";
 					baseClazz = clazzName.EndsWith("Axe") ? "ItemAxe" : baseClazz;
@@ -125,7 +125,7 @@ namespace MiNET.Test
 
 			foreach (var state in newItems.OrderBy(s => s.Value.RuntimeId))
 			{
-				string clazzName = CodeName(state.Key.Replace("minecraft:", ""), true);
+				string clazzName = GenerationUtils.CodeName(state.Key.Replace("minecraft:", ""), true);
 				writer.WriteLine($"else if (id == {state.Value.RuntimeId}) item = new Item{clazzName}();");
 			}
 
@@ -206,13 +206,13 @@ namespace MiNET.Test
 
 					if (blockById == null)
 					{
-						blockById = new Block(currentBlockState.Id);
+						//throw new Exception($"Undefined block [{currentBlockState.Id}]");
 					}
 
-					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
-					var baseBlock = blockById.IsGenerated ? $": {(blockById.GetType().BaseType == typeof(object) ? "Block" : blockById.GetType().BaseType.Name)}" : string.Empty;
+					bool existingBlock = blockById != null && blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
+					var baseBlock = blockById?.IsGenerated ?? true ? $": {(blockById == null || blockById.GetType().BaseType == typeof(object) ? "Block" : blockById.GetType().BaseType.Name)}" : string.Empty;
 
-					string blockClassName = CodeName(currentBlockState.Id.Replace("minecraft:", ""), true);
+					string blockClassName = GenerationUtils.CodeName(currentBlockState.Id.Replace("minecraft:", ""), true);
 
 					writer.WriteLineNoTabs($"");
 
@@ -235,7 +235,7 @@ namespace MiNET.Test
 						Type baseType = blockById.GetType().BaseType;
 						bool propOverride = baseType != null
 											&& ("Block" != baseType.Name
-												&& baseType.GetProperty(CodeName(state.Name, true)) != null);
+												&& baseType.GetProperty(GenerationUtils.CodeName(state.Name, true)) != null);
 
 						switch (state)
 						{
@@ -247,12 +247,12 @@ namespace MiNET.Test
 								{
 									bits.Add(blockStateByte);
 									writer.Write($"[StateBit] ");
-									writer.WriteLine($"public {(propOverride ? "override" : "")} bool {CodeName(state.Name, true)} {{ get; set; }} = {(defaultVal == 1 ? "true" : "false")};");
+									writer.WriteLine($"public {(propOverride ? "override" : "")} bool {GenerationUtils.CodeName(state.Name, true)} {{ get; set; }} = {(defaultVal == 1 ? "true" : "false")};");
 								}
 								else
 								{
 									writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
-									writer.WriteLine($"public {(propOverride ? "override" : "")} byte {CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
+									writer.WriteLine($"public {(propOverride ? "override" : "")} byte {GenerationUtils.CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
 								}
 								break;
 							}
@@ -261,7 +261,7 @@ namespace MiNET.Test
 								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateInt) d).Value).Distinct().OrderBy(s => s).ToList();
 								int defaultVal = ((BlockStateInt) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? 0;
 								writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
-								writer.WriteLine($"public {(propOverride ? "override" : "")} int {CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
+								writer.WriteLine($"public {(propOverride ? "override" : "")} int {GenerationUtils.CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
 								break;
 							}
 							case BlockStateString blockStateString:
@@ -272,7 +272,7 @@ namespace MiNET.Test
 								{
 									writer.WriteLine($"[StateEnum({string.Join(',', values.Select(v => $"\"{v}\""))})]");
 								}
-								writer.WriteLine($"public {(propOverride ? "override" : "")} string {CodeName(state.Name, true)} {{ get; set; }} = \"{defaultVal}\";");
+								writer.WriteLine($"public {(propOverride ? "override" : "")} string {GenerationUtils.CodeName(state.Name, true)} {{ get; set; }} = \"{defaultVal}\";");
 								break;
 							}
 							default:
@@ -307,7 +307,7 @@ namespace MiNET.Test
 					{
 						writer.WriteLine($"case {state.GetType().Name} s when s.Name == \"{state.Name}\":");
 						writer.Indent++;
-						writer.WriteLine($"{CodeName(state.Name, true)} = {(bits.Contains(state) ? "Convert.ToBoolean(s.Value)" : "s.Value")};");
+						writer.WriteLine($"{GenerationUtils.CodeName(state.Name, true)} = {(bits.Contains(state) ? "Convert.ToBoolean(s.Value)" : "s.Value")};");
 						writer.WriteLine($"break;");
 						writer.Indent--;
 					}
@@ -327,7 +327,7 @@ namespace MiNET.Test
 					writer.WriteLine($"record.Id = \"{blockstateGrouping.First().Id}\";");
 					foreach (var state in blockstateGrouping.First().States)
 					{
-						string propName = CodeName(state.Name, true);
+						string propName = GenerationUtils.CodeName(state.Name, true);
 						writer.WriteLine($"record.States.Add(new {state.GetType().Name} {{Name = \"{state.Name}\", Value = {(bits.Contains(state) ? $"Convert.ToByte({propName})" : propName)}}});");
 					}
 					writer.WriteLine($"return record;");
@@ -397,37 +397,6 @@ namespace MiNET.Test
 
 				writer.Flush();
 			}
-		}
-
-		public string CodeName(string name, bool firstUpper = false)
-		{
-			//name = name.ToLowerInvariant();
-
-			bool upperCase = firstUpper;
-
-			var result = string.Empty;
-			for (int i = 0; i < name.Length; i++)
-			{
-				if (name[i] == ' ' || name[i] == '_')
-				{
-					upperCase = true;
-				}
-				else
-				{
-					if ((i == 0 && firstUpper) || upperCase)
-					{
-						result += name[i].ToString().ToUpperInvariant();
-						upperCase = false;
-					}
-					else
-					{
-						result += name[i];
-					}
-				}
-			}
-
-			result = result.Replace(@"[]", "s");
-			return result;
 		}
 	}
 }

@@ -28,9 +28,9 @@ using MiNET.Entities;
 
 namespace MiNET.Items
 {
-	public class ItemSword : Item
+	public abstract class ItemSwordBase : Item
 	{
-		internal ItemSword(string name, short id) : base(name, id)
+		internal ItemSwordBase() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Sword;

@@ -29,9 +29,9 @@ using MiNET.Entities.Passive;
 
 namespace MiNET.Items
 {
-	public class ItemShears : Item
+	public partial class ItemShears : Item
 	{
-		public ItemShears() : base("minecraft:shears", 359)
+		public ItemShears() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Sheers;

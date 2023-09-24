@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemChainmailLeggings : ArmorLeggingsBase
+	public partial class ItemChainmailLeggings : ItemArmorLeggingsBase
 	{
-		public ItemChainmailLeggings() : base("minecraft:chainmail_leggings", 304)
+		public ItemChainmailLeggings() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Leggings;

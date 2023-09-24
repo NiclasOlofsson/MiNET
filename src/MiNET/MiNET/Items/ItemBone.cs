@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemBone : Item
+	public partial class ItemBone : Item
 	{
-		public ItemBone() : base("minecraft:bone", 352)
+		public ItemBone() : base()
 		{
 		}
 

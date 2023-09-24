@@ -837,7 +837,7 @@ namespace MiNET.Net
 
 			foreach(var item in itemStacks)
 			{
-				WriteUnsignedVarInt((uint)item.NetworkId);
+				WriteUnsignedVarInt((uint)item.RuntimeId);
 				Write(item, false);
 			}
 		}
@@ -846,15 +846,16 @@ namespace MiNET.Net
 		{
 			var metadata = new CreativeItemStacks();
 
+			// TODO - 1.19-update
 			var count = ReadUnsignedVarInt();
-			for (int i = 0; i < count; i++)
-			{
-				var networkId = ReadUnsignedVarInt();
-				Item item = ReadItem(false);
-				item.NetworkId = (int)networkId;
-				metadata.Add(item);
-				Log.Debug(item);
-			}
+			//for (int i = 0; i < count; i++)
+			//{
+			//	var networkId = ReadUnsignedVarInt();
+			//	Item item = ReadItem(false);
+			//	item.RuntimeId = (int)networkId;
+			//	metadata.Add(item);
+			//	Log.Debug(item);
+			//}
 
 			return metadata;
 		}
@@ -878,16 +879,17 @@ namespace MiNET.Net
 		{
 			var metadata = new ItemStacks();
 
+			// TODO - 1.19-update
 			var count = ReadUnsignedVarInt();
-			for (int i = 0; i < count; i++)
-			{
-				int networkId = 0;
-				if (this is McpeCreativeContent) networkId = ReadVarInt();
-				Item item = ReadItem(this is not McpeCreativeContent);
-				item.NetworkId = networkId;
-				metadata.Add(item);
-				Log.Debug(item);
-			}
+			//for (int i = 0; i < count; i++)
+			//{
+			//	int networkId = 0;
+			//	if (this is McpeCreativeContent) networkId = ReadVarInt();
+			//	Item item = ReadItem(this is not McpeCreativeContent);
+			//	item.RuntimeId = networkId;
+			//	metadata.Add(item);
+			//	Log.Debug(item);
+			//}
 
 			return metadata;
 		}
@@ -1712,16 +1714,13 @@ namespace MiNET.Net
 		private const int ShieldId = 355;
 		public void Write(Item stack, bool writeUniqueId = true)
 		{
-			if (stack == null || stack.Id == 0/* || !ItemFactory.Translator.TryGetNetworkId(stack.Id, stack.Metadata, out var netData)*/)
+			if (stack == null || stack is ItemAir)
 			{
 				WriteSignedVarInt(0);
 				return;
 			}
 
-			//var netId = ItemFactory.Translator.ToNetworkId(stack.Id, stack.Metadata);
-			WriteSignedVarInt(stack.NetworkId);
-			
-			//WriteSignedVarInt(id);
+			WriteSignedVarInt(stack.RuntimeId);
 
 			Write((short) stack.Count);
 			WriteUnsignedVarInt((uint) stack.Metadata);
@@ -1736,7 +1735,7 @@ namespace MiNET.Net
 				}
 			}
 			
-			WriteSignedVarInt(stack.RuntimeId);
+			WriteSignedVarInt(stack.BlockRuntimeId);
 
 			byte[] extraData = null;
 			//Write extra data
@@ -1759,7 +1758,7 @@ namespace MiNET.Net
 					binaryWriter.Write(0); //Write Int
 					binaryWriter.Write(0); //Write Int
 
-					if (stack.Id == 513)
+					if (stack.LegacyId == 513)
 					{
 						binaryWriter.Write((long) 0);
 					}
@@ -1780,19 +1779,17 @@ namespace MiNET.Net
 				return new ItemAir();
 			}
 
-			short count = (short) ReadShort();
+			var count = ReadShort();
 			var metadata = ReadUnsignedVarInt();
 
-			var translated = ItemFactory.Translator.FromNetworkId(id, (short)metadata);
-
-			Item stack = ItemFactory.GetItem((short)translated.Id, translated.Meta, count);
+			Item stack = ItemFactory.GetItem(id, (short) metadata, count);
 
 			if (readUniqueId)
 			{
 				if (ReadBool()) stack.UniqueId = ReadVarInt();
 			}
 
-			stack.RuntimeId = ReadSignedVarInt();
+			stack.BlockRuntimeId = ReadSignedVarInt();
 
 			int length = ReadLength();
 			var data = ReadBytes(length);
@@ -1834,7 +1831,7 @@ namespace MiNET.Net
 						binaryReader.ReadBytes(l);
 					}
 
-					if (stack.RuntimeId == ShieldId) // shield
+					if (stack.BlockRuntimeId == ShieldId) // shield
 					{
 						binaryReader.ReadInt64(); // something about tick, crap code
 					}
@@ -2733,7 +2730,7 @@ namespace MiNET.Net
 					{
 						var rec = smeltingRecipe;
 						WriteSignedVarInt(rec.Input.Metadata == 0 ? Furnace : FurnaceData); // Type
-						WriteSignedVarInt(rec.Input.Id);
+						WriteSignedVarInt(rec.Input.LegacyId);
 						if (rec.Input.Metadata != 0)
 						{
 							WriteSignedVarInt(rec.Input.Metadata);
@@ -2967,14 +2964,14 @@ namespace MiNET.Net
 
 		public void WriteRecipeIngredient(Item stack)
 		{
-			if (stack == null || stack.Id == 0)
+			if (stack == null || stack.LegacyId == 0)
 			{
 				Write(false);
 				WriteVarInt(0);
 				return;
 			}
 			Write(true);
-			Write(stack.Id);
+			Write(stack.LegacyId);
 			Write(stack.Metadata);
 			WriteVarInt(stack.Count);
 		}

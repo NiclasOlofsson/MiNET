@@ -31,12 +31,13 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemPotion : Item
+	public partial class ItemPotion : Item
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemPotion));
 
-		public ItemPotion(short metadata) : base("minecraft:potion", 373, metadata)
+		public ItemPotion() : base()
 		{
+
 		}
 
 		private bool _isUsing;

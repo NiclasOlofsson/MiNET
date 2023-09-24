@@ -50,7 +50,7 @@ namespace MiNET
 		{
 			for (int i = 0; i < Slots.Count; i++)
 			{
-				if (Slots[i] == null || Slots[i].Id != 0) Slots[i] = new ItemAir();
+				if (Slots[i] == null || Slots[i].LegacyId != 0) Slots[i] = new ItemAir();
 			}
 		}
 	}

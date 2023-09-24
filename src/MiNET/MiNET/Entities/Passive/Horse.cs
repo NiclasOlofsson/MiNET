@@ -114,7 +114,7 @@ namespace MiNET.Entities.Passive
 			}
 
 			var inHand = player.Inventory.GetItemInHand();
-			if (inHand is ItemSugar || inHand is ItemWheat || inHand is ItemApple || inHand is ItemGoldenCarrot || inHand is ItemGoldenApple || inHand.Id == 170)
+			if (inHand is ItemSugar || inHand is ItemWheat || inHand is ItemApple || inHand is ItemGoldenCarrot || inHand is ItemGoldenApple || inHand.LegacyId == 170)
 			{
 				// Feeding
 
@@ -144,7 +144,7 @@ namespace MiNET.Entities.Passive
 					Temper += 10;
 					HealthManager.Regen(10);
 				}
-				else if (inHand.Id == 170)
+				else if (inHand.LegacyId == 170)
 				{
 					//Temper += 3;
 					HealthManager.Regen(20);
@@ -157,7 +157,7 @@ namespace MiNET.Entities.Passive
 				if (!IsSaddled)
 				{
 					Inventory.SetSlot(0, inHand);
-					player.Inventory.RemoveItems(inHand.Id, 1); // Wrong. Should really be item in hand
+					player.Inventory.RemoveItems(inHand.LegacyId, 1); // Wrong. Should really be item in hand
 				}
 			}
 			else
@@ -416,7 +416,7 @@ namespace MiNET.Entities.Passive
 						{
 							new NbtByte("Count", Slot0.Count),
 							new NbtShort("Damage", Slot0.Metadata),
-							new NbtShort("id", Slot0.Id),
+							new NbtShort("id", Slot0.LegacyId),
 						},
 						new NbtInt("slotNumber", 0)
 					},
@@ -465,7 +465,7 @@ namespace MiNET.Entities.Passive
 						{
 							new NbtByte("Count", Slot1.Count),
 							new NbtShort("Damage", Slot1.Metadata),
-							new NbtShort("id", Slot1.Id),
+							new NbtShort("id", Slot1.LegacyId),
 						},
 						new NbtInt("slotNumber", 1)
 					},

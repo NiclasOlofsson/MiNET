@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemGoldenSword : ItemSword
+	public partial class ItemGoldenSword : ItemSwordBase
 	{
-		public ItemGoldenSword() : base("minecraft:golden_sword", 283)
+		public ItemGoldenSword() : base()
 		{
 			ItemMaterial = ItemMaterial.Gold;
 		}

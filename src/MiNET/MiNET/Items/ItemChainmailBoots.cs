@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemChainmailBoots : ArmorBootsBase
+	public partial class ItemChainmailBoots : ItemArmorBootsBase
 	{
-		public ItemChainmailBoots() : base("minecraft:chainmail_boots", 305)
+		public ItemChainmailBoots() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Boots;

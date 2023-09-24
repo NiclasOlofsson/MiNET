@@ -450,9 +450,9 @@ namespace MiNET
 
 		protected virtual void ProcessCraftCreativeAction(CraftCreativeAction action)
 		{
-			Item creativeItem = InventoryUtils.CreativeInventoryItems.FirstOrDefault(i => i.NetworkId == (int) action.CreativeItemNetworkId);
+			Item creativeItem = InventoryUtils.CreativeInventoryItems.FirstOrDefault(i => i.RuntimeId == (int) action.CreativeItemNetworkId);
 			if (creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {action.CreativeItemNetworkId}");
-			creativeItem = ItemFactory.GetItem(creativeItem.Id, creativeItem.Metadata);
+			creativeItem = ItemFactory.GetItem(creativeItem.LegacyId, creativeItem.Metadata);
 			creativeItem.Count = (byte) creativeItem.MaxStackSize;
 			creativeItem.UniqueId = Environment.TickCount;
 			Log.Debug($"Creating {creativeItem}");

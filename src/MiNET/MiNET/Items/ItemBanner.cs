@@ -31,9 +31,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemBanner : ItemBlock
+	public partial class ItemBanner : ItemBlock
 	{
-		public ItemBanner() : base("minecraft:banner", 0)
+		public ItemBanner() : base()
 		{
 			MaxStackSize = 16;
 		}

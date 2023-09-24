@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemIronAxe : ItemAxe
+	public partial class ItemIronAxe : ItemAxeBase
 	{
-		public ItemIronAxe() : base("minecraft:iron_axe", 258)
+		public ItemIronAxe() : base()
 		{
 			ItemMaterial = ItemMaterial.Iron;
 		}

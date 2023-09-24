@@ -25,15 +25,14 @@
 
 using System.Numerics;
 using MiNET.Blocks;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemCarrot : FoodItem
+	public partial class ItemCarrot : FoodItemBase
 	{
-		public ItemCarrot() : base("minecraft:carrot", 391, 0, 3, 4.8)
+		public ItemCarrot() : base(3, 4.8)
 		{
 		}
 

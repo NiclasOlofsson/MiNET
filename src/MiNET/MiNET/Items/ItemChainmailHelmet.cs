@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemChainmailHelmet : ArmorHelmetBase
+	public partial class ItemChainmailHelmet : ItemArmorHelmetBase
 	{
-		public ItemChainmailHelmet() : base("minecraft:chainmail_helmet", 302)
+		public ItemChainmailHelmet() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Helmet;

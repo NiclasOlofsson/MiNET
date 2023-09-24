@@ -23,21 +23,34 @@
 
 #endregion
 
-using MiNET.Utils;
+using log4net;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public abstract class FoodItem : Item
+	public abstract class FoodItemBase : Item
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(FoodItemBase));
+
 		public int FoodPoints { get; set; }
 		public double SaturationRestore { get; set; }
 
-		public FoodItem(string name, short id, short metadata, int foodPoints, double saturationRestore) : base(name, id, metadata)
+		public FoodItemBase(int foodPoints, double saturationRestore) : this(0, foodPoints, saturationRestore)
 		{
+
+		}
+
+		public FoodItemBase(short metadata, int foodPoints, double saturationRestore) : base()
+		{
+			Metadata = metadata;
 			FoodPoints = foodPoints;
 			SaturationRestore = saturationRestore;
+		}
+
+		public FoodItemBase()
+		{
+			Log.Warn($"Does not implemented food partial for [{Id}]");
 		}
 
 		private bool _isUsing;

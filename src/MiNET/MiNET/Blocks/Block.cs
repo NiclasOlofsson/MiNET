@@ -69,12 +69,12 @@ namespace MiNET.Blocks
 		public byte BiomeId { get; set; }
 
 		//TODO: Update ALL blocks with names.
-		public Block(string id)
+		protected Block(string id)
 		{
 			Id = id;
 		}
 
-		public Block()
+		protected Block()
 		{
 
 		}

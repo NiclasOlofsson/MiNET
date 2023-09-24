@@ -27,9 +27,9 @@ using MiNET.Blocks;
 
 namespace MiNET.Items
 {
-	public class ItemWheatSeeds : ItemBlock
+	public partial class ItemWheatSeeds : ItemBlock
 	{
-		public ItemWheatSeeds() : base("minecraft:wheat_seeds", 295)
+		public ItemWheatSeeds() : base()
 		{
 			Block = BlockFactory.GetBlockById(59);
 		}

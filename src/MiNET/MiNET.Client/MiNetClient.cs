@@ -556,7 +556,7 @@ namespace MiNET.Client
 				//var matchingBlock = BlockFactory.BlockPalette[slot.RuntimeId];
 				
 				var serialized = SerializeCompound(extraData);
-				writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ RuntimeId={slot.RuntimeId}, NetworkId={slot.NetworkId}, ExtraData = {serialized} }}, /*{slot.Name}*/");
+				writer.WriteLine($"new Item({slot.LegacyId}, {slot.Metadata}, {slot.Count}){{ RuntimeId={slot.BlockRuntimeId}, NetworkId={slot.RuntimeId}, ExtraData = {serialized} }}, /*{slot.Id}*/");
 			}
 
 			// Template

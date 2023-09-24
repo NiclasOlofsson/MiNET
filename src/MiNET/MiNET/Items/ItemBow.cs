@@ -35,11 +35,11 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemBow : Item
+	public partial class ItemBow : Item
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBow));
 
-		public ItemBow() : base("minecraft:bow", 261)
+		public ItemBow() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Bow;
@@ -89,7 +89,7 @@ namespace MiNET.Items
 			{
 				// Try off-hand first
 				Item item = inventory.OffHand;
-				if (item.Id == 262)
+				if (item.LegacyId == 262)
 				{
 					haveArrow = true;
 					if (!isInfinity)
@@ -109,7 +109,7 @@ namespace MiNET.Items
 				for (byte i = 0; i < inventory.Slots.Count; i++)
 				{
 					Item itemStack = inventory.Slots[i];
-					if (itemStack.Id == 262)
+					if (itemStack.LegacyId == 262)
 					{
 						haveArrow = true;
 						if (isInfinity) inventory.RemoveItems(262, 1);

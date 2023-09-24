@@ -144,7 +144,7 @@ namespace MiNET.BlockEntities
 						if (CookTime >= 200)
 						{
 							Inventory.DecreaseSlot(0);
-							Inventory.IncreaseSlot(2, smelt.Id, smelt.Metadata);
+							Inventory.IncreaseSlot(2, smelt.LegacyId, smelt.Metadata);
 
 							CookTime = 0;
 						}

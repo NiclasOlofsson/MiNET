@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemGoldenAxe : ItemAxe
+	public partial class ItemGoldenAxe : ItemAxeBase
 	{
-		public ItemGoldenAxe() : base("minecraft:golden_axe", 286)
+		public ItemGoldenAxe() : base()
 		{
 			MaxStackSize = 1;
 			ItemMaterial = ItemMaterial.Gold;

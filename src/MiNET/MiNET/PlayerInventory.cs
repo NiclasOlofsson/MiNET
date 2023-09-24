@@ -152,7 +152,7 @@ namespace MiNET
 		public virtual void UpdateInventorySlot(int slot, Item item, bool forceReplace = false)
 		{
 			var existing = Slots[slot];
-			if (forceReplace || existing.Id != item.Id)
+			if (forceReplace || existing.LegacyId != item.LegacyId)
 			{
 				Slots[slot] = item;
 				existing = item;
@@ -240,7 +240,7 @@ namespace MiNET
 		{
 			Item existingItem = Slots[si];
 
-			if (existingItem is ItemAir || existingItem.Id == 0 || existingItem.Id == -1)
+			if (existingItem is ItemAir || existingItem.LegacyId == 0 || existingItem.LegacyId == -1)
 			{
 				Slots[si] = (Item) item.Clone();
 				item.Count = 0;
@@ -257,7 +257,7 @@ namespace MiNET
 			{
 				Item existingItem = Slots[si];
 
-				if (existingItem is ItemAir || existingItem.Id == 0 || existingItem.Id == -1)
+				if (existingItem is ItemAir || existingItem.LegacyId == 0 || existingItem.LegacyId == -1)
 				{
 					Slots[si] = item;
 					if (update) SendSetSlot(si);
@@ -304,7 +304,7 @@ namespace MiNET
 		{
 			for (byte i = 0; i < Slots.Count; i++)
 			{
-				if (Slots[i].Id == item.Id && Slots[i].Metadata == item.Metadata)
+				if (Slots[i].LegacyId == item.LegacyId && Slots[i].Metadata == item.Metadata)
 				{
 					return true;
 				}
@@ -322,7 +322,7 @@ namespace MiNET
 				if (count <= 0) break;
 
 				var slot = Slots[i];
-				if (slot.Id == id)
+				if (slot.LegacyId == id)
 				{
 					if (Slots[i].Count >= count)
 					{
@@ -359,17 +359,17 @@ namespace MiNET
 		{
 			for (int i = 0; i < Slots.Count; ++i)
 			{
-				if (Slots[i] == null || Slots[i].Id != 0) Slots[i] = new ItemAir();
+				if (Slots[i] == null || Slots[i].LegacyId != 0) Slots[i] = new ItemAir();
 			}
 			
 			UiInventory.Clear();
 
-			if (OffHand.Id != 0) OffHand = new ItemAir();
+			if (OffHand.LegacyId != 0) OffHand = new ItemAir();
 
-			if (Helmet.Id != 0) Helmet = new ItemAir();
-			if (Chest.Id != 0) Chest = new ItemAir();
-			if (Leggings.Id != 0) Leggings = new ItemAir();
-			if (Boots.Id != 0) Boots = new ItemAir();
+			if (Helmet.LegacyId != 0) Helmet = new ItemAir();
+			if (Chest.LegacyId != 0) Chest = new ItemAir();
+			if (Leggings.LegacyId != 0) Leggings = new ItemAir();
+			if (Boots.LegacyId != 0) Boots = new ItemAir();
 
 			Player.SendPlayerInventory();
 		}

@@ -8,15 +8,15 @@ namespace MiNET.BuilderBase
 	{
 		public Item GetItem(short id, short metadata, int count)
 		{
-			if (id == new BrushTool().Id)
+			if (id == new BrushTool().LegacyId)
 			{
 				return new BrushTool();
 			}
-			else if (id == new DistanceWand().Id)
+			else if (id == new DistanceWand().LegacyId)
 			{
 				return new DistanceWand();
 			}
-			else if (id == new TeleportTool().Id)
+			else if (id == new TeleportTool().LegacyId)
 			{
 				return new TeleportTool();
 			}

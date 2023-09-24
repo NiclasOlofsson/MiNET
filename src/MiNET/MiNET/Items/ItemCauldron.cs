@@ -27,9 +27,9 @@ using MiNET.Blocks;
 
 namespace MiNET.Items
 {
-	public class ItemCauldron : ItemBlock
+	public partial class ItemCauldron : ItemBlock
 	{
-		public ItemCauldron() : base("minecraft:cauldron", 0)
+		public ItemCauldron() : base()
 		{
 			Block = BlockFactory.GetBlockById(118);
 		}

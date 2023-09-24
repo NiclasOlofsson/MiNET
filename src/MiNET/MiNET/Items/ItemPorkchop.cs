@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemPorkchop : Item
+	public partial class ItemPorkchop
 	{
-		public ItemPorkchop() : base("minecraft:porkchop", 319)
+		public ItemPorkchop() : base()
 		{
 		}
 

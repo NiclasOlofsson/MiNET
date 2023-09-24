@@ -2508,7 +2508,7 @@ namespace MiNET
 		private void EntityItemInteract(ItemUseOnEntityTransaction transaction)
 		{
 			Item itemInHand = Inventory.GetItemInHand();
-			if (itemInHand.Id != transaction.Item.Id || itemInHand.Metadata != transaction.Item.Metadata)
+			if (itemInHand.LegacyId != transaction.Item.LegacyId || itemInHand.Metadata != transaction.Item.Metadata)
 			{
 				Log.Warn($"Attack item mismatch. Expected {itemInHand}, but client reported {transaction.Item}");
 			}
@@ -2528,7 +2528,7 @@ namespace MiNET
 		protected virtual void EntityAttack(ItemUseOnEntityTransaction transaction)
 		{
 			Item itemInHand = Inventory.GetItemInHand();
-			if (itemInHand.Id != transaction.Item.Id || itemInHand.Metadata != transaction.Item.Metadata)
+			if (itemInHand.LegacyId != transaction.Item.LegacyId || itemInHand.Metadata != transaction.Item.Metadata)
 			{
 				Log.Warn($"Attack item mismatch. Expected {itemInHand}, but client reported {transaction.Item}");
 			}
@@ -2705,7 +2705,7 @@ namespace MiNET
 						// Drop
 						Item sourceItem = Inventory.GetItemInHand();
 
-						if (newItem.Id != sourceItem.Id) Log.Warn($"Inventory mismatch. Client reported drop item as {newItem} and it did not match existing item {sourceItem}");
+						if (newItem.LegacyId != sourceItem.LegacyId) Log.Warn($"Inventory mismatch. Client reported drop item as {newItem} and it did not match existing item {sourceItem}");
 
 						byte count = newItem.Count;
 
@@ -2753,17 +2753,17 @@ namespace MiNET
 
 			var recipes = RecipeManager.Recipes
 				.Where(r => r is ShapedRecipe)
-				.Where(r => ((ShapedRecipe) r).Result.First().Id == result.Id && ((ShapedRecipe) r).Result.First().Metadata == result.Metadata).ToList();
+				.Where(r => ((ShapedRecipe) r).Result.First().LegacyId == result.LegacyId && ((ShapedRecipe) r).Result.First().Metadata == result.Metadata).ToList();
 
 			recipes.AddRange(RecipeManager.Recipes
 				.Where(r => r is ShapelessRecipe)
-				.Where(r => ((ShapelessRecipe) r).Result.First().Id == result.Id && ((ShapelessRecipe) r).Result.First().Metadata == result.Metadata).ToList());
+				.Where(r => ((ShapelessRecipe) r).Result.First().LegacyId == result.LegacyId && ((ShapelessRecipe) r).Result.First().Metadata == result.Metadata).ToList());
 
 			Log.Debug($"Found {recipes.Count} matching recipes with the result {result}");
 
 			if (recipes.Count == 0) return false;
 
-			var input = craftingInput.Where(i => i != null && i.Id != 0).ToList();
+			var input = craftingInput.Where(i => i != null && i.LegacyId != 0).ToList();
 
 			foreach (var recipe in recipes)
 			{
@@ -2772,12 +2772,12 @@ namespace MiNET
 				{
 					case ShapedRecipe shapedRecipe:
 					{
-						ingredients = shapedRecipe.Input.Where(i => i != null && i.Id != 0).ToList();
+						ingredients = shapedRecipe.Input.Where(i => i != null && i.LegacyId != 0).ToList();
 						break;
 					}
 					case ShapelessRecipe shapelessRecipe:
 					{
-						ingredients = shapelessRecipe.Input.Where(i => i != null && i.Id != 0).ToList();
+						ingredients = shapelessRecipe.Input.Where(i => i != null && i.LegacyId != 0).ToList();
 						break;
 					}
 				}
@@ -2819,7 +2819,7 @@ namespace MiNET
 				if (ReferenceEquals(null, y)) return false;
 				if (ReferenceEquals(x, y)) return true;
 
-				return x.Id == y.Id && (x.Metadata == y.Metadata || x.Metadata == short.MaxValue || y.Metadata == short.MaxValue);
+				return x.LegacyId == y.LegacyId && (x.Metadata == y.Metadata || x.Metadata == short.MaxValue || y.Metadata == short.MaxValue);
 			}
 
 			public int GetHashCode(Item obj)
@@ -3761,25 +3761,25 @@ namespace MiNET
 				Level.DropItem(coordinates, stack);
 			}
 
-			if (Inventory.Helmet.Id != 0)
+			if (Inventory.Helmet.LegacyId != 0)
 			{
 				Level.DropItem(coordinates, Inventory.Helmet);
 				Inventory.Helmet = new ItemAir();
 			}
 
-			if (Inventory.Chest.Id != 0)
+			if (Inventory.Chest.LegacyId != 0)
 			{
 				Level.DropItem(coordinates, Inventory.Chest);
 				Inventory.Chest = new ItemAir();
 			}
 
-			if (Inventory.Leggings.Id != 0)
+			if (Inventory.Leggings.LegacyId != 0)
 			{
 				Level.DropItem(coordinates, Inventory.Leggings);
 				Inventory.Leggings = new ItemAir();
 			}
 
-			if (Inventory.Boots.Id != 0)
+			if (Inventory.Boots.LegacyId != 0)
 			{
 				Level.DropItem(coordinates, Inventory.Boots);
 				Inventory.Boots = new ItemAir();

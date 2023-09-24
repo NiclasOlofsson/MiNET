@@ -1049,11 +1049,11 @@ namespace TestPlugin
 		{
 			var inventory = player.Inventory;
 
-			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
+			var command = new ItemCommand(BlockFactory.GetIdByType<GoldBlock>(), 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
 
 			byte c = 0;
 			inventory.Slots[c++] = new ItemDiamondHoe();
-			inventory.Slots[c++] = new ItemBucket(8) {Count = 1};
+			inventory.Slots[c++] = new ItemWaterBucket() {Count = 1};
 			inventory.Slots[c++] = new ItemWheatSeeds() {Count = 64};
 			inventory.Slots[c++] = new ItemBeetrootSeeds() {Count = 64};
 			inventory.Slots[c++] = new ItemCarrot() {Count = 64};
@@ -1181,7 +1181,7 @@ namespace TestPlugin
 			EnchantArmor(player.Inventory, (short) EnchantingType.FireProtection, 7);
 
 
-			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
+			var command = new ItemCommand(BlockFactory.GetIdByType<GoldBlock>(), 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
 
 			// Hotbar
 			byte c = 0;
@@ -1378,7 +1378,7 @@ namespace TestPlugin
 			//inventory.Slots[c++] = new ItemStack(command, 1); // Custom command block
 			for (short i = 5; i < 36; i++)
 			{
-				inventory.Slots[c++] = new ItemPotion(i);
+				inventory.Slots[c++] = new ItemPotion() { Metadata = i };
 			}
 
 			player.SendPlayerInventory();

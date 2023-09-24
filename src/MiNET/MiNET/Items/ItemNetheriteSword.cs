@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemNetheriteSword : ItemSword
+	public partial class ItemNetheriteSword : ItemSwordBase
 	{
-		public ItemNetheriteSword() : base("minecraft:netherite_sword", 743)
+		public ItemNetheriteSword() : base()
 		{
 			ItemMaterial = ItemMaterial.Netherite;
 		}

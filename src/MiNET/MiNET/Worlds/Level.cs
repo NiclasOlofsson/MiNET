@@ -1463,7 +1463,7 @@ namespace MiNET.Worlds
 			if (GameMode == GameMode.Creative) return;
 
 			if (drop == null) return;
-			if (drop.Id == 0) return;
+			if (drop.LegacyId == 0) return;
 			if (drop.Count == 0) return;
 
 			if (AutoSmelt) drop = drop.GetSmelt() ?? drop;

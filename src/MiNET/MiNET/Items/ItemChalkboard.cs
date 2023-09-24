@@ -31,10 +31,11 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemSlate : ItemBlock
+	public abstract class ItemSlate : ItemBlock
 	{
-		public ItemSlate(short size = 0) : base("minecraft:board", size)
+		public ItemSlate(short size = 0) : base()
 		{
+			Metadata = size;
 			MaxStackSize = 16;
 		}
 

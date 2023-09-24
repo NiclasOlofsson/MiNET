@@ -142,7 +142,7 @@ namespace MiNET
 				{
 					new NbtByte("Count", slot.Count),
 					new NbtByte("Slot", i),
-					new NbtString("Name", slot.Name),
+					new NbtString("Name", slot.Id),
 					new NbtShort("Damage", slot.Metadata),
 				});
 			}

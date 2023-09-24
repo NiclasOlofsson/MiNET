@@ -45,10 +45,9 @@ namespace MiNET.Items
 
 		[JsonIgnore] public Block Block { get; protected set; }
 
-		protected ItemBlock(string name, short metadata = 0) : base(name, metadata)
+		public ItemBlock() : base()
 		{
-			//TODO: Problematic block
-			Block = BlockFactory.GetBlockById(name, metadata);
+
 		}
 
 		public ItemBlock([NotNull] Block block, short metadata = 0) : base(block.Id, metadata)
@@ -61,8 +60,7 @@ namespace MiNET.Items
 			}
 
 			FuelEfficiency = Block.FuelEfficiency;
-			RuntimeId = Block.GetRuntimeId();
-			Id = (short) -RuntimeId;
+			BlockRuntimeId = Block.GetRuntimeId();
 		}
 
 		public override Item GetSmelt()
@@ -135,7 +133,7 @@ namespace MiNET.Items
 
 		public override string ToString()
 		{
-			return $"{GetType().Name}(Id={Id}, Meta={Metadata}, UniqueId={UniqueId}) {{Block={Block?.GetType().Name}}} Count={Count}, NBT={ExtraData}";
+			return $"{GetType().Name}(Id={LegacyId}, Meta={Metadata}, UniqueId={UniqueId}) {{Block={Block?.GetType().Name}}} Count={Count}, NBT={ExtraData}";
 		}
 	}
 }

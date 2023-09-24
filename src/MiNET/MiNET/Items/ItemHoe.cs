@@ -34,11 +34,11 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemHoe : Item
+	public abstract class ItemHoeBase : Item
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemHoe));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemHoeBase));
 
-		internal ItemHoe(string name, short id) : base(name, id)
+		internal ItemHoeBase() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Hoe;

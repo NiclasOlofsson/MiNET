@@ -31,9 +31,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemPotato : FoodItem
+	public partial class ItemPotato : FoodItemBase
 	{
-		public ItemPotato() : base("minecraft:potato", 392, 0, 1, 0.6)
+		public ItemPotato() : base(1, 0.6)
 		{
 		}
 

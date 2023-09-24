@@ -32,11 +32,16 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemBoat : Item
+	public partial class ItemBoat : ItemBoatBase
+	{
+
+	}
+
+	public abstract class ItemBoatBase : Item
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBoat));
 
-		public ItemBoat(short metadata) : base("minecraft:boat", 333, metadata)
+		public ItemBoatBase() : base()
 		{
 		}
 

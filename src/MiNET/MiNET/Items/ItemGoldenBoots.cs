@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemGoldenBoots : ArmorBootsBase
+	public partial class ItemGoldenBoots : ItemArmorBootsBase
 	{
-		public ItemGoldenBoots() : base("minecraft:golden_boots", 317)
+		public ItemGoldenBoots() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Boots;

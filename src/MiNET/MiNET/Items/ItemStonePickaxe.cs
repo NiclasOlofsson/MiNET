@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemStonePickaxe : ItemPickaxe
+	public partial class ItemStonePickaxe : ItemPickaxeBase
 	{
-		public ItemStonePickaxe() : base("minecraft:stone_pickaxe", 274)
+		public ItemStonePickaxe() : base()
 		{
 			ItemMaterial = ItemMaterial.Stone;
 		}

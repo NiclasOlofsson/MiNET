@@ -25,16 +25,16 @@
 
 using System.Numerics;
 using MiNET.Entities;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemCamera : Item
+	public partial class ItemCamera : Item
 	{
-		public ItemCamera(short metadata) : base("minecraft:camera", 498, metadata)
+		public ItemCamera() : base()
 		{
+
 		}
 
 		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

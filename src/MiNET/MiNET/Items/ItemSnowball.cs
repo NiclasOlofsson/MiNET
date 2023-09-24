@@ -30,9 +30,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemSnowball : Item
+	public partial class ItemSnowball : Item
 	{
-		public ItemSnowball() : base("minecraft:snowball", 332)
+		public ItemSnowball() : base()
 		{
 			MaxStackSize = 16;
 		}

@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemWoodenSword : ItemSword
+	public partial class ItemWoodenSword : ItemSwordBase
 	{
-		public ItemWoodenSword() : base("minecraft:wooden_sword", 268)
+		public ItemWoodenSword() : base()
 		{
 			ItemMaterial = ItemMaterial.Wood;
 			FuelEfficiency = 10;

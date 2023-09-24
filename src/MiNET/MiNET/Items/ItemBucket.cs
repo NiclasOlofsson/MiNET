@@ -32,11 +32,11 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemBucket : Item
+	public partial class ItemBucket : Item
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBucket));
 
-		public ItemBucket(short metadata) : base("minecraft:bucket", 325, metadata)
+		public ItemBucket() : base()
 		{
 			MaxStackSize = 1;
 			FuelEfficiency = (short) (Metadata == 10 ? 1000 : 0);

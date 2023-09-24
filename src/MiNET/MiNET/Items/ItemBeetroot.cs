@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemBeetroot : FoodItem
+	public partial class ItemBeetroot : FoodItemBase
 	{
-		public ItemBeetroot() : base("minecraft:beetroot", 457, 0, 1, 1.2)
+		public ItemBeetroot() : base(1, 1.2)
 		{
 		}
 	}

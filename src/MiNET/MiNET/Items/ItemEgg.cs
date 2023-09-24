@@ -30,9 +30,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemEgg : Item
+	public partial class ItemEgg : Item
 	{
-		public ItemEgg() : base("minecraft:egg", 344)
+		public ItemEgg() : base()
 		{
 			MaxStackSize = 16;
 		}

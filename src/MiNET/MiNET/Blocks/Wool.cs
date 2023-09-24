@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Wool : Block
 	{
-		public Wool() : base(35)
+		public Wool() : base()
 		{
 			BlastResistance = 4;
 			Hardness = 0.8f;

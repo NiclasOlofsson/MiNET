@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -99,7 +99,7 @@ namespace MiNET.Worlds
 
 			if (chunk == null) return;
 
-			if (chunk.GetBlockId(newCoord.X & 0x0f, newCoord.Y, newCoord.Z & 0x0f) == 0)
+			if (BlockFactory.IsBlock<Air>(chunk.GetBlockRuntimeId(newCoord.X & 0x0f, newCoord.Y, newCoord.Z & 0x0f)))
 			{
 				SetLightLevel(chunk, lightBfsQueue, newCoord, lightLevel);
 			}

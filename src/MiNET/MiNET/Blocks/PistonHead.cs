@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class PistonArmCollision : Block
 	{
-		public PistonArmCollision() : base(34)
+		public PistonArmCollision() : base()
 		{
 			BlastResistance = 2.5f;
 			IsTransparent = true;

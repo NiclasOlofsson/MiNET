@@ -41,7 +41,7 @@ namespace MiNET.Blocks
 
 		protected byte MaxGrowth { get; set; } = 7;
 
-		protected Crops(byte id) : base(id)
+		protected Crops() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

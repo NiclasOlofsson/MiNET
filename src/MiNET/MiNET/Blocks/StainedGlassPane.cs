@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class StainedGlassPane : Block
 	{
-		public StainedGlassPane() : base(160)
+		public StainedGlassPane() : base()
 		{
 			IsTransparent = true; // I should hope so at least
 			BlastResistance = 1.5f;

@@ -35,7 +35,7 @@ namespace MiNET.Blocks
 {
 	public partial class Frame : Block
 	{
-		public Frame() : base(199)
+		public Frame() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;

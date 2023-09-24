@@ -35,7 +35,7 @@ namespace MiNET.Blocks
 	{
 		[StateRange(0, 5)] public virtual int FacingDirection { get; set; } = 0;
 
-		public GlazedTerracotta(byte id) : base(id)
+		public GlazedTerracotta() : base()
 		{
 		}
 

@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class LitFurnace : FurnaceBase
 	{
-		public LitFurnace() : base(62)
+		public LitFurnace() : base()
 		{
 			LightLevel = 13;
 		}

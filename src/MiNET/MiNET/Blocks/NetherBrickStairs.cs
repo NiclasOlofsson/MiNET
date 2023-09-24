@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class NetherBrickStairs : BlockStairs
 	{
-		public NetherBrickStairs() : base(114)
+		public NetherBrickStairs() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 2;

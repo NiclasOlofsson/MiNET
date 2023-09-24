@@ -48,7 +48,7 @@ namespace MiNET.BuilderBase.Tools
 		public int Height { get; set; } = 1;
 		public int Range { get; set; } = 300;
 		[JsonIgnore]
-		public Pattern Pattern { get; set; } = new Pattern(1, 0);
+		public Pattern Pattern { get; set; } = new Pattern("minecraft:stone", 0);
 		[JsonIgnore]
 		public Mask Mask { get; set; } = new AnyBlockMask();
 		public bool Filled { get; set; } = true;
@@ -297,7 +297,7 @@ namespace MiNET.BuilderBase.Tools
 		{
 			double brushSizeSquared = inbrushSize*inbrushSize;
 			int brushSize = inbrushSize + 1;
-			Dictionary<int, int> frequency = new Dictionary<int, int>();
+			Dictionary<string, int> frequency = new Dictionary<string, int>();
 
 			for (int x = -brushSize; x <= brushSize; x++)
 			{
@@ -364,7 +364,7 @@ namespace MiNET.BuilderBase.Tools
 		{
 			double brushSizeSquared = inbrushSize*inbrushSize;
 			int brushSize = inbrushSize + 1;
-			Dictionary<int, int> frequency = new Dictionary<int, int>();
+			Dictionary<string, int> frequency = new Dictionary<string, int>();
 
 			for (int x = -brushSize; x <= brushSize; x++)
 			{
@@ -386,7 +386,7 @@ namespace MiNET.BuilderBase.Tools
 						}
 						int total = 0;
 						int highest = 1;
-						int highestState = state.Id;
+						var highestState = state.Id;
 						frequency.Clear();
 						foreach (var offs in FACES_TO_CHECK)
 						{

@@ -284,7 +284,7 @@ namespace MiNET.Worlds
 					file.LoadFromStream(reader, NbtCompression.None);
 					var tag = (NbtCompound) file.RootTag;
 
-					Block block = BlockFactory.GetBlockByName(tag["name"].StringValue);
+					Block block = BlockFactory.GetBlockById(tag["name"].StringValue);
 					if (block != null && block.GetType() != typeof(Block) && !(block is Air))
 					{
 						List<IBlockState> blockState = ReadBlockState(tag);
@@ -705,7 +705,7 @@ namespace MiNET.Worlds
 		{
 			var tag = new NbtCompound("");
 
-			tag.Add(new NbtString("name", container.Name));
+			tag.Add(new NbtString("name", container.Id));
 			var nbtStates = new NbtCompound("states");
 
 			foreach (IBlockState state in container.States)

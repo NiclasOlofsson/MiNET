@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class CoalBlock : Block
 	{
-		public CoalBlock() : base(173)
+		public CoalBlock() : base()
 		{
 			FuelEfficiency = 800;
 			BlastResistance = 30;

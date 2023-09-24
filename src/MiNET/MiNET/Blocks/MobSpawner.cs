@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 {
 	public partial class MobSpawner : Block
 	{
-		public MobSpawner() : base(52)
+		public MobSpawner() : base()
 		{
 			IsTransparent = true; // Doesn't block light
 			LightLevel = 1;

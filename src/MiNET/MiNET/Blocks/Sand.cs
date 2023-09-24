@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 
 		private int _tickRate = 1;
 
-		public Sand() : base(12)
+		public Sand() : base()
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;

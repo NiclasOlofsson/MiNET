@@ -334,7 +334,7 @@ namespace MiNET.Client
 					eq.runtimeEntityId = EntityId;
 					eq.slot = 9;
 					eq.selectedSlot = 0;
-					eq.item = new ItemBlock(new Block(17), 0) {Count = 1};
+					eq.item = new ItemBlock(new OakLog(), 0) {Count = 1};
 					SendPacket(eq);
 				}
 
@@ -346,11 +346,11 @@ namespace MiNET.Client
 				crafting.recipeId = recipe.Id;
 
 				{
-					ItemStacks slotData = new ItemStacks {new ItemBlock(new Block(17), 0) {Count = 1}};
+					ItemStacks slotData = new ItemStacks {new ItemBlock(new OakLog(), 0) {Count = 1}};
 					crafting.input = slotData;
 				}
 				{
-					ItemStacks slotData = new ItemStacks {new ItemBlock(new Block(5), 0) {Count = 1}};
+					ItemStacks slotData = new ItemStacks {new ItemBlock(new Planks(), 0) {Count = 1}};
 					crafting.result = slotData;
 				}
 
@@ -369,7 +369,7 @@ namespace MiNET.Client
 					eq.runtimeEntityId = EntityId;
 					eq.slot = 10;
 					eq.selectedSlot = 1;
-					eq.item = new ItemBlock(new Block(5), 0) {Count = 1};
+					eq.item = new ItemBlock(new Planks(), 0) {Count = 1};
 					SendPacket(eq);
 				}
 			}

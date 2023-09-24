@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class BrewingStand : Block
 	{
-		public BrewingStand() : base(117)
+		public BrewingStand() : base()
 		{
 			IsTransparent = true;
 			LightLevel = 1;

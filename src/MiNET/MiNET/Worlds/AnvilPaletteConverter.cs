@@ -201,6 +201,7 @@ namespace MiNET.Worlds
 			_mapper.Add(new BlockStateMapper("minecraft:terracotta", "minecraft:hardened_clay"));
 			_mapper.Add(new BlockStateMapper("minecraft:jack_o_lantern", "minecraft:lit_pumpkin"));
 			_mapper.Add(new BlockStateMapper("minecraft:bricks", "minecraft:brick_block"));
+			_mapper.Add(new BlockStateMapper("minecraft:dead_bush", "minecraft:deadbush"));
 
 			_mapper.Add(new BlockStateMapper("minecraft:bubble_column",
 				new PropertyStateMapper("drag", "drag_down")));
@@ -771,7 +772,7 @@ namespace MiNET.Worlds
 
 				name = _mapper.Resolve(name, properties);
 
-				var block = BlockFactory.GetBlockByName(name);
+				var block = BlockFactory.GetBlockById(name);
 
 				if (block == null)
 				{

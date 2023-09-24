@@ -53,453 +53,414 @@ namespace MiNET.Items
 		public static ICustomItemFactory CustomItemFactory { get; set; }
 		public static ICustomBlockItemFactory CustomBlockItemFactory { get; set; }
 
-		public static Dictionary<string, short> NameToId { get; private set; }
 		public static Itemstates Itemstates { get; internal set; } = new Itemstates();
 		
 		public static ItemTranslator Translator { get; }
 		static ItemFactory()
 		{
-			NameToId = BuildNameToId();
-
 			Itemstates = ResourceUtil.ReadResource<Itemstates>("itemstates.json", typeof(Item), "Data");
 			Translator = new ItemTranslator(Itemstates);
 		}
 
-		private static Dictionary<string, short> BuildNameToId()
+		public static int GetItemIdByName(string itemName)
 		{
-			//TODO: Refactor to use the Item.Name in hashed set instead.
-
-			var nameToId = new Dictionary<string, short>();
-
-			for (short idx = -600; idx < 800; idx++)
-			{
-				Item item = GetItem(idx);
-				string name = item.GetType().Name.ToLowerInvariant();
-
-				if (name.Equals("item"))
-				{
-					//if (Log.IsDebugEnabled)
-					//	Log.Debug($"Missing implementation for item ID={idx}");
-					continue;
-				}
-
-				if (name.Equals("itemblock"))
-				{
-					ItemBlock itemBlock = item as ItemBlock;
-
-					if (itemBlock != null)
-					{
-						Block block = itemBlock.Block;
-						name = block?.GetType().Name.ToLowerInvariant();
-
-						if (name == null || name.Equals("block"))
-						{
-							continue;
-						}
-					}
-				}
-				else
-				{
-					name = name.Substring(4);
-				}
-
-				try
-				{
-					nameToId.Remove(name); // This is in case a block was added that have item that should be used.
-					nameToId.Add(name, idx);
-
-					if (!string.IsNullOrWhiteSpace(item?.Name))
-					{
-						if (!nameToId.TryAdd(item.Name, idx))
-						{
-							
-						}
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Error($"Tried to add duplicate item for {name} {idx}", e);
-				}
-			}
-
-			return nameToId;
+			return 0;
 		}
 
-		public static short GetItemIdByName(string itemName)
+		public static int GetRuntimeIdById(string id)
 		{
-			itemName = itemName.ToLowerInvariant().Replace("_", "").Replace("minecraft:", "");
-
-			if (NameToId.ContainsKey(itemName))
-			{
-				return NameToId[itemName];
-			}
-
-			return (short) BlockFactory.GetBlockIdByName(itemName);
+			return Itemstates.GetValueOrDefault(id)?.RuntimeId ?? 0;
 		}
 
-		public static Item GetItem(string name, short metadata = 0, int count = 1)
-		{
-			return GetItem(GetItemIdByName(name), metadata, count);
-		}
-
-		public static Item GetItem(short id, short metadata = 0, int count = 1)
+		public static Item GetItem(string id, short metadata = 0, int count = 1)
 		{
 			Item item = null;
+			var block = BlockFactory.GetBlockById(id, metadata);
 
-			if (CustomItemFactory != null)
+			if (block != null)
 			{
-				item = CustomItemFactory.GetItem(id, metadata, count);
+				item = new ItemBlock(block, metadata) { Count = (byte) count };
 			}
-
-			if (item != null) return item;
-
-			if (id == 0) item = new ItemAir();
-			else if (id == 256) item = new ItemIronShovel();
-			else if (id == 257) item = new ItemIronPickaxe();
-			else if (id == 258) item = new ItemIronAxe();
-			else if (id == 259) item = new ItemFlintAndSteel();
-			else if (id == 260) item = new ItemApple();
-			else if (id == 261) item = new ItemBow();
-			else if (id == 262) item = new ItemArrow();
-			else if (id == 263) item = new ItemCoal();
-			else if (id == 264) item = new ItemDiamond();
-			else if (id == 265) item = new ItemIronIngot();
-			else if (id == 266) item = new ItemGoldIngot();
-			else if (id == 267) item = new ItemIronSword();
-			else if (id == 268) item = new ItemWoodenSword();
-			else if (id == 269) item = new ItemWoodenShovel();
-			else if (id == 270) item = new ItemWoodenPickaxe();
-			else if (id == 271) item = new ItemWoodenAxe();
-			else if (id == 272) item = new ItemStoneSword();
-			else if (id == 273) item = new ItemStoneShovel();
-			else if (id == 274) item = new ItemStonePickaxe();
-			else if (id == 275) item = new ItemStoneAxe();
-			else if (id == 276) item = new ItemDiamondSword();
-			else if (id == 277) item = new ItemDiamondShovel();
-			else if (id == 278) item = new ItemDiamondPickaxe();
-			else if (id == 279) item = new ItemDiamondAxe();
-			else if (id == 280) item = new ItemStick();
-			else if (id == 281) item = new ItemBowl();
-			else if (id == 282) item = new ItemMushroomStew();
-			else if (id == 283) item = new ItemGoldenSword();
-			else if (id == 284) item = new ItemGoldenShovel();
-			else if (id == 285) item = new ItemGoldenPickaxe();
-			else if (id == 286) item = new ItemGoldenAxe();
-			else if (id == 287) item = new ItemString();
-			else if (id == 288) item = new ItemFeather();
-			else if (id == 289) item = new ItemGunpowder();
-			else if (id == 290) item = new ItemWoodenHoe();
-			else if (id == 291) item = new ItemStoneHoe();
-			else if (id == 292) item = new ItemIronHoe();
-			else if (id == 293) item = new ItemDiamondHoe();
-			else if (id == 294) item = new ItemGoldenHoe();
-			else if (id == 295) item = new ItemWheatSeeds();
-			else if (id == 296) item = new ItemWheat();
-			else if (id == 297) item = new ItemBread();
-			else if (id == 298) item = new ItemLeatherHelmet();
-			else if (id == 299) item = new ItemLeatherChestplate();
-			else if (id == 300) item = new ItemLeatherLeggings();
-			else if (id == 301) item = new ItemLeatherBoots();
-			else if (id == 302) item = new ItemChainmailHelmet();
-			else if (id == 303) item = new ItemChainmailChestplate();
-			else if (id == 304) item = new ItemChainmailLeggings();
-			else if (id == 305) item = new ItemChainmailBoots();
-			else if (id == 309) item = new ItemIronBoots();
-			else if (id == 308) item = new ItemIronLeggings();
-			else if (id == 307) item = new ItemIronChestplate();
-			else if (id == 306) item = new ItemIronHelmet();
-			else if (id == 310) item = new ItemDiamondHelmet();
-			else if (id == 311) item = new ItemDiamondChestplate();
-			else if (id == 312) item = new ItemDiamondLeggings();
-			else if (id == 313) item = new ItemDiamondBoots();
-			else if (id == 314) item = new ItemGoldenHelmet();
-			else if (id == 315) item = new ItemGoldenChestplate();
-			else if (id == 316) item = new ItemGoldenLeggings();
-			else if (id == 317) item = new ItemGoldenBoots();
-			else if (id == 318) item = new ItemFlint();
-			else if (id == 319) item = new ItemPorkchop();
-			else if (id == 320) item = new ItemCookedPorkchop();
-			else if (id == 321) item = new ItemPainting();
-			else if (id == 322) item = new ItemGoldenApple();
-			else if (id == 323) item = new ItemSign();
-			else if (id == 324) item = new ItemWoodenDoor();
-			else if (id == 325) item = new ItemBucket(metadata);
-			else if (id == 328) item = new ItemMinecart();
-			else if (id == 329) item = new ItemSaddle();
-			else if (id == 330) item = new ItemIronDoor();
-			else if (id == 331) item = new ItemRedstone();
-			else if (id == 332) item = new ItemSnowball();
-			else if (id == 333) item = new ItemBoat(metadata);
-			else if (id == 334) item = new ItemLeather();
-			else if (id == 335) item = new ItemKelp();
-			else if (id == 336) item = new ItemBrick();
-			else if (id == 337) item = new ItemClayBall();
-			else if (id == 338) item = new ItemReeds();
-			else if (id == 339) item = new ItemPaper();
-			else if (id == 340) item = new ItemBook();
-			else if (id == 341) item = new ItemSlimeBall();
-			else if (id == 342) item = new ItemChestMinecart();
-			else if (id == 344) item = new ItemEgg();
-			else if (id == 345) item = new ItemCompass();
-			else if (id == 346) item = new ItemFishingRod();
-			else if (id == 347) item = new ItemClock();
-			else if (id == 348) item = new ItemGlowstoneDust();
-			else if (id == 349) item = new ItemCod();
-			else if (id == 350) item = new ItemCookedCod();
-			else if (id == 351) item = new ItemDye();
-			else if (id == 352) item = new ItemBone();
-			else if (id == 353) item = new ItemSugar();
-			else if (id == 354) item = new ItemCake();
-			else if (id == 355) item = new ItemBed();
-			else if (id == 356) item = new ItemRepeater();
-			else if (id == 357) item = new ItemCookie();
-			else if (id == 358) item = new ItemMap();
-			else if (id == 359) item = new ItemShears();
-			else if (id == 360) item = new ItemMelon();
-			else if (id == 361) item = new ItemPumpkinSeeds();
-			else if (id == 362) item = new ItemMelonSeeds();
-			else if (id == 363) item = new ItemBeef();
-			else if (id == 364) item = new ItemCookedBeef();
-			else if (id == 365) item = new ItemChicken();
-			else if (id == 366) item = new ItemCookedChicken();
-			else if (id == 367) item = new ItemRottenFlesh();
-			else if (id == 368) item = new ItemEnderPearl();
-			else if (id == 369) item = new ItemBlazeRod();
-			else if (id == 370) item = new ItemGhastTear();
-			else if (id == 371) item = new ItemGoldNugget();
-			else if (id == 372) item = new ItemNetherWart();
-			else if (id == 373) item = new ItemPotion(metadata);
-			else if (id == 374) item = new ItemGlassBottle();
-			else if (id == 375) item = new ItemSpiderEye();
-			else if (id == 376) item = new ItemFermentedSpiderEye();
-			else if (id == 377) item = new ItemBlazePowder();
-			else if (id == 378) item = new ItemMagmaCream();
-			else if (id == 379) item = new ItemBrewingStand();
-			else if (id == 380) item = new ItemCauldron();
-			else if (id == 381) item = new ItemEnderEye();
-			else if (id == 382) item = new ItemGlisteningMelonSlice();
-			else if (id == 383) item = new ItemSpawnEgg(metadata);
-			else if (id == 389) item = new ItemFrame();
-			else if (id == 384) item = new ItemExperienceBottle();
-			else if (id == 385) item = new ItemFireCharge();
-			else if (id == 386) item = new ItemWritableBook();
-			else if (id == 387) item = new ItemWrittenBook();
-			else if (id == 388) item = new ItemEmerald();
-			else if (id == 390) item = new ItemFlowerPot();
-			else if (id == 391) item = new ItemCarrot();
-			else if (id == 392) item = new ItemPotato();
-			else if (id == 393) item = new ItemBakedPotato();
-			else if (id == 394) item = new ItemPoisonousPotato();
-			else if (id == 395) item = new ItemEmptyMap();
-			else if (id == 396) item = new ItemGoldenCarrot();
-			else if (id == 397) item = new ItemSkull(metadata);
-			else if (id == 398) item = new ItemCarrotonastick();
-			else if (id == 399) item = new ItemNetherstar();
-			else if (id == 400) item = new ItemPumpkinPie();
-			else if (id == 401) item = new ItemFireworkRocket();
-			else if (id == 402) item = new ItemFireworkStar();
-			else if (id == 403) item = new ItemEnchantedBook();
-			else if (id == 404) item = new ItemComparator();
-			else if (id == 405) item = new ItemNetherbrick();
-			else if (id == 406) item = new ItemQuartz();
-			else if (id == 407) item = new ItemTntMinecart();
-			else if (id == 408) item = new ItemHopperMinecart();
-			else if (id == 409) item = new ItemPrismarineShard();
-			else if (id == 410) item = new ItemHopper();
-			else if (id == 411) item = new ItemRabbit();
-			else if (id == 412) item = new ItemCookedRabbit();
-			else if (id == 413) item = new ItemRabbitStew();
-			else if (id == 414) item = new ItemRabbitFoot();
-			else if (id == 415) item = new ItemRabbitHide();
-			else if (id == 416) item = new ItemLeatherHorseArmor();
-			else if (id == 417) item = new ItemIronHorseArmor();
-			else if (id == 418) item = new ItemGoldenHorseArmor();
-			else if (id == 419) item = new ItemDiamondHorseArmor();
-			else if (id == 420) item = new ItemLead();
-			else if (id == 421) item = new ItemNameTag();
-			else if (id == 422) item = new ItemPrismarineCrystals();
-			else if (id == 423) item = new ItemMuttonRaw();
-			else if (id == 424) item = new ItemMuttonCooked();
-			else if (id == 425) item = new ItemArmorStand();
-			else if (id == 426) item = new ItemEndCrystal();
-			else if (id == 427) item = new ItemSpruceDoor();
-			else if (id == 428) item = new ItemBirchDoor();
-			else if (id == 429) item = new ItemJungleDoor();
-			else if (id == 430) item = new ItemAcaciaDoor();
-			else if (id == 431) item = new ItemDarkOakDoor();
-			else if (id == 432) item = new ItemChorusFruit();
-			else if (id == 433) item = new ItemPoppedChorusFruit();
-			else if (id == 434) item = new ItemBannerPattern();
-			else if (id == 437) item = new ItemDragonBreath();
-			else if (id == 438) item = new ItemSplashPotion();
-			else if (id == 441) item = new ItemLingeringPotion();
-			else if (id == 442) item = new ItemSparkler();
-			else if (id == 443) item = new ItemCommandBlockMinecart();
-			else if (id == 444) item = new ItemElytra();
-			else if (id == 445) item = new ItemShulkerShell();
-			else if (id == 446) item = new ItemBanner();
-			else if (id == 447) item = new ItemMedicine();
-			else if (id == 448) item = new ItemBalloon();
-			else if (id == 449) item = new ItemRapidFertilizer();
-			else if (id == 450) item = new ItemTotemOfUndying();
-			else if (id == 451) item = new ItemBleach();
-			else if (id == 452) item = new ItemIronNugget();
-			else if (id == 453) item = new ItemIceBomb();
-			else if (id == 454 && metadata == 0) item = new ItemSlate();
-			else if (id == 454 && metadata == 1) item = new ItemPoster();
-			else if (id == 454 && metadata == 2) item = new ItemBoard();
-			else if (id == 455) item = new ItemTrident();
-			else if (id == 457) item = new ItemBeetroot();
-			else if (id == 458) item = new ItemBeetrootSeeds();
-			else if (id == 459) item = new ItemBeetrootSoup();
-			else if (id == 460) item = new ItemSalmon();
-			else if (id == 461) item = new ItemTropicalFish();
-			else if (id == 462) item = new ItemPufferfish();
-			else if (id == 463) item = new ItemCookedSalmon();
-			else if (id == 464) item = new ItemDriedKelp();
-			else if (id == 465) item = new ItemNautilusShell();
-			else if (id == 466) item = new ItemEnchantedApple();
-			else if (id == 467) item = new ItemHeartOfTheSea();
-			else if (id == 468) item = new ItemTurtleShellPiece();
-			else if (id == 469) item = new ItemTurtleHelmet();
-			else if (id == 470) item = new ItemPhantomMembrane();
-			else if (id == 471) item = new ItemCrossbow();
-			else if (id == 472) item = new ItemSpruceSign();
-			else if (id == 473) item = new ItemBirchSign();
-			else if (id == 474) item = new ItemJungleSign();
-			else if (id == 475) item = new ItemAcaciaSign();
-			else if (id == 476) item = new ItemDarkoakSign();
-			else if (id == 477) item = new ItemSweetBerries();
-			else if (id == 498) item = new ItemCamera(metadata);
-			else if (id == 499) item = new ItemCompound();
-			
-			else if (id == 500) item = new ItemMusicDisc13();
-			else if (id == 501) item = new ItemMusicDiscCat();
-			else if (id == 502) item = new ItemMusicDiscBlocks();
-			else if (id == 503) item = new ItemMusicDiscChirp();
-			else if (id == 504) item = new ItemMusicDiscFar();
-			else if (id == 505) item = new ItemMusicDiscMall();
-			else if (id == 506) item = new ItemMusicDiscMellohi();
-			else if (id == 507) item = new ItemMusicDiscStal();
-			else if (id == 508) item = new ItemMusicDiscStrad();
-			else if (id == 509) item = new ItemMusicDiscWard();
-			else if (id == 510) item = new ItemMusicDisc11();
-			else if (id == 511) item = new ItemMusicDiscWait();
-			
-			else if (id == 513) item = new ItemShield();
-			else if (id == 720) item = new ItemCampfire();
-			else if (id == 734) item = new ItemSuspiciousStew();
-			else if (id == 736) item = new ItemHoneycomb();
-			else if (id == 737) item = new ItemHoneyBottle();
-			else if (id == 741) item = new ItemLodestoneCompass();
-			else if (id == 742) item = new ItemNetheriteIngot();
-			else if (id == 743) item = new ItemNetheriteSword();
-			else if (id == 744) item = new ItemNetheriteShovel();
-			else if (id == 745) item = new ItemNetheritePickaxe();
-			else if (id == 746) item = new ItemNetheriteAxe();
-			else if (id == 747) item = new ItemNetheriteHoe();
-			else if (id == 748) item = new ItemNetheriteHelmet();
-			else if (id == 749) item = new ItemNetheriteChestplate();
-			else if (id == 750) item = new ItemNetheriteLeggings();
-			else if (id == 751) item = new ItemNetheriteBoots();
-			else if (id == 752) item = new ItemNetheriteScrap();
-			else if (id == 753) item = new ItemCrimsonSign();
-			else if (id == 754) item = new ItemWarpedSign();
-			else if (id == 755) item = new ItemCrimsonDoor();
-			else if (id == 756) item = new ItemWarpedDoor();
-			else if (id == 757) item = new ItemWarpedFungusOnAStick();
-			else if (id == 758) item = new ItemChain();
-			else if (id == 759) item = new ItemMusicDiscPigstep();
-			else if (id == 760) item = new ItemNetherSprouts();
-			else if (id == 801) item = new ItemSoulCampfire();
-
-			else if (id == 436) item = new ItemCowSpawnEgg();
-            else if (id == 439) item = new ItemWolfSpawnEgg();
-            else if (id == 440) item = new ItemMooshroomSpawnEgg();
-            else if (id == 456) item = new ItemBlazeSpawnEgg();
-            else if (id == 478) item = new ItemParrotSpawnEgg();
-            else if (id == 479) item = new ItemTropicalFishSpawnEgg();
-            else if (id == 480) item = new ItemCodSpawnEgg();
-            else if (id == 481) item = new ItemPufferfishSpawnEgg();
-            else if (id == 482) item = new ItemSalmonSpawnEgg();
-            else if (id == 483) item = new ItemDrownedSpawnEgg();
-            else if (id == 484) item = new ItemDolphinSpawnEgg();
-            else if (id == 485) item = new ItemTurtleSpawnEgg();
-            else if (id == 486) item = new ItemPhantomSpawnEgg();
-            else if (id == 487) item = new ItemAgentSpawnEgg();
-            else if (id == 488) item = new ItemCatSpawnEgg();
-            else if (id == 489) item = new ItemPandaSpawnEgg();
-            else if (id == 490) item = new ItemFoxSpawnEgg();
-            else if (id == 491) item = new ItemPillagerSpawnEgg();
-            else if (id == 492) item = new ItemWanderingTraderSpawnEgg();
-            else if (id == 493) item = new ItemRavagerSpawnEgg();
-            else if (id == 494) item = new ItemBeeSpawnEgg();
-            else if (id == 495) item = new ItemStriderSpawnEgg();
-            else if (id == 496) item = new ItemHoglinSpawnEgg();
-            else if (id == 497) item = new ItemPiglinSpawnEgg();
-            else if (id == 517) item = new ItemCarrotOnAStick();
-            else if (id == 518) item = new ItemNetherStar();
-            else if (id == 527) item = new ItemHopper();
-            else if (id == 544) item = new ItemMusicDisc11();
-            else if (id == 550) item = new ItemMutton();
-            else if (id == 551) item = new ItemCookedMutton();
-            else if (id == 567) item = new ItemBanner();
-            else if (id == 572) item = new ItemScute();
-            else if (id == 580) item = new ItemDarkOakSign();
-            else if (id == 581) item = new ItemFlowerBannerPattern();
-            else if (id == 582) item = new ItemCreeperBannerPattern();
-            else if (id == 583) item = new ItemSkullBannerPattern();
-            else if (id == 584) item = new ItemMojangBannerPattern();
-            else if (id == 585) item = new ItemFieldMasonedBannerPattern();
-            else if (id == 586) item = new ItemBordureIndentedBannerPattern();
-            else if (id == 587) item = new ItemPiglinBannerPattern();
-            else if (id == 621) item = new ItemGlowFrame();
-            else if (id == 622) item = new ItemGoatHorn();
-            else if (id == 623) item = new ItemAmethystShard();
-            else if (id == 624) item = new ItemSpyglass();
-            else if (id == 630) item = new ItemGlowBerries();
-			
-			else if (id <= 255)
+			else
 			{
-				int blockId = id;
-				if (blockId < 0) blockId = (short) (Math.Abs(id) + 255); // hehe
-
-				var runtimeId = BlockFactory.GetRuntimeId(blockId, (byte) metadata);
-				var block = BlockFactory.GetBlockByRuntimeId((int) runtimeId);
-
-				if (runtimeId < BlockFactory.BlockPalette.Count)
-				{
-					var blockState = BlockFactory.BlockPalette[(int) runtimeId];
-					block.SetState(blockState);
-				}
-
-				if (CustomBlockItemFactory == null)
-				{
-					item = new ItemBlock(block, metadata);
-				}
-				else
-				{
-					item = CustomBlockItemFactory.GetBlockItem(block, metadata, count);
-				}
+				item = GetItem(GetRuntimeIdById(id), metadata, count);
 			}
-			else item = new Item(id, metadata, count);
-
-			// This might now be a good idea if the constructor changes these
-			// properties for custom items.
-			item.Metadata = metadata;
-			item.Count = (byte) count;
 
 			if (!string.IsNullOrWhiteSpace(item.Name))
 			{
-				var result = Itemstates.FirstOrDefault(x => x.Name.Equals(item.Name, StringComparison.InvariantCultureIgnoreCase));
+				var result = Itemstates.GetValueOrDefault(item.Name);
 
 				if (result != null)
 				{
-					item.NetworkId = result.Id;
+					item.NetworkId = result.RuntimeId;
 				}
 			}
 
 			return item;
+		}
+
+		public static Item GetItem(int runtimeId, short metadata = 0, int count = 1)
+		{
+			// TODO - 1.19-update
+
+			//Item item = null;
+
+			//if (CustomItemFactory != null)
+			//{
+			//	item = CustomItemFactory.GetItem(id, metadata, count);
+			//}
+
+			//if (item != null) return item;
+
+			//if (id == 0) item = new ItemAir();
+			//else if (id == 256) item = new ItemIronShovel();
+			//else if (id == 257) item = new ItemIronPickaxe();
+			//else if (id == 258) item = new ItemIronAxe();
+			//else if (id == 259) item = new ItemFlintAndSteel();
+			//else if (id == 260) item = new ItemApple();
+			//else if (id == 261) item = new ItemBow();
+			//else if (id == 262) item = new ItemArrow();
+			//else if (id == 263) item = new ItemCoal();
+			//else if (id == 264) item = new ItemDiamond();
+			//else if (id == 265) item = new ItemIronIngot();
+			//else if (id == 266) item = new ItemGoldIngot();
+			//else if (id == 267) item = new ItemIronSword();
+			//else if (id == 268) item = new ItemWoodenSword();
+			//else if (id == 269) item = new ItemWoodenShovel();
+			//else if (id == 270) item = new ItemWoodenPickaxe();
+			//else if (id == 271) item = new ItemWoodenAxe();
+			//else if (id == 272) item = new ItemStoneSword();
+			//else if (id == 273) item = new ItemStoneShovel();
+			//else if (id == 274) item = new ItemStonePickaxe();
+			//else if (id == 275) item = new ItemStoneAxe();
+			//else if (id == 276) item = new ItemDiamondSword();
+			//else if (id == 277) item = new ItemDiamondShovel();
+			//else if (id == 278) item = new ItemDiamondPickaxe();
+			//else if (id == 279) item = new ItemDiamondAxe();
+			//else if (id == 280) item = new ItemStick();
+			//else if (id == 281) item = new ItemBowl();
+			//else if (id == 282) item = new ItemMushroomStew();
+			//else if (id == 283) item = new ItemGoldenSword();
+			//else if (id == 284) item = new ItemGoldenShovel();
+			//else if (id == 285) item = new ItemGoldenPickaxe();
+			//else if (id == 286) item = new ItemGoldenAxe();
+			//else if (id == 287) item = new ItemString();
+			//else if (id == 288) item = new ItemFeather();
+			//else if (id == 289) item = new ItemGunpowder();
+			//else if (id == 290) item = new ItemWoodenHoe();
+			//else if (id == 291) item = new ItemStoneHoe();
+			//else if (id == 292) item = new ItemIronHoe();
+			//else if (id == 293) item = new ItemDiamondHoe();
+			//else if (id == 294) item = new ItemGoldenHoe();
+			//else if (id == 295) item = new ItemWheatSeeds();
+			//else if (id == 296) item = new ItemWheat();
+			//else if (id == 297) item = new ItemBread();
+			//else if (id == 298) item = new ItemLeatherHelmet();
+			//else if (id == 299) item = new ItemLeatherChestplate();
+			//else if (id == 300) item = new ItemLeatherLeggings();
+			//else if (id == 301) item = new ItemLeatherBoots();
+			//else if (id == 302) item = new ItemChainmailHelmet();
+			//else if (id == 303) item = new ItemChainmailChestplate();
+			//else if (id == 304) item = new ItemChainmailLeggings();
+			//else if (id == 305) item = new ItemChainmailBoots();
+			//else if (id == 309) item = new ItemIronBoots();
+			//else if (id == 308) item = new ItemIronLeggings();
+			//else if (id == 307) item = new ItemIronChestplate();
+			//else if (id == 306) item = new ItemIronHelmet();
+			//else if (id == 310) item = new ItemDiamondHelmet();
+			//else if (id == 311) item = new ItemDiamondChestplate();
+			//else if (id == 312) item = new ItemDiamondLeggings();
+			//else if (id == 313) item = new ItemDiamondBoots();
+			//else if (id == 314) item = new ItemGoldenHelmet();
+			//else if (id == 315) item = new ItemGoldenChestplate();
+			//else if (id == 316) item = new ItemGoldenLeggings();
+			//else if (id == 317) item = new ItemGoldenBoots();
+			//else if (id == 318) item = new ItemFlint();
+			//else if (id == 319) item = new ItemPorkchop();
+			//else if (id == 320) item = new ItemCookedPorkchop();
+			//else if (id == 321) item = new ItemPainting();
+			//else if (id == 322) item = new ItemGoldenApple();
+			//else if (id == 323) item = new ItemSign();
+			//else if (id == 324) item = new ItemWoodenDoor();
+			//else if (id == 325) item = new ItemBucket(metadata);
+			//else if (id == 328) item = new ItemMinecart();
+			//else if (id == 329) item = new ItemSaddle();
+			//else if (id == 330) item = new ItemIronDoor();
+			//else if (id == 331) item = new ItemRedstone();
+			//else if (id == 332) item = new ItemSnowball();
+			//else if (id == 333) item = new ItemBoat(metadata);
+			//else if (id == 334) item = new ItemLeather();
+			//else if (id == 335) item = new ItemKelp();
+			//else if (id == 336) item = new ItemBrick();
+			//else if (id == 337) item = new ItemClayBall();
+			//else if (id == 338) item = new ItemReeds();
+			//else if (id == 339) item = new ItemPaper();
+			//else if (id == 340) item = new ItemBook();
+			//else if (id == 341) item = new ItemSlimeBall();
+			//else if (id == 342) item = new ItemChestMinecart();
+			//else if (id == 344) item = new ItemEgg();
+			//else if (id == 345) item = new ItemCompass();
+			//else if (id == 346) item = new ItemFishingRod();
+			//else if (id == 347) item = new ItemClock();
+			//else if (id == 348) item = new ItemGlowstoneDust();
+			//else if (id == 349) item = new ItemCod();
+			//else if (id == 350) item = new ItemCookedCod();
+			//else if (id == 351) item = new ItemDye();
+			//else if (id == 352) item = new ItemBone();
+			//else if (id == 353) item = new ItemSugar();
+			//else if (id == 354) item = new ItemCake();
+			//else if (id == 355) item = new ItemBed();
+			//else if (id == 356) item = new ItemRepeater();
+			//else if (id == 357) item = new ItemCookie();
+			//else if (id == 358) item = new ItemMap();
+			//else if (id == 359) item = new ItemShears();
+			//else if (id == 360) item = new ItemMelon();
+			//else if (id == 361) item = new ItemPumpkinSeeds();
+			//else if (id == 362) item = new ItemMelonSeeds();
+			//else if (id == 363) item = new ItemBeef();
+			//else if (id == 364) item = new ItemCookedBeef();
+			//else if (id == 365) item = new ItemChicken();
+			//else if (id == 366) item = new ItemCookedChicken();
+			//else if (id == 367) item = new ItemRottenFlesh();
+			//else if (id == 368) item = new ItemEnderPearl();
+			//else if (id == 369) item = new ItemBlazeRod();
+			//else if (id == 370) item = new ItemGhastTear();
+			//else if (id == 371) item = new ItemGoldNugget();
+			//else if (id == 372) item = new ItemNetherWart();
+			//else if (id == 373) item = new ItemPotion(metadata);
+			//else if (id == 374) item = new ItemGlassBottle();
+			//else if (id == 375) item = new ItemSpiderEye();
+			//else if (id == 376) item = new ItemFermentedSpiderEye();
+			//else if (id == 377) item = new ItemBlazePowder();
+			//else if (id == 378) item = new ItemMagmaCream();
+			//else if (id == 379) item = new ItemBrewingStand();
+			//else if (id == 380) item = new ItemCauldron();
+			//else if (id == 381) item = new ItemEnderEye();
+			//else if (id == 382) item = new ItemGlisteningMelonSlice();
+			//else if (id == 383) item = new ItemSpawnEgg(metadata);
+			//else if (id == 389) item = new ItemFrame();
+			//else if (id == 384) item = new ItemExperienceBottle();
+			//else if (id == 385) item = new ItemFireCharge();
+			//else if (id == 386) item = new ItemWritableBook();
+			//else if (id == 387) item = new ItemWrittenBook();
+			//else if (id == 388) item = new ItemEmerald();
+			//else if (id == 390) item = new ItemFlowerPot();
+			//else if (id == 391) item = new ItemCarrot();
+			//else if (id == 392) item = new ItemPotato();
+			//else if (id == 393) item = new ItemBakedPotato();
+			//else if (id == 394) item = new ItemPoisonousPotato();
+			//else if (id == 395) item = new ItemEmptyMap();
+			//else if (id == 396) item = new ItemGoldenCarrot();
+			//else if (id == 397) item = new ItemSkull(metadata);
+			//else if (id == 398) item = new ItemCarrotonastick();
+			//else if (id == 399) item = new ItemNetherstar();
+			//else if (id == 400) item = new ItemPumpkinPie();
+			//else if (id == 401) item = new ItemFireworkRocket();
+			//else if (id == 402) item = new ItemFireworkStar();
+			//else if (id == 403) item = new ItemEnchantedBook();
+			//else if (id == 404) item = new ItemComparator();
+			//else if (id == 405) item = new ItemNetherbrick();
+			//else if (id == 406) item = new ItemQuartz();
+			//else if (id == 407) item = new ItemTntMinecart();
+			//else if (id == 408) item = new ItemHopperMinecart();
+			//else if (id == 409) item = new ItemPrismarineShard();
+			//else if (id == 410) item = new ItemHopper();
+			//else if (id == 411) item = new ItemRabbit();
+			//else if (id == 412) item = new ItemCookedRabbit();
+			//else if (id == 413) item = new ItemRabbitStew();
+			//else if (id == 414) item = new ItemRabbitFoot();
+			//else if (id == 415) item = new ItemRabbitHide();
+			//else if (id == 416) item = new ItemLeatherHorseArmor();
+			//else if (id == 417) item = new ItemIronHorseArmor();
+			//else if (id == 418) item = new ItemGoldenHorseArmor();
+			//else if (id == 419) item = new ItemDiamondHorseArmor();
+			//else if (id == 420) item = new ItemLead();
+			//else if (id == 421) item = new ItemNameTag();
+			//else if (id == 422) item = new ItemPrismarineCrystals();
+			//else if (id == 423) item = new ItemMuttonRaw();
+			//else if (id == 424) item = new ItemMuttonCooked();
+			//else if (id == 425) item = new ItemArmorStand();
+			//else if (id == 426) item = new ItemEndCrystal();
+			//else if (id == 427) item = new ItemSpruceDoor();
+			//else if (id == 428) item = new ItemBirchDoor();
+			//else if (id == 429) item = new ItemJungleDoor();
+			//else if (id == 430) item = new ItemAcaciaDoor();
+			//else if (id == 431) item = new ItemDarkOakDoor();
+			//else if (id == 432) item = new ItemChorusFruit();
+			//else if (id == 433) item = new ItemPoppedChorusFruit();
+			//else if (id == 434) item = new ItemBannerPattern();
+			//else if (id == 437) item = new ItemDragonBreath();
+			//else if (id == 438) item = new ItemSplashPotion();
+			//else if (id == 441) item = new ItemLingeringPotion();
+			//else if (id == 442) item = new ItemSparkler();
+			//else if (id == 443) item = new ItemCommandBlockMinecart();
+			//else if (id == 444) item = new ItemElytra();
+			//else if (id == 445) item = new ItemShulkerShell();
+			//else if (id == 446) item = new ItemBanner();
+			//else if (id == 447) item = new ItemMedicine();
+			//else if (id == 448) item = new ItemBalloon();
+			//else if (id == 449) item = new ItemRapidFertilizer();
+			//else if (id == 450) item = new ItemTotemOfUndying();
+			//else if (id == 451) item = new ItemBleach();
+			//else if (id == 452) item = new ItemIronNugget();
+			//else if (id == 453) item = new ItemIceBomb();
+			//else if (id == 454 && metadata == 0) item = new ItemSlate();
+			//else if (id == 454 && metadata == 1) item = new ItemPoster();
+			//else if (id == 454 && metadata == 2) item = new ItemBoard();
+			//else if (id == 455) item = new ItemTrident();
+			//else if (id == 457) item = new ItemBeetroot();
+			//else if (id == 458) item = new ItemBeetrootSeeds();
+			//else if (id == 459) item = new ItemBeetrootSoup();
+			//else if (id == 460) item = new ItemSalmon();
+			//else if (id == 461) item = new ItemTropicalFish();
+			//else if (id == 462) item = new ItemPufferfish();
+			//else if (id == 463) item = new ItemCookedSalmon();
+			//else if (id == 464) item = new ItemDriedKelp();
+			//else if (id == 465) item = new ItemNautilusShell();
+			//else if (id == 466) item = new ItemEnchantedApple();
+			//else if (id == 467) item = new ItemHeartOfTheSea();
+			//else if (id == 468) item = new ItemTurtleShellPiece();
+			//else if (id == 469) item = new ItemTurtleHelmet();
+			//else if (id == 470) item = new ItemPhantomMembrane();
+			//else if (id == 471) item = new ItemCrossbow();
+			//else if (id == 472) item = new ItemSpruceSign();
+			//else if (id == 473) item = new ItemBirchSign();
+			//else if (id == 474) item = new ItemJungleSign();
+			//else if (id == 475) item = new ItemAcaciaSign();
+			//else if (id == 476) item = new ItemDarkoakSign();
+			//else if (id == 477) item = new ItemSweetBerries();
+			//else if (id == 498) item = new ItemCamera(metadata);
+			//else if (id == 499) item = new ItemCompound();
+
+			//else if (id == 500) item = new ItemMusicDisc13();
+			//else if (id == 501) item = new ItemMusicDiscCat();
+			//else if (id == 502) item = new ItemMusicDiscBlocks();
+			//else if (id == 503) item = new ItemMusicDiscChirp();
+			//else if (id == 504) item = new ItemMusicDiscFar();
+			//else if (id == 505) item = new ItemMusicDiscMall();
+			//else if (id == 506) item = new ItemMusicDiscMellohi();
+			//else if (id == 507) item = new ItemMusicDiscStal();
+			//else if (id == 508) item = new ItemMusicDiscStrad();
+			//else if (id == 509) item = new ItemMusicDiscWard();
+			//else if (id == 510) item = new ItemMusicDisc11();
+			//else if (id == 511) item = new ItemMusicDiscWait();
+
+			//else if (id == 513) item = new ItemShield();
+			//else if (id == 720) item = new ItemCampfire();
+			//else if (id == 734) item = new ItemSuspiciousStew();
+			//else if (id == 736) item = new ItemHoneycomb();
+			//else if (id == 737) item = new ItemHoneyBottle();
+			//else if (id == 741) item = new ItemLodestoneCompass();
+			//else if (id == 742) item = new ItemNetheriteIngot();
+			//else if (id == 743) item = new ItemNetheriteSword();
+			//else if (id == 744) item = new ItemNetheriteShovel();
+			//else if (id == 745) item = new ItemNetheritePickaxe();
+			//else if (id == 746) item = new ItemNetheriteAxe();
+			//else if (id == 747) item = new ItemNetheriteHoe();
+			//else if (id == 748) item = new ItemNetheriteHelmet();
+			//else if (id == 749) item = new ItemNetheriteChestplate();
+			//else if (id == 750) item = new ItemNetheriteLeggings();
+			//else if (id == 751) item = new ItemNetheriteBoots();
+			//else if (id == 752) item = new ItemNetheriteScrap();
+			//else if (id == 753) item = new ItemCrimsonSign();
+			//else if (id == 754) item = new ItemWarpedSign();
+			//else if (id == 755) item = new ItemCrimsonDoor();
+			//else if (id == 756) item = new ItemWarpedDoor();
+			//else if (id == 757) item = new ItemWarpedFungusOnAStick();
+			//else if (id == 758) item = new ItemChain();
+			//else if (id == 759) item = new ItemMusicDiscPigstep();
+			//else if (id == 760) item = new ItemNetherSprouts();
+			//else if (id == 801) item = new ItemSoulCampfire();
+
+			//else if (id == 436) item = new ItemCowSpawnEgg();
+			//         else if (id == 439) item = new ItemWolfSpawnEgg();
+			//         else if (id == 440) item = new ItemMooshroomSpawnEgg();
+			//         else if (id == 456) item = new ItemBlazeSpawnEgg();
+			//         else if (id == 478) item = new ItemParrotSpawnEgg();
+			//         else if (id == 479) item = new ItemTropicalFishSpawnEgg();
+			//         else if (id == 480) item = new ItemCodSpawnEgg();
+			//         else if (id == 481) item = new ItemPufferfishSpawnEgg();
+			//         else if (id == 482) item = new ItemSalmonSpawnEgg();
+			//         else if (id == 483) item = new ItemDrownedSpawnEgg();
+			//         else if (id == 484) item = new ItemDolphinSpawnEgg();
+			//         else if (id == 485) item = new ItemTurtleSpawnEgg();
+			//         else if (id == 486) item = new ItemPhantomSpawnEgg();
+			//         else if (id == 487) item = new ItemAgentSpawnEgg();
+			//         else if (id == 488) item = new ItemCatSpawnEgg();
+			//         else if (id == 489) item = new ItemPandaSpawnEgg();
+			//         else if (id == 490) item = new ItemFoxSpawnEgg();
+			//         else if (id == 491) item = new ItemPillagerSpawnEgg();
+			//         else if (id == 492) item = new ItemWanderingTraderSpawnEgg();
+			//         else if (id == 493) item = new ItemRavagerSpawnEgg();
+			//         else if (id == 494) item = new ItemBeeSpawnEgg();
+			//         else if (id == 495) item = new ItemStriderSpawnEgg();
+			//         else if (id == 496) item = new ItemHoglinSpawnEgg();
+			//         else if (id == 497) item = new ItemPiglinSpawnEgg();
+			//         else if (id == 517) item = new ItemCarrotOnAStick();
+			//         else if (id == 518) item = new ItemNetherStar();
+			//         else if (id == 527) item = new ItemHopper();
+			//         else if (id == 544) item = new ItemMusicDisc11();
+			//         else if (id == 550) item = new ItemMutton();
+			//         else if (id == 551) item = new ItemCookedMutton();
+			//         else if (id == 567) item = new ItemBanner();
+			//         else if (id == 572) item = new ItemScute();
+			//         else if (id == 580) item = new ItemDarkOakSign();
+			//         else if (id == 581) item = new ItemFlowerBannerPattern();
+			//         else if (id == 582) item = new ItemCreeperBannerPattern();
+			//         else if (id == 583) item = new ItemSkullBannerPattern();
+			//         else if (id == 584) item = new ItemMojangBannerPattern();
+			//         else if (id == 585) item = new ItemFieldMasonedBannerPattern();
+			//         else if (id == 586) item = new ItemBordureIndentedBannerPattern();
+			//         else if (id == 587) item = new ItemPiglinBannerPattern();
+			//         else if (id == 621) item = new ItemGlowFrame();
+			//         else if (id == 622) item = new ItemGoatHorn();
+			//         else if (id == 623) item = new ItemAmethystShard();
+			//         else if (id == 624) item = new ItemSpyglass();
+			//         else if (id == 630) item = new ItemGlowBerries();
+
+			//else if (id <= 255)
+			//{
+			//	int blockId = id;
+			//	if (blockId < 0) blockId = (short) (Math.Abs(id) + 255); // hehe
+
+			//	var runtimeId = BlockFactory.GetRuntimeId(blockId, (byte) metadata);
+			//	var block = BlockFactory.GetBlockByRuntimeId((int) runtimeId);
+
+			//	if (runtimeId < BlockFactory.BlockPalette.Count)
+			//	{
+			//		var blockState = BlockFactory.BlockPalette[(int) runtimeId];
+			//		block.SetState(blockState);
+			//	}
+
+			//	if (CustomBlockItemFactory == null)
+			//	{
+			//		item = new ItemBlock(block, metadata);
+			//	}
+			//	else
+			//	{
+			//		item = CustomBlockItemFactory.GetBlockItem(block, metadata, count);
+			//	}
+			//}
+			//else item = new Item(id, metadata, count);
+
+			//// This might now be a good idea if the constructor changes these
+			//// properties for custom items.
+			//item.Metadata = metadata;
+			//item.Count = (byte) count;
+
+			//if (!string.IsNullOrWhiteSpace(item.Name))
+			//{
+			//	var result = Itemstates.FirstOrDefault(x => x.Name.Equals(item.Name, StringComparison.InvariantCultureIgnoreCase));
+
+			//	if (result != null)
+			//	{
+			//		item.NetworkId = result.Id;
+			//	}
+			//}
+
+			//return item;
+
+			return new ItemAir();
 		}
 	}
 
@@ -620,47 +581,90 @@ namespace MiNET.Items
 	public class ItemNetherSprouts : Item { public ItemNetherSprouts() : base("minecraft:nether_sprouts", 760) {} }
 	public class ItemSoulCampfire : Item { public ItemSoulCampfire() : base("minecraft:soul_campfire", 801) {} }
 	public class ItemEndCrystal : Item { public ItemEndCrystal() : base("minecraft:end_crystal", 426) {} }
-	public class ItemGlowBerries : Item { public ItemGlowBerries() : base(630) {} }
-	public class ItemPandaSpawnEgg : Item { public ItemPandaSpawnEgg() : base(489) {} }
-	public class ItemParrotSpawnEgg : Item { public ItemParrotSpawnEgg() : base(478) {} }
-	public class ItemDrownedSpawnEgg : Item { public ItemDrownedSpawnEgg() : base(483) {} }
-	public class ItemSalmonSpawnEgg : Item { public ItemSalmonSpawnEgg() : base(482) {} }
-	public class ItemPufferfishSpawnEgg : Item { public ItemPufferfishSpawnEgg() : base(481) {} }
-	public class ItemSpyglass : Item { public ItemSpyglass() : base(624) {} }
-	public class ItemBlazeSpawnEgg : Item { public ItemBlazeSpawnEgg() : base(456) {} }
-	public class ItemStriderSpawnEgg : Item { public ItemStriderSpawnEgg() : base(495) {} }
-	public class ItemCowSpawnEgg : Item { public ItemCowSpawnEgg() : base(436) {} }
-	public class ItemPillagerSpawnEgg : Item { public ItemPillagerSpawnEgg() : base(491) {} }
-	public class ItemBeeSpawnEgg : Item { public ItemBeeSpawnEgg() : base(494) {} }
-	public class ItemAgentSpawnEgg : Item { public ItemAgentSpawnEgg() : base(487) {} }
-	public class ItemTurtleSpawnEgg : Item { public ItemTurtleSpawnEgg() : base(485) {} }
-	public class ItemHoglinSpawnEgg : Item { public ItemHoglinSpawnEgg() : base(496) {} }
-	public class ItemGlowFrame : Item { public ItemGlowFrame() : base(621) {} }
-	public class ItemTropicalFishSpawnEgg : Item { public ItemTropicalFishSpawnEgg() : base(479) {} }
-	public class ItemFoxSpawnEgg : Item { public ItemFoxSpawnEgg() : base(490) {} }
-	public class ItemChickenSpawnEgg : Item { public ItemChickenSpawnEgg() : base(435) {} }
-	public class ItemWanderingTraderSpawnEgg : Item { public ItemWanderingTraderSpawnEgg() : base(492) {} }
-	public class ItemPiglinBannerPattern : Item { public ItemPiglinBannerPattern() : base(587) {} }
-	public class ItemPiglinSpawnEgg : Item { public ItemPiglinSpawnEgg() : base(497) {} }
-	public class ItemMojangBannerPattern : Item { public ItemMojangBannerPattern() : base(584) {} }
-	public class ItemSkullBannerPattern : Item { public ItemSkullBannerPattern() : base(583) {} }
-	public class ItemMooshroomSpawnEgg : Item { public ItemMooshroomSpawnEgg() : base(440) {} }
-	public class ItemCookedMutton : Item { public ItemCookedMutton() : base(551) {} }
-	public class ItemGoatHorn : Item { public ItemGoatHorn() : base(622) {} }
-	public class ItemCodSpawnEgg : Item { public ItemCodSpawnEgg() : base(480) {} }
-	public class ItemRavagerSpawnEgg : Item { public ItemRavagerSpawnEgg() : base(493) {} }
-	public class ItemDarkOakSign : Item { public ItemDarkOakSign() : base(580) {} }
-	public class ItemCarrotOnAStick : Item { public ItemCarrotOnAStick() : base(517) {} }
-	public class ItemNetherStar : Item { public ItemNetherStar() : base(518) {} }
-	public class ItemMutton : Item { public ItemMutton() : base(550) {} }
-	public class ItemBordureIndentedBannerPattern : Item { public ItemBordureIndentedBannerPattern() : base(586) {} }
-	public class ItemScute : Item { public ItemScute() : base(572) {} }
-	public class ItemFlowerBannerPattern : Item { public ItemFlowerBannerPattern() : base(581) {} }
-	public class ItemCreeperBannerPattern : Item { public ItemCreeperBannerPattern() : base(582) {} }
-	public class ItemFieldMasonedBannerPattern : Item { public ItemFieldMasonedBannerPattern() : base(585) {} }
-	public class ItemAmethystShard : Item { public ItemAmethystShard() : base(623) {} }
-	public class ItemPhantomSpawnEgg : Item { public ItemPhantomSpawnEgg() : base(486) {} }
-	public class ItemWolfSpawnEgg : Item { public ItemWolfSpawnEgg() : base(439) {} }
-	public class ItemCatSpawnEgg : Item { public ItemCatSpawnEgg() : base(488) {} }
-	public class ItemDolphinSpawnEgg : Item { public ItemDolphinSpawnEgg() : base(484) {} }
+	//public class ItemGlowBerries : Item { public ItemGlowBerries() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemPandaSpawnEgg : Item { public ItemPandaSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemParrotSpawnEgg : Item { public ItemParrotSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemDrownedSpawnEgg : Item { public ItemDrownedSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemSalmonSpawnEgg : Item { public ItemSalmonSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemPufferfishSpawnEgg : Item { public ItemPufferfishSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemSpyglass : Item { public ItemSpyglass() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemBlazeSpawnEgg : Item { public ItemBlazeSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemStriderSpawnEgg : Item { public ItemStriderSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemCowSpawnEgg : Item { public ItemCowSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemPillagerSpawnEgg : Item { public ItemPillagerSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemBeeSpawnEgg : Item { public ItemBeeSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemAgentSpawnEgg : Item { public ItemAgentSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemTurtleSpawnEgg : Item { public ItemTurtleSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemHoglinSpawnEgg : Item { public ItemHoglinSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemGlowFrame : Item { public ItemGlowFrame() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemTropicalFishSpawnEgg : Item { public ItemTropicalFishSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemFoxSpawnEgg : Item { public ItemFoxSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemChickenSpawnEgg : Item { public ItemChickenSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemWanderingTraderSpawnEgg : Item { public ItemWanderingTraderSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemPiglinBannerPattern : Item { public ItemPiglinBannerPattern() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemPiglinSpawnEgg : Item { public ItemPiglinSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemMojangBannerPattern : Item { public ItemMojangBannerPattern() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemSkullBannerPattern : Item { public ItemSkullBannerPattern() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemMooshroomSpawnEgg : Item { public ItemMooshroomSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemCookedMutton : Item { public ItemCookedMutton() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemGoatHorn : Item { public ItemGoatHorn() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemCodSpawnEgg : Item { public ItemCodSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemRavagerSpawnEgg : Item { public ItemRavagerSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemDarkOakSign : Item { public ItemDarkOakSign() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemCarrotOnAStick : Item { public ItemCarrotOnAStick() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemNetherStar : Item { public ItemNetherStar() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemMutton : Item { public ItemMutton() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemBordureIndentedBannerPattern : Item { public ItemBordureIndentedBannerPattern() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemScute : Item { public ItemScute() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemFlowerBannerPattern : Item { public ItemFlowerBannerPattern() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemCreeperBannerPattern : Item { public ItemCreeperBannerPattern() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemFieldMasonedBannerPattern : Item { public ItemFieldMasonedBannerPattern() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemAmethystShard : Item { public ItemAmethystShard() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemPhantomSpawnEgg : Item { public ItemPhantomSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemWolfSpawnEgg : Item { public ItemWolfSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemCatSpawnEgg : Item { public ItemCatSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	//public class ItemDolphinSpawnEgg : Item { public ItemDolphinSpawnEgg() : base(string.Empty) {} } // TODO - 1.19-update
+	public class ItemGlowBerries : Item { public ItemGlowBerries() : base(string.Empty, 630) { } }
+	public class ItemPandaSpawnEgg : Item { public ItemPandaSpawnEgg() : base(string.Empty, 489) { } }
+	public class ItemParrotSpawnEgg : Item { public ItemParrotSpawnEgg() : base(string.Empty, 478) { } }
+	public class ItemDrownedSpawnEgg : Item { public ItemDrownedSpawnEgg() : base(string.Empty, 483) { } }
+	public class ItemSalmonSpawnEgg : Item { public ItemSalmonSpawnEgg() : base(string.Empty, 482) { } }
+	public class ItemPufferfishSpawnEgg : Item { public ItemPufferfishSpawnEgg() : base(string.Empty, 481) { } }
+	public class ItemSpyglass : Item { public ItemSpyglass() : base(string.Empty, 624) { } }
+	public class ItemBlazeSpawnEgg : Item { public ItemBlazeSpawnEgg() : base(string.Empty, 456) { } }
+	public class ItemStriderSpawnEgg : Item { public ItemStriderSpawnEgg() : base(string.Empty, 495) { } }
+	public class ItemCowSpawnEgg : Item { public ItemCowSpawnEgg() : base(string.Empty, 436) { } }
+	public class ItemPillagerSpawnEgg : Item { public ItemPillagerSpawnEgg() : base(string.Empty, 491) { } }
+	public class ItemBeeSpawnEgg : Item { public ItemBeeSpawnEgg() : base(string.Empty, 494) { } }
+	public class ItemAgentSpawnEgg : Item { public ItemAgentSpawnEgg() : base(string.Empty, 487) { } }
+	public class ItemTurtleSpawnEgg : Item { public ItemTurtleSpawnEgg() : base(string.Empty, 485) { } }
+	public class ItemHoglinSpawnEgg : Item { public ItemHoglinSpawnEgg() : base(string.Empty, 496) { } }
+	public class ItemGlowFrame : Item { public ItemGlowFrame() : base(string.Empty, 621) { } }
+	public class ItemTropicalFishSpawnEgg : Item { public ItemTropicalFishSpawnEgg() : base(string.Empty, 479) { } }
+	public class ItemFoxSpawnEgg : Item { public ItemFoxSpawnEgg() : base(string.Empty, 490) { } }
+	public class ItemChickenSpawnEgg : Item { public ItemChickenSpawnEgg() : base(string.Empty, 435) { } }
+	public class ItemWanderingTraderSpawnEgg : Item { public ItemWanderingTraderSpawnEgg() : base(string.Empty, 492) { } }
+	public class ItemPiglinBannerPattern : Item { public ItemPiglinBannerPattern() : base(string.Empty, 587) { } }
+	public class ItemPiglinSpawnEgg : Item { public ItemPiglinSpawnEgg() : base(string.Empty, 497) { } }
+	public class ItemMojangBannerPattern : Item { public ItemMojangBannerPattern() : base(string.Empty, 584) { } }
+	public class ItemSkullBannerPattern : Item { public ItemSkullBannerPattern() : base(string.Empty, 583) { } }
+	public class ItemMooshroomSpawnEgg : Item { public ItemMooshroomSpawnEgg() : base(string.Empty, 440) { } }
+	public class ItemCookedMutton : Item { public ItemCookedMutton() : base(string.Empty, 551) { } }
+	public class ItemGoatHorn : Item { public ItemGoatHorn() : base(string.Empty, 622) { } }
+	public class ItemCodSpawnEgg : Item { public ItemCodSpawnEgg() : base(string.Empty, 480) { } }
+	public class ItemRavagerSpawnEgg : Item { public ItemRavagerSpawnEgg() : base(string.Empty, 493) { } }
+	public class ItemDarkOakSign : Item { public ItemDarkOakSign() : base(string.Empty, 580) { } }
+	public class ItemCarrotOnAStick : Item { public ItemCarrotOnAStick() : base(string.Empty, 517) { } }
+	public class ItemNetherStar : Item { public ItemNetherStar() : base(string.Empty, 518) { } }
+	public class ItemMutton : Item { public ItemMutton() : base(string.Empty, 550) { } }
+	public class ItemBordureIndentedBannerPattern : Item { public ItemBordureIndentedBannerPattern() : base(string.Empty, 586) { } }
+	public class ItemScute : Item { public ItemScute() : base(string.Empty, 572) { } }
+	public class ItemFlowerBannerPattern : Item { public ItemFlowerBannerPattern() : base(string.Empty, 581) { } }
+	public class ItemCreeperBannerPattern : Item { public ItemCreeperBannerPattern() : base(string.Empty, 582) { } }
+	public class ItemFieldMasonedBannerPattern : Item { public ItemFieldMasonedBannerPattern() : base(string.Empty, 585) { } }
+	public class ItemAmethystShard : Item { public ItemAmethystShard() : base(string.Empty, 623) { } }
+	public class ItemPhantomSpawnEgg : Item { public ItemPhantomSpawnEgg() : base(string.Empty, 486) { } }
+	public class ItemWolfSpawnEgg : Item { public ItemWolfSpawnEgg() : base(string.Empty, 439) { } }
+	public class ItemCatSpawnEgg : Item { public ItemCatSpawnEgg() : base(string.Empty, 488) { } }
+	public class ItemDolphinSpawnEgg : Item { public ItemDolphinSpawnEgg() : base(string.Empty, 484) { } }
 }

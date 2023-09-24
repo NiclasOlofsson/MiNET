@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Vine));
 
-		public Vine() : base(106)
+		public Vine() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

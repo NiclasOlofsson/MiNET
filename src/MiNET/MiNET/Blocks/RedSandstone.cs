@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class RedSandstone : Block
 	{
-		public RedSandstone() : base(179)
+		public RedSandstone() : base()
 		{
 			BlastResistance = 4;
 			Hardness = 0.8f;

@@ -30,11 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class RedstoneOre : Block
 	{
-		public RedstoneOre() : this(73)
-		{
-		}
-
-		public RedstoneOre(byte id) : base(id)
+		public RedstoneOre() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;

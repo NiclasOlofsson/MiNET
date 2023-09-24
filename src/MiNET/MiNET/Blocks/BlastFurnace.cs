@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class BlastFurnace : BlastFurnaceBase
 	{
-		public BlastFurnace() : base(451)
+		public BlastFurnace() : base()
 		{
 		}
 	}

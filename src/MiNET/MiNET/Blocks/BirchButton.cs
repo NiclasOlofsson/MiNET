@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class BirchButton : Button
 	{
-		public BirchButton() : base(396)
+		public BirchButton() : base()
 		{
 			TickRate = 30;
 		}

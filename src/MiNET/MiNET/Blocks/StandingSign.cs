@@ -37,11 +37,8 @@ namespace MiNET.Blocks
 {
 	public abstract partial class StandingSignBase : Block
 	{
-		private readonly int _itemDropId;
-
-		public StandingSignBase(int id, int itemDropId) : base(id)
+		public StandingSignBase() : base()
 		{
-			_itemDropId = itemDropId;
 			IsTransparent = true;
 			IsSolid = false;
 			BlastResistance = 5;
@@ -79,51 +76,46 @@ namespace MiNET.Blocks
 		{
 			return true;
 		}
-
-		public override Item[] GetDrops(Item tool)
-		{
-			return new[] {ItemFactory.GetItem((short) _itemDropId)}; // Drop sign item
-		}
 	}
 
 	public partial class StandingSign : StandingSignBase
 	{
-		public StandingSign() : base(63, 323) { }
+		public StandingSign() : base() { }
 	}
 
 
 	public partial class SpruceStandingSign : StandingSignBase
 	{
-		public SpruceStandingSign() : base(436, 472) { }
+		public SpruceStandingSign() : base() { }
 	}
 
 	public partial class BirchStandingSign : StandingSignBase
 	{
-		public BirchStandingSign() : base(441, 473) { }
+		public BirchStandingSign() : base() { }
 	}
 
 	public partial class JungleStandingSign : StandingSignBase
 	{
-		public JungleStandingSign() : base(443, 474) { }
+		public JungleStandingSign() : base() { }
 	}
 
 	public partial class AcaciaStandingSign : StandingSignBase
 	{
-		public AcaciaStandingSign() : base(445, 475) { }
+		public AcaciaStandingSign() : base() { }
 	}
 
 	public partial class DarkoakStandingSign : StandingSignBase
 	{
-		public DarkoakStandingSign() : base(447, 476) { }
+		public DarkoakStandingSign() : base() { }
 	}
 
 	public partial class CrimsonStandingSign : StandingSignBase
 	{
-		public CrimsonStandingSign() : base(505, 753) { }
+		public CrimsonStandingSign() : base() { }
 	}
 
 	public partial class WarpedStandingSign : StandingSignBase
 	{
-		public WarpedStandingSign() : base(506, 754) { }
+		public WarpedStandingSign() : base() { }
 	}
 }

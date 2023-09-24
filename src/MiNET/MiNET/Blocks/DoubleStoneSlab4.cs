@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class DoubleStoneSlab4 : Block
 	{
-		public DoubleStoneSlab4() : base(423)
+		public DoubleStoneSlab4() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 2;

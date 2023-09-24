@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 			Fern = 2
 		}
 
-		public Tallgrass() : base(31)
+		public Tallgrass() : base()
 		{
 			BlastResistance = 3;
 			Hardness = 0.6f;

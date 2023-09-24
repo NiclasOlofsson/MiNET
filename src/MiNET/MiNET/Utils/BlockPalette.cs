@@ -25,8 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using fNbt;
-using Microsoft.VisualBasic.CompilerServices;
 using Newtonsoft.Json;
 
 namespace MiNET.Utils
@@ -45,7 +43,6 @@ namespace MiNET.Utils
 			{
 				var record = new BlockStateContainer();
 				record.Id = obj.Id;
-				record.Name = obj.Name;
 				record.Data = obj.Data;
 				record.RuntimeId = runtimeId++;
 
@@ -104,10 +101,9 @@ namespace MiNET.Utils
 
 	public class BlockStateContainer
 	{
-		public int Id { get; set; }
-		public short Data { get; set; }
-		public string Name { get; set; }
 		public int RuntimeId { get; set; }
+		public string Id { get; set; }
+		public short Data { get; set; }
 		public List<IBlockState> States { get; set; } = new List<IBlockState>();
 
 		[JsonIgnore]
@@ -116,7 +112,7 @@ namespace MiNET.Utils
 
 		protected bool Equals(BlockStateContainer other)
 		{
-			bool result = /*Id == other.Id && */Name == other.Name;
+			bool result = /*Id == other.Id && */Id == other.Id;
 			if (!result) return false;
 
 			var thisStates = new HashSet<IBlockState>(States);
@@ -140,7 +136,6 @@ namespace MiNET.Utils
 		{
 			var hash = new HashCode();
 			hash.Add(Id);
-			hash.Add(Name);
 			foreach (var state in States)
 			{
 				switch (state)
@@ -165,13 +160,13 @@ namespace MiNET.Utils
 
 		public override string ToString()
 		{
-			return $"{nameof(Name)}: {Name}, {nameof(Id)}: {Id}, {nameof(Data)}: {Data}, {nameof(RuntimeId)}: {RuntimeId}, {nameof(States)} {{ {string.Join(';', States)} }}";
+			return $"{nameof(Id)}: {Id}, {nameof(Data)}: {Data}, {nameof(RuntimeId)}: {RuntimeId}, {nameof(States)} {{ {string.Join(';', States)} }}";
 		}
 	}
 
 	public class ItemPickInstance
 	{
-		public short Id { get; set; } = -1;
+		public string Id { get; set; } = null;
 		public short Metadata { get; set; } = -1;
 		public bool WantNbt { get; set; } = false;
 	}

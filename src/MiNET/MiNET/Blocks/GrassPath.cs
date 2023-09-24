@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class GrassPath : Block
 	{
-		public GrassPath() : base(198)
+		public GrassPath() : base()
 		{
 			BlastResistance = 3.25f;
 			Hardness = 0.6f;

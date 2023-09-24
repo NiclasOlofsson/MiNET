@@ -32,7 +32,7 @@ namespace MiNET.Blocks
 {
 	public partial class Reeds : Block
 	{
-		public Reeds() : base(83)
+		public Reeds() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

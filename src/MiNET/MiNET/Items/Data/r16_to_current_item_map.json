@@ -17,7 +17,9 @@
             "3": "minecraft:jungle_boat",
             "4": "minecraft:acacia_boat",
             "5": "minecraft:dark_oak_boat",
-            "6": "minecraft:mangrove_boat"
+            "6": "minecraft:mangrove_boat",
+            "7": "minecraft:bamboo_raft",
+            "8": "minecraft:cherry_boat"
         },
         "minecraft:bucket": {
             "1": "minecraft:milk_bucket",
@@ -38,7 +40,9 @@
             "3": "minecraft:jungle_chest_boat",
             "4": "minecraft:acacia_chest_boat",
             "5": "minecraft:dark_oak_chest_boat",
-            "6": "minecraft:mangrove_chest_boat"
+            "6": "minecraft:mangrove_chest_boat",
+            "7": "minecraft:bamboo_chest_raft",
+            "8": "minecraft:cherry_chest_boat"
         },
         "minecraft:coal": {
             "1": "minecraft:charcoal"
@@ -64,6 +68,32 @@
             "7": "minecraft:light_gray_dye",
             "8": "minecraft:gray_dye",
             "9": "minecraft:pink_dye"
+        },
+        "minecraft:fence": {
+            "0": "minecraft:oak_fence",
+            "1": "minecraft:spruce_fence",
+            "2": "minecraft:birch_fence",
+            "3": "minecraft:jungle_fence",
+            "4": "minecraft:acacia_fence",
+            "5": "minecraft:dark_oak_fence"
+        },
+        "minecraft:log": {
+            "0": "minecraft:oak_log",
+            "1": "minecraft:spruce_log",
+            "10": "minecraft:birch_log",
+            "11": "minecraft:jungle_log",
+            "2": "minecraft:birch_log",
+            "3": "minecraft:jungle_log",
+            "5": "minecraft:spruce_log",
+            "6": "minecraft:birch_log",
+            "7": "minecraft:jungle_log",
+            "9": "minecraft:spruce_log"
+        },
+        "minecraft:log2": {
+            "0": "minecraft:acacia_log",
+            "1": "minecraft:dark_oak_log",
+            "5": "minecraft:dark_oak_log",
+            "9": "minecraft:dark_oak_log"
         },
         "minecraft:spawn_egg": {
             "10": "minecraft:chicken_spawn_egg",
@@ -96,6 +126,8 @@
             "132": "minecraft:frog_spawn_egg",
             "133": "minecraft:tadpole_spawn_egg",
             "134": "minecraft:allay_spawn_egg",
+            "138": "minecraft:camel_spawn_egg",
+            "139": "minecraft:sniffer_spawn_egg",
             "14": "minecraft:wolf_spawn_egg",
             "15": "minecraft:villager_spawn_egg",
             "157": "minecraft:trader_llama_spawn_egg",
@@ -103,6 +135,8 @@
             "17": "minecraft:squid_spawn_egg",
             "18": "minecraft:rabbit_spawn_egg",
             "19": "minecraft:bat_spawn_egg",
+            "20": "minecraft:iron_golem_spawn_egg",
+            "21": "minecraft:snow_golem_spawn_egg",
             "22": "minecraft:ocelot_spawn_egg",
             "23": "minecraft:horse_spawn_egg",
             "24": "minecraft:donkey_spawn_egg",
@@ -133,6 +167,8 @@
             "49": "minecraft:guardian_spawn_egg",
             "50": "minecraft:elder_guardian_spawn_egg",
             "51": "minecraft:npc_spawn_egg",
+            "52": "minecraft:wither_spawn_egg",
+            "53": "minecraft:ender_dragon_spawn_egg",
             "54": "minecraft:shulker_spawn_egg",
             "55": "minecraft:endermite_spawn_egg",
             "56": "minecraft:agent_spawn_egg",
@@ -141,6 +177,24 @@
             "59": "minecraft:ravager_spawn_egg",
             "74": "minecraft:turtle_spawn_egg",
             "75": "minecraft:cat_spawn_egg"
+        },
+        "minecraft:wool": {
+            "0": "minecraft:white_wool",
+            "1": "minecraft:orange_wool",
+            "10": "minecraft:purple_wool",
+            "11": "minecraft:blue_wool",
+            "12": "minecraft:brown_wool",
+            "13": "minecraft:green_wool",
+            "14": "minecraft:red_wool",
+            "15": "minecraft:black_wool",
+            "2": "minecraft:magenta_wool",
+            "3": "minecraft:light_blue_wool",
+            "4": "minecraft:yellow_wool",
+            "5": "minecraft:lime_wool",
+            "6": "minecraft:pink_wool",
+            "7": "minecraft:gray_wool",
+            "8": "minecraft:light_gray_wool",
+            "9": "minecraft:cyan_wool"
         }
     },
     "simple": {

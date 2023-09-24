@@ -416,7 +416,7 @@ namespace MiNET.Worlds
 
 				waterloggedIds.Add(
 					p["Properties"]?["waterlogged"]?.StringValue == "true"
-					|| AnvilPaletteConverter.IsSeaBlock(BlockFactory.GetNameByRuntimeId(id))
+					|| AnvilPaletteConverter.IsSeaBlock(BlockFactory.GetIdByRuntimeId(id))
 						? id : -1);
 
 				//snowyIds.Add(
@@ -434,7 +434,7 @@ namespace MiNET.Worlds
 			subChunk.RuntimeIds.Clear();
 			subChunk.RuntimeIds.AddRange(runtimeIds);
 
-			var namedRuntimeIds = runtimeIds.Select(id => BlockFactory.GetNameByRuntimeId((short) id)).ToList();
+			var namedRuntimeIds = runtimeIds.Select(id => BlockFactory.GetIdByRuntimeId((short) id)).ToList();
 
 			if (waterloggedIds.Any(id => id >= 0))
 			{
@@ -640,9 +640,9 @@ namespace MiNET.Worlds
 										itemName = id.First().ToString().ToUpper() + id.Substring(1);
 									}
 
-									short itemId = ItemFactory.GetItemIdByName(itemName);
+									var itemId = ItemFactory.GetItemIdByName(itemName);
 									item.Remove("id");
-									item.Add(new NbtShort("id", itemId));
+									item.Add(new NbtShort("id", (short) itemId));
 								}
 							}
 						}
@@ -666,9 +666,9 @@ namespace MiNET.Worlds
 								itemName = id.First().ToString().ToUpper() + id.Substring(1);
 							}
 
-							short itemId = ItemFactory.GetItemIdByName(itemName);
+							var itemId = ItemFactory.GetItemIdByName(itemName);
 							blockEntityTag.Remove("Item");
-							blockEntityTag.Add(new NbtShort("item", itemId));
+							blockEntityTag.Add(new NbtShort("item", (short) itemId));
 
 							var data = blockEntityTag["Data"].IntValue;
 							blockEntityTag.Remove("Data");
@@ -977,7 +977,8 @@ namespace MiNET.Worlds
 				SubChunk subChunk = chunk[i];
 				if (subChunk.IsAllAir())
 				{
-					if(i == 0) Log.Debug($"All air bottom chunk? {subChunk.GetBlockId(0,0,0)}");
+					// OLD GENERATION FORMAT IS INVALID
+					//if (i == 0) Log.Debug($"All air bottom chunk? {subChunk.GetBlockId(0,0,0)}");
 					continue;
 				}
 
@@ -997,8 +998,9 @@ namespace MiNET.Worlds
 						{
 							for (int y = 0; y < 16; y++)
 							{
+								// OLD GENERATION FORMAT IS INVALID
 								int anvilIndex = y * 16 * 16 + z * 16 + x;
-								byte blockId = (byte) subChunk.GetBlockId(x, y, z);
+								byte blockId = (byte) 0; // subChunk.GetBlockId(x, y, z);
 								blocks[anvilIndex] = blockId;
 								//SetNibble4(data, anvilIndex, section.GetMetadata(x, y, z));
 								SetNibble4(blockLight, anvilIndex, subChunk.GetBlocklight(x, y, z));

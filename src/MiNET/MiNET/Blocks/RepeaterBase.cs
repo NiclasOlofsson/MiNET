@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public abstract partial class RepeaterBase : Block
 	{
-		public RepeaterBase(byte id) : base(id)
+		public RepeaterBase() : base()
 		{
 			IsTransparent = true;
 		}

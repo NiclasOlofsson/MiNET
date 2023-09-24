@@ -32,7 +32,7 @@ namespace MiNET.Blocks
 {
 	public partial class Ladder : Block
 	{
-		public Ladder() : base(65)
+		public Ladder() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 2;

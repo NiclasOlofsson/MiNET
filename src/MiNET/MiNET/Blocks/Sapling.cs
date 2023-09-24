@@ -34,7 +34,7 @@ namespace MiNET.Blocks
 {
 	public partial class Sapling : Block
 	{
-		public Sapling() : base(6)
+		public Sapling() : base()
 		{
 			FuelEfficiency = 5;
 			BlastResistance = 0;

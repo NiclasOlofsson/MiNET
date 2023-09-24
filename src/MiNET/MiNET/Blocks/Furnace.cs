@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Furnace : FurnaceBase
 	{
-		public Furnace() : base(61)
+		public Furnace() : base()
 		{
 		}
 	}

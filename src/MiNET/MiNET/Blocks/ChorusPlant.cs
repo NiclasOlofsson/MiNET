@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class ChorusPlant : Block
 	{
-		public ChorusPlant() : base(240)
+		public ChorusPlant() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 2;

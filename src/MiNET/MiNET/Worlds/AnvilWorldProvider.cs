@@ -541,9 +541,9 @@ namespace MiNET.Worlds
 												itemName = id.First().ToString().ToUpper() + id.Substring(1);
 											}
 
-											short itemId = ItemFactory.GetItemIdByName(itemName);
+											var itemId = ItemFactory.GetItemIdByName(itemName);
 											item.Remove("id");
-											item.Add(new NbtShort("id", itemId));
+											item.Add(new NbtShort("id", (short) itemId));
 										}
 									}
 								}
@@ -563,9 +563,9 @@ namespace MiNET.Worlds
 										itemName = id.First().ToString().ToUpper() + id.Substring(1);
 									}
 
-									short itemId = ItemFactory.GetItemIdByName(itemName);
+									var itemId = ItemFactory.GetItemIdByName(itemName);
 									blockEntityTag.Remove("Item");
-									blockEntityTag.Add(new NbtShort("item", itemId));
+									blockEntityTag.Add(new NbtShort("item", (short) itemId));
 
 									var data = blockEntityTag["Data"].IntValue;
 									blockEntityTag.Remove("Data");
@@ -672,7 +672,8 @@ namespace MiNET.Worlds
 						byte metadata = Nibble4(data, anvilIndex);
 						metadata = dataConverter(blockId, metadata);
 
-						int runtimeId = (int) BlockFactory.GetRuntimeId(blockId, metadata);
+						// OLD GENERATION FORMAT IS INVALID
+						int runtimeId = (int) 0; //BlockFactory.GetRuntimeId(blockId, metadata);
 						subChunk.SetBlockByRuntimeId(x, y, z, runtimeId);
 						if (ReadBlockLight)
 						{
@@ -699,7 +700,8 @@ namespace MiNET.Worlds
 
 						if (BlockFactory.LuminousBlocks[blockId] != 0)
 						{
-							var block = BlockFactory.GetBlockById(subChunk.GetBlockId(x, y, z));
+							// OLD GENERATION FORMAT IS INVALID
+							var block = new Air(); // BlockFactory.GetBlockById(subChunk.GetBlockId(x, y, z));
 							block.Coordinates = new BlockCoordinates(x + (chunkColumn.X << 4), yi, z + (chunkColumn.Z << 4));
 							subChunk.SetBlocklight(x, y, z, (byte) block.LightLevel);
 							lock (LightSources) LightSources.Enqueue(block);
@@ -992,7 +994,8 @@ namespace MiNET.Worlds
 				SubChunk subChunk = chunk[i];
 				if (subChunk.IsAllAir())
 				{
-					if(i == 0) Log.Debug($"All air bottom chunk? {subChunk.GetBlockId(0,0,0)}");
+					// OLD GENERATION FORMAT IS INVALID
+					//if (i == 0) Log.Debug($"All air bottom chunk? {subChunk.GetBlockId(0,0,0)}");
 					continue;
 				}
 
@@ -1013,7 +1016,8 @@ namespace MiNET.Worlds
 							for (int y = 0; y < 16; y++)
 							{
 								int anvilIndex = y * 16 * 16 + z * 16 + x;
-								byte blockId = (byte) subChunk.GetBlockId(x, y, z);
+								// OLD GENERATION FORMAT IS INVALID
+								byte blockId = (byte) 0; // subChunk.GetBlockId(x, y, z);
 								blocks[anvilIndex] = blockId;
 								//SetNibble4(data, anvilIndex, section.GetMetadata(x, y, z));
 								SetNibble4(blockLight, anvilIndex, subChunk.GetBlocklight(x, y, z));

@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class SpruceStairs : BlockStairs
 	{
-		public SpruceStairs() : base(134)
+		public SpruceStairs() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 2;

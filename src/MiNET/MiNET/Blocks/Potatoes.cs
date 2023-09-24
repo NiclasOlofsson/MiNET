@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class Potatoes : Crops
 	{
-		public Potatoes() : base(142)
+		public Potatoes() : base()
 		{
 		}
 

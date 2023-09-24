@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class MonsterEgg : Block
 	{
-		public MonsterEgg() : base(97)
+		public MonsterEgg() : base()
 		{
 			BlastResistance = 3.75f;
 			Hardness = 0.75f;

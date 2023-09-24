@@ -241,31 +241,31 @@ namespace MiNET.Client
 
 				var blocks = new List<(int, string)>();
 
-				foreach (IGrouping<string, BlockStateContainer> blockstateGrouping in blockPalette.OrderBy(record => record.Name).ThenBy(record => record.Data).ThenBy(record => record.RuntimeId) .GroupBy(record => record.Name))
+				foreach (IGrouping<string, BlockStateContainer> blockstateGrouping in blockPalette.OrderBy(record => record.Id).ThenBy(record => record.Data).ThenBy(record => record.RuntimeId) .GroupBy(record => record.Id))
 				{
 					BlockStateContainer currentBlockState = blockstateGrouping.First();
-					Log.Debug($"{currentBlockState.Name}, Id={currentBlockState.Id}");
-					BlockStateContainer defaultBlockState = BlockFactory.GetBlockById(currentBlockState.Id, 0)?.GetGlobalState();
+					Log.Debug($"{currentBlockState.Id}, Id={currentBlockState.Id}");
+					BlockStateContainer defaultBlockState = BlockFactory.GetBlockById(currentBlockState.Id)?.GetGlobalState();
 					if (defaultBlockState == null)
 					{
 						defaultBlockState = blockstateGrouping.FirstOrDefault(bs => bs.Data == 0);
 					}
 
-					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Name}, {currentBlockState.Data}");
+					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Id}, {currentBlockState.Data}");
 					Block blockById = BlockFactory.GetBlockById(currentBlockState.Id);
 					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
-					int id = existingBlock ? currentBlockState.Id : -1;
 
-					string blockClassName = CodeName(currentBlockState.Name.Replace("minecraft:", ""), true);
+					string blockClassName = CodeName(currentBlockState.Id.Replace("minecraft:", ""), true);
 
-					blocks.Add((blockById.Id, blockClassName));
+					// 1.19-update
+					//blocks.Add((blockById.Id, blockClassName));
 					writer.WriteLineNoTabs($"");
 
 					writer.WriteLine($"public partial class {blockClassName} // {blockById.Id} typeof={blockById.GetType().Name}");
 					writer.WriteLine($"{{");
 					writer.Indent++;
 
-					writer.WriteLine($"public override string Name => \"{currentBlockState.Name}\";");
+					writer.WriteLine($"public override string Name => \"{currentBlockState.Id}\";");
 					writer.WriteLineNoTabs("");
 
 					var bits = new List<BlockStateByte>();
@@ -369,7 +369,7 @@ namespace MiNET.Client
 					writer.WriteLine($"{{");
 					writer.Indent++;
 					writer.WriteLine($"var record = new BlockStateContainer();");
-					writer.WriteLine($"record.Name = \"{blockstateGrouping.First().Name}\";");
+					writer.WriteLine($"record.Name = \"{blockstateGrouping.First().Id}\";");
 					writer.WriteLine($"record.Id = {blockstateGrouping.First().Id};");
 					foreach (var state in blockstateGrouping.First().States)
 					{
@@ -385,21 +385,22 @@ namespace MiNET.Client
 
 				writer.WriteLine();
 
-				foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
-				{
-					int clazzId = block.Item1;
+				// 1.19-update
+				//foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
+				//{
+				//	int clazzId = block.Item1;
 
-					Block blockById = BlockFactory.GetBlockById(clazzId);
-					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
-					if (existingBlock) continue;
+				//	Block blockById = BlockFactory.GetBlockById(clazzId);
+				//	bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
+				//	if (existingBlock) continue;
 
-					string clazzName = block.Item2;
-					string baseClazz = clazzName.EndsWith("Stairs") ? "BlockStairs" : "Block";
-					baseClazz = clazzName.EndsWith("Slab") && !clazzName.EndsWith("DoubleSlab")? "SlabBase" : baseClazz;
-					writer.WriteLine($"public partial class {clazzName} : {baseClazz} {{ " +
-									$"public {clazzName}() : base({clazzId}) {{ IsGenerated = true; }} " +
-									$"}}");
-				}
+				//	string clazzName = block.Item2;
+				//	string baseClazz = clazzName.EndsWith("Stairs") ? "BlockStairs" : "Block";
+				//	baseClazz = clazzName.EndsWith("Slab") && !clazzName.EndsWith("DoubleSlab")? "SlabBase" : baseClazz;
+				//	writer.WriteLine($"public partial class {clazzName} : {baseClazz} {{ " +
+				//					$"public {clazzName}() : base({clazzId}) {{ IsGenerated = true; }} " +
+				//					$"}}");
+				//}
 
 				writer.Indent--;
 				writer.WriteLine($"}}"); // namespace

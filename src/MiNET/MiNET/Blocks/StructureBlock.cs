@@ -33,7 +33,7 @@ namespace MiNET.Blocks
 {
 	public partial class StructureBlock : Block
 	{
-		public StructureBlock() : base(252)
+		public StructureBlock() : base()
 		{
 		}
 

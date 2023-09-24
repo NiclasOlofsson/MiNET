@@ -28,7 +28,7 @@ namespace MiNET.Blocks
 {
 	public partial class Dropper : Block
 	{
-		public Dropper() : base(125)
+		public Dropper() : base()
 		{
 			BlastResistance = 17.5f;
 			Hardness = 3.5f;

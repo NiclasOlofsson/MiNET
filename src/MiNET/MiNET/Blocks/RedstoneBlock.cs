@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class RedstoneBlock : Block
 	{
-		public RedstoneBlock() : base(152)
+		public RedstoneBlock() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 5;

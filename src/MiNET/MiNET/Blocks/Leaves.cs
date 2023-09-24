@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Leaves));
 
-		public Leaves() : base(18)
+		public Leaves() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 1;

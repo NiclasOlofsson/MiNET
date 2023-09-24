@@ -28,7 +28,7 @@ namespace MiNET.Blocks
 {
 	public partial class PoweredComparator : ComparatorBase
 	{
-		public PoweredComparator() : base(150)
+		public PoweredComparator() : base()
 		{
 			LightLevel = 7;
 		}

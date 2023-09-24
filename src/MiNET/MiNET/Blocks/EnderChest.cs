@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class EnderChest : ChestBase
 	{
-		public EnderChest() : base(130)
+		public EnderChest() : base()
 		{
 			IsTransparent = true;
 			LightLevel = 7;

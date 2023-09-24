@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class Glowstone : Block
 	{
-		public Glowstone() : base(89)
+		public Glowstone() : base()
 		{
 			//IsTransparent = true;
 			LightLevel = 15;

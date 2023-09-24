@@ -716,7 +716,7 @@ namespace TestPlugin
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			Level level = player.Level;
-			int blockId = new Portal().Id;
+			var blockId = new Portal().Id;
 			BlockCoordinates start = (BlockCoordinates) player.KnownPosition;
 			for (int x = start.X - width; x < start.X + width; x++)
 			{

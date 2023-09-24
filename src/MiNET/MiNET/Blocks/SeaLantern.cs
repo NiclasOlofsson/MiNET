@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class SeaLantern : Block
 	{
-		public SeaLantern() : base(169)
+		public SeaLantern() : base()
 		{
 			LightLevel = 15;
 			BlastResistance = 1.5f;

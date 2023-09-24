@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Grass));
 
-		public Grass() : base(2)
+		public Grass() : base()
 		{
 			BlastResistance = 3;
 			Hardness = 0.6f;
@@ -51,7 +51,7 @@ namespace MiNET.Blocks
 
 			if (level.GetSubtractedLight(Coordinates.BlockUp()) < 4)
 			{
-				Block dirt = BlockFactory.GetBlockById(3);
+				Block dirt = new Dirt();
 				dirt.Coordinates = Coordinates;
 				level.SetBlock(dirt, true, false, false);
 			}
@@ -65,7 +65,7 @@ namespace MiNET.Blocks
 			var lightLevel = level.GetSubtractedLight(Coordinates.BlockUp());
 			if (lightLevel < 4 /* && check opacity */)
 			{
-				Block dirt = BlockFactory.GetBlockById(3);
+				Block dirt = new Dirt();
 				dirt.Coordinates = Coordinates;
 				level.SetBlock(dirt, true, false, false);
 			}

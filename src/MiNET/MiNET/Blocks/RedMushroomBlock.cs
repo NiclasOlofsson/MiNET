@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class RedMushroomBlock : Block
 	{
-		public RedMushroomBlock() : base(100)
+		public RedMushroomBlock() : base()
 		{
 			BlastResistance = 1;
 			Hardness = 0.2f;

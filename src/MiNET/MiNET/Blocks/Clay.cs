@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class Clay : Block
 	{
-		public Clay() : base(82)
+		public Clay() : base()
 		{
 			BlastResistance = 3;
 			Hardness = 0.6f;

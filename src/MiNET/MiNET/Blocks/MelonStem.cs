@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class MelonStem : Block
 	{
-		public MelonStem() : base(105)
+		public MelonStem() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

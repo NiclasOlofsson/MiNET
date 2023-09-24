@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class BrownMushroom : Block
 	{
-		public BrownMushroom() : base(39)
+		public BrownMushroom() : base()
 		{
 			IsSolid = false;
 			LightLevel = 1;

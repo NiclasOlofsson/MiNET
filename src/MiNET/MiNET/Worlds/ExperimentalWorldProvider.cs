@@ -172,7 +172,7 @@ namespace MiNET.Worlds
 
 						if (y < waterLevel) //FlowingWater :)
 						{
-							if (chunk.GetBlockId(x, y, z) == 2 || chunk.GetBlockId(x, y, z) == 3) //Grass or Dirt?
+							if (BlockFactory.IsBlock<Grass>(chunk.GetBlockRuntimeId(x, y, z)) || BlockFactory.IsBlock<Dirt>(chunk.GetBlockRuntimeId(x, y, z))) //Grass or Dirt?
 							{
 								if (GetRandomNumber(1, 40) == 5 && y < waterLevel - 4)
 									chunk.SetBlock(x, y, z, new Clay()); //Clay
@@ -210,7 +210,7 @@ namespace MiNET.Worlds
 									{
 										if (y < waterLevel + 2)
 											break;
-										if (chunk.GetBlockId(treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1]) == 2)
+										if (BlockFactory.IsBlock<Grass>(chunk.GetBlockRuntimeId(treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1])))
 										{
 											if (y == dirtHeight)
 												GenerateTree(chunk, treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1]);

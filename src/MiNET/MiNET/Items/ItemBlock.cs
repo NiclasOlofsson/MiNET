@@ -45,13 +45,13 @@ namespace MiNET.Items
 
 		[JsonIgnore] public Block Block { get; protected set; }
 
-		protected ItemBlock(string name, short id, short metadata = 0) : base(name, id, metadata)
+		protected ItemBlock(string name, short metadata = 0) : base(name, metadata)
 		{
 			//TODO: Problematic block
-			Block = BlockFactory.GetBlockById(id);
+			Block = BlockFactory.GetBlockById(name, metadata);
 		}
 
-		public ItemBlock([NotNull] Block block, short metadata = 0) : base(block.Name, (short) (block.Id > 255 ? 255 - block.Id : block.Id), metadata)
+		public ItemBlock([NotNull] Block block, short metadata = 0) : base(block.Id, metadata)
 		{
 			Block = block ?? throw new ArgumentNullException(nameof(block));
 	
@@ -61,6 +61,8 @@ namespace MiNET.Items
 			}
 
 			FuelEfficiency = Block.FuelEfficiency;
+			RuntimeId = Block.GetRuntimeId();
+			Id = (short) -RuntimeId;
 		}
 
 		public override Item GetSmelt()
@@ -120,14 +122,15 @@ namespace MiNET.Items
 				world.SetBlock(newBlock);
 			}
 
-			if (player.GameMode == GameMode.Survival && newBlock.Id != 0)
+			if (player.GameMode == GameMode.Survival && newBlock is not Air)
 			{
 				var itemInHand = player.Inventory.GetItemInHand();
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
 
-			world.BroadcastSound(newBlock.Coordinates, LevelSoundEventType.Place, newBlock.Id);
+			// TODO - 1.19-update
+			//world.BroadcastSound(newBlock.Coordinates, LevelSoundEventType.Place, newBlock.Id);
 		}
 
 		public override string ToString()

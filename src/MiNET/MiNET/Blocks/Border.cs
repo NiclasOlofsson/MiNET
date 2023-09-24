@@ -31,7 +31,7 @@ namespace MiNET.Blocks
 		// podzol   "blockRuntimeId": 2111,
 
 
-		public Border() : base(212)
+		public Border() : base()
 		{
 			IsTransparent = true;
 		}

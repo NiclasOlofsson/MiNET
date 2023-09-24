@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 	{
 		[StateRange(0, 5)] public virtual int FacingDirection { get; set; }
 
-		protected BlastFurnaceBase(int id) : base(id)
+		protected BlastFurnaceBase() : base()
 		{
 		}
 

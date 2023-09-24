@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class NetherWart : Block
 	{
-		public NetherWart() : base(115)
+		public NetherWart() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;

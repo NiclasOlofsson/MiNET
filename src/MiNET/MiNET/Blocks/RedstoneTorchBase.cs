@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 		[StateEnum("east", "north", "south", "top", "unknown", "west")]
 		public virtual string TorchFacingDirection { get; set; }
 
-		public RedstoneTorchBase(byte id) : base(id)
+		public RedstoneTorchBase() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;

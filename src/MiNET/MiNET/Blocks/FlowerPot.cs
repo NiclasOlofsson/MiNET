@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class FlowerPot : Block
 	{
-		public FlowerPot() : base(140)
+		public FlowerPot() : base()
 		{
 			IsTransparent = true;
 		}

@@ -29,6 +29,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
@@ -487,7 +488,7 @@ namespace MiNET
 
 			var block = Entity.Level.GetBlock(waterPos);
 
-			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
+			if (block == null || (block is not Water && block is not FlowingWater)) return false;
 
 			return y < Math.Floor(y) + 1 - ((1f / 9f) - 0.1111111);
 		}
@@ -498,7 +499,7 @@ namespace MiNET
 
 			var block = Entity.Level.GetBlock(playerPosition);
 
-			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
+			if (block == null || (block is not Water && block is not FlowingWater)) return false;
 
 			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1f / 9f) - 0.1111111);
 		}
@@ -509,7 +510,7 @@ namespace MiNET
 
 			var block = Entity.Level.GetBlock(playerPosition);
 
-			if (block == null || (block.Id != 10 && block.Id != 11)) return false;
+			if (block == null || (block is not Lava && block is not FlowingLava)) return false;
 
 			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1f / 9f) - 0.1111111);
 		}

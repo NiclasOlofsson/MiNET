@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -42,12 +42,11 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Set all blocks within selection")]
 		public void SetBlock(Player player, BlockTypeEnum tileName, int tileData = 0)
 		{
-			var id = BlockFactory.GetBlockIdByName(tileName.Value);
-			Set(player, id, tileData);
+			Set(player, tileName.Value, tileData);
 		}
 
 		[Command(Description = "Set all blocks within selection")]
-		public void Set(Player player, int tileId, int tileData = 0)
+		public void Set(Player player, string tileId, int tileData = 0)
 		{
 			var pattern = new Pattern(tileId, tileData);
 			EditSession.SetBlocks(Selector, pattern);
@@ -62,12 +61,11 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Draws a line segment between cuboid selection corners")]
 		public void Line(Player player, BlockTypeEnum tileName, int tileData = 0, int thickness = 1, bool shell = false)
 		{
-			var id = BlockFactory.GetBlockIdByName(tileName.Value);
-			Line(player, id, tileData, thickness, shell);
+			Line(player, tileName.Value, tileData, thickness, shell);
 		}
 
 		[Command(Description = "Draws a line segment between cuboid selection corners")]
-		public void Line(Player player, int tileId, int tileData = 0, int thickness = 0, bool shell = false)
+		public void Line(Player player, string tileId, int tileData = 0, int thickness = 0, bool shell = false)
 		{
 			var pattern = new Pattern(tileId, tileData);
 			EditSession.DrawLine(Selector, pattern, Selector.Position1, Selector.Position2, thickness, !shell);
@@ -80,7 +78,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Set the center block(s)")]
-		public void Center(Player player, int tileId = 1, int tileData = 0)
+		public void Center(Player player, string tileId = "stone", int tileData = 0)
 		{
 			var pattern = new Pattern(tileId, tileData);
 

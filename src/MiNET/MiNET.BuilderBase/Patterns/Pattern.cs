@@ -48,7 +48,7 @@ namespace MiNET.BuilderBase.Patterns
 			{
 			}
 
-			public int Id { get; set; }
+			public string Id { get; set; }
 			public byte Metadata { get; set; }
 			public bool HasMetadata { get; set; }
 			public int Weight { get; set; } = 100;
@@ -73,11 +73,11 @@ namespace MiNET.BuilderBase.Patterns
 			_random = new Random();
 		}
 
-		public Pattern(int blockId, int metadata)
+		public Pattern(string blockId, int metadata)
 		{
 			BlockList.Add(new BlockDataEntry()
 			{
-				Id = (byte) blockId,
+				Id = blockId,
 				Metadata = (byte) metadata,
 				HasMetadata = true
 			});
@@ -182,12 +182,12 @@ namespace MiNET.BuilderBase.Patterns
 						else if (matchGroup.Name == "blockName" && matchGroup.Success)
 						{
 							Log.Debug($"Matched blockName group {matchGroup.Value}");
-							blockDataEntry.Id = BlockFactory.GetBlockIdByName(matchGroup.Value.Trim());
+							blockDataEntry.Id = matchGroup.Value.Trim();
 						}
 						if (matchGroup.Name == "blockId" && matchGroup.Success)
 						{
 							Log.Debug($"Matched blockId group {matchGroup.Value}");
-							if (int.TryParse(matchGroup.Value.Trim(), out int id)) blockDataEntry.Id = id;
+							throw new InvalidOperationException("blockId now is string id. Replace blockName to blockId needed.");
 						}
 						else if (matchGroup.Name == "meta" && matchGroup.Success)
 						{

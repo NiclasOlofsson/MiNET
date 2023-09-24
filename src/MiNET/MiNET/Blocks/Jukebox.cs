@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Jukebox : Block
 	{
-		public Jukebox() : base(84)
+		public Jukebox() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 2f;

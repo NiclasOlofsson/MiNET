@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class TripWire : Block
 	{
-		public TripWire() : base(132)
+		public TripWire() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;

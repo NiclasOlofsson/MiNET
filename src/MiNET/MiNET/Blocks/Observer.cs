@@ -28,7 +28,7 @@ namespace MiNET.Blocks
 {
 	public partial class Observer : Block
 	{
-		public Observer() : base(251)
+		public Observer() : base()
 		{
 			BlastResistance = 17.5f;
 			IsTransparent = true;

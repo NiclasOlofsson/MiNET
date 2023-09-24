@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 		public int Base { get; set; }
 		public NbtCompound ExtraData { get; set; }
 
-		public StandingBanner() : base(176)
+		public StandingBanner() : base()
 		{
 		}
 

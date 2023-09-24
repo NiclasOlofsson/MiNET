@@ -1433,8 +1433,8 @@ namespace MiNET
 			int height = Level.Dimension == Dimension.Overworld ? 256 : 128;
 
 
-			int portalId = new Portal().Id;
-			int obsidionId = new Obsidian().Id;
+			var portalId = new Portal().Id;
+			var obsidionId = new Obsidian().Id;
 
 			Log.Debug($"Starting point: {start}");
 
@@ -2957,7 +2957,7 @@ namespace MiNET
 			}
 
 			Block block = Level.GetBlock(message.x, message.y, message.z);
-			Log.Debug($"Picked block {block.Name} from blockstate {block.GetRuntimeId()}. Expected block to be in slot {message.selectedSlot}");
+			Log.Debug($"Picked block {block.Id} from blockstate {block.GetRuntimeId()}. Expected block to be in slot {message.selectedSlot}");
 			Item item = block.GetItem();
 			if (item is ItemBlock blockItem)
 			{

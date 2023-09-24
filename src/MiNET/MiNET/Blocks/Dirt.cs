@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Dirt : Block
 	{
-		public Dirt() : base(3)
+		public Dirt() : base()
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;

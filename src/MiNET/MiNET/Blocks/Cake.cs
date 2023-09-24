@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class Cake : Block
 	{
-		public Cake() : base(92)
+		public Cake() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 2.5f;

@@ -121,10 +121,10 @@ namespace MiNET.Worlds
 			return this[Math.Clamp(by, 0, _subChunks.Length - 1)];
 		}
 
-		public int GetBlockId(int bx, int by, int bz)
+		public int GetBlockRuntimeId(int bx, int by, int bz)
 		{
 			var subChunk = GetSubChunk(by);
-			return subChunk.GetBlockId(bx, by & 0xf, bz);
+			return subChunk.GetBlockRuntimeId(bx, by & 0xf, bz);
 		}
 
 		public Block GetBlockObject(int bx, int @by, int bz)
@@ -394,7 +394,7 @@ namespace MiNET.Worlds
 
 					isInAir = false;
 
-					int bid = GetBlockId(x, y, z);
+					int bid = GetBlockRuntimeId(x, y, z);
 					if (bid < 0 || bid >= BlockFactory.TransparentBlocks.Length) Log.Warn($"{bid}");
 					if (bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30 && bid != 8 && bid != 9))
 					{
@@ -431,7 +431,7 @@ namespace MiNET.Worlds
 
 					isInAir = false;
 
-					int bid = GetBlockId(x, y, z);
+					int bid = GetBlockRuntimeId(x, y, z);
 					if (bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30))
 					{
 						continue;

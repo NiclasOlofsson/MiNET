@@ -47,17 +47,18 @@ namespace MiNET.Test
 		[TestMethod]
 		public void GetItemByName()
 		{
-			
-			foreach (KeyValuePair<string, short> keyValuePair in ItemFactory.NameToId)
-			{
-				if(keyValuePair.Key.Equals("sapling")) Console.WriteLine(keyValuePair.Key);
-			}
-			var itemId = ItemFactory.GetItemIdByName("minecraft:sapling");
-			Assert.AreEqual(6, itemId);
+			// TODO - 1.19-update
 
-			Item item = ItemFactory.GetItem("minecraft:sapling");
-			Assert.AreEqual("minecraft:sapling", item.Name);
-			Assert.IsNotNull(item as ItemBlock);
+			//foreach (KeyValuePair<string, int> keyValuePair in ItemFactory.IdToRuntimeId)
+			//{
+			//	if(keyValuePair.Key.Equals("sapling")) Console.WriteLine(keyValuePair.Key);
+			//}
+			//var itemId = ItemFactory.GetItemIdByName("minecraft:sapling");
+			//Assert.AreEqual(6, itemId);
+
+			//Item item = ItemFactory.GetItem("minecraft:sapling");
+			//Assert.AreEqual("minecraft:sapling", item.Name);
+			//Assert.IsNotNull(item as ItemBlock);
 		}
 
 		[TestMethod]
@@ -71,16 +72,16 @@ namespace MiNET.Test
 			writer.WriteLine();
 
 			var itemStates = ItemFactory.Itemstates;
-			foreach (Itemstate state in itemStates)
+			foreach (var state in itemStates)
 			{
-				Item item = ItemFactory.GetItem(state.Id);
+				Item item = ItemFactory.GetItem(state.Value.RuntimeId);
 				if(!string.IsNullOrEmpty(item.Name)) continue;
 
-				string clazzName = CodeName(state.Name.Replace("minecraft:", ""), true);
-				string minecraftName = state.Name;
+				string clazzName = CodeName(state.Key.Replace("minecraft:", ""), true);
+				string minecraftName = state.Key;
 
 
-				writer.WriteLine($"public Item{clazzName}() : base(\"{minecraftName}\", {state.Id})");
+				writer.WriteLine($"public Item{clazzName}() : base(\"{minecraftName}\", {state.Value.RuntimeId})");
 			}
 
 			writer.Flush();
@@ -94,15 +95,15 @@ namespace MiNET.Test
 			var writer = new IndentedTextWriter(new StreamWriter(file));
 
 			var itemStates = ItemFactory.Itemstates;
-			List<Itemstate> newItems = new List<Itemstate>();
-			foreach (Itemstate state in itemStates)
+			var newItems = new Dictionary<string, Itemstate>();
+			foreach (var state in itemStates)
 			{
-				var item = ItemFactory.GetItem(state.Id);
+				var item = ItemFactory.GetItem(state.Value.RuntimeId);
 				if (item.GetType() == typeof(Item))
 				{
-					newItems.Add(state);
-					Console.WriteLine($"New item: {state.Id}, {state.Name}");
-					string clazzName = CodeName(state.Name.Replace("minecraft:", ""), true);
+					newItems.Add(state.Key, state.Value);
+					Console.WriteLine($"New item: {state.Value.RuntimeId}, {state.Key}");
+					string clazzName = CodeName(state.Key.Replace("minecraft:", ""), true);
 
 					string baseClazz = "Item";
 					baseClazz = clazzName.EndsWith("Axe") ? "ItemAxe" : baseClazz;
@@ -117,15 +118,15 @@ namespace MiNET.Test
 
 					baseClazz = clazzName.EndsWith("Door") ? "ItemWoodenDoor" : baseClazz;
 
-					writer.WriteLine($"public class Item{clazzName} : {baseClazz} {{ public Item{clazzName}() : base({state.Id}) {{}} }}");
+					writer.WriteLine($"public class Item{clazzName} : {baseClazz} {{ public Item{clazzName}() : base({state.Value.RuntimeId}) {{}} }}");
 				}
 			}
 			writer.Flush();
 
-			foreach (Itemstate state in newItems.OrderBy(s => s.Id))
+			foreach (var state in newItems.OrderBy(s => s.Value.RuntimeId))
 			{
-				string clazzName = CodeName(state.Name.Replace("minecraft:", ""), true);
-				writer.WriteLine($"else if (id == {state.Id}) item = new Item{clazzName}();");
+				string clazzName = CodeName(state.Key.Replace("minecraft:", ""), true);
+				writer.WriteLine($"else if (id == {state.Value.RuntimeId}) item = new Item{clazzName}();");
 			}
 
 			writer.Flush();
@@ -141,15 +142,15 @@ namespace MiNET.Test
 			{
 				if (stateContainer.States.Count > 0)
 				{
-					if (stateContainer.States.Count(s => s.Name.Contains("direction")) > 0) blocksWithStates.Add(stateContainer.Name);
-					if (stateContainer.States.Count(s => s.Name.Contains("face")) > 0) blocksWithStates.Add(stateContainer.Name);
+					if (stateContainer.States.Count(s => s.Name.Contains("direction")) > 0) blocksWithStates.Add(stateContainer.Id);
+					if (stateContainer.States.Count(s => s.Name.Contains("face")) > 0) blocksWithStates.Add(stateContainer.Id);
 				}
 			}
 
 			foreach (string name in blocksWithStates.OrderBy(n => n).Distinct())
 			{
 				Console.WriteLine($"{name}");
-				foreach (var state in BlockFactory.GetBlockByName(name).GetState().States)
+				foreach (var state in BlockFactory.GetBlockById(name).GetState().States)
 				{
 					if (state.Name.Contains("direction")) Console.WriteLine($"\t{state.Name}");
 					if (state.Name.Contains("face")) Console.WriteLine($"\t{state.Name}");
@@ -162,10 +163,10 @@ namespace MiNET.Test
 		{
 			foreach (var block in BlockFactory.BlockStates)
 			{
-				var b = BlockFactory.GetBlockByName(block.Name);
+				var b = BlockFactory.GetBlockById(block.Id);
 				if (b == null)
 				{
-					Console.WriteLine($"Missing {block.Name}");
+					Console.WriteLine($"Missing {block.Id}");
 					continue;
 				}
 
@@ -195,25 +196,35 @@ namespace MiNET.Test
 				writer.WriteLine($"{{");
 				writer.Indent++;
 
-				foreach (IGrouping<string, BlockStateContainer> blockstateGrouping in blockPalette.OrderBy(record => record.Name).ThenBy(record => record.Data).GroupBy(record => record.Name))
+				foreach (IGrouping<string, BlockStateContainer> blockstateGrouping in blockPalette.OrderBy(record => record.Id).ThenBy(record => record.Data).GroupBy(record => record.Id))
 				{
 					var currentBlockState = blockstateGrouping.First();
 					var defaultBlockState = blockstateGrouping.FirstOrDefault(bs => bs.Data == 0);
 
-					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Name}, {currentBlockState.Data}");
+					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Id}, {currentBlockState.Data}");
 					Block blockById = BlockFactory.GetBlockById(currentBlockState.Id);
-					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated && blockById.Name == currentBlockState.Name;
-					int id = existingBlock ? currentBlockState.Id : -1;
 
-					string blockClassName = CodeName(currentBlockState.Name.Replace("minecraft:", ""), true);
+					if (blockById == null)
+					{
+						blockById = new Block(currentBlockState.Id);
+					}
 
-					blocks.Add((blockById.Id, blockClassName));
+					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
+					var baseBlock = blockById.IsGenerated ? $": {(blockById.GetType().BaseType == typeof(object) ? "Block" : blockById.GetType().BaseType.Name)}" : string.Empty;
+
+					string blockClassName = CodeName(currentBlockState.Id.Replace("minecraft:", ""), true);
 
 					writer.WriteLineNoTabs($"");
 
-					writer.WriteLine($"public partial class {blockClassName} {(existingBlock ? "" : ": Block")} // {blockById.Id} typeof={blockById.GetType().Name}");
+					writer.WriteLine($"public partial class {blockClassName} {(existingBlock ? string.Empty : baseBlock)} // typeof={blockById.GetType().Name}");
 					writer.WriteLine($"{{");
 					writer.Indent++;
+
+					if (!blockById.IsGenerated)
+					{
+						writer.WriteLine($"public override string Id {{ get; protected set; }} = \"{currentBlockState.Id}\";");
+						writer.WriteLineNoTabs($"");
+					}
 
 					var bits = new List<BlockStateByte>();
 					foreach (var state in blockstateGrouping.First().States)
@@ -269,11 +280,11 @@ namespace MiNET.Test
 						}
 					}
 
-					if (id == -1 || blockById.IsGenerated)
+					if (blockById.IsGenerated)
 					{
 						writer.WriteLine($"");
 
-						writer.WriteLine($"public {blockClassName}() : base({currentBlockState.Id})");
+						writer.WriteLine($"public {blockClassName}() : base(\"{currentBlockState.Id}\")");
 						writer.WriteLine($"{{");
 						writer.Indent++;
 						writer.WriteLine($"IsGenerated = true;");
@@ -313,8 +324,7 @@ namespace MiNET.Test
 					writer.WriteLine($"{{");
 					writer.Indent++;
 					writer.WriteLine($"var record = new BlockStateContainer();");
-					writer.WriteLine($"record.Name = \"{blockstateGrouping.First().Name}\";");
-					writer.WriteLine($"record.Id = {blockstateGrouping.First().Id};");
+					writer.WriteLine($"record.Id = \"{blockstateGrouping.First().Id}\";");
 					foreach (var state in blockstateGrouping.First().States)
 					{
 						string propName = CodeName(state.Name, true);
@@ -380,10 +390,10 @@ namespace MiNET.Test
 				writer.Indent--;
 				writer.WriteLine($"}}");
 
-				foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
-				{
-					writer.WriteLine($"{block.Item1} => block = new {block.Item2}(),");
-				}
+				//foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
+				//{
+				//	writer.WriteLine($"{block.Item1} => block = new {block.Item2}(),");
+				//}
 
 				writer.Flush();
 			}

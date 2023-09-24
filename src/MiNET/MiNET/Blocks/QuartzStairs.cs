@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class QuartzStairs : BlockStairs
 	{
-		public QuartzStairs() : base(156)
+		public QuartzStairs() : base()
 		{
 			BlastResistance = 4;
 			Hardness = 0.8f;

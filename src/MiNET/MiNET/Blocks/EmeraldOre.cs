@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class EmeraldOre : Block
 	{
-		public EmeraldOre() : base(129)
+		public EmeraldOre() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;

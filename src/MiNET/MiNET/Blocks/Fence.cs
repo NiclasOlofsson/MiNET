@@ -27,11 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Fence : Block
 	{
-		public Fence() : this(85)
-		{
-		}
-
-		public Fence(byte id) : base(id)
+		public Fence() : base()
 		{
 			FuelEfficiency = 15;
 			IsTransparent = true;

@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class Web : Block
 	{
-		public Web() : base(30)
+		public Web() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true; // Partial - diffuses sky light

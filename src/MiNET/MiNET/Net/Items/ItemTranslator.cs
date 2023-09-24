@@ -111,8 +111,8 @@ namespace MiNET.Net.Items
 			var simpleNetworkIdToInternal = new Dictionary<int, int>();
 			foreach (var state in itemstates)
 			{
-				var stringId = state.Name;
-				var netId = state.Id;
+				var stringId = state.Key;
+				var netId = state.Value.RuntimeId;
 
 				if (complexMapping.TryGetValue(stringId, out var translatedItem))
 				{

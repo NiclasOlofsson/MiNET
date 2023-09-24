@@ -32,7 +32,7 @@ namespace MiNET.Blocks
 {
 	public partial class DoublePlant : Block
 	{
-		public DoublePlant() : base(175)
+		public DoublePlant() : base()
 		{
 			BlastResistance = 3;
 			Hardness = 0.6f;

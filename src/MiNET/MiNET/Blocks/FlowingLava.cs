@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class FlowingLava : Flowing
 	{
-		public FlowingLava() : base(10)
+		public FlowingLava() : base(BlockFactory.GetIdByType<Lava>())
 		{
 			LightLevel = 15;
 			BlastResistance = 500;

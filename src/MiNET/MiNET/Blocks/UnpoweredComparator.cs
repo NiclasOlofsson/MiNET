@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class UnpoweredComparator : ComparatorBase
 	{
-		public UnpoweredComparator() : base(149)
+		public UnpoweredComparator() : base()
 		{
 		}
 	}

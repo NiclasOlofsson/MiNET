@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class Fire : Block
 	{
-		public Fire() : base(51)
+		public Fire() : base()
 		{
 			IsReplaceable = true;
 			IsTransparent = true;

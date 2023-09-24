@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Log2 : Block
 	{
-		public Log2() : base(162)
+		public Log2() : base()
 		{
 			BlastResistance = 10;
 			Hardness = 2;

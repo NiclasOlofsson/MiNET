@@ -39,9 +39,9 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Chalkboard));
 
-		public override string Name => "minecraft:chalkboard";
+		public override string Id => "minecraft:chalkboard";
 
-		public Chalkboard() : base(230)
+		public Chalkboard() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;
@@ -57,8 +57,7 @@ namespace MiNET.Blocks
 		public override BlockStateContainer GetState()
 		{
 			var record = new BlockStateContainer();
-			record.Name = "minecraft:chalkboard";
-			record.Id = 230;
+			record.Id = "minecraft:chalkboard";
 			return record;
 		} // method
 

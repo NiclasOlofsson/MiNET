@@ -34,7 +34,7 @@ namespace MiNET.Blocks
 {
 	public partial class CraftingTable : Block
 	{
-		public CraftingTable() : base(58)
+		public CraftingTable() : base()
 		{
 			FuelEfficiency = 15;
 			BlastResistance = 12.5f;

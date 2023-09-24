@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class QuartzOre : Block
 	{
-		public QuartzOre() : base(153)
+		public QuartzOre() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;

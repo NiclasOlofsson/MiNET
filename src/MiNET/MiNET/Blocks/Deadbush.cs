@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Deadbush : Block
 	{
-		public Deadbush() : base(32)
+		public Deadbush() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

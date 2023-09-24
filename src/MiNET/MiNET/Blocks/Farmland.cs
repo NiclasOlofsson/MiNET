@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Farmland));
 
-		public Farmland() : base(60)
+		public Farmland() : base()
 		{
 			IsTransparent = true; // Partial - blocks light.
 			IsBlockingSkylight = false; // Partial - blocks light.

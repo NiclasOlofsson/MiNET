@@ -1712,19 +1712,19 @@ namespace MiNET.Net
 		private const int ShieldId = 355;
 		public void Write(Item stack, bool writeUniqueId = true)
 		{
-			if (stack == null || stack.Id == 0 || !ItemFactory.Translator.TryGetNetworkId(stack.Id, stack.Metadata, out var netData))
+			if (stack == null || stack.Id == 0/* || !ItemFactory.Translator.TryGetNetworkId(stack.Id, stack.Metadata, out var netData)*/)
 			{
 				WriteSignedVarInt(0);
 				return;
 			}
 
 			//var netId = ItemFactory.Translator.ToNetworkId(stack.Id, stack.Metadata);
-			WriteSignedVarInt(netData.Id);
+			WriteSignedVarInt(stack.NetworkId);
 			
 			//WriteSignedVarInt(id);
 
 			Write((short) stack.Count);
-			WriteUnsignedVarInt((uint)netData.Meta);
+			WriteUnsignedVarInt((uint) stack.Metadata);
 
 			if (writeUniqueId)
 			{
@@ -2072,10 +2072,9 @@ namespace MiNET.Net
 					Log.Warn($"Got shield with runtime id {runtimeId}, legacy {legacyId}");
 				}
 
-				result.Add(new Itemstate
+				result.Add(name, new Itemstate
 				{
-					Id = legacyId,
-					Name = name,
+					RuntimeId = legacyId,
 					ComponentBased = component
 				});
 			}
@@ -2093,9 +2092,9 @@ namespace MiNET.Net
 			WriteUnsignedVarInt((uint) itemstates.Count);
 			foreach (var itemstate in itemstates)
 			{
-				Write(itemstate.Name);
-				Write(itemstate.Id);
-				Write(itemstate.ComponentBased);
+				Write(itemstate.Key);
+				Write(itemstate.Value.RuntimeId);
+				Write(itemstate.Value.ComponentBased);
 			}
 		}
 
@@ -2107,8 +2106,8 @@ namespace MiNET.Net
 			for (int runtimeId = 0; runtimeId < count; runtimeId++)
 			{
 				var record = new BlockStateContainer();
-				record.Id = record.RuntimeId = runtimeId;
-				record.Name = ReadString();
+				record.RuntimeId = runtimeId;
+				record.Id = ReadString();
 				record.States = new List<IBlockState>();
 
 				var nbt = ReadNbt(_reader);
@@ -2218,7 +2217,7 @@ namespace MiNET.Net
 			WriteUnsignedVarInt((uint)palette.Count);
 			foreach (BlockStateContainer record in palette)
 			{
-				Write(record.Name);
+				Write(record.Id);
 				Write(record.StatesCacheNbt);
 			}
 		}

@@ -44,8 +44,8 @@ namespace MiNET.Blocks
 
 		public BlockCoordinates Coordinates { get; set; }
 
-		public virtual string Name { get; protected set; }
-		public int Id { get; }
+		// TODO - 1.19-update (take abstract)
+		public virtual string Id { get; protected set; }
 
 		[Obsolete("Use block states instead.")]
 		public byte Metadata { get; set; }
@@ -69,14 +69,14 @@ namespace MiNET.Blocks
 		public byte BiomeId { get; set; }
 
 		//TODO: Update ALL blocks with names.
-		public Block(string name, int id)
+		public Block(string id)
 		{
-			Name = name;
 			Id = id;
 		}
 
-		public Block(int id) : this(string.Empty, id)
+		public Block()
 		{
+
 		}
 
 		public virtual void SetState(BlockStateContainer blockstate)
@@ -127,7 +127,7 @@ namespace MiNET.Blocks
 			// of states, and no easy way to map 1-1 with meta. Expensive, but rare.
 
 			// Only compare with states that actually have the values we checking for, and have meta.
-			var statesWithMeta = BlockFactory.BlockPalette.Where(b => b.Name == stateFromPick.Name && b.Data != -1).ToList();
+			var statesWithMeta = BlockFactory.BlockPalette.Where(b => b.Id == stateFromPick.Id && b.Data != -1).ToList();
 			foreach (IBlockState state in stateFromPick.States.ToArray())
 			{
 				bool remove = true;
@@ -264,7 +264,9 @@ namespace MiNET.Blocks
 			}
 
 			UpdateBlocks(world);
-			world.BroadcastSound(Coordinates, LevelSoundEventType.BreakBlock, Id);
+
+			// TODO - 1.19-update
+			//world.BroadcastSound(Coordinates, LevelSoundEventType.BreakBlock, Id);
 		}
 
 		protected void UpdateBlocks(Level world)

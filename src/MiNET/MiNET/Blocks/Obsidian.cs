@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Obsidian : Block
 	{
-		public Obsidian() : base(49)
+		public Obsidian() : base()
 		{
 			BlastResistance = 6000;
 			Hardness = 50;

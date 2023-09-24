@@ -33,13 +33,10 @@ namespace MiNET.Blocks
 {
 	public abstract class SlabBase : Block
 	{
-		private int _doubleSlabId;
-
 		[StateBit] public virtual bool TopSlotBit { get; set; } = false;
 
-		protected SlabBase(int id, int doubleSlabId = -1) : base(id)
+		protected SlabBase(string id = null) : base(id)
 		{
-			_doubleSlabId = doubleSlabId;
 		}
 
 		public override BoundingBox GetBoundingBox()
@@ -104,22 +101,25 @@ namespace MiNET.Blocks
 
 		protected void SetDoubleSlab(Level world, BlockCoordinates coordinates)
 		{
-			Block slab = _doubleSlabId == -1 ? BlockFactory.GetBlockByName(GetType().Name.Replace("Slab", "DoubleSlab")) : BlockFactory.GetBlockById(_doubleSlabId);
+			var id = Id.Replace("minecraft:", "");
+			id = id.Contains("stone_block_slab") ? $"double_{id}" : id.Replace("slab", "double_slab");
+
+			Block slab = BlockFactory.GetBlockById(Id);
 			slab.Coordinates = coordinates;
-			slab.SetState(GetState().States);
+			slab.SetState(GetState());
 			world.SetBlock(slab);
 		}
 	}
 
-	public partial class CrimsonSlab : SlabBase { public CrimsonSlab() : base(519) { IsGenerated = false; } }
-	public partial class WarpedSlab : SlabBase { public WarpedSlab() : base(520) { IsGenerated = false; } }
-	public partial class BlackstoneSlab : SlabBase { public BlackstoneSlab() : base(537) { IsGenerated = false; } }
-	public partial class PolishedBlackstoneBrickSlab : SlabBase { public PolishedBlackstoneBrickSlab() : base(539) { IsGenerated = false; } }
-	public partial class PolishedBlackstoneSlab : SlabBase { public PolishedBlackstoneSlab() : base(548) { IsGenerated = false; } }
-	public partial class CrimsonDoubleSlab : Block { public CrimsonDoubleSlab() : base(521) { IsGenerated = false; } }
-	public partial class WarpedDoubleSlab : Block { public WarpedDoubleSlab() : base(522) { IsGenerated = false; } }
-	public partial class BlackstoneDoubleSlab : Block { public BlackstoneDoubleSlab() : base(538) { IsGenerated = false; } }
-	public partial class PolishedBlackstoneBrickDoubleSlab : Block { public PolishedBlackstoneBrickDoubleSlab() : base(540) { IsGenerated = false; } }
-	public partial class PolishedBlackstoneDoubleSlab : Block { public PolishedBlackstoneDoubleSlab() : base(549) { IsGenerated = false; } }
+	public partial class CrimsonSlab : SlabBase { public CrimsonSlab() : base() { } }
+	public partial class WarpedSlab : SlabBase { public WarpedSlab() : base() { } }
+	public partial class BlackstoneSlab : SlabBase { public BlackstoneSlab() : base() { } }
+	public partial class PolishedBlackstoneBrickSlab : SlabBase { public PolishedBlackstoneBrickSlab() : base() { } }
+	public partial class PolishedBlackstoneSlab : SlabBase { public PolishedBlackstoneSlab() : base() { } }
+	public partial class CrimsonDoubleSlab : Block { public CrimsonDoubleSlab() : base() { } }
+	public partial class WarpedDoubleSlab : Block { public WarpedDoubleSlab() : base() { } }
+	public partial class BlackstoneDoubleSlab : Block { public BlackstoneDoubleSlab() : base() { } }
+	public partial class PolishedBlackstoneBrickDoubleSlab : Block { public PolishedBlackstoneBrickDoubleSlab() : base() { } }
+	public partial class PolishedBlackstoneDoubleSlab : Block { public PolishedBlackstoneDoubleSlab() : base() { } }
 
 }

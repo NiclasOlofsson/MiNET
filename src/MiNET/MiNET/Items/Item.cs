@@ -31,7 +31,6 @@ using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Entities;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 using Newtonsoft.Json;
@@ -53,7 +52,7 @@ namespace MiNET.Items
 		public string Name { get; protected set; } = string.Empty;
 		public short Id { get; protected set; }
 		public int NetworkId { get; set; } = -1;
-		public int RuntimeId { get; set; }
+		public virtual int RuntimeId { get; set; }
 		public short Metadata { get; set; }
 		public byte Count { get; set; }
 		public virtual NbtCompound ExtraData { get; set; }
@@ -70,16 +69,19 @@ namespace MiNET.Items
 
 		[JsonIgnore] public int FuelEfficiency { get; set; }
 
+		//protected internal Item(string name, short metadata = 0, int count = 1)
+		//{
+		//	Name = name;
+		//	Metadata = metadata;
+		//	Count = (byte) count;
+		//}
+
 		protected internal Item(string name, short id, short metadata = 0, int count = 1)
 		{
 			Name = name;
 			Id = id;
 			Metadata = metadata;
 			Count = (byte) count;
-		}
-
-		protected internal Item(short id, short metadata = 0, int count = 1) : this(String.Empty, id, metadata, count)
-		{
 		}
 
 		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)

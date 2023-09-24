@@ -33,7 +33,7 @@ namespace MiNET.Blocks
 {
 	public partial class Loom : Block
 	{
-		public Loom() : base(459)
+		public Loom() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 6000;

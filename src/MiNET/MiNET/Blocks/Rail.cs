@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class Rail : Block
 	{
-		public Rail() : base(66)
+		public Rail() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;

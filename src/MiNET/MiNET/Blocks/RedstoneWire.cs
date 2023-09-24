@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class RedstoneWire : Block
 	{
-		public RedstoneWire() : base(55)
+		public RedstoneWire() : base()
 		{
 			IsTransparent = true;
 		}

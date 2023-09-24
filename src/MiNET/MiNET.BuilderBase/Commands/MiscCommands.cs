@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using log4net;
 using MiNET.Blocks;
 using MiNET.BuilderBase.Masks;
@@ -27,7 +27,7 @@ namespace MiNET.BuilderBase.Commands
 		public void Drain(Player player, int radius)
 		{
 			EditSession.Fill((BlockCoordinates) player.KnownPosition,
-				new Pattern(0, 0),
+				new Pattern(BlockFactory.GetIdByType<Air>(), 0),
 				new Mask(player.Level, new List<Block> {new FlowingWater(), new Water(), new Lava(), new FlowingLava()}, true),
 				radius,
 				-1, true);

@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 		[StateBit] public virtual bool UpsideDownBit { get; set; } = false;
 		[StateRange(0, 3)] public virtual int WeirdoDirection { get; set; } = 0;
 
-		protected BlockStairs(int id) : base(id)
+		protected BlockStairs() : base()
 		{
 			FuelEfficiency = 15;
 			IsTransparent = true; // Partial - blocks light.
@@ -57,26 +57,26 @@ namespace MiNET.Blocks
 	}
 
 
-	public partial class PrismarineStairs : BlockStairs { public PrismarineStairs() : base(257) { IsGenerated = false; } }
-	public partial class DarkPrismarineStairs : BlockStairs { public DarkPrismarineStairs() : base(258) { IsGenerated = false; } }
-	public partial class PrismarineBricksStairs : BlockStairs { public PrismarineBricksStairs() : base(259) { IsGenerated = false; } }
-	public partial class GraniteStairs : BlockStairs { public GraniteStairs() : base(424) { IsGenerated = false; } }
-	public partial class DioriteStairs : BlockStairs { public DioriteStairs() : base(425) { IsGenerated = false; } }
-	public partial class AndesiteStairs : BlockStairs { public AndesiteStairs() : base(426) { IsGenerated = false; } }
-	public partial class PolishedGraniteStairs : BlockStairs { public PolishedGraniteStairs() : base(427) { IsGenerated = false; } }
-	public partial class PolishedDioriteStairs : BlockStairs { public PolishedDioriteStairs() : base(428) { IsGenerated = false; } }
-	public partial class PolishedAndesiteStairs : BlockStairs { public PolishedAndesiteStairs() : base(429) { IsGenerated = false; } }
-	public partial class MossyStoneBrickStairs : BlockStairs { public MossyStoneBrickStairs() : base(430) { IsGenerated = false; } }
-	public partial class SmoothRedSandstoneStairs : BlockStairs { public SmoothRedSandstoneStairs() : base(431) { IsGenerated = false; } }
-	public partial class SmoothSandstoneStairs : BlockStairs { public SmoothSandstoneStairs() : base(432) { IsGenerated = false; } }
-	public partial class EndBrickStairs : BlockStairs { public EndBrickStairs() : base(433) { IsGenerated = false; } }
-	public partial class MossyCobblestoneStairs : BlockStairs { public MossyCobblestoneStairs() : base(434) { IsGenerated = false; } }
-	public partial class NormalStoneStairs : BlockStairs { public NormalStoneStairs() : base(435) { IsGenerated = false; } }
-	public partial class RedNetherBrickStairs : BlockStairs { public RedNetherBrickStairs() : base(439) { IsGenerated = false; } }
-	public partial class SmoothQuartzStairs : BlockStairs { public SmoothQuartzStairs() : base(440) { IsGenerated = false; } }
-	public partial class CrimsonStairs : BlockStairs { public CrimsonStairs() : base(509) { IsGenerated = false; } }
-	public partial class WarpedStairs : BlockStairs { public WarpedStairs() : base(510) { IsGenerated = false; } }
-	public partial class PolishedBlackstoneBrickStairs : BlockStairs { public PolishedBlackstoneBrickStairs() : base(530) { IsGenerated = false; } }
-	public partial class BlackstoneStairs : BlockStairs { public BlackstoneStairs() : base(531) { IsGenerated = false; } }
-	public partial class PolishedBlackstoneStairs : BlockStairs { public PolishedBlackstoneStairs() : base(547) { IsGenerated = false; } }
+	public partial class PrismarineStairs : BlockStairs { public PrismarineStairs() : base() { } }
+	public partial class DarkPrismarineStairs : BlockStairs { public DarkPrismarineStairs() : base() { } }
+	public partial class PrismarineBricksStairs : BlockStairs { public PrismarineBricksStairs() : base() { } }
+	public partial class GraniteStairs : BlockStairs { public GraniteStairs() : base() { } }
+	public partial class DioriteStairs : BlockStairs { public DioriteStairs() : base() { } }
+	public partial class AndesiteStairs : BlockStairs { public AndesiteStairs() : base() { } }
+	public partial class PolishedGraniteStairs : BlockStairs { public PolishedGraniteStairs() : base() { } }
+	public partial class PolishedDioriteStairs : BlockStairs { public PolishedDioriteStairs() : base() { } }
+	public partial class PolishedAndesiteStairs : BlockStairs { public PolishedAndesiteStairs() : base() { } }
+	public partial class MossyStoneBrickStairs : BlockStairs { public MossyStoneBrickStairs() : base() { } }
+	public partial class SmoothRedSandstoneStairs : BlockStairs { public SmoothRedSandstoneStairs() : base() { } }
+	public partial class SmoothSandstoneStairs : BlockStairs { public SmoothSandstoneStairs() : base() { } }
+	public partial class EndBrickStairs : BlockStairs { public EndBrickStairs() : base() { } }
+	public partial class MossyCobblestoneStairs : BlockStairs { public MossyCobblestoneStairs() : base() { } }
+	public partial class NormalStoneStairs : BlockStairs { public NormalStoneStairs() : base() { } }
+	public partial class RedNetherBrickStairs : BlockStairs { public RedNetherBrickStairs() : base() { } }
+	public partial class SmoothQuartzStairs : BlockStairs { public SmoothQuartzStairs() : base() { } }
+	public partial class CrimsonStairs : BlockStairs { public CrimsonStairs() : base() { } }
+	public partial class WarpedStairs : BlockStairs { public WarpedStairs() : base() { } }
+	public partial class PolishedBlackstoneBrickStairs : BlockStairs { public PolishedBlackstoneBrickStairs() : base() { } }
+	public partial class BlackstoneStairs : BlockStairs { public BlackstoneStairs() : base() { } }
+	public partial class PolishedBlackstoneStairs : BlockStairs { public PolishedBlackstoneStairs() : base() { } }
 }

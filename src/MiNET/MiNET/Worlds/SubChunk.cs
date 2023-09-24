@@ -68,8 +68,8 @@ namespace MiNET.Worlds
 
 		public SubChunk(bool clearBuffers = true)
 		{
-			_runtimeIds = new List<int> {(int) BlockFactory.GetBlockByName("minecraft:air").GetRuntimeId()};
-			_loggedRuntimeIds = new List<int> { (int) BlockFactory.GetBlockByName("minecraft:air").GetRuntimeId() };
+			_runtimeIds = new List<int> {(int) BlockFactory.GetBlockById("minecraft:air").GetRuntimeId()};
+			_loggedRuntimeIds = new List<int> { (int) BlockFactory.GetBlockById("minecraft:air").GetRuntimeId() };
 
 			_blocks = ArrayPool<short>.Shared.Rent(4096);
 			_biomes = ArrayPool<byte>.Shared.Rent(4096);
@@ -149,7 +149,7 @@ namespace MiNET.Worlds
 			return (bx << 8) | (bz << 4) | by;
 		}
 
-		public int GetBlockId(int bx, int by, int bz)
+		public int GetBlockRuntimeId(int bx, int by, int bz)
 		{
 			if (_runtimeIds.Count == 0) return 0;
 
@@ -157,8 +157,8 @@ namespace MiNET.Worlds
 			if (paletteIndex >= _runtimeIds.Count || paletteIndex < 0) Log.Warn($"Unexpected paletteIndex of {paletteIndex} with size of palette is {_runtimeIds.Count}");
 			int runtimeId = _runtimeIds[paletteIndex];
 			if (runtimeId < 0 || runtimeId >= BlockFactory.BlockPalette.Count) Log.Warn($"Couldn't locate runtime id {runtimeId} for block");
-			int bid = BlockFactory.BlockPalette[runtimeId].Id;
-			return bid == -1 ? 0 : bid;
+
+			return runtimeId;
 		}
 
 		public Block GetBlockObject(int bx, int @by, int bz)
@@ -167,12 +167,7 @@ namespace MiNET.Worlds
 
 			int index = _blocks[GetIndex(bx, by, bz)];
 			int runtimeId = _runtimeIds[index];
-			BlockStateContainer blockState = BlockFactory.BlockPalette[runtimeId];
-			Block block = BlockFactory.GetBlockById(blockState.Id);
-			block.SetState(blockState.States);
-			block.Metadata = (byte) blockState.Data; //TODO: REMOVE metadata. Not needed.
-
-			return block;
+			return BlockFactory.GetBlockByRuntimeId(runtimeId);
 		}
 
 		public void SetBlock(int bx, int by, int bz, Block block)

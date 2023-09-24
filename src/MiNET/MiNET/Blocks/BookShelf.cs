@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Bookshelf : Block
 	{
-		public Bookshelf() : base(47)
+		public Bookshelf() : base()
 		{
 			FuelEfficiency = 15;
 			BlastResistance = 7.5f;

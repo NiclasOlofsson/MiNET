@@ -35,11 +35,8 @@ namespace MiNET.Blocks
 {
 	public abstract partial class WallSignBase : Block
 	{
-		private readonly int _itemDropId;
-
-		public WallSignBase(int id, int itemDropId) : base(id)
+		public WallSignBase() : base()
 		{
-			_itemDropId = itemDropId;
 			IsTransparent = true;
 			IsSolid = false;
 			BlastResistance = 5;
@@ -69,50 +66,45 @@ namespace MiNET.Blocks
 		{
 			return true;
 		}
-
-		public override Item[] GetDrops(Item tool)
-		{
-			return new[] {ItemFactory.GetItem((short) _itemDropId)}; // Drop sign item
-		}
 	}
 
 	public partial class WallSign : WallSignBase
 	{
-		public WallSign() : base(68, 323) { }
+		public WallSign() : base() { }
 	}
 
 	public partial class SpruceWallSign : WallSignBase
 	{
-		public SpruceWallSign() : base(437, 472) { }
+		public SpruceWallSign() : base() { }
 	}
 
 	public partial class BirchWallSign : WallSignBase
 	{
-		public BirchWallSign() : base(442, 473) { }
+		public BirchWallSign() : base() { }
 	}
 
 	public partial class JungleWallSign : WallSignBase
 	{
-		public JungleWallSign() : base(444, 474) { }
+		public JungleWallSign() : base() { }
 	}
 
 	public partial class AcaciaWallSign : WallSignBase
 	{
-		public AcaciaWallSign() : base(446, 475) { }
+		public AcaciaWallSign() : base() { }
 	}
 
 	public partial class DarkoakWallSign : WallSignBase
 	{
-		public DarkoakWallSign() : base(448, 476) { }
+		public DarkoakWallSign() : base() { }
 	}
 
 	public partial class CrimsonWallSign : WallSignBase
 	{
-		public CrimsonWallSign() : base(507, 505) { }
+		public CrimsonWallSign() : base() { }
 	}
 
 	public partial class WarpedWallSign : WallSignBase
 	{
-		public WarpedWallSign() : base(508, 506) { }
+		public WarpedWallSign() : base() { }
 	}
 }

@@ -32,10 +32,9 @@ namespace MiNET.Blocks
 {
 	public abstract class LogBase : Block
 	{
-		[StateEnum("x", "z", "y")]
-		public string PillarAxis { get; set; } = "";
+		public virtual string PillarAxis { get; set; } = "";
 
-		public LogBase(int id) : base(id)
+		public LogBase(string id = null) : base(id)
 		{
 			FuelEfficiency = 15;
 			BlastResistance = 10;

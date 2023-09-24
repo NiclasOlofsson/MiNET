@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class CoalOre : Block
 	{
-		public CoalOre() : base(16)
+		public CoalOre() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;

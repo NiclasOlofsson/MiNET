@@ -126,7 +126,7 @@ namespace MiNET.Client
 									file.LoadFromStream(stream, NbtCompression.None);
 									var tag = (NbtCompound) file.RootTag;
 
-									Block block = BlockFactory.GetBlockByName(tag["name"].StringValue);
+									Block block = BlockFactory.GetBlockById(tag["name"].StringValue);
 									if (block != null && block.GetType() != typeof(Block) && !(block is Air))
 									{
 										List<IBlockState> blockState = ReadBlockState(tag);

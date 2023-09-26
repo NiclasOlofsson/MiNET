@@ -1,4 +1,6 @@
-﻿namespace MiNET.Items
+﻿using MiNET.Blocks;
+
+namespace MiNET.Items
 {
 
 	public partial class ItemAcaciaBoat : ItemBoatBase
@@ -1242,149 +1244,205 @@
 		public override int MaxStackSize { get; set; } = 1;
 	}
 
-	public partial class ItemAcaciaDoor
+	public partial class ItemAcaciaDoor : ItemDoorBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.acacia_door";
+		public override string Id { get; protected set; } = "minecraft:acacia_door";
+
+		public override Block Block { get; protected set; } = new AcaciaDoor();
 	}
 
-	public partial class ItemBed
+	public partial class ItemBed : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.bed";
+		public override string Id { get; protected set; } = "minecraft:bed";
+
+		public override Block Block { get; protected set; } = new Bed();
 	}
 
-	public partial class ItemBeetroot
+	public partial class ItemBeetroot : FoodItemBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.beetroot";
+		public override string Id { get; protected set; } = "minecraft:beetroot";
 	}
 
-	public partial class ItemBirchDoor
+	public partial class ItemBirchDoor : ItemDoorBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.birch_door";
+		public override string Id { get; protected set; } = "minecraft:birch_door";
+
+		public override Block Block { get; protected set; } = new BirchDoor();
 	}
 
-	public partial class ItemBrewingStand : Item
+	public partial class ItemBrewingStand : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.brewing_stand";
+		public override string Id { get; protected set; } = "minecraft:brewing_stand";
+
+		public override Block Block { get; protected set; } = new BrewingStand();
 	}
 
-	public partial class ItemCake : Item
+	public partial class ItemCake : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.cake";
+		public override string Id { get; protected set; } = "minecraft:cake";
+
+		public override Block Block { get; protected set; } = new Cake();
 	}
 
-	public partial class ItemCamera : Item
+	public partial class ItemCamera : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.camera";
+		public override string Id { get; protected set; } = "minecraft:camera";
+
+		public override Block Block { get; protected set; } = new Camera();
 	}
 
-	public partial class ItemCampfire : Item
+	public partial class ItemCampfire : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.campfire";
+		public override string Id { get; protected set; } = "minecraft:campfire";
+
+		public override Block Block { get; protected set; } = new Campfire();
 	}
 
-	public partial class ItemCauldron
+	public partial class ItemCauldron : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.cauldron";
+		public override string Id { get; protected set; } = "minecraft:cauldron";
+
+		public override Block Block { get; protected set; } = new Cauldron();
 	}
 
-	public partial class ItemChain : Item
+	public partial class ItemChain : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.chain";
+		public override string Id { get; protected set; } = "minecraft:chain";
+
+		public override Block Block { get; protected set; } = new Chain();
 	}
 
-	public partial class ItemCrimsonDoor
+	public partial class ItemCrimsonDoor : ItemDoorBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.crimson_door";
+		public override string Id { get; protected set; } = "minecraft:crimson_door";
+
+		public override Block Block { get; protected set; } = new CrimsonDoor();
 	}
 
-	public partial class ItemDarkOakDoor
+	public partial class ItemDarkOakDoor : ItemDoorBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.dark_oak_door";
+		public override string Id { get; protected set; } = "minecraft:dark_oak_door";
+
+		public override Block Block { get; protected set; } = new DarkOakDoor();
 	}
 
-	public partial class ItemFlowerPot : Item
+	public partial class ItemFlowerPot : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.flower_pot";
+		public override string Id { get; protected set; } = "minecraft:flower_pot";
+
+		public override Block Block { get; protected set; } = new FlowerPot();
 	}
 
-	public partial class ItemFrame
+	public partial class ItemFrame : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.frame";
+		public override string Id { get; protected set; } = "minecraft:frame";
+
+		public override Block Block { get; protected set; } = new Frame();
 	}
 
-	public partial class ItemGlowFrame : Item
+	public partial class ItemGlowFrame : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.glow_frame";
+		public override string Id { get; protected set; } = "minecraft:glow_frame";
+
+		public override Block Block { get; protected set; } = new GlowFrame();
 	}
 
-	public partial class ItemHopper : Item
+	public partial class ItemHopper : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.hopper";
+		public override string Id { get; protected set; } = "minecraft:hopper";
+
+		public override Block Block { get; protected set; } = new Hopper();
 	}
 
-	public partial class ItemIronDoor
+	public partial class ItemIronDoor : ItemDoorBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.iron_door";
+		public override string Id { get; protected set; } = "minecraft:iron_door";
+
+		public override Block Block { get; protected set; } = new IronDoor();
 	}
 
-	public partial class ItemJungleDoor
+	public partial class ItemJungleDoor : ItemDoorBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.jungle_door";
+		public override string Id { get; protected set; } = "minecraft:jungle_door";
+
+		public override Block Block { get; protected set; } = new JungleDoor();
 	}
 
-	public partial class ItemKelp : Item
+	public partial class ItemKelp : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.kelp";
+		public override string Id { get; protected set; } = "minecraft:kelp";
+
+		public override Block Block { get; protected set; } = new Kelp();
 	}
 
-	public partial class ItemMangroveDoor : Item
+	public partial class ItemMangroveDoor : ItemDoorBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.mangrove_door";
+		public override string Id { get; protected set; } = "minecraft:mangrove_door";
+
+		public override Block Block { get; protected set; } = new MangroveDoor();
 	}
 
-	public partial class ItemNetherSprouts : Item
+	public partial class ItemNetherSprouts : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.nether_sprouts";
+		public override string Id { get; protected set; } = "minecraft:nether_sprouts";
+
+		public override Block Block { get; protected set; } = new NetherSprouts();
 	}
 
-	public partial class ItemNetherWart : Item
+	public partial class ItemNetherWart : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.nether_wart";
+		public override string Id { get; protected set; } = "minecraft:nether_wart";
+
+		public override Block Block { get; protected set; } = new NetherWart();
 	}
 
-	public partial class ItemReeds : Item
+	public partial class ItemReeds : ItemBlock
 	{
 		public override string Id { get; protected set; } = "minecraft:item.reeds";
+
+		public override Block Block { get; protected set; } = new Reeds();
 	}
 
-	public partial class ItemSkull : Item
+	public partial class ItemSkull : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.skull";
+		public override string Id { get; protected set; } = "minecraft:skull";
+
+		public override Block Block { get; protected set; } = new Skull();
 	}
 
-	public partial class ItemSoulCampfire : Item
+	public partial class ItemSoulCampfire : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.soul_campfire";
+		public override string Id { get; protected set; } = "minecraft:soul_campfire";
+
+		public override Block Block { get; protected set; } = new SoulCampfire();
 	}
 
-	public partial class ItemSpruceDoor
+	public partial class ItemSpruceDoor : ItemDoorBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.spruce_door";
+		public override string Id { get; protected set; } = "minecraft:spruce_door";
+
+		public override Block Block { get; protected set; } = new SpruceDoor();
 	}
 
-	public partial class ItemWarpedDoor
+	public partial class ItemWarpedDoor : ItemDoorBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.warped_door";
+		public override string Id { get; protected set; } = "minecraft:warped_door";
+
+		public override Block Block { get; protected set; } = new WarpedDoor();
 	}
 
-	public partial class ItemWheat : Item
+	public partial class ItemWheat : ItemBlock
 	{
-		public override string Id { get; protected set; } = "minecraft:item.wheat";
+		public override string Id { get; protected set; } = "minecraft:wheat";
+
+		public override Block Block { get; protected set; } = new Wheat();
 	}
 
-	public partial class ItemWoodenDoor
+	public partial class ItemWoodenDoor : ItemDoorBase
 	{
-		public override string Id { get; protected set; } = "minecraft:item.wooden_door";
+		public override string Id { get; protected set; } = "minecraft:wooden_door";
+
+		public override Block Block { get; protected set; } = new WoodenDoor();
 	}
 
 	public partial class ItemJungleBoat : ItemBoatBase

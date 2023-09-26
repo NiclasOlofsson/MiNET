@@ -95,7 +95,7 @@ namespace MiNET.Items
 					if (!isInfinity)
 					{
 						item.Count -= 1;
-						item.UniqueId = Environment.TickCount;
+						item.UniqueId = GetUniqueId();
 						if (item.Count <= 0) inventory.OffHand = new ItemAir();
 
 						player.SendPlayerInventory();

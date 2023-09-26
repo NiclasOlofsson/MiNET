@@ -33,9 +33,9 @@ namespace MiNET.Items
 {
 	//A door specifies its hinge side in the block data of its upper block, 
 	// and its facing and opened status in the block data of its lower block
-	public partial class ItemWoodenDoor : ItemBlock
+	public partial class ItemDoorBase : ItemBlock
 	{
-		public ItemWoodenDoor() : base()
+		public ItemDoorBase() : base()
 		{
 		}
 
@@ -101,62 +101,6 @@ namespace MiNET.Items
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
-		}
-	}
-
-	public partial class ItemSpruceDoor : ItemWoodenDoor
-	{
-		public ItemSpruceDoor() : base()
-		{
-		}
-	}
-
-	public partial class ItemBirchDoor : ItemWoodenDoor
-	{
-		public ItemBirchDoor() : base()
-		{
-		}
-	}
-
-	public partial class ItemJungleDoor : ItemWoodenDoor
-	{
-		public ItemJungleDoor() : base()
-		{
-		}
-	}
-
-	public partial class ItemAcaciaDoor : ItemWoodenDoor
-	{
-		public ItemAcaciaDoor() : base()
-		{
-		}
-	}
-
-	public partial class ItemDarkOakDoor : ItemWoodenDoor
-	{
-		public ItemDarkOakDoor() : base()
-		{
-		}
-	}
-
-	public partial class ItemWarpedDoor : ItemWoodenDoor
-	{
-		public ItemWarpedDoor() : base()
-		{
-		}
-	}
-
-	public partial class ItemCrimsonDoor : ItemWoodenDoor
-	{
-		public ItemCrimsonDoor() : base()
-		{
-		}
-	}
-
-	public partial class ItemIronDoor : ItemWoodenDoor
-	{
-		public ItemIronDoor() : base()
-		{
 		}
 	}
 }

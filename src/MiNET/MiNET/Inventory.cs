@@ -28,7 +28,6 @@ using System.Collections.Concurrent;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
-using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Utils.Vectors;
@@ -70,8 +69,9 @@ namespace MiNET
 			{
 				var nbtItem = (NbtCompound) slots[i];
 
-				Item item = ItemFactory.GetItem(nbtItem["Name"].StringValue, nbtItem["Damage"].ShortValue, nbtItem["Count"].ByteValue);
-				byte slotIdx = nbtItem["Slot"].ByteValue;
+				var slotIdx = nbtItem["Slot"].ByteValue;
+				var item = ItemFactory.FromNbt(nbtItem);
+
 				Log.Debug($"Chest item {slotIdx}: {item}");
 				Slots[slotIdx] = item;
 			}
@@ -109,12 +109,12 @@ namespace MiNET
 			OnInventoryChange(null, slot, slotData);
 		}
 
-		public void IncreaseSlot(byte slot, short itemId, short metadata)
+		public void IncreaseSlot(byte slot, string id, short metadata)
 		{
 			Item slotData = Slots[slot];
 			if (slotData is ItemAir)
 			{
-				slotData = ItemFactory.GetItem(itemId, metadata, 1);
+				slotData = ItemFactory.GetItem(id, metadata, 1);
 			}
 			else
 			{
@@ -138,13 +138,10 @@ namespace MiNET
 			for (byte i = 0; i < Size; i++)
 			{
 				var slot = Slots[i];
-				slots.Add(new NbtCompound
-				{
-					new NbtByte("Count", slot.Count),
-					new NbtByte("Slot", i),
-					new NbtString("Name", slot.Id),
-					new NbtShort("Damage", slot.Metadata),
-				});
+				var itemTag = slot.ToNbt();
+				itemTag.Add(new NbtByte("Slot", i));
+
+				slots.Add(itemTag);
 			}
 
 			return slots;

@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Text;
 using fNbt;
 using log4net;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -193,11 +194,13 @@ namespace MiNET.Blocks
 						states.Add(stateTag);
 					}
 
+					record.StatesNbt = new NbtCompound("states", states);
+
 					var nbt = new NbtFile()
 					{
 						BigEndian = false,
 						UseVarInt = true,
-						RootTag = new NbtCompound("states", states)
+						RootTag = record.StatesNbt
 					};
 
 					byte[] nbtBinary = nbt.SaveToBuffer(NbtCompression.None);
@@ -263,6 +266,68 @@ namespace MiNET.Blocks
 			return result;
 		}
 
+		public static Block FromNbt(NbtTag tag)
+		{
+			return FromNbt<Block>(tag);
+		}
+
+		public static Block FromNbt<T>(NbtTag tag) where T : Block
+		{
+			// TODO - rework on serialization
+			var id = tag["name"].StringValue;
+			var statesTag = tag["states"] as NbtList;
+
+			var states = new BlockStateContainer()
+			{
+				Id = id
+			};
+
+			foreach (var stateTag in statesTag)
+			{
+				IBlockState state = null;
+				switch (stateTag)
+				{
+					case NbtByte blockStateByte:
+						state = new BlockStateByte()
+						{
+							Name = stateTag.Name, 
+							Value = blockStateByte.Value
+						};
+						break;
+					case NbtInt blockStateInt:
+						state = new BlockStateInt()
+						{
+							Name = stateTag.Name,
+							Value = blockStateInt.Value
+						};
+						break;
+					case NbtString blockStateString:
+						state = new BlockStateString()
+						{
+							Name = stateTag.Name,
+							Value = blockStateString.Value
+						};
+						break;
+					default:
+						throw new ArgumentOutOfRangeException(nameof(stateTag));
+				}
+
+				states.States.Add(state);
+			}
+
+			if (BlockStates.TryGetValue(states, out var blockState))
+			{
+				return GetBlockByRuntimeId(blockState.RuntimeId);
+			}
+
+			return null;
+		}
+
+		public static string GetBlockIdFromItemId(string id)
+		{
+			return ItemToBlock.GetValueOrDefault(id);
+		}
+
 		public static string GetIdByType<T>()
 		{
 			return GetIdByType(typeof(T));
@@ -283,6 +348,7 @@ namespace MiNET.Blocks
 			return GetBlockById<Block>(id);
 		}
 
+		[Obsolete]
 		public static Block GetBlockById(int id)
 		{
 			return new Air(); // REMOVE THIS METHOD!!!!
@@ -299,7 +365,7 @@ namespace MiNET.Blocks
 
 			if (!NameToBlockMapEntry.TryGetValue(GetMetaBlockName(id, metadata), out var map))
 			{
-				return null;
+				return block;
 			}
 
 			block.SetState(map.State);

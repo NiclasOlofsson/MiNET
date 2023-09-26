@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using fNbt;
 using Newtonsoft.Json;
 
 namespace MiNET.Utils
@@ -108,6 +109,8 @@ namespace MiNET.Utils
 
 		[JsonIgnore]
 		public byte[] StatesCacheNbt { get; set; }
+		[JsonIgnore]
+		public NbtCompound StatesNbt { get; set; }
 		public ItemPickInstance ItemInstance { get; set; }
 
 		protected bool Equals(BlockStateContainer other)

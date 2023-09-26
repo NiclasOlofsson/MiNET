@@ -25,6 +25,7 @@
 
 using System;
 using System.Numerics;
+using fNbt;
 using JetBrains.Annotations;
 using log4net;
 using MiNET.Blocks;
@@ -43,16 +44,23 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBlock));
 
-		[JsonIgnore] public Block Block { get; protected set; }
+		[JsonIgnore] public virtual Block Block { get; protected set; }
+
+		public override int BlockRuntimeId => _blockRuntimeId.Value;
+
+		private readonly Lazy<int> _blockRuntimeId;
 
 		public ItemBlock() : base()
 		{
-
+			_blockRuntimeId = new Lazy<int>(() => Block.GetRuntimeId());
 		}
 
-		public ItemBlock([NotNull] Block block, short metadata = 0) : base(block.Id, metadata)
+		public ItemBlock([NotNull] Block block, short metadata = 0) : this()
 		{
 			Block = block ?? throw new ArgumentNullException(nameof(block));
+
+			Id = block.Id;
+			Metadata = metadata;
 	
 			if (BlockFactory.BlockStates.TryGetValue(block.GetState(), out BlockStateContainer value))
 			{
@@ -60,7 +68,6 @@ namespace MiNET.Items
 			}
 
 			FuelEfficiency = Block.FuelEfficiency;
-			BlockRuntimeId = Block.GetRuntimeId();
 		}
 
 		public override Item GetSmelt()
@@ -131,9 +138,18 @@ namespace MiNET.Items
 			//world.BroadcastSound(newBlock.Coordinates, LevelSoundEventType.Place, newBlock.Id);
 		}
 
+		public override NbtCompound ToNbt(string name = null)
+		{
+			var tag = base.ToNbt(name);
+
+			tag.Add(Block.ToNbt("Block"));
+
+			return tag;
+		}
+
 		public override string ToString()
 		{
-			return $"{GetType().Name}(Id={LegacyId}, Meta={Metadata}, UniqueId={UniqueId}) {{Block={Block?.GetType().Name}}} Count={Count}, NBT={ExtraData}";
+			return $"{GetType().Name}(Id={Id}, Meta={Metadata}, UniqueId={UniqueId}) {{Block={Block?.GetType().Name}}} Count={Count}, NBT={ExtraData}";
 		}
 	}
 }

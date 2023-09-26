@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemCamera : Item
+	public partial class ItemCamera
 	{
 		public ItemCamera() : base()
 		{

@@ -152,7 +152,7 @@ namespace MiNET
 		public virtual void UpdateInventorySlot(int slot, Item item, bool forceReplace = false)
 		{
 			var existing = Slots[slot];
-			if (forceReplace || existing.LegacyId != item.LegacyId)
+			if (forceReplace || existing.Id != item.Id)
 			{
 				Slots[slot] = item;
 				existing = item;
@@ -304,7 +304,7 @@ namespace MiNET
 		{
 			for (byte i = 0; i < Slots.Count; i++)
 			{
-				if (Slots[i].LegacyId == item.LegacyId && Slots[i].Metadata == item.Metadata)
+				if (Slots[i].Id == item.Id && Slots[i].Metadata == item.Metadata)
 				{
 					return true;
 				}
@@ -359,17 +359,17 @@ namespace MiNET
 		{
 			for (int i = 0; i < Slots.Count; ++i)
 			{
-				if (Slots[i] == null || Slots[i].LegacyId != 0) Slots[i] = new ItemAir();
+				if (Slots[i] is not ItemAir) Slots[i] = new ItemAir();
 			}
 			
 			UiInventory.Clear();
 
-			if (OffHand.LegacyId != 0) OffHand = new ItemAir();
+			if (OffHand is not ItemAir) OffHand = new ItemAir();
 
-			if (Helmet.LegacyId != 0) Helmet = new ItemAir();
-			if (Chest.LegacyId != 0) Chest = new ItemAir();
-			if (Leggings.LegacyId != 0) Leggings = new ItemAir();
-			if (Boots.LegacyId != 0) Boots = new ItemAir();
+			if (Helmet is not ItemAir) Helmet = new ItemAir();
+			if (Chest is not ItemAir) Chest = new ItemAir();
+			if (Leggings is not ItemAir) Leggings = new ItemAir();
+			if (Boots is not ItemAir) Boots = new ItemAir();
 
 			Player.SendPlayerInventory();
 		}

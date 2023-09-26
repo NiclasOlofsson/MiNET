@@ -513,31 +513,31 @@ namespace TestPlugin.NiceLobby
 			{
 				Count = 1,
 				Metadata = 0,
-				UniqueId = Environment.TickCount
+				UniqueId = Item.GetUniqueId()
 			};
 			player.Inventory.Slots[idx++] = new ItemIronShovel()
 			{
 				Count = 1,
 				Metadata = 0,
-				UniqueId = Environment.TickCount
+				UniqueId = Item.GetUniqueId()
 			};
 			player.Inventory.Slots[idx++] = new ItemIronAxe()
 			{
 				Count = 1,
 				Metadata = 0,
-				UniqueId = Environment.TickCount
+				UniqueId = Item.GetUniqueId()
 			};
 			player.Inventory.Slots[idx++] = new ItemIronPickaxe()
 			{
 				Count = 1,
 				Metadata = 0,
-				UniqueId = Environment.TickCount
+				UniqueId = Item.GetUniqueId()
 			};
 
-			player.Inventory.Helmet = new ItemDiamondHelmet() {UniqueId = Environment.TickCount};
-			player.Inventory.Chest = new ItemElytra() {UniqueId = Environment.TickCount};
-			player.Inventory.Leggings = new ItemDiamondLeggings() {UniqueId = Environment.TickCount};
-			player.Inventory.Boots = new ItemDiamondBoots() {UniqueId = Environment.TickCount};
+			player.Inventory.Helmet = new ItemDiamondHelmet() {UniqueId = Item.GetUniqueId()};
+			player.Inventory.Chest = new ItemElytra() {UniqueId = Item.GetUniqueId()};
+			player.Inventory.Leggings = new ItemDiamondLeggings() {UniqueId = Item.GetUniqueId()};
+			player.Inventory.Boots = new ItemDiamondBoots() {UniqueId = Item.GetUniqueId()};
 			//while (player.Inventory.SetFirstEmptySlot(new ItemIronAxe(), false)) { }
 
 			player.SendPlayerInventory();

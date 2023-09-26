@@ -33,7 +33,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemSkull : Item
+	public partial class ItemSkull
 	{
 		public ItemSkull() : base()
 		{
@@ -45,7 +45,7 @@ namespace MiNET.Items
 			var coor = GetNewCoordinatesFromFace(blockCoordinates, face);
 			if (face == BlockFace.Up) // On top of block
 			{
-				var skull = (Skull) BlockFactory.GetBlockById(144);
+				var skull = new Skull();
 				skull.Coordinates = coor;
 				skull.FacingDirection = 1; // Skull on floor, rotation in block entity
 				world.SetBlock(skull);
@@ -57,7 +57,7 @@ namespace MiNET.Items
 			}
 			else
 			{
-				var skull = (Skull) BlockFactory.GetBlockById(144);
+				var skull = new Skull();
 				skull.Coordinates = coor;
 				skull.FacingDirection = (int) face; // Skull on floor, rotation in block entity
 				world.SetBlock(skull);

@@ -1143,7 +1143,7 @@ namespace MiNET.Net
 
 			foreach (ItemStackActionList request in requests)
 			{
-				WriteSignedVarInt(request.RequestId);
+				WriteVarInt(request.RequestId);
 				WriteUnsignedVarInt((uint) request.Count);
 
 				foreach (ItemStackAction action in request)
@@ -1323,7 +1323,7 @@ namespace MiNET.Net
 			for (int i = 0; i < c; i++)
 			{
 				var actions = new ItemStackActionList();
-				actions.RequestId = ReadSignedVarInt();
+				actions.RequestId = ReadVarInt();
 				Log.Debug($"Request ID: {actions.RequestId}");
 
 				uint count = ReadUnsignedVarInt();
@@ -1503,7 +1503,7 @@ namespace MiNET.Net
 			foreach (ItemStackResponse stackResponse in responses)
 			{
 				Write((byte) stackResponse.Result);
-				WriteSignedVarInt(stackResponse.RequestId);
+				WriteVarInt(stackResponse.RequestId);
 				if (stackResponse.Result != StackResponseStatus.Ok) 
 					continue;
 				WriteUnsignedVarInt((uint) stackResponse.ResponseContainerInfos.Count);
@@ -1731,10 +1731,10 @@ namespace MiNET.Net
 
 				if (stack.UniqueId != 0)
 				{
-					WriteVarInt(stack.UniqueId);
+					WriteSignedVarInt(stack.UniqueId);
 				}
 			}
-			
+
 			WriteSignedVarInt(stack.BlockRuntimeId);
 
 			byte[] extraData = null;
@@ -1786,10 +1786,10 @@ namespace MiNET.Net
 
 			if (readUniqueId)
 			{
-				if (ReadBool()) stack.UniqueId = ReadVarInt();
+				if (ReadBool()) stack.UniqueId = ReadSignedVarInt();
 			}
 
-			stack.BlockRuntimeId = ReadSignedVarInt();
+			var blockRuntimeId = ReadSignedVarInt();
 
 			int length = ReadLength();
 			var data = ReadBytes(length);

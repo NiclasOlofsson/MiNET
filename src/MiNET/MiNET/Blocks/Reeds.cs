@@ -46,9 +46,9 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item GetItem(bool blockItem = false)
 		{
-			return new[] {ItemFactory.GetItem(338, 0, 1)};
+			return blockItem ? base.GetItem(blockItem) : new ItemSugarCane();
 		}
 	}
 }

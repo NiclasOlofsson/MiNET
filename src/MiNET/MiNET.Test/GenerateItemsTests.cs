@@ -47,14 +47,23 @@ namespace MiNET.Test
 				foreach (var state in itemStates)
 				{
 					var id = state.Key;
-					var name = id.Replace("minecraft:", "").Replace("item.", "");
 
 					if (BlockFactory.GetBlockById(id) != null) continue;
 
+					if (id.Contains("reeds"))
+					{
+						Console.WriteLine();
+					}
+
+					var associatedBlockId = BlockFactory.GetBlockIdFromItemId(id);
+					if (associatedBlockId != null && itemStates.ContainsKey(associatedBlockId)) id = associatedBlockId;
+
+					var name = id.Replace("minecraft:", "").Replace("item.", "");
 					var className = $"Item{GenerationUtils.CodeName(name, true)}";
-					var baseName = "Item";
+					var baseName = associatedBlockId == null ? "Item" : "ItemBlock";
 					ItemType? type = null;
 					ItemMaterial? material = null;
+					string blockClassName = associatedBlockId == null ? null : GenerationUtils.CodeName(associatedBlockId.Replace("minecraft:", ""), true);
 					var maxStackSize = 64;
 
 					if (idToTag.TryGetValue(id, out var tags))
@@ -166,7 +175,13 @@ namespace MiNET.Test
 
 					var baseClassPart = string.Empty;
 					var existingType = assembly.GetType($"MiNET.Items.{className}");
-					if (existingType == null || existingType.BaseType.Name == baseName || existingType.BaseType == typeof(object) || existingType.BaseType == typeof(Item))
+					var baseType = assembly.GetType($"MiNET.Items.{baseName}");
+					if (existingType == null 
+						|| existingType.BaseType.Name == baseName 
+						|| existingType.BaseType == typeof(object)
+						|| existingType.BaseType == typeof(Item)
+						|| (existingType.BaseType == typeof(ItemBlock) && (baseType?.IsAssignableTo(typeof(ItemBlock)) ?? false))
+						|| existingType.BaseType == baseType)
 					{
 						baseClassPart = $" : {baseName}";
 					}
@@ -175,8 +190,14 @@ namespace MiNET.Test
 					writer.WriteLine($"public partial class {className}{baseClassPart}");
 					writer.WriteLine($"{{");
 					writer.Indent++;
-
+					
 					writer.WriteLine($"public override string {nameof(Item.Id)} {{ get; protected set; }} = \"{id}\";");
+
+					if (!string.IsNullOrEmpty(blockClassName) && !string.IsNullOrEmpty(baseClassPart) && (baseType?.IsAssignableTo(typeof(ItemBlock)) ?? false))
+					{
+						writer.WriteLineNoTabs($"");
+						writer.WriteLine($"public override {nameof(Block)} {nameof(ItemBlock.Block)} {{ get; protected set; }} = new {blockClassName}();");
+					}
 
 					if (type != null)
 					{

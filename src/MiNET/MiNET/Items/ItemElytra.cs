@@ -41,7 +41,7 @@ namespace MiNET.Items
 			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
 			player.Inventory.SetInventorySlot(slot, player.Inventory.Chest);
 
-			UniqueId = Environment.TickCount;
+			UniqueId = GetUniqueId();
 			player.Inventory.Chest = this;
 			player.SendArmorForPlayer();
 		}

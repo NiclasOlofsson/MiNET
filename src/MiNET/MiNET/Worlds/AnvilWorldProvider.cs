@@ -541,9 +541,10 @@ namespace MiNET.Worlds
 												itemName = id.First().ToString().ToUpper() + id.Substring(1);
 											}
 
-											var itemId = ItemFactory.GetItemIdByName(itemName);
-											item.Remove("id");
-											item.Add(new NbtShort("id", (short) itemId));
+											// TODO - 1.19-update
+											//var itemId = ItemFactory.GetItemIdByName(itemName);
+											//item.Remove("id");
+											//item.Add(new NbtShort("id", (short) itemId));
 										}
 									}
 								}
@@ -563,9 +564,10 @@ namespace MiNET.Worlds
 										itemName = id.First().ToString().ToUpper() + id.Substring(1);
 									}
 
-									var itemId = ItemFactory.GetItemIdByName(itemName);
-									blockEntityTag.Remove("Item");
-									blockEntityTag.Add(new NbtShort("item", (short) itemId));
+									// TODO - 1.19-update
+									//var itemId = ItemFactory.GetItemIdByName(itemName);
+									//blockEntityTag.Remove("Item");
+									//blockEntityTag.Add(new NbtShort("item", (short) itemId));
 
 									var data = blockEntityTag["Data"].IntValue;
 									blockEntityTag.Remove("Data");

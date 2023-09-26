@@ -73,7 +73,7 @@ namespace MiNET.BlockEntities
 
 		public override List<Item> GetDrops()
 		{
-			return new List<Item> {ItemFactory.GetItem(397, SkullType, 1)};
+			return new List<Item> { new ItemSkull() { Metadata = SkullType } };
 		}
 	}
 }

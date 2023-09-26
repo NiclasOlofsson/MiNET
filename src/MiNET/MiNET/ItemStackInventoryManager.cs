@@ -193,7 +193,7 @@ namespace MiNET
 				dropItem = (Item) sourceItem.Clone();
 				sourceItem.Count -= count;
 				dropItem.Count = count;
-				dropItem.UniqueId = Environment.TickCount;
+				dropItem.UniqueId = Item.GetUniqueId();
 			}
 
 			_player.DropItem(dropItem);
@@ -312,11 +312,11 @@ namespace MiNET
 				destItem = (Item) sourceItem.Clone();
 				sourceItem.Count -= count;
 				destItem.Count = count;
-				destItem.UniqueId = Environment.TickCount;
+				destItem.UniqueId = Item.GetUniqueId();
 			}
 
 			Item existingItem = GetContainerItem(destination.ContainerId, destination.Slot);
-			if (existingItem.UniqueId > 0) // is empty/air is what this means
+			if (existingItem is not ItemAir)
 			{
 				existingItem.Count += count;
 				destItem = existingItem;
@@ -385,7 +385,7 @@ namespace MiNET
 				destItem = (Item) sourceItem.Clone();
 				sourceItem.Count -= count;
 				destItem.Count = count;
-				destItem.UniqueId = Environment.TickCount;
+				destItem.UniqueId = Item.GetUniqueId();
 			}
 
 			SetContainerItem(destination.ContainerId, destination.Slot, destItem);
@@ -435,7 +435,7 @@ namespace MiNET
 			Item craftingResult = action.ResultItems.FirstOrDefault();
 			if (craftingResult == null) return;
 
-			craftingResult.UniqueId = Environment.TickCount;
+			craftingResult.UniqueId = Item.GetUniqueId();
 			SetContainerItem(59, 50, craftingResult);
 		}
 
@@ -454,7 +454,7 @@ namespace MiNET
 			if (creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {action.CreativeItemNetworkId}");
 			creativeItem = ItemFactory.GetItem(creativeItem.LegacyId, creativeItem.Metadata);
 			creativeItem.Count = (byte) creativeItem.MaxStackSize;
-			creativeItem.UniqueId = Environment.TickCount;
+			creativeItem.UniqueId = Item.GetUniqueId();
 			Log.Debug($"Creating {creativeItem}");
 			_player.Inventory.UiInventory.Slots[50] = creativeItem;
 		}
@@ -479,8 +479,8 @@ namespace MiNET
 					item = _player.Inventory.UiInventory.Slots[slot];
 					break;
 				case 12: // auto
-				case 27: // hotbar
-				case 28: // player inventory
+				case 28: // hotbar
+				case 29: // player inventory
 					item = _player.Inventory.Slots[slot];
 					break;
 				case 33: // off-hand
@@ -522,8 +522,8 @@ namespace MiNET
 					_player.Inventory.UiInventory.Slots[slot] = item;
 					break;
 				case 12: // auto
-				case 27: // hotbar
-				case 28: // player inventory
+				case 28: // hotbar
+				case 29: // player inventory
 					_player.Inventory.Slots[slot] = item;
 					break;
 				case 33: // off-hand

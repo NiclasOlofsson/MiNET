@@ -27,16 +27,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using fNbt;
 using log4net;
 using MiNET.Items;
 using MiNET.Particles;
 using MiNET.Utils;
+using MiNET.Utils.Nbt;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Block : ICloneable
+	public class Block : INbtSerializable, ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Block));
 
@@ -117,121 +119,128 @@ namespace MiNET.Blocks
 			return blockstate.RuntimeId;
 		}
 
-		public virtual Item GetItem()
+		public virtual Item GetItem(bool blockItem = false)
 		{
 			if (!BlockFactory.BlockStates.TryGetValue(GetState(), out BlockStateContainer stateFromPick)) return null;
 
-			if (stateFromPick.ItemInstance != null) return ItemFactory.GetItem(stateFromPick.ItemInstance.Id, stateFromPick.ItemInstance.Metadata);
-
-			// The rest of this code is to search for an state with the proper value. This is caused by blocks that have lots
-			// of states, and no easy way to map 1-1 with meta. Expensive, but rare.
-
-			// Only compare with states that actually have the values we checking for, and have meta.
-			var statesWithMeta = BlockFactory.BlockPalette.Where(b => b.Id == stateFromPick.Id && b.Data != -1).ToList();
-			foreach (IBlockState state in stateFromPick.States.ToArray())
+			if (blockItem && stateFromPick.ItemInstance != null)
 			{
-				bool remove = true;
-				foreach (BlockStateContainer blockStateContainer in statesWithMeta)
-				{
-					foreach (IBlockState currentState in blockStateContainer.States)
-					{
-						if (currentState.Name != state.Name) continue;
-
-						if (!currentState.Equals(state))
-						{
-							remove = false;
-							break;
-						}
-					}
-				}
-				if (remove) stateFromPick.States.Remove(state);
+				return ItemFactory.GetItem(stateFromPick.ItemInstance.Id, stateFromPick.ItemInstance.Metadata);
+			}
+			else
+			{
+				return ItemFactory.GetItem(Id, stateFromPick.Data);
 			}
 
-			foreach (BlockStateContainer blockStateContainer in statesWithMeta)
-			{
-				bool match = true;
+			//// The rest of this code is to search for an state with the proper value. This is caused by blocks that have lots
+			//// of states, and no easy way to map 1-1 with meta. Expensive, but rare.
 
-				foreach (IBlockState currentState in blockStateContainer.States)
-				{
-					if (stateFromPick.States.All(s => s.Name != currentState.Name)) continue;
+			//// Only compare with states that actually have the values we checking for, and have meta.
+			//var statesWithMeta = BlockFactory.BlockPalette.Where(b => b.Id == stateFromPick.Id && b.Data != -1).ToList();
+			//foreach (IBlockState state in stateFromPick.States.ToArray())
+			//{
+			//	bool remove = true;
+			//	foreach (BlockStateContainer blockStateContainer in statesWithMeta)
+			//	{
+			//		foreach (IBlockState currentState in blockStateContainer.States)
+			//		{
+			//			if (currentState.Name != state.Name) continue;
 
-					if (stateFromPick.States.All(state => !state.Equals(currentState)))
-					{
-						Log.Debug($"State: {currentState.Name}, {currentState}");
+			//			if (!currentState.Equals(state))
+			//			{
+			//				remove = false;
+			//				break;
+			//			}
+			//		}
+			//	}
+			//	if (remove) stateFromPick.States.Remove(state);
+			//}
 
-						match = false;
-						break;
-					}
-				}
-				if (match)
-				{
-					var id = blockStateContainer.Id;
-					var meta = blockStateContainer.Data;
+			//foreach (BlockStateContainer blockStateContainer in statesWithMeta)
+			//{
+			//	bool match = true;
 
-					var statesWithMetaAndItem = statesWithMeta.Where(b => b.ItemInstance != null).ToList();
-					var actualState = statesWithMetaAndItem.FirstOrDefault(s => s.Id == id && s.Data == meta && s.ItemInstance != null);
-					if (actualState == null) break;
-					return ItemFactory.GetItem(actualState.ItemInstance.Id, actualState.ItemInstance.Metadata);
-				}
-			}
+			//	foreach (IBlockState currentState in blockStateContainer.States)
+			//	{
+			//		if (stateFromPick.States.All(s => s.Name != currentState.Name)) continue;
 
-			// Ok that didn't give an item. Lets try more stuff.
+			//		if (stateFromPick.States.All(state => !state.Equals(currentState)))
+			//		{
+			//			Log.Debug($"State: {currentState.Name}, {currentState}");
 
-			// Remove states that repeat. They can not contribute to a meta-variant.
-			//BUG: There might be states that have more than one. Don't know.
-			foreach (BlockStateContainer stateContainer in statesWithMeta)
-			{
-				foreach (var state in stateContainer.States.ToArray())
-				{
-					var states = statesWithMeta.SelectMany(m => m.States).ToList();
-					if (states.Count(s => s.Equals(state)) > 1)
-					{
-						if (stateFromPick.States.FirstOrDefault(s => s.Name == state.Name) != null)
-						{
-							stateFromPick.States.Remove(stateFromPick.States.First(s => s.Name == state.Name));
-						}
-					}
-				}
-			}
+			//			match = false;
+			//			break;
+			//		}
+			//	}
+			//	if (match)
+			//	{
+			//		var id = blockStateContainer.Id;
+			//		var meta = blockStateContainer.Data;
 
-			if(stateFromPick.States.Count == 0)
-			{
-				var stateToPick = statesWithMeta.FirstOrDefault();
-				if (stateToPick?.ItemInstance != null)
-				{
-					return ItemFactory.GetItem(stateToPick.ItemInstance.Id, stateToPick.ItemInstance.Metadata);
-				}
-			}
+			//		var statesWithMetaAndItem = statesWithMeta.Where(b => b.ItemInstance != null).ToList();
+			//		var actualState = statesWithMetaAndItem.FirstOrDefault(s => s.Id == id && s.Data == meta && s.ItemInstance != null);
+			//		if (actualState == null) break;
+			//		return ItemFactory.GetItem(actualState.ItemInstance.Id, actualState.ItemInstance.Metadata);
+			//	}
+			//}
 
-			foreach (BlockStateContainer blockStateContainer in statesWithMeta)
-			{
-				bool match = true;
+			//// Ok that didn't give an item. Lets try more stuff.
 
-				foreach (IBlockState currentState in blockStateContainer.States)
-				{
-					if (stateFromPick.States.All(s => s.Name != currentState.Name)) continue;
+			//// Remove states that repeat. They can not contribute to a meta-variant.
+			////BUG: There might be states that have more than one. Don't know.
+			//foreach (BlockStateContainer stateContainer in statesWithMeta)
+			//{
+			//	foreach (var state in stateContainer.States.ToArray())
+			//	{
+			//		var states = statesWithMeta.SelectMany(m => m.States).ToList();
+			//		if (states.Count(s => s.Equals(state)) > 1)
+			//		{
+			//			if (stateFromPick.States.FirstOrDefault(s => s.Name == state.Name) != null)
+			//			{
+			//				stateFromPick.States.Remove(stateFromPick.States.First(s => s.Name == state.Name));
+			//			}
+			//		}
+			//	}
+			//}
 
-					if (stateFromPick.States.All(state => !state.Equals(currentState)))
-					{
-						Log.Debug($"State: {currentState.Name}, {currentState}");
+			//if(stateFromPick.States.Count == 0)
+			//{
+			//	var stateToPick = statesWithMeta.FirstOrDefault();
+			//	if (stateToPick?.ItemInstance != null)
+			//	{
+			//		return ItemFactory.GetItem(stateToPick.ItemInstance.Id, stateToPick.ItemInstance.Metadata);
+			//	}
+			//}
 
-						match = false;
-						break;
-					}
-				}
-				if (match)
-				{
-					var id = blockStateContainer.Id;
-					var meta = blockStateContainer.Data;
+			//foreach (BlockStateContainer blockStateContainer in statesWithMeta)
+			//{
+			//	bool match = true;
 
-					var statesWithMetaAndItem = statesWithMeta.Where(b => b.ItemInstance != null).ToList();
-					var actualState = statesWithMetaAndItem.FirstOrDefault(s => s.Id == id && s.Data == meta && s.ItemInstance != null);
-					if (actualState == null) break;
-					return ItemFactory.GetItem(actualState.ItemInstance.Id, actualState.ItemInstance.Metadata);
-				}
-			}
+			//	foreach (IBlockState currentState in blockStateContainer.States)
+			//	{
+			//		if (stateFromPick.States.All(s => s.Name != currentState.Name)) continue;
 
-			return null;
+			//		if (stateFromPick.States.All(state => !state.Equals(currentState)))
+			//		{
+			//			Log.Debug($"State: {currentState.Name}, {currentState}");
+
+			//			match = false;
+			//			break;
+			//		}
+			//	}
+			//	if (match)
+			//	{
+			//		var id = blockStateContainer.Id;
+			//		var meta = blockStateContainer.Data;
+
+			//		var statesWithMetaAndItem = statesWithMeta.Where(b => b.ItemInstance != null).ToList();
+			//		var actualState = statesWithMetaAndItem.FirstOrDefault(s => s.Id == id && s.Data == meta && s.ItemInstance != null);
+			//		if (actualState == null) break;
+			//		return ItemFactory.GetItem(actualState.ItemInstance.Id, actualState.ItemInstance.Metadata);
+			//	}
+			//}
+			//
+			//return null;
 		}
 
 		public bool CanPlace(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)
@@ -364,6 +373,20 @@ namespace MiNET.Blocks
 			return new BoundingBox(Coordinates, Coordinates + 1);
 		}
 
+		public virtual NbtCompound ToNbt(string name = null)
+		{
+			var tag = new NbtCompound(name)
+			{
+				new NbtString("name", Id)
+			};
+
+			if (BlockFactory.BlockStates.TryGetValue(GetState(), out BlockStateContainer stateFromPick))
+			{
+				tag.Add((NbtTag) stateFromPick.StatesNbt.Clone());
+			}
+
+			return tag;
+		}
 
 		public object Clone()
 		{

@@ -31,6 +31,7 @@ using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Entities;
+using MiNET.Utils.Nbt;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 using Newtonsoft.Json;
@@ -44,7 +45,7 @@ namespace MiNET.Items
 	///     frames, which turn into an entity when placed, and beds, which turn into a group of blocks when placed. When
 	///     equipped, items (and blocks) briefly display their names above the HUD.
 	/// </summary>
-	public class Item : ICloneable
+	public class Item : INbtSerializable, ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Item));
 
@@ -53,10 +54,10 @@ namespace MiNET.Items
 
 		public virtual string Id { get; protected set; } = string.Empty;
 		public virtual int RuntimeId => _runtimeId.Value;
-		public int UniqueId { get; set; } = Environment.TickCount;
-		public virtual int BlockRuntimeId { get; set; }
+		public int UniqueId { get; set; } = GetUniqueId();
+		public virtual int BlockRuntimeId { get; protected set; }
 		public short Metadata { get; set; }
-		public byte Count { get; set; }
+		public byte Count { get; set; } = 1;
 		public virtual NbtCompound ExtraData { get; set; }
 
 		[JsonIgnore] public virtual ItemMaterial ItemMaterial { get; set; } = ItemMaterial.None;
@@ -212,7 +213,7 @@ namespace MiNET.Items
 
 		protected bool Equals(Item other)
 		{
-			if (LegacyId != other.LegacyId || Metadata != other.Metadata) return false;
+			if (Id != other.Id || Metadata != other.Metadata) return false;
 			if (ExtraData == null ^ other.ExtraData == null) return false;
 
 			//TODO: This doesn't work in  most cases. We need to fix comparison when name == null
@@ -235,6 +236,27 @@ namespace MiNET.Items
 			return nbtCheck;
 		}
 
+		public virtual NbtCompound ToNbt(string name = null)
+		{
+			// TODO - rework on serialization
+			var tag = new NbtCompound(name)
+			{
+				new NbtString("Name", Id),
+				new NbtShort("Damage", Metadata),
+				new NbtByte("Count", Count)
+			};
+
+			if (ExtraData != null)
+			{
+				var extraData = (NbtTag) ExtraData.Clone();
+				extraData.Name = "tag";
+
+				tag.Add(extraData);
+			}
+
+			return tag;
+		}
+
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
@@ -245,10 +267,7 @@ namespace MiNET.Items
 
 		public override int GetHashCode()
 		{
-			unchecked
-			{
-				return (LegacyId * 397) ^ Metadata.GetHashCode();
-			}
+			return HashCode.Combine(Id, Metadata);
 		}
 
 		public object Clone()
@@ -258,12 +277,17 @@ namespace MiNET.Items
 
 		public override string ToString()
 		{
-			return $"{GetType().Name}(Id={LegacyId}, Meta={Metadata}, UniqueId={UniqueId}) Count={Count}, NBT={ExtraData}";
+			return $"{GetType().Name}(Id={Id}, Meta={Metadata}, UniqueId={UniqueId}) Count={Count}, NBT={ExtraData}";
 		}
 
 		public bool Interact(Level level, Player player, Entity target)
 		{
 			return false; // Not handled
+		}
+
+		public static int GetUniqueId()
+		{
+			return Math.Abs(Environment.TickCount);
 		}
 	}
 

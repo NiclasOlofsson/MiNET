@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			if (BiteCounter == 0) return new Item[] {ItemFactory.GetItem(354, 0, 1)};
+			if (BiteCounter == 0) return new Item[] { new ItemCake() };
 			return new Item[0];
 		}
 	}

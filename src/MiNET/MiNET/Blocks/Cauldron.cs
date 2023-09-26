@@ -76,7 +76,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {ItemFactory.GetItem(380)};
+			return new[] { new ItemCauldron() };
 		}
 	}
 }

@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new Item[] {ItemFactory.GetItem(337, 0, 4)};
+			return new Item[] { new ItemClayBall() { Count = 4 } };
 		}
 	}
 }

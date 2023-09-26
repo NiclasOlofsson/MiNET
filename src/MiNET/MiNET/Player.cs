@@ -1961,6 +1961,8 @@ namespace MiNET
 
 			if (string.IsNullOrEmpty(text)) return;
 
+			if (text.Contains("a")) Inventory.SetFirstEmptySlot(ItemFactory.GetItem<Campfire>(), true);
+
 			Level.BroadcastMessage(text, sender: this);
 		}
 
@@ -2172,8 +2174,8 @@ namespace MiNET
 					item = Inventory.UiInventory.Slots[slot];
 					break;
 				case 12: // auto
-				case 27: // hotbar
-				case 28: // player inventory
+				case 28: // hotbar
+				case 29: // player inventory
 					item = Inventory.Slots[slot];
 					break;
 				case 6: // armor
@@ -2212,8 +2214,8 @@ namespace MiNET
 					Inventory.UiInventory.Slots[slot] = item;
 					break;
 				case 12: // auto
-				case 27: // hotbar
-				case 28: // player inventory
+				case 28: // hotbar
+				case 29: // player inventory
 					Inventory.Slots[slot] = item;
 					break;
 				case 6: // armor
@@ -2705,7 +2707,7 @@ namespace MiNET
 						// Drop
 						Item sourceItem = Inventory.GetItemInHand();
 
-						if (newItem.LegacyId != sourceItem.LegacyId) Log.Warn($"Inventory mismatch. Client reported drop item as {newItem} and it did not match existing item {sourceItem}");
+						if (newItem.Id != sourceItem.Id) Log.Warn($"Inventory mismatch. Client reported drop item as {newItem} and it did not match existing item {sourceItem}");
 
 						byte count = newItem.Count;
 
@@ -2720,7 +2722,7 @@ namespace MiNET
 							dropItem = (Item) sourceItem.Clone();
 							sourceItem.Count -= count;
 							dropItem.Count = count;
-							dropItem.UniqueId = Environment.TickCount;
+							dropItem.UniqueId = Item.GetUniqueId();
 						}
 
 						DropItem(dropItem);

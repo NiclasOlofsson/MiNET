@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 
 		public override Item GetSmelt()
 		{
-			return ItemFactory.GetItem(1, 0);
+			return ItemFactory.GetItem<Stone>();
 		}
 	}
 }

@@ -43,7 +43,7 @@ namespace MiNET.Blocks
 			// Random between 4-8
 			var rnd = new Random();
 			var plus = rnd.Next(4);
-			return new[] {ItemFactory.GetItem(351, 4, (byte) (4 + plus))};
+			return new[] { new ItemLapisLazuli() { Count = (byte) (4 + plus) } };
 		}
 
 		public override float GetExperiencePoints()

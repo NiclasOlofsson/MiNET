@@ -59,13 +59,10 @@ namespace MiNET.BlockEntities
 			NbtList items = (NbtList) Compound["Items"];
 			for (byte i = 0; i < 3; i++)
 			{
-				items.Add(new NbtCompound()
-				{
-					new NbtByte("Count", 0),
-					new NbtByte("Slot", i),
-					new NbtShort("id", 0),
-					new NbtShort("Damage", 0),
-				});
+				var itemTag = new ItemAir().ToNbt();
+				itemTag.Add(new NbtByte("Slot", i));
+
+				items.Add(itemTag);
 			}
 		}
 
@@ -87,13 +84,10 @@ namespace MiNET.BlockEntities
 				NbtList items = new NbtList("Items");
 				for (byte i = 0; i < 3; i++)
 				{
-					items.Add(new NbtCompound()
-					{
-						new NbtByte("Count", 0),
-						new NbtByte("Slot", i),
-						new NbtShort("id", 0),
-						new NbtShort("Damage", 0),
-					});
+					var itemTag = new ItemAir().ToNbt();
+					itemTag.Add(new NbtByte("Slot", i));
+
+					items.Add(itemTag);
 				}
 				Compound["Items"] = items;
 			}
@@ -144,7 +138,7 @@ namespace MiNET.BlockEntities
 						if (CookTime >= 200)
 						{
 							Inventory.DecreaseSlot(0);
-							Inventory.IncreaseSlot(2, smelt.LegacyId, smelt.Metadata);
+							Inventory.IncreaseSlot(2, smelt.Id, smelt.Metadata);
 
 							CookTime = 0;
 						}
@@ -233,9 +227,7 @@ namespace MiNET.BlockEntities
 
 			for (byte i = 0; i < items.Count; i++)
 			{
-				NbtCompound itemData = (NbtCompound) items[i];
-				Item item = ItemFactory.GetItem(itemData["id"].ShortValue, itemData["Damage"].ShortValue, itemData["Count"].ByteValue);
-				slots.Add(item);
+				slots.Add(ItemFactory.FromNbt(items[i]));
 			}
 
 			return slots;

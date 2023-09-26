@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Net.Items;
@@ -63,14 +64,14 @@ namespace MiNET.Items
 		{
 			Itemstates = ResourceUtil.ReadResource<Itemstates>("required_item_list.json", typeof(Item), "Data");
 
+			var maxRuntimeId = Itemstates.Max(state => state.Value.RuntimeId);
+			foreach (var blockId in BlockFactory.ItemToBlock.Values)
+			{
+				Itemstates.TryAdd(blockId, new Itemstate() { RuntimeId = ++maxRuntimeId });
+			}
+
 			RuntimeIdToId = BuildRuntimeIdToId();
 			(IdToType, TypeToId) = BuildIdTypeMapPair();
-		}
-
-		[Obsolete]
-		public static int GetItemIdByName(string itemName)
-		{
-			return 0;
 		}
 
 		public static string GetIdByType<T>()
@@ -93,14 +94,47 @@ namespace MiNET.Items
 			return RuntimeIdToId.GetValueOrDefault(id);
 		}
 
+		public static Item FromNbt(NbtTag tag)
+		{
+			return FromNbt<Item>(tag);
+		}
+
+		public static Item FromNbt<T>(NbtTag tag) where T : Item
+		{
+			// TODO - rework on serialization
+			var id = tag["Name"].StringValue;
+			var metadata = tag["Damage"].ShortValue;
+			var count = tag["Count"].ByteValue;
+			var extraData = tag["tag"] as NbtCompound;
+
+			var item = GetItem(id, metadata, count);
+
+			if (item == null)
+			{
+				//var blockTag = tag["Block"];
+
+				//if (blockTag != null)
+				//{
+				//	var block = BlockFactory.FromNbt(blockTag);
+				//	item = GetItem(block.Id, metadata, count);
+				//}
+
+				if (item == null) return null;
+			}
+
+			item.ExtraData = extraData;
+
+			return item;
+		}
+
 		public static ItemBlock GetItem<T>(short metadata = 0, int count = 1) where T : Block
 		{
-			return GetItem<ItemBlock>(BlockFactory.GetIdByType<T>(), metadata, count);
+			return GetItem<ItemBlock>(BlockFactory.GetIdByType<T>(), metadata, count) ?? GetItem<Air>();
 		}
 
 		public static Item GetItem(int runtimeId, short metadata = 0, int count = 1)
 		{
-			return GetItem<Item>(runtimeId, metadata, count);
+			return GetItem<Item>(runtimeId, metadata, count) ?? new ItemAir();
 		}
 
 		public static T GetItem<T>(int runtimeId, short metadata = 0, int count = 1) where T : Item
@@ -110,24 +144,27 @@ namespace MiNET.Items
 
 		public static Item GetItem(string id, short metadata = 0, int count = 1)
 		{
-			return GetItem<Item>(id, metadata, count);
+			return GetItem<Item>(id, metadata, count) ?? new ItemAir();
 		}
 
 		public static T GetItem<T>(string id, short metadata = 0, int count = 1) where T : Item
 		{
-			T item;
+			T item = GetItemInstance<T>(id);
 
-			var block = BlockFactory.GetBlockById(id, metadata);
-
-			if (block != null)
+			if (item != null)
 			{
-				item = (T) (object) new ItemBlock(block, metadata) { Count = (byte) count };
+				item.Metadata = metadata;
+				item.Count = (byte) count;
 			}
 			else
 			{
-				item = GetItemInstance<T>(id);
-				item.Metadata = metadata;
-				item.Count = (byte) count;
+				var block = BlockFactory.GetBlockById(BlockFactory.GetBlockIdFromItemId(id), metadata)
+					?? BlockFactory.GetBlockById(id, metadata);
+
+				if (block != null)
+				{
+					item = (T) (object) new ItemBlock(block, metadata) { Count = (byte) count };
+				}
 			}
 
 			return item;

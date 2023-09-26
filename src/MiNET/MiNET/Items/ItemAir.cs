@@ -31,6 +31,7 @@ namespace MiNET.Items
 
 		public ItemAir() : base()
 		{
+			Count = 0;
 			UniqueId = 0;
 		}
 	}

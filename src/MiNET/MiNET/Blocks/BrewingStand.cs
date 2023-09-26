@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new Item[] {ItemFactory.GetItem(379, 0, 1)};
+			return new Item[] { new ItemBrewingStand() };
 		}
 	}
 }

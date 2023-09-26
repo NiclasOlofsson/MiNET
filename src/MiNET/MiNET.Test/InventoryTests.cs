@@ -26,6 +26,7 @@
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
+using MiNET.Inventory;
 using MiNET.Items;
 
 namespace MiNET.Test
@@ -57,6 +58,12 @@ namespace MiNET.Test
 			Assert.AreEqual(0, inventory.Slots[1].Count);
 			Assert.AreEqual(62, inventory.Slots[2].Count);
 			Assert.AreEqual(64, inventory.Slots[3].Count);
+		}
+
+		[TestMethod]
+		public void CreateiveInventoryTest()
+		{
+			var items = InventoryUtils.CreativeInventoryItems;
 		}
 	}
 }

@@ -30,7 +30,7 @@ using log4net;
 using MiNET.Items;
 using MiNET.Utils;
 
-namespace MiNET
+namespace MiNET.Inventory
 {
 	public class ItemStackInventoryManager
 	{
@@ -48,74 +48,71 @@ namespace MiNET
 			var stackResponses = new List<StackResponseContainerInfo>();
 			uint recipeNetworkId = 0;
 			foreach (ItemStackAction stackAction in actions)
-			{
 				switch (stackAction)
 				{
 					case CraftAction craftAction:
-					{
-						recipeNetworkId = ProcessCraftAction(craftAction);
-						break;
-					}
+						{
+							recipeNetworkId = ProcessCraftAction(craftAction);
+							break;
+						}
 					case CraftCreativeAction craftCreativeAction:
-					{
-						ProcessCraftCreativeAction(craftCreativeAction);
-						break;
-					}
+						{
+							ProcessCraftCreativeAction(craftCreativeAction);
+							break;
+						}
 					case CraftNotImplementedDeprecatedAction craftNotImplementedDeprecatedAction:
-					{
-						// Do nothing democrafts
-						ProcessCraftNotImplementedDeprecatedAction(craftNotImplementedDeprecatedAction);
-						break;
-					}
+						{
+							// Do nothing democrafts
+							ProcessCraftNotImplementedDeprecatedAction(craftNotImplementedDeprecatedAction);
+							break;
+						}
 					case CraftRecipeOptionalAction craftRecipeOptionalAction:
-					{
-						ProcessCraftRecipeOptionalAction(craftRecipeOptionalAction);
-						break;
-					}
+						{
+							ProcessCraftRecipeOptionalAction(craftRecipeOptionalAction);
+							break;
+						}
 					case CraftResultDeprecatedAction craftResultDeprecatedAction:
-					{
-						ProcessCraftResultDeprecatedAction(craftResultDeprecatedAction);
-						break;
-					}
+						{
+							ProcessCraftResultDeprecatedAction(craftResultDeprecatedAction);
+							break;
+						}
 					case TakeAction takeAction:
-					{
-						ProcessTakeAction(takeAction, stackResponses);
+						{
+							ProcessTakeAction(takeAction, stackResponses);
 
-						break;
-					}
+							break;
+						}
 					case PlaceAction placeAction:
-					{
-						ProcessPlaceAction(placeAction, stackResponses);
-						break;
-					}
+						{
+							ProcessPlaceAction(placeAction, stackResponses);
+							break;
+						}
 					case SwapAction swapAction:
-					{
-						ProcessSwapAction(swapAction, stackResponses);
-						break;
-					}
+						{
+							ProcessSwapAction(swapAction, stackResponses);
+							break;
+						}
 					case DestroyAction destroyAction:
-					{
-						ProcessDestroyAction(destroyAction, stackResponses);
-						break;
-					}
+						{
+							ProcessDestroyAction(destroyAction, stackResponses);
+							break;
+						}
 					case DropAction dropAction:
-					{
-						ProcessDropAction(dropAction, stackResponses);
+						{
+							ProcessDropAction(dropAction, stackResponses);
 
-						break;
-					}
+							break;
+						}
 					case ConsumeAction consumeAction:
-					{
-						ProcessConsumeAction(consumeAction, stackResponses);
-						break;
-					}
+						{
+							ProcessConsumeAction(consumeAction, stackResponses);
+							break;
+						}
 					default:
 						throw new ArgumentOutOfRangeException(nameof(stackAction));
 				}
-			}
 
 			foreach (IGrouping<byte, StackResponseContainerInfo> stackResponseGroup in stackResponses.GroupBy(r => r.ContainerId))
-			{
 				if (stackResponseGroup.Count() > 1)
 				{
 					byte containerId = stackResponseGroup.Key;
@@ -124,22 +121,13 @@ namespace MiNET
 					{
 						byte slot = slotGroup.Key;
 						if (slotGroup.Count() > 1)
-						{
 							slotToKeep = slotGroup.ToList().Last();
-						}
 					}
 					if (slotToKeep != null)
-					{
 						foreach (StackResponseContainerInfo containerInfo in stackResponseGroup)
-						{
 							if (!containerInfo.Slots.Contains(slotToKeep))
-							{
 								stackResponses.Remove(containerInfo);
-							}
-						}
-					}
 				}
-			}
 
 			return stackResponses;
 		}
@@ -255,10 +243,10 @@ namespace MiNET
 			SetContainerItem(destination.ContainerId, destination.Slot, sourceItem);
 
 			if (source.ContainerId == 21 || source.ContainerId == 22 || destination.ContainerId == 21 || destination.ContainerId == 22)
-			{
-				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir)) Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
-				else Enchantment.SendEmptyEnchantments(_player);
-			}
+				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir))
+					Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
+				else
+					Enchantment.SendEmptyEnchantments(_player);
 
 			stackResponses.Add(new StackResponseContainerInfo
 			{
@@ -322,15 +310,13 @@ namespace MiNET
 				destItem = existingItem;
 			}
 			else
-			{
 				SetContainerItem(destination.ContainerId, destination.Slot, destItem);
-			}
 
 			if (destination.ContainerId == 21 || destination.ContainerId == 22)
-			{
-				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir)) Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
-				else Enchantment.SendEmptyEnchantments(_player);
-			}
+				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir))
+					Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
+				else
+					Enchantment.SendEmptyEnchantments(_player);
 
 			stackResponses.Add(new StackResponseContainerInfo
 			{
@@ -391,10 +377,10 @@ namespace MiNET
 			SetContainerItem(destination.ContainerId, destination.Slot, destItem);
 
 			if (source.ContainerId == 21 || source.ContainerId == 22)
-			{
-				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir)) Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
-				else Enchantment.SendEmptyEnchantments(_player);
-			}
+				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir))
+					Enchantment.SendEnchantments(_player, GetContainerItem(21, 14));
+				else
+					Enchantment.SendEmptyEnchantments(_player);
 
 			stackResponses.Add(new StackResponseContainerInfo
 			{
@@ -429,14 +415,16 @@ namespace MiNET
 		protected virtual void ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action)
 		{
 			//BUG: Won't work proper with anvil anymore.
-			if (GetContainerItem(59, 50).UniqueId > 0) return;
+			if (GetContainerItem(60, 50).UniqueId > 0)
+				return;
 
 			//TODO: We only use this for anvils right now. Until we fixed the anvil merge ourselves.
 			Item craftingResult = action.ResultItems.FirstOrDefault();
-			if (craftingResult == null) return;
+			if (craftingResult == null)
+				return;
 
 			craftingResult.UniqueId = Item.GetUniqueId();
-			SetContainerItem(59, 50, craftingResult);
+			SetContainerItem(60, 50, craftingResult);
 		}
 
 		protected virtual void ProcessCraftNotImplementedDeprecatedAction(CraftNotImplementedDeprecatedAction action)
@@ -450,11 +438,11 @@ namespace MiNET
 
 		protected virtual void ProcessCraftCreativeAction(CraftCreativeAction action)
 		{
-			Item creativeItem = InventoryUtils.CreativeInventoryItems.FirstOrDefault(i => i.RuntimeId == (int) action.CreativeItemNetworkId);
-			if (creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {action.CreativeItemNetworkId}");
-			creativeItem = ItemFactory.GetItem(creativeItem.RuntimeId, creativeItem.Metadata);
+			var creativeItem = InventoryUtils.CreativeInventoryItems[(int) action.CreativeItemNetworkId];
+			if (creativeItem == null)
+				throw new Exception($"Failed to find inventory item with unique id: {action.CreativeItemNetworkId}");
+			creativeItem = creativeItem.Clone() as Item;
 			creativeItem.Count = (byte) creativeItem.MaxStackSize;
-			creativeItem.UniqueId = Item.GetUniqueId();
 			Log.Debug($"Creating {creativeItem}");
 			_player.Inventory.UiInventory.Slots[50] = creativeItem;
 		}
@@ -465,7 +453,8 @@ namespace MiNET
 
 		private Item GetContainerItem(int containerId, int slot)
 		{
-			if (_player.UsingAnvil && containerId < 3) containerId = 13;
+			if (_player.UsingAnvil && containerId < 3)
+				containerId = 13;
 
 			Item item = null;
 			switch (containerId)
@@ -474,8 +463,8 @@ namespace MiNET
 				case 21: // enchanting
 				case 22: // enchanting
 				case 41: // loom
-				case 58: // cursor
-				case 59: // creative
+				case 59: // cursor
+				case 60: // creative
 					item = _player.Inventory.UiInventory.Slots[slot];
 					break;
 				case 12: // auto
@@ -497,7 +486,8 @@ namespace MiNET
 					};
 					break;
 				case 7: // chest/container
-					if (_player._openInventory is Inventory inventory) item = inventory.GetSlot((byte) slot);
+					if (_player._openInventory is ContainerInventory inventory)
+						item = inventory.GetSlot((byte) slot);
 					break;
 				default:
 					Log.Warn($"Unknown containerId: {containerId}");
@@ -509,7 +499,8 @@ namespace MiNET
 
 		private void SetContainerItem(int containerId, int slot, Item item)
 		{
-			if (_player.UsingAnvil && containerId < 3) containerId = 13;
+			if (_player.UsingAnvil && containerId < 3)
+				containerId = 13;
 
 			switch (containerId)
 			{
@@ -517,8 +508,8 @@ namespace MiNET
 				case 21: // enchanting
 				case 22: // enchanting
 				case 41: // loom
-				case 58: // cursor
-				case 59: // creative
+				case 59: // cursor
+				case 60: // creative
 					_player.Inventory.UiInventory.Slots[slot] = item;
 					break;
 				case 12: // auto
@@ -547,7 +538,8 @@ namespace MiNET
 					}
 					break;
 				case 7: // chest/container
-					if (_player._openInventory is Inventory inventory) inventory.SetSlot(_player, (byte) slot, item);
+					if (_player._openInventory is ContainerInventory inventory)
+						inventory.SetSlot(_player, (byte) slot, item);
 					break;
 				default:
 					Log.Warn($"Unknown containerId: {containerId}");

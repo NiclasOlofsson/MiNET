@@ -33,7 +33,7 @@ using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
-namespace MiNET
+namespace MiNET.Inventory
 {
 	public class InventoryManager
 	{
@@ -42,7 +42,7 @@ namespace MiNET
 		private static byte _inventoryId = 2;
 
 		private readonly Level _level;
-		private Dictionary<BlockCoordinates, Inventory> _cache = new Dictionary<BlockCoordinates, Inventory>();
+		private Dictionary<BlockCoordinates, ContainerInventory> _cache = new Dictionary<BlockCoordinates, ContainerInventory>();
 
 
 		public InventoryManager(Level level)
@@ -50,22 +50,21 @@ namespace MiNET
 			_level = level;
 		}
 
-		public virtual Inventory GetInventory(int inventoryId)
+		public virtual ContainerInventory GetInventory(int inventoryId)
 		{
 			lock (_cache)
-			{
 				return _cache.Values.FirstOrDefault(inventory => inventory.Id == inventoryId);
-			}
 		}
 
-		public virtual Inventory GetInventory(BlockCoordinates inventoryCoord)
+		public virtual ContainerInventory GetInventory(BlockCoordinates inventoryCoord)
 		{
 			lock (_cache)
 			{
 				if (_cache.ContainsKey(inventoryCoord))
 				{
-					Inventory cachedInventory = _cache[inventoryCoord];
-					if (cachedInventory != null) return cachedInventory;
+					ContainerInventory cachedInventory = _cache[inventoryCoord];
+					if (cachedInventory != null)
+						return cachedInventory;
 				}
 
 				BlockEntity blockEntity = _level.GetBlockEntity(inventoryCoord);
@@ -86,59 +85,62 @@ namespace MiNET
 
 				if (blockEntity == null)
 				{
-					if (Log.IsDebugEnabled) Log.Debug($"No blockentity found at {inventoryCoord}");
+					if (Log.IsDebugEnabled)
+						Log.Debug($"No blockentity found at {inventoryCoord}");
 					return null;
 				}
 
 				NbtCompound comp = blockEntity.GetCompound();
-				if (Log.IsDebugEnabled) Log.Warn($"Found block entity at {inventoryCoord}\n{comp}");
+				if (Log.IsDebugEnabled)
+					Log.Warn($"Found block entity at {inventoryCoord}\n{comp}");
 
 
-				Inventory inventory;
+				ContainerInventory inventory;
 				switch (blockEntity)
 				{
 					case ChestBlockEntity _:
 					case ShulkerBoxBlockEntity _:
-						inventory = new Inventory(GetInventoryId(), blockEntity, 27, (NbtList) comp["Items"])
+						inventory = new ContainerInventory(GetInventoryId(), blockEntity, 27, (NbtList) comp["Items"])
 						{
 							Type = 0,
 							WindowsId = 10,
 						};
 						break;
 					case EnchantingTableBlockEntity _:
-						inventory = new Inventory(GetInventoryId(), blockEntity, 2, (NbtList) comp["Items"])
+						inventory = new ContainerInventory(GetInventoryId(), blockEntity, 2, (NbtList) comp["Items"])
 						{
 							Type = 3,
 							WindowsId = 12,
 						};
 						break;
 					case FurnaceBlockEntity furnaceBlockEntity:
-					{
-						inventory = new Inventory(GetInventoryId(), furnaceBlockEntity, 3, (NbtList) comp["Items"])
 						{
-							Type = 2,
-							WindowsId = 11,
-						};
+							inventory = new ContainerInventory(GetInventoryId(), furnaceBlockEntity, 3, (NbtList) comp["Items"])
+							{
+								Type = 2,
+								WindowsId = 11,
+							};
 
-						furnaceBlockEntity.Inventory = inventory;
-						break;
-					}
+							furnaceBlockEntity.Inventory = inventory;
+							break;
+						}
 					case BlastFurnaceBlockEntity furnaceBlockEntity:
-					{
-						inventory = new Inventory(GetInventoryId(), furnaceBlockEntity, 3, (NbtList) comp["Items"])
 						{
-							Type = 27,
-							WindowsId = 13,
-						};
+							inventory = new ContainerInventory(GetInventoryId(), furnaceBlockEntity, 3, (NbtList) comp["Items"])
+							{
+								Type = 27,
+								WindowsId = 13,
+							};
 
-						furnaceBlockEntity.Inventory = inventory;
-						break;
-					}
+							furnaceBlockEntity.Inventory = inventory;
+							break;
+						}
 					default:
-					{
-						if (Log.IsDebugEnabled) Log.Warn($"Block entity did not have a matching inventory {blockEntity}");
-						return null;
-					}
+						{
+							if (Log.IsDebugEnabled)
+								Log.Warn($"Block entity did not have a matching inventory {blockEntity}");
+							return null;
+						}
 				}
 
 				_cache[inventoryCoord] = inventory;

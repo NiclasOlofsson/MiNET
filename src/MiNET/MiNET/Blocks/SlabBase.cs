@@ -43,8 +43,7 @@ namespace MiNET.Blocks
 		{
 			var bottom = (Vector3)Coordinates;
 
-			if (TopSlotBit)
-				bottom.Y += 0.5f;
+			if (TopSlotBit) bottom.Y += 0.5f;
 			
 			var top = bottom + new Vector3(1f, 0.5f, 1f);
 			

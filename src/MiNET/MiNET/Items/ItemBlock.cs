@@ -149,6 +149,15 @@ namespace MiNET.Items
 			return tag;
 		}
 
+		public override object Clone()
+		{
+			var item = (ItemBlock) base.Clone();
+
+			item.Block = Block.Clone() as Block;
+
+			return item;
+		}
+
 		public override string ToString()
 		{
 			return $"{GetType().Name}(Id={Id}, Meta={Metadata}, UniqueId={UniqueId}) {{Block={Block?.GetType().Name}}} Count={Count}, NBT={ExtraData}";

@@ -40,6 +40,7 @@ using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
 using MiNET.Entities.World;
+using MiNET.Inventory;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Net.RakNet;

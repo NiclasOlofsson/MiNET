@@ -73,7 +73,7 @@ namespace MiNET.Blocks
 		//TODO: Update ALL blocks with names.
 		protected Block(string id)
 		{
-			Id = id;
+			Id ??= id;
 		}
 
 		protected Block()

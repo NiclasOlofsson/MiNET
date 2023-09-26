@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using fNbt;
 using MiNET.Blocks;
+using MiNET.Inventory;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Worlds;
@@ -36,7 +37,7 @@ namespace MiNET.BlockEntities
 	public class BlastFurnaceBlockEntity : BlockEntity
 	{
 		private NbtCompound Compound { get; set; }
-		public Inventory Inventory { get; set; }
+		public ContainerInventory Inventory { get; set; }
 
 		public short CookTime { get; set; }
 		public short BurnTime { get; set; }

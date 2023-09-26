@@ -42,6 +42,7 @@ using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Entities.Passive;
 using MiNET.Entities.World;
+using MiNET.Inventory;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
@@ -2187,7 +2188,7 @@ namespace MiNET
 					};
 					break;
 				case 7: // chest/container
-					if (_openInventory is Inventory inventory) item = inventory.GetSlot((byte) slot);
+					if (_openInventory is ContainerInventory inventory) item = inventory.GetSlot((byte) slot);
 					break;
 				default:
 					Log.Warn($"Unknown containerId: {containerId}");
@@ -2234,7 +2235,7 @@ namespace MiNET
 					}
 					break;
 				case 7: // chest/container
-					if (_openInventory is Inventory inventory) inventory.SetSlot(this, (byte) slot, item);
+					if (_openInventory is ContainerInventory inventory) inventory.SetSlot(this, (byte) slot, item);
 					break;
 				default:
 					Log.Warn($"Unknown containerId: {containerId}");
@@ -2377,7 +2378,7 @@ namespace MiNET
 			// https://github.com/pmmp/PocketMine-MP/blob/stable/src/pocketmine/network/mcpe/protocol/types/WindowTypes.php
 			lock (_inventorySync)
 			{
-				if (_openInventory is Inventory openInventory)
+				if (_openInventory is ContainerInventory openInventory)
 				{
 					if (openInventory.Coordinates.Equals(inventoryCoord)) return;
 					HandleMcpeContainerClose(null);
@@ -2387,7 +2388,7 @@ namespace MiNET
 				// - get blockentity
 				// - get inventory from block entity
 
-				Inventory inventory = Level.InventoryManager.GetInventory(inventoryCoord);
+				ContainerInventory inventory = Level.InventoryManager.GetInventory(inventoryCoord);
 
 				if (inventory == null)
 				{
@@ -2429,7 +2430,7 @@ namespace MiNET
 			}
 		}
 
-		private void OnInventoryChange(Player player, Inventory inventory, byte slot, Item itemStack)
+		private void OnInventoryChange(Player player, ContainerInventory inventory, byte slot, Item itemStack)
 		{
 			if (player == this)
 			{
@@ -2838,7 +2839,7 @@ namespace MiNET
 
 			lock (_inventorySync)
 			{
-				if (_openInventory is Inventory inventory)
+				if (_openInventory is ContainerInventory inventory)
 				{
 					_openInventory = null;
 

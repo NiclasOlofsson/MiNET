@@ -32,17 +32,17 @@ using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Utils.Vectors;
 
-namespace MiNET
+namespace MiNET.Inventory
 {
 	public interface IInventory
 	{
 	}
 
-	public class Inventory : IInventory
+	public class ContainerInventory : IInventory
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Inventory));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ContainerInventory));
 
-		public event Action<Player, Inventory, byte, Item> InventoryChange;
+		public event Action<Player, ContainerInventory, byte, Item> InventoryChange;
 
 		public int Id { get; set; }
 		public byte Type { get; set; }
@@ -52,7 +52,7 @@ namespace MiNET
 		public BlockEntity BlockEntity { get; set; }
 		public byte WindowsId { get; set; }
 
-		public Inventory(int id, BlockEntity blockEntity, short inventorySize, NbtList slots)
+		public ContainerInventory(int id, BlockEntity blockEntity, short inventorySize, NbtList slots)
 		{
 			Id = id;
 			BlockEntity = blockEntity;
@@ -61,9 +61,7 @@ namespace MiNET
 
 			Slots = new ItemStacks();
 			for (byte i = 0; i < Size; i++)
-			{
 				Slots.Add(new ItemAir());
-			}
 
 			for (byte i = 0; i < slots.Count; i++)
 			{
@@ -95,14 +93,13 @@ namespace MiNET
 		public void DecreaseSlot(byte slot)
 		{
 			var slotData = Slots[slot];
-			if (slotData is ItemAir) return;
+			if (slotData is ItemAir)
+				return;
 
 			slotData.Count--;
 
 			if (slotData.Count <= 0)
-			{
 				slotData = new ItemAir();
-			}
 
 			SetSlot(null, slot, slotData);
 
@@ -113,13 +110,9 @@ namespace MiNET
 		{
 			Item slotData = Slots[slot];
 			if (slotData is ItemAir)
-			{
 				slotData = ItemFactory.GetItem(id, metadata, 1);
-			}
 			else
-			{
 				slotData.Count++;
-			}
 
 			SetSlot(null, slot, slotData);
 
@@ -134,7 +127,7 @@ namespace MiNET
 
 		private NbtList GetSlots()
 		{
-			NbtList slots = new NbtList("Items");
+			var slots = new NbtList("Items");
 			for (byte i = 0; i < Size; i++)
 			{
 				var slot = Slots[i];

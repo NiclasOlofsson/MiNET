@@ -271,9 +271,12 @@ namespace MiNET.Items
 			return HashCode.Combine(Id, Metadata);
 		}
 
-		public object Clone()
+		public virtual object Clone()
 		{
-			return MemberwiseClone();
+			var item = MemberwiseClone() as Item;
+			item.UniqueId = GetUniqueId();
+
+			return item;
 		}
 
 		public override string ToString()

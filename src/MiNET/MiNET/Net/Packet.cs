@@ -832,12 +832,12 @@ namespace MiNET.Net
 				WriteUnsignedVarInt(0);
 				return;
 			}
-			
+
 			WriteUnsignedVarInt((uint) itemStacks.Count);
 
-			foreach(var item in itemStacks)
+			foreach (var item in itemStacks)
 			{
-				WriteUnsignedVarInt((uint)item.RuntimeId);
+				WriteUnsignedVarInt((uint) item.UniqueId);
 				Write(item, false);
 			}
 		}
@@ -846,16 +846,15 @@ namespace MiNET.Net
 		{
 			var metadata = new CreativeItemStacks();
 
-			// TODO - 1.19-update
 			var count = ReadUnsignedVarInt();
-			//for (int i = 0; i < count; i++)
-			//{
-			//	var networkId = ReadUnsignedVarInt();
-			//	Item item = ReadItem(false);
-			//	item.RuntimeId = (int)networkId;
-			//	metadata.Add(item);
-			//	Log.Debug(item);
-			//}
+			for (int i = 0; i < count; i++)
+			{
+				var networkId = ReadUnsignedVarInt();
+				Item item = ReadItem(false);
+				item.UniqueId = (int) networkId;
+				metadata.Add(item);
+				Log.Debug(item);
+			}
 
 			return metadata;
 		}

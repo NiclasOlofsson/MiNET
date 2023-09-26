@@ -29,6 +29,7 @@ using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Entities.Behaviors;
+using MiNET.Inventory;
 using MiNET.Items;
 using MiNET.Items.Extensions;
 using MiNET.Net;

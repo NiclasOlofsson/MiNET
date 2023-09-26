@@ -30,6 +30,7 @@
     <None Remove="Blocks\Data\canonical_block_states.nbt" />
     <None Remove="Blocks\Data\r12_to_current_block_map.bin" />
     <None Remove="Blocks\legacy_id_map.json" />
+    <None Remove="Inventory\Data\creativeitems.json" />
     <None Remove="Items\Data\item_tags.json" />
     <None Remove="Items\itemstates.json" />
     <None Remove="Worlds\Data\biome_definitions.nbt" />
@@ -44,6 +45,7 @@
     <EmbeddedResource Include="Blocks\Data\canonical_block_states.nbt" />
     <EmbeddedResource Include="Blocks\Data\item_id_map.json" />
     <EmbeddedResource Include="Blocks\Data\r12_to_current_block_map.bin" />
+    <EmbeddedResource Include="Inventory\Data\creativeitems.json" />
     <EmbeddedResource Include="Items\Data\item_tags.json" />
     <EmbeddedResource Include="Items\Data\required_item_list.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

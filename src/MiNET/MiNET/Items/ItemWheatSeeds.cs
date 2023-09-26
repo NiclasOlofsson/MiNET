@@ -31,7 +31,7 @@ namespace MiNET.Items
 	{
 		public ItemWheatSeeds() : base()
 		{
-			Block = BlockFactory.GetBlockById(59);
+			Block = new Wheat();
 		}
 	}
 }

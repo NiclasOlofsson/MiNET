@@ -1961,8 +1961,6 @@ namespace MiNET
 
 			if (string.IsNullOrEmpty(text)) return;
 
-			if (text.Contains("a")) Inventory.SetFirstEmptySlot(ItemFactory.GetItem<Campfire>(), true);
-
 			Level.BroadcastMessage(text, sender: this);
 		}
 
@@ -2510,7 +2508,7 @@ namespace MiNET
 		private void EntityItemInteract(ItemUseOnEntityTransaction transaction)
 		{
 			Item itemInHand = Inventory.GetItemInHand();
-			if (itemInHand.LegacyId != transaction.Item.LegacyId || itemInHand.Metadata != transaction.Item.Metadata)
+			if (itemInHand.Id != transaction.Item.Id || itemInHand.Metadata != transaction.Item.Metadata)
 			{
 				Log.Warn($"Attack item mismatch. Expected {itemInHand}, but client reported {transaction.Item}");
 			}
@@ -2530,7 +2528,7 @@ namespace MiNET
 		protected virtual void EntityAttack(ItemUseOnEntityTransaction transaction)
 		{
 			Item itemInHand = Inventory.GetItemInHand();
-			if (itemInHand.LegacyId != transaction.Item.LegacyId || itemInHand.Metadata != transaction.Item.Metadata)
+			if (itemInHand.Id != transaction.Item.Id || itemInHand.Metadata != transaction.Item.Metadata)
 			{
 				Log.Warn($"Attack item mismatch. Expected {itemInHand}, but client reported {transaction.Item}");
 			}
@@ -2618,6 +2616,10 @@ namespace MiNET
 				case McpeInventoryTransaction.ItemUseAction.Use:
 				{
 					itemInHand.UseItem(Level, this, transaction.Position);
+					if (itemInHand.Count == 0)
+					{
+						Inventory.SetInventorySlot(Inventory.InHandSlot, null, true);
+					}
 					break;
 				}
 				case McpeInventoryTransaction.ItemUseAction.Destroy:
@@ -2755,17 +2757,17 @@ namespace MiNET
 
 			var recipes = RecipeManager.Recipes
 				.Where(r => r is ShapedRecipe)
-				.Where(r => ((ShapedRecipe) r).Result.First().LegacyId == result.LegacyId && ((ShapedRecipe) r).Result.First().Metadata == result.Metadata).ToList();
+				.Where(r => ((ShapedRecipe) r).Result.First().Id == result.Id && ((ShapedRecipe) r).Result.First().Metadata == result.Metadata).ToList();
 
 			recipes.AddRange(RecipeManager.Recipes
 				.Where(r => r is ShapelessRecipe)
-				.Where(r => ((ShapelessRecipe) r).Result.First().LegacyId == result.LegacyId && ((ShapelessRecipe) r).Result.First().Metadata == result.Metadata).ToList());
+				.Where(r => ((ShapelessRecipe) r).Result.First().Id == result.Id && ((ShapelessRecipe) r).Result.First().Metadata == result.Metadata).ToList());
 
 			Log.Debug($"Found {recipes.Count} matching recipes with the result {result}");
 
 			if (recipes.Count == 0) return false;
 
-			var input = craftingInput.Where(i => i != null && i.LegacyId != 0).ToList();
+			var input = craftingInput.Where(i => i != null && i is not ItemAir).ToList();
 
 			foreach (var recipe in recipes)
 			{
@@ -2774,12 +2776,12 @@ namespace MiNET
 				{
 					case ShapedRecipe shapedRecipe:
 					{
-						ingredients = shapedRecipe.Input.Where(i => i != null && i.LegacyId != 0).ToList();
+						ingredients = shapedRecipe.Input.Where(i => i != null && i is not ItemAir).ToList();
 						break;
 					}
 					case ShapelessRecipe shapelessRecipe:
 					{
-						ingredients = shapelessRecipe.Input.Where(i => i != null && i.LegacyId != 0).ToList();
+						ingredients = shapelessRecipe.Input.Where(i => i != null && i is not ItemAir).ToList();
 						break;
 					}
 				}
@@ -2821,7 +2823,7 @@ namespace MiNET
 				if (ReferenceEquals(null, y)) return false;
 				if (ReferenceEquals(x, y)) return true;
 
-				return x.LegacyId == y.LegacyId && (x.Metadata == y.Metadata || x.Metadata == short.MaxValue || y.Metadata == short.MaxValue);
+				return x.Id == y.Id && (x.Metadata == y.Metadata || x.Metadata == short.MaxValue || y.Metadata == short.MaxValue);
 			}
 
 			public int GetHashCode(Item obj)
@@ -2979,7 +2981,7 @@ namespace MiNET
 
 			if (Level.Entities.TryGetValue((long) message.runtimeEntityId, out var entity))
 			{
-				Item item = ItemFactory.GetItem(383, (short) EntityHelpers.ToEntityType(entity.EntityTypeId));
+				Item item = new ItemSpawnEgg(EntityHelpers.ToEntityType(entity.EntityTypeId));
 
 				Inventory.SetInventorySlot(Inventory.InHandSlot, item);
 			}
@@ -3763,25 +3765,25 @@ namespace MiNET
 				Level.DropItem(coordinates, stack);
 			}
 
-			if (Inventory.Helmet.LegacyId != 0)
+			if (Inventory.Helmet is not ItemAir)
 			{
 				Level.DropItem(coordinates, Inventory.Helmet);
 				Inventory.Helmet = new ItemAir();
 			}
 
-			if (Inventory.Chest.LegacyId != 0)
+			if (Inventory.Chest is not ItemAir)
 			{
 				Level.DropItem(coordinates, Inventory.Chest);
 				Inventory.Chest = new ItemAir();
 			}
 
-			if (Inventory.Leggings.LegacyId != 0)
+			if (Inventory.Leggings is not ItemAir)
 			{
 				Level.DropItem(coordinates, Inventory.Leggings);
 				Inventory.Leggings = new ItemAir();
 			}
 
-			if (Inventory.Boots.LegacyId != 0)
+			if (Inventory.Boots is not ItemAir)
 			{
 				Level.DropItem(coordinates, Inventory.Boots);
 				Inventory.Boots = new ItemAir();

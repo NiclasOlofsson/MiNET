@@ -31,7 +31,7 @@ namespace MiNET.Items
 	{
 		public ItemBeetrootSeeds() : base()
 		{
-			Block = BlockFactory.GetBlockById(244);
+			Block = new Beetroot();
 		}
 	}
 }

@@ -349,9 +349,7 @@ namespace MiNET.Blocks
 			var item = GetItem();
 			if (item == null) return new Item[0];
 
-			item.Count = 1;
-
-			return new[] {item};
+			return new[] { item };
 		}
 
 		public virtual Item GetSmelt()

@@ -101,7 +101,7 @@ namespace MiNET.Items
 			};
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block currentBlock = world.GetBlock(targetCoordinates);
 			Block newBlock = BlockFactory.GetBlockById(Block.Id);
@@ -119,7 +119,7 @@ namespace MiNET.Items
 
 			if (!newBlock.CanPlace(world, player, targetCoordinates, face))
 			{
-				return;
+				return false;
 			}
 
 			if (!newBlock.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
@@ -135,7 +135,9 @@ namespace MiNET.Items
 			}
 
 			// TODO - 1.19-update
-			//world.BroadcastSound(newBlock.Coordinates, LevelSoundEventType.Place, newBlock.Id);
+			world.BroadcastSound(newBlock.Coordinates, LevelSoundEventType.Place, newBlock.GetRuntimeId());
+
+			return true;
 		}
 
 		public override NbtCompound ToNbt(string name = null)

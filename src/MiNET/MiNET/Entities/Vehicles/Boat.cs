@@ -47,7 +47,7 @@ namespace MiNET.Entities.Vehicles
 		{
 			return new[]
 			{
-				ItemFactory.GetItem(333)
+				new ItemBoat()
 			};
 		}
 

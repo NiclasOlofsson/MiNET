@@ -53,7 +53,7 @@ namespace TestPlugin.NiceLobby
 			_frameTicker = frameTicker;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Log.Warn("Using custom item frame");
 
@@ -69,13 +69,15 @@ namespace TestPlugin.NiceLobby
 				Coordinates = coor,
 			};
 
-			if (!frame.CanPlace(world, player, blockCoordinates, face)) return;
+			if (!frame.CanPlace(world, player, blockCoordinates, face)) return false;
 
 			frame.PlaceBlock(world, player, coor, face, faceCoords);
 
 			// Then we create and set the sign block entity that has all the intersting data
 
 			world.SetBlockEntity(itemFrameBlockEntity);
+
+			return true;
 		}
 	}
 

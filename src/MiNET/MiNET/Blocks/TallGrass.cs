@@ -74,7 +74,7 @@ namespace MiNET.Blocks
 			var rnd = new Random();
 			if (rnd.NextDouble() > 0.5)
 			{
-				return new[] {ItemFactory.GetItem(295)};
+				return new[] { new ItemWheatSeeds() };
 			}
 
 			return new Item[0];

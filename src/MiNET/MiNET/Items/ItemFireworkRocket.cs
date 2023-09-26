@@ -45,7 +45,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Random random = new Random();
 			var rocket = new FireworksRocket(player, world, this, random);
@@ -62,7 +62,10 @@ namespace MiNET.Items
 				var itemInHand = player.Inventory.GetItemInHand();
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
+				return true;
 			}
+
+			return false;
 		}
 
 		//TODO: Enable this when we can figure out the difference between placing a block, and use item transactions :-(

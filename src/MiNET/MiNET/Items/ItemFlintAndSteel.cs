@@ -50,7 +50,7 @@ namespace MiNET.Items
 			ItemType = ItemType.FlintAndSteel;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var block = world.GetBlock(blockCoordinates);
 			if (block is Tnt)
@@ -99,7 +99,9 @@ namespace MiNET.Items
 						}
 					}
 				}
+
 				player.Inventory.DamageItemInHand(ItemDamageReason.BlockInteract, null, block);
+				return true;
 			}
 			else if (block.IsSolid)
 			{
@@ -109,8 +111,12 @@ namespace MiNET.Items
 					var fire = new Fire {Coordinates = affectedBlock.Coordinates};
 					world.SetBlock(fire);
 				}
+
 				player.Inventory.DamageItemInHand(ItemDamageReason.BlockInteract, null, block);
+				return true;
 			}
+
+			return false;
 		}
 
 		public List<Block> Fill(Level level, BlockCoordinates origin, int radius, BlockFace direction)

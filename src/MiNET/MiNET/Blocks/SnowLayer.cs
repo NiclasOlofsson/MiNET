@@ -86,7 +86,7 @@ namespace MiNET.Blocks
 		public override Item[] GetDrops(Item tool)
 		{
 			// One per layer.
-			return new[] {ItemFactory.GetItem(332, 0, (Height + 1))};
+			return new[] { new ItemSnowball() { Count = (byte) (Height + 1) } };
 		}
 	}
 }

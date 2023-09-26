@@ -41,10 +41,10 @@ namespace MiNET.Blocks
 			if (Age == 3)
 			{
 				var rnd = new Random();
-				return new[] {ItemFactory.GetItem(372, 0, (2 + rnd.Next(3)))};
+				return new[] { new ItemNetherWart() { Count = (byte) (2 + rnd.Next(3)) } };
 			}
 
-			return new[] {ItemFactory.GetItem(372, 0, 1)};
+			return new[] { new ItemNetherWart() };
 		}
 	}
 }

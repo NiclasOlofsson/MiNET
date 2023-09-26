@@ -50,7 +50,7 @@ namespace MiNET.Items
 			NeedBlockRevert = realItem is ItemBlock;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			if (NeedBlockRevert)
 			{
@@ -63,6 +63,8 @@ namespace MiNET.Items
 			}
 
 			Action(this, world, player, blockCoordinates);
+
+			return true;
 		}
 	}
 }

@@ -171,10 +171,11 @@ namespace MiNET.Client
 
 								if (newItem != null && (newItem is not ItemAir && newItem.Count > 0))
 								{
-									if (!idMapping.TryAdd(item.Id, newItem.LegacyId))
-									{
-										Log.Warn($"Duplicate key! Name={item.Id} Id={item.LegacyId} NewName={newItem.Id} NewId={newItem.LegacyId}");
-									}
+									// TODO - 1.19-update
+									//if (!idMapping.TryAdd(item.Id, newItem.LegacyId))
+									//{
+									//	Log.Warn($"Duplicate key! Name={item.Id} Id={item.Id} NewName={newItem.Id} NewId={newItem.Id}");
+									//}
 								}
 
 								_lastItem = new ItemAir() { Count = 0 };

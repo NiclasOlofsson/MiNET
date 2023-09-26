@@ -90,7 +90,7 @@ namespace MiNET.Entities.Passive
 				{
 					Log.Debug($"Wolf taming attempt by {player.Username}");
 
-					player.Inventory.RemoveItems(new ItemBone().LegacyId, 1);
+					player.Inventory.RemoveItems(ItemFactory.GetIdByType<ItemBone>(), 1);
 
 					var random = new Random();
 					if (random.Next(3) == 0)

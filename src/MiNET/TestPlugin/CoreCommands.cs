@@ -1264,7 +1264,7 @@ namespace TestPlugin
 			};
 			inventory.Slots[c++] = new ItemBlock(new Anvil(), 0) {Count = 64};
 			inventory.Slots[c++] = new ItemBlock(new EnchantingTable(), 0) {Count = 64};
-			inventory.Slots[c++] = ItemFactory.GetItem(351, 4, 64);
+			inventory.Slots[c++] = new ItemDye() { Metadata = 4, Count = 64 };
 			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) {Count = 64};
 			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword

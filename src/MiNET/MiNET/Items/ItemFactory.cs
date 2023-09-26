@@ -25,26 +25,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using fNbt;
 using log4net;
 using MiNET.Blocks;
-using MiNET.Net.Items;
 using MiNET.Utils;
-using Newtonsoft.Json;
 
 namespace MiNET.Items
 {
 	public interface ICustomItemFactory
 	{
-		Item GetItem(short id, short metadata, int count);
-	}
-
-	public interface ICustomBlockItemFactory
-	{
-		ItemBlock GetBlockItem(Block block, short metadata, int count);
+		Item GetItem(string id, short metadata, int count);
 	}
 
 	public class ItemFactory
@@ -52,7 +43,6 @@ namespace MiNET.Items
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemFactory));
 
 		public static ICustomItemFactory CustomItemFactory { get; set; }
-		public static ICustomBlockItemFactory CustomBlockItemFactory { get; set; }
 
 		public static Dictionary<int, string> RuntimeIdToId { get; private set; }
 		public static Dictionary<string, Type> IdToType { get; private set; } = new Dictionary<string, Type>();
@@ -149,7 +139,13 @@ namespace MiNET.Items
 
 		public static T GetItem<T>(string id, short metadata = 0, int count = 1) where T : Item
 		{
-			T item = GetItemInstance<T>(id);
+			if (CustomItemFactory != null)
+			{
+				var customItem = CustomItemFactory.GetItem(id, metadata, count) as T;
+				if (customItem != null) return customItem;
+			}
+
+			var item = GetItemInstance<T>(id);
 
 			if (item != null)
 			{

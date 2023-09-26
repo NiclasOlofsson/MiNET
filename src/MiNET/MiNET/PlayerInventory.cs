@@ -240,7 +240,7 @@ namespace MiNET
 		{
 			Item existingItem = Slots[si];
 
-			if (existingItem is ItemAir || existingItem.LegacyId == 0 || existingItem.LegacyId == -1)
+			if (existingItem is ItemAir)
 			{
 				Slots[si] = (Item) item.Clone();
 				item.Count = 0;
@@ -257,7 +257,7 @@ namespace MiNET
 			{
 				Item existingItem = Slots[si];
 
-				if (existingItem is ItemAir || existingItem.LegacyId == 0 || existingItem.LegacyId == -1)
+				if (existingItem is ItemAir)
 				{
 					Slots[si] = item;
 					if (update) SendSetSlot(si);
@@ -313,7 +313,7 @@ namespace MiNET
 			return false;
 		}
 
-		public void RemoveItems(short id, byte count)
+		public void RemoveItems(string id, byte count)
 		{
 			if (count <= 0) return;
 
@@ -322,7 +322,7 @@ namespace MiNET
 				if (count <= 0) break;
 
 				var slot = Slots[i];
-				if (slot.LegacyId == id)
+				if (slot.Id == id)
 				{
 					if (Slots[i].Count >= count)
 					{

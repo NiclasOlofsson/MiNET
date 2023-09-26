@@ -41,7 +41,7 @@ namespace MiNET.Blocks
 			if (tool.ItemMaterial < ItemMaterial.Iron) return new Item[0];
 
 			var rnd = new Random();
-			return new[] {ItemFactory.GetItem(331, 0, (byte) (4 + rnd.Next(1)))};
+			return new[] { new ItemRedstone() { Count = (byte) (4 + rnd.Next(1)) } };
 		}
 
 		public override float GetExperiencePoints()

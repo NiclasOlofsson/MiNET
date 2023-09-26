@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 		public override Item[] GetDrops(Item tool)
 		{
 			// No special metadata
-			return new[] {new ItemBlock(this, 0)};
+			return new[] { ItemFactory.GetItem<Rail>() };
 		}
 	}
 }

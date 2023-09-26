@@ -27,8 +27,10 @@ using System;
 using System.Numerics;
 using fNbt;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Entities.Behaviors;
 using MiNET.Items;
+using MiNET.Items.Extensions;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Utils.Metadata;
@@ -114,7 +116,12 @@ namespace MiNET.Entities.Passive
 			}
 
 			var inHand = player.Inventory.GetItemInHand();
-			if (inHand is ItemSugar || inHand is ItemWheat || inHand is ItemApple || inHand is ItemGoldenCarrot || inHand is ItemGoldenApple || inHand.LegacyId == 170)
+			if (inHand is ItemSugar 
+				|| inHand is ItemWheat 
+				|| inHand is ItemApple 
+				|| inHand is ItemGoldenCarrot 
+				|| inHand is ItemGoldenApple 
+				|| inHand.IsItemBlockOf<HayBlock>())
 			{
 				// Feeding
 
@@ -144,7 +151,7 @@ namespace MiNET.Entities.Passive
 					Temper += 10;
 					HealthManager.Regen(10);
 				}
-				else if (inHand.LegacyId == 170)
+				else if (inHand.IsItemBlockOf<HayBlock>())
 				{
 					//Temper += 3;
 					HealthManager.Regen(20);
@@ -157,7 +164,7 @@ namespace MiNET.Entities.Passive
 				if (!IsSaddled)
 				{
 					Inventory.SetSlot(0, inHand);
-					player.Inventory.RemoveItems(inHand.LegacyId, 1); // Wrong. Should really be item in hand
+					player.Inventory.RemoveItems(inHand.Id, 1); // Wrong. Should really be item in hand
 				}
 			}
 			else

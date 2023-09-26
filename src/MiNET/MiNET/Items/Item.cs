@@ -90,8 +90,9 @@ namespace MiNET.Items
 		{
 		}
 
-		public virtual void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public virtual bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
+			return false;
 		}
 
 		public virtual bool BreakBlock(Level world, Player player, Block block, BlockEntity blockEntity)
@@ -218,9 +219,9 @@ namespace MiNET.Items
 
 			//TODO: This doesn't work in  most cases. We need to fix comparison when name == null
 			byte[] saveToBuffer = null;
-			if(other.ExtraData?.Name != null) saveToBuffer = new NbtFile(other.ExtraData).SaveToBuffer(NbtCompression.None);
+			if (other.ExtraData?.Name != null) saveToBuffer = new NbtFile(other.ExtraData).SaveToBuffer(NbtCompression.None);
 			byte[] saveToBuffer2 = null;
-			if(ExtraData?.Name != null) saveToBuffer2 = new NbtFile(ExtraData).SaveToBuffer(NbtCompression.None);
+			if (ExtraData?.Name != null) saveToBuffer2 = new NbtFile(ExtraData).SaveToBuffer(NbtCompression.None);
 			bool nbtCheck = !(saveToBuffer == null ^ saveToBuffer2 == null);
 			if (nbtCheck)
 			{

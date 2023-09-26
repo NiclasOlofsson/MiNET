@@ -41,6 +41,7 @@ namespace MiNET.Items
 		{
 			float force = 1.5f;
 
+			Count--;
 			var egg = new Egg(player, world);
 			egg.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			egg.KnownPosition.Y += 1.62f;

@@ -48,10 +48,10 @@ namespace MiNET.Entities.Passive
 
 		public override Item[] GetDrops()
 		{
-			return new[]
+			return new Item[]
 			{
-				ItemFactory.GetItem(363, 0, 2),
-				ItemFactory.GetItem(334, 0, 2)
+				new ItemBeef() { Count = 2 },
+				new ItemLeather() { Count = 2 }
 			};
 		}
 	}

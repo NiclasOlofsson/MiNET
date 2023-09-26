@@ -452,7 +452,7 @@ namespace MiNET
 		{
 			Item creativeItem = InventoryUtils.CreativeInventoryItems.FirstOrDefault(i => i.RuntimeId == (int) action.CreativeItemNetworkId);
 			if (creativeItem == null) throw new Exception($"Failed to find inventory item with unique id: {action.CreativeItemNetworkId}");
-			creativeItem = ItemFactory.GetItem(creativeItem.LegacyId, creativeItem.Metadata);
+			creativeItem = ItemFactory.GetItem(creativeItem.RuntimeId, creativeItem.Metadata);
 			creativeItem.Count = (byte) creativeItem.MaxStackSize;
 			creativeItem.UniqueId = Item.GetUniqueId();
 			Log.Debug($"Creating {creativeItem}");

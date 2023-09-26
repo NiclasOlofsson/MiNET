@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {new ItemBlock(new Dirt(), 0)};
+			return new[] { ItemFactory.GetItem<Dirt>() };
 		}
 	}
 }

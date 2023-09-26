@@ -1758,7 +1758,7 @@ namespace MiNET.Net
 					binaryWriter.Write(0); //Write Int
 					binaryWriter.Write(0); //Write Int
 
-					if (stack.LegacyId == 513)
+					if (stack is ItemShield)
 					{
 						binaryWriter.Write((long) 0);
 					}
@@ -1773,8 +1773,8 @@ namespace MiNET.Net
 
 		public Item ReadItem(bool readUniqueId = true)
 		{
-			int id = ReadSignedVarInt();
-			if (id == 0)
+			int runtimeId = ReadSignedVarInt();
+			if (runtimeId == 0)
 			{
 				return new ItemAir();
 			}
@@ -1782,7 +1782,7 @@ namespace MiNET.Net
 			var count = ReadShort();
 			var metadata = ReadUnsignedVarInt();
 
-			Item stack = ItemFactory.GetItem(id, (short) metadata, count);
+			Item stack = ItemFactory.GetItem(runtimeId, (short) metadata, count);
 
 			if (readUniqueId)
 			{
@@ -2222,8 +2222,20 @@ namespace MiNET.Net
 		public void Write(AbilityLayer layer)
 		{
 			Write((ushort)layer.Type);
+
+			var values = layer.Abilities;
+
+			if (layer.FlySpeed > 0)
+			{
+				layer.Abilities |= PlayerAbility.FlySpeed;
+			}
+			if (layer.WalkSpeed > 0)
+			{
+				layer.Abilities |= PlayerAbility.WalkSpeed;
+			}
+
 			Write((uint)layer.Abilities);
-			Write((uint)layer.Values);
+			Write((uint) values);
 			Write(layer.FlySpeed);
 			Write(layer.WalkSpeed);
 		}
@@ -2964,7 +2976,7 @@ namespace MiNET.Net
 
 		public void WriteRecipeIngredient(Item stack)
 		{
-			if (stack == null || stack.LegacyId == 0)
+			if (stack == null || stack is ItemAir)
 			{
 				Write(false);
 				WriteVarInt(0);

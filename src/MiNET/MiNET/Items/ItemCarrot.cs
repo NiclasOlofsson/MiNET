@@ -36,10 +36,9 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			ItemBlock itemBlock = new ItemBlock(BlockFactory.GetBlockById(141));
-			itemBlock.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
+			return ItemFactory.GetItem<Carrots>().PlaceBlock(world, player, blockCoordinates, face, faceCoords);
 		}
 	}
 }

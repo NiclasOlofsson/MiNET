@@ -110,9 +110,10 @@ namespace MiNET.BuilderBase.Tools
 			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
+			return true;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)

@@ -39,7 +39,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var blockId = Id.Replace("item.", "");
 
@@ -80,7 +80,7 @@ namespace MiNET.Items
 				flag2 = true;
 			}
 
-			if (!block.CanPlace(world, player, blockCoordinates, face)) return;
+			if (!block.CanPlace(world, player, blockCoordinates, face)) return false;
 
 			block.DoorHingeBit = flag2;
 
@@ -101,6 +101,8 @@ namespace MiNET.Items
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
+
+			return true;
 		}
 	}
 }

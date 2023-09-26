@@ -334,7 +334,7 @@ namespace MiNET.Client
 					eq.runtimeEntityId = EntityId;
 					eq.slot = 9;
 					eq.selectedSlot = 0;
-					eq.item = new ItemBlock(new OakLog(), 0) {Count = 1};
+					eq.item = ItemFactory.GetItem<OakLog>();
 					SendPacket(eq);
 				}
 
@@ -346,11 +346,11 @@ namespace MiNET.Client
 				crafting.recipeId = recipe.Id;
 
 				{
-					ItemStacks slotData = new ItemStacks {new ItemBlock(new OakLog(), 0) {Count = 1}};
+					ItemStacks slotData = new ItemStacks { ItemFactory.GetItem<OakLog>() };
 					crafting.input = slotData;
 				}
 				{
-					ItemStacks slotData = new ItemStacks {new ItemBlock(new Planks(), 0) {Count = 1}};
+					ItemStacks slotData = new ItemStacks { ItemFactory.GetItem<OakLog>() };
 					crafting.result = slotData;
 				}
 
@@ -369,7 +369,7 @@ namespace MiNET.Client
 					eq.runtimeEntityId = EntityId;
 					eq.slot = 10;
 					eq.selectedSlot = 1;
-					eq.item = new ItemBlock(new Planks(), 0) {Count = 1};
+					eq.item = ItemFactory.GetItem<Planks>();
 					SendPacket(eq);
 				}
 			}
@@ -556,7 +556,7 @@ namespace MiNET.Client
 				//var matchingBlock = BlockFactory.BlockPalette[slot.RuntimeId];
 				
 				var serialized = SerializeCompound(extraData);
-				writer.WriteLine($"new Item({slot.LegacyId}, {slot.Metadata}, {slot.Count}){{ RuntimeId={slot.BlockRuntimeId}, NetworkId={slot.RuntimeId}, ExtraData = {serialized} }}, /*{slot.Id}*/");
+				writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ RuntimeId={slot.BlockRuntimeId}, NetworkId={slot.RuntimeId}, ExtraData = {serialized} }}, /*{slot.Id}*/");
 			}
 
 			// Template

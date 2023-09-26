@@ -40,7 +40,7 @@ namespace MiNET.Items
 			MaxStackSize = 1;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var coor = GetNewCoordinatesFromFace(blockCoordinates, face);
 			if (face == BlockFace.Up) // On top of block
@@ -53,7 +53,7 @@ namespace MiNET.Items
 			else if (face == BlockFace.Down) // At the bottom of block
 			{
 				// Doesn't work, ignore if that happen. 
-				return;
+				return false;
 			}
 			else
 			{
@@ -81,6 +81,8 @@ namespace MiNET.Items
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
+
+			return true;
 		}
 	}
 }

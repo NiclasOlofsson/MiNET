@@ -33,29 +33,27 @@ namespace MiNET.Items
 {
 	public abstract class ItemSlate : ItemBlock
 	{
+		public override string Id { get; protected set; } = "minecraft:board";
+
+		public override Block Block { get; protected set; } = new Chalkboard();
+
 		public ItemSlate(short size = 0) : base()
 		{
-			Metadata = size;
+			Block.Metadata = (byte) (Metadata = size);
 			MaxStackSize = 16;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			// block 230, data 32-35 (rotations) Slate, Poster or Board
 
 			if (face == BlockFace.Down) // At the bottom of block
 			{
 				// Doesn't work, ignore if that happen. 
-				return;
-			}
-			else
-			{
-				Block = BlockFactory.GetBlockById(230);
+				return false;
 			}
 
-			Block.Metadata = (byte) Metadata;
-
-			base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
+			return base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
 		}
 	}
 

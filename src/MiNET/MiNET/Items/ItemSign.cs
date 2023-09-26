@@ -38,7 +38,7 @@ namespace MiNET.Items
 			MaxStackSize = 1;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			// TODO - 1.19-update
 
@@ -59,7 +59,7 @@ namespace MiNET.Items
 			//	Block = BlockFactory.GetBlockById(_wallId);
 			//}
 
-			base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
+			return base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
 		}
 	}
 

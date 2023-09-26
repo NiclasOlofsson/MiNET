@@ -51,7 +51,7 @@ namespace MiNET.Items
 				if (player.GameMode == GameMode.Survival || player.GameMode == GameMode.Adventure)
 				{
 					player.Inventory.ClearInventorySlot((byte) player.Inventory.InHandSlot);
-					player.Inventory.SetFirstEmptySlot(ItemFactory.GetItem(374), true);
+					player.Inventory.SetFirstEmptySlot(new ItemGlassBottle(), true);
 				}
 				_isUsing = false;
 				return;

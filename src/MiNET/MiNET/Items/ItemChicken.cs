@@ -33,7 +33,7 @@ namespace MiNET.Items
 
 		public override Item GetSmelt()
 		{
-			return ItemFactory.GetItem(366);
+			return new ItemCookedChicken();
 		}
 	}
 }

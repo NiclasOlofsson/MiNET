@@ -24,9 +24,7 @@
 #endregion
 
 using System.Numerics;
-using log4net;
 using MiNET.Blocks;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -34,47 +32,59 @@ namespace MiNET.Items
 {
 	public partial class ItemBucket : Item
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBucket));
-
 		public ItemBucket() : base()
 		{
-			MaxStackSize = 1;
-			FuelEfficiency = (short) (Metadata == 10 ? 1000 : 0);
+			MaxStackSize = 16;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			if (Metadata == 8 || Metadata == 10) //Prevent some kind of cheating...
+			// Pick up water/lava
+			var block = world.GetBlock(blockCoordinates);
+			switch (block)
 			{
-				var itemBlock = new ItemBlock(BlockFactory.GetBlockById((byte) Metadata));
-				itemBlock.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
-			}
-			else if (Metadata == 0) // Empty bucket
-			{
-				// Pick up water/lava
-				var block = world.GetBlock(blockCoordinates);
-				switch (block)
-				{
-					case Stationary fluid:
+				case Stationary fluid:
+					if (fluid.LiquidDepth == 0) // Only source blocks
 					{
-						if (fluid.LiquidDepth == 0) // Only source blocks
+						switch (block)
 						{
-							world.SetAir(blockCoordinates);
+							case Lava:
+								player.Inventory.AddItem(new ItemLavaBucket(), true);
+								break;
+							case Water:
+								player.Inventory.AddItem(new ItemWaterBucket(), true);
+								break;
+
+							default: return false;
 						}
-						break;
+
+						world.SetAir(blockCoordinates);
+						Count--;
 					}
-					case Flowing fluid:
+					return true;
+				case Flowing fluid:
+					if (fluid.LiquidDepth == 0) // Only source blocks
 					{
-						if (fluid.LiquidDepth == 0) // Only source blocks
+						switch (block)
 						{
-							world.SetAir(blockCoordinates);
+							case FlowingLava:
+								player.Inventory.AddItem(new ItemLavaBucket(), true);
+								break;
+							case FlowingWater:
+								player.Inventory.AddItem(new ItemWaterBucket(), true);
+								break;
+
+							default:
+								return false;
 						}
-						break;
+
+						world.SetAir(blockCoordinates);
+						Count--;
 					}
-				}
+					return true;
 			}
 
-			FuelEfficiency = (short) (Metadata == 10 ? 1000 : 0);
+			return false;
 		}
 	}
 }

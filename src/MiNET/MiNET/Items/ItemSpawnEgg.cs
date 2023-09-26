@@ -63,7 +63,7 @@ namespace MiNET.Items
 			MaxStackSize = 1;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Log.WarnFormat("Player {0} trying to spawn Mob #{1}.", player.Username, Metadata);
 
@@ -203,7 +203,7 @@ namespace MiNET.Items
 					break;
 			}
 
-			if (mob == null) return;
+			if (mob == null) return false;
 
 			mob.KnownPosition = new PlayerLocation(coordinates.X, coordinates.Y, coordinates.Z);
 			mob.NoAi = true;
@@ -217,6 +217,8 @@ namespace MiNET.Items
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
+
+			return true;
 		}
 	}
 }

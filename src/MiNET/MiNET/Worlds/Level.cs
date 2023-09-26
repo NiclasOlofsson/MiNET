@@ -1158,7 +1158,7 @@ namespace MiNET.Worlds
 
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true, ChunkColumn possibleChunk = null)
 		{
-			if (block.Coordinates.Y < 0) return;
+			if (block.Coordinates.Y < ChunkColumn.WorldMinY) return;
 
 			var chunkCoordinates = new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4);
 			ChunkColumn chunk = possibleChunk != null && possibleChunk.X == chunkCoordinates.X && possibleChunk.Z == chunkCoordinates.Z ? possibleChunk : GetChunk(chunkCoordinates);
@@ -1463,7 +1463,7 @@ namespace MiNET.Worlds
 			if (GameMode == GameMode.Creative) return;
 
 			if (drop == null) return;
-			if (drop.LegacyId == 0) return;
+			if (drop is ItemAir) return;
 			if (drop.Count == 0) return;
 
 			if (AutoSmelt) drop = drop.GetSmelt() ?? drop;

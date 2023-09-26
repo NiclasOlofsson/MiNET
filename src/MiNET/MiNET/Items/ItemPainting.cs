@@ -93,17 +93,17 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block block = world.GetBlock(targetCoordinates);
 			var emptyCoordinates = block.IsReplaceable ? targetCoordinates : GetNewCoordinatesFromFace(targetCoordinates, face);
 			var coordinates = targetCoordinates;
 
 
-			if (face == BlockFace.Up || face == BlockFace.Down) return;
+			if (face == BlockFace.Up || face == BlockFace.Down) return false;
 
 			var paintings = FindPaintings(world, emptyCoordinates, face);
-			if (paintings.Count == 0) return;
+			if (paintings.Count == 0) return false;
 
 			var paintingTuple = paintings[new Random().Next(paintings.Count)];
 			var paintingData = paintingTuple.Item1;
@@ -162,6 +162,8 @@ namespace MiNET.Items
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
+
+			return true;
 		}
 
 		private List<(PaintingData, BoundingBox)> FindPaintings(Level world, BlockCoordinates emptyCoordinates, BlockFace face)

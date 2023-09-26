@@ -25,7 +25,6 @@
 
 using System.Numerics;
 using MiNET.Blocks;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -38,30 +37,30 @@ namespace MiNET.Items
 			MaxStackSize = 16;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			if (face == BlockFace.Down) // At the bottom of block
 			{
 				// Doesn't work, ignore if that happen. 
-				return;
+				return false;
 			}
 
 			if (face == BlockFace.Up)
 			{
-				if (!(BlockFactory.GetBlockById(176) is StandingBanner banner)) return;
+				var banner = new StandingBanner();
 				banner.ExtraData = ExtraData;
 				banner.Base = Metadata;
 				Block = banner;
 			}
 			else
 			{
-				if (!(BlockFactory.GetBlockById(176) is WallBanner banner)) return;
+				var banner = new WallBanner();
 				banner.ExtraData = ExtraData;
 				banner.Base = Metadata;
 				Block = banner;
 			}
 
-			base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
+			return base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
 		}
 	}
 }

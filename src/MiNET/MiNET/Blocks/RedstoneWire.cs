@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {ItemFactory.GetItem(331)};
+			return new[] { new ItemRedstone() };
 		}
 	}
 }

@@ -271,11 +271,11 @@ namespace MiNET.Blocks
 			return FromNbt<Block>(tag);
 		}
 
-		public static Block FromNbt<T>(NbtTag tag) where T : Block
+		public static Block FromNbt<T>(NbtTag compound) where T : Block
 		{
 			// TODO - rework on serialization
-			var id = tag["name"].StringValue;
-			var statesTag = tag["states"] as NbtList;
+			var id = compound["name"].StringValue;
+			var statesTag = compound["states"] as NbtList;
 
 			var states = new BlockStateContainer()
 			{
@@ -346,12 +346,6 @@ namespace MiNET.Blocks
 		public static Block GetBlockById(string id)
 		{
 			return GetBlockById<Block>(id);
-		}
-
-		[Obsolete]
-		public static Block GetBlockById(int id)
-		{
-			return new Air(); // REMOVE THIS METHOD!!!!
 		}
 
 		public static Block GetBlockById(string id, short metadata)

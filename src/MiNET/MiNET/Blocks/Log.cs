@@ -47,16 +47,5 @@ namespace MiNET.Blocks
 			PillarAxis = ItemBlock.GetPillarAxisFromFace(face).ToString();
 			return false;
 		}
-
-
-		//public override Item[] GetDrops(Item tool)
-		//{
-		//	return new[] {ItemFactory.GetItem((short) Id, (short) (Metadata & 0x03), 1)};
-		//}
-
-		public override Item GetSmelt()
-		{
-			return new ItemCharcoal();
-		}
 	}
 }

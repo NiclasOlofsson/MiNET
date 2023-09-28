@@ -30,6 +30,7 @@ using fNbt;
 using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Crafting;
 using MiNET.Entities;
 using MiNET.Utils.Nbt;
 using MiNET.Utils.Vectors;
@@ -203,9 +204,11 @@ namespace MiNET.Items
 			return GetSwordDamage(itemMaterial) - 3;
 		}
 
-		public virtual Item GetSmelt()
+		public virtual Item GetSmelt(string block)
 		{
-			return null;
+			RecipeManager.TryGetSmeltingResult(this, block, out var result);
+
+			return result;
 		}
 
 		public virtual void Release(Level world, Player player, BlockCoordinates blockCoordinates)

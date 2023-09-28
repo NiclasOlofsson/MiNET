@@ -309,14 +309,16 @@ namespace MiNET.Blocks
 			return ItemToBlock.GetValueOrDefault(id);
 		}
 
-		public static string GetIdByType<T>()
+		public static string GetIdByType<T>(bool withRoot = true)
 		{
-			return GetIdByType(typeof(T));
+			return GetIdByType(typeof(T), withRoot);
 		}
 
-		public static string GetIdByType(Type type)
+		public static string GetIdByType(Type type, bool withRoot = true)
 		{
-			return TypeToId.GetValueOrDefault(type);
+			return withRoot 
+				? TypeToId.GetValueOrDefault(type)
+				: TypeToId.GetValueOrDefault(type).Replace("minecraft:", "");
 		}
 
 		public static string GetIdByRuntimeId(int id)

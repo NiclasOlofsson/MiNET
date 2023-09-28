@@ -43,11 +43,6 @@ namespace MiNET.Blocks
 			return new[] { new ItemDiamond() };
 		}
 
-		public override Item GetSmelt()
-		{
-			return new ItemDiamond();
-		}
-
 		public override float GetExperiencePoints()
 		{
 			Random random = new Random();

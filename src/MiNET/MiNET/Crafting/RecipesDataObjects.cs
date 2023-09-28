@@ -28,4 +28,13 @@ namespace MiNET.Crafting
 
 		public string[] Shape { get; set; }
 	}
+
+	internal class SmeltingRecipeData
+	{
+		public string Block { get; set; }
+
+		public ExternalDataItem Input { get; set; }
+
+		public ExternalDataItem Output { get; set; }
+	}
 }

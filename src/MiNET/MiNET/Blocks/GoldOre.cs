@@ -35,16 +35,11 @@ namespace MiNET.Blocks
 			Hardness = 3;
 		}
 
-		public override Item GetSmelt()
-		{
-			return new ItemGoldIngot();
-		}
-
 		public override Item[] GetDrops(Item tool)
 		{
 			if (tool.ItemMaterial < ItemMaterial.Iron) return new Item[0];
 
-			return base.GetDrops(tool);
+			return new[] { new ItemRawGold() };
 		}
 	}
 }

@@ -575,6 +575,7 @@ namespace MiNET.Inventory
 				case 24: // furnace/container
 				case 25: // furnace/container
 				case 26: // furnace/container
+				case 45: // blast_furnace/container
 					if (_player._openInventory is ContainerInventory inventory)
 						item = inventory.GetSlot((byte) slot);
 					break;
@@ -630,6 +631,7 @@ namespace MiNET.Inventory
 				case 24: // furnace/container
 				case 25: // furnace/container
 				case 26: // furnace/container
+				case 45: // blast_furnace/container
 					if (_player._openInventory is ContainerInventory inventory)
 						inventory.SetSlot(_player, (byte) slot, item);
 					break;

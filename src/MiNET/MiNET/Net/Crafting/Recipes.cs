@@ -116,11 +116,11 @@ namespace MiNET.Net.Crafting
 		{
 		}
 
-		public ShapelessChemistryRecipe(List<Item> result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		public ShapelessChemistryRecipe(List<Item> output, List<RecipeIngredient> input, string block = null) : base(output, input, block)
 		{
 		}
 
-		public ShapelessChemistryRecipe(Item result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		public ShapelessChemistryRecipe(Item output, List<RecipeIngredient> input, string block = null) : base(output, input, block)
 		{
 		}
 
@@ -140,11 +140,11 @@ namespace MiNET.Net.Crafting
 		{
 		}
 
-		public ShapelessShulkerBoxRecipe(List<Item> result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		public ShapelessShulkerBoxRecipe(List<Item> output, List<RecipeIngredient> input, string block = null) : base(output, input, block)
 		{
 		}
 
-		public ShapelessShulkerBoxRecipe(Item result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		public ShapelessShulkerBoxRecipe(Item output, List<RecipeIngredient> input, string block = null) : base(output, input, block)
 		{
 		}
 
@@ -164,11 +164,11 @@ namespace MiNET.Net.Crafting
 		{
 		}
 
-		public ShapelessRecipe(List<Item> result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		public ShapelessRecipe(List<Item> output, List<RecipeIngredient> input, string block = null) : base(output, input, block)
 		{
 		}
 
-		public ShapelessRecipe(Item result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		public ShapelessRecipe(Item output, List<RecipeIngredient> input, string block = null) : base(output, input, block)
 		{
 		}
 
@@ -182,27 +182,26 @@ namespace MiNET.Net.Crafting
 
 	public abstract class ShapelessRecipeBase : Recipe
 	{
-
 		public int UniqueId { get; set; }
 		public List<RecipeIngredient> Input { get; private set; }
-		public List<Item> Result { get; private set; }
+		public List<Item> Output { get; private set; }
 
 		public ShapelessRecipeBase()
 		{
 			Input = new List<RecipeIngredient>();
-			Result = new List<Item>();
+			Output = new List<Item>();
 		}
 
-		public ShapelessRecipeBase(List<Item> result, List<RecipeIngredient> input, string block = null) : this()
+		public ShapelessRecipeBase(List<Item> output, List<RecipeIngredient> input, string block = null) : this()
 		{
-			Result = result;
+			Output = output;
 			Input = input;
 			Block = block;
 		}
 
-		public ShapelessRecipeBase(Item result, List<RecipeIngredient> input, string block = null) : this()
+		public ShapelessRecipeBase(Item output, List<RecipeIngredient> input, string block = null) : this()
 		{
-			Result.Add(result);
+			Output.Add(output);
 			Input = input;
 			Block = block;
 		}
@@ -217,8 +216,8 @@ namespace MiNET.Net.Crafting
 				packet.Write(ingredient);
 			}
 
-			packet.WriteUnsignedVarInt((uint) Result.Count);
-			foreach (Item item in Result)
+			packet.WriteUnsignedVarInt((uint) Output.Count);
+			foreach (Item item in Output)
 			{
 				packet.Write(item, false);
 			}
@@ -242,7 +241,7 @@ namespace MiNET.Net.Crafting
 			var outputCount = packet.ReadUnsignedVarInt();
 			for (var i = 0; i < outputCount; i++)
 			{
-				recipe.Result.Add(packet.ReadItem(false));
+				recipe.Output.Add(packet.ReadItem(false));
 			}
 
 			recipe.Id = packet.ReadUUID();
@@ -262,11 +261,11 @@ namespace MiNET.Net.Crafting
 		{
 		}
 
-		public ShapedChemistryRecipe(int width, int height, Item result, RecipeIngredient[] input, string block = null) : base(width, height, result, input, block)
+		public ShapedChemistryRecipe(int width, int height, Item output, RecipeIngredient[] input, string block = null) : base(width, height, output, input, block)
 		{
 		}
 
-		public ShapedChemistryRecipe(int width, int height, List<Item> result, RecipeIngredient[] input, string block = null) : base(width, height, result, input, block)
+		public ShapedChemistryRecipe(int width, int height, List<Item> output, RecipeIngredient[] input, string block = null) : base(width, height, output, input, block)
 		{
 		}
 
@@ -288,11 +287,11 @@ namespace MiNET.Net.Crafting
 		{
 		}
 
-		public ShapedRecipe(int width, int height, Item result, RecipeIngredient[] input, string block = null) : base(width, height, result, input, block)
+		public ShapedRecipe(int width, int height, Item output, RecipeIngredient[] input, string block = null) : base(width, height, output, input, block)
 		{
 		}
 
-		public ShapedRecipe(int width, int height, List<Item> result, RecipeIngredient[] input, string block = null) : base(width, height, result, input, block)
+		public ShapedRecipe(int width, int height, List<Item> output, RecipeIngredient[] input, string block = null) : base(width, height, output, input, block)
 		{
 		}
 
@@ -312,26 +311,26 @@ namespace MiNET.Net.Crafting
 		public int Width { get; set; }
 		public int Height { get; set; }
 		public RecipeIngredient[] Input { get; set; }
-		public List<Item> Result { get; set; }
+		public List<Item> Output { get; set; }
 
 		public ShapedRecipeBase(int width, int height)
 		{
 			Width = width;
 			Height = height;
 			Input = new RecipeIngredient[Width * height];
-			Result = new List<Item>();
+			Output = new List<Item>();
 		}
 
-		public ShapedRecipeBase(int width, int height, Item result, RecipeIngredient[] input, string block = null) : this(width, height)
+		public ShapedRecipeBase(int width, int height, Item output, RecipeIngredient[] input, string block = null) : this(width, height)
 		{
-			Result.Add(result);
+			Output.Add(output);
 			Input = input;
 			Block = block;
 		}
 
-		public ShapedRecipeBase(int width, int height, List<Item> result, RecipeIngredient[] input, string block = null) : this(width, height)
+		public ShapedRecipeBase(int width, int height, List<Item> output, RecipeIngredient[] input, string block = null) : this(width, height)
 		{
-			Result = result;
+			Output = output;
 			Input = input;
 			Block = block;
 		}
@@ -350,8 +349,8 @@ namespace MiNET.Net.Crafting
 				}
 			}
 
-			packet.WriteUnsignedVarInt((uint) Result.Count);
-			foreach (var item in Result)
+			packet.WriteUnsignedVarInt((uint) Output.Count);
+			foreach (var item in Output)
 			{
 				packet.Write(item, false);
 			}
@@ -375,7 +374,7 @@ namespace MiNET.Net.Crafting
 			var outputCount = packet.ReadUnsignedVarInt();
 			for (var i = 0; i < outputCount; i++)
 			{
-				recipe.Result.Add(packet.ReadItem(false));
+				recipe.Output.Add(packet.ReadItem(false));
 			}
 
 			recipe.Id = packet.ReadUUID();
@@ -401,6 +400,11 @@ namespace MiNET.Net.Crafting
 
 			return ReadData(packet, recipe);
 		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Input.RuntimeId, Block);
+		}
 	}
 
 	public class SmeltingDataRecipe : SmeltingRecipeBase
@@ -418,20 +422,25 @@ namespace MiNET.Net.Crafting
 
 			return ReadData(packet, recipe);
 		}
+
+		public override int GetHashCode()
+		{
+			return HashCode.Combine(Input, Block);
+		}
 	}
 
 	public abstract class SmeltingRecipeBase : Recipe
 	{
 		public Item Input { get; set; }
-		public Item Result { get; set; }
+		public Item Output { get; set; }
 
 		protected SmeltingRecipeBase()
 		{
 		}
 
-		public SmeltingRecipeBase(Item result, Item input, string block = null) : this()
+		public SmeltingRecipeBase(Item output, Item input, string block = null) : this()
 		{
-			Result = result;
+			Output = output;
 			Input = input;
 			Block = block;
 		}
@@ -444,13 +453,13 @@ namespace MiNET.Net.Crafting
 				packet.WriteSignedVarInt(Input.Metadata);
 			}
 
-			packet.Write(Result, false);
+			packet.Write(Output, false);
 			packet.Write(Block);
 		}
 
 		protected static Recipe ReadData(Packet packet, SmeltingRecipeBase recipe)
 		{
-			recipe.Result = packet.ReadItem(false);
+			recipe.Output = packet.ReadItem(false);
 			recipe.Block = packet.ReadString();
 
 			return recipe;

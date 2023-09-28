@@ -352,7 +352,7 @@ namespace MiNET.Blocks
 			return new[] { item };
 		}
 
-		public virtual Item GetSmelt()
+		public virtual Item GetSmelt(string block)
 		{
 			return null;
 		}

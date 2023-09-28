@@ -43,6 +43,8 @@ namespace MiNET.BlockEntities
 		public short BurnTime { get; set; }
 		public short BurnTick { get; set; }
 
+		public string Block { get; } = BlockFactory.GetIdByType<Furnace>(false);
+
 
 		public FurnaceBlockEntity() : base("Furnace")
 		{
@@ -105,7 +107,7 @@ namespace MiNET.BlockEntities
 			{
 				Item fuel = GetFuel();
 				Item ingredient = GetIngredient();
-				Item smelt = ingredient.GetSmelt();
+				Item smelt = ingredient.GetSmelt(Block);
 				// To light a furnace you need both fule and proper ingredient.
 				if (fuel.Count > 0 && fuel.FuelEfficiency > 0 && smelt != null)
 				{
@@ -132,7 +134,7 @@ namespace MiNET.BlockEntities
 					BurnTick = (short) Math.Ceiling((double) BurnTime / FuelEfficiency * 200d);
 
 					Item ingredient = GetIngredient();
-					Item smelt = ingredient.GetSmelt();
+					Item smelt = ingredient.GetSmelt(Block);
 					if (smelt != null)
 					{
 						CookTime++;
@@ -154,7 +156,7 @@ namespace MiNET.BlockEntities
 				{
 					var fuel = GetFuel();
 					Item ingredient = GetIngredient();
-					Item smelt = ingredient.GetSmelt();
+					Item smelt = ingredient.GetSmelt(Block);
 					if (fuel.Count > 0 && fuel.FuelEfficiency > 0 && smelt != null)
 					{
 						Inventory.DecreaseSlot(1);
@@ -199,7 +201,7 @@ namespace MiNET.BlockEntities
 
 		private Item GetResult(Item ingredient)
 		{
-			return ingredient.GetSmelt();
+			return ingredient.GetSmelt(Block);
 		}
 
 		public short FuelEfficiency { get; set; }

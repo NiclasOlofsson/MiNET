@@ -34,10 +34,5 @@ namespace MiNET.Blocks
 			BlastResistance = 30;
 			Hardness = 1.5f;
 		}
-
-		public override Item GetSmelt()
-		{
-			return ItemFactory.GetItem<Stone>(metadata: 2);
-		}
 	}
 }

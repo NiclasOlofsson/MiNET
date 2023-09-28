@@ -5126,11 +5126,7 @@ namespace MiNET.Blocks
 
 	public partial class CopperOre : Block // typeof=CopperOre
 	{
-
-		public CopperOre() : base("minecraft:copper_ore")
-		{
-			IsGenerated = true;
-		}
+		public override string Id { get; protected set; } = "minecraft:copper_ore";
 
 		public override void SetState(List<IBlockState> states)
 		{

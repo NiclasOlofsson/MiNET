@@ -73,9 +73,9 @@ namespace MiNET.Items
 			FuelEfficiency = Block.FuelEfficiency;
 		}
 
-		public override Item GetSmelt()
+		public override Item GetSmelt(string block)
 		{
-			return Block.GetSmelt();
+			return Block.GetSmelt(block) ?? base.GetSmelt(block);
 		}
 
 		public static int GetFacingDirectionFromEntity(Entity entity)

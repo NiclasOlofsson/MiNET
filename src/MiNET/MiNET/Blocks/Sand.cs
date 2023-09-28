@@ -75,10 +75,5 @@ namespace MiNET.Blocks
 				new FallingBlock(level, GetRuntimeId()) {KnownPosition = new PlayerLocation(Coordinates.X + d.X, Coordinates.Y - 0.03f, Coordinates.Z + d.Z)}.SpawnEntity();
 			}
 		}
-
-		public override Item GetSmelt()
-		{
-			return ItemFactory.GetItem<Glass>();
-		}
 	}
 }

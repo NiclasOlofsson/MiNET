@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Inventory;
 using MiNET.Items;
 using MiNET.Net;
@@ -45,6 +46,7 @@ namespace MiNET.Crafting
 
 		public static Dictionary<int, Recipe> NetworkIdRecipeMap { get; } = new Dictionary<int, Recipe>();
 		public static Dictionary<UUID, Recipe> IdRecipeMap { get; } = new Dictionary<UUID, Recipe>();
+		public static Dictionary<int, SmeltingRecipeBase> SmeltingRecipes { get; } = new Dictionary<int, SmeltingRecipeBase>();
 		public static Recipes Recipes { get; private set; }
 
 		private static McpeWrapper _craftingData;
@@ -74,6 +76,7 @@ namespace MiNET.Crafting
 			LoadShapelessRecipes();
 			LoadShapelessShulkerBoxRecipes();
 			LoadShapelessChemistryRecipes();
+			LoadSmeltingRecipes();
 
 			Recipes.Add(new MultiRecipe() { Id = new UUID("442d85ed-8272-4543-a6f1-418f90ded05d"), UniqueId = _recipeUniqueIdCounter++ }); // 442d85ed-8272-4543-a6f1-418f90ded05d
 			Recipes.Add(new MultiRecipe() { Id = new UUID("8b36268c-1829-483c-a0f1-993b7156a8f2"), UniqueId = _recipeUniqueIdCounter++ }); // 8b36268c-1829-483c-a0f1-993b7156a8f2
@@ -101,6 +104,22 @@ namespace MiNET.Crafting
 
 				_ => false
 			};
+		}
+
+		public static bool TryGetSmeltingResult(Item input, string block, out Item output)
+		{
+			if (input is ItemAir)
+			{
+				output = null;
+				return false;
+			}
+
+			var hash1 = HashCode.Combine(input, block);
+			var hash2 = HashCode.Combine(input.RuntimeId, block);
+
+			output = (SmeltingRecipes.GetValueOrDefault(hash1) ?? SmeltingRecipes.GetValueOrDefault(hash2))?.Output;
+
+			return output != null;
 		}
 
 		private static bool ValidateRecipe(ShapedRecipe recipe, List<Item> input, int times, out List<Item> resultItems, out Item[] consumeItems)
@@ -135,7 +154,7 @@ namespace MiNET.Crafting
 				inputClone[index] = null;
 			}
 
-			foreach (var item in recipe.Result)
+			foreach (var item in recipe.Output)
 			{
 				var resultItem = item.Clone() as Item;
 				resultItem.Count = (byte) (resultItem.Count * times);
@@ -169,7 +188,7 @@ namespace MiNET.Crafting
 				if (!inputClone.Remove(item)) return false;
 			}
 
-			foreach (var item in recipe.Result)
+			foreach (var item in recipe.Output)
 			{
 				var resultItem = item.Clone() as Item;
 				resultItem.Count = (byte) (resultItem.Count * times);
@@ -183,7 +202,7 @@ namespace MiNET.Crafting
 		private static void LoadShapelessChemistryRecipes()
 		{
 			LoadShapelessRecipesBase("shapeless_chemistry.json", recipe =>
-				new ShapelessChemistryRecipe(recipe.Result, recipe.Input, recipe.Block)
+				new ShapelessChemistryRecipe(recipe.Output, recipe.Input, recipe.Block)
 				{
 					Priority = recipe.Priority,
 					UniqueId = recipe.UniqueId
@@ -193,7 +212,7 @@ namespace MiNET.Crafting
 		private static void LoadShapelessShulkerBoxRecipes()
 		{
 			LoadShapelessRecipesBase("shapeless_shulker_box.json", recipe => 
-				new ShapelessShulkerBoxRecipe(recipe.Result, recipe.Input, recipe.Block)
+				new ShapelessShulkerBoxRecipe(recipe.Output, recipe.Input, recipe.Block)
 				{
 					Priority = recipe.Priority,
 					UniqueId = recipe.UniqueId
@@ -250,7 +269,7 @@ namespace MiNET.Crafting
 		private static void LoadShapedChemistryRecipes()
 		{
 			LoadShapedRecipesBase("shaped_chemistry.json", recipe =>
-			new ShapedChemistryRecipe(recipe.Width, recipe.Height, recipe.Result, recipe.Input, recipe.Block) 
+			new ShapedChemistryRecipe(recipe.Width, recipe.Height, recipe.Output, recipe.Input, recipe.Block) 
 			{ 
 				Priority = recipe.Priority, 
 				UniqueId = recipe.UniqueId 
@@ -320,6 +339,38 @@ namespace MiNET.Crafting
 				ShapedRecipeBase recipe = new ShapedRecipe(width, height, output, inputShape.ToArray(), recipeData.Block) { Priority = recipeData.Priority, UniqueId = _recipeUniqueIdCounter++ };
 				recipe = getRecipe(recipe);
 				NetworkIdRecipeMap.Add(recipe.UniqueId, recipe);
+				IdRecipeMap.Add(recipe.Id, recipe);
+				Recipes.Add(recipe);
+			}
+		}
+
+		private static void LoadSmeltingRecipes()
+		{
+			var shapedCrafting = ResourceUtil.ReadResource<List<SmeltingRecipeData>>("smelting.json", typeof(RecipeManager), "Data");
+
+			foreach (var recipeData in shapedCrafting)
+			{
+				if (!InventoryUtils.TryGetItemFromExternalData(recipeData.Input, out var input))
+				{
+					Log.Warn($"Missing smelting recipe Inputs: {JsonConvert.SerializeObject(recipeData)}");
+
+					continue;
+				}
+
+				if (!InventoryUtils.TryGetItemFromExternalData(recipeData.Output, out var output))
+				{
+					Log.Warn($"Missing smelting recipe Inputs: {JsonConvert.SerializeObject(recipeData)}");
+
+					continue;
+				}
+
+				SmeltingRecipeBase recipe = recipeData.Input.Metadata == short.MaxValue ? new SmeltingRecipe() : new SmeltingDataRecipe();
+
+				recipe.Block = recipeData.Block;
+				recipe.Input = input;
+				recipe.Output = output;
+
+				SmeltingRecipes.Add(recipe.GetHashCode(), recipe);
 				IdRecipeMap.Add(recipe.Id, recipe);
 				Recipes.Add(recipe);
 			}

@@ -291,7 +291,7 @@ namespace MiNET.Client
 					}
 				}
 				{
-					ItemStacks slotData = new ItemStacks {recipe.Result.First()};
+					ItemStacks slotData = new ItemStacks {recipe.Output.First()};
 					crafting.result = slotData;
 				}
 

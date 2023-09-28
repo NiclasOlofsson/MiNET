@@ -1467,7 +1467,7 @@ namespace MiNET.Worlds
 			if (drop is ItemAir) return;
 			if (drop.Count == 0) return;
 
-			if (AutoSmelt) drop = drop.GetSmelt() ?? drop;
+			if (AutoSmelt) drop = drop.GetSmelt(BlockFactory.GetIdByType<Furnace>(false)) ?? drop;
 
 			Random random = new Random();
 			var itemEntity = new ItemEntity(this, drop)

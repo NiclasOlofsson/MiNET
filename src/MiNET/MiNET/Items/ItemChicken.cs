@@ -30,10 +30,5 @@ namespace MiNET.Items
 		public ItemChicken() : base(2, 1.2)
 		{
 		}
-
-		public override Item GetSmelt()
-		{
-			return new ItemCookedChicken();
-		}
 	}
 }

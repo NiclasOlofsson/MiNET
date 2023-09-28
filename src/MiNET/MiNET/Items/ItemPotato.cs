@@ -40,10 +40,5 @@ namespace MiNET.Items
 		{
 			return ItemFactory.GetItem<Potatoes>().PlaceBlock(world, player, targetCoordinates, face, faceCoords);
 		}
-
-		public override Item GetSmelt()
-		{
-			return new ItemBakedPotato();
-		}
 	}
 }

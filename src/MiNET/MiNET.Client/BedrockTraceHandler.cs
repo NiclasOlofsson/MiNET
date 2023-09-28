@@ -666,7 +666,7 @@ namespace MiNET.Client
 					writer.WriteLine("new List<Item>");
 					writer.WriteLine("{");
 					writer.Indent++;
-					foreach (var itemStack in shapelessRecipe.Result)
+					foreach (var itemStack in shapelessRecipe.Output)
 					{
 						writer.WriteLine($"new Item(\"{itemStack.Id}\", {itemStack.Metadata}, {itemStack.Count}){{ UniqueId = {itemStack.UniqueId}, RuntimeId={itemStack.BlockRuntimeId} }},");
 					}
@@ -706,7 +706,7 @@ namespace MiNET.Client
 					writer.WriteLine("new List<Item>");
 					writer.WriteLine("{");
 					writer.Indent++;
-					foreach (Item item in shapedRecipe.Result)
+					foreach (Item item in shapedRecipe.Output)
 					{
 						writer.WriteLine($"new Item(\"{item.Id}\", {item.Metadata}, {item.Count}){{ UniqueId = {item.UniqueId}, RuntimeId={item.BlockRuntimeId} }},");
 					}
@@ -732,7 +732,7 @@ namespace MiNET.Client
 				var smeltingRecipe = recipe as SmeltingRecipe;
 				if (smeltingRecipe != null)
 				{
-					writer.WriteLine($"new SmeltingRecipe(new Item(\"{smeltingRecipe.Result.Id}\", {smeltingRecipe.Result.Metadata}, {smeltingRecipe.Result.Count}){{ UniqueId = {smeltingRecipe.Result.UniqueId}, RuntimeId={smeltingRecipe.Result.BlockRuntimeId} }}, new Item(\"{smeltingRecipe.Input.Id}\", {smeltingRecipe.Input.Metadata}){{ UniqueId = {smeltingRecipe.Input.UniqueId}, RuntimeId={smeltingRecipe.Input.BlockRuntimeId} }}, \"{smeltingRecipe.Block}\"),");
+					writer.WriteLine($"new SmeltingRecipe(new Item(\"{smeltingRecipe.Output.Id}\", {smeltingRecipe.Output.Metadata}, {smeltingRecipe.Output.Count}){{ UniqueId = {smeltingRecipe.Output.UniqueId}, RuntimeId={smeltingRecipe.Output.BlockRuntimeId} }}, new Item(\"{smeltingRecipe.Input.Id}\", {smeltingRecipe.Input.Metadata}){{ UniqueId = {smeltingRecipe.Input.UniqueId}, RuntimeId={smeltingRecipe.Input.BlockRuntimeId} }}, \"{smeltingRecipe.Block}\"),");
 					continue;
 				}
 

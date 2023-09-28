@@ -30,10 +30,5 @@ namespace MiNET.Items
 		public ItemBeef() : base(3, 1.8)
 		{
 		}
-
-		public override Item GetSmelt()
-		{
-			return new ItemCookedBeef();
-		}
 	}
 }

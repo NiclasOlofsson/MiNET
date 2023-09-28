@@ -26,6 +26,7 @@
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
+using MiNET.Crafting;
 using MiNET.Inventory;
 using MiNET.Items;
 
@@ -64,6 +65,12 @@ namespace MiNET.Test
 		public void CreateiveInventoryTest()
 		{
 			var items = InventoryUtils.CreativeInventoryItems;
+		}
+
+		[TestMethod]
+		public void CraftingTest()
+		{
+			var recipes = RecipeManager.Recipes;
 		}
 	}
 }

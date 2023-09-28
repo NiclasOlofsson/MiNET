@@ -626,7 +626,7 @@
 		</enums>
 
 		<field name="Window ID" type="byte" />
-		<field name="Recipe Type" type="SignedVarInt" />
+		<field name="Recipe Type" type="VarInt" />
 		<field name="Recipe ID" type="UUID" />
 		<field name="Input" type="ItemStacks" />
 		<field name="Result" type="ItemStacks" />

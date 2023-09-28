@@ -289,9 +289,11 @@ namespace MiNET.Items
 			return false; // Not handled
 		}
 
+		private static int _uniqueIdIncrement;
+
 		public static int GetUniqueId()
 		{
-			return Math.Abs(Environment.TickCount);
+			return Math.Abs(Environment.TickCount + _uniqueIdIncrement++);
 		}
 	}
 

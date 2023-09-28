@@ -41,6 +41,7 @@ using LongString = System.String;
 using MiNET.Utils.Metadata;
 using MiNET.Utils.Vectors;
 using MiNET.Utils.Nbt;
+using MiNET.Net.Crafting;
 
 namespace MiNET.Net
 {
@@ -5089,7 +5090,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(windowId);
-			WriteSignedVarInt(recipeType);
+			WriteVarInt(recipeType);
 			Write(recipeId);
 			Write(input);
 			Write(result);
@@ -5107,7 +5108,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			windowId = ReadByte();
-			recipeType = ReadSignedVarInt();
+			recipeType = ReadVarInt();
 			recipeId = ReadUUID();
 			input = ReadItemStacks();
 			result = ReadItemStacks();

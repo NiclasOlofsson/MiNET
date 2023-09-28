@@ -59,7 +59,7 @@ namespace MiNET.Blocks
 				int runtimeId = 0;
 				BlockPalette = new BlockPalette();
 
-				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".Data.canonical_block_states.nbt"))
+				using (var stream = assembly.GetManifestResourceStream(typeof(BlockFactory).Namespace + ".Data.canonical_block_states.nbt"))
 				{
 					do
 					{
@@ -71,7 +71,8 @@ namespace MiNET.Blocks
 					} while (stream.Position < stream.Length);
 				}
 
-				using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".Data.r12_to_current_block_map.bin"))
+				var visitedContainers = new HashSet<BlockStateContainer>();
+				using (var stream = assembly.GetManifestResourceStream(typeof(BlockFactory).Namespace + ".Data.r12_to_current_block_map.bin"))
 				{
 					while (stream.Position < stream.Length)
 					{
@@ -87,13 +88,18 @@ namespace MiNET.Blocks
 
 						var compound = Packet.ReadNbtCompound(stream, true);
 
-						NameToBlockMapEntry.Add(GetMetaBlockName(stringId, meta), new R12ToCurrentBlockMapEntry(stringId, meta, GetBlockStateContainer(compound)));
+						var state = GetBlockStateContainer(compound);
+						//if (!visitedContainers.TryGetValue(state, out _))
+						{
+							NameToBlockMapEntry.Add(GetMetaBlockName(stringId, meta), new R12ToCurrentBlockMapEntry(stringId, meta, state));
+							visitedContainers.Add(state);
+						}
 					}
 				}
 
 				Dictionary<string, List<int>> idToStatesMap = new Dictionary<string, List<int>>(StringComparer.OrdinalIgnoreCase);
 
-				Dictionary<string, string> blockIdItemIdMap = ResourceUtil.ReadResource<Dictionary<string, string>>("block_id_to_item_id_map.json", typeof(Block), "Data");
+				Dictionary<string, string> blockIdItemIdMap = ResourceUtil.ReadResource<Dictionary<string, string>>("block_id_to_item_id_map.json", typeof(BlockFactory), "Data");
 				ItemToBlock = blockIdItemIdMap.ToDictionary(pair => pair.Value, pair => pair.Key);
 
 				for (var index = 0; index < BlockPalette.Count; index++)

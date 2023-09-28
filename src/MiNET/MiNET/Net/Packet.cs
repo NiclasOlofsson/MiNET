@@ -40,8 +40,8 @@ using fNbt;
 using log4net;
 using Microsoft.IO;
 using MiNET.Blocks;
-using MiNET.Crafting;
 using MiNET.Items;
+using MiNET.Net.Crafting;
 using MiNET.Net.RakNet;
 using MiNET.Utils;
 using MiNET.Utils.IO;
@@ -492,6 +492,11 @@ namespace MiNET.Net
 			return new Vector3(ReadFloat(), ReadFloat(), ReadFloat());
 		}
 
+		public void Write(IPacketDataObject dataObject)
+		{
+			dataObject.Write(this);
+		}
+
 
 		public void Write(BlockCoordinates coord)
 		{
@@ -876,21 +881,15 @@ namespace MiNET.Net
 
 		public ItemStacks ReadItemStacks()
 		{
-			var metadata = new ItemStacks();
+			var itemStacks = new ItemStacks();
 
-			// TODO - 1.19-update
 			var count = ReadUnsignedVarInt();
-			//for (int i = 0; i < count; i++)
-			//{
-			//	int networkId = 0;
-			//	if (this is McpeCreativeContent) networkId = ReadVarInt();
-			//	Item item = ReadItem(this is not McpeCreativeContent);
-			//	item.RuntimeId = networkId;
-			//	metadata.Add(item);
-			//	Log.Debug(item);
-			//}
+			for (int i = 0; i < count; i++)
+			{
+				itemStacks.Add(ReadItem());
+			}
 
-			return metadata;
+			return itemStacks;
 		}
 
 		public void Write(Transaction transaction)
@@ -1114,460 +1113,14 @@ namespace MiNET.Net
 
 			return transaction;
 		}
-
-		public StackRequestSlotInfo ReadStackRequestSlotInfo()
-		{
-			var containerId    = (byte) ReadByte();
-			var slot           = (byte) ReadByte();
-			var stackNetworkId = ReadSignedVarInt();
-
-			return new StackRequestSlotInfo()
-			{
-				ContainerId = containerId,
-				Slot = slot,
-				StackNetworkId = stackNetworkId
-			};
-		}
-		
-		public void Write(StackRequestSlotInfo slotInfo)
-		{
-			Write(slotInfo.ContainerId);
-			Write(slotInfo.Slot);
-			WriteSignedVarInt(slotInfo.StackNetworkId);
-		}
-
-		public void Write(ItemStackRequests requests)
-		{
-			WriteUnsignedVarInt((uint) requests.Count);
-
-			foreach (ItemStackActionList request in requests)
-			{
-				WriteVarInt(request.RequestId);
-				WriteUnsignedVarInt((uint) request.Count);
-
-				foreach (ItemStackAction action in request)
-				{
-					switch (action)
-					{
-						case TakeAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.Take);
-							Write(ta.Count);
-							Write(ta.Source);
-							Write(ta.Destination);
-							break;
-						}
-						
-						case PlaceAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.Place);
-							Write(ta.Count);
-							Write(ta.Source);
-							Write(ta.Destination);
-							break;
-						}
-						
-						case SwapAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.Swap);
-							Write(ta.Source);
-							Write(ta.Destination);
-							break;
-						}
-						
-						case DropAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.Drop);
-							Write(ta.Count);
-							Write(ta.Source);
-							Write(ta.Randomly);
-							break;
-						}
-						
-						case DestroyAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.Destroy);
-							Write(ta.Count);
-							Write(ta.Source);
-							break;
-						}
-						
-						case ConsumeAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.Consume);
-							Write(ta.Count);
-							Write(ta.Source);
-							break;
-						}
-						
-						case CreateAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.Create);
-							Write(ta.ResultSlot);
-							break;
-						}
-
-						case PlaceIntoBundleAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.PlaceIntoBundle);
-							break;
-						}
-						
-						case TakeFromBundleAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.TakeFromBundle);
-							break;
-						}
-						
-						case LabTableCombineAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.LabTableCombine);
-							break;
-						}
-						
-						case BeaconPaymentAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.BeaconPayment);
-							WriteSignedVarInt(ta.PrimaryEffect);
-							WriteSignedVarInt(ta.SecondaryEffect);
-							break;
-						}
-						
-						case CraftAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.CraftRecipe);
-							WriteUnsignedVarInt(ta.RecipeNetworkId);
-							break;
-						}
-
-						case CraftAutoAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.CraftRecipeAuto);
-							WriteUnsignedVarInt(ta.RecipeNetworkId);
-							break;
-						}
-						
-						case CraftCreativeAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.CraftCreative);
-							WriteUnsignedVarInt(ta.CreativeItemNetworkId);
-							break;
-						}
-
-						case CraftRecipeOptionalAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.CraftRecipeOptional);
-							WriteUnsignedVarInt(ta.RecipeNetworkId);
-							Write(ta.FilteredStringIndex);
-							break;
-						}
-
-						case GrindstoneStackRequestAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.CraftGrindstone);
-							WriteUnsignedVarInt(ta.RecipeNetworkId);
-							WriteVarInt(ta.RepairCost);
-							break;
-						}
-						
-						case LoomStackRequestAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.CraftLoom);
-							Write(ta.PatternId);
-							break;
-						}
-
-						case CraftNotImplementedDeprecatedAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.CraftNotImplementedDeprecated);
-							break;
-						}
-						
-						case CraftResultDeprecatedAction ta:
-						{
-							Write((byte) McpeItemStackRequest.ActionType.CraftResultsDeprecated);
-							Write(ta.ResultItems);
-							Write(ta.TimesCrafted);
-							break;
-						}
-					}
-				}
-				
-				WriteUnsignedVarInt(0); //FilterStrings
-			}
-		}
-
-		//public const TAKE = 0;
-		//public const PLACE = 1;
-		//public const SWAP = 2;
-		//public const DROP = 3;
-		//public const DESTROY = 4;
-		//public const CRAFTING_CONSUME_INPUT = 5;
-		//public const CRAFTING_MARK_SECONDARY_RESULT_SLOT = 6;
-		//public const LAB_TABLE_COMBINE = 7;
-		//public const BEACON_PAYMENT = 8;
-		//public const CRAFTING_RECIPE = 9;
-		//public const CRAFTING_RECIPE_AUTO = 10; //recipe book?
-		//public const CREATIVE_CREATE = 11;
-		//public const CRAFT_RECIPE_OPTIONAL = 12;
-		//public const CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING = 13; 
-		//public const CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING = 14; //no idea what this is for
-
 		public ItemStackRequests ReadItemStackRequests()
 		{
-			var requests = new ItemStackRequests();
-
-			var c = ReadUnsignedVarInt();
-			Log.Debug($"Count: {c}");
-			for (int i = 0; i < c; i++)
-			{
-				var actions = new ItemStackActionList();
-				actions.RequestId = ReadVarInt();
-				Log.Debug($"Request ID: {actions.RequestId}");
-
-				uint count = ReadUnsignedVarInt();
-				Log.Debug($"Count: {count}");
-				for (int j = 0; j < count; j++)
-				{
-					var actionType = (McpeItemStackRequest.ActionType) ReadByte();
-					Log.Debug($"Action type: {actionType}");
-					switch (actionType)
-					{
-						case McpeItemStackRequest.ActionType.Take:
-						{
-							var action = new TakeAction();
-							action.Count = ReadByte();
-							action.Source = ReadStackRequestSlotInfo();
-							action.Destination = ReadStackRequestSlotInfo();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.Place:
-						{
-							var action = new PlaceAction();
-							action.Count = ReadByte();
-							action.Source = ReadStackRequestSlotInfo();
-							action.Destination = ReadStackRequestSlotInfo();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.Swap:
-						{
-							var action = new SwapAction();
-							action.Source = ReadStackRequestSlotInfo();
-							action.Destination = ReadStackRequestSlotInfo();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.Drop:
-						{
-							var action = new DropAction();
-							action.Count = ReadByte();
-							action.Source = ReadStackRequestSlotInfo();
-							action.Randomly = ReadBool();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.Destroy:
-						{
-							var action = new DestroyAction();
-							action.Count = ReadByte();
-							action.Source = ReadStackRequestSlotInfo();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.Consume:
-						{
-							var action = new ConsumeAction();
-							action.Count = ReadByte();
-							action.Source = ReadStackRequestSlotInfo();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.Create:
-						{
-							var action = new CreateAction();
-							action.ResultSlot = ReadByte();
-							actions.Add(action);
-							break;
-						}
-
-						case McpeItemStackRequest.ActionType.PlaceIntoBundle:
-						{
-							var action = new PlaceIntoBundleAction();
-							actions.Add(action);
-							break;
-						}
-
-						case McpeItemStackRequest.ActionType.TakeFromBundle:
-						{
-							var action = new TakeFromBundleAction();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.LabTableCombine:
-						{
-							var action = new LabTableCombineAction();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.BeaconPayment:
-						{
-							var action = new BeaconPaymentAction();
-							action.PrimaryEffect = ReadSignedVarInt();
-							action.SecondaryEffect = ReadSignedVarInt();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.CraftRecipe:
-						{
-							var action = new CraftAction();
-							action.RecipeNetworkId = ReadUnsignedVarInt();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.CraftRecipeAuto:
-						{
-							var action = new CraftAutoAction();
-							action.RecipeNetworkId = ReadUnsignedVarInt();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.CraftCreative:
-						{
-							var action = new CraftCreativeAction();
-							action.CreativeItemNetworkId = ReadUnsignedVarInt();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.CraftRecipeOptional:
-						{
-							var action = new CraftRecipeOptionalAction();
-							action.RecipeNetworkId = ReadUnsignedVarInt();
-							action.FilteredStringIndex = ReadInt();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.CraftGrindstone:
-						{
-							var action = new GrindstoneStackRequestAction();
-							action.RecipeNetworkId = ReadUnsignedVarInt();
-							action.RepairCost = ReadVarInt();
-							
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.CraftLoom:
-						{
-							var action = new LoomStackRequestAction();
-							action.PatternId = ReadString();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.CraftNotImplementedDeprecated:
-						{
-							var action = new CraftNotImplementedDeprecatedAction();
-							actions.Add(action);
-							break;
-						}
-						case McpeItemStackRequest.ActionType.CraftResultsDeprecated:
-						{
-							var action = new CraftResultDeprecatedAction();
-							action.ResultItems = ReadItems();
-							action.TimesCrafted = ReadByte();
-							actions.Add(action);
-							break;
-						}
-						default:
-							throw new ArgumentOutOfRangeException();
-					}
-				}
-				
-				requests.Add(actions);
-
-				var filterStringCount = ReadUnsignedVarInt();
-
-				for (int fi = 0; fi < filterStringCount; fi++)
-				{
-					ReadString();
-				}
-			}
-
-			return requests;
+			return ItemStackRequests.Read(this);
 		}
-
-		public void Write(ItemStackResponses responses)
-		{
-			WriteUnsignedVarInt((uint) responses.Count);
-			foreach (ItemStackResponse stackResponse in responses)
-			{
-				Write((byte) stackResponse.Result);
-				WriteVarInt(stackResponse.RequestId);
-				if (stackResponse.Result != StackResponseStatus.Ok) 
-					continue;
-				WriteUnsignedVarInt((uint) stackResponse.ResponseContainerInfos.Count);
-				foreach (StackResponseContainerInfo containerInfo in stackResponse.ResponseContainerInfos)
-				{
-					Write(containerInfo.ContainerId);
-					WriteUnsignedVarInt((uint) containerInfo.Slots.Count);
-					foreach (StackResponseSlotInfo slot in containerInfo.Slots)
-					{
-						Write(slot.Slot);
-						Write(slot.HotbarSlot);
-						Write(slot.Count);
-						WriteSignedVarInt(slot.StackNetworkId);
-						Write(slot.CustomName);
-						WriteSignedVarInt(slot.DurabilityCorrection);
-					}
-				}
-			}
-		}
-
 
 		public ItemStackResponses ReadItemStackResponses()
 		{
-			var responses = new ItemStackResponses();
-			var count     = ReadUnsignedVarInt();
-
-			for (var i = 0; i < count; i++)
-			{
-				var response = new ItemStackResponse();
-				response.Result = (StackResponseStatus) ReadByte();
-				response.RequestId = ReadSignedVarInt();
-				
-				if (response.Result != StackResponseStatus.Ok)
-					continue;
-				
-				response.ResponseContainerInfos = new List<StackResponseContainerInfo>();
-				var subCount = ReadUnsignedVarInt();
-				for (int sub = 0; sub < subCount; sub++)
-				{
-					var containerInfo = new StackResponseContainerInfo();
-					containerInfo.ContainerId = ReadByte();
-
-					var slotCount = ReadUnsignedVarInt();
-					containerInfo.Slots = new List<StackResponseSlotInfo>();
-					
-					for (int si = 0; si < slotCount; si++)
-					{
-						var slot = new StackResponseSlotInfo();
-						slot.Slot = ReadByte();
-						slot.HotbarSlot = ReadByte();
-						slot.Count = ReadByte();
-						slot.StackNetworkId = ReadSignedVarInt();
-						slot.CustomName = ReadString();
-						slot.DurabilityCorrection = ReadSignedVarInt();
-						
-						containerInfo.Slots.Add(slot);
-					}
-					
-					response.ResponseContainerInfos.Add(containerInfo);
-				}
-				
-				responses.Add(response);
-			}
-			
-			return responses;
+			return ItemStackResponses.Read(this);
 		}
 
 		public void Write(ItemComponentList list)
@@ -1730,7 +1283,7 @@ namespace MiNET.Net
 
 				if (stack.UniqueId != 0)
 				{
-					WriteSignedVarInt(stack.UniqueId);
+					WriteVarInt(stack.UniqueId);
 				}
 			}
 
@@ -1785,7 +1338,7 @@ namespace MiNET.Net
 
 			if (readUniqueId)
 			{
-				if (ReadBool()) stack.UniqueId = ReadSignedVarInt();
+				if (ReadBool()) stack.UniqueId = ReadVarInt();
 			}
 
 			var blockRuntimeId = ReadSignedVarInt();
@@ -2670,341 +2223,14 @@ namespace MiNET.Net
 			return skin;
 		}
 
-		const byte Shapeless = 0;
-		const byte Shaped = 1;
-		const byte Furnace = 2;
-		const byte FurnaceData = 3;
-		const byte Multi = 4;
-		const byte ShulkerBox = 5;
-		const byte ShapelessChemistry = 6;
-		const byte ShapedChemistry = 7;
-		const byte SmithingTransform = 8;
-
-		public void Write(Recipes recipes)
-		{
-			WriteUnsignedVarInt((uint) recipes.Count);
-
-			foreach (Recipe recipe in recipes)
-			{
-				switch (recipe)
-				{
-					case ShapelessRecipe shapelessRecipe:
-					{
-						WriteSignedVarInt(Shapeless); // Type
-
-						var rec = shapelessRecipe;
-						Write(rec.Id.ToString());
-						WriteVarInt(rec.Input.Count);
-						foreach (Item stack in rec.Input)
-						{
-							WriteRecipeIngredient(stack);
-						}
-						WriteVarInt(rec.Result.Count);
-						foreach (Item item in rec.Result)
-						{
-							Write(item);
-						}
-						Write(rec.Id);
-						Write(rec.Block);
-						WriteSignedVarInt(0); // priority
-						WriteVarInt(shapelessRecipe.UniqueId); // unique id
-						break;
-					}
-					case ShapedRecipe shapedRecipe:
-					{
-						WriteSignedVarInt(Shaped); // Type
-
-						var rec = shapedRecipe;
-						Write(rec.Id.ToString());
-						WriteSignedVarInt(rec.Width);
-						WriteSignedVarInt(rec.Height);
-
-						for (int w = 0; w < rec.Width; w++)
-						{
-							for (int h = 0; h < rec.Height; h++)
-							{
-								WriteRecipeIngredient(rec.Input[(h * rec.Width) + w]);
-							}
-						}
-						WriteVarInt(rec.Result.Count);
-						foreach (Item item in rec.Result)
-						{
-							Write(item);
-						}
-						Write(rec.Id);
-						Write(rec.Block);
-						WriteSignedVarInt(0); // priority
-						WriteVarInt(shapedRecipe.UniqueId); // unique id
-						break;
-					}
-					case SmeltingRecipe smeltingRecipe:
-					{
-						var rec = smeltingRecipe;
-						WriteSignedVarInt(rec.Input.Metadata == 0 ? Furnace : FurnaceData); // Type
-						WriteSignedVarInt(rec.Input.LegacyId);
-						if (rec.Input.Metadata != 0)
-						{
-							WriteSignedVarInt(rec.Input.Metadata);
-						}
-						Write(rec.Result);
-						Write(rec.Block);
-						break;
-					}
-					case SmithingTransformRecipe smithingTransformRecipe:
-					{
-							//WriteSignedVarInt(SmithingTransform); // Type
-							var rec = smithingTransformRecipe;
-							Write(rec.Id.ToString());
-							WriteRecipeIngredient(rec.Template);
-							WriteRecipeIngredient(rec.Input);
-							WriteRecipeIngredient(rec.Addition);
-							Write(rec.Output, false);
-							Write(rec.Block);
-							WriteVarInt(smithingTransformRecipe.UniqueId); // unique id
-							break;
-					}
-					case SmithingTrimRecipe smithingTrimRecipe:
-					{
-						//WriteSignedVarInt(SmithingTransform); // Type
-						var rec = smithingTrimRecipe;
-						Write(rec.Id.ToString());
-						WriteRecipeIngredient(rec.Template);
-						WriteRecipeIngredient(rec.Input);
-						WriteRecipeIngredient(rec.Addition);
-						Write(rec.Block);
-						WriteVarInt(smithingTrimRecipe.UniqueId); // unique id
-						break;
-					}
-					case MultiRecipe multiRecipe:
-					{
-						WriteSignedVarInt(Multi); // Type
-						Write(recipe.Id);
-						WriteVarInt(multiRecipe.UniqueId); // unique id
-						break;
-					}
-				}
-			}
-		}
-
 		public Recipes ReadRecipes()
 		{
-			var recipes = new Recipes();
-
-			int count = (int) ReadUnsignedVarInt();
-			Log.Trace($"Reading {count} recipes");
-
-			for (int i = 0; i < count; i++)
-			{
-				int recipeType = ReadSignedVarInt();
-
-				Log.Trace($"Read recipe no={i} type={recipeType}");
-
-				if (recipeType < 0 /*|| len == 0*/)
-				{
-					Log.Error("Read void recipe");
-					break;
-				}
-
-				switch (recipeType)
-				{
-					case Shapeless:
-					case ShulkerBox:
-					{
-						var recipe = new ShapelessRecipe();
-						ReadString(); // some unique id
-						var ingrediensCount = ReadUnsignedVarInt(); // 
-						for (int j = 0; j < ingrediensCount; j++)
-						{
-							recipe.Input.Add(ReadRecipeIngredient());
-						}
-						var resultCount = ReadUnsignedVarInt(); // 1?
-						for (int j = 0; j < resultCount; j++)
-						{
-							recipe.Result.Add(ReadItem(false));
-						}
-						recipe.Id = ReadUUID(); // Id
-						recipe.Block = ReadString(); // block?
-						ReadVarInt(); // priority
-						recipe.UniqueId = ReadVarInt(); // unique id
-						recipes.Add(recipe);
-						//Log.Error("Read shapeless recipe");
-						break;
-					}
-					case Shaped:
-					{
-						ReadString(); // some unique id
-						int width = ReadSignedVarInt(); // Width
-						int height = ReadSignedVarInt(); // Height
-						var recipe = new ShapedRecipe(width, height);
-						if (width > 3 || height > 3) 
-							throw new Exception("Wrong number of ingredients, Width=" + width + ", height=" + height);
-						for (int w = 0; w < width; w++)
-						{
-							for (int h = 0; h < height; h++)
-							{
-								recipe.Input[(h * width) + w] = ReadRecipeIngredient();
-							}
-						}
-
-						var resultCount = ReadUnsignedVarInt(); // 1?
-						for (int j = 0; j < resultCount; j++)
-						{
-							recipe.Result.Add(ReadItem(false));
-						}
-						recipe.Id = ReadUUID(); // Id
-						recipe.Block = ReadString(); // block?
-						ReadVarInt(); // priority
-						recipe.UniqueId = ReadVarInt(); // unique id
-						recipes.Add(recipe);
-						//Log.Error("Read shaped recipe");
-						break;
-					}
-					case SmithingTransform:
-					{
-						var recipe = new SmithingTransformRecipe();
-						ReadString(); // some unique id
-						recipe.Input = ReadRecipeIngredient();
-						recipe.Addition = ReadRecipeIngredient();
-						recipe.Output = ReadItem(false);
-						recipe.Id = ReadUUID(); // Id
-						recipe.Block = ReadString(); // block?
-						recipe.UniqueId = ReadVarInt(); // unique id
-						recipes.Add(recipe);
-						//Log.Error("Read smithing recipe");
-						break;
-					}
-					case Furnace:
-					{
-						var recipe = new SmeltingRecipe();
-						short id = (short) ReadVarInt(); // input (with metadata) 
-						Item result = ReadItem(false); // Result
-						recipe.Block = ReadString(); // block?
-						recipe.Input = ItemFactory.GetItem(id, 0);
-						recipe.Result = result;
-						recipes.Add(recipe);
-						//Log.Error("Read furnace recipe");
-						//Log.Error($"Input={id}, meta={""} Item={result.Id}, Meta={result.Metadata}");
-						break;
-					}
-					case FurnaceData:
-					{
-						//const ENTRY_FURNACE_DATA = 3;
-						var recipe = new SmeltingRecipe();
-						short id = (short) ReadVarInt(); // input (with metadata) 
-						short meta = (short) ReadVarInt(); // input (with metadata) 
-						Item result = ReadItem(false); // Result
-						recipe.Block = ReadString(); // block?
-						recipe.Input = ItemFactory.GetItem(id, meta);
-						recipe.Result = result;
-						recipes.Add(recipe);
-						//Log.Error("Read smelting recipe");
-						//Log.Error($"Input={id}, meta={meta} Item={result.Id}, Meta={result.Metadata}");
-						break;
-					}
-					case Multi:
-					{
-						//Log.Error("Reading MULTI");
-
-						var recipe = new MultiRecipe();
-						recipe.Id = ReadUUID();
-						recipe.UniqueId = ReadVarInt(); // unique id
-						recipes.Add(recipe);
-						break;
-					}
-					case ShapelessChemistry:
-					{
-						var recipe = new ShapelessRecipe();
-						ReadString(); // some unique id
-						int ingrediensCount = ReadVarInt(); // 
-						for (int j = 0; j < ingrediensCount; j++)
-						{
-							recipe.Input.Add(ReadRecipeIngredient());
-						}
-						int resultCount = ReadVarInt(); // 1?
-						for (int j = 0; j < resultCount; j++)
-						{
-							recipe.Result.Add(ReadItem(false));
-						}
-						recipe.Id = ReadUUID(); // Id
-						recipe.Block = ReadString(); // block?
-						ReadSignedVarInt(); // priority
-						recipe.UniqueId = ReadVarInt(); // unique id
-						//recipes.Add(recipe);
-						//Log.Error("Read shapeless recipe");
-						break;
-					}
-					case ShapedChemistry:
-					{
-						ReadString(); // some unique id
-						int width = ReadSignedVarInt(); // Width
-						int height = ReadSignedVarInt(); // Height
-						var recipe = new ShapedRecipe(width, height);
-						if (width > 3 || height > 3) throw new Exception("Wrong number of ingredients. Width=" + width + ", height=" + height);
-						for (int w = 0; w < width; w++)
-						{
-							for (int h = 0; h < height; h++)
-							{
-								recipe.Input[(h * width) + w] = ReadRecipeIngredient();
-							}
-						}
-
-						int resultCount = ReadVarInt(); // 1?
-						for (int j = 0; j < resultCount; j++)
-						{
-							recipe.Result.Add(ReadItem(false));
-						}
-						recipe.Id = ReadUUID(); // Id
-						recipe.Block = ReadString(); // block?
-						ReadSignedVarInt(); // priority
-						recipe.UniqueId = ReadVarInt(); // unique id
-						//recipes.Add(recipe);
-						//Log.Error("Read shaped recipe");
-						break;
-					}
-					default:
-						Log.Error($"Read unknown recipe type: {recipeType}");
-						//ReadBytes(len);
-						break;
-				}
-			}
-
-			Log.Trace($"Done reading {count} recipes");
-
-			return recipes;
+			return Recipes.Read(this);
 		}
-
-		public void WriteRecipeIngredient(Item stack)
-		{
-			if (stack == null || stack is ItemAir)
-			{
-				Write(false);
-				WriteVarInt(0);
-				return;
-			}
-			Write(true);
-			Write(stack.LegacyId);
-			Write(stack.Metadata);
-			WriteVarInt(stack.Count);
-		}
-
-		public Item ReadRecipeIngredient()
-		{
-			short id = (short) ReadVarInt();
-			if (id == 0)
-			{
-				return new ItemAir();
-			}
-
-			short metadata = (short) ReadShort();
-			int count = ReadShort();
-
-			return ItemFactory.GetItem(id, metadata, count);
-		}
-
 
 		public void Write(PotionContainerChangeRecipe[] recipes)
 		{
-			WriteSignedVarInt(0);
+			WriteUnsignedVarInt(0);
 		}
 
 		public PotionContainerChangeRecipe[] ReadPotionContainerChangeRecipes()
@@ -3026,6 +2252,12 @@ namespace MiNET.Net
 
 		public void Write(MaterialReducerRecipe[] reducerRecipes)
 		{
+			if (reducerRecipes == null)
+			{
+				WriteUnsignedVarInt(0);
+				return;
+			}
+
 			WriteUnsignedVarInt((uint) reducerRecipes.Length);
 
 			for (int i = 0; i < reducerRecipes.Length; i++)
@@ -3073,7 +2305,7 @@ namespace MiNET.Net
 
 		public void Write(PotionTypeRecipe[] recipes)
 		{
-			WriteSignedVarInt(0);
+			WriteUnsignedVarInt(0);
 		}
 
 		public PotionTypeRecipe[] ReadPotionTypeRecipes()

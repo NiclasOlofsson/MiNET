@@ -45,6 +45,7 @@ using MiNET.Entities.World;
 using MiNET.Inventory;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Net.Crafting;
 using MiNET.Particles;
 using MiNET.UI;
 using MiNET.Utils;
@@ -1842,10 +1843,13 @@ namespace MiNET
 		public virtual void SendCraftingRecipes()
 		{
 			//TODO: Fix crafting recipe sending.
-			
-			/*McpeCraftingData craftingData = McpeCraftingData.CreateObject();
+
+			McpeCraftingData craftingData = McpeCraftingData.CreateObject();
 			craftingData.recipes = RecipeManager.Recipes;
-			SendPacket(craftingData);*/
+			//craftingData.isClean = true;
+			SendPacket(craftingData);
+
+			//SendPacket(RecipeManager.GetCraftingData());
 		}
 
 		public virtual void SendCreativeInventory()
@@ -1959,6 +1963,10 @@ namespace MiNET
 		public virtual void HandleMcpeText(McpeText message)
 		{
 			string text = message.message;
+
+			if (text == "s") SetGameMode(GameMode.Survival);
+			if (text == "c") SetGameMode(GameMode.Creative);
+			if (text == "d") Level.WorldTime = 0;
 
 			if (string.IsNullOrEmpty(text)) return;
 
@@ -2144,7 +2152,8 @@ namespace MiNET
 
 				try
 				{
-					stackResponse.ResponseContainerInfos.AddRange(ItemStackInventoryManager.HandleItemStackActions(request.RequestId, request));
+					stackResponse.Result = ItemStackInventoryManager.HandleItemStackActions(request.RequestId, request, out var stackResponses);
+					stackResponse.ResponseContainerInfos.AddRange(stackResponses);
 				}
 				catch (Exception e)
 				{
@@ -2460,7 +2469,45 @@ namespace MiNET
 
 		public virtual void HandleMcpeCraftingEvent(McpeCraftingEvent message)
 		{
-			Log.Debug($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType}");
+			//if (!RecipeManager.IdRecipeMap.TryGetValue(message.recipeId, out var recipe))
+			//{
+			//	return;
+			//}
+
+			//if (!RecipeManager.ValidateRecipe(
+			//	recipe,
+			//	Inventory.UiInventory.Slots.Skip(28).Take(12).ToList(),
+			//	1,
+			//	out var resultItems,
+			//	out var consumeItems))
+			//{
+			//	return;
+			//}
+
+			//for (var i = 0; i < consumeItems.Length; i++)
+			//{
+			//	var consumeItem = consumeItems[i];
+			//	var slot = (byte) (28 + i);
+
+			//	if (consumeItem == null) continue;
+
+			//	var existingItem = GetContainerItem(13, slot);
+			//	existingItem.Count -= consumeItem.Count;
+
+			//	if (existingItem.Count <= 0)
+			//	{
+			//		SetContainerItem(13, slot, new ItemAir());
+			//		Inventory.SendSetSlot(slot, 13);
+			//	}
+			//}
+
+			//for (var i = 0; i < resultItems.Count; i++)
+			//{
+			//	var item = resultItems[i];
+			//	item.UniqueId = Item.GetUniqueId();
+
+			//	Inventory.SetFirstEmptySlot(item, true);
+			//}
 		}
 
 		public virtual void HandleMcpeInventoryTransaction(McpeInventoryTransaction message)
@@ -2754,49 +2801,50 @@ namespace MiNET
 
 		private bool VerifyRecipe(List<Item> craftingInput, Item result)
 		{
-			Log.Debug($"Looking for matching recipes with the result {result}");
+			// TODO - 1.19-update (WHY IS IT HERE?!?!   rework!)
+			//Log.Debug($"Looking for matching recipes with the result {result}");
 
-			var recipes = RecipeManager.Recipes
-				.Where(r => r is ShapedRecipe)
-				.Where(r => ((ShapedRecipe) r).Result.First().Id == result.Id && ((ShapedRecipe) r).Result.First().Metadata == result.Metadata).ToList();
+			//var recipes = RecipeManager.Recipes
+			//	.Where(r => r is ShapedRecipe)
+			//	.Where(r => ((ShapedRecipe) r).Result.First().Id == result.Id && ((ShapedRecipe) r).Result.First().Metadata == result.Metadata).ToList();
 
-			recipes.AddRange(RecipeManager.Recipes
-				.Where(r => r is ShapelessRecipe)
-				.Where(r => ((ShapelessRecipe) r).Result.First().Id == result.Id && ((ShapelessRecipe) r).Result.First().Metadata == result.Metadata).ToList());
+			//recipes.AddRange(RecipeManager.Recipes
+			//	.Where(r => r is ShapelessRecipe)
+			//	.Where(r => ((ShapelessRecipe) r).Result.First().Id == result.Id && ((ShapelessRecipe) r).Result.First().Metadata == result.Metadata).ToList());
 
-			Log.Debug($"Found {recipes.Count} matching recipes with the result {result}");
+			//Log.Debug($"Found {recipes.Count} matching recipes with the result {result}");
 
-			if (recipes.Count == 0) return false;
+			//if (recipes.Count == 0) return false;
 
-			var input = craftingInput.Where(i => i != null && i is not ItemAir).ToList();
+			//var input = craftingInput.Where(i => i != null && i is not ItemAir).ToList();
 
-			foreach (var recipe in recipes)
-			{
-				List<Item> ingredients = null;
-				switch (recipe)
-				{
-					case ShapedRecipe shapedRecipe:
-					{
-						ingredients = shapedRecipe.Input.Where(i => i != null && i is not ItemAir).ToList();
-						break;
-					}
-					case ShapelessRecipe shapelessRecipe:
-					{
-						ingredients = shapelessRecipe.Input.Where(i => i != null && i is not ItemAir).ToList();
-						break;
-					}
-				}
+			//foreach (var recipe in recipes)
+			//{
+			//	List<Item> ingredients = null;
+			//	switch (recipe)
+			//	{
+			//		case ShapedRecipe shapedRecipe:
+			//		{
+			//			ingredients = shapedRecipe.Input.Where(i => i != null && i is not ItemAir).ToList();
+			//			break;
+			//		}
+			//		case ShapelessRecipe shapelessRecipe:
+			//		{
+			//			ingredients = shapelessRecipe.Input.Where(i => i != null && i is not ItemAir).ToList();
+			//			break;
+			//		}
+			//	}
 
-				if (ingredients == null) continue;
+			//	if (ingredients == null) continue;
 
-				var match = input.Count == ingredients.Count;
-				Log.Debug($"Recipe number of ingredients match={match}");
+			//	var match = input.Count == ingredients.Count;
+			//	Log.Debug($"Recipe number of ingredients match={match}");
 
-				match = match && !input.Except(ingredients, new ItemCompare()).Union(ingredients.Except(input, new ItemCompare())).Any();
+			//	match = match && !input.Except(ingredients, new ItemCompare()).Union(ingredients.Except(input, new ItemCompare())).Any();
 
-				Log.Debug($"Ingredients match={match}");
-				if (match) return true;
-			}
+			//	Log.Debug($"Ingredients match={match}");
+			//	if (match) return true;
+			//}
 
 			return false;
 		}

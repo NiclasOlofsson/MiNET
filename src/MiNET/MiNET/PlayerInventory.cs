@@ -345,12 +345,11 @@ namespace MiNET
 			}
 		}
 
-		public virtual void SendSetSlot(int slot)
+		public virtual void SendSetSlot(int slot, uint containerId = 0)
 		{
 			var sendSlot = McpeInventorySlot.CreateObject();
-			sendSlot.inventoryId = 0;
+			sendSlot.inventoryId = containerId;
 			sendSlot.slot = (uint) slot;
-		//	sendSlot.uniqueid = Slots[slot].UniqueId;
 			sendSlot.item = Slots[slot];
 			Player.SendPacket(sendSlot);
 		}

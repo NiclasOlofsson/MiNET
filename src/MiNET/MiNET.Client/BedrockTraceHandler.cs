@@ -35,10 +35,10 @@ using System.Threading.Tasks;
 using fNbt;
 using log4net;
 using MiNET.Blocks;
-using MiNET.Crafting;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Net.Crafting;
 using MiNET.Utils;
 using MiNET.Utils.Metadata;
 using MiNET.Utils.Vectors;
@@ -676,9 +676,10 @@ namespace MiNET.Client
 					writer.WriteLine("new List<Item>");
 					writer.WriteLine("{");
 					writer.Indent++;
-					foreach (var itemStack in shapelessRecipe.Input)
+					foreach (var ingredient in shapelessRecipe.Input)
 					{
-						writer.WriteLine($"new Item(\"{itemStack.Id}\", {itemStack.Metadata}, {itemStack.Count}){{ UniqueId = {itemStack.UniqueId}, RuntimeId={itemStack.BlockRuntimeId} }},");
+						// TODO - 1.19-update
+						//writer.WriteLine($"new Item(\"{ingredient.Id}\", {ingredient.Metadata}, {ingredient.Count}){{ UniqueId = {ingredient.UniqueId}, RuntimeId={ingredient.BlockRuntimeId} }},");
 					}
 					writer.Indent--;
 					writer.WriteLine($"}}, \"{shapelessRecipe.Block}\"){{ UniqueId = {shapelessRecipe.UniqueId} }},");
@@ -715,9 +716,10 @@ namespace MiNET.Client
 					writer.WriteLine("new Item[]");
 					writer.WriteLine("{");
 					writer.Indent++;
-					foreach (Item item in shapedRecipe.Input)
+					foreach (var ingredient in shapedRecipe.Input)
 					{
-						writer.WriteLine($"new Item(\"{item.Id}\", {item.Metadata}, {item.Count}){{ UniqueId = {item.UniqueId}, RuntimeId={item.BlockRuntimeId} }},");
+						// TODO - 1.19-update
+						//writer.WriteLine($"new Item(\"{ingredient.Id}\", {ingredient.Metadata}, {ingredient.Count}){{ RuntimeId={ingredient.BlockRuntimeId} }},");
 					}
 					writer.Indent--;
 					writer.WriteLine($"}}, \"{shapedRecipe.Block}\"){{ UniqueId = {shapedRecipe.UniqueId} }},");

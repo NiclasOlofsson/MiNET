@@ -52,7 +52,7 @@ namespace MiNET.Items
 
 		public ItemBlock() : base()
 		{
-			_blockRuntimeId = new Lazy<int>(() => Block.GetRuntimeId());
+			_blockRuntimeId = new Lazy<int>(() => Block?.GetRuntimeId() ?? -1);
 		}
 
 		public ItemBlock([NotNull] Block block, short metadata = 0) : this()
@@ -64,7 +64,10 @@ namespace MiNET.Items
 	
 			if (BlockFactory.BlockStates.TryGetValue(block.GetState(), out BlockStateContainer value))
 			{
-				Metadata = (short) (value.ItemInstance?.Metadata ?? (value.Data == -1 ? 0 : value.Data));
+				var instanceMetadata = value.ItemInstance?.Metadata;
+				if (Id != value.ItemInstance?.Id) instanceMetadata = null;
+
+				Metadata = (short) (instanceMetadata ?? (value.Data == -1 ? 0 : value.Data));
 			}
 
 			FuelEfficiency = Block.FuelEfficiency;

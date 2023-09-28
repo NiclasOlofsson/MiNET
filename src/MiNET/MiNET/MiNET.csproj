@@ -25,11 +25,14 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Blocks\blockstates.json" />
     <None Remove="Blocks\Data\block_id_to_item_id_map.json" />
     <None Remove="Blocks\Data\canonical_block_states.nbt" />
     <None Remove="Blocks\Data\r12_to_current_block_map.bin" />
     <None Remove="Blocks\legacy_id_map.json" />
+    <None Remove="Crafting\Data\shaped_crafting.json" />
+    <None Remove="Crafting\Data\shapeless_crafting.json" />
+    <None Remove="Crafting\Data\shapeless_shulker_box.json" />
+    <None Remove="Crafting\Data\smelting.json" />
     <None Remove="Inventory\Data\creativeitems.json" />
     <None Remove="Items\Data\item_tags.json" />
     <None Remove="Items\itemstates.json" />
@@ -38,13 +41,14 @@
     <None Remove="Worlds\Data\biome_id_map.json" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Blocks\blockstates.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="Blocks\Data\block_id_to_item_id_map.json" />
     <EmbeddedResource Include="Blocks\Data\canonical_block_states.nbt" />
     <EmbeddedResource Include="Blocks\Data\item_id_map.json" />
     <EmbeddedResource Include="Blocks\Data\r12_to_current_block_map.bin" />
+    <EmbeddedResource Include="Crafting\Data\shaped_crafting.json" />
+    <EmbeddedResource Include="Crafting\Data\shapeless_crafting.json" />
+    <EmbeddedResource Include="Crafting\Data\shapeless_shulker_box.json" />
+    <EmbeddedResource Include="Crafting\Data\smelting.json" />
     <EmbeddedResource Include="Inventory\Data\creativeitems.json" />
     <EmbeddedResource Include="Items\Data\item_tags.json" />
     <EmbeddedResource Include="Items\Data\required_item_list.json">

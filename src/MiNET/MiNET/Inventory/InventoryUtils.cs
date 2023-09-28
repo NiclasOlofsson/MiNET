@@ -15,46 +15,16 @@ namespace MiNET.Inventory
 
 		static InventoryUtils()
 		{
-			var creativeItems = ResourceUtil.ReadResource<List<CreativeItem>>("creativeitems.json", typeof(InventoryUtils), "Data");
+			var creativeItems = ResourceUtil.ReadResource<List<ExternalDataItem>>("creativeitems.json", typeof(InventoryUtils), "Data");
 
 			var uniqueId = 0;
 			foreach (var itemData in creativeItems)
 			{
-				if (itemData.Id.StartsWith("minecraft:element")) continue;
-
-				var item = ItemFactory.GetItem(itemData.Id, itemData.Metadata);
-				if (item is ItemAir) continue;
-				if (item is ItemBlock bb && bb.Block == null) continue;
-				item.UniqueId = uniqueId++;
-
-				if (itemData.BlockStates != null && item is ItemBlock itemBlock)
+				if (TryGetItemFromExternalData(itemData, out var item))
 				{
-					var bytes = Convert.FromBase64String(itemData.BlockStates);
-
-					using MemoryStream memoryStream = new MemoryStream(bytes, 0, bytes.Length);
-					var compound = Packet.ReadNbtCompound(memoryStream, false);
-
-					var statesContainer = new BlockStateContainer();
-					statesContainer.Id = itemData.Id;
-					statesContainer.States = BlockFactory.GetBlockStates(compound);
-
-					if (BlockFactory.BlockStates.TryGetValue(statesContainer, out var blockStateContainer))
-					{
-						itemBlock.Block.SetState(blockStateContainer);
-						itemBlock.Metadata = blockStateContainer.Data;
-					}
+					item.UniqueId = uniqueId++;
+					CreativeInventoryItems.Add(item);
 				}
-
-				if (itemData.ExtraData != null)
-				{
-					var bytes = Convert.FromBase64String(itemData.ExtraData);
-
-					using MemoryStream memoryStream = new MemoryStream(bytes, 0, bytes.Length);
-					item.ExtraData = Packet.ReadNbtCompound(memoryStream, false);
-
-				}
-
-				CreativeInventoryItems.Add(item);
 			}
 		}
 
@@ -67,19 +37,44 @@ namespace MiNET.Inventory
 			return slotData;
 		}
 
-		public class CreativeItem
+		public static bool TryGetItemFromExternalData(ExternalDataItem itemData, out Item result)
 		{
-			[JsonProperty("name")]
-			public string Id { get; set; }
+			result = null;
 
-			[JsonProperty("meta")]
-			public short Metadata { get; set; }
+			if (string.IsNullOrEmpty(itemData.Id)) return false;
+			if (itemData.Id.StartsWith("minecraft:element")) return false;
 
-			[JsonProperty("block_states")]
-			public string BlockStates { get; set; }
+			var item = ItemFactory.GetItem(itemData.Id, itemData.Metadata, (byte) itemData.Count);
+			if (item is ItemAir) return false;
 
-			[JsonProperty("nbt")]
-			public string ExtraData { get; set; }
+			if (itemData.BlockStates != null && item is ItemBlock itemBlock)
+			{
+				var bytes = Convert.FromBase64String(itemData.BlockStates);
+
+				using MemoryStream memoryStream = new MemoryStream(bytes, 0, bytes.Length);
+				var compound = Packet.ReadNbtCompound(memoryStream, false);
+
+				var statesContainer = new BlockStateContainer();
+				statesContainer.Id = itemData.Id;
+				statesContainer.States = BlockFactory.GetBlockStates(compound);
+
+				if (BlockFactory.BlockStates.TryGetValue(statesContainer, out var blockStateContainer))
+				{
+					itemBlock.Block.SetState(blockStateContainer);
+					itemBlock.Metadata = blockStateContainer.Data;
+				}
+			}
+
+			if (itemData.ExtraData != null)
+			{
+				var bytes = Convert.FromBase64String(itemData.ExtraData);
+
+				using MemoryStream memoryStream = new MemoryStream(bytes, 0, bytes.Length);
+				item.ExtraData = Packet.ReadNbtCompound(memoryStream, false);
+			}
+
+			result = item;
+			return true;
 		}
 	}
 }

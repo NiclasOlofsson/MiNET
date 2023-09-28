@@ -25,8 +25,7 @@ namespace MiNET.Test
 
 			var itemStates = ItemFactory.Itemstates;
 
-			var itemTags = ResourceUtil.ReadResource<Dictionary<string, string[]>>("item_tags.json", typeof(Item), "Data");
-			var idToTag = itemTags
+			var idToTag = ItemFactory.ItemTags
 				.SelectMany(tag => tag.Value.Select(itemId => (itemId, tag: tag.Key)))
 				.GroupBy(tag => tag.itemId)
 				.ToDictionary(pairs => pairs.Key, pairs => pairs.Select(pair => pair.tag).ToArray());
@@ -49,11 +48,6 @@ namespace MiNET.Test
 					var id = state.Key;
 
 					if (BlockFactory.GetBlockById(id) != null) continue;
-
-					if (id.Contains("reeds"))
-					{
-						Console.WriteLine();
-					}
 
 					var associatedBlockId = BlockFactory.GetBlockIdFromItemId(id);
 					if (associatedBlockId != null && itemStates.ContainsKey(associatedBlockId)) id = associatedBlockId;

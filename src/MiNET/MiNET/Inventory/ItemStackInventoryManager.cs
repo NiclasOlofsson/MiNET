@@ -27,8 +27,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using log4net;
+using MiNET.Crafting;
 using MiNET.Items;
+using MiNET.Net.Crafting;
 using MiNET.Utils;
+using MiNET.Worlds;
+using SharpAvi;
 
 namespace MiNET.Inventory
 {
@@ -43,21 +47,29 @@ namespace MiNET.Inventory
 			_player = player;
 		}
 
-		public virtual List<StackResponseContainerInfo> HandleItemStackActions(int requestId, ItemStackActionList actions)
+		public virtual StackResponseStatus HandleItemStackActions(int requestId, ItemStackActionList actions, out List<StackResponseContainerInfo> stackResponses)
 		{
-			var stackResponses = new List<StackResponseContainerInfo>();
-			uint recipeNetworkId = 0;
+			stackResponses = new List<StackResponseContainerInfo>();
+			Recipe recipe = null;
 			foreach (ItemStackAction stackAction in actions)
 				switch (stackAction)
 				{
 					case CraftAction craftAction:
 						{
-							recipeNetworkId = ProcessCraftAction(craftAction);
+							if (!ProcessCraftAction(craftAction, out recipe))
+							{
+								return StackResponseStatus.Error;
+							}
+
 							break;
 						}
 					case CraftCreativeAction craftCreativeAction:
 						{
-							ProcessCraftCreativeAction(craftCreativeAction);
+							if (!ProcessCraftCreativeAction(craftCreativeAction, out recipe))
+							{
+								return StackResponseStatus.Error;
+							}
+
 							break;
 						}
 					case CraftNotImplementedDeprecatedAction craftNotImplementedDeprecatedAction:
@@ -73,7 +85,11 @@ namespace MiNET.Inventory
 						}
 					case CraftResultDeprecatedAction craftResultDeprecatedAction:
 						{
-							ProcessCraftResultDeprecatedAction(craftResultDeprecatedAction);
+							if (!ProcessCraftResultDeprecatedAction(craftResultDeprecatedAction, recipe, stackResponses))
+							{
+								return StackResponseStatus.Error;
+							}
+
 							break;
 						}
 					case TakeAction takeAction:
@@ -105,7 +121,10 @@ namespace MiNET.Inventory
 						}
 					case ConsumeAction consumeAction:
 						{
-							ProcessConsumeAction(consumeAction, stackResponses);
+							if (recipe == null)
+							{
+								ProcessConsumeAction(consumeAction, stackResponses);
+							}
 							break;
 						}
 					default:
@@ -129,7 +148,7 @@ namespace MiNET.Inventory
 								stackResponses.Remove(containerInfo);
 				}
 
-			return stackResponses;
+			return StackResponseStatus.Ok;
 		}
 
 		protected virtual void ProcessConsumeAction(ConsumeAction action, List<StackResponseContainerInfo> stackResponses)
@@ -304,13 +323,15 @@ namespace MiNET.Inventory
 			}
 
 			Item existingItem = GetContainerItem(destination.ContainerId, destination.Slot);
-			if (existingItem is not ItemAir)
+			if (existingItem.Equals(destItem))
 			{
 				existingItem.Count += count;
 				destItem = existingItem;
 			}
 			else
+			{
 				SetContainerItem(destination.ContainerId, destination.Slot, destItem);
+			}
 
 			if (destination.ContainerId == 21 || destination.ContainerId == 22)
 				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir))
@@ -359,7 +380,7 @@ namespace MiNET.Inventory
 			sourceItem = GetContainerItem(source.ContainerId, source.Slot);
 			Log.Debug($"Take {sourceItem}");
 
-			if (sourceItem.Count == count || sourceItem.Count - count <= 0)
+			if (sourceItem.Count - count <= 0)
 			{
 				destItem = sourceItem;
 				sourceItem = new ItemAir();
@@ -374,7 +395,16 @@ namespace MiNET.Inventory
 				destItem.UniqueId = Item.GetUniqueId();
 			}
 
-			SetContainerItem(destination.ContainerId, destination.Slot, destItem);
+			var existingItem = GetContainerItem(destination.ContainerId, destination.Slot);
+			if (existingItem.Equals(destItem))
+			{
+				existingItem.Count += destItem.Count;
+				destItem = existingItem;
+			}
+			else
+			{
+				SetContainerItem(destination.ContainerId, destination.Slot, destItem);
+			}
 
 			if (source.ContainerId == 21 || source.ContainerId == 22)
 				if (!(GetContainerItem(21, 14) is ItemAir) && !(GetContainerItem(22, 15) is ItemAir))
@@ -412,39 +442,95 @@ namespace MiNET.Inventory
 			});
 		}
 
-		protected virtual void ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action)
+		protected virtual bool ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action, Recipe recipe, List<StackResponseContainerInfo> stackResponses)
 		{
-			//BUG: Won't work proper with anvil anymore.
-			if (GetContainerItem(60, 50).UniqueId > 0)
-				return;
+			if (recipe == null) return false;
 
-			//TODO: We only use this for anvils right now. Until we fixed the anvil merge ourselves.
-			Item craftingResult = action.ResultItems.FirstOrDefault();
-			if (craftingResult == null)
-				return;
+			for (var i = 0; i < action.ResultItems.Count; i++)
+			{
+				if (action.ResultItems[i] == null) return false;
+				if (GetContainerItem(60, 50 + i).UniqueId != 0) return false;
+			}
 
-			craftingResult.UniqueId = Item.GetUniqueId();
-			SetContainerItem(60, 50, craftingResult);
+			if (!RecipeManager.ValidateRecipe(
+				recipe,
+				_player.Inventory.UiInventory.Slots.Skip(28).Take(13).ToList(), 
+				action.TimesCrafted,
+				out var resultItems,
+				out var consumeItems))
+			{
+				return false;
+			}
+
+			for (var i = 0; i < consumeItems.Length; i++)
+			{
+				var consumeItem = consumeItems[i];
+				var slot = (byte) (28 + i);
+
+				if (consumeItem == null) continue;
+
+				var existingItem = GetContainerItem(13, slot);
+				existingItem.Count -= consumeItem.Count;
+
+				if (existingItem.Count <= 0)
+				{
+					SetContainerItem(13, slot, existingItem = new ItemAir());
+				}
+
+				stackResponses.Add(new StackResponseContainerInfo
+				{
+					ContainerId = 13,
+					Slots = new List<StackResponseSlotInfo>
+					{
+						new StackResponseSlotInfo()
+						{
+							Count = existingItem.Count,
+							Slot = slot,
+							HotbarSlot = slot,
+							StackNetworkId = existingItem.UniqueId
+						}
+					}
+				});
+			}
+
+			for (var i = 0; i < resultItems.Count; i++)
+			{
+				var item = resultItems[i];
+				item.UniqueId = Item.GetUniqueId();
+
+				SetContainerItem(60, 50 + i, item);
+			}
+
+			return true;
 		}
 
 		protected virtual void ProcessCraftNotImplementedDeprecatedAction(CraftNotImplementedDeprecatedAction action)
 		{
 		}
 
-		protected virtual uint ProcessCraftAction(CraftAction action)
+		protected virtual bool ProcessCraftAction(CraftAction action, out Recipe recipe)
 		{
-			return action.RecipeNetworkId;
+			return RecipeManager.NetworkIdRecipeMap.TryGetValue((int) action.RecipeNetworkId, out recipe);
 		}
 
-		protected virtual void ProcessCraftCreativeAction(CraftCreativeAction action)
+		protected virtual bool ProcessCraftCreativeAction(CraftCreativeAction action, out Recipe recipe)
 		{
+			recipe = null;
+			if (_player.GameMode != GameMode.Creative) return false;
+
 			var creativeItem = InventoryUtils.CreativeInventoryItems[(int) action.CreativeItemNetworkId];
 			if (creativeItem == null)
+			{
 				throw new Exception($"Failed to find inventory item with unique id: {action.CreativeItemNetworkId}");
+			}
+
 			creativeItem = creativeItem.Clone() as Item;
 			creativeItem.Count = (byte) creativeItem.MaxStackSize;
-			Log.Debug($"Creating {creativeItem}");
-			_player.Inventory.UiInventory.Slots[50] = creativeItem;
+			//Log.Debug($"Creating {creativeItem}");
+			//_player.Inventory.UiInventory.Slots[50] = creativeItem;
+
+			recipe = new ShapelessRecipe(creativeItem, new());
+			return true;
 		}
 
 		protected virtual void ProcessCraftRecipeOptionalAction(CraftRecipeOptionalAction action)
@@ -486,6 +572,9 @@ namespace MiNET.Inventory
 					};
 					break;
 				case 7: // chest/container
+				case 24: // furnace/container
+				case 25: // furnace/container
+				case 26: // furnace/container
 					if (_player._openInventory is ContainerInventory inventory)
 						item = inventory.GetSlot((byte) slot);
 					break;
@@ -538,6 +627,9 @@ namespace MiNET.Inventory
 					}
 					break;
 				case 7: // chest/container
+				case 24: // furnace/container
+				case 25: // furnace/container
+				case 26: // furnace/container
 					if (_player._openInventory is ContainerInventory inventory)
 						inventory.SetSlot(_player, (byte) slot, item);
 					break;

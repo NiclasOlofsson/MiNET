@@ -27,7 +27,7 @@ using MiNET.Effects;
 
 namespace MiNET.Items
 {
-	public partial class ItemGoldenApple : FoodItemBase
+	public partial class ItemGoldenApple
 	{
 		public ItemGoldenApple() : base(4, 9.6)
 		{

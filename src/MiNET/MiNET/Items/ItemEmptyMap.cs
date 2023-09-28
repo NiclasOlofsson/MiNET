@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemEmptyMap : Item
+	public partial class ItemEmptyMap
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemEmptyMap));
 

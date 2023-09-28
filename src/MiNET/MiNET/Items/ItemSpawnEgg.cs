@@ -34,7 +34,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemSpawnEgg : ItemSpawnEggBase
+	public partial class ItemSpawnEgg 
 	{
 		public ItemSpawnEgg() : base()
 		{ 

@@ -37,7 +37,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemFlintAndSteel : Item
+	public partial class ItemFlintAndSteel
 	{
 		public static int MaxPortalHeight = 30;
 		public static int MaxPortalWidth = 30;

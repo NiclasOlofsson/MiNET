@@ -25,14 +25,14 @@
 
 namespace MiNET.Items
 {
-	public partial class ItemBook : Item
+	public partial class ItemBook
 	{
 		public ItemBook() : base()
 		{
 		}
 	}
 
-	public partial class ItemEnchantedBook : Item
+	public partial class ItemEnchantedBook
 	{
 		public ItemEnchantedBook() : base()
 		{

@@ -25,7 +25,7 @@
 
 namespace MiNET.Items
 {
-	public partial class ItemCoal : Item
+	public partial class ItemCoal
 	{
 		public ItemCoal() : base()
 		{

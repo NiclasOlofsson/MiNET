@@ -25,10 +25,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using log4net;
-using MiNET.Blocks;
 using MiNET.Inventory;
 using MiNET.Items;
 using MiNET.Net;
@@ -72,7 +70,10 @@ namespace MiNET.Crafting
 			Recipes = new Recipes();
 
 			LoadShapedRecipes();
+			LoadShapedChemistryRecipes();
 			LoadShapelessRecipes();
+			LoadShapelessShulkerBoxRecipes();
+			LoadShapelessChemistryRecipes();
 
 			Recipes.Add(new MultiRecipe() { Id = new UUID("442d85ed-8272-4543-a6f1-418f90ded05d"), UniqueId = _recipeUniqueIdCounter++ }); // 442d85ed-8272-4543-a6f1-418f90ded05d
 			Recipes.Add(new MultiRecipe() { Id = new UUID("8b36268c-1829-483c-a0f1-993b7156a8f2"), UniqueId = _recipeUniqueIdCounter++ }); // 8b36268c-1829-483c-a0f1-993b7156a8f2
@@ -179,9 +180,34 @@ namespace MiNET.Crafting
 			return true;
 		}
 
+		private static void LoadShapelessChemistryRecipes()
+		{
+			LoadShapelessRecipesBase("shapeless_chemistry.json", recipe =>
+				new ShapelessChemistryRecipe(recipe.Result, recipe.Input, recipe.Block)
+				{
+					Priority = recipe.Priority,
+					UniqueId = recipe.UniqueId
+				});
+		}
+
+		private static void LoadShapelessShulkerBoxRecipes()
+		{
+			LoadShapelessRecipesBase("shapeless_shulker_box.json", recipe => 
+				new ShapelessShulkerBoxRecipe(recipe.Result, recipe.Input, recipe.Block)
+				{
+					Priority = recipe.Priority,
+					UniqueId = recipe.UniqueId
+				});
+		}
+
 		private static void LoadShapelessRecipes()
 		{
-			var shapelessCrafting = ResourceUtil.ReadResource<List<ShapelessRecipeData>>("shapeless_crafting.json", typeof(RecipeManager), "Data");
+			LoadShapelessRecipesBase("shapeless_crafting.json", recipe => recipe);
+		}
+
+		private static void LoadShapelessRecipesBase(string source, Func<ShapelessRecipeBase, ShapelessRecipeBase> getRecipe)
+		{
+			var shapelessCrafting = ResourceUtil.ReadResource<List<ShapelessRecipeData>>(source, typeof(RecipeManager), "Data");
 
 			foreach (var recipeData in shapelessCrafting)
 			{
@@ -213,16 +239,33 @@ namespace MiNET.Crafting
 					continue;
 				}
 
-				var recipe = new ShapelessRecipe(output, input, recipeData.Block) { Priority = recipeData.Priority, UniqueId = _recipeUniqueIdCounter++ };
+				ShapelessRecipeBase recipe = new ShapelessRecipe(output, input, recipeData.Block) { Priority = recipeData.Priority, UniqueId = _recipeUniqueIdCounter++ };
+				recipe = getRecipe(recipe);
 				NetworkIdRecipeMap.Add(recipe.UniqueId, recipe);
 				IdRecipeMap.Add(recipe.Id, recipe);
 				Recipes.Add(recipe);
 			}
 		}
 
+		private static void LoadShapedChemistryRecipes()
+		{
+			LoadShapedRecipesBase("shaped_chemistry.json", recipe =>
+			new ShapedChemistryRecipe(recipe.Width, recipe.Height, recipe.Result, recipe.Input, recipe.Block) 
+			{ 
+				Priority = recipe.Priority, 
+				UniqueId = recipe.UniqueId 
+			});
+		}
+
+
 		private static void LoadShapedRecipes()
 		{
-			var shapedCrafting = ResourceUtil.ReadResource<List<ShapedRecipeData>>("shaped_crafting.json", typeof(RecipeManager), "Data");
+			LoadShapedRecipesBase("shaped_crafting.json", recipe => recipe);
+		}
+
+		private static void LoadShapedRecipesBase(string source, Func<ShapedRecipeBase, ShapedRecipeBase> getRecipe)
+		{
+			var shapedCrafting = ResourceUtil.ReadResource<List<ShapedRecipeData>>(source, typeof(RecipeManager), "Data");
 
 			foreach (var recipeData in shapedCrafting)
 			{
@@ -274,7 +317,8 @@ namespace MiNET.Crafting
 					}
 				}
 
-				var recipe = new ShapedRecipe(width, height, output, inputShape.ToArray(), recipeData.Block) { Priority = recipeData.Priority, UniqueId = _recipeUniqueIdCounter++ };
+				ShapedRecipeBase recipe = new ShapedRecipe(width, height, output, inputShape.ToArray(), recipeData.Block) { Priority = recipeData.Priority, UniqueId = _recipeUniqueIdCounter++ };
+				recipe = getRecipe(recipe);
 				NetworkIdRecipeMap.Add(recipe.UniqueId, recipe);
 				IdRecipeMap.Add(recipe.Id, recipe);
 				Recipes.Add(recipe);

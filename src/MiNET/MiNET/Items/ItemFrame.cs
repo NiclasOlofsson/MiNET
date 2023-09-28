@@ -27,7 +27,7 @@ using MiNET.Blocks;
 
 namespace MiNET.Items
 {
-	public partial class ItemFrame : ItemBlock
+	public partial class ItemFrame
 	{
 		public ItemFrame() : base()
 		{

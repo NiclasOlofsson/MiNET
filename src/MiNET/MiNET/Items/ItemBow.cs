@@ -35,7 +35,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemBow : Item
+	public partial class ItemBow
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBow));
 

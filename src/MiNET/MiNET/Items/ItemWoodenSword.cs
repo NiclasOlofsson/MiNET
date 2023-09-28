@@ -25,11 +25,10 @@
 
 namespace MiNET.Items
 {
-	public partial class ItemWoodenSword : ItemSwordBase
+	public partial class ItemWoodenSword
 	{
 		public ItemWoodenSword() : base()
 		{
-			ItemMaterial = ItemMaterial.Wood;
 			FuelEfficiency = 10;
 		}
 	}

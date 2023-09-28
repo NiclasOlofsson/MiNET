@@ -29,8 +29,8 @@ using System.Linq;
 using log4net;
 using MiNET.Crafting;
 using MiNET.Items;
+using MiNET.Net;
 using MiNET.Net.Crafting;
-using MiNET.Utils;
 using MiNET.Worlds;
 using SharpAvi;
 

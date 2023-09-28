@@ -29,7 +29,7 @@ using MiNET.Entities.Passive;
 
 namespace MiNET.Items
 {
-	public partial class ItemShears : Item
+	public partial class ItemShears
 	{
 		public ItemShears() : base()
 		{

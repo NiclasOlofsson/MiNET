@@ -31,7 +31,7 @@ using System;
 using System.Net;
 using System.Numerics;
 using System.Threading;
-using MiNET.Utils; 
+using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Items;
 using MiNET.Crafting;

@@ -33,7 +33,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemStick : Item
+	public partial class ItemStick
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemStick));
 

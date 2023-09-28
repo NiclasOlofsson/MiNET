@@ -1,29 +1,4 @@
-﻿#region LICENSE
-
-// The contents of this file are subject to the Common Public Attribution
-// License Version 1.0. (the "License"); you may not use this file except in
-// compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
-// been modified to be consistent with Exhibit B.
-// 
-// Software distributed under the License is distributed on an "AS IS" basis,
-// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
-// the specific language governing rights and limitations under the License.
-// 
-// The Original Code is MiNET.
-// 
-// The Original Developer is the Initial Developer.  The Initial Developer of
-// the Original Code is Niclas Olofsson.
-// 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
-// All Rights Reserved.
-
-#endregion
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using MiNET.Items;
 using MiNET.Utils;
@@ -78,14 +53,14 @@ namespace MiNET.Net.Crafting
 
 			return type switch
 			{
-				RecipeType.Shapeless or RecipeType.ShalepessChemistry or RecipeType.ShulkerBox => ShapelessRecipe.ReadData(packet),
-				RecipeType.Shaped or RecipeType.ShapedChemistry => ShapedRecipe.ReadData(packet),
+				RecipeType.Shapeless => ShapelessRecipe.ReadData(packet),
+				RecipeType.Shaped => ShapedRecipe.ReadData(packet),
 				RecipeType.Furnace => SmeltingRecipe.ReadData(packet),
 				RecipeType.FurnaceData => SmeltingDataRecipe.ReadData(packet),
 				RecipeType.Multi => MultiRecipe.ReadData(packet),
-				//RecipeType.ShulkerBox => ShulkerBoxRecipe.ReadData(packet),
-				//RecipeType.ShalepessChemistry => ShalepessChemistryRecipe.ReadData(packet),
-				//RecipeType.ShapedChemistry => ShapedChemistryRecipe.ReadData(packet),
+				RecipeType.ShulkerBox => ShapelessShulkerBoxRecipe.ReadData(packet),
+				RecipeType.ShalepessChemistry => ShapelessChemistryRecipe.ReadData(packet),
+				RecipeType.ShapedChemistry => ShapelessChemistryRecipe.ReadData(packet),
 				RecipeType.SmithingTransform => SmithingTransformRecipe.ReadData(packet),
 				RecipeType.SmithingTrim => SmithingTrimRecipe.ReadData(packet),
 				_ => throw new ArgumentException($"Unexpected recipe type [{type}]")
@@ -133,28 +108,99 @@ namespace MiNET.Net.Crafting
 		}
 	}
 
-	public class ShapelessRecipe : Recipe
+	public class ShapelessChemistryRecipe : ShapelessRecipeBase
+	{
+		public override RecipeType Type => RecipeType.ShalepessChemistry;
+
+		public ShapelessChemistryRecipe()
+		{
+		}
+
+		public ShapelessChemistryRecipe(List<Item> result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		{
+		}
+
+		public ShapelessChemistryRecipe(Item result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		{
+		}
+
+		internal static Recipe ReadData(Packet packet)
+		{
+			packet.ReadString(); // some unique id
+
+			return ReadData(packet, new ShapelessChemistryRecipe());
+		}
+	}
+
+	public class ShapelessShulkerBoxRecipe : ShapelessRecipeBase
+	{
+		public override RecipeType Type => RecipeType.ShulkerBox;
+
+		public ShapelessShulkerBoxRecipe()
+		{
+		}
+
+		public ShapelessShulkerBoxRecipe(List<Item> result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		{
+		}
+
+		public ShapelessShulkerBoxRecipe(Item result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		{
+		}
+
+		internal static Recipe ReadData(Packet packet)
+		{
+			packet.ReadString(); // some unique id
+
+			return ReadData(packet, new ShapelessShulkerBoxRecipe());
+		}
+	}
+
+	public class ShapelessRecipe : ShapelessRecipeBase
 	{
 		public override RecipeType Type => RecipeType.Shapeless;
+
+		public ShapelessRecipe()
+		{
+		}
+
+		public ShapelessRecipe(List<Item> result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		{
+		}
+
+		public ShapelessRecipe(Item result, List<RecipeIngredient> input, string block = null) : base(result, input, block)
+		{
+		}
+
+		internal static Recipe ReadData(Packet packet)
+		{
+			packet.ReadString(); // some unique id
+
+			return ReadData(packet, new ShapelessRecipe());
+		}
+	}
+
+	public abstract class ShapelessRecipeBase : Recipe
+	{
 
 		public int UniqueId { get; set; }
 		public List<RecipeIngredient> Input { get; private set; }
 		public List<Item> Result { get; private set; }
 
-		public ShapelessRecipe()
+		public ShapelessRecipeBase()
 		{
 			Input = new List<RecipeIngredient>();
 			Result = new List<Item>();
 		}
 
-		public ShapelessRecipe(List<Item> result, List<RecipeIngredient> input, string block = null) : this()
+		public ShapelessRecipeBase(List<Item> result, List<RecipeIngredient> input, string block = null) : this()
 		{
 			Result = result;
 			Input = input;
 			Block = block;
 		}
 
-		public ShapelessRecipe(Item result, List<RecipeIngredient> input, string block = null) : this()
+		public ShapelessRecipeBase(Item result, List<RecipeIngredient> input, string block = null) : this()
 		{
 			Result.Add(result);
 			Input = input;
@@ -183,11 +229,9 @@ namespace MiNET.Net.Crafting
 			packet.WriteVarInt(UniqueId);
 		}
 
-		internal static Recipe ReadData(Packet packet)
+		internal static Recipe ReadData(Packet packet, ShapelessRecipeBase recipe)
 		{
 			packet.ReadString(); // some unique id
-
-			var recipe = new ShapelessRecipe();
 
 			var inputCount = packet.ReadUnsignedVarInt();
 			for (var i = 0; i < inputCount; i++)
@@ -210,17 +254,67 @@ namespace MiNET.Net.Crafting
 		}
 	}
 
-	public class ShapedRecipe : Recipe
+	public class ShapedChemistryRecipe : ShapedRecipeBase
+	{
+		public override RecipeType Type => RecipeType.ShapedChemistry;
+
+		public ShapedChemistryRecipe(int width, int height) : base(width, height)
+		{
+		}
+
+		public ShapedChemistryRecipe(int width, int height, Item result, RecipeIngredient[] input, string block = null) : base(width, height, result, input, block)
+		{
+		}
+
+		public ShapedChemistryRecipe(int width, int height, List<Item> result, RecipeIngredient[] input, string block = null) : base(width, height, result, input, block)
+		{
+		}
+
+		internal static Recipe ReadData(Packet packet)
+		{
+			packet.ReadString(); // some unique id
+
+			return ReadData(packet, new ShapedChemistryRecipe(
+				width: packet.ReadSignedVarInt(),
+				height: packet.ReadSignedVarInt()));
+		}
+	}
+
+	public class ShapedRecipe : ShapedRecipeBase
 	{
 		public override RecipeType Type => RecipeType.Shaped;
 
+		public ShapedRecipe(int width, int height) : base(width, height)
+		{
+		}
+
+		public ShapedRecipe(int width, int height, Item result, RecipeIngredient[] input, string block = null) : base(width, height, result, input, block)
+		{
+		}
+
+		public ShapedRecipe(int width, int height, List<Item> result, RecipeIngredient[] input, string block = null) : base(width, height, result, input, block)
+		{
+		}
+
+		internal static Recipe ReadData(Packet packet)
+		{
+			packet.ReadString(); // some unique id
+
+			return ReadData(packet, new ShapedRecipe(
+				width: packet.ReadSignedVarInt(),
+				height: packet.ReadSignedVarInt()));
+		}
+	}
+
+	public abstract class ShapedRecipeBase : Recipe
+	{
 		public int UniqueId { get; set; }
 		public int Width { get; set; }
 		public int Height { get; set; }
 		public RecipeIngredient[] Input { get; set; }
 		public List<Item> Result { get; set; }
 
-		public ShapedRecipe(int width, int height)
+		public ShapedRecipeBase(int width, int height)
 		{
 			Width = width;
 			Height = height;
@@ -228,14 +322,14 @@ namespace MiNET.Net.Crafting
 			Result = new List<Item>();
 		}
 
-		public ShapedRecipe(int width, int height, Item result, RecipeIngredient[] input, string block = null) : this(width, height)
+		public ShapedRecipeBase(int width, int height, Item result, RecipeIngredient[] input, string block = null) : this(width, height)
 		{
 			Result.Add(result);
 			Input = input;
 			Block = block;
 		}
 
-		public ShapedRecipe(int width, int height, List<Item> result, RecipeIngredient[] input, string block = null) : this(width, height)
+		public ShapedRecipeBase(int width, int height, List<Item> result, RecipeIngredient[] input, string block = null) : this(width, height)
 		{
 			Result = result;
 			Input = input;
@@ -268,14 +362,8 @@ namespace MiNET.Net.Crafting
 			packet.WriteVarInt(UniqueId);
 		}
 
-		internal static Recipe ReadData(Packet packet)
+		internal static Recipe ReadData(Packet packet, ShapedRecipeBase recipe)
 		{
-			packet.ReadString(); // some unique id
-
-			var recipe = new ShapedRecipe(
-				width: packet.ReadSignedVarInt(),
-				height: packet.ReadSignedVarInt());
-
 			for (int h = 0; h < recipe.Height; h++)
 			{
 				for (int w = 0; w < recipe.Width; w++)

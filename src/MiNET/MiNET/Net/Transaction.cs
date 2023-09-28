@@ -1,37 +1,12 @@
-﻿#region LICENSE
-
-// The contents of this file are subject to the Common Public Attribution
-// License Version 1.0. (the "License"); you may not use this file except in
-// compliance with the License. You may obtain a copy of the License at
-// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
-// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
-// and 15 have been added to cover use of software over a computer network and 
-// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
-// been modified to be consistent with Exhibit B.
-// 
-// Software distributed under the License is distributed on an "AS IS" basis,
-// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
-// the specific language governing rights and limitations under the License.
-// 
-// The Original Code is MiNET.
-// 
-// The Original Developer is the Initial Developer.  The Initial Developer of
-// the Original Code is Niclas Olofsson.
-// 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
-// All Rights Reserved.
-
-#endregion
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using MiNET.Items;
-using MiNET.Net;
 using MiNET.Net.Crafting;
+using MiNET.Utils;
 using MiNET.Utils.Vectors;
 
-namespace MiNET.Utils
+namespace MiNET.Net
 {
 	public class ItemStackRequests : List<ItemStackActionList>, IPacketDataObject
 	{
@@ -40,9 +15,7 @@ namespace MiNET.Utils
 			packet.WriteUnsignedVarInt((uint) Count);
 
 			foreach (var request in this)
-			{
 				packet.Write(request);
-			}
 		}
 
 		public static ItemStackRequests Read(Packet packet)
@@ -51,9 +24,7 @@ namespace MiNET.Utils
 
 			var count = packet.ReadUnsignedVarInt();
 			for (var i = 0; i < count; i++)
-			{
 				request.Add(ItemStackActionList.Read(packet));
-			}
 
 			return request;
 		}
@@ -73,15 +44,11 @@ namespace MiNET.Utils
 
 			packet.WriteUnsignedVarInt((uint) Count);
 			foreach (var action in this)
-			{
 				packet.Write(action);
-			}
 
 			packet.WriteUnsignedVarInt((uint) FilterStrings.Count);
 			foreach (var filter in FilterStrings)
-			{
 				packet.Write(filter);
-			}
 
 			packet.Write(FilterStringCause);
 		}
@@ -95,15 +62,11 @@ namespace MiNET.Utils
 
 			var actionsCount = packet.ReadUnsignedVarInt();
 			for (var i = 0; i < actionsCount; i++)
-			{
 				actions.Add(ItemStackAction.Read(packet));
-			}
 
 			var filtersCount = packet.ReadUnsignedVarInt();
 			for (var i = 0; i < filtersCount; i++)
-			{
 				actions.FilterStrings.Add(packet.ReadString());
-			}
 
 			actions.FilterStringCause = packet.ReadInt();
 
@@ -158,7 +121,7 @@ namespace MiNET.Utils
 	{
 		public byte ContainerId { get; set; }
 		public byte Slot { get; set; }
-		public int StackNetworkId  { get; set; }
+		public int StackNetworkId { get; set; }
 
 		public void Write(Packet packet)
 		{
@@ -248,7 +211,7 @@ namespace MiNET.Utils
 
 		protected override void WriteData(Packet packet)
 		{
-			packet.Write(Count); 
+			packet.Write(Count);
 			packet.Write(Source);
 			packet.Write(Randomly);
 		}
@@ -407,9 +370,7 @@ namespace MiNET.Utils
 
 			packet.Write((byte) RecipeIngredients.Count);
 			foreach (var ingredient in RecipeIngredients)
-			{
 				packet.Write(ingredient);
-			}
 		}
 
 		internal static ItemStackAction ReadData(Packet packet)
@@ -422,9 +383,7 @@ namespace MiNET.Utils
 
 			var count = packet.ReadByte();
 			for (var i = 0; i < count; i++)
-			{
 				action.RecipeIngredients.Add(RecipeIngredient.Read(packet));
-			}
 
 			return action;
 		}
@@ -522,7 +481,7 @@ namespace MiNET.Utils
 
 		internal static ItemStackAction ReadData(Packet packet) => ReadData(packet, new PlaceIntoBundleAction());
 	}
-	
+
 	public class TakeFromBundleAction : TakeOrPlaceAction
 	{
 		public override McpeItemStackRequest.ActionType Type => McpeItemStackRequest.ActionType.TakeFromBundle;
@@ -548,9 +507,7 @@ namespace MiNET.Utils
 		{
 			packet.WriteUnsignedVarInt((uint) ResultItems.Count);
 			foreach (var item in ResultItems)
-			{
 				packet.Write(item, false);
-			}
 
 			packet.Write(TimesCrafted);
 		}
@@ -561,9 +518,7 @@ namespace MiNET.Utils
 
 			var count = packet.ReadUnsignedVarInt();
 			for (var i = 0; i < count; i++)
-			{
 				action.ResultItems.Add(packet.ReadItem(false));
-			}
 
 			action.TimesCrafted = packet.ReadByte();
 
@@ -577,9 +532,7 @@ namespace MiNET.Utils
 		{
 			packet.WriteUnsignedVarInt((uint) Count);
 			foreach (var response in this)
-			{
 				packet.Write(response);
-			}
 		}
 
 		public static ItemStackResponses Read(Packet packet)
@@ -588,9 +541,7 @@ namespace MiNET.Utils
 
 			var count = packet.ReadUnsignedVarInt();
 			for (var i = 0; i < count; i++)
-			{
 				responses.Add(ItemStackResponse.Read(packet));
-			}
 
 			return responses;
 		}
@@ -607,13 +558,12 @@ namespace MiNET.Utils
 			packet.Write((byte) Result);
 			packet.WriteVarInt(RequestId);
 
-			if (Result != StackResponseStatus.Ok) return;
+			if (Result != StackResponseStatus.Ok)
+				return;
 
 			packet.WriteUnsignedVarInt((uint) ResponseContainerInfos.Count);
 			foreach (var response in ResponseContainerInfos)
-			{
 				packet.Write(response);
-			}
 		}
 
 		public static ItemStackResponse Read(Packet packet)
@@ -623,14 +573,13 @@ namespace MiNET.Utils
 				Result = (StackResponseStatus) packet.ReadByte(),
 				RequestId = packet.ReadVarInt()
 			};
-			
-			if (response.Result != StackResponseStatus.Ok) return response;
+
+			if (response.Result != StackResponseStatus.Ok)
+				return response;
 
 			var count = packet.ReadUnsignedVarInt();
 			for (var i = 0; i < count; i++)
-			{
 				response.ResponseContainerInfos.Add(StackResponseContainerInfo.Read(packet));
-			}
 
 			return response;
 		}
@@ -653,9 +602,7 @@ namespace MiNET.Utils
 
 			packet.WriteUnsignedVarInt((uint) Slots.Count);
 			foreach (var slot in Slots)
-			{
 				packet.Write(slot);
-			}
 		}
 
 		public static StackResponseContainerInfo Read(Packet packet)
@@ -667,9 +614,7 @@ namespace MiNET.Utils
 
 			var count = packet.ReadUnsignedVarInt();
 			for (var i = 0; i < count; i++)
-			{
 				response.Slots.Add(StackResponseSlotInfo.Read(packet));
-			}
 
 			return response;
 		}
@@ -677,11 +622,11 @@ namespace MiNET.Utils
 
 	public class StackResponseSlotInfo : IPacketDataObject
 	{
-		public byte Slot           { get; set; }
-		public byte HotbarSlot     { get; set; }
-		public byte Count          { get; set; }
-		public int  StackNetworkId { get; set; }
-		public string  CustomName     { get; set; }
+		public byte Slot { get; set; }
+		public byte HotbarSlot { get; set; }
+		public byte Count { get; set; }
+		public int StackNetworkId { get; set; }
+		public string CustomName { get; set; }
 		public int DurabilityCorrection { get; set; }
 
 		public void Write(Packet packet)
@@ -715,10 +660,10 @@ namespace MiNET.Utils
 
 	public abstract class Transaction
 	{
-		public bool                    HasNetworkIds   { get; set; } = false;
-		
-		public int                     RequestId          { get; set; }
-		public List<RequestRecord>     RequestRecords     { get; set; } = new List<RequestRecord>();
+		public bool HasNetworkIds { get; set; } = false;
+
+		public int RequestId { get; set; }
+		public List<RequestRecord> RequestRecords { get; set; } = new List<RequestRecord>();
 		public List<TransactionRecord> TransactionRecords { get; set; } = new List<TransactionRecord>();
 	}
 
@@ -764,11 +709,11 @@ namespace MiNET.Utils
 
 	public abstract class TransactionRecord
 	{
-		public int  StackNetworkId { get; set; }
-		
-		public int  Slot      { get;  set; }
-		public Item OldItem   { get;  set; }
-		public Item NewItem   { get;  set; }
+		public int StackNetworkId { get; set; }
+
+		public int Slot { get; set; }
+		public Item OldItem { get; set; }
+		public Item NewItem { get; set; }
 	}
 
 	public class ContainerTransactionRecord : TransactionRecord

@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemCarrot : FoodItemBase
+	public partial class ItemCarrot
 	{
 		public ItemCarrot() : base(3, 4.8)
 		{

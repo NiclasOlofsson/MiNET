@@ -25,13 +25,12 @@
 
 using System.Numerics;
 using MiNET.Blocks;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemPotato : FoodItemBase
+	public partial class ItemPotato
 	{
 		public ItemPotato() : base(1, 0.6)
 		{

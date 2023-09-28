@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemElytra : Item
+	public partial class ItemElytra
 	{
 		public ItemElytra() : base()
 		{

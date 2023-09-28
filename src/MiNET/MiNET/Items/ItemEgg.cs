@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemEgg : Item
+	public partial class ItemEgg
 	{
 		public ItemEgg() : base()
 		{

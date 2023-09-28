@@ -25,7 +25,7 @@
 
 namespace MiNET.Items
 {
-	public partial class ItemMelonSlice : FoodItemBase
+	public partial class ItemMelonSlice
 	{
 		public ItemMelonSlice() : base(2, 1.2)
 		{

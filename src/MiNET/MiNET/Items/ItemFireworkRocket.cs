@@ -35,7 +35,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemFireworkRocket : Item
+	public partial class ItemFireworkRocket
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemFireworkRocket));
 

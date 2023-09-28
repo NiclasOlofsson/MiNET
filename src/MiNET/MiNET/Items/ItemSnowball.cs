@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemSnowball : Item
+	public partial class ItemSnowball
 	{
 		public ItemSnowball() : base()
 		{

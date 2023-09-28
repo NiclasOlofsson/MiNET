@@ -25,13 +25,12 @@
 
 using log4net;
 using MiNET.Effects;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemPotion : Item
+	public partial class ItemPotion
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemPotion));
 

@@ -36,7 +36,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public partial class ItemPainting : Item
+	public partial class ItemPainting
 	{
 		public class PaintingData
 		{

@@ -23,8 +23,6 @@
 
 #endregion
 
-using System;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 

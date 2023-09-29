@@ -51,6 +51,8 @@ namespace MiNET.Inventory
 		{
 			stackResponses = new List<StackResponseContainerInfo>();
 			Recipe recipe = null;
+			List<Item> createCache = null;
+
 			foreach (ItemStackAction stackAction in actions)
 				switch (stackAction)
 				{
@@ -85,7 +87,7 @@ namespace MiNET.Inventory
 						}
 					case CraftResultDeprecatedAction craftResultDeprecatedAction:
 						{
-							if (!ProcessCraftResultDeprecatedAction(craftResultDeprecatedAction, recipe, stackResponses))
+							if (!ProcessCraftResultDeprecatedAction(craftResultDeprecatedAction, recipe, stackResponses, out createCache))
 							{
 								return StackResponseStatus.Error;
 							}
@@ -125,6 +127,11 @@ namespace MiNET.Inventory
 							{
 								ProcessConsumeAction(consumeAction, stackResponses);
 							}
+							break;
+						}
+					case CreateAction createAction:
+						{
+							ProcessCreateAction(createAction, createCache);
 							break;
 						}
 					default:
@@ -442,15 +449,22 @@ namespace MiNET.Inventory
 			});
 		}
 
-		protected virtual bool ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action, Recipe recipe, List<StackResponseContainerInfo> stackResponses)
+		protected virtual void ProcessCreateAction(CreateAction action, List<Item> createCache)
 		{
+			SetContainerItem(60, 50, createCache[action.ResultSlot]);
+		}
+
+		protected virtual bool ProcessCraftResultDeprecatedAction(CraftResultDeprecatedAction action, Recipe recipe, List<StackResponseContainerInfo> stackResponses, out List<Item> createCache)
+		{
+			createCache = null;
 			if (recipe == null) return false;
 
 			for (var i = 0; i < action.ResultItems.Count; i++)
 			{
 				if (action.ResultItems[i] == null) return false;
-				if (GetContainerItem(60, 50 + i).UniqueId != 0) return false;
 			}
+
+			if (GetContainerItem(60, 50).UniqueId != 0) return false;
 
 			if (!RecipeManager.ValidateRecipe(
 				recipe,
@@ -497,10 +511,15 @@ namespace MiNET.Inventory
 			{
 				var item = resultItems[i];
 				item.UniqueId = Item.GetUniqueId();
-
-				SetContainerItem(60, 50 + i, item);
 			}
 
+			if (resultItems.Count > 1)
+			{
+				createCache = resultItems;
+				return true;
+			}
+
+			SetContainerItem(60, 50, resultItems.Single());
 			return true;
 		}
 

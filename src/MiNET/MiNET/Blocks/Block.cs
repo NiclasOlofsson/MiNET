@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using fNbt;
 using log4net;
@@ -41,8 +40,6 @@ namespace MiNET.Blocks
 	public class Block : INbtSerializable, ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Block));
-
-		public bool IsGenerated { get; protected set; } = false;
 
 		public BlockCoordinates Coordinates { get; set; }
 

@@ -352,14 +352,14 @@ namespace MiNET.Crafting
 			{
 				if (!InventoryUtils.TryGetItemFromExternalData(recipeData.Input, out var input))
 				{
-					Log.Warn($"Missing smelting recipe Inputs: {JsonConvert.SerializeObject(recipeData)}");
+					Log.Warn($"Missing smelting recipe Input: {JsonConvert.SerializeObject(recipeData)}");
 
 					continue;
 				}
 
 				if (!InventoryUtils.TryGetItemFromExternalData(recipeData.Output, out var output))
 				{
-					Log.Warn($"Missing smelting recipe Inputs: {JsonConvert.SerializeObject(recipeData)}");
+					Log.Warn($"Missing smelting recipe Output: {JsonConvert.SerializeObject(recipeData)}");
 
 					continue;
 				}

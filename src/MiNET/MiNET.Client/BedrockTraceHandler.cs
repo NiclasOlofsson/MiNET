@@ -253,7 +253,8 @@ namespace MiNET.Client
 
 					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Id}, {currentBlockState.Data}");
 					Block blockById = BlockFactory.GetBlockById(currentBlockState.Id);
-					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
+					// 1.19-update
+					//bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
 
 					string blockClassName = CodeName(currentBlockState.Id.Replace("minecraft:", ""), true);
 

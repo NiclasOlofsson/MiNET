@@ -37,7 +37,7 @@ namespace MiNET.Test
 
 				Console.WriteLine($"Directory:\n{Path.GetTempPath()}");
 				Console.WriteLine($"Filename:\n{fileName}");
-				Log.Warn($"Writing blocks to filename:\n{fileName}");
+				Log.Warn($"Writing items to filename:\n{fileName}");
 
 				writer.WriteLine($"namespace MiNET.Items");
 				writer.WriteLine($"{{");
@@ -68,50 +68,50 @@ namespace MiNET.Test
 							{
 								case "boat":
 								case "boats":
-									baseName = "ItemBoatBase";
+									baseName = typeof(ItemBoatBase).Name;
 									break;
 								case "spawn_egg":
-									baseName = "ItemSpawnEggBase";
+									baseName = typeof(ItemSpawnEggBase).Name;
 									break;
 								case "bookshelf_books":
 									type = ItemType.Book;
 									break;
 								case "door":
-									baseName = "ItemDoorBase";
+									baseName = typeof(ItemDoorBase).Name;
 									break;
 								case "is_axe":
-									baseName = "ItemAxeBase";
+									baseName = typeof(ItemAxeBase).Name;
 									type = ItemType.Axe;
 									break;
 								case "is_hoe":
-									baseName = "ItemHoeBase";
+									baseName = typeof(ItemHoeBase).Name;
 									type = ItemType.Hoe;
 									break;
 								case "is_pickaxe":
-									baseName = "ItemPickaxeBase";
+									baseName = typeof(ItemPickaxeBase).Name;
 									type = ItemType.PickAxe;
 									break;
 								case "is_shovel":
-									baseName = "ItemShovelBase";
+									baseName = typeof(ItemShovelBase).Name;
 									type = ItemType.Shovel;
 									break;
 								case "is_sword":
-									baseName = "ItemSwordBase";
+									baseName = typeof(ItemSwordBase).Name;
 									type = ItemType.Sword;
 									break;
 								case "is_armor":
 									maxStackSize = 1;
 									baseName = Enum.Parse<ItemType>(name.Split('_').Last(), true) switch
 									{
-										ItemType.Helmet => "ItemArmorHelmetBase",
-										ItemType.Chestplate => "ItemArmorChestplateBase",
-										ItemType.Leggings => "ItemArmorLeggingsBase",
-										ItemType.Boots => "ItemArmorBootsBase",
+										ItemType.Helmet => typeof(ItemArmorHelmetBase).Name,
+										ItemType.Chestplate => typeof(ItemArmorChestplateBase).Name,
+										ItemType.Leggings => typeof(ItemArmorLeggingsBase).Name,
+										ItemType.Boots => typeof(ItemArmorBootsBase).Name,
 										_ => baseName
 									};
 									break;
 								case "horse_armor":
-									baseName = "ItemHorseArmorBase";
+									baseName = typeof(ItemHorseArmorBase).Name;
 									maxStackSize = 1;
 									material = id switch
 									{
@@ -150,10 +150,10 @@ namespace MiNET.Test
 									maxStackSize = 1;
 									break;
 								case "sign":
-									baseName = "ItemSignBase";
+									baseName = typeof(ItemSignBase).Name;
 									break;
 								case "is_food":
-									baseName = "FoodItemBase";
+									baseName = typeof(FoodItemBase).Name;
 									break;
 							}
 
@@ -171,13 +171,16 @@ namespace MiNET.Test
 					var existingType = assembly.GetType($"MiNET.Items.{className}");
 					var baseType = assembly.GetType($"MiNET.Items.{baseName}");
 					if (existingType == null 
-						|| existingType.BaseType.Name == baseName 
+						|| existingType.BaseType == baseType
 						|| existingType.BaseType == typeof(object)
 						|| existingType.BaseType == typeof(Item)
-						|| (existingType.BaseType == typeof(ItemBlock) && (baseType?.IsAssignableTo(typeof(ItemBlock)) ?? false))
-						|| existingType.BaseType == baseType)
+						|| (existingType.BaseType == typeof(ItemBlock) && (baseType?.IsAssignableTo(typeof(ItemBlock)) ?? false)))
 					{
 						baseClassPart = $" : {baseName}";
+					}
+					else
+					{
+						baseType = existingType.BaseType;
 					}
 
 					writer.WriteLineNoTabs($"");

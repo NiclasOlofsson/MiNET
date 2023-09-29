@@ -24,8 +24,6 @@
 #endregion
 
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -100,25 +98,13 @@ namespace MiNET.Blocks
 
 		protected void SetDoubleSlab(Level world, BlockCoordinates coordinates)
 		{
-			var id = Id.Replace("minecraft:", "");
-			id = id.Contains("stone_block_slab") ? $"double_{id}" : id.Replace("slab", "double_slab");
+			var name = Id.Replace("minecraft:", "");
+			var id = name.Contains("stone_block_slab") ? $"minecraft:double_{name}" : Id.Replace("slab", "double_slab");
 
-			Block slab = BlockFactory.GetBlockById(Id);
+			Block slab = BlockFactory.GetBlockById(id);
 			slab.Coordinates = coordinates;
 			slab.SetState(GetState());
 			world.SetBlock(slab);
 		}
 	}
-
-	public partial class CrimsonSlab : SlabBase { public CrimsonSlab() : base() { } }
-	public partial class WarpedSlab : SlabBase { public WarpedSlab() : base() { } }
-	public partial class BlackstoneSlab : SlabBase { public BlackstoneSlab() : base() { } }
-	public partial class PolishedBlackstoneBrickSlab : SlabBase { public PolishedBlackstoneBrickSlab() : base() { } }
-	public partial class PolishedBlackstoneSlab : SlabBase { public PolishedBlackstoneSlab() : base() { } }
-	public partial class CrimsonDoubleSlab : Block { public CrimsonDoubleSlab() : base() { } }
-	public partial class WarpedDoubleSlab : Block { public WarpedDoubleSlab() : base() { } }
-	public partial class BlackstoneDoubleSlab : Block { public BlackstoneDoubleSlab() : base() { } }
-	public partial class PolishedBlackstoneBrickDoubleSlab : Block { public PolishedBlackstoneBrickDoubleSlab() : base() { } }
-	public partial class PolishedBlackstoneDoubleSlab : Block { public PolishedBlackstoneDoubleSlab() : base() { } }
-
 }

@@ -179,100 +179,126 @@ namespace MiNET.Test
 		[TestMethod]
 		public void GeneratePartialBlocksFromBlockstates()
 		{
+			var assembly = typeof(Block).Assembly;
+
 			var blockPalette = BlockFactory.BlockPalette;
+			var blockRecordsGrouping = blockPalette
+					.OrderBy(record => record.Id)
+					.ThenBy(record => record.Data)
+					.GroupBy(record => record.Id);
 
-			string fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
-			using (FileStream file = File.OpenWrite(fileName))
+			var idToTag = ItemFactory.ItemTags
+				.SelectMany(tag => tag.Value.Select(itemId => (itemId, tag: tag.Key)))
+				.GroupBy(tag => tag.itemId)
+				.ToDictionary(pairs => pairs.Key, pairs => pairs.Select(pair => pair.tag).ToArray());
+
+			var fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
+			using (var file = File.OpenWrite(fileName))
 			{
-				var blocks = new List<(int, string)>();
-
 				var writer = new IndentedTextWriter(new StreamWriter(file));
 
 				Console.WriteLine($"Directory:\n{Path.GetTempPath()}");
 				Console.WriteLine($"Filename:\n{fileName}");
 				Log.Warn($"Writing blocks to filename:\n{fileName}");
 
+				writer.WriteLine("using System;");
+				writer.WriteLine("using System.Collections.Generic;");
+				writer.WriteLine("using MiNET.Utils;");
+				writer.WriteLineNoTabs($"");
+
 				writer.WriteLine($"namespace MiNET.Blocks");
 				writer.WriteLine($"{{");
 				writer.Indent++;
 
-				foreach (IGrouping<string, BlockStateContainer> blockstateGrouping in blockPalette.OrderBy(record => record.Id).ThenBy(record => record.Data).GroupBy(record => record.Id))
+				foreach (var blockstateGrouping in blockRecordsGrouping)
 				{
 					var currentBlockState = blockstateGrouping.First();
 					var defaultBlockState = blockstateGrouping.FirstOrDefault(bs => bs.Data == 0);
 
-					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Id}, {currentBlockState.Data}");
-					Block blockById = BlockFactory.GetBlockById(currentBlockState.Id);
+					var id = currentBlockState.Id;
+					var name = id.Replace("minecraft:", "");
+					var className = GenerationUtils.CodeName(name, true);
 
-					if (blockById == null)
+					var baseName = GetBaseTypeByKnownBlockIds(id, idToTag);
+
+					var baseClassPart = string.Empty;
+					var existingType = assembly.GetType($"MiNET.Blocks.{className}");
+					var baseType = assembly.GetType($"MiNET.Blocks.{baseName}");
+					if (existingType == null
+						|| existingType.BaseType == baseType
+						|| existingType.BaseType == typeof(object)
+						|| existingType.BaseType == typeof(Block))
 					{
-						//throw new Exception($"Undefined block [{currentBlockState.Id}]");
+						baseClassPart = $" : {baseName}";
+					}
+					else
+					{
+						baseType = existingType.BaseType;
 					}
 
-					bool existingBlock = blockById != null && blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
-					var baseBlock = blockById?.IsGenerated ?? true ? $": {(blockById == null || blockById.GetType().BaseType == typeof(object) ? "Block" : blockById.GetType().BaseType.Name)}" : string.Empty;
-
-					string blockClassName = GenerationUtils.CodeName(currentBlockState.Id.Replace("minecraft:", ""), true);
 
 					writer.WriteLineNoTabs($"");
-
-					writer.WriteLine($"public partial class {blockClassName} {(existingBlock ? string.Empty : baseBlock)} // typeof={blockById.GetType().Name}");
+					writer.WriteLine($"public partial class {className}{baseClassPart}");
 					writer.WriteLine($"{{");
 					writer.Indent++;
 
-					if (!blockById.IsGenerated)
-					{
-						writer.WriteLine($"public override string Id {{ get; protected set; }} = \"{currentBlockState.Id}\";");
-						writer.WriteLineNoTabs($"");
-					}
+					writer.WriteLine($"public override string Id {{ get; protected set; }} = \"{currentBlockState.Id}\";");
 
 					var bits = new List<BlockStateByte>();
-					foreach (var state in blockstateGrouping.First().States)
+					foreach (var state in currentBlockState.States)
 					{
 						var q = blockstateGrouping.SelectMany(c => c.States);
 
+						var propertyName = GenerationUtils.CodeName(state.Name, true);
+
 						// If this is on base, skip this property. We need this to implement common functionality.
-						Type baseType = blockById.GetType().BaseType;
-						bool propOverride = baseType != null
-											&& ("Block" != baseType.Name
-												&& baseType.GetProperty(GenerationUtils.CodeName(state.Name, true)) != null);
+						var propertyOverride = baseType != null
+											&& baseType != typeof(Block)
+											&& baseType.GetProperty(propertyName) != null;
+						var propertyOverrideModifierPart = propertyOverride ? $" override" : string.Empty;
 
 						switch (state)
 						{
 							case BlockStateByte blockStateByte:
 							{
+								writer.WriteLineNoTabs($"");
+
 								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateByte) d).Value).Distinct().OrderBy(s => s).ToList();
-								byte defaultVal = ((BlockStateByte) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? 0;
+								var defaultVal = ((BlockStateByte) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? 0;
 								if (values.Min() == 0 && values.Max() == 1)
 								{
 									bits.Add(blockStateByte);
-									writer.Write($"[StateBit] ");
-									writer.WriteLine($"public {(propOverride ? "override" : "")} bool {GenerationUtils.CodeName(state.Name, true)} {{ get; set; }} = {(defaultVal == 1 ? "true" : "false")};");
+									writer.WriteLine($"[StateBit]");
+									writer.WriteLine($"public{propertyOverrideModifierPart} bool {propertyName} {{ get; set; }} = {(defaultVal == 1 ? "true" : "false")};");
 								}
 								else
 								{
-									writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
-									writer.WriteLine($"public {(propOverride ? "override" : "")} byte {GenerationUtils.CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
+									writer.WriteLine($"[StateRange({values.Min()}, {values.Max()})]");
+									writer.WriteLine($"public{propertyOverrideModifierPart} byte {propertyName} {{ get; set; }} = {defaultVal};");
 								}
 								break;
 							}
 							case BlockStateInt blockStateInt:
 							{
+								writer.WriteLineNoTabs($"");
+
 								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateInt) d).Value).Distinct().OrderBy(s => s).ToList();
 								int defaultVal = ((BlockStateInt) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? 0;
-								writer.Write($"[StateRange({values.Min()}, {values.Max()})] ");
-								writer.WriteLine($"public {(propOverride ? "override" : "")} int {GenerationUtils.CodeName(state.Name, true)} {{ get; set; }} = {defaultVal};");
+								writer.WriteLine($"[StateRange({values.Min()}, {values.Max()})]");
+								writer.WriteLine($"public{propertyOverrideModifierPart} int {propertyName} {{ get; set; }} = {defaultVal};");
 								break;
 							}
 							case BlockStateString blockStateString:
 							{
+								writer.WriteLineNoTabs($"");
+
 								var values = q.Where(s => s.Name == state.Name).Select(d => ((BlockStateString) d).Value).Distinct().ToList();
-								string defaultVal = ((BlockStateString) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? "";
+								string defaultVal = ((BlockStateString) defaultBlockState?.States.First(s => s.Name == state.Name))?.Value ?? string.Empty;
 								if (values.Count > 1)
 								{
 									writer.WriteLine($"[StateEnum({string.Join(',', values.Select(v => $"\"{v}\""))})]");
 								}
-								writer.WriteLine($"public {(propOverride ? "override" : "")} string {GenerationUtils.CodeName(state.Name, true)} {{ get; set; }} = \"{defaultVal}\";");
+								writer.WriteLine($"public{propertyOverrideModifierPart} string {propertyName} {{ get; set; }} = \"{defaultVal}\";");
 								break;
 							}
 							default:
@@ -280,52 +306,43 @@ namespace MiNET.Test
 						}
 					}
 
-					if (blockById.IsGenerated)
+					if (currentBlockState.States.Any())
 					{
-						writer.WriteLine($"");
-
-						writer.WriteLine($"public {blockClassName}() : base(\"{currentBlockState.Id}\")");
+						writer.WriteLineNoTabs($"");
+						writer.WriteLine($"public override void {nameof(Block.SetState)}(List<{nameof(IBlockState)}> states)");
 						writer.WriteLine($"{{");
 						writer.Indent++;
-						writer.WriteLine($"IsGenerated = true;");
-						writer.Indent--;
-						writer.WriteLine($"}}");
-					}
-
-					writer.WriteLineNoTabs($"");
-					writer.WriteLine($"public override void SetState(List<IBlockState> states)");
-					writer.WriteLine($"{{");
-					writer.Indent++;
-					writer.WriteLine($"foreach (var state in states)");
-					writer.WriteLine($"{{");
-					writer.Indent++;
-					writer.WriteLine($"switch(state)");
-					writer.WriteLine($"{{");
-					writer.Indent++;
-
-					foreach (var state in blockstateGrouping.First().States)
-					{
-						writer.WriteLine($"case {state.GetType().Name} s when s.Name == \"{state.Name}\":");
+						writer.WriteLine($"foreach (var state in states)");
+						writer.WriteLine($"{{");
 						writer.Indent++;
-						writer.WriteLine($"{GenerationUtils.CodeName(state.Name, true)} = {(bits.Contains(state) ? "Convert.ToBoolean(s.Value)" : "s.Value")};");
-						writer.WriteLine($"break;");
+						writer.WriteLine($"switch(state)");
+						writer.WriteLine($"{{");
+						writer.Indent++;
+
+						foreach (var state in currentBlockState.States)
+						{
+							writer.WriteLine($"case {state.GetType().Name} s when s.Name == \"{state.Name}\":");
+							writer.Indent++;
+							writer.WriteLine($"{GenerationUtils.CodeName(state.Name, true)} = {(bits.Contains(state) ? "Convert.ToBoolean(s.Value)" : "s.Value")};");
+							writer.WriteLine($"break;");
+							writer.Indent--;
+						}
+
 						writer.Indent--;
+						writer.WriteLine($"}} // switch");
+						writer.Indent--;
+						writer.WriteLine($"}} // foreach");
+						writer.Indent--;
+						writer.WriteLine($"}} // method");
 					}
 
-					writer.Indent--;
-					writer.WriteLine($"}} // switch");
-					writer.Indent--;
-					writer.WriteLine($"}} // foreach");
-					writer.Indent--;
-					writer.WriteLine($"}} // method");
-
 					writer.WriteLineNoTabs($"");
-					writer.WriteLine($"public override BlockStateContainer GetState()");
+					writer.WriteLine($"public override {nameof(BlockStateContainer)} {nameof(Block.GetState)}()");
 					writer.WriteLine($"{{");
 					writer.Indent++;
-					writer.WriteLine($"var record = new BlockStateContainer();");
-					writer.WriteLine($"record.Id = \"{blockstateGrouping.First().Id}\";");
-					foreach (var state in blockstateGrouping.First().States)
+					writer.WriteLine($"var record = new {nameof(BlockStateContainer)}();");
+					writer.WriteLine($"record.Id = {nameof(Block.Id)};");
+					foreach (var state in currentBlockState.States)
 					{
 						string propName = GenerationUtils.CodeName(state.Name, true);
 						writer.WriteLine($"record.States.Add(new {state.GetType().Name} {{Name = \"{state.Name}\", Value = {(bits.Contains(state) ? $"Convert.ToByte({propName})" : propName)}}});");
@@ -334,55 +351,6 @@ namespace MiNET.Test
 					writer.Indent--;
 					writer.WriteLine($"}} // method");
 
-					//writer.WriteLine($"");
-
-					//writer.WriteLine($"public byte GetMetadataFromState()");
-					//writer.WriteLine($"{{");
-					//writer.Indent++;
-
-					//writer.WriteLine($"switch(this)");
-					//writer.WriteLine($"{{");
-					//writer.Indent++;
-
-
-					//i = 0;
-					//foreach (var record in message.BlockPalette.Where(b => b.Id == enumerator.Current.Id).OrderBy(b => b.Data))
-					//{
-					//	//case { } b when b.ButtonPressedBit == 0 && b.FacingDirection == 0:
-					//	//	return 0;
-
-					//	writer.Write($"case {{ }} b when true");
-					//	string retVal = "";
-					//	foreach (var state in record.States.OrderBy(s => s.Name).ThenBy(s => s.Value))
-					//	{
-					//		if (state.Type == (byte) NbtTagType.Byte)
-					//		{
-					//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
-					//		}
-					//		else if (state.Type == (byte) NbtTagType.Int)
-					//		{
-					//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == {state.Value}");
-					//		}
-					//		else if (state.Type == (byte) NbtTagType.String)
-					//		{
-					//			writer.Write($" && b.{Client.CodeName(state.Name, true)} == \"{state.Value}\"");
-					//		}
-					//	}
-					//	writer.WriteLine($":");
-
-					//	writer.Indent++;
-					//	writer.WriteLine($"return { i++ };");
-					//	writer.Indent--;
-					//}
-
-					//writer.Indent--;
-					//writer.WriteLine($"}} // switch");
-
-					//writer.WriteLine($"throw new ArithmeticException(\"Invalid state. Unable to convert state to valid metadata\");");
-
-					//writer.Indent--;
-					//writer.WriteLine($"}} // method");
-
 					writer.Indent--;
 					writer.WriteLine($"}} // class");
 				}
@@ -390,13 +358,36 @@ namespace MiNET.Test
 				writer.Indent--;
 				writer.WriteLine($"}}");
 
-				//foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
-				//{
-				//	writer.WriteLine($"{block.Item1} => block = new {block.Item2}(),");
-				//}
-
 				writer.Flush();
 			}
+		}
+
+		private string GetBaseTypeByKnownBlockIds(string id, Dictionary<string, string[]> idToTag)
+		{
+			var name = id.Replace("minecraft:", "");
+
+			if (idToTag.TryGetValue(id, out var tags))
+			{
+				foreach (var tag in tags)
+				{
+					switch (tag.Replace("minecraft:", ""))
+					{
+						case "logs":
+							return typeof(LogBase).Name;
+					}
+				}
+			}
+
+			if (id.Contains("_double_slab") || (name.StartsWith("double_") && name.EndsWith("_slab")))
+			{
+				//return typeof(DoubleSlabBase).Name;
+			}
+			else if (id.Contains("_slab"))
+			{
+				return typeof(SlabBase).Name;
+			}
+
+			return "Block";
 		}
 	}
 }

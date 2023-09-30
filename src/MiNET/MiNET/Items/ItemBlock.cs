@@ -137,7 +137,6 @@ namespace MiNET.Items
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
 
-			// TODO - 1.19-update
 			world.BroadcastSound(newBlock.Coordinates, LevelSoundEventType.Place, newBlock.GetRuntimeId());
 
 			return true;
@@ -156,7 +155,7 @@ namespace MiNET.Items
 		{
 			var item = (ItemBlock) base.Clone();
 
-			item.Block = Block.Clone() as Block;
+			item.Block = Block?.Clone() as Block;
 
 			return item;
 		}

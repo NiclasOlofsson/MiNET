@@ -34,7 +34,7 @@ namespace MiNET.Blocks
 	{
 		public virtual string PillarAxis { get; set; } = "";
 
-		public LogBase(string id = null) : base(id)
+		public LogBase() : base()
 		{
 			FuelEfficiency = 15;
 			BlastResistance = 10;

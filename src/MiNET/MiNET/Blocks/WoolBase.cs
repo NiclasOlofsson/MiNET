@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -25,15 +25,13 @@
 
 namespace MiNET.Blocks
 {
-	public class Border : Block
+	public abstract class WoolBase : Block
 	{
-		//  "blockRuntimeId": 1856,
-		// podzol   "blockRuntimeId": 2111,
-
-
-		public Border() : base()
+		public WoolBase() : base()
 		{
-			IsTransparent = true;
+			BlastResistance = 4;
+			Hardness = 0.8f;
+			IsFlammable = true;
 		}
 	}
 }

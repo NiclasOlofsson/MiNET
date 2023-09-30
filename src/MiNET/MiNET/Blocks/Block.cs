@@ -37,14 +37,13 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Block : INbtSerializable, ICloneable
+	public abstract class Block : INbtSerializable, ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Block));
 
 		public BlockCoordinates Coordinates { get; set; }
 
-		// TODO - 1.19-update (take abstract)
-		public virtual string Id { get; protected set; }
+		public abstract string Id { get; }
 
 		[Obsolete("Use block states instead.")]
 		public byte Metadata { get; set; }
@@ -66,12 +65,6 @@ namespace MiNET.Blocks
 		public byte SkyLight { get; set; }
 
 		public byte BiomeId { get; set; }
-
-		//TODO: Update ALL blocks with names.
-		protected Block(string id)
-		{
-			Id ??= id;
-		}
 
 		protected Block()
 		{
@@ -128,116 +121,6 @@ namespace MiNET.Blocks
 			{
 				return ItemFactory.GetItem(Id, stateFromPick.Data);
 			}
-
-			//// The rest of this code is to search for an state with the proper value. This is caused by blocks that have lots
-			//// of states, and no easy way to map 1-1 with meta. Expensive, but rare.
-
-			//// Only compare with states that actually have the values we checking for, and have meta.
-			//var statesWithMeta = BlockFactory.BlockPalette.Where(b => b.Id == stateFromPick.Id && b.Data != -1).ToList();
-			//foreach (IBlockState state in stateFromPick.States.ToArray())
-			//{
-			//	bool remove = true;
-			//	foreach (BlockStateContainer blockStateContainer in statesWithMeta)
-			//	{
-			//		foreach (IBlockState currentState in blockStateContainer.States)
-			//		{
-			//			if (currentState.Name != state.Name) continue;
-
-			//			if (!currentState.Equals(state))
-			//			{
-			//				remove = false;
-			//				break;
-			//			}
-			//		}
-			//	}
-			//	if (remove) stateFromPick.States.Remove(state);
-			//}
-
-			//foreach (BlockStateContainer blockStateContainer in statesWithMeta)
-			//{
-			//	bool match = true;
-
-			//	foreach (IBlockState currentState in blockStateContainer.States)
-			//	{
-			//		if (stateFromPick.States.All(s => s.Name != currentState.Name)) continue;
-
-			//		if (stateFromPick.States.All(state => !state.Equals(currentState)))
-			//		{
-			//			Log.Debug($"State: {currentState.Name}, {currentState}");
-
-			//			match = false;
-			//			break;
-			//		}
-			//	}
-			//	if (match)
-			//	{
-			//		var id = blockStateContainer.Id;
-			//		var meta = blockStateContainer.Data;
-
-			//		var statesWithMetaAndItem = statesWithMeta.Where(b => b.ItemInstance != null).ToList();
-			//		var actualState = statesWithMetaAndItem.FirstOrDefault(s => s.Id == id && s.Data == meta && s.ItemInstance != null);
-			//		if (actualState == null) break;
-			//		return ItemFactory.GetItem(actualState.ItemInstance.Id, actualState.ItemInstance.Metadata);
-			//	}
-			//}
-
-			//// Ok that didn't give an item. Lets try more stuff.
-
-			//// Remove states that repeat. They can not contribute to a meta-variant.
-			////BUG: There might be states that have more than one. Don't know.
-			//foreach (BlockStateContainer stateContainer in statesWithMeta)
-			//{
-			//	foreach (var state in stateContainer.States.ToArray())
-			//	{
-			//		var states = statesWithMeta.SelectMany(m => m.States).ToList();
-			//		if (states.Count(s => s.Equals(state)) > 1)
-			//		{
-			//			if (stateFromPick.States.FirstOrDefault(s => s.Name == state.Name) != null)
-			//			{
-			//				stateFromPick.States.Remove(stateFromPick.States.First(s => s.Name == state.Name));
-			//			}
-			//		}
-			//	}
-			//}
-
-			//if(stateFromPick.States.Count == 0)
-			//{
-			//	var stateToPick = statesWithMeta.FirstOrDefault();
-			//	if (stateToPick?.ItemInstance != null)
-			//	{
-			//		return ItemFactory.GetItem(stateToPick.ItemInstance.Id, stateToPick.ItemInstance.Metadata);
-			//	}
-			//}
-
-			//foreach (BlockStateContainer blockStateContainer in statesWithMeta)
-			//{
-			//	bool match = true;
-
-			//	foreach (IBlockState currentState in blockStateContainer.States)
-			//	{
-			//		if (stateFromPick.States.All(s => s.Name != currentState.Name)) continue;
-
-			//		if (stateFromPick.States.All(state => !state.Equals(currentState)))
-			//		{
-			//			Log.Debug($"State: {currentState.Name}, {currentState}");
-
-			//			match = false;
-			//			break;
-			//		}
-			//	}
-			//	if (match)
-			//	{
-			//		var id = blockStateContainer.Id;
-			//		var meta = blockStateContainer.Data;
-
-			//		var statesWithMetaAndItem = statesWithMeta.Where(b => b.ItemInstance != null).ToList();
-			//		var actualState = statesWithMetaAndItem.FirstOrDefault(s => s.Id == id && s.Data == meta && s.ItemInstance != null);
-			//		if (actualState == null) break;
-			//		return ItemFactory.GetItem(actualState.ItemInstance.Id, actualState.ItemInstance.Metadata);
-			//	}
-			//}
-			//
-			//return null;
 		}
 
 		public bool CanPlace(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)
@@ -271,8 +154,8 @@ namespace MiNET.Blocks
 
 			UpdateBlocks(world);
 
-			// TODO - 1.19-update
-			//world.BroadcastSound(Coordinates, LevelSoundEventType.BreakBlock, Id);
+			// not necessary?
+			//world.BroadcastSound(Coordinates, LevelSoundEventType.BreakBlock, GetRuntimeId());
 		}
 
 		protected void UpdateBlocks(Level world)

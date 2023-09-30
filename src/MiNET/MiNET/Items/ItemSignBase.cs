@@ -24,6 +24,7 @@
 #endregion
 
 using System.Numerics;
+using MiNET.Blocks;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -39,24 +40,20 @@ namespace MiNET.Items
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			// TODO - 1.19-update
-
-			//if (face == BlockFace.Down) // At the bottom of block
-			//{
-			//	// Doesn't work, ignore if that happen. 
-			//	return;
-			//}
-
-			//if (face == BlockFace.Up) // On top of block
-			//{
-			//	// Standing sign
-			//	Block = BlockFactory.GetBlockById(_standingId);
-			//}
-			//else
-			//{
-			//	// Wall sign
-			//	Block = BlockFactory.GetBlockById(_wallId);
-			//}
+			if (face == BlockFace.Down)
+			{
+				Block = BlockFactory.GetBlockById(Id.Replace("sign", "hanging_sign"));
+				var dynamicBlock = Block as dynamic;
+				dynamicBlock.Hanging = true;
+			}
+			else if (face == BlockFace.Up)
+			{
+				Block = BlockFactory.GetBlockById(Id.Replace("oak_", "").Replace("sign", "standing_sign"));
+			}
+			else
+			{
+				Block = BlockFactory.GetBlockById(Id.Replace("oak_", "").Replace("sign", "wall_sign"));
+			}
 
 			return base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
 		}

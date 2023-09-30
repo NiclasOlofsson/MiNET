@@ -51,10 +51,6 @@ namespace MiNET.Blocks
 
 		public virtual bool TopSlotBit { get; set; } = false;
 
-		protected SlabBase(string id = null) : base(id)
-		{
-		}
-
 		public override BoundingBox GetBoundingBox()
 		{
 			var bottom = (Vector3)Coordinates;

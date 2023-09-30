@@ -243,7 +243,7 @@ namespace MiNET.Test
 					writer.WriteLine($"{{");
 					writer.Indent++;
 
-					writer.WriteLine($"public override string Id {{ get; protected set; }} = \"{currentBlockState.Id}\";");
+					writer.WriteLine($"public override string Id => \"{currentBlockState.Id}\";");
 
 					var bits = new List<BlockStateByte>();
 					foreach (var state in currentBlockState.States)
@@ -374,21 +374,26 @@ namespace MiNET.Test
 					switch (tag.Replace("minecraft:", ""))
 					{
 						case "logs":
-							return typeof(LogBase).Name;
+							return nameof(LogBase);
 					}
 				}
 			}
 
 			if (name.Contains("double_") && name.Contains("_slab"))
 			{
-				return typeof(DoubleSlabBase).Name;
+				return nameof(DoubleSlabBase);
 			}
 			else if (id.Contains("_slab"))
 			{
-				return typeof(SlabBase).Name;
+				return nameof(SlabBase);
+			}
+			
+			if (id.EndsWith("_wool"))
+			{
+				return nameof(WoolBase);
 			}
 
-			return "Block";
+			return nameof(Block);
 		}
 	}
 }

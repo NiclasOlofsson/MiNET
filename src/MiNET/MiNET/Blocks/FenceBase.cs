@@ -25,11 +25,13 @@
 
 namespace MiNET.Blocks
 {
-	public partial class Log2 : Block
+	public abstract partial class FenceBase : Block
 	{
-		public Log2() : base()
+		public FenceBase() : base()
 		{
-			BlastResistance = 10;
+			FuelEfficiency = 15;
+			IsTransparent = true;
+			BlastResistance = 15;
 			Hardness = 2;
 			IsFlammable = true;
 		}

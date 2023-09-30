@@ -25,9 +25,9 @@
 
 namespace MiNET.Blocks
 {
-	public partial class StoneSlab : SlabBase
+	public partial class StoneBlockSlab
 	{
-		public StoneSlab() : base()
+		public StoneBlockSlab() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 2;
@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 		{
 			if (ReferenceEquals(null, obj)) return false;
 			if (obj.GetType() != this.GetType()) return false;
-			var slab = obj as StoneSlab;
+			var slab = obj as StoneBlockSlab;
 			if (slab == null) return false;
 
 			return true;

@@ -45,6 +45,11 @@ namespace MiNET.Items
 		{
 
 		}
+
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			return SpawnMob((EntityType) Metadata, world, player, blockCoordinates, face);
+		}
 	}
 
 	public abstract class ItemSpawnEggBase : Item
@@ -54,16 +59,19 @@ namespace MiNET.Items
 		protected ItemSpawnEggBase(EntityType entityType) : base()
 		{
 			Metadata = (short) entityType;
-			MaxStackSize = 1;
 		}
 
 		public ItemSpawnEggBase() : base()
 		{
-			EntityHelpers.ToEntityType(Id.Replace("_spawn_egg", ""));
-			MaxStackSize = 1;
+
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			return SpawnMob(EntityHelpers.ToEntityType(Id.Replace("_spawn_egg", "")), world, player, blockCoordinates, face);
+		}
+
+		protected bool SpawnMob(EntityType type, Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			Log.WarnFormat("Player {0} trying to spawn Mob #{1}.", player.Username, Metadata);
 
@@ -71,7 +79,6 @@ namespace MiNET.Items
 
 			Mob mob = null;
 
-			EntityType type = (EntityType) Metadata;
 			switch (type)
 			{
 				case EntityType.Chicken:
@@ -205,7 +212,7 @@ namespace MiNET.Items
 
 			if (mob == null) return false;
 
-			mob.KnownPosition = new PlayerLocation(coordinates.X, coordinates.Y, coordinates.Z);
+			mob.KnownPosition = new PlayerLocation(coordinates.X, coordinates.Y, coordinates.Z) + new Vector3(0.5f, 0, 0.5f);
 			mob.NoAi = true;
 			mob.SpawnEntity();
 

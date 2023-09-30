@@ -369,7 +369,7 @@ namespace MiNET.Entities.Behaviors
 					else
 					{
 						// Check block collision box, not hit box
-						if (_level.GetBlock(coord) is Fence)
+						if (_level.GetBlock(coord) is FenceBase)
 						{
 							continue;
 						}

@@ -229,7 +229,7 @@ namespace MiNET.Worlds
 			Players = null;
 			Entities = null;
 
-			if (WorldProvider is AnvilWorldProviderNew provider)
+			if (WorldProvider is AnvilWorldProvider provider)
 			{
 				foreach (var chunk in provider._chunkCache)
 				{

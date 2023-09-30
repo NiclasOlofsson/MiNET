@@ -143,7 +143,7 @@ namespace MiNET.Blocks
 	{
 		protected bool CanGrowInto(Block material)
 		{
-			return material is Air || material is Leaves || material is Leaves2 || material is Grass || material is Dirt || material is LogBase || material is Log2 || material is Sapling || material is Vine;
+			return material is Air || material is Leaves || material is Leaves2 || material is Grass || material is Dirt || material is LogBase || material is Sapling || material is Vine;
 		}
 	}
 

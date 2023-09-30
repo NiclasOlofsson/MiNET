@@ -43,7 +43,7 @@ namespace MiNET.Items
 			{
 				case ItemDamageReason.BlockBreak:
 				{
-					if (block is Web || block is Leaves || block is Leaves2 || block is Wool || block is Vine)
+					if (block is Web || block is Leaves || block is Leaves2 || block is WoolBase || block is Vine)
 					{
 						Metadata++;
 						return Metadata >= GetMaxUses() - 1;

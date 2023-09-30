@@ -7,7 +7,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaButton
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_button";
+		public override string Id => "minecraft:acacia_button";
 
 		[StateBit]
 		public override bool ButtonPressedBit { get; set; } = false;
@@ -43,7 +43,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaDoor
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_door";
+		public override string Id => "minecraft:acacia_door";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 1;
@@ -93,7 +93,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_fence";
+		public override string Id => "minecraft:acacia_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -105,7 +105,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaFenceGate
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_fence_gate";
+		public override string Id => "minecraft:acacia_fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -148,7 +148,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_hanging_sign";
+		public override string Id => "minecraft:acacia_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -198,7 +198,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_log";
+		public override string Id => "minecraft:acacia_log";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "";
@@ -227,7 +227,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaPressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_pressure_plate";
+		public override string Id => "minecraft:acacia_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -256,7 +256,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_stairs";
+		public override string Id => "minecraft:acacia_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -292,7 +292,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaStandingSign
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_standing_sign";
+		public override string Id => "minecraft:acacia_standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -321,7 +321,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaTrapdoor
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_trapdoor";
+		public override string Id => "minecraft:acacia_trapdoor";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 0;
@@ -364,7 +364,7 @@ namespace MiNET.Blocks
 
 	public partial class AcaciaWallSign
 	{
-		public override string Id { get; protected set; } = "minecraft:acacia_wall_sign";
+		public override string Id => "minecraft:acacia_wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -393,7 +393,7 @@ namespace MiNET.Blocks
 
 	public partial class ActivatorRail : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:activator_rail";
+		public override string Id => "minecraft:activator_rail";
 
 		[StateBit]
 		public bool RailDataBit { get; set; } = false;
@@ -429,7 +429,7 @@ namespace MiNET.Blocks
 
 	public partial class Air : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:air";
+		public override string Id => "minecraft:air";
 
 		public override BlockStateContainer GetState()
 		{
@@ -441,7 +441,7 @@ namespace MiNET.Blocks
 
 	public partial class Allow : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:allow";
+		public override string Id => "minecraft:allow";
 
 		public override BlockStateContainer GetState()
 		{
@@ -453,7 +453,7 @@ namespace MiNET.Blocks
 
 	public partial class AmethystBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:amethyst_block";
+		public override string Id => "minecraft:amethyst_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -465,7 +465,7 @@ namespace MiNET.Blocks
 
 	public partial class AmethystCluster : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:amethyst_cluster";
+		public override string Id => "minecraft:amethyst_cluster";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -494,7 +494,7 @@ namespace MiNET.Blocks
 
 	public partial class AncientDebris : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:ancient_debris";
+		public override string Id => "minecraft:ancient_debris";
 
 		public override BlockStateContainer GetState()
 		{
@@ -506,7 +506,7 @@ namespace MiNET.Blocks
 
 	public partial class AndesiteStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:andesite_stairs";
+		public override string Id => "minecraft:andesite_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -542,7 +542,7 @@ namespace MiNET.Blocks
 
 	public partial class Anvil : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:anvil";
+		public override string Id => "minecraft:anvil";
 
 		[StateEnum("undamaged", "slightly_damaged", "very_damaged", "broken")]
 		public string Damage { get; set; } = "undamaged";
@@ -578,7 +578,7 @@ namespace MiNET.Blocks
 
 	public partial class Azalea : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:azalea";
+		public override string Id => "minecraft:azalea";
 
 		public override BlockStateContainer GetState()
 		{
@@ -590,7 +590,7 @@ namespace MiNET.Blocks
 
 	public partial class AzaleaLeaves : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:azalea_leaves";
+		public override string Id => "minecraft:azalea_leaves";
 
 		[StateBit]
 		public bool PersistentBit { get; set; } = false;
@@ -626,7 +626,7 @@ namespace MiNET.Blocks
 
 	public partial class AzaleaLeavesFlowered : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:azalea_leaves_flowered";
+		public override string Id => "minecraft:azalea_leaves_flowered";
 
 		[StateBit]
 		public bool PersistentBit { get; set; } = false;
@@ -662,7 +662,7 @@ namespace MiNET.Blocks
 
 	public partial class Bamboo : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo";
+		public override string Id => "minecraft:bamboo";
 
 		[StateBit]
 		public bool AgeBit { get; set; } = false;
@@ -705,7 +705,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_block";
+		public override string Id => "minecraft:bamboo_block";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -734,7 +734,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooButton : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_button";
+		public override string Id => "minecraft:bamboo_button";
 
 		[StateBit]
 		public bool ButtonPressedBit { get; set; } = false;
@@ -770,7 +770,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooDoor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_door";
+		public override string Id => "minecraft:bamboo_door";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -820,7 +820,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_double_slab";
+		public override string Id => "minecraft:bamboo_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -849,7 +849,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_fence";
+		public override string Id => "minecraft:bamboo_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -861,7 +861,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooFenceGate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_fence_gate";
+		public override string Id => "minecraft:bamboo_fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -904,7 +904,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_hanging_sign";
+		public override string Id => "minecraft:bamboo_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -954,7 +954,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooMosaic : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_mosaic";
+		public override string Id => "minecraft:bamboo_mosaic";
 
 		public override BlockStateContainer GetState()
 		{
@@ -966,7 +966,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooMosaicDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_mosaic_double_slab";
+		public override string Id => "minecraft:bamboo_mosaic_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -995,7 +995,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooMosaicSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_mosaic_slab";
+		public override string Id => "minecraft:bamboo_mosaic_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -1024,7 +1024,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooMosaicStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_mosaic_stairs";
+		public override string Id => "minecraft:bamboo_mosaic_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -1060,7 +1060,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooPlanks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_planks";
+		public override string Id => "minecraft:bamboo_planks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -1072,7 +1072,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooPressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_pressure_plate";
+		public override string Id => "minecraft:bamboo_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -1101,7 +1101,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooSapling : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_sapling";
+		public override string Id => "minecraft:bamboo_sapling";
 
 		[StateBit]
 		public bool AgeBit { get; set; } = false;
@@ -1137,7 +1137,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_slab";
+		public override string Id => "minecraft:bamboo_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -1166,7 +1166,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_stairs";
+		public override string Id => "minecraft:bamboo_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -1202,7 +1202,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooStandingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_standing_sign";
+		public override string Id => "minecraft:bamboo_standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -1231,7 +1231,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooTrapdoor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_trapdoor";
+		public override string Id => "minecraft:bamboo_trapdoor";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -1274,7 +1274,7 @@ namespace MiNET.Blocks
 
 	public partial class BambooWallSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bamboo_wall_sign";
+		public override string Id => "minecraft:bamboo_wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -1303,7 +1303,7 @@ namespace MiNET.Blocks
 
 	public partial class Barrel : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:barrel";
+		public override string Id => "minecraft:barrel";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -1339,7 +1339,7 @@ namespace MiNET.Blocks
 
 	public partial class Barrier : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:barrier";
+		public override string Id => "minecraft:barrier";
 
 		public override BlockStateContainer GetState()
 		{
@@ -1351,7 +1351,7 @@ namespace MiNET.Blocks
 
 	public partial class Basalt : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:basalt";
+		public override string Id => "minecraft:basalt";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -1380,7 +1380,7 @@ namespace MiNET.Blocks
 
 	public partial class Beacon : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:beacon";
+		public override string Id => "minecraft:beacon";
 
 		public override BlockStateContainer GetState()
 		{
@@ -1392,7 +1392,7 @@ namespace MiNET.Blocks
 
 	public partial class Bed : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bed";
+		public override string Id => "minecraft:bed";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -1435,7 +1435,7 @@ namespace MiNET.Blocks
 
 	public partial class Bedrock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bedrock";
+		public override string Id => "minecraft:bedrock";
 
 		[StateBit]
 		public bool InfiniburnBit { get; set; } = false;
@@ -1464,7 +1464,7 @@ namespace MiNET.Blocks
 
 	public partial class BeeNest : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bee_nest";
+		public override string Id => "minecraft:bee_nest";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -1500,7 +1500,7 @@ namespace MiNET.Blocks
 
 	public partial class Beehive : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:beehive";
+		public override string Id => "minecraft:beehive";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -1536,7 +1536,7 @@ namespace MiNET.Blocks
 
 	public partial class Beetroot
 	{
-		public override string Id { get; protected set; } = "minecraft:beetroot";
+		public override string Id => "minecraft:beetroot";
 
 		[StateRange(0, 7)]
 		public override int Growth { get; set; } = 0;
@@ -1565,7 +1565,7 @@ namespace MiNET.Blocks
 
 	public partial class Bell : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bell";
+		public override string Id => "minecraft:bell";
 
 		[StateEnum("standing", "hanging", "side", "multiple")]
 		public string Attachment { get; set; } = "standing";
@@ -1608,7 +1608,7 @@ namespace MiNET.Blocks
 
 	public partial class BigDripleaf : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:big_dripleaf";
+		public override string Id => "minecraft:big_dripleaf";
 
 		[StateBit]
 		public bool BigDripleafHead { get; set; } = false;
@@ -1651,7 +1651,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchButton
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_button";
+		public override string Id => "minecraft:birch_button";
 
 		[StateBit]
 		public override bool ButtonPressedBit { get; set; } = false;
@@ -1687,7 +1687,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchDoor
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_door";
+		public override string Id => "minecraft:birch_door";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 1;
@@ -1737,7 +1737,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_fence";
+		public override string Id => "minecraft:birch_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -1749,7 +1749,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchFenceGate
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_fence_gate";
+		public override string Id => "minecraft:birch_fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -1792,7 +1792,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_hanging_sign";
+		public override string Id => "minecraft:birch_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -1842,7 +1842,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_log";
+		public override string Id => "minecraft:birch_log";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "";
@@ -1871,7 +1871,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchPressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_pressure_plate";
+		public override string Id => "minecraft:birch_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -1900,7 +1900,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_stairs";
+		public override string Id => "minecraft:birch_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -1936,7 +1936,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchStandingSign
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_standing_sign";
+		public override string Id => "minecraft:birch_standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -1965,7 +1965,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchTrapdoor
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_trapdoor";
+		public override string Id => "minecraft:birch_trapdoor";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 0;
@@ -2008,7 +2008,7 @@ namespace MiNET.Blocks
 
 	public partial class BirchWallSign
 	{
-		public override string Id { get; protected set; } = "minecraft:birch_wall_sign";
+		public override string Id => "minecraft:birch_wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -2037,7 +2037,7 @@ namespace MiNET.Blocks
 
 	public partial class BlackCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:black_candle";
+		public override string Id => "minecraft:black_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -2073,7 +2073,7 @@ namespace MiNET.Blocks
 
 	public partial class BlackCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:black_candle_cake";
+		public override string Id => "minecraft:black_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -2102,7 +2102,7 @@ namespace MiNET.Blocks
 
 	public partial class BlackGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:black_glazed_terracotta";
+		public override string Id => "minecraft:black_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -2129,9 +2129,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class BlackWool : Block
+	public partial class BlackWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:black_wool";
+		public override string Id => "minecraft:black_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2143,7 +2143,7 @@ namespace MiNET.Blocks
 
 	public partial class Blackstone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:blackstone";
+		public override string Id => "minecraft:blackstone";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2155,7 +2155,7 @@ namespace MiNET.Blocks
 
 	public partial class BlackstoneDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:blackstone_double_slab";
+		public override string Id => "minecraft:blackstone_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -2184,7 +2184,7 @@ namespace MiNET.Blocks
 
 	public partial class BlackstoneSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:blackstone_slab";
+		public override string Id => "minecraft:blackstone_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -2213,7 +2213,7 @@ namespace MiNET.Blocks
 
 	public partial class BlackstoneStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:blackstone_stairs";
+		public override string Id => "minecraft:blackstone_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -2249,7 +2249,7 @@ namespace MiNET.Blocks
 
 	public partial class BlackstoneWall : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:blackstone_wall";
+		public override string Id => "minecraft:blackstone_wall";
 
 		[StateEnum("none", "short", "tall")]
 		public string WallConnectionTypeEast { get; set; } = "none";
@@ -2306,7 +2306,7 @@ namespace MiNET.Blocks
 
 	public partial class BlastFurnace
 	{
-		public override string Id { get; protected set; } = "minecraft:blast_furnace";
+		public override string Id => "minecraft:blast_furnace";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -2335,7 +2335,7 @@ namespace MiNET.Blocks
 
 	public partial class BlueCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:blue_candle";
+		public override string Id => "minecraft:blue_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -2371,7 +2371,7 @@ namespace MiNET.Blocks
 
 	public partial class BlueCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:blue_candle_cake";
+		public override string Id => "minecraft:blue_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -2400,7 +2400,7 @@ namespace MiNET.Blocks
 
 	public partial class BlueGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:blue_glazed_terracotta";
+		public override string Id => "minecraft:blue_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -2429,7 +2429,7 @@ namespace MiNET.Blocks
 
 	public partial class BlueIce : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:blue_ice";
+		public override string Id => "minecraft:blue_ice";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2439,9 +2439,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class BlueWool : Block
+	public partial class BlueWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:blue_wool";
+		public override string Id => "minecraft:blue_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2453,7 +2453,7 @@ namespace MiNET.Blocks
 
 	public partial class BoneBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bone_block";
+		public override string Id => "minecraft:bone_block";
 
 		[StateRange(0, 3)]
 		public int Deprecated { get; set; } = 0;
@@ -2489,7 +2489,7 @@ namespace MiNET.Blocks
 
 	public partial class Bookshelf : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bookshelf";
+		public override string Id => "minecraft:bookshelf";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2501,7 +2501,7 @@ namespace MiNET.Blocks
 
 	public partial class BorderBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:border_block";
+		public override string Id => "minecraft:border_block";
 
 		[StateEnum("none", "short", "tall")]
 		public string WallConnectionTypeEast { get; set; } = "none";
@@ -2558,7 +2558,7 @@ namespace MiNET.Blocks
 
 	public partial class BrewingStand : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:brewing_stand";
+		public override string Id => "minecraft:brewing_stand";
 
 		[StateBit]
 		public bool BrewingStandSlotABit { get; set; } = false;
@@ -2601,7 +2601,7 @@ namespace MiNET.Blocks
 
 	public partial class BrickBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:brick_block";
+		public override string Id => "minecraft:brick_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2613,7 +2613,7 @@ namespace MiNET.Blocks
 
 	public partial class BrickStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:brick_stairs";
+		public override string Id => "minecraft:brick_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -2649,7 +2649,7 @@ namespace MiNET.Blocks
 
 	public partial class BrownCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:brown_candle";
+		public override string Id => "minecraft:brown_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -2685,7 +2685,7 @@ namespace MiNET.Blocks
 
 	public partial class BrownCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:brown_candle_cake";
+		public override string Id => "minecraft:brown_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -2714,7 +2714,7 @@ namespace MiNET.Blocks
 
 	public partial class BrownGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:brown_glazed_terracotta";
+		public override string Id => "minecraft:brown_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -2743,7 +2743,7 @@ namespace MiNET.Blocks
 
 	public partial class BrownMushroom : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:brown_mushroom";
+		public override string Id => "minecraft:brown_mushroom";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2755,7 +2755,7 @@ namespace MiNET.Blocks
 
 	public partial class BrownMushroomBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:brown_mushroom_block";
+		public override string Id => "minecraft:brown_mushroom_block";
 
 		[StateRange(0, 15)]
 		public int HugeMushroomBits { get; set; } = 0;
@@ -2782,9 +2782,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class BrownWool : Block
+	public partial class BrownWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:brown_wool";
+		public override string Id => "minecraft:brown_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2796,7 +2796,7 @@ namespace MiNET.Blocks
 
 	public partial class BubbleColumn : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:bubble_column";
+		public override string Id => "minecraft:bubble_column";
 
 		[StateBit]
 		public bool DragDown { get; set; } = false;
@@ -2825,7 +2825,7 @@ namespace MiNET.Blocks
 
 	public partial class BuddingAmethyst : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:budding_amethyst";
+		public override string Id => "minecraft:budding_amethyst";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2837,7 +2837,7 @@ namespace MiNET.Blocks
 
 	public partial class Cactus : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cactus";
+		public override string Id => "minecraft:cactus";
 
 		[StateRange(0, 15)]
 		public int Age { get; set; } = 0;
@@ -2866,7 +2866,7 @@ namespace MiNET.Blocks
 
 	public partial class Cake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cake";
+		public override string Id => "minecraft:cake";
 
 		[StateRange(0, 6)]
 		public int BiteCounter { get; set; } = 0;
@@ -2895,7 +2895,7 @@ namespace MiNET.Blocks
 
 	public partial class Calcite : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:calcite";
+		public override string Id => "minecraft:calcite";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2907,7 +2907,7 @@ namespace MiNET.Blocks
 
 	public partial class CalibratedSculkSensor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:calibrated_sculk_sensor";
+		public override string Id => "minecraft:calibrated_sculk_sensor";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -2943,7 +2943,7 @@ namespace MiNET.Blocks
 
 	public partial class Camera : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:camera";
+		public override string Id => "minecraft:camera";
 
 		public override BlockStateContainer GetState()
 		{
@@ -2955,7 +2955,7 @@ namespace MiNET.Blocks
 
 	public partial class Campfire : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:campfire";
+		public override string Id => "minecraft:campfire";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -2991,7 +2991,7 @@ namespace MiNET.Blocks
 
 	public partial class Candle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:candle";
+		public override string Id => "minecraft:candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -3027,7 +3027,7 @@ namespace MiNET.Blocks
 
 	public partial class CandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:candle_cake";
+		public override string Id => "minecraft:candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -3056,7 +3056,7 @@ namespace MiNET.Blocks
 
 	public partial class Carpet : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:carpet";
+		public override string Id => "minecraft:carpet";
 
 		[StateEnum("white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver", "cyan", "purple", "blue", "brown", "green", "red", "black")]
 		public string Color { get; set; } = "white";
@@ -3085,7 +3085,7 @@ namespace MiNET.Blocks
 
 	public partial class Carrots
 	{
-		public override string Id { get; protected set; } = "minecraft:carrots";
+		public override string Id => "minecraft:carrots";
 
 		[StateRange(0, 7)]
 		public override int Growth { get; set; } = 0;
@@ -3114,7 +3114,7 @@ namespace MiNET.Blocks
 
 	public partial class CartographyTable : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cartography_table";
+		public override string Id => "minecraft:cartography_table";
 
 		public override BlockStateContainer GetState()
 		{
@@ -3126,7 +3126,7 @@ namespace MiNET.Blocks
 
 	public partial class CarvedPumpkin : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:carved_pumpkin";
+		public override string Id => "minecraft:carved_pumpkin";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -3155,7 +3155,7 @@ namespace MiNET.Blocks
 
 	public partial class Cauldron : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cauldron";
+		public override string Id => "minecraft:cauldron";
 
 		[StateEnum("water", "powder_snow", "lava")]
 		public string CauldronLiquid { get; set; } = "water";
@@ -3191,7 +3191,7 @@ namespace MiNET.Blocks
 
 	public partial class CaveVines : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cave_vines";
+		public override string Id => "minecraft:cave_vines";
 
 		[StateRange(0, 25)]
 		public int GrowingPlantAge { get; set; } = 0;
@@ -3220,7 +3220,7 @@ namespace MiNET.Blocks
 
 	public partial class CaveVinesBodyWithBerries : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cave_vines_body_with_berries";
+		public override string Id => "minecraft:cave_vines_body_with_berries";
 
 		[StateRange(0, 25)]
 		public int GrowingPlantAge { get; set; } = 0;
@@ -3249,7 +3249,7 @@ namespace MiNET.Blocks
 
 	public partial class CaveVinesHeadWithBerries : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cave_vines_head_with_berries";
+		public override string Id => "minecraft:cave_vines_head_with_berries";
 
 		[StateRange(0, 25)]
 		public int GrowingPlantAge { get; set; } = 0;
@@ -3278,7 +3278,7 @@ namespace MiNET.Blocks
 
 	public partial class Chain : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:chain";
+		public override string Id => "minecraft:chain";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -3307,7 +3307,7 @@ namespace MiNET.Blocks
 
 	public partial class ChainCommandBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:chain_command_block";
+		public override string Id => "minecraft:chain_command_block";
 
 		[StateBit]
 		public bool ConditionalBit { get; set; } = false;
@@ -3343,7 +3343,7 @@ namespace MiNET.Blocks
 
 	public partial class ChemicalHeat : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:chemical_heat";
+		public override string Id => "minecraft:chemical_heat";
 
 		public override BlockStateContainer GetState()
 		{
@@ -3355,7 +3355,7 @@ namespace MiNET.Blocks
 
 	public partial class ChemistryTable : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:chemistry_table";
+		public override string Id => "minecraft:chemistry_table";
 
 		[StateEnum("compound_creator", "material_reducer", "element_constructor", "lab_table")]
 		public string ChemistryTableType { get; set; } = "compound_creator";
@@ -3391,7 +3391,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryButton : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_button";
+		public override string Id => "minecraft:cherry_button";
 
 		[StateBit]
 		public bool ButtonPressedBit { get; set; } = false;
@@ -3427,7 +3427,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryDoor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_door";
+		public override string Id => "minecraft:cherry_door";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -3477,7 +3477,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_double_slab";
+		public override string Id => "minecraft:cherry_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -3506,7 +3506,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_fence";
+		public override string Id => "minecraft:cherry_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -3518,7 +3518,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryFenceGate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_fence_gate";
+		public override string Id => "minecraft:cherry_fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -3561,7 +3561,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_hanging_sign";
+		public override string Id => "minecraft:cherry_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -3611,7 +3611,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryLeaves : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_leaves";
+		public override string Id => "minecraft:cherry_leaves";
 
 		[StateBit]
 		public bool PersistentBit { get; set; } = false;
@@ -3647,7 +3647,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_log";
+		public override string Id => "minecraft:cherry_log";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -3676,7 +3676,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryPlanks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_planks";
+		public override string Id => "minecraft:cherry_planks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -3688,7 +3688,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryPressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_pressure_plate";
+		public override string Id => "minecraft:cherry_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -3717,7 +3717,7 @@ namespace MiNET.Blocks
 
 	public partial class CherrySapling : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_sapling";
+		public override string Id => "minecraft:cherry_sapling";
 
 		[StateBit]
 		public bool AgeBit { get; set; } = false;
@@ -3746,7 +3746,7 @@ namespace MiNET.Blocks
 
 	public partial class CherrySlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_slab";
+		public override string Id => "minecraft:cherry_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -3775,7 +3775,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_stairs";
+		public override string Id => "minecraft:cherry_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -3811,7 +3811,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryStandingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_standing_sign";
+		public override string Id => "minecraft:cherry_standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -3840,7 +3840,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryTrapdoor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_trapdoor";
+		public override string Id => "minecraft:cherry_trapdoor";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -3883,7 +3883,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryWallSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_wall_sign";
+		public override string Id => "minecraft:cherry_wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -3912,7 +3912,7 @@ namespace MiNET.Blocks
 
 	public partial class CherryWood : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:cherry_wood";
+		public override string Id => "minecraft:cherry_wood";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -3948,7 +3948,7 @@ namespace MiNET.Blocks
 
 	public partial class Chest
 	{
-		public override string Id { get; protected set; } = "minecraft:chest";
+		public override string Id => "minecraft:chest";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -3977,7 +3977,7 @@ namespace MiNET.Blocks
 
 	public partial class ChiseledBookshelf : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:chiseled_bookshelf";
+		public override string Id => "minecraft:chiseled_bookshelf";
 
 		[StateRange(0, 63)]
 		public int BooksStored { get; set; } = 0;
@@ -4013,7 +4013,7 @@ namespace MiNET.Blocks
 
 	public partial class ChiseledDeepslate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:chiseled_deepslate";
+		public override string Id => "minecraft:chiseled_deepslate";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4025,7 +4025,7 @@ namespace MiNET.Blocks
 
 	public partial class ChiseledNetherBricks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:chiseled_nether_bricks";
+		public override string Id => "minecraft:chiseled_nether_bricks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4037,7 +4037,7 @@ namespace MiNET.Blocks
 
 	public partial class ChiseledPolishedBlackstone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:chiseled_polished_blackstone";
+		public override string Id => "minecraft:chiseled_polished_blackstone";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4049,7 +4049,7 @@ namespace MiNET.Blocks
 
 	public partial class ChorusFlower : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:chorus_flower";
+		public override string Id => "minecraft:chorus_flower";
 
 		[StateRange(0, 5)]
 		public int Age { get; set; } = 0;
@@ -4078,7 +4078,7 @@ namespace MiNET.Blocks
 
 	public partial class ChorusPlant : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:chorus_plant";
+		public override string Id => "minecraft:chorus_plant";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4090,7 +4090,7 @@ namespace MiNET.Blocks
 
 	public partial class Clay : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:clay";
+		public override string Id => "minecraft:clay";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4102,7 +4102,7 @@ namespace MiNET.Blocks
 
 	public partial class ClientRequestPlaceholderBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:client_request_placeholder_block";
+		public override string Id => "minecraft:client_request_placeholder_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4114,7 +4114,7 @@ namespace MiNET.Blocks
 
 	public partial class CoalBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:coal_block";
+		public override string Id => "minecraft:coal_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4126,7 +4126,7 @@ namespace MiNET.Blocks
 
 	public partial class CoalOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:coal_ore";
+		public override string Id => "minecraft:coal_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4138,7 +4138,7 @@ namespace MiNET.Blocks
 
 	public partial class CobbledDeepslate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cobbled_deepslate";
+		public override string Id => "minecraft:cobbled_deepslate";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4150,7 +4150,7 @@ namespace MiNET.Blocks
 
 	public partial class CobbledDeepslateDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:cobbled_deepslate_double_slab";
+		public override string Id => "minecraft:cobbled_deepslate_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -4179,7 +4179,7 @@ namespace MiNET.Blocks
 
 	public partial class CobbledDeepslateSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:cobbled_deepslate_slab";
+		public override string Id => "minecraft:cobbled_deepslate_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -4208,7 +4208,7 @@ namespace MiNET.Blocks
 
 	public partial class CobbledDeepslateStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cobbled_deepslate_stairs";
+		public override string Id => "minecraft:cobbled_deepslate_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -4244,7 +4244,7 @@ namespace MiNET.Blocks
 
 	public partial class CobbledDeepslateWall : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cobbled_deepslate_wall";
+		public override string Id => "minecraft:cobbled_deepslate_wall";
 
 		[StateEnum("none", "short", "tall")]
 		public string WallConnectionTypeEast { get; set; } = "none";
@@ -4301,7 +4301,7 @@ namespace MiNET.Blocks
 
 	public partial class Cobblestone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cobblestone";
+		public override string Id => "minecraft:cobblestone";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4313,7 +4313,7 @@ namespace MiNET.Blocks
 
 	public partial class CobblestoneWall : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cobblestone_wall";
+		public override string Id => "minecraft:cobblestone_wall";
 
 		[StateEnum("cobblestone", "mossy_cobblestone", "granite", "diorite", "andesite", "sandstone", "brick", "stone_brick", "mossy_stone_brick", "nether_brick", "end_brick", "prismarine", "red_sandstone", "red_nether_brick")]
 		public string WallBlockType { get; set; } = "cobblestone";
@@ -4377,7 +4377,7 @@ namespace MiNET.Blocks
 
 	public partial class Cocoa : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cocoa";
+		public override string Id => "minecraft:cocoa";
 
 		[StateRange(0, 2)]
 		public int Age { get; set; } = 0;
@@ -4413,7 +4413,7 @@ namespace MiNET.Blocks
 
 	public partial class ColoredTorchBp : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:colored_torch_bp";
+		public override string Id => "minecraft:colored_torch_bp";
 
 		[StateBit]
 		public bool ColorBit { get; set; } = false;
@@ -4449,7 +4449,7 @@ namespace MiNET.Blocks
 
 	public partial class ColoredTorchRg : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:colored_torch_rg";
+		public override string Id => "minecraft:colored_torch_rg";
 
 		[StateBit]
 		public bool ColorBit { get; set; } = false;
@@ -4485,7 +4485,7 @@ namespace MiNET.Blocks
 
 	public partial class CommandBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:command_block";
+		public override string Id => "minecraft:command_block";
 
 		[StateBit]
 		public bool ConditionalBit { get; set; } = false;
@@ -4521,7 +4521,7 @@ namespace MiNET.Blocks
 
 	public partial class Composter : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:composter";
+		public override string Id => "minecraft:composter";
 
 		[StateRange(0, 8)]
 		public int ComposterFillLevel { get; set; } = 0;
@@ -4550,7 +4550,7 @@ namespace MiNET.Blocks
 
 	public partial class Concrete : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:concrete";
+		public override string Id => "minecraft:concrete";
 
 		[StateEnum("white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver", "cyan", "purple", "blue", "brown", "green", "red", "black")]
 		public string Color { get; set; } = "white";
@@ -4579,7 +4579,7 @@ namespace MiNET.Blocks
 
 	public partial class ConcretePowder : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:concrete_powder";
+		public override string Id => "minecraft:concrete_powder";
 
 		[StateEnum("white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver", "cyan", "purple", "blue", "brown", "green", "red", "black")]
 		public string Color { get; set; } = "white";
@@ -4608,7 +4608,7 @@ namespace MiNET.Blocks
 
 	public partial class Conduit : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:conduit";
+		public override string Id => "minecraft:conduit";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4620,7 +4620,7 @@ namespace MiNET.Blocks
 
 	public partial class CopperBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:copper_block";
+		public override string Id => "minecraft:copper_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4632,7 +4632,7 @@ namespace MiNET.Blocks
 
 	public partial class CopperOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:copper_ore";
+		public override string Id => "minecraft:copper_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4644,7 +4644,7 @@ namespace MiNET.Blocks
 
 	public partial class Coral : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:coral";
+		public override string Id => "minecraft:coral";
 
 		[StateEnum("blue", "pink", "purple", "red", "yellow")]
 		public string CoralColor { get; set; } = "blue";
@@ -4680,7 +4680,7 @@ namespace MiNET.Blocks
 
 	public partial class CoralBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:coral_block";
+		public override string Id => "minecraft:coral_block";
 
 		[StateEnum("pink", "purple", "red", "yellow", "blue")]
 		public string CoralColor { get; set; } = "";
@@ -4716,7 +4716,7 @@ namespace MiNET.Blocks
 
 	public partial class CoralFan : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:coral_fan";
+		public override string Id => "minecraft:coral_fan";
 
 		[StateEnum("pink", "purple", "red", "yellow", "blue")]
 		public string CoralColor { get; set; } = "";
@@ -4752,7 +4752,7 @@ namespace MiNET.Blocks
 
 	public partial class CoralFanDead : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:coral_fan_dead";
+		public override string Id => "minecraft:coral_fan_dead";
 
 		[StateEnum("pink", "purple", "red", "yellow", "blue")]
 		public string CoralColor { get; set; } = "";
@@ -4788,7 +4788,7 @@ namespace MiNET.Blocks
 
 	public partial class CoralFanHang : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:coral_fan_hang";
+		public override string Id => "minecraft:coral_fan_hang";
 
 		[StateRange(0, 3)]
 		public int CoralDirection { get; set; } = 0;
@@ -4831,7 +4831,7 @@ namespace MiNET.Blocks
 
 	public partial class CoralFanHang2 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:coral_fan_hang2";
+		public override string Id => "minecraft:coral_fan_hang2";
 
 		[StateRange(0, 3)]
 		public int CoralDirection { get; set; } = 0;
@@ -4874,7 +4874,7 @@ namespace MiNET.Blocks
 
 	public partial class CoralFanHang3 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:coral_fan_hang3";
+		public override string Id => "minecraft:coral_fan_hang3";
 
 		[StateRange(0, 3)]
 		public int CoralDirection { get; set; } = 0;
@@ -4917,7 +4917,7 @@ namespace MiNET.Blocks
 
 	public partial class CrackedDeepslateBricks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cracked_deepslate_bricks";
+		public override string Id => "minecraft:cracked_deepslate_bricks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4929,7 +4929,7 @@ namespace MiNET.Blocks
 
 	public partial class CrackedDeepslateTiles : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cracked_deepslate_tiles";
+		public override string Id => "minecraft:cracked_deepslate_tiles";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4941,7 +4941,7 @@ namespace MiNET.Blocks
 
 	public partial class CrackedNetherBricks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cracked_nether_bricks";
+		public override string Id => "minecraft:cracked_nether_bricks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4953,7 +4953,7 @@ namespace MiNET.Blocks
 
 	public partial class CrackedPolishedBlackstoneBricks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cracked_polished_blackstone_bricks";
+		public override string Id => "minecraft:cracked_polished_blackstone_bricks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4965,7 +4965,7 @@ namespace MiNET.Blocks
 
 	public partial class CraftingTable : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crafting_table";
+		public override string Id => "minecraft:crafting_table";
 
 		public override BlockStateContainer GetState()
 		{
@@ -4977,7 +4977,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonButton : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_button";
+		public override string Id => "minecraft:crimson_button";
 
 		[StateBit]
 		public bool ButtonPressedBit { get; set; } = false;
@@ -5013,7 +5013,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonDoor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_door";
+		public override string Id => "minecraft:crimson_door";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -5063,7 +5063,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_double_slab";
+		public override string Id => "minecraft:crimson_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -5092,7 +5092,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_fence";
+		public override string Id => "minecraft:crimson_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -5104,7 +5104,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonFenceGate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_fence_gate";
+		public override string Id => "minecraft:crimson_fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -5147,7 +5147,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonFungus : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_fungus";
+		public override string Id => "minecraft:crimson_fungus";
 
 		public override BlockStateContainer GetState()
 		{
@@ -5159,7 +5159,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_hanging_sign";
+		public override string Id => "minecraft:crimson_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -5209,7 +5209,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonHyphae : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_hyphae";
+		public override string Id => "minecraft:crimson_hyphae";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -5238,7 +5238,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonNylium : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_nylium";
+		public override string Id => "minecraft:crimson_nylium";
 
 		public override BlockStateContainer GetState()
 		{
@@ -5250,7 +5250,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonPlanks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_planks";
+		public override string Id => "minecraft:crimson_planks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -5262,7 +5262,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonPressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_pressure_plate";
+		public override string Id => "minecraft:crimson_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -5291,7 +5291,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonRoots : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_roots";
+		public override string Id => "minecraft:crimson_roots";
 
 		public override BlockStateContainer GetState()
 		{
@@ -5303,7 +5303,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_slab";
+		public override string Id => "minecraft:crimson_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -5332,7 +5332,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_stairs";
+		public override string Id => "minecraft:crimson_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -5368,7 +5368,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonStandingSign
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_standing_sign";
+		public override string Id => "minecraft:crimson_standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -5397,7 +5397,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonStem : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_stem";
+		public override string Id => "minecraft:crimson_stem";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -5426,7 +5426,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonTrapdoor
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_trapdoor";
+		public override string Id => "minecraft:crimson_trapdoor";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 0;
@@ -5469,7 +5469,7 @@ namespace MiNET.Blocks
 
 	public partial class CrimsonWallSign
 	{
-		public override string Id { get; protected set; } = "minecraft:crimson_wall_sign";
+		public override string Id => "minecraft:crimson_wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -5498,7 +5498,7 @@ namespace MiNET.Blocks
 
 	public partial class CryingObsidian : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:crying_obsidian";
+		public override string Id => "minecraft:crying_obsidian";
 
 		public override BlockStateContainer GetState()
 		{
@@ -5510,7 +5510,7 @@ namespace MiNET.Blocks
 
 	public partial class CutCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cut_copper";
+		public override string Id => "minecraft:cut_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -5522,7 +5522,7 @@ namespace MiNET.Blocks
 
 	public partial class CutCopperSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:cut_copper_slab";
+		public override string Id => "minecraft:cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -5551,7 +5551,7 @@ namespace MiNET.Blocks
 
 	public partial class CutCopperStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cut_copper_stairs";
+		public override string Id => "minecraft:cut_copper_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -5587,7 +5587,7 @@ namespace MiNET.Blocks
 
 	public partial class CyanCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cyan_candle";
+		public override string Id => "minecraft:cyan_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -5623,7 +5623,7 @@ namespace MiNET.Blocks
 
 	public partial class CyanCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:cyan_candle_cake";
+		public override string Id => "minecraft:cyan_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -5652,7 +5652,7 @@ namespace MiNET.Blocks
 
 	public partial class CyanGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:cyan_glazed_terracotta";
+		public override string Id => "minecraft:cyan_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -5679,9 +5679,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class CyanWool : Block
+	public partial class CyanWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:cyan_wool";
+		public override string Id => "minecraft:cyan_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -5693,7 +5693,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkOakButton
 	{
-		public override string Id { get; protected set; } = "minecraft:dark_oak_button";
+		public override string Id => "minecraft:dark_oak_button";
 
 		[StateBit]
 		public override bool ButtonPressedBit { get; set; } = false;
@@ -5729,7 +5729,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkOakDoor
 	{
-		public override string Id { get; protected set; } = "minecraft:dark_oak_door";
+		public override string Id => "minecraft:dark_oak_door";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 1;
@@ -5779,7 +5779,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkOakFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:dark_oak_fence";
+		public override string Id => "minecraft:dark_oak_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -5791,7 +5791,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkOakFenceGate
 	{
-		public override string Id { get; protected set; } = "minecraft:dark_oak_fence_gate";
+		public override string Id => "minecraft:dark_oak_fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -5834,7 +5834,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkOakHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:dark_oak_hanging_sign";
+		public override string Id => "minecraft:dark_oak_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -5884,7 +5884,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkOakLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:dark_oak_log";
+		public override string Id => "minecraft:dark_oak_log";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "";
@@ -5913,7 +5913,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkOakPressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:dark_oak_pressure_plate";
+		public override string Id => "minecraft:dark_oak_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -5942,7 +5942,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkOakStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:dark_oak_stairs";
+		public override string Id => "minecraft:dark_oak_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -5978,7 +5978,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkOakTrapdoor
 	{
-		public override string Id { get; protected set; } = "minecraft:dark_oak_trapdoor";
+		public override string Id => "minecraft:dark_oak_trapdoor";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 0;
@@ -6021,7 +6021,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkPrismarineStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:dark_prismarine_stairs";
+		public override string Id => "minecraft:dark_prismarine_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -6057,7 +6057,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkoakStandingSign
 	{
-		public override string Id { get; protected set; } = "minecraft:darkoak_standing_sign";
+		public override string Id => "minecraft:darkoak_standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -6086,7 +6086,7 @@ namespace MiNET.Blocks
 
 	public partial class DarkoakWallSign
 	{
-		public override string Id { get; protected set; } = "minecraft:darkoak_wall_sign";
+		public override string Id => "minecraft:darkoak_wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -6115,7 +6115,7 @@ namespace MiNET.Blocks
 
 	public partial class DaylightDetector : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:daylight_detector";
+		public override string Id => "minecraft:daylight_detector";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -6144,7 +6144,7 @@ namespace MiNET.Blocks
 
 	public partial class DaylightDetectorInverted : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:daylight_detector_inverted";
+		public override string Id => "minecraft:daylight_detector_inverted";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -6173,7 +6173,7 @@ namespace MiNET.Blocks
 
 	public partial class Deadbush : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deadbush";
+		public override string Id => "minecraft:deadbush";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6185,7 +6185,7 @@ namespace MiNET.Blocks
 
 	public partial class DecoratedPot : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:decorated_pot";
+		public override string Id => "minecraft:decorated_pot";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -6214,7 +6214,7 @@ namespace MiNET.Blocks
 
 	public partial class Deepslate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate";
+		public override string Id => "minecraft:deepslate";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -6243,7 +6243,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateBrickDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_brick_double_slab";
+		public override string Id => "minecraft:deepslate_brick_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -6272,7 +6272,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateBrickSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_brick_slab";
+		public override string Id => "minecraft:deepslate_brick_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -6301,7 +6301,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateBrickStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_brick_stairs";
+		public override string Id => "minecraft:deepslate_brick_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -6337,7 +6337,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateBrickWall : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_brick_wall";
+		public override string Id => "minecraft:deepslate_brick_wall";
 
 		[StateEnum("none", "short", "tall")]
 		public string WallConnectionTypeEast { get; set; } = "none";
@@ -6394,7 +6394,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateBricks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_bricks";
+		public override string Id => "minecraft:deepslate_bricks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6406,7 +6406,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateCoalOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_coal_ore";
+		public override string Id => "minecraft:deepslate_coal_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6418,7 +6418,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateCopperOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_copper_ore";
+		public override string Id => "minecraft:deepslate_copper_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6430,7 +6430,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateDiamondOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_diamond_ore";
+		public override string Id => "minecraft:deepslate_diamond_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6442,7 +6442,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateEmeraldOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_emerald_ore";
+		public override string Id => "minecraft:deepslate_emerald_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6454,7 +6454,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateGoldOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_gold_ore";
+		public override string Id => "minecraft:deepslate_gold_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6466,7 +6466,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateIronOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_iron_ore";
+		public override string Id => "minecraft:deepslate_iron_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6478,7 +6478,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateLapisOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_lapis_ore";
+		public override string Id => "minecraft:deepslate_lapis_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6490,7 +6490,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateRedstoneOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_redstone_ore";
+		public override string Id => "minecraft:deepslate_redstone_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6502,7 +6502,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateTileDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_tile_double_slab";
+		public override string Id => "minecraft:deepslate_tile_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -6531,7 +6531,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateTileSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_tile_slab";
+		public override string Id => "minecraft:deepslate_tile_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -6560,7 +6560,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateTileStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_tile_stairs";
+		public override string Id => "minecraft:deepslate_tile_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -6596,7 +6596,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateTileWall : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_tile_wall";
+		public override string Id => "minecraft:deepslate_tile_wall";
 
 		[StateEnum("none", "short", "tall")]
 		public string WallConnectionTypeEast { get; set; } = "none";
@@ -6653,7 +6653,7 @@ namespace MiNET.Blocks
 
 	public partial class DeepslateTiles : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deepslate_tiles";
+		public override string Id => "minecraft:deepslate_tiles";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6665,7 +6665,7 @@ namespace MiNET.Blocks
 
 	public partial class Deny : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:deny";
+		public override string Id => "minecraft:deny";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6677,7 +6677,7 @@ namespace MiNET.Blocks
 
 	public partial class DetectorRail : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:detector_rail";
+		public override string Id => "minecraft:detector_rail";
 
 		[StateBit]
 		public bool RailDataBit { get; set; } = false;
@@ -6713,7 +6713,7 @@ namespace MiNET.Blocks
 
 	public partial class DiamondBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:diamond_block";
+		public override string Id => "minecraft:diamond_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6725,7 +6725,7 @@ namespace MiNET.Blocks
 
 	public partial class DiamondOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:diamond_ore";
+		public override string Id => "minecraft:diamond_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6737,7 +6737,7 @@ namespace MiNET.Blocks
 
 	public partial class DioriteStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:diorite_stairs";
+		public override string Id => "minecraft:diorite_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -6773,7 +6773,7 @@ namespace MiNET.Blocks
 
 	public partial class Dirt : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:dirt";
+		public override string Id => "minecraft:dirt";
 
 		[StateEnum("normal", "coarse")]
 		public string DirtType { get; set; } = "normal";
@@ -6802,7 +6802,7 @@ namespace MiNET.Blocks
 
 	public partial class DirtWithRoots : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:dirt_with_roots";
+		public override string Id => "minecraft:dirt_with_roots";
 
 		public override BlockStateContainer GetState()
 		{
@@ -6814,7 +6814,7 @@ namespace MiNET.Blocks
 
 	public partial class Dispenser : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:dispenser";
+		public override string Id => "minecraft:dispenser";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -6850,7 +6850,7 @@ namespace MiNET.Blocks
 
 	public partial class DoubleCutCopperSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:double_cut_copper_slab";
+		public override string Id => "minecraft:double_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -6879,7 +6879,7 @@ namespace MiNET.Blocks
 
 	public partial class DoublePlant : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:double_plant";
+		public override string Id => "minecraft:double_plant";
 
 		[StateEnum("syringa", "grass", "fern", "rose", "paeonia", "sunflower")]
 		public string DoublePlantType { get; set; } = "";
@@ -6915,7 +6915,7 @@ namespace MiNET.Blocks
 
 	public partial class DoubleStoneBlockSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:double_stone_block_slab";
+		public override string Id => "minecraft:double_stone_block_slab";
 
 		[StateEnum("smooth_stone", "sandstone", "wood", "cobblestone", "brick", "stone_brick", "quartz", "nether_brick")]
 		public string StoneSlabType { get; set; } = "smooth_stone";
@@ -6951,7 +6951,7 @@ namespace MiNET.Blocks
 
 	public partial class DoubleStoneBlockSlab2 : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:double_stone_block_slab2";
+		public override string Id => "minecraft:double_stone_block_slab2";
 
 		[StateEnum("red_sandstone", "purpur", "prismarine_rough", "prismarine_dark", "prismarine_brick", "mossy_cobblestone", "smooth_sandstone", "red_nether_brick")]
 		public string StoneSlabType2 { get; set; } = "red_sandstone";
@@ -6987,7 +6987,7 @@ namespace MiNET.Blocks
 
 	public partial class DoubleStoneBlockSlab3 : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:double_stone_block_slab3";
+		public override string Id => "minecraft:double_stone_block_slab3";
 
 		[StateEnum("end_stone_brick", "smooth_red_sandstone", "polished_andesite", "andesite", "diorite", "polished_diorite", "granite", "polished_granite")]
 		public string StoneSlabType3 { get; set; } = "end_stone_brick";
@@ -7023,7 +7023,7 @@ namespace MiNET.Blocks
 
 	public partial class DoubleStoneBlockSlab4 : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:double_stone_block_slab4";
+		public override string Id => "minecraft:double_stone_block_slab4";
 
 		[StateEnum("smooth_quartz", "stone", "cut_sandstone", "cut_red_sandstone", "mossy_stone_brick")]
 		public string StoneSlabType4 { get; set; } = "";
@@ -7059,7 +7059,7 @@ namespace MiNET.Blocks
 
 	public partial class DoubleWoodenSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:double_wooden_slab";
+		public override string Id => "minecraft:double_wooden_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -7095,7 +7095,7 @@ namespace MiNET.Blocks
 
 	public partial class DragonEgg : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:dragon_egg";
+		public override string Id => "minecraft:dragon_egg";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7107,7 +7107,7 @@ namespace MiNET.Blocks
 
 	public partial class DriedKelpBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:dried_kelp_block";
+		public override string Id => "minecraft:dried_kelp_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7119,7 +7119,7 @@ namespace MiNET.Blocks
 
 	public partial class DripstoneBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:dripstone_block";
+		public override string Id => "minecraft:dripstone_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7131,7 +7131,7 @@ namespace MiNET.Blocks
 
 	public partial class Dropper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:dropper";
+		public override string Id => "minecraft:dropper";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -7167,7 +7167,7 @@ namespace MiNET.Blocks
 
 	public partial class Element0 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_0";
+		public override string Id => "minecraft:element_0";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7179,7 +7179,7 @@ namespace MiNET.Blocks
 
 	public partial class Element1 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_1";
+		public override string Id => "minecraft:element_1";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7191,7 +7191,7 @@ namespace MiNET.Blocks
 
 	public partial class Element10 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_10";
+		public override string Id => "minecraft:element_10";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7203,7 +7203,7 @@ namespace MiNET.Blocks
 
 	public partial class Element100 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_100";
+		public override string Id => "minecraft:element_100";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7215,7 +7215,7 @@ namespace MiNET.Blocks
 
 	public partial class Element101 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_101";
+		public override string Id => "minecraft:element_101";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7227,7 +7227,7 @@ namespace MiNET.Blocks
 
 	public partial class Element102 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_102";
+		public override string Id => "minecraft:element_102";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7239,7 +7239,7 @@ namespace MiNET.Blocks
 
 	public partial class Element103 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_103";
+		public override string Id => "minecraft:element_103";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7251,7 +7251,7 @@ namespace MiNET.Blocks
 
 	public partial class Element104 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_104";
+		public override string Id => "minecraft:element_104";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7263,7 +7263,7 @@ namespace MiNET.Blocks
 
 	public partial class Element105 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_105";
+		public override string Id => "minecraft:element_105";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7275,7 +7275,7 @@ namespace MiNET.Blocks
 
 	public partial class Element106 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_106";
+		public override string Id => "minecraft:element_106";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7287,7 +7287,7 @@ namespace MiNET.Blocks
 
 	public partial class Element107 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_107";
+		public override string Id => "minecraft:element_107";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7299,7 +7299,7 @@ namespace MiNET.Blocks
 
 	public partial class Element108 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_108";
+		public override string Id => "minecraft:element_108";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7311,7 +7311,7 @@ namespace MiNET.Blocks
 
 	public partial class Element109 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_109";
+		public override string Id => "minecraft:element_109";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7323,7 +7323,7 @@ namespace MiNET.Blocks
 
 	public partial class Element11 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_11";
+		public override string Id => "minecraft:element_11";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7335,7 +7335,7 @@ namespace MiNET.Blocks
 
 	public partial class Element110 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_110";
+		public override string Id => "minecraft:element_110";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7347,7 +7347,7 @@ namespace MiNET.Blocks
 
 	public partial class Element111 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_111";
+		public override string Id => "minecraft:element_111";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7359,7 +7359,7 @@ namespace MiNET.Blocks
 
 	public partial class Element112 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_112";
+		public override string Id => "minecraft:element_112";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7371,7 +7371,7 @@ namespace MiNET.Blocks
 
 	public partial class Element113 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_113";
+		public override string Id => "minecraft:element_113";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7383,7 +7383,7 @@ namespace MiNET.Blocks
 
 	public partial class Element114 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_114";
+		public override string Id => "minecraft:element_114";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7395,7 +7395,7 @@ namespace MiNET.Blocks
 
 	public partial class Element115 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_115";
+		public override string Id => "minecraft:element_115";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7407,7 +7407,7 @@ namespace MiNET.Blocks
 
 	public partial class Element116 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_116";
+		public override string Id => "minecraft:element_116";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7419,7 +7419,7 @@ namespace MiNET.Blocks
 
 	public partial class Element117 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_117";
+		public override string Id => "minecraft:element_117";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7431,7 +7431,7 @@ namespace MiNET.Blocks
 
 	public partial class Element118 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_118";
+		public override string Id => "minecraft:element_118";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7443,7 +7443,7 @@ namespace MiNET.Blocks
 
 	public partial class Element12 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_12";
+		public override string Id => "minecraft:element_12";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7455,7 +7455,7 @@ namespace MiNET.Blocks
 
 	public partial class Element13 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_13";
+		public override string Id => "minecraft:element_13";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7467,7 +7467,7 @@ namespace MiNET.Blocks
 
 	public partial class Element14 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_14";
+		public override string Id => "minecraft:element_14";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7479,7 +7479,7 @@ namespace MiNET.Blocks
 
 	public partial class Element15 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_15";
+		public override string Id => "minecraft:element_15";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7491,7 +7491,7 @@ namespace MiNET.Blocks
 
 	public partial class Element16 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_16";
+		public override string Id => "minecraft:element_16";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7503,7 +7503,7 @@ namespace MiNET.Blocks
 
 	public partial class Element17 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_17";
+		public override string Id => "minecraft:element_17";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7515,7 +7515,7 @@ namespace MiNET.Blocks
 
 	public partial class Element18 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_18";
+		public override string Id => "minecraft:element_18";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7527,7 +7527,7 @@ namespace MiNET.Blocks
 
 	public partial class Element19 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_19";
+		public override string Id => "minecraft:element_19";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7539,7 +7539,7 @@ namespace MiNET.Blocks
 
 	public partial class Element2 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_2";
+		public override string Id => "minecraft:element_2";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7551,7 +7551,7 @@ namespace MiNET.Blocks
 
 	public partial class Element20 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_20";
+		public override string Id => "minecraft:element_20";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7563,7 +7563,7 @@ namespace MiNET.Blocks
 
 	public partial class Element21 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_21";
+		public override string Id => "minecraft:element_21";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7575,7 +7575,7 @@ namespace MiNET.Blocks
 
 	public partial class Element22 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_22";
+		public override string Id => "minecraft:element_22";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7587,7 +7587,7 @@ namespace MiNET.Blocks
 
 	public partial class Element23 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_23";
+		public override string Id => "minecraft:element_23";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7599,7 +7599,7 @@ namespace MiNET.Blocks
 
 	public partial class Element24 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_24";
+		public override string Id => "minecraft:element_24";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7611,7 +7611,7 @@ namespace MiNET.Blocks
 
 	public partial class Element25 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_25";
+		public override string Id => "minecraft:element_25";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7623,7 +7623,7 @@ namespace MiNET.Blocks
 
 	public partial class Element26 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_26";
+		public override string Id => "minecraft:element_26";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7635,7 +7635,7 @@ namespace MiNET.Blocks
 
 	public partial class Element27 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_27";
+		public override string Id => "minecraft:element_27";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7647,7 +7647,7 @@ namespace MiNET.Blocks
 
 	public partial class Element28 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_28";
+		public override string Id => "minecraft:element_28";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7659,7 +7659,7 @@ namespace MiNET.Blocks
 
 	public partial class Element29 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_29";
+		public override string Id => "minecraft:element_29";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7671,7 +7671,7 @@ namespace MiNET.Blocks
 
 	public partial class Element3 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_3";
+		public override string Id => "minecraft:element_3";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7683,7 +7683,7 @@ namespace MiNET.Blocks
 
 	public partial class Element30 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_30";
+		public override string Id => "minecraft:element_30";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7695,7 +7695,7 @@ namespace MiNET.Blocks
 
 	public partial class Element31 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_31";
+		public override string Id => "minecraft:element_31";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7707,7 +7707,7 @@ namespace MiNET.Blocks
 
 	public partial class Element32 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_32";
+		public override string Id => "minecraft:element_32";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7719,7 +7719,7 @@ namespace MiNET.Blocks
 
 	public partial class Element33 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_33";
+		public override string Id => "minecraft:element_33";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7731,7 +7731,7 @@ namespace MiNET.Blocks
 
 	public partial class Element34 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_34";
+		public override string Id => "minecraft:element_34";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7743,7 +7743,7 @@ namespace MiNET.Blocks
 
 	public partial class Element35 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_35";
+		public override string Id => "minecraft:element_35";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7755,7 +7755,7 @@ namespace MiNET.Blocks
 
 	public partial class Element36 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_36";
+		public override string Id => "minecraft:element_36";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7767,7 +7767,7 @@ namespace MiNET.Blocks
 
 	public partial class Element37 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_37";
+		public override string Id => "minecraft:element_37";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7779,7 +7779,7 @@ namespace MiNET.Blocks
 
 	public partial class Element38 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_38";
+		public override string Id => "minecraft:element_38";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7791,7 +7791,7 @@ namespace MiNET.Blocks
 
 	public partial class Element39 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_39";
+		public override string Id => "minecraft:element_39";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7803,7 +7803,7 @@ namespace MiNET.Blocks
 
 	public partial class Element4 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_4";
+		public override string Id => "minecraft:element_4";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7815,7 +7815,7 @@ namespace MiNET.Blocks
 
 	public partial class Element40 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_40";
+		public override string Id => "minecraft:element_40";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7827,7 +7827,7 @@ namespace MiNET.Blocks
 
 	public partial class Element41 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_41";
+		public override string Id => "minecraft:element_41";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7839,7 +7839,7 @@ namespace MiNET.Blocks
 
 	public partial class Element42 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_42";
+		public override string Id => "minecraft:element_42";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7851,7 +7851,7 @@ namespace MiNET.Blocks
 
 	public partial class Element43 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_43";
+		public override string Id => "minecraft:element_43";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7863,7 +7863,7 @@ namespace MiNET.Blocks
 
 	public partial class Element44 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_44";
+		public override string Id => "minecraft:element_44";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7875,7 +7875,7 @@ namespace MiNET.Blocks
 
 	public partial class Element45 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_45";
+		public override string Id => "minecraft:element_45";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7887,7 +7887,7 @@ namespace MiNET.Blocks
 
 	public partial class Element46 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_46";
+		public override string Id => "minecraft:element_46";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7899,7 +7899,7 @@ namespace MiNET.Blocks
 
 	public partial class Element47 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_47";
+		public override string Id => "minecraft:element_47";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7911,7 +7911,7 @@ namespace MiNET.Blocks
 
 	public partial class Element48 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_48";
+		public override string Id => "minecraft:element_48";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7923,7 +7923,7 @@ namespace MiNET.Blocks
 
 	public partial class Element49 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_49";
+		public override string Id => "minecraft:element_49";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7935,7 +7935,7 @@ namespace MiNET.Blocks
 
 	public partial class Element5 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_5";
+		public override string Id => "minecraft:element_5";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7947,7 +7947,7 @@ namespace MiNET.Blocks
 
 	public partial class Element50 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_50";
+		public override string Id => "minecraft:element_50";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7959,7 +7959,7 @@ namespace MiNET.Blocks
 
 	public partial class Element51 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_51";
+		public override string Id => "minecraft:element_51";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7971,7 +7971,7 @@ namespace MiNET.Blocks
 
 	public partial class Element52 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_52";
+		public override string Id => "minecraft:element_52";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7983,7 +7983,7 @@ namespace MiNET.Blocks
 
 	public partial class Element53 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_53";
+		public override string Id => "minecraft:element_53";
 
 		public override BlockStateContainer GetState()
 		{
@@ -7995,7 +7995,7 @@ namespace MiNET.Blocks
 
 	public partial class Element54 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_54";
+		public override string Id => "minecraft:element_54";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8007,7 +8007,7 @@ namespace MiNET.Blocks
 
 	public partial class Element55 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_55";
+		public override string Id => "minecraft:element_55";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8019,7 +8019,7 @@ namespace MiNET.Blocks
 
 	public partial class Element56 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_56";
+		public override string Id => "minecraft:element_56";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8031,7 +8031,7 @@ namespace MiNET.Blocks
 
 	public partial class Element57 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_57";
+		public override string Id => "minecraft:element_57";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8043,7 +8043,7 @@ namespace MiNET.Blocks
 
 	public partial class Element58 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_58";
+		public override string Id => "minecraft:element_58";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8055,7 +8055,7 @@ namespace MiNET.Blocks
 
 	public partial class Element59 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_59";
+		public override string Id => "minecraft:element_59";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8067,7 +8067,7 @@ namespace MiNET.Blocks
 
 	public partial class Element6 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_6";
+		public override string Id => "minecraft:element_6";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8079,7 +8079,7 @@ namespace MiNET.Blocks
 
 	public partial class Element60 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_60";
+		public override string Id => "minecraft:element_60";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8091,7 +8091,7 @@ namespace MiNET.Blocks
 
 	public partial class Element61 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_61";
+		public override string Id => "minecraft:element_61";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8103,7 +8103,7 @@ namespace MiNET.Blocks
 
 	public partial class Element62 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_62";
+		public override string Id => "minecraft:element_62";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8115,7 +8115,7 @@ namespace MiNET.Blocks
 
 	public partial class Element63 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_63";
+		public override string Id => "minecraft:element_63";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8127,7 +8127,7 @@ namespace MiNET.Blocks
 
 	public partial class Element64 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_64";
+		public override string Id => "minecraft:element_64";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8139,7 +8139,7 @@ namespace MiNET.Blocks
 
 	public partial class Element65 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_65";
+		public override string Id => "minecraft:element_65";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8151,7 +8151,7 @@ namespace MiNET.Blocks
 
 	public partial class Element66 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_66";
+		public override string Id => "minecraft:element_66";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8163,7 +8163,7 @@ namespace MiNET.Blocks
 
 	public partial class Element67 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_67";
+		public override string Id => "minecraft:element_67";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8175,7 +8175,7 @@ namespace MiNET.Blocks
 
 	public partial class Element68 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_68";
+		public override string Id => "minecraft:element_68";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8187,7 +8187,7 @@ namespace MiNET.Blocks
 
 	public partial class Element69 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_69";
+		public override string Id => "minecraft:element_69";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8199,7 +8199,7 @@ namespace MiNET.Blocks
 
 	public partial class Element7 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_7";
+		public override string Id => "minecraft:element_7";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8211,7 +8211,7 @@ namespace MiNET.Blocks
 
 	public partial class Element70 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_70";
+		public override string Id => "minecraft:element_70";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8223,7 +8223,7 @@ namespace MiNET.Blocks
 
 	public partial class Element71 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_71";
+		public override string Id => "minecraft:element_71";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8235,7 +8235,7 @@ namespace MiNET.Blocks
 
 	public partial class Element72 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_72";
+		public override string Id => "minecraft:element_72";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8247,7 +8247,7 @@ namespace MiNET.Blocks
 
 	public partial class Element73 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_73";
+		public override string Id => "minecraft:element_73";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8259,7 +8259,7 @@ namespace MiNET.Blocks
 
 	public partial class Element74 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_74";
+		public override string Id => "minecraft:element_74";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8271,7 +8271,7 @@ namespace MiNET.Blocks
 
 	public partial class Element75 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_75";
+		public override string Id => "minecraft:element_75";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8283,7 +8283,7 @@ namespace MiNET.Blocks
 
 	public partial class Element76 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_76";
+		public override string Id => "minecraft:element_76";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8295,7 +8295,7 @@ namespace MiNET.Blocks
 
 	public partial class Element77 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_77";
+		public override string Id => "minecraft:element_77";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8307,7 +8307,7 @@ namespace MiNET.Blocks
 
 	public partial class Element78 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_78";
+		public override string Id => "minecraft:element_78";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8319,7 +8319,7 @@ namespace MiNET.Blocks
 
 	public partial class Element79 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_79";
+		public override string Id => "minecraft:element_79";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8331,7 +8331,7 @@ namespace MiNET.Blocks
 
 	public partial class Element8 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_8";
+		public override string Id => "minecraft:element_8";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8343,7 +8343,7 @@ namespace MiNET.Blocks
 
 	public partial class Element80 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_80";
+		public override string Id => "minecraft:element_80";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8355,7 +8355,7 @@ namespace MiNET.Blocks
 
 	public partial class Element81 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_81";
+		public override string Id => "minecraft:element_81";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8367,7 +8367,7 @@ namespace MiNET.Blocks
 
 	public partial class Element82 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_82";
+		public override string Id => "minecraft:element_82";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8379,7 +8379,7 @@ namespace MiNET.Blocks
 
 	public partial class Element83 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_83";
+		public override string Id => "minecraft:element_83";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8391,7 +8391,7 @@ namespace MiNET.Blocks
 
 	public partial class Element84 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_84";
+		public override string Id => "minecraft:element_84";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8403,7 +8403,7 @@ namespace MiNET.Blocks
 
 	public partial class Element85 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_85";
+		public override string Id => "minecraft:element_85";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8415,7 +8415,7 @@ namespace MiNET.Blocks
 
 	public partial class Element86 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_86";
+		public override string Id => "minecraft:element_86";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8427,7 +8427,7 @@ namespace MiNET.Blocks
 
 	public partial class Element87 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_87";
+		public override string Id => "minecraft:element_87";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8439,7 +8439,7 @@ namespace MiNET.Blocks
 
 	public partial class Element88 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_88";
+		public override string Id => "minecraft:element_88";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8451,7 +8451,7 @@ namespace MiNET.Blocks
 
 	public partial class Element89 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_89";
+		public override string Id => "minecraft:element_89";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8463,7 +8463,7 @@ namespace MiNET.Blocks
 
 	public partial class Element9 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_9";
+		public override string Id => "minecraft:element_9";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8475,7 +8475,7 @@ namespace MiNET.Blocks
 
 	public partial class Element90 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_90";
+		public override string Id => "minecraft:element_90";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8487,7 +8487,7 @@ namespace MiNET.Blocks
 
 	public partial class Element91 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_91";
+		public override string Id => "minecraft:element_91";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8499,7 +8499,7 @@ namespace MiNET.Blocks
 
 	public partial class Element92 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_92";
+		public override string Id => "minecraft:element_92";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8511,7 +8511,7 @@ namespace MiNET.Blocks
 
 	public partial class Element93 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_93";
+		public override string Id => "minecraft:element_93";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8523,7 +8523,7 @@ namespace MiNET.Blocks
 
 	public partial class Element94 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_94";
+		public override string Id => "minecraft:element_94";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8535,7 +8535,7 @@ namespace MiNET.Blocks
 
 	public partial class Element95 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_95";
+		public override string Id => "minecraft:element_95";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8547,7 +8547,7 @@ namespace MiNET.Blocks
 
 	public partial class Element96 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_96";
+		public override string Id => "minecraft:element_96";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8559,7 +8559,7 @@ namespace MiNET.Blocks
 
 	public partial class Element97 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_97";
+		public override string Id => "minecraft:element_97";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8571,7 +8571,7 @@ namespace MiNET.Blocks
 
 	public partial class Element98 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_98";
+		public override string Id => "minecraft:element_98";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8583,7 +8583,7 @@ namespace MiNET.Blocks
 
 	public partial class Element99 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:element_99";
+		public override string Id => "minecraft:element_99";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8595,7 +8595,7 @@ namespace MiNET.Blocks
 
 	public partial class EmeraldBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:emerald_block";
+		public override string Id => "minecraft:emerald_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8607,7 +8607,7 @@ namespace MiNET.Blocks
 
 	public partial class EmeraldOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:emerald_ore";
+		public override string Id => "minecraft:emerald_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8619,7 +8619,7 @@ namespace MiNET.Blocks
 
 	public partial class EnchantingTable : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:enchanting_table";
+		public override string Id => "minecraft:enchanting_table";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8631,7 +8631,7 @@ namespace MiNET.Blocks
 
 	public partial class EndBrickStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:end_brick_stairs";
+		public override string Id => "minecraft:end_brick_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -8667,7 +8667,7 @@ namespace MiNET.Blocks
 
 	public partial class EndBricks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:end_bricks";
+		public override string Id => "minecraft:end_bricks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8679,7 +8679,7 @@ namespace MiNET.Blocks
 
 	public partial class EndGateway : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:end_gateway";
+		public override string Id => "minecraft:end_gateway";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8691,7 +8691,7 @@ namespace MiNET.Blocks
 
 	public partial class EndPortal : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:end_portal";
+		public override string Id => "minecraft:end_portal";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8703,7 +8703,7 @@ namespace MiNET.Blocks
 
 	public partial class EndPortalFrame : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:end_portal_frame";
+		public override string Id => "minecraft:end_portal_frame";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -8739,7 +8739,7 @@ namespace MiNET.Blocks
 
 	public partial class EndRod : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:end_rod";
+		public override string Id => "minecraft:end_rod";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -8768,7 +8768,7 @@ namespace MiNET.Blocks
 
 	public partial class EndStone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:end_stone";
+		public override string Id => "minecraft:end_stone";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8780,7 +8780,7 @@ namespace MiNET.Blocks
 
 	public partial class EnderChest
 	{
-		public override string Id { get; protected set; } = "minecraft:ender_chest";
+		public override string Id => "minecraft:ender_chest";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -8809,7 +8809,7 @@ namespace MiNET.Blocks
 
 	public partial class ExposedCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:exposed_copper";
+		public override string Id => "minecraft:exposed_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8821,7 +8821,7 @@ namespace MiNET.Blocks
 
 	public partial class ExposedCutCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:exposed_cut_copper";
+		public override string Id => "minecraft:exposed_cut_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -8833,7 +8833,7 @@ namespace MiNET.Blocks
 
 	public partial class ExposedCutCopperSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:exposed_cut_copper_slab";
+		public override string Id => "minecraft:exposed_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -8862,7 +8862,7 @@ namespace MiNET.Blocks
 
 	public partial class ExposedCutCopperStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:exposed_cut_copper_stairs";
+		public override string Id => "minecraft:exposed_cut_copper_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -8898,7 +8898,7 @@ namespace MiNET.Blocks
 
 	public partial class ExposedDoubleCutCopperSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:exposed_double_cut_copper_slab";
+		public override string Id => "minecraft:exposed_double_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -8927,7 +8927,7 @@ namespace MiNET.Blocks
 
 	public partial class Farmland : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:farmland";
+		public override string Id => "minecraft:farmland";
 
 		[StateRange(0, 7)]
 		public int MoisturizedAmount { get; set; } = 0;
@@ -8956,7 +8956,7 @@ namespace MiNET.Blocks
 
 	public partial class FenceGate
 	{
-		public override string Id { get; protected set; } = "minecraft:fence_gate";
+		public override string Id => "minecraft:fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -8999,7 +8999,7 @@ namespace MiNET.Blocks
 
 	public partial class Fire : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:fire";
+		public override string Id => "minecraft:fire";
 
 		[StateRange(0, 15)]
 		public int Age { get; set; } = 0;
@@ -9028,7 +9028,7 @@ namespace MiNET.Blocks
 
 	public partial class FletchingTable : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:fletching_table";
+		public override string Id => "minecraft:fletching_table";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9040,7 +9040,7 @@ namespace MiNET.Blocks
 
 	public partial class FlowerPot : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:flower_pot";
+		public override string Id => "minecraft:flower_pot";
 
 		[StateBit]
 		public bool UpdateBit { get; set; } = false;
@@ -9069,7 +9069,7 @@ namespace MiNET.Blocks
 
 	public partial class FloweringAzalea : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:flowering_azalea";
+		public override string Id => "minecraft:flowering_azalea";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9081,7 +9081,7 @@ namespace MiNET.Blocks
 
 	public partial class FlowingLava
 	{
-		public override string Id { get; protected set; } = "minecraft:flowing_lava";
+		public override string Id => "minecraft:flowing_lava";
 
 		[StateRange(0, 15)]
 		public override int LiquidDepth { get; set; } = 0;
@@ -9110,7 +9110,7 @@ namespace MiNET.Blocks
 
 	public partial class FlowingWater
 	{
-		public override string Id { get; protected set; } = "minecraft:flowing_water";
+		public override string Id => "minecraft:flowing_water";
 
 		[StateRange(0, 15)]
 		public override int LiquidDepth { get; set; } = 0;
@@ -9139,7 +9139,7 @@ namespace MiNET.Blocks
 
 	public partial class Frame : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:frame";
+		public override string Id => "minecraft:frame";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -9182,7 +9182,7 @@ namespace MiNET.Blocks
 
 	public partial class FrogSpawn : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:frog_spawn";
+		public override string Id => "minecraft:frog_spawn";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9194,7 +9194,7 @@ namespace MiNET.Blocks
 
 	public partial class FrostedIce : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:frosted_ice";
+		public override string Id => "minecraft:frosted_ice";
 
 		[StateRange(0, 3)]
 		public int Age { get; set; } = 0;
@@ -9223,7 +9223,7 @@ namespace MiNET.Blocks
 
 	public partial class Furnace
 	{
-		public override string Id { get; protected set; } = "minecraft:furnace";
+		public override string Id => "minecraft:furnace";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -9252,7 +9252,7 @@ namespace MiNET.Blocks
 
 	public partial class GildedBlackstone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:gilded_blackstone";
+		public override string Id => "minecraft:gilded_blackstone";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9264,7 +9264,7 @@ namespace MiNET.Blocks
 
 	public partial class Glass : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:glass";
+		public override string Id => "minecraft:glass";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9276,7 +9276,7 @@ namespace MiNET.Blocks
 
 	public partial class GlassPane : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:glass_pane";
+		public override string Id => "minecraft:glass_pane";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9288,7 +9288,7 @@ namespace MiNET.Blocks
 
 	public partial class GlowFrame : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:glow_frame";
+		public override string Id => "minecraft:glow_frame";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -9331,7 +9331,7 @@ namespace MiNET.Blocks
 
 	public partial class GlowLichen : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:glow_lichen";
+		public override string Id => "minecraft:glow_lichen";
 
 		[StateRange(0, 63)]
 		public int MultiFaceDirectionBits { get; set; } = 0;
@@ -9360,7 +9360,7 @@ namespace MiNET.Blocks
 
 	public partial class Glowingobsidian : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:glowingobsidian";
+		public override string Id => "minecraft:glowingobsidian";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9372,7 +9372,7 @@ namespace MiNET.Blocks
 
 	public partial class Glowstone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:glowstone";
+		public override string Id => "minecraft:glowstone";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9384,7 +9384,7 @@ namespace MiNET.Blocks
 
 	public partial class GoldBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:gold_block";
+		public override string Id => "minecraft:gold_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9396,7 +9396,7 @@ namespace MiNET.Blocks
 
 	public partial class GoldOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:gold_ore";
+		public override string Id => "minecraft:gold_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9408,7 +9408,7 @@ namespace MiNET.Blocks
 
 	public partial class GoldenRail : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:golden_rail";
+		public override string Id => "minecraft:golden_rail";
 
 		[StateBit]
 		public bool RailDataBit { get; set; } = false;
@@ -9444,7 +9444,7 @@ namespace MiNET.Blocks
 
 	public partial class GraniteStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:granite_stairs";
+		public override string Id => "minecraft:granite_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -9480,7 +9480,7 @@ namespace MiNET.Blocks
 
 	public partial class Grass : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:grass";
+		public override string Id => "minecraft:grass";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9492,7 +9492,7 @@ namespace MiNET.Blocks
 
 	public partial class GrassPath : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:grass_path";
+		public override string Id => "minecraft:grass_path";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9504,7 +9504,7 @@ namespace MiNET.Blocks
 
 	public partial class Gravel : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:gravel";
+		public override string Id => "minecraft:gravel";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9516,7 +9516,7 @@ namespace MiNET.Blocks
 
 	public partial class GrayCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:gray_candle";
+		public override string Id => "minecraft:gray_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -9552,7 +9552,7 @@ namespace MiNET.Blocks
 
 	public partial class GrayCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:gray_candle_cake";
+		public override string Id => "minecraft:gray_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -9581,7 +9581,7 @@ namespace MiNET.Blocks
 
 	public partial class GrayGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:gray_glazed_terracotta";
+		public override string Id => "minecraft:gray_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -9608,9 +9608,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class GrayWool : Block
+	public partial class GrayWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:gray_wool";
+		public override string Id => "minecraft:gray_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9622,7 +9622,7 @@ namespace MiNET.Blocks
 
 	public partial class GreenCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:green_candle";
+		public override string Id => "minecraft:green_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -9658,7 +9658,7 @@ namespace MiNET.Blocks
 
 	public partial class GreenCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:green_candle_cake";
+		public override string Id => "minecraft:green_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -9687,7 +9687,7 @@ namespace MiNET.Blocks
 
 	public partial class GreenGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:green_glazed_terracotta";
+		public override string Id => "minecraft:green_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -9714,9 +9714,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class GreenWool : Block
+	public partial class GreenWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:green_wool";
+		public override string Id => "minecraft:green_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9728,7 +9728,7 @@ namespace MiNET.Blocks
 
 	public partial class Grindstone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:grindstone";
+		public override string Id => "minecraft:grindstone";
 
 		[StateEnum("standing", "hanging", "side", "multiple")]
 		public string Attachment { get; set; } = "standing";
@@ -9764,7 +9764,7 @@ namespace MiNET.Blocks
 
 	public partial class HangingRoots : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:hanging_roots";
+		public override string Id => "minecraft:hanging_roots";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9776,7 +9776,7 @@ namespace MiNET.Blocks
 
 	public partial class HardGlass : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:hard_glass";
+		public override string Id => "minecraft:hard_glass";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9788,7 +9788,7 @@ namespace MiNET.Blocks
 
 	public partial class HardGlassPane : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:hard_glass_pane";
+		public override string Id => "minecraft:hard_glass_pane";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9800,7 +9800,7 @@ namespace MiNET.Blocks
 
 	public partial class HardStainedGlass : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:hard_stained_glass";
+		public override string Id => "minecraft:hard_stained_glass";
 
 		[StateEnum("white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver", "cyan", "purple", "blue", "brown", "green", "red", "black")]
 		public string Color { get; set; } = "white";
@@ -9829,7 +9829,7 @@ namespace MiNET.Blocks
 
 	public partial class HardStainedGlassPane : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:hard_stained_glass_pane";
+		public override string Id => "minecraft:hard_stained_glass_pane";
 
 		[StateEnum("white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver", "cyan", "purple", "blue", "brown", "green", "red", "black")]
 		public string Color { get; set; } = "white";
@@ -9858,7 +9858,7 @@ namespace MiNET.Blocks
 
 	public partial class HardenedClay : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:hardened_clay";
+		public override string Id => "minecraft:hardened_clay";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9870,7 +9870,7 @@ namespace MiNET.Blocks
 
 	public partial class HayBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:hay_block";
+		public override string Id => "minecraft:hay_block";
 
 		[StateRange(0, 3)]
 		public int Deprecated { get; set; } = 0;
@@ -9906,7 +9906,7 @@ namespace MiNET.Blocks
 
 	public partial class HeavyWeightedPressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:heavy_weighted_pressure_plate";
+		public override string Id => "minecraft:heavy_weighted_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -9935,7 +9935,7 @@ namespace MiNET.Blocks
 
 	public partial class HoneyBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:honey_block";
+		public override string Id => "minecraft:honey_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9947,7 +9947,7 @@ namespace MiNET.Blocks
 
 	public partial class HoneycombBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:honeycomb_block";
+		public override string Id => "minecraft:honeycomb_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -9959,7 +9959,7 @@ namespace MiNET.Blocks
 
 	public partial class Hopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:hopper";
+		public override string Id => "minecraft:hopper";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -9995,7 +9995,7 @@ namespace MiNET.Blocks
 
 	public partial class Ice : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:ice";
+		public override string Id => "minecraft:ice";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10007,7 +10007,7 @@ namespace MiNET.Blocks
 
 	public partial class InfestedDeepslate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:infested_deepslate";
+		public override string Id => "minecraft:infested_deepslate";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -10036,7 +10036,7 @@ namespace MiNET.Blocks
 
 	public partial class InfoUpdate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:info_update";
+		public override string Id => "minecraft:info_update";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10048,7 +10048,7 @@ namespace MiNET.Blocks
 
 	public partial class InfoUpdate2 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:info_update2";
+		public override string Id => "minecraft:info_update2";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10060,7 +10060,7 @@ namespace MiNET.Blocks
 
 	public partial class InvisibleBedrock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:invisible_bedrock";
+		public override string Id => "minecraft:invisible_bedrock";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10072,7 +10072,7 @@ namespace MiNET.Blocks
 
 	public partial class IronBars : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:iron_bars";
+		public override string Id => "minecraft:iron_bars";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10084,7 +10084,7 @@ namespace MiNET.Blocks
 
 	public partial class IronBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:iron_block";
+		public override string Id => "minecraft:iron_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10096,7 +10096,7 @@ namespace MiNET.Blocks
 
 	public partial class IronDoor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:iron_door";
+		public override string Id => "minecraft:iron_door";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 1;
@@ -10146,7 +10146,7 @@ namespace MiNET.Blocks
 
 	public partial class IronOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:iron_ore";
+		public override string Id => "minecraft:iron_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10158,7 +10158,7 @@ namespace MiNET.Blocks
 
 	public partial class IronTrapdoor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:iron_trapdoor";
+		public override string Id => "minecraft:iron_trapdoor";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -10201,7 +10201,7 @@ namespace MiNET.Blocks
 
 	public partial class Jigsaw : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:jigsaw";
+		public override string Id => "minecraft:jigsaw";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -10237,7 +10237,7 @@ namespace MiNET.Blocks
 
 	public partial class Jukebox : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:jukebox";
+		public override string Id => "minecraft:jukebox";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10249,7 +10249,7 @@ namespace MiNET.Blocks
 
 	public partial class JungleButton
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_button";
+		public override string Id => "minecraft:jungle_button";
 
 		[StateBit]
 		public override bool ButtonPressedBit { get; set; } = false;
@@ -10285,7 +10285,7 @@ namespace MiNET.Blocks
 
 	public partial class JungleDoor
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_door";
+		public override string Id => "minecraft:jungle_door";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 1;
@@ -10335,7 +10335,7 @@ namespace MiNET.Blocks
 
 	public partial class JungleFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_fence";
+		public override string Id => "minecraft:jungle_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10347,7 +10347,7 @@ namespace MiNET.Blocks
 
 	public partial class JungleFenceGate
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_fence_gate";
+		public override string Id => "minecraft:jungle_fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -10390,7 +10390,7 @@ namespace MiNET.Blocks
 
 	public partial class JungleHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_hanging_sign";
+		public override string Id => "minecraft:jungle_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -10440,7 +10440,7 @@ namespace MiNET.Blocks
 
 	public partial class JungleLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_log";
+		public override string Id => "minecraft:jungle_log";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "";
@@ -10469,7 +10469,7 @@ namespace MiNET.Blocks
 
 	public partial class JunglePressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_pressure_plate";
+		public override string Id => "minecraft:jungle_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -10498,7 +10498,7 @@ namespace MiNET.Blocks
 
 	public partial class JungleStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_stairs";
+		public override string Id => "minecraft:jungle_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -10534,7 +10534,7 @@ namespace MiNET.Blocks
 
 	public partial class JungleStandingSign
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_standing_sign";
+		public override string Id => "minecraft:jungle_standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -10563,7 +10563,7 @@ namespace MiNET.Blocks
 
 	public partial class JungleTrapdoor
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_trapdoor";
+		public override string Id => "minecraft:jungle_trapdoor";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 0;
@@ -10606,7 +10606,7 @@ namespace MiNET.Blocks
 
 	public partial class JungleWallSign
 	{
-		public override string Id { get; protected set; } = "minecraft:jungle_wall_sign";
+		public override string Id => "minecraft:jungle_wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -10635,7 +10635,7 @@ namespace MiNET.Blocks
 
 	public partial class Kelp : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:kelp";
+		public override string Id => "minecraft:kelp";
 
 		[StateRange(0, 25)]
 		public int KelpAge { get; set; } = 0;
@@ -10664,7 +10664,7 @@ namespace MiNET.Blocks
 
 	public partial class Ladder : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:ladder";
+		public override string Id => "minecraft:ladder";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -10693,7 +10693,7 @@ namespace MiNET.Blocks
 
 	public partial class Lantern : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lantern";
+		public override string Id => "minecraft:lantern";
 
 		[StateBit]
 		public bool Hanging { get; set; } = false;
@@ -10722,7 +10722,7 @@ namespace MiNET.Blocks
 
 	public partial class LapisBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lapis_block";
+		public override string Id => "minecraft:lapis_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10734,7 +10734,7 @@ namespace MiNET.Blocks
 
 	public partial class LapisOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lapis_ore";
+		public override string Id => "minecraft:lapis_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -10746,7 +10746,7 @@ namespace MiNET.Blocks
 
 	public partial class LargeAmethystBud : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:large_amethyst_bud";
+		public override string Id => "minecraft:large_amethyst_bud";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -10775,7 +10775,7 @@ namespace MiNET.Blocks
 
 	public partial class Lava
 	{
-		public override string Id { get; protected set; } = "minecraft:lava";
+		public override string Id => "minecraft:lava";
 
 		[StateRange(0, 15)]
 		public override int LiquidDepth { get; set; } = 0;
@@ -10804,7 +10804,7 @@ namespace MiNET.Blocks
 
 	public partial class LavaCauldron : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lava_cauldron";
+		public override string Id => "minecraft:lava_cauldron";
 
 		[StateEnum("water", "powder_snow", "lava")]
 		public string CauldronLiquid { get; set; } = "water";
@@ -10840,7 +10840,7 @@ namespace MiNET.Blocks
 
 	public partial class Leaves : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:leaves";
+		public override string Id => "minecraft:leaves";
 
 		[StateEnum("oak", "spruce", "birch", "jungle")]
 		public string OldLeafType { get; set; } = "oak";
@@ -10883,7 +10883,7 @@ namespace MiNET.Blocks
 
 	public partial class Leaves2 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:leaves2";
+		public override string Id => "minecraft:leaves2";
 
 		[StateEnum("dark_oak", "acacia")]
 		public string NewLeafType { get; set; } = "";
@@ -10926,7 +10926,7 @@ namespace MiNET.Blocks
 
 	public partial class Lectern : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lectern";
+		public override string Id => "minecraft:lectern";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -10962,7 +10962,7 @@ namespace MiNET.Blocks
 
 	public partial class Lever : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lever";
+		public override string Id => "minecraft:lever";
 
 		[StateEnum("down_east_west", "east", "west", "south", "north", "up_north_south", "up_east_west", "down_north_south")]
 		public string LeverDirection { get; set; } = "down_east_west";
@@ -10998,7 +10998,7 @@ namespace MiNET.Blocks
 
 	public partial class LightBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:light_block";
+		public override string Id => "minecraft:light_block";
 
 		[StateRange(0, 15)]
 		public int BlockLightLevel { get; set; } = 0;
@@ -11027,7 +11027,7 @@ namespace MiNET.Blocks
 
 	public partial class LightBlueCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:light_blue_candle";
+		public override string Id => "minecraft:light_blue_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -11063,7 +11063,7 @@ namespace MiNET.Blocks
 
 	public partial class LightBlueCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:light_blue_candle_cake";
+		public override string Id => "minecraft:light_blue_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -11092,7 +11092,7 @@ namespace MiNET.Blocks
 
 	public partial class LightBlueGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:light_blue_glazed_terracotta";
+		public override string Id => "minecraft:light_blue_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -11119,9 +11119,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class LightBlueWool : Block
+	public partial class LightBlueWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:light_blue_wool";
+		public override string Id => "minecraft:light_blue_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11133,7 +11133,7 @@ namespace MiNET.Blocks
 
 	public partial class LightGrayCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:light_gray_candle";
+		public override string Id => "minecraft:light_gray_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -11169,7 +11169,7 @@ namespace MiNET.Blocks
 
 	public partial class LightGrayCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:light_gray_candle_cake";
+		public override string Id => "minecraft:light_gray_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -11196,9 +11196,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class LightGrayWool : Block
+	public partial class LightGrayWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:light_gray_wool";
+		public override string Id => "minecraft:light_gray_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11210,7 +11210,7 @@ namespace MiNET.Blocks
 
 	public partial class LightWeightedPressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:light_weighted_pressure_plate";
+		public override string Id => "minecraft:light_weighted_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -11239,7 +11239,7 @@ namespace MiNET.Blocks
 
 	public partial class LightningRod : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lightning_rod";
+		public override string Id => "minecraft:lightning_rod";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -11268,7 +11268,7 @@ namespace MiNET.Blocks
 
 	public partial class LimeCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lime_candle";
+		public override string Id => "minecraft:lime_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -11304,7 +11304,7 @@ namespace MiNET.Blocks
 
 	public partial class LimeCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lime_candle_cake";
+		public override string Id => "minecraft:lime_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -11333,7 +11333,7 @@ namespace MiNET.Blocks
 
 	public partial class LimeGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:lime_glazed_terracotta";
+		public override string Id => "minecraft:lime_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -11360,9 +11360,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class LimeWool : Block
+	public partial class LimeWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:lime_wool";
+		public override string Id => "minecraft:lime_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11374,7 +11374,7 @@ namespace MiNET.Blocks
 
 	public partial class LitBlastFurnace
 	{
-		public override string Id { get; protected set; } = "minecraft:lit_blast_furnace";
+		public override string Id => "minecraft:lit_blast_furnace";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -11403,7 +11403,7 @@ namespace MiNET.Blocks
 
 	public partial class LitDeepslateRedstoneOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lit_deepslate_redstone_ore";
+		public override string Id => "minecraft:lit_deepslate_redstone_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11415,7 +11415,7 @@ namespace MiNET.Blocks
 
 	public partial class LitFurnace
 	{
-		public override string Id { get; protected set; } = "minecraft:lit_furnace";
+		public override string Id => "minecraft:lit_furnace";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -11444,7 +11444,7 @@ namespace MiNET.Blocks
 
 	public partial class LitPumpkin : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lit_pumpkin";
+		public override string Id => "minecraft:lit_pumpkin";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -11473,7 +11473,7 @@ namespace MiNET.Blocks
 
 	public partial class LitRedstoneLamp
 	{
-		public override string Id { get; protected set; } = "minecraft:lit_redstone_lamp";
+		public override string Id => "minecraft:lit_redstone_lamp";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11485,7 +11485,7 @@ namespace MiNET.Blocks
 
 	public partial class LitRedstoneOre
 	{
-		public override string Id { get; protected set; } = "minecraft:lit_redstone_ore";
+		public override string Id => "minecraft:lit_redstone_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11497,7 +11497,7 @@ namespace MiNET.Blocks
 
 	public partial class LitSmoker : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lit_smoker";
+		public override string Id => "minecraft:lit_smoker";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -11526,7 +11526,7 @@ namespace MiNET.Blocks
 
 	public partial class Lodestone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:lodestone";
+		public override string Id => "minecraft:lodestone";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11538,7 +11538,7 @@ namespace MiNET.Blocks
 
 	public partial class Loom : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:loom";
+		public override string Id => "minecraft:loom";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -11567,7 +11567,7 @@ namespace MiNET.Blocks
 
 	public partial class MagentaCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:magenta_candle";
+		public override string Id => "minecraft:magenta_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -11603,7 +11603,7 @@ namespace MiNET.Blocks
 
 	public partial class MagentaCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:magenta_candle_cake";
+		public override string Id => "minecraft:magenta_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -11632,7 +11632,7 @@ namespace MiNET.Blocks
 
 	public partial class MagentaGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:magenta_glazed_terracotta";
+		public override string Id => "minecraft:magenta_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -11659,9 +11659,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class MagentaWool : Block
+	public partial class MagentaWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:magenta_wool";
+		public override string Id => "minecraft:magenta_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11673,7 +11673,7 @@ namespace MiNET.Blocks
 
 	public partial class Magma : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:magma";
+		public override string Id => "minecraft:magma";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11685,7 +11685,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveButton : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_button";
+		public override string Id => "minecraft:mangrove_button";
 
 		[StateBit]
 		public bool ButtonPressedBit { get; set; } = false;
@@ -11721,7 +11721,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveDoor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_door";
+		public override string Id => "minecraft:mangrove_door";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -11771,7 +11771,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_double_slab";
+		public override string Id => "minecraft:mangrove_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -11800,7 +11800,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_fence";
+		public override string Id => "minecraft:mangrove_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11812,7 +11812,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveFenceGate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_fence_gate";
+		public override string Id => "minecraft:mangrove_fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -11855,7 +11855,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_hanging_sign";
+		public override string Id => "minecraft:mangrove_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -11905,7 +11905,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveLeaves : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_leaves";
+		public override string Id => "minecraft:mangrove_leaves";
 
 		[StateBit]
 		public bool PersistentBit { get; set; } = false;
@@ -11941,7 +11941,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_log";
+		public override string Id => "minecraft:mangrove_log";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -11970,7 +11970,7 @@ namespace MiNET.Blocks
 
 	public partial class MangrovePlanks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_planks";
+		public override string Id => "minecraft:mangrove_planks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -11982,7 +11982,7 @@ namespace MiNET.Blocks
 
 	public partial class MangrovePressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_pressure_plate";
+		public override string Id => "minecraft:mangrove_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -12011,7 +12011,7 @@ namespace MiNET.Blocks
 
 	public partial class MangrovePropagule : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_propagule";
+		public override string Id => "minecraft:mangrove_propagule";
 
 		[StateBit]
 		public bool Hanging { get; set; } = false;
@@ -12047,7 +12047,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveRoots : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_roots";
+		public override string Id => "minecraft:mangrove_roots";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12059,7 +12059,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_slab";
+		public override string Id => "minecraft:mangrove_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -12088,7 +12088,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_stairs";
+		public override string Id => "minecraft:mangrove_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -12124,7 +12124,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveStandingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_standing_sign";
+		public override string Id => "minecraft:mangrove_standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -12153,7 +12153,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveTrapdoor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_trapdoor";
+		public override string Id => "minecraft:mangrove_trapdoor";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -12196,7 +12196,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveWallSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_wall_sign";
+		public override string Id => "minecraft:mangrove_wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -12225,7 +12225,7 @@ namespace MiNET.Blocks
 
 	public partial class MangroveWood : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:mangrove_wood";
+		public override string Id => "minecraft:mangrove_wood";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -12261,7 +12261,7 @@ namespace MiNET.Blocks
 
 	public partial class MediumAmethystBud : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:medium_amethyst_bud";
+		public override string Id => "minecraft:medium_amethyst_bud";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -12290,7 +12290,7 @@ namespace MiNET.Blocks
 
 	public partial class MelonBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:melon_block";
+		public override string Id => "minecraft:melon_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12302,7 +12302,7 @@ namespace MiNET.Blocks
 
 	public partial class MelonStem : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:melon_stem";
+		public override string Id => "minecraft:melon_stem";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -12338,7 +12338,7 @@ namespace MiNET.Blocks
 
 	public partial class MobSpawner : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mob_spawner";
+		public override string Id => "minecraft:mob_spawner";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12350,7 +12350,7 @@ namespace MiNET.Blocks
 
 	public partial class MonsterEgg : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:monster_egg";
+		public override string Id => "minecraft:monster_egg";
 
 		[StateEnum("cobblestone", "stone_brick", "mossy_stone_brick", "cracked_stone_brick", "chiseled_stone_brick", "stone")]
 		public string MonsterEggStoneType { get; set; } = "";
@@ -12379,7 +12379,7 @@ namespace MiNET.Blocks
 
 	public partial class MossBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:moss_block";
+		public override string Id => "minecraft:moss_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12391,7 +12391,7 @@ namespace MiNET.Blocks
 
 	public partial class MossCarpet : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:moss_carpet";
+		public override string Id => "minecraft:moss_carpet";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12403,7 +12403,7 @@ namespace MiNET.Blocks
 
 	public partial class MossyCobblestone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mossy_cobblestone";
+		public override string Id => "minecraft:mossy_cobblestone";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12415,7 +12415,7 @@ namespace MiNET.Blocks
 
 	public partial class MossyCobblestoneStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:mossy_cobblestone_stairs";
+		public override string Id => "minecraft:mossy_cobblestone_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -12451,7 +12451,7 @@ namespace MiNET.Blocks
 
 	public partial class MossyStoneBrickStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:mossy_stone_brick_stairs";
+		public override string Id => "minecraft:mossy_stone_brick_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -12487,7 +12487,7 @@ namespace MiNET.Blocks
 
 	public partial class MovingBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:moving_block";
+		public override string Id => "minecraft:moving_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12499,7 +12499,7 @@ namespace MiNET.Blocks
 
 	public partial class Mud : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mud";
+		public override string Id => "minecraft:mud";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12511,7 +12511,7 @@ namespace MiNET.Blocks
 
 	public partial class MudBrickDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:mud_brick_double_slab";
+		public override string Id => "minecraft:mud_brick_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -12540,7 +12540,7 @@ namespace MiNET.Blocks
 
 	public partial class MudBrickSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:mud_brick_slab";
+		public override string Id => "minecraft:mud_brick_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -12569,7 +12569,7 @@ namespace MiNET.Blocks
 
 	public partial class MudBrickStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mud_brick_stairs";
+		public override string Id => "minecraft:mud_brick_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -12605,7 +12605,7 @@ namespace MiNET.Blocks
 
 	public partial class MudBrickWall : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mud_brick_wall";
+		public override string Id => "minecraft:mud_brick_wall";
 
 		[StateEnum("none", "short", "tall")]
 		public string WallConnectionTypeEast { get; set; } = "none";
@@ -12662,7 +12662,7 @@ namespace MiNET.Blocks
 
 	public partial class MudBricks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mud_bricks";
+		public override string Id => "minecraft:mud_bricks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12674,7 +12674,7 @@ namespace MiNET.Blocks
 
 	public partial class MuddyMangroveRoots : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:muddy_mangrove_roots";
+		public override string Id => "minecraft:muddy_mangrove_roots";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -12703,7 +12703,7 @@ namespace MiNET.Blocks
 
 	public partial class Mycelium : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:mycelium";
+		public override string Id => "minecraft:mycelium";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12715,7 +12715,7 @@ namespace MiNET.Blocks
 
 	public partial class NetherBrick : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:nether_brick";
+		public override string Id => "minecraft:nether_brick";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12727,7 +12727,7 @@ namespace MiNET.Blocks
 
 	public partial class NetherBrickFence
 	{
-		public override string Id { get; protected set; } = "minecraft:nether_brick_fence";
+		public override string Id => "minecraft:nether_brick_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12739,7 +12739,7 @@ namespace MiNET.Blocks
 
 	public partial class NetherBrickStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:nether_brick_stairs";
+		public override string Id => "minecraft:nether_brick_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -12775,7 +12775,7 @@ namespace MiNET.Blocks
 
 	public partial class NetherGoldOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:nether_gold_ore";
+		public override string Id => "minecraft:nether_gold_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12787,7 +12787,7 @@ namespace MiNET.Blocks
 
 	public partial class NetherSprouts : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:nether_sprouts";
+		public override string Id => "minecraft:nether_sprouts";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12799,7 +12799,7 @@ namespace MiNET.Blocks
 
 	public partial class NetherWart : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:nether_wart";
+		public override string Id => "minecraft:nether_wart";
 
 		[StateRange(0, 3)]
 		public int Age { get; set; } = 0;
@@ -12828,7 +12828,7 @@ namespace MiNET.Blocks
 
 	public partial class NetherWartBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:nether_wart_block";
+		public override string Id => "minecraft:nether_wart_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12840,7 +12840,7 @@ namespace MiNET.Blocks
 
 	public partial class NetheriteBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:netherite_block";
+		public override string Id => "minecraft:netherite_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12852,7 +12852,7 @@ namespace MiNET.Blocks
 
 	public partial class Netherrack : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:netherrack";
+		public override string Id => "minecraft:netherrack";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12864,7 +12864,7 @@ namespace MiNET.Blocks
 
 	public partial class Netherreactor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:netherreactor";
+		public override string Id => "minecraft:netherreactor";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12876,7 +12876,7 @@ namespace MiNET.Blocks
 
 	public partial class NormalStoneStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:normal_stone_stairs";
+		public override string Id => "minecraft:normal_stone_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -12912,7 +12912,7 @@ namespace MiNET.Blocks
 
 	public partial class Noteblock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:noteblock";
+		public override string Id => "minecraft:noteblock";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12924,7 +12924,7 @@ namespace MiNET.Blocks
 
 	public partial class OakFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:oak_fence";
+		public override string Id => "minecraft:oak_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -12936,7 +12936,7 @@ namespace MiNET.Blocks
 
 	public partial class OakHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:oak_hanging_sign";
+		public override string Id => "minecraft:oak_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -12986,7 +12986,7 @@ namespace MiNET.Blocks
 
 	public partial class OakLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:oak_log";
+		public override string Id => "minecraft:oak_log";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -13015,7 +13015,7 @@ namespace MiNET.Blocks
 
 	public partial class OakStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:oak_stairs";
+		public override string Id => "minecraft:oak_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -13051,7 +13051,7 @@ namespace MiNET.Blocks
 
 	public partial class Observer : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:observer";
+		public override string Id => "minecraft:observer";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -13087,7 +13087,7 @@ namespace MiNET.Blocks
 
 	public partial class Obsidian : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:obsidian";
+		public override string Id => "minecraft:obsidian";
 
 		public override BlockStateContainer GetState()
 		{
@@ -13099,7 +13099,7 @@ namespace MiNET.Blocks
 
 	public partial class OchreFroglight : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:ochre_froglight";
+		public override string Id => "minecraft:ochre_froglight";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -13128,7 +13128,7 @@ namespace MiNET.Blocks
 
 	public partial class OrangeCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:orange_candle";
+		public override string Id => "minecraft:orange_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -13164,7 +13164,7 @@ namespace MiNET.Blocks
 
 	public partial class OrangeCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:orange_candle_cake";
+		public override string Id => "minecraft:orange_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -13193,7 +13193,7 @@ namespace MiNET.Blocks
 
 	public partial class OrangeGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:orange_glazed_terracotta";
+		public override string Id => "minecraft:orange_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -13220,9 +13220,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class OrangeWool : Block
+	public partial class OrangeWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:orange_wool";
+		public override string Id => "minecraft:orange_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -13234,7 +13234,7 @@ namespace MiNET.Blocks
 
 	public partial class OxidizedCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:oxidized_copper";
+		public override string Id => "minecraft:oxidized_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -13246,7 +13246,7 @@ namespace MiNET.Blocks
 
 	public partial class OxidizedCutCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:oxidized_cut_copper";
+		public override string Id => "minecraft:oxidized_cut_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -13258,7 +13258,7 @@ namespace MiNET.Blocks
 
 	public partial class OxidizedCutCopperSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:oxidized_cut_copper_slab";
+		public override string Id => "minecraft:oxidized_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -13287,7 +13287,7 @@ namespace MiNET.Blocks
 
 	public partial class OxidizedCutCopperStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:oxidized_cut_copper_stairs";
+		public override string Id => "minecraft:oxidized_cut_copper_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -13323,7 +13323,7 @@ namespace MiNET.Blocks
 
 	public partial class OxidizedDoubleCutCopperSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:oxidized_double_cut_copper_slab";
+		public override string Id => "minecraft:oxidized_double_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -13352,7 +13352,7 @@ namespace MiNET.Blocks
 
 	public partial class PackedIce : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:packed_ice";
+		public override string Id => "minecraft:packed_ice";
 
 		public override BlockStateContainer GetState()
 		{
@@ -13364,7 +13364,7 @@ namespace MiNET.Blocks
 
 	public partial class PackedMud : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:packed_mud";
+		public override string Id => "minecraft:packed_mud";
 
 		public override BlockStateContainer GetState()
 		{
@@ -13376,7 +13376,7 @@ namespace MiNET.Blocks
 
 	public partial class PearlescentFroglight : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:pearlescent_froglight";
+		public override string Id => "minecraft:pearlescent_froglight";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -13405,7 +13405,7 @@ namespace MiNET.Blocks
 
 	public partial class PinkCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:pink_candle";
+		public override string Id => "minecraft:pink_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -13441,7 +13441,7 @@ namespace MiNET.Blocks
 
 	public partial class PinkCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:pink_candle_cake";
+		public override string Id => "minecraft:pink_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -13470,7 +13470,7 @@ namespace MiNET.Blocks
 
 	public partial class PinkGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:pink_glazed_terracotta";
+		public override string Id => "minecraft:pink_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -13499,7 +13499,7 @@ namespace MiNET.Blocks
 
 	public partial class PinkPetals : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:pink_petals";
+		public override string Id => "minecraft:pink_petals";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -13533,9 +13533,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class PinkWool : Block
+	public partial class PinkWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:pink_wool";
+		public override string Id => "minecraft:pink_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -13547,7 +13547,7 @@ namespace MiNET.Blocks
 
 	public partial class Piston : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:piston";
+		public override string Id => "minecraft:piston";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -13576,7 +13576,7 @@ namespace MiNET.Blocks
 
 	public partial class PistonArmCollision : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:piston_arm_collision";
+		public override string Id => "minecraft:piston_arm_collision";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -13605,7 +13605,7 @@ namespace MiNET.Blocks
 
 	public partial class Planks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:planks";
+		public override string Id => "minecraft:planks";
 
 		[StateEnum("spruce", "birch", "jungle", "acacia", "dark_oak", "oak")]
 		public string WoodType { get; set; } = "";
@@ -13634,7 +13634,7 @@ namespace MiNET.Blocks
 
 	public partial class Podzol : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:podzol";
+		public override string Id => "minecraft:podzol";
 
 		public override BlockStateContainer GetState()
 		{
@@ -13646,7 +13646,7 @@ namespace MiNET.Blocks
 
 	public partial class PointedDripstone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:pointed_dripstone";
+		public override string Id => "minecraft:pointed_dripstone";
 
 		[StateEnum("tip", "frustum", "middle", "base", "merge")]
 		public string DripstoneThickness { get; set; } = "tip";
@@ -13682,7 +13682,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedAndesiteStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_andesite_stairs";
+		public override string Id => "minecraft:polished_andesite_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -13718,7 +13718,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBasalt : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_basalt";
+		public override string Id => "minecraft:polished_basalt";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -13747,7 +13747,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone";
+		public override string Id => "minecraft:polished_blackstone";
 
 		public override BlockStateContainer GetState()
 		{
@@ -13759,7 +13759,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstoneBrickDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_brick_double_slab";
+		public override string Id => "minecraft:polished_blackstone_brick_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -13788,7 +13788,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstoneBrickSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_brick_slab";
+		public override string Id => "minecraft:polished_blackstone_brick_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -13817,7 +13817,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstoneBrickStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_brick_stairs";
+		public override string Id => "minecraft:polished_blackstone_brick_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -13853,7 +13853,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstoneBrickWall : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_brick_wall";
+		public override string Id => "minecraft:polished_blackstone_brick_wall";
 
 		[StateEnum("none", "short", "tall")]
 		public string WallConnectionTypeEast { get; set; } = "none";
@@ -13910,7 +13910,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstoneBricks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_bricks";
+		public override string Id => "minecraft:polished_blackstone_bricks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -13922,7 +13922,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstoneButton : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_button";
+		public override string Id => "minecraft:polished_blackstone_button";
 
 		[StateBit]
 		public bool ButtonPressedBit { get; set; } = false;
@@ -13958,7 +13958,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstoneDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_double_slab";
+		public override string Id => "minecraft:polished_blackstone_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -13987,7 +13987,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstonePressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_pressure_plate";
+		public override string Id => "minecraft:polished_blackstone_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -14016,7 +14016,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstoneSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_slab";
+		public override string Id => "minecraft:polished_blackstone_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -14045,7 +14045,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstoneStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_stairs";
+		public override string Id => "minecraft:polished_blackstone_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -14081,7 +14081,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedBlackstoneWall : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_blackstone_wall";
+		public override string Id => "minecraft:polished_blackstone_wall";
 
 		[StateEnum("none", "short", "tall")]
 		public string WallConnectionTypeEast { get; set; } = "none";
@@ -14138,7 +14138,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedDeepslate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_deepslate";
+		public override string Id => "minecraft:polished_deepslate";
 
 		public override BlockStateContainer GetState()
 		{
@@ -14150,7 +14150,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedDeepslateDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_deepslate_double_slab";
+		public override string Id => "minecraft:polished_deepslate_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -14179,7 +14179,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedDeepslateSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_deepslate_slab";
+		public override string Id => "minecraft:polished_deepslate_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -14208,7 +14208,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedDeepslateStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_deepslate_stairs";
+		public override string Id => "minecraft:polished_deepslate_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -14244,7 +14244,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedDeepslateWall : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_deepslate_wall";
+		public override string Id => "minecraft:polished_deepslate_wall";
 
 		[StateEnum("none", "short", "tall")]
 		public string WallConnectionTypeEast { get; set; } = "none";
@@ -14301,7 +14301,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedDioriteStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_diorite_stairs";
+		public override string Id => "minecraft:polished_diorite_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -14337,7 +14337,7 @@ namespace MiNET.Blocks
 
 	public partial class PolishedGraniteStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:polished_granite_stairs";
+		public override string Id => "minecraft:polished_granite_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -14373,7 +14373,7 @@ namespace MiNET.Blocks
 
 	public partial class Portal : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:portal";
+		public override string Id => "minecraft:portal";
 
 		[StateEnum("x", "z", "unknown")]
 		public string PortalAxis { get; set; } = "";
@@ -14402,7 +14402,7 @@ namespace MiNET.Blocks
 
 	public partial class Potatoes
 	{
-		public override string Id { get; protected set; } = "minecraft:potatoes";
+		public override string Id => "minecraft:potatoes";
 
 		[StateRange(0, 7)]
 		public override int Growth { get; set; } = 0;
@@ -14431,7 +14431,7 @@ namespace MiNET.Blocks
 
 	public partial class PowderSnow : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:powder_snow";
+		public override string Id => "minecraft:powder_snow";
 
 		public override BlockStateContainer GetState()
 		{
@@ -14443,7 +14443,7 @@ namespace MiNET.Blocks
 
 	public partial class PoweredComparator
 	{
-		public override string Id { get; protected set; } = "minecraft:powered_comparator";
+		public override string Id => "minecraft:powered_comparator";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -14486,7 +14486,7 @@ namespace MiNET.Blocks
 
 	public partial class PoweredRepeater
 	{
-		public override string Id { get; protected set; } = "minecraft:powered_repeater";
+		public override string Id => "minecraft:powered_repeater";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -14522,7 +14522,7 @@ namespace MiNET.Blocks
 
 	public partial class Prismarine : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:prismarine";
+		public override string Id => "minecraft:prismarine";
 
 		[StateEnum("dark", "bricks", "default")]
 		public string PrismarineBlockType { get; set; } = "";
@@ -14551,7 +14551,7 @@ namespace MiNET.Blocks
 
 	public partial class PrismarineBricksStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:prismarine_bricks_stairs";
+		public override string Id => "minecraft:prismarine_bricks_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -14587,7 +14587,7 @@ namespace MiNET.Blocks
 
 	public partial class PrismarineStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:prismarine_stairs";
+		public override string Id => "minecraft:prismarine_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -14623,7 +14623,7 @@ namespace MiNET.Blocks
 
 	public partial class Pumpkin : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:pumpkin";
+		public override string Id => "minecraft:pumpkin";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -14652,7 +14652,7 @@ namespace MiNET.Blocks
 
 	public partial class PumpkinStem : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:pumpkin_stem";
+		public override string Id => "minecraft:pumpkin_stem";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -14688,7 +14688,7 @@ namespace MiNET.Blocks
 
 	public partial class PurpleCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:purple_candle";
+		public override string Id => "minecraft:purple_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -14724,7 +14724,7 @@ namespace MiNET.Blocks
 
 	public partial class PurpleCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:purple_candle_cake";
+		public override string Id => "minecraft:purple_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -14753,7 +14753,7 @@ namespace MiNET.Blocks
 
 	public partial class PurpleGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:purple_glazed_terracotta";
+		public override string Id => "minecraft:purple_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -14780,9 +14780,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class PurpleWool : Block
+	public partial class PurpleWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:purple_wool";
+		public override string Id => "minecraft:purple_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -14794,7 +14794,7 @@ namespace MiNET.Blocks
 
 	public partial class PurpurBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:purpur_block";
+		public override string Id => "minecraft:purpur_block";
 
 		[StateEnum("default", "chiseled", "lines", "smooth")]
 		public string ChiselType { get; set; } = "";
@@ -14830,7 +14830,7 @@ namespace MiNET.Blocks
 
 	public partial class PurpurStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:purpur_stairs";
+		public override string Id => "minecraft:purpur_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -14866,7 +14866,7 @@ namespace MiNET.Blocks
 
 	public partial class QuartzBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:quartz_block";
+		public override string Id => "minecraft:quartz_block";
 
 		[StateEnum("default", "chiseled", "lines", "smooth")]
 		public string ChiselType { get; set; } = "";
@@ -14902,7 +14902,7 @@ namespace MiNET.Blocks
 
 	public partial class QuartzBricks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:quartz_bricks";
+		public override string Id => "minecraft:quartz_bricks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -14914,7 +14914,7 @@ namespace MiNET.Blocks
 
 	public partial class QuartzOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:quartz_ore";
+		public override string Id => "minecraft:quartz_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -14926,7 +14926,7 @@ namespace MiNET.Blocks
 
 	public partial class QuartzStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:quartz_stairs";
+		public override string Id => "minecraft:quartz_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -14962,7 +14962,7 @@ namespace MiNET.Blocks
 
 	public partial class Rail : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:rail";
+		public override string Id => "minecraft:rail";
 
 		[StateRange(0, 9)]
 		public int RailDirection { get; set; } = 0;
@@ -14991,7 +14991,7 @@ namespace MiNET.Blocks
 
 	public partial class RawCopperBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:raw_copper_block";
+		public override string Id => "minecraft:raw_copper_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15003,7 +15003,7 @@ namespace MiNET.Blocks
 
 	public partial class RawGoldBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:raw_gold_block";
+		public override string Id => "minecraft:raw_gold_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15015,7 +15015,7 @@ namespace MiNET.Blocks
 
 	public partial class RawIronBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:raw_iron_block";
+		public override string Id => "minecraft:raw_iron_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15027,7 +15027,7 @@ namespace MiNET.Blocks
 
 	public partial class RedCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:red_candle";
+		public override string Id => "minecraft:red_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -15063,7 +15063,7 @@ namespace MiNET.Blocks
 
 	public partial class RedCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:red_candle_cake";
+		public override string Id => "minecraft:red_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -15092,7 +15092,7 @@ namespace MiNET.Blocks
 
 	public partial class RedFlower : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:red_flower";
+		public override string Id => "minecraft:red_flower";
 
 		[StateEnum("orchid", "allium", "houstonia", "tulip_red", "tulip_orange", "tulip_white", "tulip_pink", "oxeye", "cornflower", "lily_of_the_valley", "poppy")]
 		public string FlowerType { get; set; } = "";
@@ -15121,7 +15121,7 @@ namespace MiNET.Blocks
 
 	public partial class RedGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:red_glazed_terracotta";
+		public override string Id => "minecraft:red_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -15150,7 +15150,7 @@ namespace MiNET.Blocks
 
 	public partial class RedMushroom : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:red_mushroom";
+		public override string Id => "minecraft:red_mushroom";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15162,7 +15162,7 @@ namespace MiNET.Blocks
 
 	public partial class RedMushroomBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:red_mushroom_block";
+		public override string Id => "minecraft:red_mushroom_block";
 
 		[StateRange(0, 15)]
 		public int HugeMushroomBits { get; set; } = 0;
@@ -15191,7 +15191,7 @@ namespace MiNET.Blocks
 
 	public partial class RedNetherBrick : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:red_nether_brick";
+		public override string Id => "minecraft:red_nether_brick";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15203,7 +15203,7 @@ namespace MiNET.Blocks
 
 	public partial class RedNetherBrickStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:red_nether_brick_stairs";
+		public override string Id => "minecraft:red_nether_brick_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -15239,7 +15239,7 @@ namespace MiNET.Blocks
 
 	public partial class RedSandstone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:red_sandstone";
+		public override string Id => "minecraft:red_sandstone";
 
 		[StateEnum("default", "heiroglyphs", "cut", "smooth")]
 		public string SandStoneType { get; set; } = "default";
@@ -15268,7 +15268,7 @@ namespace MiNET.Blocks
 
 	public partial class RedSandstoneStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:red_sandstone_stairs";
+		public override string Id => "minecraft:red_sandstone_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -15302,9 +15302,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class RedWool : Block
+	public partial class RedWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:red_wool";
+		public override string Id => "minecraft:red_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15316,7 +15316,7 @@ namespace MiNET.Blocks
 
 	public partial class RedstoneBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:redstone_block";
+		public override string Id => "minecraft:redstone_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15328,7 +15328,7 @@ namespace MiNET.Blocks
 
 	public partial class RedstoneLamp : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:redstone_lamp";
+		public override string Id => "minecraft:redstone_lamp";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15340,7 +15340,7 @@ namespace MiNET.Blocks
 
 	public partial class RedstoneOre : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:redstone_ore";
+		public override string Id => "minecraft:redstone_ore";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15352,7 +15352,7 @@ namespace MiNET.Blocks
 
 	public partial class RedstoneTorch
 	{
-		public override string Id { get; protected set; } = "minecraft:redstone_torch";
+		public override string Id => "minecraft:redstone_torch";
 
 		[StateEnum("west", "east", "north", "south", "top", "unknown")]
 		public override string TorchFacingDirection { get; set; } = "";
@@ -15381,7 +15381,7 @@ namespace MiNET.Blocks
 
 	public partial class RedstoneWire : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:redstone_wire";
+		public override string Id => "minecraft:redstone_wire";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -15410,7 +15410,7 @@ namespace MiNET.Blocks
 
 	public partial class Reeds : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:reeds";
+		public override string Id => "minecraft:reeds";
 
 		[StateRange(0, 15)]
 		public int Age { get; set; } = 0;
@@ -15439,7 +15439,7 @@ namespace MiNET.Blocks
 
 	public partial class ReinforcedDeepslate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:reinforced_deepslate";
+		public override string Id => "minecraft:reinforced_deepslate";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15451,7 +15451,7 @@ namespace MiNET.Blocks
 
 	public partial class RepeatingCommandBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:repeating_command_block";
+		public override string Id => "minecraft:repeating_command_block";
 
 		[StateBit]
 		public bool ConditionalBit { get; set; } = false;
@@ -15487,7 +15487,7 @@ namespace MiNET.Blocks
 
 	public partial class Reserved6 : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:reserved6";
+		public override string Id => "minecraft:reserved6";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15499,7 +15499,7 @@ namespace MiNET.Blocks
 
 	public partial class RespawnAnchor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:respawn_anchor";
+		public override string Id => "minecraft:respawn_anchor";
 
 		[StateRange(0, 4)]
 		public int RespawnAnchorCharge { get; set; } = 0;
@@ -15528,7 +15528,7 @@ namespace MiNET.Blocks
 
 	public partial class Sand : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sand";
+		public override string Id => "minecraft:sand";
 
 		[StateEnum("normal", "red")]
 		public string SandType { get; set; } = "normal";
@@ -15557,7 +15557,7 @@ namespace MiNET.Blocks
 
 	public partial class Sandstone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sandstone";
+		public override string Id => "minecraft:sandstone";
 
 		[StateEnum("default", "heiroglyphs", "cut", "smooth")]
 		public string SandStoneType { get; set; } = "default";
@@ -15586,7 +15586,7 @@ namespace MiNET.Blocks
 
 	public partial class SandstoneStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:sandstone_stairs";
+		public override string Id => "minecraft:sandstone_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -15622,7 +15622,7 @@ namespace MiNET.Blocks
 
 	public partial class Sapling : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sapling";
+		public override string Id => "minecraft:sapling";
 
 		[StateBit]
 		public bool AgeBit { get; set; } = false;
@@ -15658,7 +15658,7 @@ namespace MiNET.Blocks
 
 	public partial class Scaffolding : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:scaffolding";
+		public override string Id => "minecraft:scaffolding";
 
 		[StateRange(0, 7)]
 		public int Stability { get; set; } = 0;
@@ -15694,7 +15694,7 @@ namespace MiNET.Blocks
 
 	public partial class Sculk : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sculk";
+		public override string Id => "minecraft:sculk";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15706,7 +15706,7 @@ namespace MiNET.Blocks
 
 	public partial class SculkCatalyst : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sculk_catalyst";
+		public override string Id => "minecraft:sculk_catalyst";
 
 		[StateBit]
 		public bool Bloom { get; set; } = false;
@@ -15735,7 +15735,7 @@ namespace MiNET.Blocks
 
 	public partial class SculkSensor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sculk_sensor";
+		public override string Id => "minecraft:sculk_sensor";
 
 		[StateBit]
 		public bool PoweredBit { get; set; } = false;
@@ -15764,7 +15764,7 @@ namespace MiNET.Blocks
 
 	public partial class SculkShrieker : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sculk_shrieker";
+		public override string Id => "minecraft:sculk_shrieker";
 
 		[StateBit]
 		public bool Active { get; set; } = false;
@@ -15800,7 +15800,7 @@ namespace MiNET.Blocks
 
 	public partial class SculkVein : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sculk_vein";
+		public override string Id => "minecraft:sculk_vein";
 
 		[StateRange(0, 63)]
 		public int MultiFaceDirectionBits { get; set; } = 0;
@@ -15829,7 +15829,7 @@ namespace MiNET.Blocks
 
 	public partial class SeaLantern : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sea_lantern";
+		public override string Id => "minecraft:sea_lantern";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15841,7 +15841,7 @@ namespace MiNET.Blocks
 
 	public partial class SeaPickle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sea_pickle";
+		public override string Id => "minecraft:sea_pickle";
 
 		[StateRange(0, 3)]
 		public int ClusterCount { get; set; } = 0;
@@ -15877,7 +15877,7 @@ namespace MiNET.Blocks
 
 	public partial class Seagrass : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:seagrass";
+		public override string Id => "minecraft:seagrass";
 
 		[StateEnum("double_top", "double_bot", "default")]
 		public string SeaGrassType { get; set; } = "";
@@ -15906,7 +15906,7 @@ namespace MiNET.Blocks
 
 	public partial class Shroomlight : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:shroomlight";
+		public override string Id => "minecraft:shroomlight";
 
 		public override BlockStateContainer GetState()
 		{
@@ -15918,7 +15918,7 @@ namespace MiNET.Blocks
 
 	public partial class ShulkerBox
 	{
-		public override string Id { get; protected set; } = "minecraft:shulker_box";
+		public override string Id => "minecraft:shulker_box";
 
 		[StateEnum("white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver", "cyan", "purple", "blue", "brown", "green", "red", "black")]
 		public string Color { get; set; } = "white";
@@ -15947,7 +15947,7 @@ namespace MiNET.Blocks
 
 	public partial class SilverGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:silver_glazed_terracotta";
+		public override string Id => "minecraft:silver_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -15976,7 +15976,7 @@ namespace MiNET.Blocks
 
 	public partial class Skull : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:skull";
+		public override string Id => "minecraft:skull";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -16005,7 +16005,7 @@ namespace MiNET.Blocks
 
 	public partial class Slime : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:slime";
+		public override string Id => "minecraft:slime";
 
 		public override BlockStateContainer GetState()
 		{
@@ -16017,7 +16017,7 @@ namespace MiNET.Blocks
 
 	public partial class SmallAmethystBud : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:small_amethyst_bud";
+		public override string Id => "minecraft:small_amethyst_bud";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -16046,7 +16046,7 @@ namespace MiNET.Blocks
 
 	public partial class SmallDripleafBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:small_dripleaf_block";
+		public override string Id => "minecraft:small_dripleaf_block";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -16082,7 +16082,7 @@ namespace MiNET.Blocks
 
 	public partial class SmithingTable : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:smithing_table";
+		public override string Id => "minecraft:smithing_table";
 
 		public override BlockStateContainer GetState()
 		{
@@ -16094,7 +16094,7 @@ namespace MiNET.Blocks
 
 	public partial class Smoker : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:smoker";
+		public override string Id => "minecraft:smoker";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -16123,7 +16123,7 @@ namespace MiNET.Blocks
 
 	public partial class SmoothBasalt : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:smooth_basalt";
+		public override string Id => "minecraft:smooth_basalt";
 
 		public override BlockStateContainer GetState()
 		{
@@ -16135,7 +16135,7 @@ namespace MiNET.Blocks
 
 	public partial class SmoothQuartzStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:smooth_quartz_stairs";
+		public override string Id => "minecraft:smooth_quartz_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -16171,7 +16171,7 @@ namespace MiNET.Blocks
 
 	public partial class SmoothRedSandstoneStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:smooth_red_sandstone_stairs";
+		public override string Id => "minecraft:smooth_red_sandstone_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -16207,7 +16207,7 @@ namespace MiNET.Blocks
 
 	public partial class SmoothSandstoneStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:smooth_sandstone_stairs";
+		public override string Id => "minecraft:smooth_sandstone_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -16243,7 +16243,7 @@ namespace MiNET.Blocks
 
 	public partial class SmoothStone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:smooth_stone";
+		public override string Id => "minecraft:smooth_stone";
 
 		public override BlockStateContainer GetState()
 		{
@@ -16255,7 +16255,7 @@ namespace MiNET.Blocks
 
 	public partial class Snow : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:snow";
+		public override string Id => "minecraft:snow";
 
 		public override BlockStateContainer GetState()
 		{
@@ -16267,7 +16267,7 @@ namespace MiNET.Blocks
 
 	public partial class SnowLayer : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:snow_layer";
+		public override string Id => "minecraft:snow_layer";
 
 		[StateBit]
 		public bool CoveredBit { get; set; } = false;
@@ -16303,7 +16303,7 @@ namespace MiNET.Blocks
 
 	public partial class SoulCampfire : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:soul_campfire";
+		public override string Id => "minecraft:soul_campfire";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -16339,7 +16339,7 @@ namespace MiNET.Blocks
 
 	public partial class SoulFire : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:soul_fire";
+		public override string Id => "minecraft:soul_fire";
 
 		[StateRange(0, 15)]
 		public int Age { get; set; } = 0;
@@ -16368,7 +16368,7 @@ namespace MiNET.Blocks
 
 	public partial class SoulLantern : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:soul_lantern";
+		public override string Id => "minecraft:soul_lantern";
 
 		[StateBit]
 		public bool Hanging { get; set; } = false;
@@ -16397,7 +16397,7 @@ namespace MiNET.Blocks
 
 	public partial class SoulSand : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:soul_sand";
+		public override string Id => "minecraft:soul_sand";
 
 		public override BlockStateContainer GetState()
 		{
@@ -16409,7 +16409,7 @@ namespace MiNET.Blocks
 
 	public partial class SoulSoil : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:soul_soil";
+		public override string Id => "minecraft:soul_soil";
 
 		public override BlockStateContainer GetState()
 		{
@@ -16421,7 +16421,7 @@ namespace MiNET.Blocks
 
 	public partial class SoulTorch : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:soul_torch";
+		public override string Id => "minecraft:soul_torch";
 
 		[StateEnum("unknown", "west", "east", "north", "south", "top")]
 		public string TorchFacingDirection { get; set; } = "unknown";
@@ -16450,7 +16450,7 @@ namespace MiNET.Blocks
 
 	public partial class Sponge : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sponge";
+		public override string Id => "minecraft:sponge";
 
 		[StateEnum("dry", "wet")]
 		public string SpongeType { get; set; } = "dry";
@@ -16479,7 +16479,7 @@ namespace MiNET.Blocks
 
 	public partial class SporeBlossom : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:spore_blossom";
+		public override string Id => "minecraft:spore_blossom";
 
 		public override BlockStateContainer GetState()
 		{
@@ -16491,7 +16491,7 @@ namespace MiNET.Blocks
 
 	public partial class SpruceButton
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_button";
+		public override string Id => "minecraft:spruce_button";
 
 		[StateBit]
 		public override bool ButtonPressedBit { get; set; } = false;
@@ -16527,7 +16527,7 @@ namespace MiNET.Blocks
 
 	public partial class SpruceDoor
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_door";
+		public override string Id => "minecraft:spruce_door";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 1;
@@ -16577,7 +16577,7 @@ namespace MiNET.Blocks
 
 	public partial class SpruceFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_fence";
+		public override string Id => "minecraft:spruce_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -16589,7 +16589,7 @@ namespace MiNET.Blocks
 
 	public partial class SpruceFenceGate
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_fence_gate";
+		public override string Id => "minecraft:spruce_fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -16632,7 +16632,7 @@ namespace MiNET.Blocks
 
 	public partial class SpruceHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_hanging_sign";
+		public override string Id => "minecraft:spruce_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -16682,7 +16682,7 @@ namespace MiNET.Blocks
 
 	public partial class SpruceLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_log";
+		public override string Id => "minecraft:spruce_log";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "";
@@ -16711,7 +16711,7 @@ namespace MiNET.Blocks
 
 	public partial class SprucePressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_pressure_plate";
+		public override string Id => "minecraft:spruce_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -16740,7 +16740,7 @@ namespace MiNET.Blocks
 
 	public partial class SpruceStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_stairs";
+		public override string Id => "minecraft:spruce_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -16776,7 +16776,7 @@ namespace MiNET.Blocks
 
 	public partial class SpruceStandingSign
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_standing_sign";
+		public override string Id => "minecraft:spruce_standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -16805,7 +16805,7 @@ namespace MiNET.Blocks
 
 	public partial class SpruceTrapdoor
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_trapdoor";
+		public override string Id => "minecraft:spruce_trapdoor";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 0;
@@ -16848,7 +16848,7 @@ namespace MiNET.Blocks
 
 	public partial class SpruceWallSign
 	{
-		public override string Id { get; protected set; } = "minecraft:spruce_wall_sign";
+		public override string Id => "minecraft:spruce_wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -16877,7 +16877,7 @@ namespace MiNET.Blocks
 
 	public partial class StainedGlass
 	{
-		public override string Id { get; protected set; } = "minecraft:stained_glass";
+		public override string Id => "minecraft:stained_glass";
 
 		[StateEnum("white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver", "cyan", "purple", "blue", "brown", "green", "red", "black")]
 		public string Color { get; set; } = "white";
@@ -16906,7 +16906,7 @@ namespace MiNET.Blocks
 
 	public partial class StainedGlassPane : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:stained_glass_pane";
+		public override string Id => "minecraft:stained_glass_pane";
 
 		[StateEnum("white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver", "cyan", "purple", "blue", "brown", "green", "red", "black")]
 		public string Color { get; set; } = "white";
@@ -16935,7 +16935,7 @@ namespace MiNET.Blocks
 
 	public partial class StainedHardenedClay : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:stained_hardened_clay";
+		public override string Id => "minecraft:stained_hardened_clay";
 
 		[StateEnum("white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "silver", "cyan", "purple", "blue", "brown", "green", "red", "black")]
 		public string Color { get; set; } = "white";
@@ -16964,7 +16964,7 @@ namespace MiNET.Blocks
 
 	public partial class StandingBanner : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:standing_banner";
+		public override string Id => "minecraft:standing_banner";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -16993,7 +16993,7 @@ namespace MiNET.Blocks
 
 	public partial class StandingSign
 	{
-		public override string Id { get; protected set; } = "minecraft:standing_sign";
+		public override string Id => "minecraft:standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -17022,7 +17022,7 @@ namespace MiNET.Blocks
 
 	public partial class StickyPiston : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sticky_piston";
+		public override string Id => "minecraft:sticky_piston";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -17051,7 +17051,7 @@ namespace MiNET.Blocks
 
 	public partial class StickyPistonArmCollision : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sticky_piston_arm_collision";
+		public override string Id => "minecraft:sticky_piston_arm_collision";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -17080,7 +17080,7 @@ namespace MiNET.Blocks
 
 	public partial class Stone : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:stone";
+		public override string Id => "minecraft:stone";
 
 		[StateEnum("granite", "granite_smooth", "diorite", "diorite_smooth", "andesite", "andesite_smooth", "stone")]
 		public string StoneType { get; set; } = "";
@@ -17109,7 +17109,7 @@ namespace MiNET.Blocks
 
 	public partial class StoneBlockSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stone_block_slab";
+		public override string Id => "minecraft:stone_block_slab";
 
 		[StateEnum("smooth_stone", "sandstone", "wood", "cobblestone", "brick", "stone_brick", "quartz", "nether_brick")]
 		public string StoneSlabType { get; set; } = "smooth_stone";
@@ -17145,7 +17145,7 @@ namespace MiNET.Blocks
 
 	public partial class StoneBlockSlab2 : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stone_block_slab2";
+		public override string Id => "minecraft:stone_block_slab2";
 
 		[StateEnum("red_sandstone", "purpur", "prismarine_rough", "prismarine_dark", "prismarine_brick", "mossy_cobblestone", "smooth_sandstone", "red_nether_brick")]
 		public string StoneSlabType2 { get; set; } = "red_sandstone";
@@ -17181,7 +17181,7 @@ namespace MiNET.Blocks
 
 	public partial class StoneBlockSlab3 : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stone_block_slab3";
+		public override string Id => "minecraft:stone_block_slab3";
 
 		[StateEnum("end_stone_brick", "smooth_red_sandstone", "polished_andesite", "andesite", "diorite", "polished_diorite", "granite", "polished_granite")]
 		public string StoneSlabType3 { get; set; } = "end_stone_brick";
@@ -17217,7 +17217,7 @@ namespace MiNET.Blocks
 
 	public partial class StoneBlockSlab4 : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stone_block_slab4";
+		public override string Id => "minecraft:stone_block_slab4";
 
 		[StateEnum("smooth_quartz", "stone", "cut_sandstone", "cut_red_sandstone", "mossy_stone_brick")]
 		public string StoneSlabType4 { get; set; } = "";
@@ -17253,7 +17253,7 @@ namespace MiNET.Blocks
 
 	public partial class StoneBrickStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:stone_brick_stairs";
+		public override string Id => "minecraft:stone_brick_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -17289,7 +17289,7 @@ namespace MiNET.Blocks
 
 	public partial class StoneButton
 	{
-		public override string Id { get; protected set; } = "minecraft:stone_button";
+		public override string Id => "minecraft:stone_button";
 
 		[StateBit]
 		public override bool ButtonPressedBit { get; set; } = false;
@@ -17325,7 +17325,7 @@ namespace MiNET.Blocks
 
 	public partial class StonePressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:stone_pressure_plate";
+		public override string Id => "minecraft:stone_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -17354,7 +17354,7 @@ namespace MiNET.Blocks
 
 	public partial class StoneStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:stone_stairs";
+		public override string Id => "minecraft:stone_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -17390,7 +17390,7 @@ namespace MiNET.Blocks
 
 	public partial class Stonebrick : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:stonebrick";
+		public override string Id => "minecraft:stonebrick";
 
 		[StateEnum("mossy", "cracked", "chiseled", "smooth", "default")]
 		public string StoneBrickType { get; set; } = "";
@@ -17419,7 +17419,7 @@ namespace MiNET.Blocks
 
 	public partial class Stonecutter : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:stonecutter";
+		public override string Id => "minecraft:stonecutter";
 
 		public override BlockStateContainer GetState()
 		{
@@ -17431,7 +17431,7 @@ namespace MiNET.Blocks
 
 	public partial class StonecutterBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:stonecutter_block";
+		public override string Id => "minecraft:stonecutter_block";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -17460,7 +17460,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedAcaciaLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_acacia_log";
+		public override string Id => "minecraft:stripped_acacia_log";
 
 		[StateEnum("x", "z", "y")]
 		public override string PillarAxis { get; set; } = "";
@@ -17489,7 +17489,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedBambooBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_bamboo_block";
+		public override string Id => "minecraft:stripped_bamboo_block";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -17518,7 +17518,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedBirchLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_birch_log";
+		public override string Id => "minecraft:stripped_birch_log";
 
 		[StateEnum("x", "z", "y")]
 		public override string PillarAxis { get; set; } = "";
@@ -17547,7 +17547,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedCherryLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_cherry_log";
+		public override string Id => "minecraft:stripped_cherry_log";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -17576,7 +17576,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedCherryWood : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_cherry_wood";
+		public override string Id => "minecraft:stripped_cherry_wood";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -17605,7 +17605,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedCrimsonHyphae : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_crimson_hyphae";
+		public override string Id => "minecraft:stripped_crimson_hyphae";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -17634,7 +17634,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedCrimsonStem : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_crimson_stem";
+		public override string Id => "minecraft:stripped_crimson_stem";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -17663,7 +17663,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedDarkOakLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_dark_oak_log";
+		public override string Id => "minecraft:stripped_dark_oak_log";
 
 		[StateEnum("x", "z", "y")]
 		public override string PillarAxis { get; set; } = "";
@@ -17692,7 +17692,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedJungleLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_jungle_log";
+		public override string Id => "minecraft:stripped_jungle_log";
 
 		[StateEnum("x", "z", "y")]
 		public override string PillarAxis { get; set; } = "";
@@ -17721,7 +17721,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedMangroveLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_mangrove_log";
+		public override string Id => "minecraft:stripped_mangrove_log";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -17750,7 +17750,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedMangroveWood : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_mangrove_wood";
+		public override string Id => "minecraft:stripped_mangrove_wood";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -17779,7 +17779,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedOakLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_oak_log";
+		public override string Id => "minecraft:stripped_oak_log";
 
 		[StateEnum("x", "z", "y")]
 		public override string PillarAxis { get; set; } = "";
@@ -17808,7 +17808,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedSpruceLog : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_spruce_log";
+		public override string Id => "minecraft:stripped_spruce_log";
 
 		[StateEnum("x", "z", "y")]
 		public override string PillarAxis { get; set; } = "";
@@ -17837,7 +17837,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedWarpedHyphae : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_warped_hyphae";
+		public override string Id => "minecraft:stripped_warped_hyphae";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -17866,7 +17866,7 @@ namespace MiNET.Blocks
 
 	public partial class StrippedWarpedStem : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:stripped_warped_stem";
+		public override string Id => "minecraft:stripped_warped_stem";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -17895,7 +17895,7 @@ namespace MiNET.Blocks
 
 	public partial class StructureBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:structure_block";
+		public override string Id => "minecraft:structure_block";
 
 		[StateEnum("save", "load", "corner", "invalid", "export", "data")]
 		public string StructureBlockType { get; set; } = "";
@@ -17924,7 +17924,7 @@ namespace MiNET.Blocks
 
 	public partial class StructureVoid : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:structure_void";
+		public override string Id => "minecraft:structure_void";
 
 		[StateEnum("void", "air")]
 		public string StructureVoidType { get; set; } = "void";
@@ -17953,7 +17953,7 @@ namespace MiNET.Blocks
 
 	public partial class SuspiciousGravel : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:suspicious_gravel";
+		public override string Id => "minecraft:suspicious_gravel";
 
 		[StateRange(0, 3)]
 		public int BrushedProgress { get; set; } = 0;
@@ -17989,7 +17989,7 @@ namespace MiNET.Blocks
 
 	public partial class SuspiciousSand : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:suspicious_sand";
+		public override string Id => "minecraft:suspicious_sand";
 
 		[StateRange(0, 3)]
 		public int BrushedProgress { get; set; } = 0;
@@ -18025,7 +18025,7 @@ namespace MiNET.Blocks
 
 	public partial class SweetBerryBush : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:sweet_berry_bush";
+		public override string Id => "minecraft:sweet_berry_bush";
 
 		[StateRange(0, 7)]
 		public int Growth { get; set; } = 0;
@@ -18054,7 +18054,7 @@ namespace MiNET.Blocks
 
 	public partial class Tallgrass : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:tallgrass";
+		public override string Id => "minecraft:tallgrass";
 
 		[StateEnum("default", "tall", "fern", "snow")]
 		public string TallGrassType { get; set; } = "default";
@@ -18083,7 +18083,7 @@ namespace MiNET.Blocks
 
 	public partial class Target : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:target";
+		public override string Id => "minecraft:target";
 
 		public override BlockStateContainer GetState()
 		{
@@ -18095,7 +18095,7 @@ namespace MiNET.Blocks
 
 	public partial class TintedGlass : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:tinted_glass";
+		public override string Id => "minecraft:tinted_glass";
 
 		public override BlockStateContainer GetState()
 		{
@@ -18107,7 +18107,7 @@ namespace MiNET.Blocks
 
 	public partial class Tnt : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:tnt";
+		public override string Id => "minecraft:tnt";
 
 		[StateBit]
 		public bool AllowUnderwaterBit { get; set; } = false;
@@ -18143,7 +18143,7 @@ namespace MiNET.Blocks
 
 	public partial class Torch : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:torch";
+		public override string Id => "minecraft:torch";
 
 		[StateEnum("west", "east", "north", "south", "top", "unknown")]
 		public string TorchFacingDirection { get; set; } = "";
@@ -18172,7 +18172,7 @@ namespace MiNET.Blocks
 
 	public partial class Torchflower : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:torchflower";
+		public override string Id => "minecraft:torchflower";
 
 		public override BlockStateContainer GetState()
 		{
@@ -18184,7 +18184,7 @@ namespace MiNET.Blocks
 
 	public partial class TorchflowerCrop : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:torchflower_crop";
+		public override string Id => "minecraft:torchflower_crop";
 
 		[StateRange(0, 7)]
 		public int Growth { get; set; } = 0;
@@ -18213,7 +18213,7 @@ namespace MiNET.Blocks
 
 	public partial class Trapdoor
 	{
-		public override string Id { get; protected set; } = "minecraft:trapdoor";
+		public override string Id => "minecraft:trapdoor";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 0;
@@ -18256,7 +18256,7 @@ namespace MiNET.Blocks
 
 	public partial class TrappedChest
 	{
-		public override string Id { get; protected set; } = "minecraft:trapped_chest";
+		public override string Id => "minecraft:trapped_chest";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -18285,7 +18285,7 @@ namespace MiNET.Blocks
 
 	public partial class TripWire : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:trip_wire";
+		public override string Id => "minecraft:trip_wire";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -18335,7 +18335,7 @@ namespace MiNET.Blocks
 
 	public partial class TripwireHook : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:tripwire_hook";
+		public override string Id => "minecraft:tripwire_hook";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -18378,7 +18378,7 @@ namespace MiNET.Blocks
 
 	public partial class Tuff : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:tuff";
+		public override string Id => "minecraft:tuff";
 
 		public override BlockStateContainer GetState()
 		{
@@ -18390,7 +18390,7 @@ namespace MiNET.Blocks
 
 	public partial class TurtleEgg : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:turtle_egg";
+		public override string Id => "minecraft:turtle_egg";
 
 		[StateEnum("cracked", "max_cracked", "no_cracks")]
 		public string CrackedState { get; set; } = "";
@@ -18426,7 +18426,7 @@ namespace MiNET.Blocks
 
 	public partial class TwistingVines : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:twisting_vines";
+		public override string Id => "minecraft:twisting_vines";
 
 		[StateRange(0, 25)]
 		public int TwistingVinesAge { get; set; } = 0;
@@ -18455,7 +18455,7 @@ namespace MiNET.Blocks
 
 	public partial class UnderwaterTorch : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:underwater_torch";
+		public override string Id => "minecraft:underwater_torch";
 
 		[StateEnum("west", "east", "north", "south", "top", "unknown")]
 		public string TorchFacingDirection { get; set; } = "";
@@ -18484,7 +18484,7 @@ namespace MiNET.Blocks
 
 	public partial class UndyedShulkerBox : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:undyed_shulker_box";
+		public override string Id => "minecraft:undyed_shulker_box";
 
 		public override BlockStateContainer GetState()
 		{
@@ -18496,7 +18496,7 @@ namespace MiNET.Blocks
 
 	public partial class Unknown : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:unknown";
+		public override string Id => "minecraft:unknown";
 
 		public override BlockStateContainer GetState()
 		{
@@ -18508,7 +18508,7 @@ namespace MiNET.Blocks
 
 	public partial class UnlitRedstoneTorch
 	{
-		public override string Id { get; protected set; } = "minecraft:unlit_redstone_torch";
+		public override string Id => "minecraft:unlit_redstone_torch";
 
 		[StateEnum("west", "east", "north", "south", "top", "unknown")]
 		public override string TorchFacingDirection { get; set; } = "";
@@ -18537,7 +18537,7 @@ namespace MiNET.Blocks
 
 	public partial class UnpoweredComparator
 	{
-		public override string Id { get; protected set; } = "minecraft:unpowered_comparator";
+		public override string Id => "minecraft:unpowered_comparator";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -18580,7 +18580,7 @@ namespace MiNET.Blocks
 
 	public partial class UnpoweredRepeater
 	{
-		public override string Id { get; protected set; } = "minecraft:unpowered_repeater";
+		public override string Id => "minecraft:unpowered_repeater";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -18616,7 +18616,7 @@ namespace MiNET.Blocks
 
 	public partial class VerdantFroglight : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:verdant_froglight";
+		public override string Id => "minecraft:verdant_froglight";
 
 		[StateEnum("y", "x", "z")]
 		public string PillarAxis { get; set; } = "y";
@@ -18645,7 +18645,7 @@ namespace MiNET.Blocks
 
 	public partial class Vine : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:vine";
+		public override string Id => "minecraft:vine";
 
 		[StateRange(0, 15)]
 		public int VineDirectionBits { get; set; } = 0;
@@ -18674,7 +18674,7 @@ namespace MiNET.Blocks
 
 	public partial class WallBanner : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:wall_banner";
+		public override string Id => "minecraft:wall_banner";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -18703,7 +18703,7 @@ namespace MiNET.Blocks
 
 	public partial class WallSign
 	{
-		public override string Id { get; protected set; } = "minecraft:wall_sign";
+		public override string Id => "minecraft:wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -18732,7 +18732,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedButton : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_button";
+		public override string Id => "minecraft:warped_button";
 
 		[StateBit]
 		public bool ButtonPressedBit { get; set; } = false;
@@ -18768,7 +18768,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedDoor : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_door";
+		public override string Id => "minecraft:warped_door";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -18818,7 +18818,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedDoubleSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_double_slab";
+		public override string Id => "minecraft:warped_double_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -18847,7 +18847,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedFence : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_fence";
+		public override string Id => "minecraft:warped_fence";
 
 		public override BlockStateContainer GetState()
 		{
@@ -18859,7 +18859,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedFenceGate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_fence_gate";
+		public override string Id => "minecraft:warped_fence_gate";
 
 		[StateRange(0, 3)]
 		public int Direction { get; set; } = 0;
@@ -18902,7 +18902,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedFungus : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_fungus";
+		public override string Id => "minecraft:warped_fungus";
 
 		public override BlockStateContainer GetState()
 		{
@@ -18914,7 +18914,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedHangingSign : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_hanging_sign";
+		public override string Id => "minecraft:warped_hanging_sign";
 
 		[StateBit]
 		public bool AttachedBit { get; set; } = false;
@@ -18964,7 +18964,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedHyphae : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_hyphae";
+		public override string Id => "minecraft:warped_hyphae";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -18993,7 +18993,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedNylium : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_nylium";
+		public override string Id => "minecraft:warped_nylium";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19005,7 +19005,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedPlanks : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_planks";
+		public override string Id => "minecraft:warped_planks";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19017,7 +19017,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedPressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_pressure_plate";
+		public override string Id => "minecraft:warped_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -19046,7 +19046,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedRoots : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_roots";
+		public override string Id => "minecraft:warped_roots";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19058,7 +19058,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_slab";
+		public override string Id => "minecraft:warped_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19087,7 +19087,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedStairs
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_stairs";
+		public override string Id => "minecraft:warped_stairs";
 
 		[StateBit]
 		public override bool UpsideDownBit { get; set; } = false;
@@ -19123,7 +19123,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedStandingSign
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_standing_sign";
+		public override string Id => "minecraft:warped_standing_sign";
 
 		[StateRange(0, 15)]
 		public int GroundSignDirection { get; set; } = 0;
@@ -19152,7 +19152,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedStem : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_stem";
+		public override string Id => "minecraft:warped_stem";
 
 		[StateEnum("y", "x", "z")]
 		public override string PillarAxis { get; set; } = "y";
@@ -19181,7 +19181,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedTrapdoor
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_trapdoor";
+		public override string Id => "minecraft:warped_trapdoor";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 0;
@@ -19224,7 +19224,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedWallSign
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_wall_sign";
+		public override string Id => "minecraft:warped_wall_sign";
 
 		[StateRange(0, 5)]
 		public int FacingDirection { get; set; } = 0;
@@ -19253,7 +19253,7 @@ namespace MiNET.Blocks
 
 	public partial class WarpedWartBlock : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:warped_wart_block";
+		public override string Id => "minecraft:warped_wart_block";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19265,7 +19265,7 @@ namespace MiNET.Blocks
 
 	public partial class Water
 	{
-		public override string Id { get; protected set; } = "minecraft:water";
+		public override string Id => "minecraft:water";
 
 		[StateRange(0, 15)]
 		public override int LiquidDepth { get; set; } = 0;
@@ -19294,7 +19294,7 @@ namespace MiNET.Blocks
 
 	public partial class Waterlily : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waterlily";
+		public override string Id => "minecraft:waterlily";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19306,7 +19306,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_copper";
+		public override string Id => "minecraft:waxed_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19318,7 +19318,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedCutCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_cut_copper";
+		public override string Id => "minecraft:waxed_cut_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19330,7 +19330,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedCutCopperSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_cut_copper_slab";
+		public override string Id => "minecraft:waxed_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19359,7 +19359,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedCutCopperStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_cut_copper_stairs";
+		public override string Id => "minecraft:waxed_cut_copper_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -19395,7 +19395,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedDoubleCutCopperSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_double_cut_copper_slab";
+		public override string Id => "minecraft:waxed_double_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19424,7 +19424,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedExposedCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_exposed_copper";
+		public override string Id => "minecraft:waxed_exposed_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19436,7 +19436,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedExposedCutCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_exposed_cut_copper";
+		public override string Id => "minecraft:waxed_exposed_cut_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19448,7 +19448,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedExposedCutCopperSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_exposed_cut_copper_slab";
+		public override string Id => "minecraft:waxed_exposed_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19477,7 +19477,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedExposedCutCopperStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_exposed_cut_copper_stairs";
+		public override string Id => "minecraft:waxed_exposed_cut_copper_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -19513,7 +19513,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedExposedDoubleCutCopperSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_exposed_double_cut_copper_slab";
+		public override string Id => "minecraft:waxed_exposed_double_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19542,7 +19542,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedOxidizedCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_oxidized_copper";
+		public override string Id => "minecraft:waxed_oxidized_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19554,7 +19554,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedOxidizedCutCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_oxidized_cut_copper";
+		public override string Id => "minecraft:waxed_oxidized_cut_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19566,7 +19566,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedOxidizedCutCopperSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_oxidized_cut_copper_slab";
+		public override string Id => "minecraft:waxed_oxidized_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19595,7 +19595,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedOxidizedCutCopperStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_oxidized_cut_copper_stairs";
+		public override string Id => "minecraft:waxed_oxidized_cut_copper_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -19631,7 +19631,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedOxidizedDoubleCutCopperSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_oxidized_double_cut_copper_slab";
+		public override string Id => "minecraft:waxed_oxidized_double_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19660,7 +19660,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedWeatheredCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_weathered_copper";
+		public override string Id => "minecraft:waxed_weathered_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19672,7 +19672,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedWeatheredCutCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_weathered_cut_copper";
+		public override string Id => "minecraft:waxed_weathered_cut_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19684,7 +19684,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedWeatheredCutCopperSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_weathered_cut_copper_slab";
+		public override string Id => "minecraft:waxed_weathered_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19713,7 +19713,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedWeatheredCutCopperStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_weathered_cut_copper_stairs";
+		public override string Id => "minecraft:waxed_weathered_cut_copper_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -19749,7 +19749,7 @@ namespace MiNET.Blocks
 
 	public partial class WaxedWeatheredDoubleCutCopperSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:waxed_weathered_double_cut_copper_slab";
+		public override string Id => "minecraft:waxed_weathered_double_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19778,7 +19778,7 @@ namespace MiNET.Blocks
 
 	public partial class WeatheredCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:weathered_copper";
+		public override string Id => "minecraft:weathered_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19790,7 +19790,7 @@ namespace MiNET.Blocks
 
 	public partial class WeatheredCutCopper : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:weathered_cut_copper";
+		public override string Id => "minecraft:weathered_cut_copper";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19802,7 +19802,7 @@ namespace MiNET.Blocks
 
 	public partial class WeatheredCutCopperSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:weathered_cut_copper_slab";
+		public override string Id => "minecraft:weathered_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19831,7 +19831,7 @@ namespace MiNET.Blocks
 
 	public partial class WeatheredCutCopperStairs : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:weathered_cut_copper_stairs";
+		public override string Id => "minecraft:weathered_cut_copper_stairs";
 
 		[StateBit]
 		public bool UpsideDownBit { get; set; } = false;
@@ -19867,7 +19867,7 @@ namespace MiNET.Blocks
 
 	public partial class WeatheredDoubleCutCopperSlab : DoubleSlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:weathered_double_cut_copper_slab";
+		public override string Id => "minecraft:weathered_double_cut_copper_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -19896,7 +19896,7 @@ namespace MiNET.Blocks
 
 	public partial class Web : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:web";
+		public override string Id => "minecraft:web";
 
 		public override BlockStateContainer GetState()
 		{
@@ -19908,7 +19908,7 @@ namespace MiNET.Blocks
 
 	public partial class WeepingVines : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:weeping_vines";
+		public override string Id => "minecraft:weeping_vines";
 
 		[StateRange(0, 25)]
 		public int WeepingVinesAge { get; set; } = 0;
@@ -19937,7 +19937,7 @@ namespace MiNET.Blocks
 
 	public partial class Wheat
 	{
-		public override string Id { get; protected set; } = "minecraft:wheat";
+		public override string Id => "minecraft:wheat";
 
 		[StateRange(0, 7)]
 		public override int Growth { get; set; } = 0;
@@ -19966,7 +19966,7 @@ namespace MiNET.Blocks
 
 	public partial class WhiteCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:white_candle";
+		public override string Id => "minecraft:white_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -20002,7 +20002,7 @@ namespace MiNET.Blocks
 
 	public partial class WhiteCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:white_candle_cake";
+		public override string Id => "minecraft:white_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -20031,7 +20031,7 @@ namespace MiNET.Blocks
 
 	public partial class WhiteGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:white_glazed_terracotta";
+		public override string Id => "minecraft:white_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -20058,9 +20058,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class WhiteWool : Block
+	public partial class WhiteWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:white_wool";
+		public override string Id => "minecraft:white_wool";
 
 		public override BlockStateContainer GetState()
 		{
@@ -20072,7 +20072,7 @@ namespace MiNET.Blocks
 
 	public partial class WitherRose : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:wither_rose";
+		public override string Id => "minecraft:wither_rose";
 
 		public override BlockStateContainer GetState()
 		{
@@ -20084,7 +20084,7 @@ namespace MiNET.Blocks
 
 	public partial class Wood : LogBase
 	{
-		public override string Id { get; protected set; } = "minecraft:wood";
+		public override string Id => "minecraft:wood";
 
 		[StateEnum("x", "z", "y")]
 		public override string PillarAxis { get; set; } = "x";
@@ -20127,7 +20127,7 @@ namespace MiNET.Blocks
 
 	public partial class WoodenButton
 	{
-		public override string Id { get; protected set; } = "minecraft:wooden_button";
+		public override string Id => "minecraft:wooden_button";
 
 		[StateBit]
 		public override bool ButtonPressedBit { get; set; } = false;
@@ -20163,7 +20163,7 @@ namespace MiNET.Blocks
 
 	public partial class WoodenDoor
 	{
-		public override string Id { get; protected set; } = "minecraft:wooden_door";
+		public override string Id => "minecraft:wooden_door";
 
 		[StateRange(0, 3)]
 		public override int Direction { get; set; } = 1;
@@ -20213,7 +20213,7 @@ namespace MiNET.Blocks
 
 	public partial class WoodenPressurePlate : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:wooden_pressure_plate";
+		public override string Id => "minecraft:wooden_pressure_plate";
 
 		[StateRange(0, 15)]
 		public int RedstoneSignal { get; set; } = 0;
@@ -20242,7 +20242,7 @@ namespace MiNET.Blocks
 
 	public partial class WoodenSlab : SlabBase
 	{
-		public override string Id { get; protected set; } = "minecraft:wooden_slab";
+		public override string Id => "minecraft:wooden_slab";
 
 		[StateBit]
 		public override bool TopSlotBit { get; set; } = false;
@@ -20278,7 +20278,7 @@ namespace MiNET.Blocks
 
 	public partial class YellowCandle : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:yellow_candle";
+		public override string Id => "minecraft:yellow_candle";
 
 		[StateRange(0, 3)]
 		public int Candles { get; set; } = 0;
@@ -20314,7 +20314,7 @@ namespace MiNET.Blocks
 
 	public partial class YellowCandleCake : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:yellow_candle_cake";
+		public override string Id => "minecraft:yellow_candle_cake";
 
 		[StateBit]
 		public bool Lit { get; set; } = false;
@@ -20343,7 +20343,7 @@ namespace MiNET.Blocks
 
 	public partial class YellowFlower : Block
 	{
-		public override string Id { get; protected set; } = "minecraft:yellow_flower";
+		public override string Id => "minecraft:yellow_flower";
 
 		public override BlockStateContainer GetState()
 		{
@@ -20355,7 +20355,7 @@ namespace MiNET.Blocks
 
 	public partial class YellowGlazedTerracotta
 	{
-		public override string Id { get; protected set; } = "minecraft:yellow_glazed_terracotta";
+		public override string Id => "minecraft:yellow_glazed_terracotta";
 
 		[StateRange(0, 5)]
 		public override int FacingDirection { get; set; } = 0;
@@ -20382,9 +20382,9 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class YellowWool : Block
+	public partial class YellowWool : WoolBase
 	{
-		public override string Id { get; protected set; } = "minecraft:yellow_wool";
+		public override string Id => "minecraft:yellow_wool";
 
 		public override BlockStateContainer GetState()
 		{

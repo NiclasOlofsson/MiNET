@@ -1964,10 +1964,6 @@ namespace MiNET
 		{
 			string text = message.message;
 
-			if (text == "s") SetGameMode(GameMode.Survival);
-			if (text == "c") SetGameMode(GameMode.Creative);
-			if (text == "d") Level.WorldTime = 0;
-
 			if (string.IsNullOrEmpty(text)) return;
 
 			Level.BroadcastMessage(text, sender: this);

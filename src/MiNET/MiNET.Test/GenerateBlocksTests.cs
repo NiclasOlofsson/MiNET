@@ -185,7 +185,8 @@ namespace MiNET.Test
 			var blockRecordsGrouping = blockPalette
 					.OrderBy(record => record.Id)
 					.ThenBy(record => record.Data)
-					.GroupBy(record => record.Id);
+					.GroupBy(record => record.Id)
+					.ToArray();
 
 			var idToTag = ItemFactory.ItemTags
 				.SelectMany(tag => tag.Value.Select(itemId => (itemId, tag: tag.Key)))
@@ -378,9 +379,9 @@ namespace MiNET.Test
 				}
 			}
 
-			if (id.Contains("_double_slab") || (name.StartsWith("double_") && name.EndsWith("_slab")))
+			if (name.Contains("double_") && name.Contains("_slab"))
 			{
-				//return typeof(DoubleSlabBase).Name;
+				return typeof(DoubleSlabBase).Name;
 			}
 			else if (id.Contains("_slab"))
 			{

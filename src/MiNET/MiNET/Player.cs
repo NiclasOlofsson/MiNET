@@ -2893,11 +2893,6 @@ namespace MiNET
 
 		public virtual void HandleMcpeBlockPickRequest(McpeBlockPickRequest message)
 		{
-			if (GameMode != GameMode.Creative)
-			{
-				return;
-			}
-
 			Block block = Level.GetBlock(message.x, message.y, message.z);
 			Log.Debug($"Picked block {block.Id} from blockstate {block.GetRuntimeId()}. Expected block to be in slot {message.selectedSlot}");
 			Item item = block.GetItem();
@@ -2907,7 +2902,19 @@ namespace MiNET
 			}
 			if (item == null) return;
 
-			Inventory.SetInventorySlot(Inventory.InHandSlot, item, true);
+			for (var i = 0; i < PlayerInventory.HotbarSize; i++)
+			{
+				if (Inventory.Slots[i].Equals(item))
+				{
+					Inventory.SetHeldItemSlot(i);
+					return;
+				}
+			}
+
+			if (GameMode == GameMode.Creative)
+			{
+				Inventory.SetInventorySlot(Inventory.InHandSlot, item, true);
+			}
 		}
 
 		public virtual void HandleMcpeEntityPickRequest(McpeEntityPickRequest message)

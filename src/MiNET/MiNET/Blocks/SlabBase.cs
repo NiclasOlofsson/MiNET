@@ -23,7 +23,9 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Numerics;
+using MiNET.Items;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -31,7 +33,23 @@ namespace MiNET.Blocks
 {
 	public abstract class SlabBase : Block
 	{
-		[StateBit] public virtual bool TopSlotBit { get; set; } = false;
+		public static Dictionary<string, string> DoubleSlabToSlabMap { get; } = new Dictionary<string, string>();
+		public static Dictionary<string, string> SlabToDoubleSlabMap { get; } = new Dictionary<string, string>();
+
+		static SlabBase()
+		{
+			foreach (var id in BlockFactory.Ids)
+			{
+				if (id.Contains("_slab") && id.Contains("double_"))
+				{
+					var slabId = id.Replace("double_", "");
+					SlabToDoubleSlabMap.Add(slabId, id);
+					DoubleSlabToSlabMap.Add(id, slabId);
+				}
+			}
+		}
+
+		public virtual bool TopSlotBit { get; set; } = false;
 
 		protected SlabBase(string id = null) : base(id)
 		{
@@ -89,6 +107,16 @@ namespace MiNET.Blocks
 			return true;
 		}
 
+		public override Item GetItem(bool blockItem = false)
+		{
+			var item = base.GetItem(blockItem) as ItemBlock;
+			var block = item.Block as SlabBase;
+
+			block.TopSlotBit = false;
+
+			return item;
+		}
+
 		protected virtual bool AreSameType(Block obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
@@ -98,10 +126,7 @@ namespace MiNET.Blocks
 
 		protected void SetDoubleSlab(Level world, BlockCoordinates coordinates)
 		{
-			var name = Id.Replace("minecraft:", "");
-			var id = name.Contains("stone_block_slab") ? $"minecraft:double_{name}" : Id.Replace("slab", "double_slab");
-
-			Block slab = BlockFactory.GetBlockById(id);
+			var slab = BlockFactory.GetBlockById(SlabToDoubleSlabMap[Id]);
 			slab.Coordinates = coordinates;
 			slab.SetState(GetState());
 			world.SetBlock(slab);

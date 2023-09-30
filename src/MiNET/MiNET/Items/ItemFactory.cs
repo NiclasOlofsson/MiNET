@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using fNbt;
 using log4net;
 using MiNET.Blocks;
@@ -22,6 +23,7 @@ namespace MiNET.Items
 		public static Dictionary<int, string> RuntimeIdToId { get; private set; }
 		public static Dictionary<string, Type> IdToType { get; private set; } = new Dictionary<string, Type>();
 		public static Dictionary<Type, string> TypeToId { get; private set; } = new Dictionary<Type, string>();
+		public static Dictionary<string, Func<Item>> IdToFactory { get; private set; } = new Dictionary<string, Func<Item>>();
 		public static Dictionary<string, string[]> ItemTags { get; private set; } = new Dictionary<string, string[]>();
 
 		public static Itemstates Itemstates { get; internal set; } = new Itemstates();
@@ -39,6 +41,7 @@ namespace MiNET.Items
 
 			RuntimeIdToId = BuildRuntimeIdToId();
 			(IdToType, TypeToId) = BuildIdTypeMapPair();
+			IdToFactory = BuildIdToFactory();
 		}
 
 		public static string GetIdByType<T>()
@@ -61,12 +64,12 @@ namespace MiNET.Items
 			return RuntimeIdToId.GetValueOrDefault(id);
 		}
 
-		public static Item FromNbt(NbtTag tag)
+		public static Item FromNbt<T>(NbtTag tag) where T : Item
 		{
-			return FromNbt<Item>(tag);
+			return (T) FromNbt(tag);
 		}
 
-		public static Item FromNbt<T>(NbtTag tag) where T : Item
+		public static Item FromNbt(NbtTag tag)
 		{
 			// TODO - rework on serialization
 			var id = tag["Name"].StringValue;
@@ -99,30 +102,30 @@ namespace MiNET.Items
 			return GetItem<ItemBlock>(BlockFactory.GetIdByType<T>(), metadata, count) ?? GetItem<Air>();
 		}
 
-		public static Item GetItem(int runtimeId, short metadata = 0, int count = 1)
-		{
-			return GetItem<Item>(runtimeId, metadata, count) ?? new ItemAir();
-		}
-
 		public static T GetItem<T>(int runtimeId, short metadata = 0, int count = 1) where T : Item
 		{
-			return GetItem<T>(GetIdByRuntimeId(runtimeId), metadata, count);
+			return (T) GetItem(runtimeId, metadata, count);
 		}
 
-		public static Item GetItem(string id, short metadata = 0, int count = 1)
+		public static Item GetItem(int runtimeId, short metadata = 0, int count = 1)
 		{
-			return GetItem<Item>(id, metadata, count) ?? new ItemAir();
+			return GetItem(GetIdByRuntimeId(runtimeId), metadata, count);
 		}
 
 		public static T GetItem<T>(string id, short metadata = 0, int count = 1) where T : Item
 		{
+			return (T) GetItem(id, metadata, count);
+		}
+
+		public static Item GetItem(string id, short metadata = 0, int count = 1)
+		{
 			if (CustomItemFactory != null)
 			{
-				var customItem = CustomItemFactory.GetItem(id, metadata, count) as T;
+				var customItem = CustomItemFactory.GetItem(id, metadata, count);
 				if (customItem != null) return customItem;
 			}
 
-			var item = GetItemInstance<T>(id);
+			var item = GetItemInstance(id);
 
 			if (item != null)
 			{
@@ -136,22 +139,18 @@ namespace MiNET.Items
 
 				if (block != null)
 				{
-					item = (T) (object) new ItemBlock(block, metadata) { Count = (byte) count };
+					item = new ItemBlock(block, metadata) { Count = (byte) count };
 				}
 			}
 
-			return item;
+			return item ?? new ItemAir();
 		}
 
-		private static T GetItemInstance<T>(string id) where T : Item
+		private static Item GetItemInstance(string id)
 		{
 			if (string.IsNullOrEmpty(id)) return null;
 
-			var type = IdToType.GetValueOrDefault(id);
-
-			if (type == null) return null;
-
-			return (T) Activator.CreateInstance(type);
+			return IdToFactory.GetValueOrDefault(id)?.Invoke();
 		}
 
 		private static (Dictionary<string, Type>, Dictionary<Type, string>) BuildIdTypeMapPair()
@@ -197,6 +196,23 @@ namespace MiNET.Items
 			}
 
 			return runtimeIdToId;
+		}
+
+		private static Dictionary<string, Func<Item>> BuildIdToFactory()
+		{
+			var idToFactory = new Dictionary<string, Func<Item>>();
+
+			foreach (var pair in IdToType)
+			{
+				// faster then Activator.CreateInstance
+				var constructorExpression = Expression.New(pair.Value);
+				var lambdaExpression = Expression.Lambda<Func<Item>>(constructorExpression);
+				var createFunc = lambdaExpression.Compile();
+
+				idToFactory.Add(pair.Key, createFunc);
+			}
+
+			return idToFactory;
 		}
 	}
 }

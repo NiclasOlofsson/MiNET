@@ -23,24 +23,15 @@
 
 #endregion
 
-using MiNET.Items;
-
 namespace MiNET.Blocks
 {
-	public partial class DoubleWoodenSlab : Block
+	public partial class DoubleWoodenSlab
 	{
 		public DoubleWoodenSlab() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 2;
 			IsFlammable = true;
-		}
-
-		public override Item[] GetDrops(Item tool)
-		{
-			var items = base.GetDrops(tool);
-			items[0].Count = 2;
-			return items;
 		}
 	}
 }

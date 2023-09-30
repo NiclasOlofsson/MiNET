@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using fNbt;
 using log4net;
-using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -39,13 +39,15 @@ namespace MiNET.Blocks
 		public static byte[] TransparentBlocks { get; private set; }
 		public static byte[] LuminousBlocks { get; private set; }
 
-		public static Dictionary<string, R12ToCurrentBlockMapEntry> NameToBlockMapEntry { get; private set; } = new Dictionary<string, R12ToCurrentBlockMapEntry>();
+		public static Dictionary<string, BlockStateContainer> MetaBlockNameToState { get; private set; } = new Dictionary<string, BlockStateContainer>();
 		public static Dictionary<int, string> RuntimeIdToId { get; private set; }
 		public static Dictionary<string, Type> IdToType { get; private set; } = new Dictionary<string, Type>();
 		public static Dictionary<Type, string> TypeToId { get; private set; } = new Dictionary<Type, string>();
+		public static Dictionary<string, Func<Block>> IdToFactory { get; private set; } = new Dictionary<string, Func<Block>>();
 		public static Dictionary<string, string> ItemToBlock { get; private set; }
 
-		public static BlockPalette BlockPalette { get; set; }
+		public static List<string> Ids { get; set; }
+		public static BlockPalette BlockPalette { get; } = new BlockPalette();
 		public static HashSet<BlockStateContainer> BlockStates { get; set; }
 
 		private static readonly object _lockObj = new object();
@@ -57,7 +59,7 @@ namespace MiNET.Blocks
 			lock (_lockObj)
 			{
 				int runtimeId = 0;
-				BlockPalette = new BlockPalette();
+				var ids = new HashSet<string>();
 
 				using (var stream = assembly.GetManifestResourceStream(typeof(BlockFactory).Namespace + ".Data.canonical_block_states.nbt"))
 				{
@@ -67,11 +69,15 @@ namespace MiNET.Blocks
 						var container = GetBlockStateContainer(compound);
 
 						container.RuntimeId = runtimeId++;
+						ids.Add(container.Id);
 						BlockPalette.Add(container);
 					} while (stream.Position < stream.Length);
 				}
 
-				var visitedContainers = new HashSet<BlockStateContainer>();
+				Ids = ids.ToList();
+
+				var blockMapEntry = new List<R12ToCurrentBlockMapEntry>();
+
 				using (var stream = assembly.GetManifestResourceStream(typeof(BlockFactory).Namespace + ".Data.r12_to_current_block_map.bin"))
 				{
 					while (stream.Position < stream.Length)
@@ -89,11 +95,7 @@ namespace MiNET.Blocks
 						var compound = Packet.ReadNbtCompound(stream, true);
 
 						var state = GetBlockStateContainer(compound);
-						//if (!visitedContainers.TryGetValue(state, out _))
-						{
-							NameToBlockMapEntry.Add(GetMetaBlockName(stringId, meta), new R12ToCurrentBlockMapEntry(stringId, meta, state));
-							visitedContainers.Add(state);
-						}
+						blockMapEntry.Add(new R12ToCurrentBlockMapEntry(stringId, meta, state));
 					}
 				}
 
@@ -111,16 +113,15 @@ namespace MiNET.Blocks
 					}
 
 					candidates.Add(index);
-
 					idToStatesMap[state.Id] = candidates;
 				}
 
-				foreach (var pair in NameToBlockMapEntry.Values)
+				foreach (var entry in blockMapEntry)
 				{
-					var data = pair.Meta;
+					var data = entry.Meta;
 
-					var mappedState = pair.State;
-					var mappedName = pair.State.Id;
+					var mappedState = entry.State;
+					var mappedName = entry.State.Id;
 
 					if (!idToStatesMap.TryGetValue(mappedName, out var matching))
 					{
@@ -140,9 +141,11 @@ namespace MiNET.Blocks
 						{
 							BlockPalette[match].Data = data;
 
+							var id = blockIdItemIdMap.GetValueOrDefault(mappedName, mappedName);
+
 							BlockPalette[match].ItemInstance = new ItemPickInstance()
 							{
-								Id = blockIdItemIdMap.GetValueOrDefault(mappedName, mappedName),
+								Id = id,
 								Metadata = data,
 								WantNbt = false
 							};
@@ -187,11 +190,14 @@ namespace MiNET.Blocks
 					byte[] nbtBinary = nbt.SaveToBuffer(NbtCompression.None);
 
 					record.StatesCacheNbt = nbtBinary;
+
+					MetaBlockNameToState.TryAdd(GetMetaBlockName(record.Id, record.Data), record);
 				}
 
 				BlockStates = new HashSet<BlockStateContainer>(BlockPalette);
 
 				(IdToType, TypeToId) = BuildIdTypeMapPair();
+				IdToFactory = BuildIdToFactory();
 				RuntimeIdToId = BuildRuntimeIdToId();
 				(TransparentBlocks, LuminousBlocks) = BuildTransperentAndLuminousMapPair();
 			}
@@ -247,12 +253,12 @@ namespace MiNET.Blocks
 			return result;
 		}
 
-		public static Block FromNbt(NbtTag tag)
+		public static T FromNbt<T>(NbtTag tag) where T : Block
 		{
-			return FromNbt<Block>(tag);
+			return (T) FromNbt(tag);
 		}
 
-		public static Block FromNbt<T>(NbtTag compound) where T : Block
+		public static Block FromNbt(NbtTag compound)
 		{
 			// TODO - rework on serialization
 			var id = compound["name"].StringValue;
@@ -326,26 +332,21 @@ namespace MiNET.Blocks
 			return RuntimeIdToId.GetValueOrDefault(id);
 		}
 
-		public static Block GetBlockById(string id)
+		public static T GetBlockById<T>(string id, short metadata) where T : Block
 		{
-			return GetBlockById<Block>(id);
+			return (T) GetBlockById(id, metadata);
 		}
 
 		public static Block GetBlockById(string id, short metadata)
 		{
-			return GetBlockById<Block>(id, metadata);
-		}
+			var block = GetBlockById(id);
 
-		public static T GetBlockById<T>(string id, short metadata) where T : Block
-		{
-			var block = GetBlockById<T>(id);
-
-			if (!NameToBlockMapEntry.TryGetValue(GetMetaBlockName(id, metadata), out var map))
+			if (!MetaBlockNameToState.TryGetValue(GetMetaBlockName(id, metadata), out var map))
 			{
 				return block;
 			}
 
-			block.SetState(map.State);
+			block.SetState(map.States);
 			block.Metadata = (byte) metadata;
 
 			return block;
@@ -353,13 +354,14 @@ namespace MiNET.Blocks
 
 		public static T GetBlockById<T>(string id) where T : Block
 		{
+			return (T) GetBlockById(id);
+		}
+
+		public static Block GetBlockById(string id)
+		{
 			if (string.IsNullOrEmpty(id)) return null;
-
-			var type = IdToType.GetValueOrDefault(id);
-
-			if (type == null) return null;
-
-			return (T) Activator.CreateInstance(type);
+			
+			return IdToFactory.GetValueOrDefault(id)?.Invoke();
 		}
 
 		public static Block GetBlockByRuntimeId(int runtimeId)
@@ -421,6 +423,23 @@ namespace MiNET.Blocks
 			}
 
 			return (idToType, typeToId);
+		}
+
+		private static Dictionary<string, Func<Block>> BuildIdToFactory()
+		{
+			var idToFactory = new Dictionary<string, Func<Block>>();
+
+			foreach (var pair in IdToType)
+			{
+				// faster then Activator.CreateInstance
+				var constructorExpression = Expression.New(pair.Value);
+				var lambdaExpression = Expression.Lambda<Func<Block>>(constructorExpression);
+				var createFunc = lambdaExpression.Compile();
+
+				idToFactory.Add(pair.Key, createFunc);
+			}
+
+			return idToFactory;
 		}
 
 		private static (byte[], byte[]) BuildTransperentAndLuminousMapPair()

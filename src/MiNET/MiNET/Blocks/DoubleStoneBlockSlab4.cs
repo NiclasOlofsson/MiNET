@@ -23,23 +23,14 @@
 
 #endregion
 
-using MiNET.Items;
-
 namespace MiNET.Blocks
 {
-	public partial class DoubleStoneSlab3 : Block
+	public partial class DoubleStoneBlockSlab4
 	{
-		public DoubleStoneSlab3() : base()
+		public DoubleStoneBlockSlab4() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 2;
-		}
-
-		public override Item[] GetDrops(Item tool)
-		{
-			var items = base.GetDrops(tool);
-			items[0].Count = 2;
-			return items;
 		}
 	}
 }

@@ -818,12 +818,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class BambooDoubleSlab : Block
+	public partial class BambooDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:bamboo_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -964,12 +964,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class BambooMosaicDoubleSlab : Block
+	public partial class BambooMosaicDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:bamboo_mosaic_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -2153,12 +2153,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class BlackstoneDoubleSlab : Block
+	public partial class BlackstoneDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:blackstone_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -3475,12 +3475,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class CherryDoubleSlab : Block
+	public partial class CherryDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:cherry_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -4148,12 +4148,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class CobbledDeepslateDoubleSlab : Block
+	public partial class CobbledDeepslateDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:cobbled_deepslate_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -5061,12 +5061,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class CrimsonDoubleSlab : Block
+	public partial class CrimsonDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:crimson_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -6241,12 +6241,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class DeepslateBrickDoubleSlab : Block
+	public partial class DeepslateBrickDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:deepslate_brick_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -6500,12 +6500,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class DeepslateTileDoubleSlab : Block
+	public partial class DeepslateTileDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:deepslate_tile_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -6848,12 +6848,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class DoubleCutCopperSlab : Block
+	public partial class DoubleCutCopperSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:double_cut_copper_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -6913,7 +6913,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class DoubleStoneBlockSlab : Block
+	public partial class DoubleStoneBlockSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:double_stone_block_slab";
 
@@ -6921,7 +6921,7 @@ namespace MiNET.Blocks
 		public string StoneSlabType { get; set; } = "smooth_stone";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -6949,7 +6949,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class DoubleStoneBlockSlab2 : SlabBase
+	public partial class DoubleStoneBlockSlab2 : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:double_stone_block_slab2";
 
@@ -6985,7 +6985,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class DoubleStoneBlockSlab3 : SlabBase
+	public partial class DoubleStoneBlockSlab3 : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:double_stone_block_slab3";
 
@@ -7021,7 +7021,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class DoubleStoneBlockSlab4 : SlabBase
+	public partial class DoubleStoneBlockSlab4 : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:double_stone_block_slab4";
 
@@ -7057,12 +7057,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class DoubleWoodenSlab : Block
+	public partial class DoubleWoodenSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:double_wooden_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		[StateEnum("spruce", "birch", "jungle", "acacia", "dark_oak", "oak")]
 		public string WoodType { get; set; } = "";
@@ -8896,7 +8896,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class ExposedDoubleCutCopperSlab : SlabBase
+	public partial class ExposedDoubleCutCopperSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:exposed_double_cut_copper_slab";
 
@@ -11769,12 +11769,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class MangroveDoubleSlab : Block
+	public partial class MangroveDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:mangrove_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -12509,12 +12509,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class MudBrickDoubleSlab : Block
+	public partial class MudBrickDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:mud_brick_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -13321,7 +13321,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class OxidizedDoubleCutCopperSlab : SlabBase
+	public partial class OxidizedDoubleCutCopperSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:oxidized_double_cut_copper_slab";
 
@@ -13757,12 +13757,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class PolishedBlackstoneBrickDoubleSlab : Block
+	public partial class PolishedBlackstoneBrickDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:polished_blackstone_brick_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -13956,12 +13956,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class PolishedBlackstoneDoubleSlab : Block
+	public partial class PolishedBlackstoneDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:polished_blackstone_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -14148,12 +14148,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class PolishedDeepslateDoubleSlab : Block
+	public partial class PolishedDeepslateDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:polished_deepslate_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -18816,12 +18816,12 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class WarpedDoubleSlab : Block
+	public partial class WarpedDoubleSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:warped_double_slab";
 
 		[StateBit]
-		public bool TopSlotBit { get; set; } = false;
+		public override bool TopSlotBit { get; set; } = false;
 
 		public override void SetState(List<IBlockState> states)
 		{
@@ -19393,7 +19393,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class WaxedDoubleCutCopperSlab : SlabBase
+	public partial class WaxedDoubleCutCopperSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:waxed_double_cut_copper_slab";
 
@@ -19511,7 +19511,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class WaxedExposedDoubleCutCopperSlab : SlabBase
+	public partial class WaxedExposedDoubleCutCopperSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:waxed_exposed_double_cut_copper_slab";
 
@@ -19629,7 +19629,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class WaxedOxidizedDoubleCutCopperSlab : SlabBase
+	public partial class WaxedOxidizedDoubleCutCopperSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:waxed_oxidized_double_cut_copper_slab";
 
@@ -19747,7 +19747,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class WaxedWeatheredDoubleCutCopperSlab : SlabBase
+	public partial class WaxedWeatheredDoubleCutCopperSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:waxed_weathered_double_cut_copper_slab";
 
@@ -19865,7 +19865,7 @@ namespace MiNET.Blocks
 		} // method
 	} // class
 
-	public partial class WeatheredDoubleCutCopperSlab : SlabBase
+	public partial class WeatheredDoubleCutCopperSlab : DoubleSlabBase
 	{
 		public override string Id { get; protected set; } = "minecraft:weathered_double_cut_copper_slab";
 

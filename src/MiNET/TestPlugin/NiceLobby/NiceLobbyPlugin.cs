@@ -45,6 +45,7 @@ using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
+using MiNET.Worlds.Anvil;
 
 namespace TestPlugin.NiceLobby
 {

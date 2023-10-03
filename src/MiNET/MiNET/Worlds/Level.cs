@@ -50,6 +50,7 @@ using MiNET.Utils.Diagnostics;
 using MiNET.Utils.IO;
 using MiNET.Utils.Nbt;
 using MiNET.Utils.Vectors;
+using MiNET.Worlds.Anvil;
 
 namespace MiNET.Worlds
 {
@@ -238,7 +239,7 @@ namespace MiNET.Worlds
 
 					foreach (var c in waste)
 					{
-						c.PutPool();
+						c.Dispose();
 					}
 
 					waste.ClearCache();
@@ -1054,7 +1055,7 @@ namespace MiNET.Worlds
 			var block = chunk.GetBlockObject(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 			byte blockLight = chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 			byte skyLight = chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
-			byte biomeId = chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Z & 0x0f);
+			byte biomeId = chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 
 			//Block block = BlockFactory.GetBlockById(bid);
 			block.Coordinates = blockCoordinates;
@@ -1142,7 +1143,7 @@ namespace MiNET.Worlds
 
 			if (chunk == null) return 0;
 
-			return chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Z & 0x0f);
+			return chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 		}
 
 		public ChunkColumn GetChunk(BlockCoordinates blockCoordinates, bool cacheOnly = false)
@@ -1153,7 +1154,7 @@ namespace MiNET.Worlds
 		public ChunkColumn GetChunk(ChunkCoordinates chunkCoordinates, bool cacheOnly = false)
 		{
 			var chunk = WorldProvider.GenerateChunkColumn(chunkCoordinates, cacheOnly);
-			if (chunk == null) Log.Debug($"Got <null> chunk at {chunkCoordinates}");
+			if (!cacheOnly && chunk == null) Log.Debug($"Got <null> chunk at {chunkCoordinates}");
 			return chunk;
 		}
 
@@ -1235,7 +1236,7 @@ namespace MiNET.Worlds
 		public void SetBiomeId(BlockCoordinates coordinates, byte biomeId)
 		{
 			ChunkColumn chunk = GetChunk(coordinates);
-			chunk?.SetBiome(coordinates.X & 0x0f, coordinates.Z & 0x0f, biomeId);
+			chunk?.SetBiome(coordinates.X & 0x0f, coordinates.Y, coordinates.Z & 0x0f, biomeId);
 		}
 
 		public void SetSkyLight(Block block)
@@ -1435,6 +1436,11 @@ namespace MiNET.Worlds
 
 				player.SendPacket(entityData);
 			}
+		}
+
+		public void BreakBlock(Block block, BlockEntity blockEntity = null, Item tool = null, BlockFace face = BlockFace.None)
+		{
+			BreakBlock(null, block, blockEntity, tool, face);
 		}
 
 		public void BreakBlock(Player player, Block block, BlockEntity blockEntity = null, Item tool = null, BlockFace face = BlockFace.None)

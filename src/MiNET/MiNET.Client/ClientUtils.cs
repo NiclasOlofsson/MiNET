@@ -33,6 +33,7 @@ using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
+using MiNET.Worlds.Anvil;
 
 namespace MiNET.Client
 {
@@ -61,7 +62,7 @@ namespace MiNET.Client
 
 					//if (Log.IsTraceEnabled()) Log.Trace($"Reading {subChunkCount} sections");
 
-					var chunkColumn = new ChunkColumn(false);
+					var chunkColumn = new ChunkColumn();
 
 					for (int chunkIndex = 0; chunkIndex < subChunkCount; chunkIndex++)
 					{
@@ -186,7 +187,8 @@ namespace MiNET.Client
 						return chunkColumn;
 					}
 
-					if (stream.Read(chunkColumn.biomeId, 0, 256) != 256)
+					// TODO - 1.20 - update
+					//if (stream.Read(chunkColumn.biomeId, 0, 256) != 256)
 						return chunkColumn;
 					//Log.Debug($"biomeId:\n{Package.HexDump(chunk.biomeId)}");
 

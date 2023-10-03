@@ -199,7 +199,8 @@ namespace MiNET.Worlds
 
 					// need to take care of skylight for non overworld to make it 0.
 
-					chunk.SetBiome(x, z, 1); // use pattern for this
+					// TODO - 1.20 - update
+					chunk.SetBiome(x, ChunkColumn.WorldMaxY, z, 1); // use pattern for this
 				}
 			}
 		}

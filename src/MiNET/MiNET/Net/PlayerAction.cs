@@ -30,7 +30,6 @@ namespace MiNET.Net
 		StartBreak = 0,
 		AbortBreak = 1,
 		StopBreak = 2,
-
 		GetUpdatedBlock = 3,
 		DropItem = 4,
 		StartSleeping = 5,
@@ -42,13 +41,13 @@ namespace MiNET.Net
 		StartSneak = 11,
 		StopSneak = 12,
 		CreativeDestroy = 13,
-		DimensionChangeAck = 14,
+		DimensionChangeAck = 14, //sent when spawning in a different dimension to tell the server we spawned
 		StartGlide = 15,
 		StopGlide = 16,
 		WorldImmutable = 17,
 		Breaking = 18,
 		ChangeSkin = 19,
-		SetEnchantmentSeed = 20,
+		SetEnchantmentSeed = 20, //no longer used
 		StartSwimming = 21,
 		StopSwimming = 22,
 		StartSpinAttack = 23,
@@ -58,6 +57,11 @@ namespace MiNET.Net
 		ContinueDestroyBlock = 27,
 		StartItemUse = 28,
 		StopItemUse = 29,
-		HandledTeleport = 30
+		HandledTeleport = 30,
+		MissedSwing = 31,
+		StartCrawling = 32,
+		StopCrawling = 33,
+		StartFlying = 34,
+		StopFlying = 35,
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 using fNbt;
@@ -9,7 +10,7 @@ using MiNET.Blocks;
 using MiNET.Utils;
 using Newtonsoft.Json.Linq;
 
-namespace MiNET.Worlds
+namespace MiNET.Worlds.Anvil
 {
 	public class AnvilPaletteConverter
 	{
@@ -252,9 +253,7 @@ namespace MiNET.Worlds
 			_mapper.Add(new BlockStateMapper("minecraft:ladder", facingDirectionMap));
 
 			foreach (var color in _colorsList)
-			{
 				_mapper.Add(new BlockStateMapper($"minecraft:{color}_glazed_terracotta", facingDirectionMap));
-			}
 
 			_mapper.Add(new BlockStateMapper("minecraft:chest",
 				facingDirectionMap,
@@ -265,9 +264,7 @@ namespace MiNET.Worlds
 			_mapper.Add("minecraft:glass_pane", faceDirectionSkipMap);
 			_mapper.Add("minecraft:nether_brick_fence", faceDirectionSkipMap);
 			foreach (var wood in _woodList)
-			{
 				_mapper.Add($"minecraft:{wood}_fence", faceDirectionSkipMap);
-			}
 
 
 			_mapper.Add("minecraft:deepslate_redstone_ore", litMap);
@@ -288,24 +285,20 @@ namespace MiNET.Worlds
 			#region Colored
 
 			foreach (var color in _colorsList)
-			{
 				_mapper.Add(new BlockStateMapper($"minecraft:{color}_terracotta", "minecraft:stained_hardened_clay",
 				(name, properties) =>
 				{
 					properties.Clear();
 					properties.Add(new NbtString("color", color));
 				}));
-			}
 
 			foreach (var color in _colorsList)
-			{
 				_mapper.Add(new BlockStateMapper($"minecraft:{color}_stained_glass_pane", "minecraft:hard_stained_glass_pane",
 				(name, properties) =>
 				{
 					properties.Clear();
 					properties.Add(new NbtString("color", color));
 				}));
-			}
 
 			#endregion
 
@@ -352,9 +345,7 @@ namespace MiNET.Worlds
 			floweringAzeleaLeavesMap.BedrockName = "minecraft:azalea_leaves_flowered";
 			_mapper.Add("minecraft:flowering_azalea_leaves", floweringAzeleaLeavesMap);
 			foreach (var wood in _woodList)
-			{
 				_mapper.Add($"minecraft:{wood}_leaves", leavesMap);
-			}
 
 
 			var planksMap = new BlockStateMapper(
@@ -379,9 +370,7 @@ namespace MiNET.Worlds
 				new SkipPropertyStateMapper("distance"));
 
 			foreach (var wood in _woodList)
-			{
 				_mapper.Add($"minecraft:{wood}_planks", planksMap);
-			}
 
 			#endregion
 
@@ -398,9 +387,7 @@ namespace MiNET.Worlds
 
 			_mapper.Add($"minecraft:iron_trapdoor", trapdoorMap);
 			foreach (var wood in _woodList)
-			{
 				_mapper.Add($"minecraft:{wood}_trapdoor", trapdoorMap);
-			}
 
 			var doorFacingDirectionMap = new PropertyStateMapper("facing", "direction",
 					new PropertyValueStateMapper("east", "0"),
@@ -417,9 +404,7 @@ namespace MiNET.Worlds
 
 			_mapper.Add($"minecraft:iron_door", doorMap);
 			foreach (var wood in _woodList)
-			{
 				_mapper.Add($"minecraft:{wood}_door", doorMap);
-			}
 
 			#endregion
 
@@ -429,9 +414,7 @@ namespace MiNET.Worlds
 			{
 				var stoneType = name.Replace("minecraft:", "");
 				if (stoneType.StartsWith("polished_"))
-				{
 					stoneType = stoneType.Replace("polished_", "") + "_smooth";
-				}
 
 				properties.Add(new NbtString("stone_type", stoneType));
 				return "minecraft:stone";
@@ -450,11 +433,10 @@ namespace MiNET.Worlds
 			#region Torch
 
 			var tourchMap = new BlockStateMapper(
-				(name, properties) => {
+				(name, properties) =>
+				{
 					if (name.Contains("wall_"))
-					{
 						return name.Replace("wall_", "");
-					}
 
 					properties["facing"] = new NbtString("facing", "top");
 					return name;
@@ -569,8 +551,8 @@ namespace MiNET.Worlds
 					{
 						properties.Remove("barries");
 
-						return barries == "true" 
-						? (name == "minecraft:cave_vines" ? "minecraft:cave_vines_head_with_berries" : "minecraft:cave_vines_body_with_berries") 
+						return barries == "true"
+						? name == "minecraft:cave_vines" ? "minecraft:cave_vines_head_with_berries" : "minecraft:cave_vines_body_with_berries"
 						: name;
 					}
 
@@ -606,9 +588,7 @@ namespace MiNET.Worlds
 				(name, properties) =>
 				{
 					if (properties["age"] != null)
-					{
 						properties["age"] = new NbtString("age", Math.Min(15, int.Parse(properties["age"].StringValue)).ToString());
-					}
 				},
 				new PropertyStateMapper("age", "kelp_age"));
 
@@ -649,9 +629,7 @@ namespace MiNET.Worlds
 				{
 					var grassType = "default";
 					if (name == "minecraft:tall_seagrass")
-					{
 						grassType = properties["half"].StringValue == "upper" ? "double_top" : "double_bot";
-					}
 
 					properties.Add(new NbtString("sea_grass_type", grassType));
 				},
@@ -697,21 +675,21 @@ namespace MiNET.Worlds
 
 			// minecraft:infested_*
 			foreach (var stone in _infestedStoneList)
-			{
 				_mapper.Add(new BlockStateMapper($"minecraft:infested_{stone.Replace("brick", "bricks")}", "minecraft:monster_egg",
 					(name, properties) =>
 					{
 						properties.Clear();
 						properties.Add(new NbtString("monster_egg_stone_type", stone));
 					}));
-			}
 
 			// minecraft:*_stairs
 			foreach (var material in _slabMaterialsList)
 			{
 				var bedrockName = material;
-				if (material == "stone") bedrockName = "normal_stone";
-				else if (material == "cobblestone") bedrockName = "stone";
+				if (material == "stone")
+					bedrockName = "normal_stone";
+				else if (material == "cobblestone")
+					bedrockName = "stone";
 
 				_mapper.Add(new BlockStateMapper($"minecraft:{material}_stairs", $"minecraft:{bedrockName}_stairs",
 					upsideDownBitMap,
@@ -743,12 +721,10 @@ namespace MiNET.Worlds
 				};
 
 				_mapper.Add(new BlockStateMapper($"minecraft:{material}_wall", $"minecraft:{bedrockName}_wall",
-					(name, properties) => 
+					(name, properties) =>
 					{
 						if (material != bedrockName)
-						{
 							properties.Add(new NbtString("wall_block_type", material));
-						}
 					},
 					new PropertyStateMapper("up", "wall_post_bit"),
 					new PropertyStateMapper("east", "wall_connection_type_east", wallConnectionMap),
@@ -765,11 +741,6 @@ namespace MiNET.Worlds
 
 			try
 			{
-				if (name.StartsWith("minecraft:deepslate_redstone_ore"))
-				{
-					//Log.Warn("t");
-				}
-
 				name = _mapper.Resolve(name, properties);
 
 				var block = BlockFactory.GetBlockById(name);
@@ -824,140 +795,14 @@ namespace MiNET.Worlds
 			return biome;
 		}
 
-		public static byte GetBiomeIdFromeNoisedCoordinates(byte[][] biomesMap, int x, int y, int z, long obfuscatedSeed)
-		{
-			int i = x - 2;
-			int j = y - 2;
-			int k = z - 2;
-			int l = i >> 2;
-			int i1 = j >> 2;
-			int j1 = k >> 2;
-			double d0 = (i & 3) / 4.0D;
-			double d1 = (j & 3) / 4.0D;
-			double d2 = (k & 3) / 4.0D;
-			int k1 = 0;
-			double d3 = double.PositiveInfinity;
-
-			for (int l1 = 0; l1 < 8; ++l1)
-			{
-				bool flag = (l1 & 4) == 0;
-				bool flag1 = (l1 & 2) == 0;
-				bool flag2 = (l1 & 1) == 0;
-				int i2 = flag ? l : l + 1;
-				int j2 = flag1 ? i1 : i1 + 1;
-				int k2 = flag2 ? j1 : j1 + 1;
-				double d4 = flag ? d0 : d0 - 1.0D;
-				double d5 = flag1 ? d1 : d1 - 1.0D;
-				double d6 = flag2 ? d2 : d2 - 1.0D;
-				double d7 = GetFiddledDistance(obfuscatedSeed, i2, j2, k2, d4, d5, d6);
-				if (d3 > d7)
-				{
-					k1 = l1;
-					d3 = d7;
-				}
-			}
-
-			int l2 = (k1 & 4) == 0 ? l : l + 1;
-			int i3 = (k1 & 2) == 0 ? i1 : i1 + 1;
-			int j3 = (k1 & 1) == 0 ? j1 : j1 + 1;
-
-			return GetNoiseBiome(biomesMap, l2, i3, j3);
-		}
-
-		public static long ObfuscateSeed(long p_47878_)
-		{
-			using (SHA256 sha256Hash = SHA256.Create())
-			{
-				var bytes = sha256Hash.ComputeHash(BitConverter.GetBytes(p_47878_));
-
-				long retVal = bytes[0] & 0xFF;
-				for (int i = 1; i < Math.Min(bytes.Length, 8); i++)
-				{
-					retVal |= (bytes[i] & 0xFFL) << (i * 8);
-				}
-
-				return retVal;
-			}
-		}
-
-		private static byte GetNoiseBiome(byte[][] biomesMap, int p_204347_, int p_204348_, int p_204349_)
-		{
-			int i = FromBlock(ChunkColumn.WorldMinY);
-			int k = i + FromBlock(ChunkColumn.WorldHeight) - 1;
-			int l = Math.Clamp(p_204348_, i, k);
-			int j = GetSectionIndex(ToBlock(l));
-
-			return biomesMap[j][GetIndex(p_204347_ & 3, l & 3, p_204349_ & 3)];
-		}
-
-		private static int FromBlock(int value)
-		{
-			return value >> 2;
-		}
-
-		private static int ToBlock(int value)
-		{
-			return value << 2;
-		}
-
-		private static int GetSectionIndex(int value)
-		{
-			return BlockToSectionCoord(value) - BlockToSectionCoord(ChunkColumn.WorldMinY);
-		}
-
-		private static int BlockToSectionCoord(int value)
-		{
-			return value >> 4;
-		}
-
-		private static int GetIndex(int x, int y, int z)
-		{
-			return (y << 2 | z) << 2 | x;
-		}
-
-		private static double GetFiddledDistance(long p_186680_, int p_186681_, int p_186682_, int p_186683_, double p_186684_, double p_186685_, double p_186686_)
-		{
-			long __7 = LinearCongruentialGenerator.next(p_186680_, p_186681_);
-			__7 = LinearCongruentialGenerator.next(__7, p_186682_);
-			__7 = LinearCongruentialGenerator.next(__7, p_186683_);
-			__7 = LinearCongruentialGenerator.next(__7, p_186681_);
-			__7 = LinearCongruentialGenerator.next(__7, p_186682_);
-			__7 = LinearCongruentialGenerator.next(__7, p_186683_);
-			double d0 = GetFiddle(__7);
-			__7 = LinearCongruentialGenerator.next(__7, p_186680_);
-			double d1 = GetFiddle(__7);
-			__7 = LinearCongruentialGenerator.next(__7, p_186680_);
-			double d2 = GetFiddle(__7);
-			return Square(p_186686_ + d2) + Square(p_186685_ + d1) + Square(p_186684_ + d0);
-		}
-		private static double GetFiddle(long p_186690_)
-		{
-			double d0 = (double) FloorMod(p_186690_ >> 24, 1024) / 1024.0D;
-			return (d0 - 0.5D) * 0.9D;
-		}
-
-		private static double FloorMod(long x, long y)
-		{
-			return x - FloorDiv(x, y) * y;
-		}
-
-		private static long FloorDiv(long x, long y)
-		{
-			return (long) Math.Floor(x / (double) y);
-		}
-
-		private static double Square(double value)
-		{
-			return value * value;
-		}
-
 		private static bool FillProperties(BlockStateContainer blockStateContainer, NbtCompound propertiesTag)
 		{
 			foreach (var prop in propertiesTag)
 			{
 				var state = blockStateContainer.States.FirstOrDefault(state => state.Name == prop.Name);
 
-				if (state == null) return false;
+				if (state == null)
+					return false;
 
 				var value = prop.StringValue;
 				switch (state)
@@ -1005,14 +850,10 @@ namespace MiNET.Worlds
 			public string Resolve(string anvilName, NbtCompound properties)
 			{
 				if (_map.TryGetValue(anvilName, out var map))
-				{
 					anvilName = map.Resolve(anvilName, properties);
-				}
 
 				foreach (var defMap in _defaultMap)
-				{
 					defMap.ResolveDefault(anvilName, properties);
-				}
 
 				return anvilName;
 			}
@@ -1040,7 +881,7 @@ namespace MiNET.Worlds
 
 			}
 
-			public BlockStateMapper(Func<string, NbtCompound, string> func, params IPropertyStateMapper[] propertiesMap) 
+			public BlockStateMapper(Func<string, NbtCompound, string> func, params IPropertyStateMapper[] propertiesMap)
 				: this(null, null, func, propertiesMap)
 			{
 
@@ -1052,7 +893,7 @@ namespace MiNET.Worlds
 
 			}
 
-			public BlockStateMapper(string anvilName, Func<string, NbtCompound, string> func) 
+			public BlockStateMapper(string anvilName, Func<string, NbtCompound, string> func)
 				: this(anvilName, anvilName, func)
 			{
 
@@ -1089,7 +930,7 @@ namespace MiNET.Worlds
 			}
 
 			public BlockStateMapper(string anvilName, string bedrockName, Action<string, NbtCompound> func, params IPropertyStateMapper[] propertiesMap)
-				: this (anvilName, bedrockName, (name, properties) =>
+				: this(anvilName, bedrockName, (name, properties) =>
 				{
 					func(name, properties);
 					return name;
@@ -1105,58 +946,44 @@ namespace MiNET.Worlds
 				_func = func;
 
 				foreach (var map in propertiesMap)
-				{
 					if (map is PropertyStateMapper propertyStateMapper)
-					{
 						PropertiesMap.Add(propertyStateMapper.AnvilName ?? propertyStateMapper.GetHashCode().ToString(), propertyStateMapper);
-					}
 					else if (map is AdditionalPropertyStateMapper additionalPropertyStateMapper)
-					{
 						AdditionalProperties.Add(additionalPropertyStateMapper);
-					}
 					else if (map is SkipPropertyStateMapper skipPropertyStateMapper)
-					{
 						SkipProperties.Add(skipPropertyStateMapper.Name ?? skipPropertyStateMapper.GetHashCode().ToString(), skipPropertyStateMapper);
-					}
-				}
 			}
 
 			public string Resolve(string anvilName, NbtCompound properties)
 			{
-				if (_func != null) anvilName = _func(anvilName, properties);
+				if (_func != null)
+					anvilName = _func(anvilName, properties);
 
 				foreach (NbtString prop in properties.ToArray())
-				{
 					if (SkipProperties.TryGetValue(prop.Name, out var skipMap) && skipMap.Resolve(anvilName, properties, prop))
-					{
 						properties.Remove(prop.Name);
-					}
 					else if (PropertiesMap.TryGetValue(prop.Name, out var propMap))
 					{
 						properties.Remove(prop.Name);
 						properties.Add(propMap.Resolve(anvilName, properties, prop));
 					}
-				}
 
 				foreach (var prop in AdditionalProperties)
-				{
 					properties[prop.Name] = prop.Resolve(anvilName, properties);
-				}
 
 				return BedrockName ?? anvilName;
 			}
 
 			public string ResolveDefault(string anvilName, NbtCompound properties)
 			{
-				if (_func != null) return _func(anvilName, properties);
+				if (_func != null)
+					return _func(anvilName, properties);
 
 				foreach (NbtString prop in properties.ToArray())
 				{
 					var skipMap = SkipProperties.Values.FirstOrDefault(map => map.Name == prop.Name || map.Name == null);
 					if (skipMap != null && skipMap.Resolve(anvilName, properties, prop))
-					{
 						properties.Remove(prop.Name);
-					}
 					else
 					{
 						var propMap = PropertiesMap.Values.FirstOrDefault(map => map.AnvilName == prop.Name || map.AnvilName == null);
@@ -1170,9 +997,7 @@ namespace MiNET.Worlds
 				}
 
 				foreach (var prop in AdditionalProperties)
-				{
 					properties[prop.Name] = prop.Resolve(anvilName, properties);
-				}
 
 				return BedrockName ?? anvilName;
 			}
@@ -1180,21 +1005,15 @@ namespace MiNET.Worlds
 			public BlockStateMapper Clone()
 			{
 				var propertiesMap = new List<IPropertyStateMapper>();
-				
+
 				foreach (var property in PropertiesMap.Values)
-				{
 					propertiesMap.Add(property.Clone());
-				}
 
 				foreach (var property in AdditionalProperties)
-				{
 					propertiesMap.Add(property.Clone());
-				}
 
 				foreach (var property in SkipProperties.Values)
-				{
 					propertiesMap.Add(property.Clone());
-				}
 
 				return new BlockStateMapper(AnvilName, BedrockName, (Func<string, NbtCompound, string>) _func?.Clone(), propertiesMap.ToArray());
 			}
@@ -1235,9 +1054,7 @@ namespace MiNET.Worlds
 				BedrockName = bedrockName;
 
 				foreach (var map in propertiesNameMap)
-				{
 					ValuesMap.Add(map.AnvilName, map);
-				}
 			}
 
 			public PropertyStateMapper(string anvilName, Func<string, NbtCompound, NbtString, NbtString> func, params PropertyValueStateMapper[] propertiesNameMap)
@@ -1246,22 +1063,20 @@ namespace MiNET.Worlds
 				_func = func;
 
 				foreach (var map in propertiesNameMap)
-				{
 					ValuesMap.Add(map.AnvilName, map);
-				}
 			}
 
 			public NbtString Resolve(string anvilName, NbtCompound properties, NbtString property)
 			{
-				return _func?.Invoke(anvilName, properties, property) 
+				return _func?.Invoke(anvilName, properties, property)
 					?? new NbtString(BedrockName ?? property.Name, ValuesMap.GetValueOrDefault(property.StringValue)?.Resolve(anvilName, properties) ?? property.StringValue);
 			}
 
 			public PropertyStateMapper Clone()
 			{
 				return new PropertyStateMapper(
-					AnvilName, 
-					(Func<string, NbtCompound, NbtString, NbtString>) _func?.Clone(), 
+					AnvilName,
+					(Func<string, NbtCompound, NbtString, NbtString>) _func?.Clone(),
 					ValuesMap.Values.Select(v => v.Clone()).ToArray())
 				{
 					BedrockName = BedrockName
@@ -1364,18 +1179,6 @@ namespace MiNET.Worlds
 				{
 					BedrockName = BedrockName
 				};
-			}
-		}
-
-		public class LinearCongruentialGenerator
-		{
-			private const long MULTIPLIER = 6364136223846793005L;
-			private const long INCREMENT = 1442695040888963407L;
-
-			public static long next(long p_13973_, long p_13974_)
-			{
-				p_13973_ *= p_13973_ * MULTIPLIER + INCREMENT;
-				return p_13973_ + p_13974_;
 			}
 		}
 	}

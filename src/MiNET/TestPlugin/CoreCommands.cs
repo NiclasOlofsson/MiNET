@@ -54,6 +54,7 @@ using MiNET.Utils.IO;
 using MiNET.Utils.Skins;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
+using MiNET.Worlds.Anvil;
 using Button = MiNET.UI.Button;
 using Input = MiNET.UI.Input;
 
@@ -530,10 +531,12 @@ namespace TestPlugin
 			//var biomeIds = new byte[] {8, 170, 171, 172, 173};
 			var biomeIds = new byte[] {8, 170, 171, 172, 173};
 			byte biomeId = biomeIds[new Random().Next(biomeIds.Length)];
-			for (int i = 0; i < chunk.biomeId.Length; i++)
-			{
-				chunk.biomeId[i] = biomeId;
-			}
+
+			// TODO - 1.20 - update
+			//for (int i = 0; i < chunk.biomeId.Length; i++)
+			//{
+			//	chunk.biomeId[i] = biomeId;
+			//}
 
 			chunk.IsDirty = true;
 			Log.Error($"Changing biome to {biomeId}");

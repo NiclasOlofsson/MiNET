@@ -29,7 +29,6 @@ using System.Linq;
 using System.Numerics;
 using log4net;
 using MiNET.Items;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -45,44 +44,32 @@ namespace MiNET.Blocks
 			Hardness = 0.6f;
 		}
 
-		public override void DoPhysics(Level level)
-		{
-			if (level.GameMode == GameMode.Creative) return;
-
-			if (level.GetSubtractedLight(Coordinates.BlockUp()) < 4)
-			{
-				Block dirt = new Dirt();
-				dirt.Coordinates = Coordinates;
-				level.SetBlock(dirt, true, false, false);
-			}
-		}
-
 		public override void OnTick(Level level, bool isRandom)
 		{
-			if (level.GameMode == GameMode.Creative) return;
 			if (!isRandom) return;
 
-			var lightLevel = level.GetSubtractedLight(Coordinates.BlockUp());
-			if (lightLevel < 4 /* && check opacity */)
+			var upBlock = level.GetBlock(Coordinates.BlockUp());
+			if (!upBlock.IsTransparent)
 			{
-				Block dirt = new Dirt();
+				var dirt = new Dirt();
 				dirt.Coordinates = Coordinates;
 				level.SetBlock(dirt, true, false, false);
 			}
 			else
 			{
+				var lightLevel = level.GetSubtractedLight(Coordinates.BlockUp());
 				if (lightLevel >= 9)
 				{
-					Random random = new Random();
+					var random = new Random();
 					for (int i = 0; i < 4; i++)
 					{
 						var coordinates = Coordinates + new BlockCoordinates(random.Next(3) - 1, random.Next(5) - 3, random.Next(3) - 1);
 						if (level.GetBlock(coordinates) is Dirt next && next.DirtType == "normal")
 						{
-							Block nextUp = level.GetBlock(coordinates.BlockUp());
-							if (nextUp.IsTransparent && (nextUp.BlockLight >= 4 || nextUp.SkyLight >= 4))
+							var nextUp = level.GetBlock(coordinates.BlockUp());
+							if (nextUp.IsTransparent)
 							{
-								level.SetBlock(new Grass {Coordinates = coordinates});
+								level.SetBlock(new Grass { Coordinates = coordinates });
 							}
 						}
 					}
@@ -93,7 +80,7 @@ namespace MiNET.Blocks
 		public override bool Interact(Level level, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			var itemInHand = player.Inventory.GetItemInHand();
-			if (itemInHand is ItemDye && itemInHand.Metadata == 15)
+			if (itemInHand is ItemBoneMeal)
 			{
 				// If bone meal is used on a grass block, 0–8(double) tall grass, 8–24 grass and 0–8 flowers form on the
 				// targeted block and on randomly-selected adjacent grass blocks up to 7 blocks away (taxicab distance).

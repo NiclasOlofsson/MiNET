@@ -693,6 +693,14 @@ namespace MiNET
 				{
 					break;
 				}
+				case PlayerAction.StartItemUse:
+				{
+					break;
+				}
+				case PlayerAction.StopItemUse:
+				{
+					break;
+				}
 				default:
 				{
 					Log.Warn($"Unhandled action ID={message.actionId}");

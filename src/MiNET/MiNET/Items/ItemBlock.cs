@@ -125,6 +125,7 @@ namespace MiNET.Items
 				return false;
 			}
 
+			// TODO - invert logic
 			if (!newBlock.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
 			{
 				world.SetBlock(newBlock);

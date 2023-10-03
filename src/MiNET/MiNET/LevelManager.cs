@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using MiNET.Worlds.Anvil;
 
 namespace MiNET
 {

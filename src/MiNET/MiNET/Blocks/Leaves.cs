@@ -58,6 +58,7 @@ namespace MiNET.Blocks
 
 		public override void OnTick(Level level, bool isRandom)
 		{
+			if (!isRandom) return;
 			if (PersistentBit) return;
 			if (!UpdateBit) return;
 

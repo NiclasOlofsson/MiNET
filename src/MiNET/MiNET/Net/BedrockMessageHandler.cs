@@ -234,6 +234,9 @@ namespace MiNET.Net
 				case McpeFilterTextPacket msg:
 					handler.HandleMcpeFilterTextPacket(msg);
 					break;
+				case McpeRequestAbility msg:
+					handler.HandleMcpeRequestAbility(msg);
+					break;
 
 				default:
 				{

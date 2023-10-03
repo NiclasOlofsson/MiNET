@@ -2413,7 +2413,7 @@ namespace MiNET.Items
 		public override string Id { get; protected set; } = "minecraft:sugar";
 	}
 
-	public partial class ItemSugarCane : Item
+	public partial class ItemSugarCane
 	{
 		public override string Id { get; protected set; } = "minecraft:sugar_cane";
 	}

@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace MiNET.Utils.Vectors
@@ -244,6 +245,24 @@ namespace MiNET.Utils.Vectors
 		public static readonly BlockCoordinates Right = new BlockCoordinates(1, 0, 0);
 		public static readonly BlockCoordinates Backwards = new BlockCoordinates(0, 0, -1);
 		public static readonly BlockCoordinates Forwards = new BlockCoordinates(0, 0, 1);
+
+		public IEnumerable<BlockCoordinates> Get2dAroundCoordinates()
+		{
+			yield return BlockEast();
+			yield return BlockWest();
+			yield return BlockNorth();
+			yield return BlockSouth();
+		}
+
+		public IEnumerable<BlockCoordinates> Get3dAroundCoordinates()
+		{
+			yield return BlockUp();
+			yield return BlockDown();
+			yield return BlockEast();
+			yield return BlockWest();
+			yield return BlockNorth();
+			yield return BlockSouth();
+		}
 
 		public BlockCoordinates BlockUp()
 		{

@@ -585,24 +585,7 @@ namespace MiNET.Net.RakNet
 
 				if (sendList.Count == 0) return;
 
-				List<Packet> prepareSend = CustomMessageHandler.PrepareSend(sendList);
-				var preppedSendList = new List<Packet>();
-				foreach (Packet packet in prepareSend)
-				{
-					Packet message = packet;
-
-					if (CustomMessageHandler != null) message = CustomMessageHandler.HandleOrderedSend(message);
-
-					Reliability reliability = message.ReliabilityHeader.Reliability;
-					if (reliability == Reliability.Undefined) reliability = Reliability.Reliable; // Questionable practice
-
-					if (reliability == Reliability.ReliableOrdered) message.ReliabilityHeader.OrderingIndex = Interlocked.Increment(ref OrderingIndex);
-
-					preppedSendList.Add(message);
-					//await _packetSender.SendPacketAsync(this, message);
-				}
-
-				await _packetSender.SendPacketAsync(this, preppedSendList);
+				await SendPrepareDirectPackets(sendList);
 			}
 			catch (Exception e)
 			{
@@ -627,24 +610,7 @@ namespace MiNET.Net.RakNet
 
 		public void SendPrepareDirectPacket(Packet packet)
 		{
-			List<Packet> prepareSend = CustomMessageHandler.PrepareSend(new List<Packet> { packet });
-			var preppedSendList = new List<Packet>();
-			foreach (Packet preparePacket in prepareSend)
-			{
-				Packet message = preparePacket;
-
-				if (CustomMessageHandler != null)
-					message = CustomMessageHandler.HandleOrderedSend(message);
-
-				Reliability reliability = message.ReliabilityHeader.Reliability;
-				if (reliability == Reliability.Undefined)
-					reliability = Reliability.Reliable; // Questionable practice
-
-				if (reliability == Reliability.ReliableOrdered)
-					message.ReliabilityHeader.OrderingIndex = Interlocked.Increment(ref OrderingIndex);
-
-				_packetSender.SendPacketAsync(this, message).Wait();
-			}
+			SendPrepareDirectPackets(new List<Packet> { packet }).Wait();
 		}
 
 		public IPEndPoint GetClientEndPoint()
@@ -693,6 +659,33 @@ namespace MiNET.Net.RakNet
 			}
 
 			if (Log.IsDebugEnabled) Log.Info($"Closed network session for player {Username}");
+		}
+
+		private async Task SendPrepareDirectPackets(List<Packet> packets)
+		{
+			List<Packet> prepareSend = CustomMessageHandler.PrepareSend(packets);
+			var preppedSendList = new List<Packet>();
+			foreach (Packet preparePacket in prepareSend)
+			{
+				Packet message = preparePacket;
+
+				if (CustomMessageHandler != null)
+				{
+					message = CustomMessageHandler.HandleOrderedSend(message);
+				}
+
+				Reliability reliability = message.ReliabilityHeader.Reliability;
+				if (reliability == Reliability.Undefined) reliability = Reliability.Reliable; // Questionable practice
+
+				if (reliability == Reliability.ReliableOrdered)
+				{
+					message.ReliabilityHeader.OrderingIndex = Interlocked.Increment(ref OrderingIndex);
+				}
+
+				preppedSendList.Add(message);
+			}
+
+			await _packetSender.SendPacketAsync(this, preppedSendList);
 		}
 	}
 }

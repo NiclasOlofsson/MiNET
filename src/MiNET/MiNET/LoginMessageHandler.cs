@@ -93,7 +93,7 @@ namespace MiNET
 			settingsPacket.ForceClear = true; // Must be!
 
 			_session.SendPrepareDirectPacket(settingsPacket);
-			Thread.Sleep(1000);
+			//Thread.Sleep(1000);
 			_session.EnableCompression = true;
 		}
 

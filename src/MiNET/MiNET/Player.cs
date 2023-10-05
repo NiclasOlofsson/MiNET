@@ -1929,7 +1929,7 @@ namespace MiNET
 						{
 							var disconnect = McpeDisconnect.CreateObject();
 							disconnect.message = reason;
-							NetworkHandler.SendPacket(disconnect);
+							NetworkHandler.SendPrepareDirectPacket(disconnect);
 						}
 
 						NetworkHandler.Close();

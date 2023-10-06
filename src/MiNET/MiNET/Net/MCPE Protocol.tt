@@ -52,6 +52,7 @@ using LongString = System.String;
 using MiNET.Utils.Metadata;
 using MiNET.Utils.Vectors;
 using MiNET.Utils.Nbt;
+using MiNET.Net.Crafting;
 
 namespace MiNET.Net
 {

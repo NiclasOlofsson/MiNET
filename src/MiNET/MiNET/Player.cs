@@ -693,11 +693,24 @@ namespace MiNET
 				{
 					break;
 				}
+				case PlayerAction.GetUpdatedBlock:
+				case PlayerAction.DropItem:
+				case PlayerAction.Respawn:
+				case PlayerAction.ChangeSkin:
+				case PlayerAction.StartSwimming:
+				case PlayerAction.StopSwimming:
+				case PlayerAction.StartSpinAttack:
+				case PlayerAction.StopSpinAttack:
+				case PlayerAction.PredictDestroyBlock:
+				case PlayerAction.ContinueDestroyBlock:
 				case PlayerAction.StartItemUse:
-				{
-					break;
-				}
 				case PlayerAction.StopItemUse:
+				case PlayerAction.HandledTeleport:
+				case PlayerAction.MissedSwing:
+				case PlayerAction.StartCrawling:
+				case PlayerAction.StopCrawling:
+				case PlayerAction.StartFlying:
+				case PlayerAction.StopFlying:
 				{
 					break;
 				}

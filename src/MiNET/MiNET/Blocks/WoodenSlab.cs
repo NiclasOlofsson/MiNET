@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class WoodenSlab : SlabBase
 	{
-		public WoodenSlab() : base(158, 157)
+		public WoodenSlab() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 2;

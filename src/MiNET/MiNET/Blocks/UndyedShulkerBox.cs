@@ -33,11 +33,7 @@ namespace MiNET.Blocks
 {
 	public partial class UndyedShulkerBox : Block
 	{
-		public UndyedShulkerBox() : this(205)
-		{
-		}
-
-		public UndyedShulkerBox(byte id) : base(id)
+		public UndyedShulkerBox() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 30f;

@@ -59,7 +59,7 @@
 		</filter>
 
 		<filter type="log4net.Filter.LevelRangeFilter">
-			<levelMin value="WARN" />
+			<levelMin value="TRACE" />
 			<levelMax value="FATAL" />
 		</filter>
 

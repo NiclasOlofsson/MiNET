@@ -23,595 +23,77 @@
 
 #endregion
 
-using System.Linq;
+using System.Collections.Generic;
+using System.Reflection;
 using fNbt;
+using MiNET.Net;
+using MiNET.Utils;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace MiNET.Worlds
 {
 	public class Biome
 	{
-		public int Id;
-		public string Name;
-		public string DefinitionName;
-		public float Temperature;
-		public float Downfall;
-		public int Grass; // r,g,b, NOT multiplied by alpha
-		public int Foliage; // r,g,b, NOT multiplied by alpha
+		public int Id { get; set; }
+		public string Name { get; set; }
+		public bool Rain { get; set; }
+		public float Depth { get; set; }
+		public float Downfall { get; set; }
+		public float Height { get; set; }
+		public float Temperature { get; set; }
+		public float BlueSpores { get; set; }
+		public float RedSpores { get; set; }
+		public float Ash { get; set; }
+		public float WhiteAsh { get; set; }
+		public float WaterTransparency { get; set; }
+		public RgbaVector WaterColor { get; set; }
 	}
 
 	public class BiomeUtils
 	{
-		public static Biome[] Biomes =
+		static BiomeUtils()
 		{
-			new Biome
-			{
-				Id = 0,
-				Name = "Ocean",
-				DefinitionName = "ocean",
-				Temperature = 0.5f,
-				Downfall = 0.5f
-			}, // default values of temp and rain
-			new Biome
-			{
-				Id = 1,
-				Name = "Plains",
-				DefinitionName = "plains",
-				Temperature = 0.8f,
-				Downfall = 0.4f
-			},
-			new Biome
-			{
-				Id = 2,
-				Name = "Desert",
-				DefinitionName = "desert",
-				Temperature = 2.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 3,
-				Name = "Extreme Hills",
-				DefinitionName = "extreme_hills",
-				Temperature = 0.2f,
-				Downfall = 0.3f
-			},
-			new Biome
-			{
-				Id = 4,
-				Name = "Forest",
-				DefinitionName = "forest",
-				Temperature = 0.7f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 5,
-				Name = "Taiga",
-				DefinitionName = "taiga",
-				Temperature = 0.25f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 6,
-				Name = "Swampland",
-				DefinitionName = "swampland",
-				Temperature = 0.8f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 7,
-				Name = "River",
-				DefinitionName = "river",
-				Temperature = 0.5f,
-				Downfall = 0.5f
-			}, // default values of temp and rain
-			new Biome
-			{
-				Id = 8,
-				Name = "Nether",
-				DefinitionName = "hell",
-				Temperature = 2.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 9,
-				Name = "End",
-				DefinitionName = "the_end",
-				Temperature = 0.5f,
-				Downfall = 0.5f
-			}, // default values of temp and rain
-			new Biome
-			{
-				Id = 10,
-				Name = "Frozen Ocean",
-				DefinitionName = "frozen_ocean",
-				Temperature = 0.0f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 11,
-				Name = "Frozen River",
-				DefinitionName = "frozen_river",
-				Temperature = 0.0f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 12,
-				Name = "Ice Plains",
-				DefinitionName = "ice_plains",
-				Temperature = 0.0f,
-				Downfall = 1.0f
-			},
-			new Biome
-			{
-				Id = 13,
-				Name = "Ice Mountains",
-				DefinitionName = "ice_mountains",
-				Temperature = 0.0f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 14,
-				Name = "Mushroom Island",
-				DefinitionName = "mushroom_island",
-				Temperature = 0.9f,
-				Downfall = 1.0f
-			},
-			new Biome
-			{
-				Id = 15,
-				Name = "Mushroom Island Shore",
-				DefinitionName = "mushroom_island_shore",
-				Temperature = 0.9f,
-				Downfall = 1.0f
-			},
-			new Biome
-			{
-				Id = 16,
-				Name = "Beach",
-				DefinitionName = "beach",
-				Temperature = 0.8f,
-				Downfall = 0.4f
-			},
-			new Biome
-			{
-				Id = 17,
-				Name = "Desert Hills",
-				DefinitionName = "desert_hills",
-				Temperature = 2.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 18,
-				Name = "Forest Hills",
-				DefinitionName = "forest_hills",
-				Temperature = 0.7f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 19,
-				Name = "Taiga Hills",
-				DefinitionName = "taiga_hills",
-				Temperature = 0.25f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 20,
-				Name = "Extreme Hills Edge",
-				DefinitionName = "extreme_hills_edge",
-				Temperature = 0.2f,
-				Downfall = 0.3f
-			},
-			new Biome
-			{
-				Id = 21,
-				Name = "Jungle",
-				DefinitionName = "jungle",
-				Temperature = 0.95f,
-				Downfall = 0.9f
-			},
-			new Biome
-			{
-				Id = 22,
-				Name = "Jungle Hills",
-				DefinitionName = "jungle_hills",
-				Temperature = 0.95f,
-				Downfall = 0.9f
-			},
-			new Biome
-			{
-				Id = 23,
-				Name = "Jungle Edge",
-				DefinitionName = "jungle_edge",
-				Temperature = 0.95f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 24,
-				Name = "Deep Ocean",
-				DefinitionName = "deep_ocean",
-				Temperature = 0.5f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 25,
-				Name = "Stone Beach",
-				DefinitionName = "stone_beach",
-				Temperature = 0.2f,
-				Downfall = 0.3f
-			},
-			new Biome
-			{
-				Id = 26,
-				Name = "Cold ",
-				DefinitionName = "cold_beach",
-				Temperature = 0.05f,
-				Downfall = 0.3f
-			},
-			new Biome
-			{
-				Id = 27,
-				Name = "Birch Forest",
-				DefinitionName = "birch_forest",
-				Temperature = 0.6f,
-				Downfall = 0.6f
-			},
-			new Biome
-			{
-				Id = 28,
-				Name = "Birch Forest Hills",
-				DefinitionName = "birch_forest_hills",
-				Temperature = 0.6f,
-				Downfall = 0.6f
-			},
-			new Biome
-			{
-				Id = 29,
-				Name = "Roofed Forest",
-				DefinitionName = "roofed_forest",
-				Temperature = 0.7f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 30,
-				Name = "Cold Taiga",
-				DefinitionName = "cold_taiga",
-				Temperature = -0.5f,
-				Downfall = 0.4f
-			},
-			new Biome
-			{
-				Id = 31,
-				Name = "Cold Taiga Hills",
-				DefinitionName = "cold_taiga_hills",
-				Temperature = -0.5f,
-				Downfall = 0.4f
-			},
-			new Biome
-			{
-				Id = 32,
-				Name = "Mega Taiga",
-				DefinitionName = "mega_taiga",
-				Temperature = 0.3f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 33,
-				Name = "Mega Taiga Hills",
-				DefinitionName = "mega_taiga_hills",
-				Temperature = 0.3f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 34,
-				Name = "Extreme Hills+",
-				DefinitionName = "extreme_hills_plus_trees",
-				Temperature = 0.2f,
-				Downfall = 0.3f
-			},
-			new Biome
-			{
-				Id = 35,
-				Name = "Savanna",
-				DefinitionName = "savanna",
-				Temperature = 1.2f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 36,
-				Name = "Savanna Plateau",
-				DefinitionName = "savanna_plateau",
-				Temperature = 1.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 37,
-				Name = "Mesa",
-				DefinitionName = "mesa",
-				Temperature = 2.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 38,
-				Name = "Mesa Plateau F",
-				DefinitionName = "mesa_plateau_stone",
-				Temperature = 2.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 39,
-				Name = "Mesa Plateau",
-				DefinitionName = "mesa_plateau",
-				Temperature = 2.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 44,
-				Name = "Warm Ocean",
-				DefinitionName = "warm_ocean",
-				Temperature = 0.5f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 45,
-				Name = "Lukewarm Ocean",
-				DefinitionName = "lukewarm_ocean",
-				Temperature = 0.5f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 46,
-				Name = "Cold Ocean",
-				DefinitionName = "cold_ocean",
-				Temperature = 0.5f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 47,
-				Name = "Deep Warm Ocean",
-				DefinitionName = "deep_warm_ocean",
-				Temperature = 0.5f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 48,
-				Name = "Deep Lukewarm Ocean",
-				DefinitionName = "deep_lukewarm_ocean",
-				Temperature = 0.5f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 49,
-				Name = "Deep Cold Ocean",
-				DefinitionName = "deep_cold_ocean",
-				Temperature = 0.5f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 50,
-				Name = "Deep Frozen Ocean",
-				DefinitionName = "deep_frozen_ocean",
-				Temperature = 0.0f,
-				Downfall = 0.5f
-			},
-			new Biome // doesn't exists in BE
-			{
-				Id = 127,
-				Name = "The Void",
-				DefinitionName = "",
-				Temperature = 0.8f,
-				Downfall = 0.4f
-			},
-			new Biome
-			{
-				Id = 129,
-				Name = "Sunflower Plains",
-				DefinitionName = "sunflower_plains",
-				Temperature = 0.8f,
-				Downfall = 0.4f
-			},
-			new Biome
-			{
-				Id = 130,
-				Name = "Desert M",
-				DefinitionName = "desert_mutated",
-				Temperature = 2.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 131,
-				Name = "Extreme Hills M",
-				DefinitionName = "extreme_hills_mutated",
-				Temperature = 0.2f,
-				Downfall = 0.3f
-			},
-			new Biome
-			{
-				Id = 132,
-				Name = "Flower Forest",
-				DefinitionName = "flower_forest",
-				Temperature = 0.7f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 133,
-				Name = "Taiga M",
-				DefinitionName = "taiga_mutated",
-				Temperature = 0.25f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 134,
-				Name = "Swampland M",
-				DefinitionName = "swampland_mutated",
-				Temperature = 0.8f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 140,
-				Name = "Ice Plains Spikes",
-				DefinitionName = "ice_plains_spikes",
-				Temperature = 0.0f,
-				Downfall = 1.0f
-			},
-			new Biome
-			{
-				Id = 149,
-				Name = "Jungle M",
-				DefinitionName = "jungle_mutated",
-				Temperature = 0.95f,
-				Downfall = 0.9f
-			},
-			new Biome
-			{
-				Id = 151,
-				Name = "JungleEdge M",
-				DefinitionName = "jungle_edge_mutated",
-				Temperature = 0.95f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 155,
-				Name = "Birch Forest M",
-				DefinitionName = "birch_forest_mutated",
-				Temperature = 0.7f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 156,
-				Name = "Birch Forest Hills M",
-				DefinitionName = "birch_forest_hills_mutated",
-				Temperature = 0.7f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 157,
-				Name = "Roofed Forest M",
-				DefinitionName = "roofed_forest_mutated",
-				Temperature = 0.7f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 158,
-				Name = "Cold Taiga M",
-				DefinitionName = "cold_taiga_mutated",
-				Temperature = -0.5f,
-				Downfall = 0.4f
-			},
-			new Biome
-			{
-				Id = 160,
-				Name = "Mega Spruce Taiga",
-				DefinitionName = "redwood_taiga_mutated",
-				Temperature = 0.25f,
-				Downfall = 0.8f
-			}, // special exception, temperature not 0.3
-			new Biome
-			{
-				Id = 161,
-				Name = "Mega Spruce Taiga Hills",
-				DefinitionName = "redwood_taiga_hills_mutated",
-				Temperature = 0.3f,
-				Downfall = 0.8f
-			},
-			new Biome
-			{
-				Id = 162,
-				Name = "Extreme Hills+ M",
-				DefinitionName = "extreme_hills_plus_trees_mutated",
-				Temperature = 0.2f,
-				Downfall = 0.3f
-			},
-			new Biome
-			{
-				Id = 163,
-				Name = "Savanna M",
-				DefinitionName = "savanna_mutated",
-				Temperature = 1.1f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 164,
-				Name = "Savanna Plateau M",
-				DefinitionName = "savanna_plateau_mutated",
-				Temperature = 1.0f,
-				Downfall = 0.5f
-			},
-			new Biome
-			{
-				Id = 165,
-				Name = "Mesa (Bryce)",
-				DefinitionName = "mesa_bryce",
-				Temperature = 2.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 166,
-				Name = "Mesa Plateau F M",
-				DefinitionName = "mesa_plateau_stone_mutated",
-				Temperature = 2.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 167,
-				Name = "Mesa Plateau M",
-				DefinitionName = "mesa_plateau_mutated",
-				Temperature = 2.0f,
-				Downfall = 0.0f
-			},
-			new Biome
-			{
-				Id = 168,
-				Name = " Bamboo Jungle",
-				DefinitionName = "bamboo_jungle",
-				Temperature = 0.95f,
-				Downfall = 0.9f
-			},
-			new Biome
-			{
-				Id = 169,
-				Name = " Bamboo Jungle Hills",
-				DefinitionName = "bamboo_jungle_hills",
-				Temperature = 0.95f,
-				Downfall = 0.9f
-			},
-		};
+			var assembly = Assembly.GetAssembly(typeof(Biome));
+
+			var biomeIdMap = ResourceUtil.ReadResource<Dictionary<string, int>>("biome_id_map.json", typeof(Biome), "Data");
+
+			using (var stream = assembly.GetManifestResourceStream(typeof(Biome).Namespace + ".Data.biome_definitions.nbt"))
+			{
+				BiomesCache = Packet.ReadNbtCompound(stream, true);
+
+				foreach (NbtCompound biomeTag in BiomesCache)
+				{
+					var biome = new Biome()
+					{
+						Name = biomeTag["name_hash"].StringValue,
+						Rain = biomeTag["rain"].ByteValue == 1,
+						Depth = biomeTag["depth"].FloatValue,
+						Downfall = biomeTag["downfall"].FloatValue,
+						Height = biomeTag["height"].FloatValue,
+						Temperature = biomeTag["temperature"].FloatValue,
+						BlueSpores = biomeTag["blue_spores"].FloatValue,
+						RedSpores = biomeTag["red_spores"].FloatValue,
+						Ash = biomeTag["ash"].FloatValue,
+						WhiteAsh = biomeTag["white_ash"].FloatValue,
+						WaterTransparency = biomeTag["waterTransparency"].FloatValue,
+						WaterColor = new RgbaVector(
+							biomeTag["waterColorR"].FloatValue, 
+							biomeTag["waterColorG"].FloatValue,
+							biomeTag["waterColorB"].FloatValue, 
+							biomeTag["waterColorA"].FloatValue),
+					};
+
+					biome.Id = biomeIdMap[biome.Name];
+
+					IdBiomeMap.Add(biome.Id, biome);
+					NameBiomeMap.Add(biome.Name, biome);
+				}
+			}
+		}
+
+		public static Dictionary<int, Biome> IdBiomeMap { get; } = new Dictionary<int, Biome>();
+		public static Dictionary<string, Biome> NameBiomeMap { get; } = new Dictionary<string, Biome>();
+		public static NbtCompound BiomesCache { get; set; }
 
 		private struct BiomeCorner
 		{
@@ -722,11 +204,11 @@ namespace MiNET.Worlds
 
 		public void PrecomputeBiomeColors()
 		{
-			for (int biome = 0; biome < Biomes.Length; biome++)
-			{
-				Biomes[biome].Grass = ComputeBiomeColor(biome, 0, true);
-				Biomes[biome].Foliage = ComputeBiomeColor(biome, 0, false);
-			}
+			//for (int biome = 0; biome < IdBiomeMap.Count; biome++)
+			//{
+			//	IdBiomeMap[biome].Grass = ComputeBiomeColor(biome, 0, true);
+			//	IdBiomeMap[biome].Foliage = ComputeBiomeColor(biome, 0, false);
+			//}
 
 			//var mesaGrass = GetBiome(37).grass;
 			//var desertGrass = GetBiome(2).grass;
@@ -804,11 +286,16 @@ namespace MiNET.Worlds
 
 		public static Biome GetBiome(int biomeId)
 		{
-			return Biomes.FirstOrDefault(biome => biome.Id == biomeId) ?? new Biome
+			return IdBiomeMap.GetValueOrDefault(biomeId) ?? new Biome
 			{
 				Id = biomeId,
 				Name = "" + biomeId
 			};
+		}
+
+		public static Biome GetBiome(string name)
+		{
+			return NameBiomeMap.GetValueOrDefault(name);
 		}
 
 		public int BiomeSwampRiverColor(int color)
@@ -824,24 +311,6 @@ namespace MiNET.Worlds
 			color = (r << 16) | (g << 8) | b;
 
 			return color;
-		}
-
-		public static NbtCompound GenerateDefinitionList()
-		{
-			NbtCompound list = new NbtCompound("");
-			foreach (Biome biome in Biomes)
-			{
-				if (string.IsNullOrEmpty(biome.DefinitionName))
-					continue;
-				list.Add(
-					new NbtCompound(biome.DefinitionName)
-					{
-						new NbtFloat("downfall", biome.Downfall),
-						new NbtFloat("temperature", biome.Temperature),
-					}
-				);
-			}
-			return list;
 		}
 	}
 }

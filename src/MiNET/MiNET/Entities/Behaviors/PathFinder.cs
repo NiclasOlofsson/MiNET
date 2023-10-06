@@ -369,7 +369,7 @@ namespace MiNET.Entities.Behaviors
 					else
 					{
 						// Check block collision box, not hit box
-						if (_level.GetBlock(coord) is Fence)
+						if (_level.GetBlock(coord) is FenceBase)
 						{
 							continue;
 						}
@@ -574,7 +574,7 @@ namespace MiNET.Entities.Behaviors
 
 			if (IsBlocked(block.Coordinates))
 			{
-				Log.Warn($"This shouldn't have happened with block {block}");
+				Log.Debug($"This shouldn't have happened with block {block}");
 				return true; // ? Should never happen, right. If solid, shouldn't even be here.
 			}
 			if (_entityCoords.Contains(block.Coordinates)) return true;

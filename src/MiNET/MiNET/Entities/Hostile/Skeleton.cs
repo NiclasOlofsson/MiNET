@@ -33,11 +33,6 @@ namespace MiNET.Entities.Hostile
 {
 	public class Skeleton : HostileMob
 	{
-		public short Boots { get; set; }
-		public short Leggings { get; set; }
-		public short Chest { get; set; }
-		public short Helmet { get; set; }
-
 		public Item ItemInHand { get; set; }
 
 		public Skeleton(Level level) : base(EntityType.Skeleton, level)
@@ -48,7 +43,7 @@ namespace MiNET.Entities.Hostile
 
 			AttackDamage = 4;
 
-			ItemInHand = ItemFactory.GetItem("bow");
+			ItemInHand = new ItemBow();
 
 			//TargetBehaviors.Add(new HurtByTargetBehaviorNew(this));
 			//TargetBehaviors.Add(new FindAttackableTargetBehavior(this, 16));
@@ -80,10 +75,10 @@ namespace MiNET.Entities.Hostile
 		{
 			McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
 			armorEquipment.runtimeEntityId = EntityId;
-			armorEquipment.helmet = ItemFactory.GetItem(Helmet);
-			armorEquipment.chestplate = ItemFactory.GetItem(Chest);
-			armorEquipment.leggings = ItemFactory.GetItem(Leggings);
-			armorEquipment.boots = ItemFactory.GetItem(Boots);
+			armorEquipment.helmet = Helmet;
+			armorEquipment.chestplate = Chest;
+			armorEquipment.leggings =Leggings;
+			armorEquipment.boots = Boots;
 			Level.RelayBroadcast(armorEquipment);
 		}
 

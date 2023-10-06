@@ -32,7 +32,7 @@ namespace MiNET.Blocks
 {
 	public partial class IronTrapdoor : Block
 	{
-		public IronTrapdoor() : base(167)
+		public IronTrapdoor() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 25;

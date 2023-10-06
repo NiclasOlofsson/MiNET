@@ -36,7 +36,7 @@ namespace MiNET.Worlds.Tests
 		[TestMethod()]
 		public void RoundtripTest()
 		{
-			var provider = new LevelDbProvider(null);
+			var provider = new LevelDbProvider();
 			var flatGenerator = new SuperflatGenerator(Dimension.Overworld);
 			flatGenerator.Initialize(null);
 			SubChunk chunk = flatGenerator.GenerateChunkColumn(new ChunkCoordinates())[0];
@@ -45,7 +45,7 @@ namespace MiNET.Worlds.Tests
 			provider.Write(chunk, stream);
 			byte[] output = stream.ToArray();
 
-			var parsedChunk = new SubChunk();
+			var parsedChunk = new SubChunk(0, 0, 0);
 			provider.ParseSection(parsedChunk, output);
 
 			// Assert

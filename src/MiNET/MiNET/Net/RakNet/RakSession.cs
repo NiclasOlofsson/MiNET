@@ -58,6 +58,8 @@ namespace MiNET.Net.RakNet
 
 		public ICustomMessageHandler CustomMessageHandler { get; set; }
 
+		public bool EnableCompression { get; set; } = false;
+
 		public string Username { get; set; }
 		public IPEndPoint EndPoint { get; private set; }
 		public short MtuSize { get; set; }
@@ -210,7 +212,7 @@ namespace MiNET.Net.RakNet
 					}
 				}
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 			}
 		}
@@ -448,6 +450,13 @@ namespace MiNET.Net.RakNet
 
 			lock (_queueSync)
 			{
+				if (packet is McpeWrapper wrapper && _sendQueueNotConcurrent.Contains(packet))
+				{
+					var clone = McpeWrapper.CreateObject();
+					clone.payload = wrapper.payload;
+					packet = clone;
+				}
+
 				_sendQueueNotConcurrent.Enqueue(packet);
 			}
 		}
@@ -583,24 +592,7 @@ namespace MiNET.Net.RakNet
 
 				if (sendList.Count == 0) return;
 
-				List<Packet> prepareSend = CustomMessageHandler.PrepareSend(sendList);
-				var preppedSendList = new List<Packet>();
-				foreach (Packet packet in prepareSend)
-				{
-					Packet message = packet;
-
-					if (CustomMessageHandler != null) message = CustomMessageHandler.HandleOrderedSend(message);
-
-					Reliability reliability = message.ReliabilityHeader.Reliability;
-					if (reliability == Reliability.Undefined) reliability = Reliability.Reliable; // Questionable practice
-
-					if (reliability == Reliability.ReliableOrdered) message.ReliabilityHeader.OrderingIndex = Interlocked.Increment(ref OrderingIndex);
-
-					preppedSendList.Add(message);
-					//await _packetSender.SendPacketAsync(this, message);
-				}
-
-				await _packetSender.SendPacketAsync(this, preppedSendList);
+				await SendPrepareDirectPackets(sendList);
 			}
 			catch (Exception e)
 			{
@@ -621,6 +613,11 @@ namespace MiNET.Net.RakNet
 				packet.ReliabilityHeader.Reliability = Reliability.Reliable; // Questionable practice
 
 			_packetSender.SendPacketAsync(this, packet).Wait();
+		}
+
+		public void SendPrepareDirectPacket(Packet packet)
+		{
+			SendPrepareDirectPackets(new List<Packet> { packet }).Wait();
 		}
 
 		public IPEndPoint GetClientEndPoint()
@@ -669,6 +666,33 @@ namespace MiNET.Net.RakNet
 			}
 
 			if (Log.IsDebugEnabled) Log.Info($"Closed network session for player {Username}");
+		}
+
+		private async Task SendPrepareDirectPackets(List<Packet> packets)
+		{
+			List<Packet> prepareSend = CustomMessageHandler.PrepareSend(packets);
+			var preppedSendList = new List<Packet>();
+			foreach (Packet preparePacket in prepareSend)
+			{
+				Packet message = preparePacket;
+
+				if (CustomMessageHandler != null)
+				{
+					message = CustomMessageHandler.HandleOrderedSend(message);
+				}
+
+				Reliability reliability = message.ReliabilityHeader.Reliability;
+				if (reliability == Reliability.Undefined) reliability = Reliability.Reliable; // Questionable practice
+
+				if (reliability == Reliability.ReliableOrdered)
+				{
+					message.ReliabilityHeader.OrderingIndex = Interlocked.Increment(ref OrderingIndex);
+				}
+
+				preppedSendList.Add(message);
+			}
+
+			await _packetSender.SendPacketAsync(this, preppedSendList);
 		}
 	}
 }

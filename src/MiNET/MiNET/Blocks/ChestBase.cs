@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 
 		[StateRange(0, 5)] public virtual int FacingDirection { get; set; }
 
-		public ChestBase(byte id) : base(id)
+		public ChestBase() : base()
 		{
 			FuelEfficiency = 15;
 			IsTransparent = true;

@@ -25,11 +25,10 @@
 
 namespace MiNET.Items
 {
-	public class ItemWoodenAxe : ItemAxe
+	public partial class ItemWoodenAxe
 	{
-		public ItemWoodenAxe() : base("minecraft:wooden_axe", 271)
+		public ItemWoodenAxe() : base()
 		{
-			ItemMaterial = ItemMaterial.Wood;
 			FuelEfficiency = 10;
 		}
 	}

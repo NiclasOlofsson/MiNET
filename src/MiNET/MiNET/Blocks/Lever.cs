@@ -32,7 +32,7 @@ namespace MiNET.Blocks
 {
 	public partial class Lever : Block
 	{
-		public Lever() : base(69)
+		public Lever() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;

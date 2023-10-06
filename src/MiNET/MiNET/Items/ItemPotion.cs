@@ -25,18 +25,18 @@
 
 using log4net;
 using MiNET.Effects;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemPotion : Item
+	public partial class ItemPotion
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemPotion));
 
-		public ItemPotion(short metadata) : base("minecraft:potion", 373, metadata)
+		public ItemPotion() : base()
 		{
+
 		}
 
 		private bool _isUsing;
@@ -50,7 +50,7 @@ namespace MiNET.Items
 				if (player.GameMode == GameMode.Survival || player.GameMode == GameMode.Adventure)
 				{
 					player.Inventory.ClearInventorySlot((byte) player.Inventory.InHandSlot);
-					player.Inventory.SetFirstEmptySlot(ItemFactory.GetItem(374), true);
+					player.Inventory.SetFirstEmptySlot(new ItemGlassBottle(), true);
 				}
 				_isUsing = false;
 				return;

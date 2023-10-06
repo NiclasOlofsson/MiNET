@@ -35,7 +35,7 @@ namespace MiNET.Blocks
 {
 	public partial class EnchantingTable : Block
 	{
-		public EnchantingTable() : base(116)
+		public EnchantingTable() : base()
 		{
 			FuelEfficiency = 15;
 			IsTransparent = true;

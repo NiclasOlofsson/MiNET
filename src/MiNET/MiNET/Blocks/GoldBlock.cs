@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class GoldBlock : Block
 	{
-		public GoldBlock() : base(41)
+		public GoldBlock() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 3;

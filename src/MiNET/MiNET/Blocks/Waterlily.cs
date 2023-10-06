@@ -32,7 +32,7 @@ namespace MiNET.Blocks
 {
 	public partial class Waterlily : Block
 	{
-		public Waterlily() : base(111)
+		public Waterlily() : base()
 		{
 			IsTransparent = true;
 		}

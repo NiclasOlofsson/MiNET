@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Stonecutter : Block
 	{
-		public Stonecutter() : base(245)
+		public Stonecutter() : base()
 		{
 			BlastResistance = 17.5f;
 		}

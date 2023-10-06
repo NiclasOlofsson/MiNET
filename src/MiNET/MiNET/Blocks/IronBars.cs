@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class IronBars : Block
 	{
-		public IronBars() : base(101)
+		public IronBars() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 30;

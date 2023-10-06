@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class NetherBrick : Block
 	{
-		public NetherBrick() : base(112)
+		public NetherBrick() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 2;

@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class CobblestoneWall : Block
 	{
-		public CobblestoneWall() : base(139)
+		public CobblestoneWall() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 30;

@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class EmeraldOre : Block
 	{
-		public EmeraldOre() : base(129)
+		public EmeraldOre() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;
@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 		{
 			if (tool.ItemMaterial < ItemMaterial.Stone) return new Item[0];
 
-			return new[] {ItemFactory.GetItem(388, 0, 1)};
+			return new[] { new ItemEmerald() };
 		}
 
 		public override float GetExperiencePoints()

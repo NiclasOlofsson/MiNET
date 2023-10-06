@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 		public int Base { get; set; }
 		public NbtCompound ExtraData { get; set; }
 
-		public WallBanner() : base(177)
+		public WallBanner() : base()
 		{
 		}
 

@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class TripwireHook : Block
 	{
-		public TripwireHook() : base(131)
+		public TripwireHook() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

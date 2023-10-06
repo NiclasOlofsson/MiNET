@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class BirchStairs : BlockStairs
 	{
-		public BirchStairs() : base(135)
+		public BirchStairs() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 2;

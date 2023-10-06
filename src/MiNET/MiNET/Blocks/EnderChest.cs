@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class EnderChest : ChestBase
 	{
-		public EnderChest() : base(130)
+		public EnderChest() : base()
 		{
 			IsTransparent = true;
 			LightLevel = 7;
@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new Item[] {ItemFactory.GetItem(49, 0, 8)}; // 8 Obsidian
+			return new Item[] { ItemFactory.GetItem<Obsidian>(count: 8) };
 		}
 	}
 }

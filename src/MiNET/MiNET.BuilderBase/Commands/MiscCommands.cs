@@ -1,14 +1,15 @@
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
+﻿using System.Collections.Generic;
 using log4net;
 using MiNET.Blocks;
 using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
 using MiNET.Plugins.Attributes;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
-using MiNET.Worlds;
+using SixLabors.Fonts;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace MiNET.BuilderBase.Commands
 {
@@ -26,7 +27,7 @@ namespace MiNET.BuilderBase.Commands
 		public void Drain(Player player, int radius)
 		{
 			EditSession.Fill((BlockCoordinates) player.KnownPosition,
-				new Pattern(0, 0),
+				new Pattern(BlockFactory.GetIdByType<Air>(), 0),
 				new Mask(player.Level, new List<Block> {new FlowingWater(), new Water(), new Lava(), new FlowingLava()}, true),
 				radius,
 				-1, true);
@@ -46,24 +47,22 @@ namespace MiNET.BuilderBase.Commands
 		public void Text(Player player, string text, Pattern pattern, string fontName = "Minecraft", int pxSize = 20)
 		{
 			//var font = new Font("SketchFlow Print", 20, GraphicsUnit.Pixel);
-			var font = new Font(fontName, pxSize, GraphicsUnit.Pixel);
+			var font = SixLabors.Fonts.SystemFonts.CreateFont(fontName, 100); //new Font(fontName, pxSize, GraphicsUnit.Pixel);
+			var size = TextMeasurer.Measure(text, new TextOptions(font));
 
-			SizeF size;
-			// First measure the size of the text
-			using (Graphics g = Graphics.FromImage(new Bitmap(1, 1)))
-			{
-				g.PageUnit = GraphicsUnit.Pixel;
-				g.SmoothingMode = SmoothingMode.None;
-				size = g.MeasureString(text, font);
-			}
-
-			Bitmap bitmap = new Bitmap((int) size.Width, (int) size.Height);
+			float scalingFactor = pxSize / size.Height;
+			font = new Font(font, scalingFactor * font.Size);
+			size = TextMeasurer.Measure(text, new TextOptions(font));
+			
+			var bitmap = new Image<Rgba32>((int) size.Width, (int) size.Height);
 			RectangleF rectf = new RectangleF(0, 0, size.Width, size.Height);
-			using (Graphics g = Graphics.FromImage(bitmap))
+			//using (Graphics g = Graphics.FromImage(bitmap))
 			{
-				g.SmoothingMode = SmoothingMode.None;
-				g.DrawString(text, font, Brushes.Black, rectf);
-				g.Flush();
+				bitmap.Mutate(
+					x =>
+					{
+						x.DrawText(text, font, SixLabors.ImageSharp.Color.Black, PointF.Empty);
+					});
 
 				BlockCoordinates coords = player.KnownPosition.ToVector3();
 
@@ -71,7 +70,7 @@ namespace MiNET.BuilderBase.Commands
 				{
 					for (int w = 0; w < bitmap.Width; w++)
 					{
-						Color color = bitmap.GetPixel(w, h);
+						var color = bitmap[w,h];//.GetPixel(w, h);
 						var y = bitmap.Height - 1 - h;
 						BlockCoordinates tc = new BlockCoordinates(0, y, w);
 						if (color.A == 255)

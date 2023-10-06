@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class PackedIce : Block
 	{
-		public PackedIce() : base(174)
+		public PackedIce() : base()
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;

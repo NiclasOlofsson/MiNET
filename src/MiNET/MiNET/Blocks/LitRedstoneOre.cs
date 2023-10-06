@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class LitRedstoneOre : RedstoneOre
 	{
-		public LitRedstoneOre() : base(74)
+		public LitRedstoneOre() : base()
 		{
 			LightLevel = 9;
 		}

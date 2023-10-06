@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Leaves2));
 
-		public Leaves2() : base(161)
+		public Leaves2() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 1;
@@ -84,14 +84,14 @@ namespace MiNET.Blocks
 				if (rnd.Next(200) == 0)
 				{
 					// Apple
-					return new Item[] {ItemFactory.GetItem(260, 0, 1)};
+					return new Item[] { new ItemApple() };
 				}
 			}
 			if (rnd.Next(20) == 0)
 			{
 				// Sapling
 				var blockstate = GetState();
-				return new[] {ItemFactory.GetItem(6, blockstate.Data, 1)};
+				return new[] { ItemFactory.GetItem<Sapling>(blockstate.Data) };
 			}
 
 			return new Item[0];
@@ -102,7 +102,7 @@ namespace MiNET.Blocks
 			if (visited.Contains(coord)) return false;
 
 			var block = level.GetBlock(coord);
-			if (block is Log) return true;
+			if (block is LogBase) return true;
 
 			visited.Add(coord);
 

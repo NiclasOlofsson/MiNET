@@ -24,7 +24,7 @@ namespace MiNET.Blocks
 {
 	public partial class AcaciaButton: Button
 	{
-		public AcaciaButton() : base(395)
+		public AcaciaButton() : base()
 		{
 			TickRate = 30;
 		}

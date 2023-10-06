@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class DarkOakButton : Button
 	{
-		public DarkOakButton() : base(397)
+		public DarkOakButton() : base()
 		{
 			TickRate = 30;
 		}

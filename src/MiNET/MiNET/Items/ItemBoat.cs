@@ -32,15 +32,20 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemBoat : Item
+	public partial class ItemBoat : ItemBoatBase
+	{
+
+	}
+
+	public abstract class ItemBoatBase : Item
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBoat));
 
-		public ItemBoat(short metadata) : base("minecraft:boat", 333, metadata)
+		public ItemBoatBase() : base()
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 
@@ -54,6 +59,8 @@ namespace MiNET.Items
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
+
+			return true;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)

@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class ConcretePowder : Block
 	{
-		public ConcretePowder() : base(237)
+		public ConcretePowder() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;

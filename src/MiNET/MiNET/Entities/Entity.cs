@@ -384,6 +384,7 @@ namespace MiNET.Entities
 			ChargeAttack,
 			WasdControlled,
 			CanPowerJump,
+			CanDash,
 			Linger,
 			HasCollision,
 			AffectedByGravity,

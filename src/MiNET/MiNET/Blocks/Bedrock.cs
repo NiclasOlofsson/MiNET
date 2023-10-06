@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class Bedrock : Block
 	{
-		public Bedrock() : base(7)
+		public Bedrock() : base()
 		{
 			Hardness = 60000;
 			BlastResistance = 18000000;

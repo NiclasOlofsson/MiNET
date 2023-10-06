@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class RedMushroom : Block
 	{
-		public RedMushroom() : base(40)
+		public RedMushroom() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

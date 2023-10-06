@@ -23,6 +23,7 @@
 
 #endregion
 
+using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Worlds;
 
@@ -40,10 +41,10 @@ namespace MiNET.Entities.Passive
 
 		public override Item[] GetDrops()
 		{
-			return new[]
+			return new Item[]
 			{
-				ItemFactory.GetItem(40, 0, 2),
-				ItemFactory.GetItem(334, 0, 1)
+				ItemFactory.GetItem<RedMushroom>(count: 2),
+				new ItemLeather()
 			};
 		}
 	}

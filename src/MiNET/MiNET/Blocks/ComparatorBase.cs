@@ -25,9 +25,9 @@
 
 namespace MiNET.Blocks
 {
-	public partial class ComparatorBase : Block
+	public abstract partial class ComparatorBase : Block
 	{
-		public ComparatorBase(byte id) : base(id)
+		public ComparatorBase() : base()
 		{
 			IsTransparent = true;
 		}

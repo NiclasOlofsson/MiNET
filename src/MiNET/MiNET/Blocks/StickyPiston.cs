@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class StickyPiston : Block
 	{
-		public StickyPiston() : base(29)
+		public StickyPiston() : base()
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;

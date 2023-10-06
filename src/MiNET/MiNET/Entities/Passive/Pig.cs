@@ -51,7 +51,7 @@ namespace MiNET.Entities.Passive
 		{
 			return new[]
 			{
-				ItemFactory.GetItem(319, 0, 2)
+				new ItemPorkchop() { Count = 2 }
 			};
 		}
 	}

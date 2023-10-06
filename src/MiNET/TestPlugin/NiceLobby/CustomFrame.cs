@@ -30,6 +30,7 @@ using log4net;
 using MiNET;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Entities;
 using MiNET.Entities.ImageProviders;
 using MiNET.Entities.World;
 using MiNET.Items;
@@ -52,7 +53,7 @@ namespace TestPlugin.NiceLobby
 			_frameTicker = frameTicker;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Log.Warn("Using custom item frame");
 
@@ -68,13 +69,15 @@ namespace TestPlugin.NiceLobby
 				Coordinates = coor,
 			};
 
-			if (!frame.CanPlace(world, player, blockCoordinates, face)) return;
+			if (!frame.CanPlace(world, player, blockCoordinates, face)) return false;
 
 			frame.PlaceBlock(world, player, coor, face, faceCoords);
 
 			// Then we create and set the sign block entity that has all the intersting data
 
 			world.SetBlockEntity(itemFrameBlockEntity);
+
+			return true;
 		}
 	}
 
@@ -122,7 +125,7 @@ namespace TestPlugin.NiceLobby
 				var currentFrame = _frameTicker.GetCurrentFrame(this);
 				if (currentFrame >= _frames.Count) return;
 
-				var map = new ItemMap(_frames[currentFrame].EntityId);
+				var map = new ItemMap() { MapId = _frames[currentFrame].EntityId };
 
 				ItemFrameBlockEntity blockEntity = _itemFrameBlockEntity;
 				if (blockEntity != null)

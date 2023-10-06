@@ -35,10 +35,10 @@ using System.Threading.Tasks;
 using fNbt;
 using log4net;
 using MiNET.Blocks;
-using MiNET.Crafting;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Net.Crafting;
 using MiNET.Utils;
 using MiNET.Utils.Metadata;
 using MiNET.Utils.Vectors;
@@ -227,7 +227,7 @@ namespace MiNET.Client
 
 			var fileNameItemstates = Path.GetTempPath() + "itemstates_" + Guid.NewGuid() + ".json";
 			File.WriteAllText(fileNameItemstates, JsonConvert.SerializeObject(message.itemstates, settings));
-
+			Log.Warn($"itemstates_ Filename:\n{fileNameItemstates}");
 			string fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
 			using(FileStream file = File.OpenWrite(fileName))
 			{
@@ -241,31 +241,32 @@ namespace MiNET.Client
 
 				var blocks = new List<(int, string)>();
 
-				foreach (IGrouping<string, BlockStateContainer> blockstateGrouping in blockPalette.OrderBy(record => record.Name).ThenBy(record => record.Data).ThenBy(record => record.RuntimeId) .GroupBy(record => record.Name))
+				foreach (IGrouping<string, BlockStateContainer> blockstateGrouping in blockPalette.OrderBy(record => record.Id).ThenBy(record => record.Data).ThenBy(record => record.RuntimeId) .GroupBy(record => record.Id))
 				{
 					BlockStateContainer currentBlockState = blockstateGrouping.First();
-					Log.Debug($"{currentBlockState.Name}, Id={currentBlockState.Id}");
-					BlockStateContainer defaultBlockState = BlockFactory.GetBlockById(currentBlockState.Id, 0)?.GetGlobalState();
+					Log.Debug($"{currentBlockState.Id}, Id={currentBlockState.Id}");
+					BlockStateContainer defaultBlockState = BlockFactory.GetBlockById(currentBlockState.Id)?.GetGlobalState();
 					if (defaultBlockState == null)
 					{
 						defaultBlockState = blockstateGrouping.FirstOrDefault(bs => bs.Data == 0);
 					}
 
-					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Name}, {currentBlockState.Data}");
+					Log.Debug($"{currentBlockState.RuntimeId}, {currentBlockState.Id}, {currentBlockState.Data}");
 					Block blockById = BlockFactory.GetBlockById(currentBlockState.Id);
-					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
-					int id = existingBlock ? currentBlockState.Id : -1;
+					// 1.19-update
+					//bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
 
-					string blockClassName = CodeName(currentBlockState.Name.Replace("minecraft:", ""), true);
+					string blockClassName = CodeName(currentBlockState.Id.Replace("minecraft:", ""), true);
 
-					blocks.Add((blockById.Id, blockClassName));
+					// 1.19-update
+					//blocks.Add((blockById.Id, blockClassName));
 					writer.WriteLineNoTabs($"");
 
 					writer.WriteLine($"public partial class {blockClassName} // {blockById.Id} typeof={blockById.GetType().Name}");
 					writer.WriteLine($"{{");
 					writer.Indent++;
 
-					writer.WriteLine($"public override string Name => \"{currentBlockState.Name}\";");
+					writer.WriteLine($"public override string Name => \"{currentBlockState.Id}\";");
 					writer.WriteLineNoTabs("");
 
 					var bits = new List<BlockStateByte>();
@@ -369,7 +370,7 @@ namespace MiNET.Client
 					writer.WriteLine($"{{");
 					writer.Indent++;
 					writer.WriteLine($"var record = new BlockStateContainer();");
-					writer.WriteLine($"record.Name = \"{blockstateGrouping.First().Name}\";");
+					writer.WriteLine($"record.Name = \"{blockstateGrouping.First().Id}\";");
 					writer.WriteLine($"record.Id = {blockstateGrouping.First().Id};");
 					foreach (var state in blockstateGrouping.First().States)
 					{
@@ -385,21 +386,22 @@ namespace MiNET.Client
 
 				writer.WriteLine();
 
-				foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
-				{
-					int clazzId = block.Item1;
+				// 1.19-update
+				//foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
+				//{
+				//	int clazzId = block.Item1;
 
-					Block blockById = BlockFactory.GetBlockById(clazzId);
-					bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
-					if (existingBlock) continue;
+				//	Block blockById = BlockFactory.GetBlockById(clazzId);
+				//	bool existingBlock = blockById.GetType() != typeof(Block) && !blockById.IsGenerated;
+				//	if (existingBlock) continue;
 
-					string clazzName = block.Item2;
-					string baseClazz = clazzName.EndsWith("Stairs") ? "BlockStairs" : "Block";
-					baseClazz = clazzName.EndsWith("Slab") && !clazzName.EndsWith("DoubleSlab")? "SlabBase" : baseClazz;
-					writer.WriteLine($"public partial class {clazzName} : {baseClazz} {{ " +
-									$"public {clazzName}() : base({clazzId}) {{ IsGenerated = true; }} " +
-									$"}}");
-				}
+				//	string clazzName = block.Item2;
+				//	string baseClazz = clazzName.EndsWith("Stairs") ? "BlockStairs" : "Block";
+				//	baseClazz = clazzName.EndsWith("Slab") && !clazzName.EndsWith("DoubleSlab")? "SlabBase" : baseClazz;
+				//	writer.WriteLine($"public partial class {clazzName} : {baseClazz} {{ " +
+				//					$"public {clazzName}() : base({clazzId}) {{ IsGenerated = true; }} " +
+				//					$"}}");
+				//}
 
 				writer.Indent--;
 				writer.WriteLine($"}}"); // namespace
@@ -413,11 +415,11 @@ namespace MiNET.Client
 				writer.Flush();
 			}
 
-			LogGamerules(message.gamerules);
+			LogGamerules(message.levelSettings.gamerules);
 
 			Client.LevelInfo.LevelName = "Default";
 			Client.LevelInfo.Version = 19133;
-			Client.LevelInfo.GameType = message.gamemode;
+			Client.LevelInfo.GameType = message.levelSettings.gamemode;
 
 			//ClientUtils.SaveLevel(_level);
 
@@ -665,9 +667,9 @@ namespace MiNET.Client
 					writer.WriteLine("new List<Item>");
 					writer.WriteLine("{");
 					writer.Indent++;
-					foreach (var itemStack in shapelessRecipe.Result)
+					foreach (var itemStack in shapelessRecipe.Output)
 					{
-						writer.WriteLine($"new Item({itemStack.Id}, {itemStack.Metadata}, {itemStack.Count}){{ UniqueId = {itemStack.UniqueId}, RuntimeId={itemStack.RuntimeId} }},");
+						writer.WriteLine($"new Item(\"{itemStack.Id}\", {itemStack.Metadata}, {itemStack.Count}){{ UniqueId = {itemStack.UniqueId}, RuntimeId={itemStack.BlockRuntimeId} }},");
 					}
 					writer.Indent--;
 					writer.WriteLine($"}},");
@@ -675,9 +677,10 @@ namespace MiNET.Client
 					writer.WriteLine("new List<Item>");
 					writer.WriteLine("{");
 					writer.Indent++;
-					foreach (var itemStack in shapelessRecipe.Input)
+					foreach (var ingredient in shapelessRecipe.Input)
 					{
-						writer.WriteLine($"new Item({itemStack.Id}, {itemStack.Metadata}, {itemStack.Count}){{ UniqueId = {itemStack.UniqueId}, RuntimeId={itemStack.RuntimeId} }},");
+						// TODO - 1.19-update
+						//writer.WriteLine($"new Item(\"{ingredient.Id}\", {ingredient.Metadata}, {ingredient.Count}){{ UniqueId = {ingredient.UniqueId}, RuntimeId={ingredient.BlockRuntimeId} }},");
 					}
 					writer.Indent--;
 					writer.WriteLine($"}}, \"{shapelessRecipe.Block}\"){{ UniqueId = {shapelessRecipe.UniqueId} }},");
@@ -704,9 +707,9 @@ namespace MiNET.Client
 					writer.WriteLine("new List<Item>");
 					writer.WriteLine("{");
 					writer.Indent++;
-					foreach (Item item in shapedRecipe.Result)
+					foreach (Item item in shapedRecipe.Output)
 					{
-						writer.WriteLine($"new Item({item.Id}, {item.Metadata}, {item.Count}){{ UniqueId = {item.UniqueId}, RuntimeId={item.RuntimeId} }},");
+						writer.WriteLine($"new Item(\"{item.Id}\", {item.Metadata}, {item.Count}){{ UniqueId = {item.UniqueId}, RuntimeId={item.BlockRuntimeId} }},");
 					}
 					writer.Indent--;
 					writer.WriteLine($"}},");
@@ -714,9 +717,10 @@ namespace MiNET.Client
 					writer.WriteLine("new Item[]");
 					writer.WriteLine("{");
 					writer.Indent++;
-					foreach (Item item in shapedRecipe.Input)
+					foreach (var ingredient in shapedRecipe.Input)
 					{
-						writer.WriteLine($"new Item({item.Id}, {item.Metadata}, {item.Count}){{ UniqueId = {item.UniqueId}, RuntimeId={item.RuntimeId} }},");
+						// TODO - 1.19-update
+						//writer.WriteLine($"new Item(\"{ingredient.Id}\", {ingredient.Metadata}, {ingredient.Count}){{ RuntimeId={ingredient.BlockRuntimeId} }},");
 					}
 					writer.Indent--;
 					writer.WriteLine($"}}, \"{shapedRecipe.Block}\"){{ UniqueId = {shapedRecipe.UniqueId} }},");
@@ -729,7 +733,7 @@ namespace MiNET.Client
 				var smeltingRecipe = recipe as SmeltingRecipe;
 				if (smeltingRecipe != null)
 				{
-					writer.WriteLine($"new SmeltingRecipe(new Item({smeltingRecipe.Result.Id}, {smeltingRecipe.Result.Metadata}, {smeltingRecipe.Result.Count}){{ UniqueId = {smeltingRecipe.Result.UniqueId}, RuntimeId={smeltingRecipe.Result.RuntimeId} }}, new Item({smeltingRecipe.Input.Id}, {smeltingRecipe.Input.Metadata}){{ UniqueId = {smeltingRecipe.Input.UniqueId}, RuntimeId={smeltingRecipe.Input.RuntimeId} }}, \"{smeltingRecipe.Block}\"),");
+					writer.WriteLine($"new SmeltingRecipe(new Item(\"{smeltingRecipe.Output.Id}\", {smeltingRecipe.Output.Metadata}, {smeltingRecipe.Output.Count}){{ UniqueId = {smeltingRecipe.Output.UniqueId}, RuntimeId={smeltingRecipe.Output.BlockRuntimeId} }}, new Item(\"{smeltingRecipe.Input.Id}\", {smeltingRecipe.Input.Metadata}){{ UniqueId = {smeltingRecipe.Input.UniqueId}, RuntimeId={smeltingRecipe.Input.BlockRuntimeId} }}, \"{smeltingRecipe.Block}\"),");
 					continue;
 				}
 
@@ -764,7 +768,7 @@ namespace MiNET.Client
 			// TODO doesn't work anymore I guess
 			if (Client.IsEmulator) return;
 
-			if (message.cacheEnabled)
+			if (message.blobHashes != null)
 			{
 				var hits = new ulong[message.blobHashes.Length];
 

@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class Potatoes : Crops
 	{
-		public Potatoes() : base(142)
+		public Potatoes() : base()
 		{
 		}
 
@@ -39,10 +39,10 @@ namespace MiNET.Blocks
 			if (Growth == 7)
 			{
 				Random random = new Random();
-				return new[] {ItemFactory.GetItem(392, 0, (byte) random.Next(1, 5))};
+				return new[] { new ItemPotato() { Count = (byte) random.Next(1, 5) } };
 			}
 
-			return new[] {ItemFactory.GetItem(392, 0, 1)};
+			return new[] { new ItemPotato() };
 		}
 	}
 }

@@ -120,6 +120,9 @@ namespace MiNET.Net
 					// Do nothing right now, but should clear out the entities and stuff
 					// from this players internal structure.
 					break;
+				case McpeRequestNetworkSettings msg:
+					handler.HandleMcpeRequestNetworkSettings(msg);
+					break;
 				case McpeLogin msg:
 					handler.HandleMcpeLogin(msg);
 					break;
@@ -230,6 +233,9 @@ namespace MiNET.Net
 					break;
 				case McpeFilterTextPacket msg:
 					handler.HandleMcpeFilterTextPacket(msg);
+					break;
+				case McpeRequestAbility msg:
+					handler.HandleMcpeRequestAbility(msg);
 					break;
 
 				default:

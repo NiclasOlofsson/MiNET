@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Pumpkin : Block
 	{
-		public Pumpkin() : base(86)
+		public Pumpkin() : base()
 		{
 			BlastResistance = 5;
 			Hardness = 1;

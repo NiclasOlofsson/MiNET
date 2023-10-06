@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class OakStairs : BlockStairs
 	{
-		public OakStairs() : base(53)
+		public OakStairs() : base()
 		{
 			IsTransparent = true; // Partial - Blocks light.
 			BlastResistance = 15;

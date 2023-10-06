@@ -49,9 +49,6 @@ namespace MiNET.Net
 		private float _dX;
 		private float _dY;
 		private float _dZ;
-		private int _dPitch;
-		private int _dYaw;
-		private int _dHeadYaw;
 
 		partial void BeforeEncode()
 		{

@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Tnt : Block
 	{
-		public Tnt() : base(46)
+		public Tnt() : base()
 		{
 			IsFlammable = true;
 		}

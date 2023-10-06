@@ -42,7 +42,7 @@ namespace MiNET.Entities.Passive
 		{
 			return new[]
 			{
-				ItemFactory.GetItem(351)
+				new ItemDye()
 			};
 		}
 	}

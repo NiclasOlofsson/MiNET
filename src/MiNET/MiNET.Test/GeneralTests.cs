@@ -544,7 +544,7 @@ namespace MiNET.Test
 				palette = BlockPalette.FromJson(reader.ReadToEnd());
 			}
 			//Assert.AreEqual(3045, palette.Count);
-			BlockStateContainer stateContainer = palette.First(b => b.Id == 6 && b.Data == 10);
+			BlockStateContainer stateContainer = palette.First(b => b.Id.Contains("sapling") && b.Data == 10);
 			Assert.AreEqual(2, stateContainer.States.Count);
 
 			foreach (IBlockState recordState in stateContainer.States)
@@ -582,20 +582,19 @@ namespace MiNET.Test
 				writer.Indent++;
 
 
-				foreach (IGrouping<string, BlockStateContainer> blockstate in palette.OrderBy(r => r.Name).ThenBy(r => r.Data).GroupBy(r => r.Name))
+				foreach (IGrouping<string, BlockStateContainer> blockstate in palette.OrderBy(r => r.Id).ThenBy(r => r.Data).GroupBy(r => r.Id))
 				{
 					var enumerator = blockstate.GetEnumerator();
 					enumerator.MoveNext();
 					var value = enumerator.Current;
 					if (value == null) continue;
-					Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
-					int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
+					Log.Debug($"{value.RuntimeId}, {value.Id}, {value.Data}");
 
-					if (id == 0 && !value.Name.Contains("air"))
+					if (!value.Id.Contains("air"))
 					{
-						string blockName = CodeName(value.Name.Replace("minecraft:", ""), true);
+						string blockName = CodeName(value.Id.Replace("minecraft:", ""), true);
 
-						blocks.Add((value.Id, blockName));
+						//blocks.Add((value.Id, blockName));
 
 						writer.WriteLine($"public class {blockName}: Block");
 						writer.WriteLine($"{{");
@@ -605,7 +604,7 @@ namespace MiNET.Test
 						writer.WriteLine($"{{");
 						writer.Indent++;
 
-						writer.WriteLine($"Name = \"{value.Name}\";");
+						writer.WriteLine($"Name = \"{value.Id}\";");
 
 						do
 						{

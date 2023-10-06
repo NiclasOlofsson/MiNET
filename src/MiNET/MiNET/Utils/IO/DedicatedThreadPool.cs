@@ -333,8 +333,11 @@ namespace MiNET.Utils.IO
 				if (pool.Settings.Name != null)
 					thread.Name = string.Format("{0}_{1}", pool.Settings.Name, workerId);
 
-				if (pool.Settings.ApartmentState != ApartmentState.Unknown)
-					thread.SetApartmentState(pool.Settings.ApartmentState);
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				{
+					if (pool.Settings.ApartmentState != ApartmentState.Unknown)
+						thread.SetApartmentState(pool.Settings.ApartmentState);
+				}
 
 				thread.Start();
 			}

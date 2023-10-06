@@ -41,13 +41,14 @@ namespace MiNET.Worlds
 			LoadFromNbt(dataTag);
 		}
 
+		public int DataVersion { get; set; }
 		public int Version { get; set; }
 		public bool Initialized { get; set; }
 		public string LevelName { get; set; }
 		public string GeneratorName { get; set; }
 		public int GeneratorVersion { get; set; }
 		public string GeneratorOptions { get; set; }
-		public long RandomSeed { get; set; }
+		public long Seed { get; set; }
 		public bool MapFeatures { get; set; }
 		public long LastPlayed { get; set; }
 		public bool AllowCommands { get; set; }
@@ -249,13 +250,14 @@ namespace MiNET.Worlds
 
 		public void LoadFromNbt(NbtTag dataTag)
 		{
+			GetPropertyValue(dataTag, () => DataVersion);
 			GetPropertyValue(dataTag, () => Version);
 			GetPropertyValue(dataTag, () => Initialized);
 			GetPropertyValue(dataTag, () => LevelName);
 			GetPropertyValue(dataTag, () => GeneratorName);
 			GetPropertyValue(dataTag, () => GeneratorVersion);
 			GetPropertyValue(dataTag, () => GeneratorOptions);
-			GetPropertyValue(dataTag, () => RandomSeed);
+			GetPropertyValue(dataTag["WorldGenSettings"], () => Seed);
 			GetPropertyValue(dataTag, () => MapFeatures);
 			GetPropertyValue(dataTag, () => LastPlayed);
 			GetPropertyValue(dataTag, () => AllowCommands);
@@ -280,7 +282,7 @@ namespace MiNET.Worlds
 			SetPropertyValue(dataTag, () => GeneratorName);
 			SetPropertyValue(dataTag, () => GeneratorVersion);
 			SetPropertyValue(dataTag, () => GeneratorOptions);
-			SetPropertyValue(dataTag, () => RandomSeed);
+			SetPropertyValue(dataTag, () => Seed);
 			SetPropertyValue(dataTag, () => MapFeatures);
 			SetPropertyValue(dataTag, () => LastPlayed);
 			SetPropertyValue(dataTag, () => AllowCommands);

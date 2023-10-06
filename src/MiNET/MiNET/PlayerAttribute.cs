@@ -23,8 +23,25 @@
 
 #endregion
 
+using Newtonsoft.Json.Linq;
+
 namespace MiNET
 {
+	public class AttributeModifier
+	{
+		public string Id { get; set; }
+		public string Name { get; set; }
+		public float Amount { get; set; }
+		public int Operations { get; set; }
+		public int Operand { get; set; }
+		public bool Serializable { get; set; }
+
+		public override string ToString()
+		{
+			return $"{{Id: {Id}, Name: {Name}, Amount: {Amount}, Operations: {Operations}, Operand: {Operand}, Serializable: {Serializable}}}";
+		}
+	}
+
 	public class PlayerAttribute
 	{
 		public string Name { get; set; }
@@ -32,10 +49,11 @@ namespace MiNET
 		public float MaxValue { get; set; }
 		public float Value { get; set; }
 		public float Default { get; set; }
+		public AttributeModifiers Modifiers { get; set; }
 
 		public override string ToString()
 		{
-			return $"Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}, Default: {Default}";
+			return $"{{Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}, Default: {Default}}}";
 		}
 	}
 
@@ -48,7 +66,7 @@ namespace MiNET
 
 		public override string ToString()
 		{
-			return $"Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}";
+			return $"{{Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}}}";
 		}
 	}
 

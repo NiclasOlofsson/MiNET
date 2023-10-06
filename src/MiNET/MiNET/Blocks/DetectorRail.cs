@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class DetectorRail : Block
 	{
-		public DetectorRail() : base(28)
+		public DetectorRail() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

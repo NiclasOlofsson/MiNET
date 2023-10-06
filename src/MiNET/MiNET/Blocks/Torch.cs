@@ -32,7 +32,7 @@ namespace MiNET.Blocks
 {
 	public partial class Torch : Block
 	{
-		public Torch() : base(50)
+		public Torch() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;

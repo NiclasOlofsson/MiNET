@@ -25,15 +25,10 @@
 
 namespace MiNET.Items
 {
-	public class ItemMuttonRaw : FoodItem
+	public partial class ItemMutton
 	{
-		public ItemMuttonRaw() : base("minecraft:mutton", 423, 0, 3, 1.8)
+		public ItemMutton() : base(3, 1.8)
 		{
-		}
-
-		public override Item GetSmelt()
-		{
-			return ItemFactory.GetItem(424);
 		}
 	}
 }

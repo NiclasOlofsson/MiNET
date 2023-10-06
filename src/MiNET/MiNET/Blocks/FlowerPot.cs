@@ -29,14 +29,14 @@ namespace MiNET.Blocks
 {
 	public partial class FlowerPot : Block
 	{
-		public FlowerPot() : base(140)
+		public FlowerPot() : base()
 		{
 			IsTransparent = true;
 		}
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {ItemFactory.GetItem(390, 0, 1)};
+			return new[] { new ItemFlowerPot() };
 		}
 	}
 }

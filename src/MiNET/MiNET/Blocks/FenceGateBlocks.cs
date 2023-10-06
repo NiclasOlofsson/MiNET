@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public abstract class FenceGateBlocks : Block
 	{
-		public FenceGateBlocks(byte id) : base(id)
+		public FenceGateBlocks() : base()
 		{
 			FuelEfficiency = 15;
 			IsTransparent = true;

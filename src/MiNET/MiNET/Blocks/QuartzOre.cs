@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class QuartzOre : Block
 	{
-		public QuartzOre() : base(153)
+		public QuartzOre() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;
@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {ItemFactory.GetItem(406, 0, 1)};
+			return new[] { new ItemQuartz() };
 		}
 
 		public override float GetExperiencePoints()

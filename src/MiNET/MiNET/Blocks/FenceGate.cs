@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class FenceGate : FenceGateBlocks
 	{
-		public FenceGate() : base(107)
+		public FenceGate() : base()
 		{
 		}
 	}

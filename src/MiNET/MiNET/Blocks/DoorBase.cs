@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 		[StateBit] public virtual bool OpenBit { get; set; }
 		[StateBit] public virtual bool UpperBlockBit { get; set; }
 
-		protected DoorBase(byte id) : base(id)
+		protected DoorBase() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 15;

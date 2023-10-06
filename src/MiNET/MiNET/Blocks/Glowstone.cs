@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class Glowstone : Block
 	{
-		public Glowstone() : base(89)
+		public Glowstone() : base()
 		{
 			//IsTransparent = true;
 			LightLevel = 15;
@@ -41,7 +41,7 @@ namespace MiNET.Blocks
 		public override Item[] GetDrops(Item tool)
 		{
 			var rnd = new Random();
-			return new[] {ItemFactory.GetItem(348, 0, (byte) (2 + rnd.Next(2)))};
+			return new[] { new ItemGlowstoneDust() { Count = (byte) (2 + rnd.Next(2)) } };
 		}
 	}
 }

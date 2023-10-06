@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemCookedChicken : FoodItem
+	public partial class ItemCookedChicken
 	{
-		public ItemCookedChicken() : base("minecraft:cooked_chicken", 366, 0, 6, 7.2)
+		public ItemCookedChicken() : base(6, 7.2)
 		{
 		}
 	}

@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class CoalOre : Block
 	{
-		public CoalOre() : base(16)
+		public CoalOre() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;
@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 		{
 			if (tool.ItemMaterial < ItemMaterial.Wood) return new Item[0];
 
-			return new[] {ItemFactory.GetItem(263, 0, 1)};
+			return new[] { new ItemCoal() };
 		}
 
 		public override float GetExperiencePoints()

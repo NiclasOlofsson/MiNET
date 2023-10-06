@@ -31,7 +31,7 @@ namespace MiNET.Blocks
 {
 	public partial class YellowFlower : Block
 	{
-		public YellowFlower() : base(37)
+		public YellowFlower() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

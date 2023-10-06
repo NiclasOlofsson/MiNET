@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class Dispenser : Block
 	{
-		public Dispenser() : base(23)
+		public Dispenser() : base()
 		{
 			BlastResistance = 17.5f;
 			Hardness = 3.5f;

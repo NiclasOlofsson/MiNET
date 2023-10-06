@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.17.11" protocolVersion="448">
+<protocol gameVersion="1.19.80" protocolVersion="582">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -192,6 +192,7 @@
 			<enum id="Announcement" value="8" />
 			<enum id="Json" value="9" />
 			<enum id="JsonWhisper" value="10" />
+			<enum id="JsonAnnouncement" value="11" />
 		</enums>
 
 		<field name="Type" type="byte" />
@@ -208,7 +209,6 @@
 	<pdu id="0x0c" online="false" client="false" server="true" name="MCPE_ADD_PLAYER">
 		<field name="UUID" type="UUID" />
 		<field name="Username" type="string" />
-		<field name="Entity ID Self" type="SignedVarLong" />
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Platform Chat ID" type="string" />
 		<field name="X" type="float" />
@@ -221,15 +221,16 @@
 		<field name="Yaw" type="float" />
 		<field name="Head Yaw" type="float" />
 		<field name="Item" type="Item" />
+		<field name="Game Type" type="UnsignedVarInt" />
 		<field name="Metadata" type="MetadataDictionary" />
+		<field name="SyncData" type="PropertySyncData" />
+		<field name="Entity ID Self" type="SignedVarLong" />
+		
+		<field name="Player Permissions" type="byte" />
+		<field name="Command Permissions" type="byte" />
+		<field name="Layers" type="AbilityLayers" />
 
-		<field name="Flags" type="UnsignedVarInt" />
-		<field name="Command permission" type="UnsignedVarInt" />
-		<field name="Action Permissions" type="UnsignedVarInt" />
-		<field name="Permission Level" type="UnsignedVarInt" />
-		<field name="Custom stored permissions" type="UnsignedVarInt" />
-		<field name="User Id" type="long" />
-		<field name="Links" type="Links" />
+		<field name="Links" type="EntityLinks" />
 		<field name="Device ID" type="string" />
 		<field name="Device OS" type="int" />
 	</pdu>
@@ -261,9 +262,11 @@
 		<field name="Pitch" type="float" />
 		<field name="Yaw" type="float" />
 		<field name="Head Yaw" type="float" />
+		<field name="Body Yaw" type="float" />
 		<field name="Attributes" type="EntityAttributes" />
 		<field name="Metadata" type="MetadataDictionary" />
-		<field name="Links" type="Links" />
+		<field name="SyncData" type="PropertySyncData" />
+		<field name="Links" type="EntityLinks" />
 	</pdu>
 
 	<pdu id="0x0e" online="false" client="false" server="true" name="MCPE_REMOVE_ENTITY">
@@ -495,22 +498,27 @@
 	<pdu id="0x23" online="false" client="true" server="false" name="MCPE_ENTITY_PICK_REQUEST">
 		<field name="Runtime Entity ID" type="ulong" />
 		<field name="Selected Slot" type="byte" />
+		<field name="Add User Data" type="bool" />
 	</pdu>
 
 	<pdu id="0x24" online="false" client="true" server="false" name="MCPE_PLAYER_ACTION">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Action ID" type="SignedVarInt" />
 		<field name="Coordinates" type="BlockCoordinates" />
+		<field name="Result Coordinates" type="BlockCoordinates" />
 		<field name="Face" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x26" online="false" client="false" server="true" name="MCPE_HURT_ARMOR">
+		<field name="Cause" type="VarInt" />
 		<field name="Health" type="SignedVarInt" />
+		<field name="Armor slot flags" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x27" online="false" client="true" server="true" name="MCPE_SET_ENTITY_DATA">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Metadata" type="MetadataDictionary" />
+		<field name="SyncData" type="PropertySyncData" />
 		<field name="Tick" type="UnsignedVarLong" />
 	</pdu>
 
@@ -599,6 +607,7 @@
 		<field name="Recipes" type="Recipes" />
 		<field name="Potion type recipes" type="PotionTypeRecipe[]" />
 		<field name="potion container recipes" type="PotionContainerChangeRecipe[]" />
+		<field name="Material reducer recipes" type="MaterialReducerRecipe[]" />
 		<field name="Is Clean" type="bool" />
 	</pdu>
 
@@ -612,10 +621,12 @@
 			<enum id="Shulker box" value="5" />
 			<enum id="Chemistry Shapeless" value="6" />
 			<enum id="Chemistry Shaped" value="7" />
+			<enum id="Smithing Transform" value="8" />
+			<enum id="Smithing Trim" value="9" />
 		</enums>
 
 		<field name="Window ID" type="byte" />
-		<field name="Recipe Type" type="SignedVarInt" />
+		<field name="Recipe Type" type="VarInt" />
 		<field name="Recipe ID" type="UUID" />
 		<field name="Input" type="ItemStacks" />
 		<field name="Result" type="ItemStacks" />
@@ -686,8 +697,8 @@
 	<pdu id="0x3a" online="false" client="false" server="true" name="MCPE_LEVEL_CHUNK">
 		<field name="Chunk X" type="SignedVarInt" />
 		<field name="Chunk Z" type="SignedVarInt" />
-		<field name="Sub Chunk Count" type="UnsignedVarInt" />
-		<field name="Cache Enabled" type="bool" />
+		<!--<field name="Sub Chunk Count" type="UnsignedVarInt" />
+		<field name="Cache Enabled" type="bool" />-->
 		<!--<field name="Blob Hashes" type="ulong[]" />
 		<field name="Chunk Data" type="ByteArray" />-->
 	</pdu>
@@ -740,6 +751,7 @@
 
 	<pdu id="0x45" online="false" client="true" server="true" name="MCPE_REQUEST_CHUNK_RADIUS">
 		<field name="Chunk Radius" type="SignedVarInt" />
+		<field name="Max Radius" type="byte" />
 	</pdu>
 
 	<pdu id="0x46" online="false" client="false" server="true" name="MCPE_CHUNK_RADIUS_UPDATE">
@@ -769,6 +781,7 @@
 			<enum id="Update Name" value="5" />
 			<enum id="Update Options" value="6" />
 			<enum id="Update Style" value="7" />
+			<enum id="Query" value="8" />
 		</enums>
 		<field name="Boss Entity ID" type="SignedVarLong" />
 		<field name="Event Type" type="UnsignedVarInt" />
@@ -793,7 +806,8 @@
 		<field name="Command type" type="UnsignedVarInt" />
 		<field name="Unknown UUID" type="UUID" />
 		<field name="Request ID" type="string" />
-		<field name="Unknown" type="bool" />
+		<field name="IsInternal" type="bool" />
+		<field name="Version" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x4e" online="false" client="true" server="false" name="MCPE_COMMAND_BLOCK_UPDATE">
@@ -854,9 +868,6 @@
 
 	<pdu id="0x56" online="false" client="false" server="true" name="MCPE_PLAY_SOUND">
 		<field name="Name" type="string" />
-		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Volume" type="float" />
-		<field name="Pitch" type="float" />
 	</pdu>
 
 	<pdu id="0x57" online="false" client="false" server="true" name="MCPE_STOP_SOUND">
@@ -933,8 +944,7 @@
 	</pdu>
 
 	<pdu id="0x64" online="false" client="false" server="true" name="MCPE_MODAL_FORM_REQUEST">
-		<field name="Form Id" type="UnsignedVarInt" />
-		<field name="Data" type="string" />
+		<field name="ModalFormInfo" type="ModalFormInfo" />
 	</pdu>
 
 	<pdu id="0x65" online="false" client="true" server="false" name="MCPE_MODAL_FORM_RESPONSE">
@@ -1036,6 +1046,7 @@
 		<field name="Entity ID" type="SignedVarLong" />
 		<field name="Position" type="Vector3" />
 		<field name="Particle name" type="string" />
+		<field name="Molang Variables Json" type="string" />
 	</pdu>
 
 	<pdu id="0x77" online="false" client="false" server="true" name="MCPE_AVAILABLE_ENTITY_IDENTIFIERS">
@@ -1054,6 +1065,7 @@
 	<pdu id="0x79" online="false" client="false" server="true" name="MCPE_NETWORK_CHUNK_PUBLISHER_UPDATE">
 		<field name="Coordinates" type="BlockCoordinates" />
 		<field name="Radius" type="UnsignedVarInt" />
+		<field name="Saved Chunks" type="int" />
 	</pdu>
 
 	<pdu id="0x7a" online="false" client="false" server="true" name="MCPE_BIOME_DEFINITION_LIST">
@@ -1116,9 +1128,16 @@
 			<enum id="Nothing" value="0" />
 			<enum id="Everything" value="1" />
 		</enums>
+		
+		<field name="Compression Threshold" type="short" />
+		<field name="Compression Algorithm" type="short" />
+		<field name="Client Throttle Enabled" type="bool" />
+		<field name="Client Throttle Threshold" type="byte" />
+		<field name="Client Throttle Scalar" type="float" />
+	</pdu>
 
-		<field name="Unknown" type="byte" />
-		<field name="Compression threshold" type="byte" />
+	<pdu id="0x90" online="false" client="true" server="false" name="MCPE_PLAYER_AUTH_INPUT">
+
 	</pdu>
 
 	<pdu id="0x91" online="false" client="false" server="true" name="MCPE_CREATIVE_CONTENT">
@@ -1148,15 +1167,19 @@
 			<enum id="Destroy" value="4" />
 			<enum id="Consume" value="5" />
 			<enum id="Create" value="6" />
-			<enum id="Lab table combine" value="7" />
-			<enum id="Beacon payment" value="8" />
-			<enum id="Mine Block" value="9"/>
-			<enum id="Craft recipe" value="10" />
-			<enum id="Craft recipe Auto" value="11" />
-			<enum id="Craft creative" value="12" />
-			<enum id="Craft recipe optional" value="13" />
-			<enum id="Craft not implemented deprecated" value="14"/>
-			<enum id="Craft results deprecated" value="15" />
+			<enum id="Place into bundle" value="7" />
+			<enum id="Take from bundle" value="8" />
+			<enum id="Lab table combine" value="9" />
+			<enum id="Beacon payment" value="10" />
+			<enum id="Mine Block" value="11"/>
+			<enum id="Craft recipe" value="12" />
+			<enum id="Craft recipe Auto" value="13" />
+			<enum id="Craft creative" value="14" />
+			<enum id="Craft recipe optional" value="15" />
+			<enum id="Craft Grindstone" value="16"/>
+			<enum id="Craft loom" value="17"/>
+			<enum id="Craft not implemented deprecated" value="18"/>
+			<enum id="Craft results deprecated" value="19" />
 		</enums>
 		<field name="Requests" type="ItemStackRequests" />
 	</pdu>
@@ -1182,7 +1205,61 @@
 		<field name="Text" type="string" />
 		<field name="From server" type="bool"/>
 	</pdu>
+	
+	<pdu id="0xac" online="false" client="true" server="true" name="MCPE_UPDATE_SUB_CHUNK_BLOCKS_PACKET">
+		<field name="Subchunk coordinates" type="BlockCoordinates"/>
+		<field name="Layer zero updates" type="UpdateSubChunkBlocksPacketEntry[]"/>
+		<field name="Layer one updates" type="UpdateSubChunkBlocksPacketEntry[]"/>
+	</pdu>
 
+	<pdu id="0xae" online="false" client="false" server="true" name="MCPE_SUB_CHUNK_PACKET">
+		<field name="Cache enabled" type="bool" />
+		<field name="Dimension" type="VarInt" />
+		<field name="Subchunk coordinates" type="BlockCoordinates"/>
+		
+	</pdu>
+
+	<pdu id="0xaf" online="false" client="true" server="false" name="MCPE_SUB_CHUNK_REQUEST_PACKET">
+		<field name="Dimension" type="VarInt" />
+		<field name="Base Position" type="BlockCoordinates"/>
+		<field name="Offsets" type="SubChunkPositionOffset[]"/>
+	</pdu>
+	
+	<pdu id="0xb4" online="false" client="false" server="true" name="MCPE_DIMENSION_DATA">
+		<field name="Definitions" type="DimensionDefinitions" />
+	</pdu>
+	
+	<pdu id="0xbb" online="false" client="false" server="true" name="MCPE_UPDATE_ABILITIES">
+		<field name="Entity Unique ID" type="long" />
+		<field name="Player Permissions" type="byte" />
+		<field name="Command Permissions" type="byte" />
+		<field name="Layers" type="AbilityLayers" />
+	</pdu>
+	
+	<pdu id="0xbc" online="false" client="false" server="true" name="MCPE_UPDATE_ADVENTURE_SETTINGS">
+		<field name="No PvM" type="bool" />
+		<field name="No MvP" type="bool" />
+		<field name="Immutable World" type="bool" />
+		<field name="Show NameTags" type="bool" />
+		<field name="Auto Jump" type="bool" />
+	</pdu>
+
+	<pdu id="0xb8" online="false" client="true" server="false" name="MCPE_REQUEST_ABILITY">
+		<field name="Ability" type="VarInt" />
+	</pdu>
+	
+	<pdu id="0xc1" online="false" client="true" server="false" name="MCPE_REQUEST_NETWORK_SETTINGS">
+		<field name="Protocol Version" type="int" endianess="BE" />
+	</pdu>
+	
+	<pdu id="0x12e" online="false" client="false" server="true" name="MCPE_TRIM_DATA">
+	</pdu>
+
+	<pdu id="0x12f" online="false" client="false" server="true" name="MCPE_OPEN_SIGN">
+		<field name="Coordinates" type="BlockCoordinates" />
+		<field name="Front" type="bool" />
+	</pdu>
+	
 	<pdu id="0xe0" online="false" client="false" server="true" name="MCPE_ALEX_ENTITY_ANIMATION">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Bone Id" type="string" />

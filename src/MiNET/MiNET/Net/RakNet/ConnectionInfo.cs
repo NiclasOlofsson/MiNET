@@ -141,6 +141,13 @@ namespace MiNET.Net.RakNet
 			}
 		}
 
+		internal void Stop()
+		{
+			ThroughPut?.Change(Timeout.Infinite, Timeout.Infinite);
+			ThroughPut?.Dispose();
+			ThroughPut = null;
+		}
+
 		protected virtual void CreateCounters()
 		{
 			//if (PerformanceCounterCategory.Exists("MiNET"))

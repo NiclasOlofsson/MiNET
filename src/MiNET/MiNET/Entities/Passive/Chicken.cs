@@ -78,10 +78,10 @@ namespace MiNET.Entities.Passive
 		public override Item[] GetDrops()
 		{
 			Random random = new Random();
-			return new[]
+			return new Item[]
 			{
-				ItemFactory.GetItem(365),
-				ItemFactory.GetItem(288, 0, random.Next(1, 3)),
+				new ItemChicken(),
+				new ItemFeather() { Count = (byte) random.Next(1, 3) },
 			};
 		}
 	}

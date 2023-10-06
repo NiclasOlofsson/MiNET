@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Prismarine : Block
 	{
-		public Prismarine() : base(168)
+		public Prismarine() : base()
 		{
 			Hardness = 1.5f;
 			BlastResistance = 30;

@@ -25,27 +25,20 @@
 
 using System.Numerics;
 using MiNET.Blocks;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemPotato : FoodItem
+	public partial class ItemPotato
 	{
-		public ItemPotato() : base("minecraft:potato", 392, 0, 1, 0.6)
+		public ItemPotato() : base(1, 0.6)
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			ItemBlock itemBlock = new ItemBlock(BlockFactory.GetBlockById(142));
-			itemBlock.PlaceBlock(world, player, targetCoordinates, face, faceCoords);
-		}
-
-		public override Item GetSmelt()
-		{
-			return new ItemBakedPotato();
+			return ItemFactory.GetItem<Potatoes>().PlaceBlock(world, player, targetCoordinates, face, faceCoords);
 		}
 	}
 }

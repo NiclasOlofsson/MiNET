@@ -1,0 +1,3539 @@
+[
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IDAHJlZAA=",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IDAHJlZAA=",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IEAGJsdWUA",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGJsdWUA",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IEAGJsdWUA",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGJsdWUA",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IEAGN5YW4A",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGN5YW4A",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IEAGdyYXkA",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGdyYXkA",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IEAGxpbWUA",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGxpbWUA",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IEAHBpbmsA",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAHBpbmsA",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IFAGJsYWNrAA==",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJsYWNrAA==",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IFAGJsYWNrAA==",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJsYWNrAA==",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IFAGJyb3duAA==",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJyb3duAA==",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IFAGJyb3duAA==",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJyb3duAA==",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IFAGdyZWVuAA==",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGdyZWVuAA==",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IFAHdoaXRlAA==",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAHdoaXRlAA==",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IFAHdoaXRlAA==",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAHdoaXRlAA==",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IGAG9yYW5nZQA=",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAG9yYW5nZQA=",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IGAHB1cnBsZQA=",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHB1cnBsZQA=",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IGAHNpbHZlcgA=",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHNpbHZlcgA=",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IGAHllbGxvdwA=",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHllbGxvdwA=",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IHAG1hZ2VudGEA",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IHAG1hZ2VudGEA",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "block_states": "CgAACAUAY29sb3IKAGxpZ2h0X2JsdWUA",
+                "name": "minecraft:hard_stained_glass"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IKAGxpZ2h0X2JsdWUA",
+                "count": 16,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:black_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJsYWNrAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:black_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJsYWNrAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:black_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJsYWNrAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:black_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJsYWNrAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:blue_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGJsdWUA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:blue_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGJsdWUA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:blue_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGJsdWUA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:blue_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGJsdWUA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:brown_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJyb3duAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:brown_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJyb3duAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:brown_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJyb3duAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:brown_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJyb3duAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:cyan_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGN5YW4A",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:cyan_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGN5YW4A",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "count": 3,
+                "name": "minecraft:hard_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "count": 3,
+                "name": "minecraft:hard_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:gray_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGdyYXkA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:gray_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGdyYXkA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:green_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGdyZWVuAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:green_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGdyZWVuAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:light_blue_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IKAGxpZ2h0X2JsdWUA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:light_blue_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IKAGxpZ2h0X2JsdWUA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:light_gray_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHNpbHZlcgA=",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:light_gray_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHNpbHZlcgA=",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:lime_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGxpbWUA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:lime_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGxpbWUA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:magenta_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IHAG1hZ2VudGEA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:magenta_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IHAG1hZ2VudGEA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:orange_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAG9yYW5nZQA=",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:orange_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAG9yYW5nZQA=",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:pink_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAHBpbmsA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:pink_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAHBpbmsA",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:purple_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHB1cnBsZQA=",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:purple_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHB1cnBsZQA=",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:red_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IDAHJlZAA=",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:red_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IDAHJlZAA=",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:white_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAHdoaXRlAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:white_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAHdoaXRlAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:white_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAHdoaXRlAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:white_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAHdoaXRlAA==",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:yellow_stained_glass"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHllbGxvdwA=",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 13,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:yellow_stained_glass_pane"
+            },
+            "C": {
+                "meta": 14,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHllbGxvdwA=",
+                "count": 3,
+                "name": "minecraft:hard_stained_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "BBB",
+            "CCC"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:blue_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 4,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:brown_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 3,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:cyan_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 6,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:gray_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 8,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:green_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:light_blue_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:lime_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 10,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:magenta_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 13,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:orange_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 14,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:pink_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 9,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:purple_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 5,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:red_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 1,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:white_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 16,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 35,
+                "name": "minecraft:compound"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:yellow_dye"
+            },
+            "D": {
+                "meta": 10,
+                "name": "minecraft:compound"
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "name": "minecraft:glow_stick"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 21,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "block_states": "CgAACBYAdG9yY2hfZmFjaW5nX2RpcmVjdGlvbgcAdW5rbm93bgA=",
+                "name": "minecraft:torch"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAAAQkAY29sb3JfYml0AQgWAHRvcmNoX2ZhY2luZ19kaXJlY3Rpb24HAHVua25vd24A",
+                "name": "minecraft:colored_torch_bp"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 21,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:element_12"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:stick"
+            }
+        },
+        "output": [
+            {
+                "meta": 5,
+                "name": "minecraft:sparkler"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B",
+            "C"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 22,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "block_states": "CgAACBYAdG9yY2hfZmFjaW5nX2RpcmVjdGlvbgcAdW5rbm93bgA=",
+                "name": "minecraft:torch"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAAAQkAY29sb3JfYml0AAgWAHRvcmNoX2ZhY2luZ19kaXJlY3Rpb24HAHVua25vd24A",
+                "name": "minecraft:colored_torch_rg"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 22,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:element_12"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:stick"
+            }
+        },
+        "output": [
+            {
+                "meta": 1,
+                "name": "minecraft:sparkler"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B",
+            "C"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 23,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "block_states": "CgAACBYAdG9yY2hfZmFjaW5nX2RpcmVjdGlvbgcAdW5rbm93bgA=",
+                "name": "minecraft:torch"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAAAQkAY29sb3JfYml0AAgWAHRvcmNoX2ZhY2luZ19kaXJlY3Rpb24HAHVua25vd24A",
+                "name": "minecraft:colored_torch_bp"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 23,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:element_12"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:stick"
+            }
+        },
+        "output": [
+            {
+                "meta": 4,
+                "name": "minecraft:sparkler"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B",
+            "C"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 24,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "block_states": "CgAACBYAdG9yY2hfZmFjaW5nX2RpcmVjdGlvbgcAdW5rbm93bgA=",
+                "name": "minecraft:torch"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAAAQkAY29sb3JfYml0AQgWAHRvcmNoX2ZhY2luZ19kaXJlY3Rpb24HAHVua25vd24A",
+                "name": "minecraft:colored_torch_rg"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 24,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:element_12"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:stick"
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "name": "minecraft:sparkler"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B",
+            "C"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 25,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "name": "minecraft:element_12"
+            },
+            "C": {
+                "meta": 32767,
+                "name": "minecraft:stick"
+            }
+        },
+        "output": [
+            {
+                "meta": 14,
+                "name": "minecraft:sparkler"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B",
+            "C"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:black_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:blue_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:bone_meal"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:brown_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:cocoa_beans"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 12,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:cyan_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 9,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:gray_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 7,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:green_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 13,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:ink_sac"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 15,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:lapis_lazuli"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 11,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:light_blue_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 3,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:light_gray_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 8,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:lime_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 5,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:magenta_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 2,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:orange_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 1,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:pink_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 6,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:purple_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 10,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:red_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 14,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:white_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "meta": 30,
+                "name": "minecraft:compound"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:yellow_dye"
+            },
+            "C": {
+                "name": "minecraft:element_2"
+            },
+            "D": {
+                "meta": 32767,
+                "name": "minecraft:lead"
+            }
+        },
+        "output": [
+            {
+                "meta": 4,
+                "name": "minecraft:balloon"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "ABA",
+            "ACA",
+            "ADA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:element_11"
+            },
+            "B": {
+                "block_states": "CgAAARQAYWxsb3dfdW5kZXJ3YXRlcl9iaXQAAQsAZXhwbG9kZV9iaXQAAA==",
+                "name": "minecraft:tnt"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAAARQAYWxsb3dfdW5kZXJ3YXRlcl9iaXQBAQsAZXhwbG9kZV9iaXQAAA==",
+                "name": "minecraft:tnt"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:element_12"
+            },
+            "B": {
+                "block_states": "CgAACBYAdG9yY2hfZmFjaW5nX2RpcmVjdGlvbgcAdW5rbm93bgA=",
+                "name": "minecraft:torch"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACBYAdG9yY2hfZmFjaW5nX2RpcmVjdGlvbgcAdW5rbm93bgA=",
+                "name": "minecraft:underwater_torch"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "A",
+            "B"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:black_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJsYWNrAA==",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:blue_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGJsdWUA",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:bone_meal"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAHdoaXRlAA==",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:brown_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJyb3duAA==",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:cocoa_beans"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJyb3duAA==",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:cyan_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGN5YW4A",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:gray_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGdyYXkA",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:green_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGdyZWVuAA==",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:ink_sac"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAGJsYWNrAA==",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:lapis_lazuli"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGJsdWUA",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:light_blue_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IKAGxpZ2h0X2JsdWUA",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:light_gray_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHNpbHZlcgA=",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:lime_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAGxpbWUA",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:magenta_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IHAG1hZ2VudGEA",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:orange_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAG9yYW5nZQA=",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:pink_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IEAHBpbmsA",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:purple_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHB1cnBsZQA=",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:red_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IDAHJlZAA=",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:white_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IFAHdoaXRlAA==",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            },
+            "B": {
+                "meta": 32767,
+                "name": "minecraft:yellow_dye"
+            }
+        },
+        "output": [
+            {
+                "block_states": "CgAACAUAY29sb3IGAHllbGxvdwA=",
+                "count": 8,
+                "name": "minecraft:hard_stained_glass"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "ABA",
+            "AAA"
+        ]
+    },
+    {
+        "block": "crafting_table",
+        "input": {
+            "A": {
+                "name": "minecraft:hard_glass"
+            }
+        },
+        "output": [
+            {
+                "count": 16,
+                "name": "minecraft:hard_glass_pane"
+            }
+        ],
+        "priority": 0,
+        "shape": [
+            "AAA",
+            "AAA"
+        ]
+    }
+]

@@ -171,29 +171,29 @@ namespace MiNET.Utils.IO
 
 						if (msLeft < 16)
 						{
-							if (Thread.Yield())
-							{
-								Yields++;
-								continue;
-							}
+							//if (Thread.Yield())
+							//{
+							//	Yields++;
+							//	continue;
+							//}
 
 							Sleeps++;
 							Thread.Sleep(1);
-							if (!skipTicks && Log.IsDebugEnabled)
-							{
-								long t = nextStop - watch.ElapsedMilliseconds;
-								if (t < -5) Log.Warn($"We overslept {t}ms in thread yield/sleep");
-							}
+							//if (!skipTicks && Log.IsDebugEnabled)
+							//{
+							//	long t = nextStop - watch.ElapsedMilliseconds;
+							//	if (t < -5) Log.Warn($"We overslept {t}ms in thread yield/sleep");
+							//}
 							continue;
 						}
 
 						Sleeps++;
 						Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));
-						if (!skipTicks && Log.IsDebugEnabled)
-						{
-							long t = nextStop - watch.ElapsedMilliseconds;
-							if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
-						}
+						//if (!skipTicks && Log.IsDebugEnabled)
+						//{
+						//	long t = nextStop - watch.ElapsedMilliseconds;
+						//	if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
+						//}
 					}
 				}
 				catch (Exception e)
@@ -204,28 +204,42 @@ namespace MiNET.Utils.IO
 				finally
 				{
 					_running = false;
-					Dispose();
+					
+					_cancelSource?.Dispose();
+					_cancelSource = null;
+
+					AutoReset?.Dispose();
+					AutoReset = null;
 				}
 			}, _cancelSource.Token, TaskCreationOptions.LongRunning);
 
 			task.Start();
 		}
 
+		private bool _disposed = false;
 		public void Dispose()
 		{
+			if (_disposed)
+				return;
+
+			_disposed = true;
 			//Console.WriteLine("Called Disposed");
 
 			_action = null; // Make sure this will not fire again
 
-			if (_cancelSource == null) return;
-			if (AutoReset == null) return;
+			var autoReset = AutoReset;
+			var cancelSource = _cancelSource;
+			if (cancelSource == null) return;
+			if (autoReset == null) return;
 
 			if (_timerThread != Thread.CurrentThread)
 			{
 				if (_running)
 				{
-					_cancelSource.Cancel();
-					AutoReset?.Set();
+					cancelSource.Cancel();
+
+					if (!autoReset.SafeWaitHandle.IsClosed)
+						autoReset.Set();
 				}
 
 				while (_running) Thread.Yield();
@@ -236,16 +250,14 @@ namespace MiNET.Utils.IO
 
 			if (_running)
 			{
-				_cancelSource.Cancel();
-				AutoReset?.Set();
+				cancelSource.Cancel();
+				
+				if (!autoReset.SafeWaitHandle.IsClosed)
+					autoReset.Set();
 			}
 			else
 			{
-				_cancelSource?.Dispose();
-				_cancelSource = null;
-
-				AutoReset?.Dispose();
-				AutoReset = null;
+			
 				//Console.WriteLine("Disposed from same thread");
 			}
 		}

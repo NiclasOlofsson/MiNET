@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using log4net;
 using MiNET.Items;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -37,7 +36,7 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Farmland));
 
-		public Farmland() : base(60)
+		public Farmland() : base()
 		{
 			IsTransparent = true; // Partial - blocks light.
 			IsBlockingSkylight = false; // Partial - blocks light.
@@ -47,7 +46,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {new ItemBlock(new Dirt(), 0) {Count = 1}}; // Drop dirt block
+			return new[] { ItemFactory.GetItem<Dirt>() };
 		}
 
 		public override void OnTick(Level level, bool isRandom)

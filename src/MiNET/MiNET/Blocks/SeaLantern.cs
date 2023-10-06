@@ -30,7 +30,7 @@ namespace MiNET.Blocks
 {
 	public partial class SeaLantern : Block
 	{
-		public SeaLantern() : base(169)
+		public SeaLantern() : base()
 		{
 			LightLevel = 15;
 			BlastResistance = 1.5f;
@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 		public override Item[] GetDrops(Item tool)
 		{
 			var rnd = new Random();
-			return new[] {ItemFactory.GetItem(409, 0, (byte) (rnd.Next(2, 3)))}; //drop prismarine_shard
+			return new[] { new ItemPrismarineShard() { Count = (byte) (rnd.Next(2, 3)) } };
 		}
 	}
 }

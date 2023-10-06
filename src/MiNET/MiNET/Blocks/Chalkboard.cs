@@ -39,9 +39,9 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Chalkboard));
 
-		public override string Name => "minecraft:chalkboard";
+		public override string Id => "minecraft:chalkboard";
 
-		public Chalkboard() : base(230)
+		public Chalkboard() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;
@@ -51,19 +51,13 @@ namespace MiNET.Blocks
 
 		public override void SetState(List<IBlockState> states)
 		{
-			foreach (var state in states)
-			{
-				switch(state)
-				{
-				} // switch
-			} // foreach
+			
 		} // method
 
 		public override BlockStateContainer GetState()
 		{
 			var record = new BlockStateContainer();
-			record.Name = "minecraft:chalkboard";
-			record.Id = 230;
+			record.Id = "minecraft:chalkboard";
 			return record;
 		} // method
 
@@ -210,7 +204,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {ItemFactory.GetItem(323, 0, 1)}; // Drop sign item
+			return new[] { new ItemOakSign() };
 		}
 
 		private BlockCoordinates GetDirCoord()

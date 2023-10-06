@@ -31,7 +31,7 @@ namespace MiNET.Blocks
 {
 	public partial class RedFlower : Block
 	{
-		public RedFlower() : base(38)
+		public RedFlower() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

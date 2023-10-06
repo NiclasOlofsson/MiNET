@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class DarkOakStairs : BlockStairs
 	{
-		public DarkOakStairs() : base(164)
+		public DarkOakStairs() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 2;

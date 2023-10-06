@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Netherreactor : Block
 	{
-		public Netherreactor() : base(247)
+		public Netherreactor() : base()
 		{
 			BlastResistance = 30;
 		}

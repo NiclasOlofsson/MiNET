@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Water : Stationary
 	{
-		public Water() : base(9)
+		public Water() : base(BlockFactory.GetIdByType<FlowingWater>())
 		{
 		}
 	}

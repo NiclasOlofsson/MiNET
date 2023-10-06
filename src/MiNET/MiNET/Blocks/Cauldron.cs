@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Cauldron));
 
-		public Cauldron() : base(118)
+		public Cauldron() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 10;
@@ -76,7 +76,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {ItemFactory.GetItem(380)};
+			return new[] { new ItemCauldron() };
 		}
 	}
 }

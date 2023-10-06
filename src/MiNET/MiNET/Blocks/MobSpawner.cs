@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 {
 	public partial class MobSpawner : Block
 	{
-		public MobSpawner() : base(52)
+		public MobSpawner() : base()
 		{
 			IsTransparent = true; // Doesn't block light
 			LightLevel = 1;
@@ -68,7 +68,7 @@ namespace MiNET.Blocks
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
-			if (player.Inventory.GetItemInHand() is ItemSpawnEgg monsterEgg)
+			if (player.Inventory.GetItemInHand() is ItemSpawnEggBase monsterEgg)
 			{
 				if (world.GetBlockEntity(Coordinates) is MobSpawnerBlockEntity blockEntity)
 				{

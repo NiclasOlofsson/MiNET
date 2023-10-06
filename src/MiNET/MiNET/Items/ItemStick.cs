@@ -28,17 +28,16 @@ using System.Numerics;
 using System.Threading.Tasks;
 using log4net;
 using MiNET.Net;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemStick : Item
+	public partial class ItemStick
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemStick));
 
-		public ItemStick() : base("minecraft:stick", 280)
+		public ItemStick() : base()
 		{
 			FuelEfficiency = 5;
 		}
@@ -77,7 +76,7 @@ namespace MiNET.Items
 				motions.velocity = velocity;
 				player.SendPacket(motions);
 
-				SendWithDelay(200, () =>
+				_ = SendWithDelay(200, () =>
 				{
 					player.IsGliding = true;
 					player.Height = 0.6;

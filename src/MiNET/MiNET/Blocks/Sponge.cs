@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Sponge : Block
 	{
-		public Sponge() : base(19)
+		public Sponge() : base()
 		{
 			BlastResistance = 3;
 			Hardness = 0.6f;

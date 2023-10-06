@@ -37,6 +37,7 @@ using JetBrains.Annotations;
 using log4net;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
+using MiNET.Plugins.Commands;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
@@ -66,7 +67,7 @@ namespace MiNET.Plugins
 
 		public PluginManager()
 		{
-			
+			LoadCommands(new VanillaCommands());
 		}
 
 		internal void LoadPlugins()
@@ -74,7 +75,7 @@ namespace MiNET.Plugins
 			if (Config.GetProperty("PluginDisabled", false)) return;
 
 			// Default it is the directory we are executing, and below.
-			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetEntryAssembly().CodeBase).LocalPath);
+			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetEntryAssembly().Location).LocalPath);
 			pluginDirectoryPaths = Config.GetProperty("PluginDirectory", pluginDirectoryPaths);
 			//HACK: Make it possible to define multiple PATH;PATH;PATH
 
@@ -253,7 +254,6 @@ namespace MiNET.Plugins
 
 		private void DebugPrintCommands()
 		{
-			return;
 			if (!Log.IsDebugEnabled) return;
 
 			var settings = new JsonSerializerSettings();
@@ -532,11 +532,11 @@ namespace MiNET.Plugins
 			else if (parameter.ParameterType == typeof(Target))
 				value = "target";
 			else if (parameter.ParameterType == typeof(BlockPos))
-				value = "blockpos";
+				value = "xyz";
 			else if (parameter.ParameterType == typeof(EntityPos))
-				value = "entitypos";
+				value = "xyzfloat";
 			else if (parameter.ParameterType == typeof(RelValue))
-				value = "value";
+				value = "mixed";
 			else if (parameter.ParameterType.IsEnum)
 				value = "stringenum";
 			else if (parameter.ParameterType.BaseType == typeof(EnumBase))
@@ -665,6 +665,15 @@ namespace MiNET.Plugins
 			}
 		}
 
+		public event EventHandler<CommandEventArgs> CommandExecute;
+
+		protected virtual bool OnCommandExecute(CommandEventArgs e)
+		{
+			CommandExecute?.Invoke(this, e);
+
+			return !e.Cancel;
+		}
+
 		public object HandleCommand(Player player, string cmdline)
 		{
 			var split = Regex.Split(cmdline, "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)").Select(s => s.Trim('"')).ToArray();
@@ -706,6 +715,8 @@ namespace MiNET.Plugins
 				}
 
 				MethodInfo method = overload.Method;
+
+				if (!OnCommandExecute(new CommandEventArgs(method, player, args))) continue;
 
 				if (ExecuteCommand(method, player, args, out object retVal))
 				{
@@ -841,7 +852,7 @@ namespace MiNET.Plugins
 
 					if (typeof(IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
 					{
-						ConstructorInfo? ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
+						ConstructorInfo ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
 						var defaultValue = ctor?.Invoke(null) as IParameterSerializer;
 						defaultValue?.Deserialize(player, args[argIdx++]);
 
@@ -1291,6 +1302,20 @@ namespace MiNET.Plugins
 			}
 
 			return sb.ToString();
+		}
+	}
+
+	public class CommandEventArgs : CancelEventArgs
+	{
+		public MethodInfo Command { get; set; }
+		public Player Player { get; set; }
+		public string[] Args { get; set; }
+
+		public CommandEventArgs(MethodInfo command, Player player, string[] args)
+		{
+			Command = command;
+			Player = player;
+			Args = args;
 		}
 	}
 }

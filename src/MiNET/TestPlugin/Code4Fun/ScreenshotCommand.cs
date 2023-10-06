@@ -88,7 +88,7 @@ namespace TestPlugin.Code4Fun
 								{
 									new Bone
 									{
-										Name = BoneName.Body,
+										Name = BoneName.Body.ToString(),
 										Cubes = new List<Cube>()
 										{
 											new Cube

@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class EndStone : Block
 	{
-		public EndStone() : base(121)
+		public EndStone() : base()
 		{
 			BlastResistance = 45;
 			Hardness = 3;

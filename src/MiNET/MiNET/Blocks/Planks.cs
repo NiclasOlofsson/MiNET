@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Planks : Block
 	{
-		public Planks() : base(5)
+		public Planks() : base()
 		{
 			FuelEfficiency = 15;
 			BlastResistance = 15;

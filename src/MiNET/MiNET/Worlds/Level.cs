@@ -40,6 +40,7 @@ using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
 using MiNET.Entities.World;
+using MiNET.Inventory;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Net.RakNet;
@@ -49,6 +50,7 @@ using MiNET.Utils.Diagnostics;
 using MiNET.Utils.IO;
 using MiNET.Utils.Nbt;
 using MiNET.Utils.Vectors;
+using MiNET.Worlds.Anvil;
 
 namespace MiNET.Worlds
 {
@@ -195,16 +197,16 @@ namespace MiNET.Worlds
 		}
 
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
-		private MultiMediaTimer _mmTickTimer = null;
 
 		public virtual void Close()
 		{
-			WorldProvider.SaveChunks();
+			WorldProvider?.SaveChunks();
 
 			NetherLevel?.Close();
 			TheEndLevel?.Close();
 
-			_tickerHighPrecisionTimer.Dispose();
+			_tickerHighPrecisionTimer?.Dispose();
+			_tickerHighPrecisionTimer = null;
 
 			foreach (var entity in Entities.Values.ToArray())
 			{
@@ -237,7 +239,7 @@ namespace MiNET.Worlds
 
 					foreach (var c in waste)
 					{
-						c.PutPool();
+						c.Dispose();
 					}
 
 					waste.ClearCache();
@@ -1050,10 +1052,10 @@ namespace MiNET.Worlds
 					SkyLight = 15
 				};
 
-			var block = chunk.GetBlockObject(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
-			byte blockLight = chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
-			byte skyLight = chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
-			byte biomeId = chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Z & 0x0f);
+			var block = chunk.GetBlockObject(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
+			byte blockLight = chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
+			byte skyLight = chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
+			byte biomeId = chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 
 			//Block block = BlockFactory.GetBlockById(bid);
 			block.Coordinates = blockCoordinates;
@@ -1065,27 +1067,30 @@ namespace MiNET.Worlds
 			return block;
 		}
 
-		public bool IsBlock(int x, int y, int z, int blockId)
+		public bool IsAir(BlockCoordinates blockCoordinates)
 		{
-			return IsBlock(new BlockCoordinates(x, y, z), blockId);
+			return IsBlock<Air>(blockCoordinates);
 		}
 
-		public bool IsBlock(BlockCoordinates blockCoordinates, int blockId)
+		public bool IsBlock<T>(BlockCoordinates blockCoordinates) where T : Block
+		{
+			return IsBlock(blockCoordinates, typeof(T));
+		}
+
+		public bool IsBlock(BlockCoordinates blockCoordinates, Type blockType)
 		{
 			ChunkColumn chunk = GetChunk(blockCoordinates);
 			if (chunk == null) return false;
 
-			return chunk.GetBlockId(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f) == blockId;
+			return BlockFactory.IsBlock(chunk.GetBlockRuntimeId(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f), blockType);
 		}
 
-		public bool IsAir(BlockCoordinates blockCoordinates)
+		public bool IsBlock(BlockCoordinates blockCoordinates, string blockId)
 		{
 			ChunkColumn chunk = GetChunk(blockCoordinates);
-			if (chunk == null) return true;
+			if (chunk == null) return false;
 
-			int bid = chunk.GetBlockId(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
-			return bid == 0;
-			//return bid == 0 || bid == 20 || bid == 241; // Need this for skylight calculations. Revise!
+			return BlockFactory.GetIdByRuntimeId(chunk.GetBlockRuntimeId(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f)) == blockId;
 		}
 
 		public bool IsNotBlockingSkylight(BlockCoordinates blockCoordinates)
@@ -1093,8 +1098,8 @@ namespace MiNET.Worlds
 			ChunkColumn chunk = GetChunk(blockCoordinates);
 			if (chunk == null) return true;
 
-			int bid = chunk.GetBlockId(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
-			return bid == 0 || bid == 20 || bid == 241; // Need this for skylight calculations. Revise!
+			int bid = chunk.GetBlockRuntimeId(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
+			return BlockFactory.IsBlock<Air>(bid) || BlockFactory.IsBlock<Glass>(bid) || BlockFactory.IsBlock<StainedGlass>(bid); // Need this for skylight calculations. Revise!
 		}
 
 		public bool IsTransparent(BlockCoordinates blockCoordinates)
@@ -1102,7 +1107,7 @@ namespace MiNET.Worlds
 			ChunkColumn chunk = GetChunk(blockCoordinates);
 			if (chunk == null) return true;
 
-			int bid = chunk.GetBlockId(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			int bid = chunk.GetBlockRuntimeId(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 			return BlockFactory.TransparentBlocks[bid] == 1;
 		}
 
@@ -1120,7 +1125,7 @@ namespace MiNET.Worlds
 
 			if (chunk == null) return 15;
 
-			return chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			return chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 		}
 
 		public byte GetBlockLight(BlockCoordinates blockCoordinates)
@@ -1129,7 +1134,7 @@ namespace MiNET.Worlds
 
 			if (chunk == null) return 15;
 
-			return chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			return chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 		}
 
 		public byte GetBiomeId(BlockCoordinates blockCoordinates)
@@ -1138,7 +1143,7 @@ namespace MiNET.Worlds
 
 			if (chunk == null) return 0;
 
-			return chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Z & 0x0f);
+			return chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Y, blockCoordinates.Z & 0x0f);
 		}
 
 		public ChunkColumn GetChunk(BlockCoordinates blockCoordinates, bool cacheOnly = false)
@@ -1149,13 +1154,13 @@ namespace MiNET.Worlds
 		public ChunkColumn GetChunk(ChunkCoordinates chunkCoordinates, bool cacheOnly = false)
 		{
 			var chunk = WorldProvider.GenerateChunkColumn(chunkCoordinates, cacheOnly);
-			if (chunk == null) Log.Error($"Got <null> chunk at {chunkCoordinates}");
+			if (!cacheOnly && chunk == null) Log.Debug($"Got <null> chunk at {chunkCoordinates}");
 			return chunk;
 		}
 
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true, ChunkColumn possibleChunk = null)
 		{
-			if (block.Coordinates.Y < 0) return;
+			if (block.Coordinates.Y < ChunkColumn.WorldMinY) return;
 
 			var chunkCoordinates = new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4);
 			ChunkColumn chunk = possibleChunk != null && possibleChunk.X == chunkCoordinates.X && possibleChunk.Z == chunkCoordinates.Z ? possibleChunk : GetChunk(chunkCoordinates);
@@ -1166,10 +1171,10 @@ namespace MiNET.Worlds
 				return;
 			}
 
-			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block);
+			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y, block.Coordinates.Z & 0x0f, block);
 			if (calculateLight && chunk.GetHeight(block.Coordinates.X & 0x0f, block.Coordinates.Z & 0x0f) <= block.Coordinates.Y + 1)
 			{
-				chunk.RecalcHeight(block.Coordinates.X & 0x0f, block.Coordinates.Z & 0x0f, Math.Min(255, block.Coordinates.Y + 1));
+				chunk.RecalcHeight(block.Coordinates.X & 0x0f, block.Coordinates.Z & 0x0f, Math.Min(ChunkColumn.WorldHeight, block.Coordinates.Y + 1));
 			}
 
 			if (applyPhysics) ApplyPhysics(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
@@ -1180,7 +1185,7 @@ namespace MiNET.Worlds
 				if (Dimension == Dimension.Overworld) new SkyLightCalculations().Calculate(this, block.Coordinates);
 
 				block.BlockLight = (byte) block.LightLevel;
-				chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, (byte) block.LightLevel);
+				chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y, block.Coordinates.Z & 0x0f, (byte) block.LightLevel);
 				BlockLightCalculations.Calculate(this, block.Coordinates);
 			}
 
@@ -1219,31 +1224,31 @@ namespace MiNET.Worlds
 		public void SetBlockLight(Block block)
 		{
 			ChunkColumn chunk = GetChunk(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
-			chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.BlockLight);
+			chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y, block.Coordinates.Z & 0x0f, block.BlockLight);
 		}
 
 		public void SetBlockLight(BlockCoordinates coordinates, byte blockLight)
 		{
 			ChunkColumn chunk = GetChunk(coordinates);
-			chunk?.SetBlocklight(coordinates.X & 0x0f, coordinates.Y & 0xff, coordinates.Z & 0x0f, blockLight);
+			chunk?.SetBlocklight(coordinates.X & 0x0f, coordinates.Y, coordinates.Z & 0x0f, blockLight);
 		}
 
 		public void SetBiomeId(BlockCoordinates coordinates, byte biomeId)
 		{
 			ChunkColumn chunk = GetChunk(coordinates);
-			chunk?.SetBiome(coordinates.X & 0x0f, coordinates.Z & 0x0f, biomeId);
+			chunk?.SetBiome(coordinates.X & 0x0f, coordinates.Y, coordinates.Z & 0x0f, biomeId);
 		}
 
 		public void SetSkyLight(Block block)
 		{
 			ChunkColumn chunk = GetChunk(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
-			chunk.SetSkyLight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.SkyLight);
+			chunk.SetSkyLight(block.Coordinates.X & 0x0f, block.Coordinates.Y, block.Coordinates.Z & 0x0f, block.SkyLight);
 		}
 
 		public void SetSkyLight(BlockCoordinates coordinates, byte skyLight)
 		{
 			ChunkColumn chunk = GetChunk(coordinates);
-			chunk?.SetSkyLight(coordinates.X & 0x0f, coordinates.Y & 0xff, coordinates.Z & 0x0f, skyLight);
+			chunk?.SetSkyLight(coordinates.X & 0x0f, coordinates.Y, coordinates.Z & 0x0f, skyLight);
 		}
 
 		public void SetAir(BlockCoordinates blockCoordinates, bool broadcast = true)
@@ -1253,7 +1258,7 @@ namespace MiNET.Worlds
 
 		public void SetAir(int x, int y, int z, bool broadcast = true)
 		{
-			Block air = BlockFactory.GetBlockById(0);
+			Block air = new Air();
 			air.Coordinates = new BlockCoordinates(x, y, z);
 			SetBlock(air, broadcast);
 		}
@@ -1433,6 +1438,11 @@ namespace MiNET.Worlds
 			}
 		}
 
+		public void BreakBlock(Block block, BlockEntity blockEntity = null, Item tool = null, BlockFace face = BlockFace.None)
+		{
+			BreakBlock(null, block, blockEntity, tool, face);
+		}
+
 		public void BreakBlock(Player player, Block block, BlockEntity blockEntity = null, Item tool = null, BlockFace face = BlockFace.None)
 		{
 			block.BreakBlock(this, face);
@@ -1460,10 +1470,10 @@ namespace MiNET.Worlds
 			if (GameMode == GameMode.Creative) return;
 
 			if (drop == null) return;
-			if (drop.Id == 0) return;
+			if (drop is ItemAir) return;
 			if (drop.Count == 0) return;
 
-			if (AutoSmelt) drop = drop.GetSmelt() ?? drop;
+			if (AutoSmelt) drop = drop.GetSmelt(BlockFactory.GetIdByType<Furnace>(false)) ?? drop;
 
 			Random random = new Random();
 			var itemEntity = new ItemEntity(this, drop)
@@ -1721,7 +1731,7 @@ namespace MiNET.Worlds
 			return rules;
 		}
 
-		public void BroadcastSound(BlockCoordinates position, LevelSoundEventType sound, int blockId = 0, Player sender = null)
+		public void BroadcastSound(Vector3 position, LevelSoundEventType sound, int blockId = 0, Player sender = null)
 		{
 			var packet = McpeLevelSoundEvent.CreateObject();
 			packet.position = position;

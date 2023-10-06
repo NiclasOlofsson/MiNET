@@ -18,43 +18,54 @@
     <LangVersion>latest</LangVersion>
     <NoWarn>1701;1702;1701</NoWarn>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Blocks\blockstates.json" />
-    <None Remove="Blocks\legacy_id_map.json" />
-    <None Remove="Items\itemstates.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Blocks\blockstates.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Blocks\Data\block_id_map.json" />
-    <EmbeddedResource Include="Blocks\Data\canonical_block_states.nbt" />
-    <EmbeddedResource Include="Blocks\Data\item_id_map.json" />
-    <EmbeddedResource Include="Blocks\Data\legacy_id_map.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Blocks\Data\r12_to_current_block_map.bin" />
-    <EmbeddedResource Include="Items\Data\itemstates.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Items\Data\item_id_map.json" />
-    <EmbeddedResource Include="Items\Data\r16_to_current_item_map.json" />
+    <None Remove="Blocks\Data\block_id_to_item_id_map.json" />
+    <None Remove="Blocks\Data\canonical_block_states.nbt" />
+    <None Remove="Blocks\Data\r12_to_current_block_map.bin" />
     <None Remove="Blocks\canonical_block_states.nbt" />
-    <None Remove="Blocks\block_id_map.json" />
-    <None Remove="Blocks\item_id_map.json" />
     <None Remove="Blocks\r12_to_current_block_map.bin" />
-    <None Remove="Items\item_id_map.json" />
+    <None Remove="Crafting\Data\shaped_chemistry.json" />
+    <None Remove="Crafting\Data\shaped_crafting.json" />
+    <None Remove="Crafting\Data\shapeless_chemistry.json" />
+    <None Remove="Crafting\Data\shapeless_crafting.json" />
+    <None Remove="Crafting\Data\shapeless_shulker_box.json" />
+    <None Remove="Crafting\Data\smelting.json" />
+    <None Remove="Inventory\Data\creativeitems.json" />
     <None Remove="Items\r16_to_current_item_map.json" />
+    <None Remove="Items\Data\item_tags.json" />
+    <None Remove="Worlds\Data\biome_definitions.nbt" />
+    <None Remove="Worlds\Data\biome_definitions_full.nbt" />
+    <None Remove="Worlds\Data\biome_id_map.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="jose-jwt" Version="3.2.0" />
+    <EmbeddedResource Include="Blocks\Data\block_id_to_item_id_map.json" />
+    <EmbeddedResource Include="Blocks\Data\canonical_block_states.nbt" />
+    <EmbeddedResource Include="Blocks\Data\r12_to_current_block_map.bin" />
+    <EmbeddedResource Include="Crafting\Data\shaped_chemistry.json" />
+    <EmbeddedResource Include="Crafting\Data\shaped_crafting.json" />
+    <EmbeddedResource Include="Crafting\Data\shapeless_crafting.json" />
+    <EmbeddedResource Include="Crafting\Data\shapeless_shulker_box.json" />
+    <EmbeddedResource Include="Crafting\Data\smelting.json" />
+    <EmbeddedResource Include="Inventory\Data\creativeitems.json" />
+    <EmbeddedResource Include="Items\Data\item_tags.json" />
+    <EmbeddedResource Include="Items\Data\required_item_list.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Items\Data\r16_to_current_item_map.json" />
+    <EmbeddedResource Include="Worlds\Data\biome_definitions.nbt" />
+    <EmbeddedResource Include="Worlds\Data\biome_definitions_full.nbt" />
+    <EmbeddedResource Include="Worlds\Data\biome_id_map.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="jose-jwt" Version="3.1.1" />
     <PackageReference Include="LibNoise.NetStandart" Version="0.2.0" />
-    <PackageReference Include="log4net" Version="2.0.13" />
+    <PackageReference Include="log4net" Version="2.0.14" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.0" />
     <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="17.0.0" />
     <PackageReference Include="MiNET.astar" Version="1.0.14" />
@@ -62,12 +73,16 @@
     <PackageReference Include="MiNET.LevelDB" Version="1.0.36" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-    <PackageReference Include="SharpAvi" Version="2.1.2" />
-    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    <PackageReference Include="SharpAvi" Version="3.0.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta14" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Net\MCPE Protocol.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Crafting\Data\shapeless_chemistry.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Net\MCPE Protocol.xml" />
@@ -86,13 +101,18 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MCPE Protocol.cs</LastGenOutput>
     </None>
-    <Compile Update="Net\MCPE Protocol.cs">
-      <DependentUpon>MCPE Protocol.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Net\MCPE Protocol.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MCPE Protocol.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Net\Items\" />
   </ItemGroup>
 </Project>

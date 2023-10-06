@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class DaylightDetector : Block
 	{
-		public DaylightDetector() : base(151)
+		public DaylightDetector() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 1;

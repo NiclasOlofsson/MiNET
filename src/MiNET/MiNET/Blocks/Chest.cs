@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Chest : ChestBase
 	{
-		public Chest() : base(54)
+		public Chest() : base()
 		{
 		}
 	}

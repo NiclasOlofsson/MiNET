@@ -23,12 +23,21 @@
 
 #endregion
 
+using System.Numerics;
+using MiNET.Utils.Vectors;
+using MiNET.Worlds;
+
 namespace MiNET.Items
 {
-	public class ItemWheat : Item
+	public partial class ItemWheat
 	{
-		public ItemWheat() : base("minecraft:wheat", 296)
+		public ItemWheat() : base()
 		{
+		}
+
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			return false;
 		}
 	}
 }

@@ -25,8 +25,7 @@ namespace MiNET.Blocks.Tests
 
 			Item item = block.GetItem();
 
-			Assert.AreEqual("minecraft:chain", item.Name);
-			Assert.AreEqual(758, item.Id);
+			Assert.AreEqual("minecraft:chain", item.Id);
 			Assert.AreEqual(0, item.Metadata);
 		}
 
@@ -45,8 +44,7 @@ namespace MiNET.Blocks.Tests
 			ItemBlock item = block.GetItem() as ItemBlock;
 			Assert.IsNotNull(item, "Found no item");
 			Assert.IsNotNull(item.Block);
-			Assert.AreEqual("minecraft:dark_oak_door", item.Name);
-			Assert.AreEqual(431, item.Id);
+			Assert.AreEqual("minecraft:dark_oak_door", item.Id);
 			Assert.AreEqual(0, item.Metadata);
 		}
 

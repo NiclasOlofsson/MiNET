@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class Air : Block
 	{
-		public Air() : base(0)
+		public Air() : base()
 		{
 			IsReplaceable = true;
 			IsSolid = false;

@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class GrassPath : Block
 	{
-		public GrassPath() : base(198)
+		public GrassPath() : base()
 		{
 			BlastResistance = 3.25f;
 			Hardness = 0.6f;
@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {new ItemBlock(new Dirt(), 0) {Count = 1}}; // Drop dirt block
+			return new[] { ItemFactory.GetItem<Dirt>() };
 		}
 	}
 }

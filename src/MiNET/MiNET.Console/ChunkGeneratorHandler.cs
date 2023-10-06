@@ -78,7 +78,7 @@ namespace MiNET.Console
 
 			Client.LevelInfo.LevelName = message.levelId;
 			Client.LevelInfo.Version = 19133;
-			Client.LevelInfo.GameType = message.gamemode;
+			Client.LevelInfo.GameType = message.levelSettings.gamemode;
 
 			BlockPalette = message.blockPalette;
 
@@ -151,7 +151,8 @@ namespace MiNET.Console
 
 					if (chunk.Biome == hash)
 					{
-						chunk.Chunk.biomeId = data;
+						// TODO - 1.20 - update
+						//chunk.Chunk.biomeId = data;
 						chunk.Biome = 0;
 					}
 					else
@@ -187,7 +188,7 @@ namespace MiNET.Console
 
 		public override void HandleMcpeLevelChunk(McpeLevelChunk message)
 		{
-			if (message.cacheEnabled)
+			if (message.blobHashes != null) 
 			{
 				var chunk = new CachedChunk
 				{
@@ -203,7 +204,8 @@ namespace MiNET.Console
 				ulong biomeHash = message.blobHashes.Last();
 				if (Client.BlobCache.TryGetValue(biomeHash, out byte[] biomes))
 				{
-					chunk.Chunk.biomeId = biomes;
+					// TODO - 1.20 - update
+					//chunk.Chunk.biomeId = biomes;
 					hits.Add(biomeHash);
 				}
 				else

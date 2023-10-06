@@ -62,6 +62,9 @@ namespace MiNET.Net
 					WriteUnsignedVarInt(color);
 					WriteUnsignedVarInt(overlay);
 					break;
+				case Type.Query:
+					WriteEntityId(playerId);
+					break;
 			}
 		}
 
@@ -101,6 +104,9 @@ namespace MiNET.Net
 					// NOOP
 					color = ReadUnsignedVarInt();
 					overlay = ReadUnsignedVarInt();
+					break;
+				case Type.Query:
+					playerId = ReadSignedVarLong();
 					break;
 			}
 		}

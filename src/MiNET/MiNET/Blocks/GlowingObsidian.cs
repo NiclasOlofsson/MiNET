@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Glowingobsidian : Block
 	{
-		public Glowingobsidian() : base(246)
+		public Glowingobsidian() : base()
 		{
 			LightLevel = 12;
 			BlastResistance = 6000;

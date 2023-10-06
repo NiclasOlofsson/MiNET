@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class EndPortal : Block
 	{
-		public EndPortal() : base(119)
+		public EndPortal() : base()
 		{
 			IsSolid = false;
 			BlastResistance = 18000000;

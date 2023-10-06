@@ -24,7 +24,9 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
+using Newtonsoft.Json;
 
 namespace MiNET.Utils.Vectors
 {
@@ -96,6 +98,7 @@ namespace MiNET.Utils.Vectors
 		/// <summary>
 		///     Finds the distance of this Coordinate3D from BlockCoordinates.Zero
 		/// </summary>
+		[JsonIgnore]
 		public double Distance
 		{
 			get { return DistanceTo(Zero); }
@@ -244,6 +247,24 @@ namespace MiNET.Utils.Vectors
 		public static readonly BlockCoordinates Right = new BlockCoordinates(1, 0, 0);
 		public static readonly BlockCoordinates Backwards = new BlockCoordinates(0, 0, -1);
 		public static readonly BlockCoordinates Forwards = new BlockCoordinates(0, 0, 1);
+
+		public IEnumerable<BlockCoordinates> Get2dAroundCoordinates()
+		{
+			yield return BlockEast();
+			yield return BlockWest();
+			yield return BlockNorth();
+			yield return BlockSouth();
+		}
+
+		public IEnumerable<BlockCoordinates> Get3dAroundCoordinates()
+		{
+			yield return BlockUp();
+			yield return BlockDown();
+			yield return BlockEast();
+			yield return BlockWest();
+			yield return BlockNorth();
+			yield return BlockSouth();
+		}
 
 		public BlockCoordinates BlockUp()
 		{

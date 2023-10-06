@@ -56,7 +56,7 @@ namespace MiNET.Entities.Behaviors
 
 		public override void OnTick(Entity[] entities)
 		{
-			_entity.Direction += (float) Math.Sign(_rotation) * 10;
+			_entity.EntityDirection += (float) Math.Sign(_rotation) * 10;
 			_entity.KnownPosition.HeadYaw += (float) Math.Sign(_rotation) * 10;
 			_entity.KnownPosition.Yaw += (float) Math.Sign(_rotation) * 10;
 			_entity.BroadcastMove();
@@ -66,9 +66,9 @@ namespace MiNET.Entities.Behaviors
 
 		public override void OnEnd()
 		{
-			_entity.Direction = Mob.ClampDegrees(_entity.Direction);
-			_entity.KnownPosition.HeadYaw = (float) _entity.Direction;
-			_entity.KnownPosition.Yaw = (float) _entity.Direction;
+			_entity.EntityDirection = Mob.ClampDegrees(_entity.EntityDirection);
+			_entity.KnownPosition.HeadYaw = (float) _entity.EntityDirection;
+			_entity.KnownPosition.Yaw = (float) _entity.EntityDirection;
 			_entity.BroadcastMove(true);
 		}
 	}

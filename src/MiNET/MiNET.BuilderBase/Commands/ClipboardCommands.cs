@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using log4net;
@@ -30,7 +30,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Cut the selection to the clipboard")]
-		public void Cut(Player player, int leaveId = 0, int leaveData = 0)
+		public void Cut(Player player, string leaveId = "", int leaveData = 0)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 
@@ -40,7 +40,7 @@ namespace MiNET.BuilderBase.Commands
 			clipboard.SourceMask = new AnyBlockMask();
 			clipboard.SourceFuncion = coordinates =>
 			{
-				var block = BlockFactory.GetBlockById((byte) leaveId);
+				var block = BlockFactory.GetBlockById(leaveId);
 				block.Metadata = (byte) leaveData;
 				block.Coordinates = coordinates;
 				EditSession.SetBlock(block);

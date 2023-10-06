@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -29,6 +29,7 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Utils.Vectors;
+using MiNET.Worlds.Anvil;
 
 namespace MiNET.Worlds
 {
@@ -55,7 +56,7 @@ namespace MiNET.Worlds
 			ChunkColumn chunk = GetChunk(level, coord);
 			if (chunk == null) return;
 
-			int lightLevel = chunk.GetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f);
+			int lightLevel = chunk.GetBlocklight(coord.X & 0x0f, coord.Y, coord.Z & 0x0f);
 
 			Test(level, coord, coord.BlockUp(), lightBfsQueue, chunk, lightLevel);
 			Test(level, coord, coord.BlockDown(), lightBfsQueue, chunk, lightLevel);
@@ -99,13 +100,13 @@ namespace MiNET.Worlds
 
 			if (chunk == null) return;
 
-			if (chunk.GetBlockId(newCoord.X & 0x0f, newCoord.Y & 0xff, newCoord.Z & 0x0f) == 0)
+			if (BlockFactory.IsBlock<Air>(chunk.GetBlockRuntimeId(newCoord.X & 0x0f, newCoord.Y, newCoord.Z & 0x0f)))
 			{
 				SetLightLevel(chunk, lightBfsQueue, newCoord, lightLevel);
 			}
 			else
 			{
-				//if (BlockFactory.LuminousBlocks.ContainsKey(chunk.GetBlocklight(newCoord.X & 0x0f, newCoord.Y & 0xff, newCoord.Z & 0x0f)))
+				//if (BlockFactory.LuminousBlocks.ContainsKey(chunk.GetBlocklight(newCoord.X & 0x0f, newCoord.Y, newCoord.Z & 0x0f)))
 				//{
 				//}
 				//else
@@ -125,22 +126,22 @@ namespace MiNET.Worlds
 				}
 
 				b1.BlockLight = (byte) Math.Max(b1.LightLevel, lightLevel - 1);
-				chunk.SetBlocklight(b1.Coordinates.X & 0x0f, b1.Coordinates.Y & 0xff, b1.Coordinates.Z & 0x0f, (byte) b1.BlockLight);
+				chunk.SetBlocklight(b1.Coordinates.X & 0x0f, b1.Coordinates.Y, b1.Coordinates.Z & 0x0f, (byte) b1.BlockLight);
 			}
 
 			if ((!b1.IsSolid || b1.IsTransparent) && b1.BlockLight + 2 <= lightLevel)
 			{
 				b1.BlockLight = (byte) (lightLevel - 1);
-				chunk.SetBlocklight(b1.Coordinates.X & 0x0f, b1.Coordinates.Y & 0xff, b1.Coordinates.Z & 0x0f, (byte) b1.BlockLight);
+				chunk.SetBlocklight(b1.Coordinates.X & 0x0f, b1.Coordinates.Y, b1.Coordinates.Z & 0x0f, (byte) b1.BlockLight);
 				lightBfsQueue.Enqueue(b1.Coordinates);
 			}
 		}
 
 		private static void SetLightLevel(ChunkColumn chunk, Queue<BlockCoordinates> lightBfsQueue, BlockCoordinates coord, int lightLevel)
 		{
-			if (chunk.GetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f) + 2 <= lightLevel)
+			if (chunk.GetBlocklight(coord.X & 0x0f, coord.Y, coord.Z & 0x0f) + 2 <= lightLevel)
 			{
-				chunk.SetBlocklight(coord.X & 0x0f, coord.Y & 0xff, coord.Z & 0x0f, (byte) (lightLevel - 1));
+				chunk.SetBlocklight(coord.X & 0x0f, coord.Y, coord.Z & 0x0f, (byte) (lightLevel - 1));
 				lightBfsQueue.Enqueue(coord);
 			}
 		}

@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class EndGateway : Block
 	{
-		public EndGateway() : base(209)
+		public EndGateway() : base()
 		{
 			LightLevel = 15;
 			BlastResistance = 18000000;

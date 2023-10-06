@@ -25,13 +25,13 @@
 
 using System;
 using System.Buffers;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
+using MiNET.Utils.Vectors;
 
 namespace MiNET.Worlds
 {
@@ -42,45 +42,65 @@ namespace MiNET.Worlds
 		private bool _isAllAir = true;
 
 		private List<int> _runtimeIds; // Add air, always as first (performance)
-		internal List<int> RuntimeIds => _runtimeIds;
+		private List<int> _loggedRuntimeIds;
 
 		private short[] _blocks;
-		internal short[] Blocks => _blocks;
-
-		private List<int> _loggedRuntimeIds = new List<int>();
-		internal List<int> LoggedRuntimeIds => _loggedRuntimeIds;
-
 		private byte[] _loggedBlocks; // We use only byte size on this palette index table, because can basically only be water and snow-levels
-		internal byte[] LoggedBlocks => _loggedBlocks;
+
+		private byte[] _biomes;
 
 		// Consider disabling these if we don't calculate lights
-		public NibbleArray _blocklight;
-		public NibbleArray _skylight;
+		private NibbleArray _blockLight;
+		private NibbleArray _skyLight;
+
+		private byte[] _cache;
+
+		public int X { get; set; }
+		public int Z { get; set; }
+		public int Index { get; }
+
+		internal List<int> RuntimeIds => _runtimeIds;
+		internal List<int> LoggedRuntimeIds => _loggedRuntimeIds;
+
+		internal short[] Blocks => _blocks;
+		internal byte[] LoggedBlocks => _loggedBlocks;
+
+		internal virtual byte[] Biomes => _biomes;
+
+		public NibbleArray BlockLight => _blockLight;
+		public NibbleArray SkyLight => _skyLight;
 
 		public bool IsDirty { get; private set; }
 
 		public ulong Hash { get; set; }
-		public bool DisableCache { get; set; }
-		private byte[] _cache;
+		public bool DisableCache { get; set; } = true;
 
-		public SubChunk(bool clearBuffers = true)
+		public SubChunk(int x, int z, int index, bool clearBuffers = true)
 		{
-			_runtimeIds = new List<int> {(int) BlockFactory.GetBlockByName("minecraft:air").GetRuntimeId()};
-				
+			X = x;
+			Z = z;
+			Index = index;
+
+			_runtimeIds = new List<int> { new Air().GetRuntimeId() };
+			_loggedRuntimeIds = new List<int> { new Air().GetRuntimeId() };
+
 			_blocks = ArrayPool<short>.Shared.Rent(4096);
+			_biomes = ArrayPool<byte>.Shared.Rent(4096);
 			_loggedBlocks = ArrayPool<byte>.Shared.Rent(4096);
-			_blocklight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));
-			_skylight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));
+			_blockLight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));
+			_skyLight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));
 
 			if (clearBuffers) ClearBuffers();
 		}
 
-		public void ClearBuffers()
+		public virtual void ClearBuffers()
 		{
 			Array.Clear(_blocks, 0, 4096);
+			Array.Clear(_biomes, 0, 4096);
 			Array.Clear(_loggedBlocks, 0, 4096);
-			Array.Clear(_blocklight.Data, 0, 2048);
-			ChunkColumn.Fill<byte>(_skylight.Data, 0xff);
+			Array.Clear(_blockLight.Data, 0, 2048);
+			ChunkColumn.Fill<byte>(_skyLight.Data, 0xff);
+			ChunkColumn.Fill<byte>(_biomes, 1);
 		}
 
 
@@ -137,12 +157,13 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private static int GetIndex(int bx, int by, int bz)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected static int GetIndex(int bx, int by, int bz)
 		{
 			return (bx << 8) | (bz << 4) | by;
 		}
 
-		public int GetBlockId(int bx, int by, int bz)
+		public int GetBlockRuntimeId(int bx, int by, int bz)
 		{
 			if (_runtimeIds.Count == 0) return 0;
 
@@ -150,8 +171,8 @@ namespace MiNET.Worlds
 			if (paletteIndex >= _runtimeIds.Count || paletteIndex < 0) Log.Warn($"Unexpected paletteIndex of {paletteIndex} with size of palette is {_runtimeIds.Count}");
 			int runtimeId = _runtimeIds[paletteIndex];
 			if (runtimeId < 0 || runtimeId >= BlockFactory.BlockPalette.Count) Log.Warn($"Couldn't locate runtime id {runtimeId} for block");
-			int bid = BlockFactory.BlockPalette[runtimeId].Id;
-			return bid == -1 ? 0 : bid;
+
+			return runtimeId;
 		}
 
 		public Block GetBlockObject(int bx, int @by, int bz)
@@ -160,12 +181,7 @@ namespace MiNET.Worlds
 
 			int index = _blocks[GetIndex(bx, by, bz)];
 			int runtimeId = _runtimeIds[index];
-			BlockStateContainer blockState = BlockFactory.BlockPalette[runtimeId];
-			Block block = BlockFactory.GetBlockById(blockState.Id);
-			block.SetState(blockState.States);
-			block.Metadata = (byte) blockState.Data; //TODO: REMOVE metadata. Not needed.
-
-			return block;
+			return BlockFactory.GetBlockByRuntimeId(runtimeId);
 		}
 
 		public void SetBlock(int bx, int by, int bz, Block block)
@@ -197,6 +213,15 @@ namespace MiNET.Worlds
 			IsDirty = true;
 		}
 
+		public byte GetBiome(int bx, int by, int bz)
+		{
+			return Biomes[GetIndex(bx, by, bz)];
+		}
+
+		public void SetBiome(int bx, int by, int bz, byte biome)
+		{
+			Biomes[GetIndex(bx, by, bz)] = biome;
+		}
 
 		public void SetLoggedBlock(int bx, int by, int bz, Block block)
 		{
@@ -229,22 +254,22 @@ namespace MiNET.Worlds
 
 		public byte GetBlocklight(int bx, int by, int bz)
 		{
-			return _blocklight[GetIndex(bx, by, bz)];
+			return _blockLight[GetIndex(bx, by, bz)];
 		}
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
-			_blocklight[GetIndex(bx, by, bz)] = data;
+			_blockLight[GetIndex(bx, by, bz)] = data;
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
 		{
-			return _skylight[GetIndex(bx, by, bz)];
+			return _skyLight[GetIndex(bx, by, bz)];
 		}
 
 		public void SetSkylight(int bx, int by, int bz, byte data)
 		{
-			_skylight[GetIndex(bx, by, bz)] = data;
+			_skyLight[GetIndex(bx, by, bz)] = data;
 		}
 
 		public void Write(MemoryStream stream)
@@ -258,24 +283,36 @@ namespace MiNET.Worlds
 			var startPos = stream.Position;
 
 			stream.WriteByte(8); // version
-
-			long storePosition = stream.Position;
+			
 			int numberOfStores = 0;
-			stream.WriteByte((byte) numberOfStores); // storage size
 
-			if (WriteStore(stream, _blocks, null, false, _runtimeIds))
-			{
+			var runtimeIds = _runtimeIds;
+			var blocks = _blocks;
+			
+			if (runtimeIds != null && runtimeIds.Count > 0)
 				numberOfStores++;
-				if (WriteStore(stream, null, _loggedBlocks, false, _loggedRuntimeIds))
+			
+			var loggedRuntimeIds = _loggedRuntimeIds;
+			var loggedBlocks = _loggedBlocks;
+
+			if (loggedRuntimeIds != null && loggedRuntimeIds.Count > 0)
+				numberOfStores++;
+			
+			stream.WriteByte((byte) numberOfStores); // storage size
+			
+			if (WriteStore(stream, blocks, null, false, runtimeIds))
+			{
+				//numberOfStores++;
+				if (WriteStore(stream, null, loggedBlocks, false, loggedRuntimeIds))
 				{
-					numberOfStores++;
+					//numberOfStores++;
 				}
 			}
 
 			int length = (int) (stream.Position - startPos);
 
-			stream.Position = storePosition;
-			stream.WriteByte((byte) numberOfStores); // storage size
+			//stream.Position = storePosition;
+			//stream.WriteByte((byte) numberOfStores); // storage size
 
 			//if (DisableCache)
 			{
@@ -293,7 +330,7 @@ namespace MiNET.Worlds
 			IsDirty = false;
 		}
 
-		private bool WriteStore(MemoryStream stream, short[] blocks, byte[] loggedBlocks, bool forceWrite, List<int> palette)
+		public static bool WriteStore(MemoryStream stream, short[] blocks, byte[] loggedBlocks, bool forceWrite, List<int> palette)
 		{
 			if (palette.Count == 0) return false;
 
@@ -332,12 +369,10 @@ namespace MiNET.Worlds
 					break;
 			}
 
-			stream.WriteByte((byte) ((bitsPerBlock << 1) | 1)); // version
+			stream.WriteByte((byte) ((bitsPerBlock << 1) | 1)); // flags
 
 			int blocksPerWord = (int) Math.Floor(32f / bitsPerBlock); // Floor to remove padding bits
 			int wordsPerChunk = (int) Math.Ceiling(4096f / blocksPerWord);
-
-			byte t = 0;
 
 			uint[] indexes = new uint[wordsPerChunk];
 
@@ -380,18 +415,19 @@ namespace MiNET.Worlds
 			return true;
 		}
 
-		public object Clone()
+		public virtual object Clone()
 		{
-			SubChunk cc = CreateObject();
+			var cc = (SubChunk) Activator.CreateInstance(GetType());
 			cc._isAllAir = _isAllAir;
 			cc.IsDirty = IsDirty;
 
 			cc._runtimeIds = new List<int>(_runtimeIds);
-			_blocks.CopyTo(cc._blocks, 0);
 			cc._loggedRuntimeIds = new List<int>(_loggedRuntimeIds);
+			_blocks.CopyTo(cc._blocks, 0);
 			_loggedBlocks.CopyTo(cc._loggedBlocks, 0);
-			_blocklight.Data.CopyTo(cc._blocklight.Data, 0);
-			_skylight.Data.CopyTo(cc._skylight.Data, 0);
+			_biomes.CopyTo(cc._biomes, 0);
+			_blockLight.Data.CopyTo(cc._blockLight.Data, 0);
+			_skyLight.Data.CopyTo(cc._skyLight.Data, 0);
 
 			if (_cache != null)
 			{
@@ -401,89 +437,15 @@ namespace MiNET.Worlds
 			return cc;
 		}
 
-		private static readonly ChunkPool<SubChunk> Pool = new ChunkPool<SubChunk>(() => new SubChunk());
-
-		public static SubChunk CreateObject()
+		public virtual void Dispose()
 		{
-			return new SubChunk();
-			//return Pool.GetObject();
-		}
+			if (_blocks != null) ArrayPool<short>.Shared.Return(_blocks);
+			if (_loggedBlocks != null) ArrayPool<byte>.Shared.Return(_loggedBlocks);
+			if (_biomes != null) ArrayPool<byte>.Shared.Return(_biomes);
+			if (_blockLight != null) ArrayPool<byte>.Shared.Return(_blockLight.Data);
+			if (_skyLight != null) ArrayPool<byte>.Shared.Return(_skyLight.Data);
 
-		public void PutPool()
-		{
-			Dispose();
-			//Reset();
-			//Pool.PutObject(this);
-		}
-
-		public void REMOVEReset()
-		{
-			_isAllAir = true;
-			_runtimeIds.Clear();
-			Array.Clear(_blocks, 0, _blocks.Length);
-			_loggedRuntimeIds.Clear();
-			Array.Clear(_loggedBlocks, 0, _blocks.Length);
-			Array.Clear(_blocklight.Data, 0, _blocklight.Data.Length);
-			Array.Fill<byte>(_skylight.Data, 0xff);
-			_cache = null;
-			IsDirty = false;
-		}
-
-		private void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				if (_blocks != null) ArrayPool<short>.Shared.Return(_blocks);
-				if (_loggedBlocks != null) ArrayPool<byte>.Shared.Return(_loggedBlocks);
-				if (_blocklight != null) ArrayPool<byte>.Shared.Return(_blocklight.Data);
-				if (_skylight != null) ArrayPool<byte>.Shared.Return(_skylight.Data);
-			}
-		}
-
-		public void Dispose()
-		{
-			Dispose(true);
 			GC.SuppressFinalize(this);
-		}
-
-		~SubChunk()
-		{
-			Dispose(false);
-		}
-	}
-
-	public class ChunkPool<T>
-	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(ChunkPool<T>));
-
-		private ConcurrentQueue<T> _objects;
-
-		private Func<T> _objectGenerator;
-
-		public ChunkPool(Func<T> objectGenerator)
-		{
-			if (objectGenerator == null)
-				throw new ArgumentNullException("objectGenerator");
-			_objects = new ConcurrentQueue<T>();
-			_objectGenerator = objectGenerator;
-		}
-
-		public T GetObject()
-		{
-			if (_objects.IsEmpty)
-				return _objectGenerator();
-
-			T item;
-			if (_objects.TryDequeue(out item))
-				return item;
-			return _objectGenerator();
-		}
-
-		const long MaxPoolSize = 10000000;
-
-		public void PutObject(T item)
-		{
-			//_objects.Enqueue(item);
 		}
 	}
 }

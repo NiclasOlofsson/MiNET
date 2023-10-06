@@ -147,7 +147,7 @@ namespace MiNET.Entities
 				message.headYaw = KnownPosition.HeadYaw;
 				message.pitch = KnownPosition.Pitch;
 				message.metadata = GetMetadata();
-				message.userId = -1;
+			//	message.userId = -1;
 				Level.RelayBroadcast(players, message);
 			}
 

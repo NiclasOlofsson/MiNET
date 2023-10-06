@@ -27,11 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class RedstoneLamp : Block
 	{
-		public RedstoneLamp() : this(123)
-		{
-		}
-
-		public RedstoneLamp(byte id) : base(id)
+		public RedstoneLamp() : base()
 		{
 			BlastResistance = 1.5f;
 			Hardness = 0.3f;

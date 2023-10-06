@@ -114,7 +114,7 @@ namespace MiNET
 	{
 		static NewtonsoftMapper()
 		{
-			JWT.JsonMapper = new NewtonsoftMapper();
+			JWT.DefaultSettings.JsonMapper = new NewtonsoftMapper();
 		}
 
 		public string Serialize(object obj)

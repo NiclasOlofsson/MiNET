@@ -25,24 +25,26 @@
 
 using System.Numerics;
 using MiNET.Entities;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemCamera : Item
+	public partial class ItemCamera
 	{
-		public ItemCamera(short metadata) : base("minecraft:camera", 498, metadata)
+		public ItemCamera() : base()
 		{
+
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 
 			Camera entity = new Camera(world) {KnownPosition = coordinates};
 			entity.SpawnEntity();
+
+			return true;
 		}
 	}
 }

@@ -45,7 +45,7 @@ namespace MiNET.Blocks
 		//[StateBit] public bool HeadPieceBit { get; set; } = true;
 		//[StateBit] public bool OccupiedBit { get; set; } = false;
 
-		public Bed() : base(26)
+		public Bed() : base()
 		{
 			BlastResistance = 1;
 			Hardness = 0.2f;
@@ -55,7 +55,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new[] {ItemFactory.GetItem(355, Color)};
+			return new[] { new ItemBed() { Metadata = Color } };
 		}
 
 		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)

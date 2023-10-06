@@ -37,7 +37,6 @@ namespace MiNET.Entities.World
 	{
 		public byte Fuse { get; set; }
 		public bool Fire { get; set; }
-		private bool CheckPosition = true;
 
 		public PrimedTnt(Level level) : base(EntityType.PrimedTnt, level)
 		{

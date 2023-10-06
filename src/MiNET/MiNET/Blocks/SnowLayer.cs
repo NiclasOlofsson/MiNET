@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 		//[StateBit] public bool CoveredBit { get; set; } = false;
 		//[StateRange(0, 7)] public int Height { get; set; } = 0;
 
-		public SnowLayer() : base(78)
+		public SnowLayer() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 0.5f;
@@ -73,12 +73,10 @@ namespace MiNET.Blocks
 				}
 				else
 				{
-					if (BlockFactory.GetBlockById(80) is Snow snow)
-					{
-						snow.Coordinates = Coordinates;
-						world.SetBlock(snow);
-						return true;
-					}
+					var snow = new Snow();
+					snow.Coordinates = Coordinates;
+					world.SetBlock(snow);
+					return true;
 				}
 			}
 
@@ -88,7 +86,7 @@ namespace MiNET.Blocks
 		public override Item[] GetDrops(Item tool)
 		{
 			// One per layer.
-			return new[] {ItemFactory.GetItem(332, 0, (Height + 1))};
+			return new[] { new ItemSnowball() { Count = (byte) (Height + 1) } };
 		}
 	}
 }

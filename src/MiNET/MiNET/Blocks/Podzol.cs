@@ -23,14 +23,21 @@
 
 #endregion
 
+using MiNET.Items;
+
 namespace MiNET.Blocks
 {
 	public partial class Podzol : Block
 	{
-		public Podzol() : base(243)
+		public Podzol() : base()
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;
+		}
+
+		public override Item[] GetDrops(Item tool)
+		{
+			return new[] { ItemFactory.GetItem<Dirt>() };
 		}
 	}
 }

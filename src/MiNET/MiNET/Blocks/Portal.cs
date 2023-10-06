@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 
 	public partial class Portal : Block
 	{
-		public Portal() : base(90)
+		public Portal() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;

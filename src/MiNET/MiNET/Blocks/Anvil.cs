@@ -34,7 +34,7 @@ namespace MiNET.Blocks
 {
 	public partial class Anvil : Block
 	{
-		public Anvil() : base(145)
+		public Anvil() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 6000;

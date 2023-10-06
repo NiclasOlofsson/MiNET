@@ -244,11 +244,6 @@ namespace MiNET.Utils.IO
 			return buffer;
 		}
 
-		public void Dispose()
-		{
-			// DO NOTHING
-		}
-
 		public override void Flush()
 		{
 			// DO NOTHING

@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 {
 	public partial class BrewingStand : Block
 	{
-		public BrewingStand() : base(117)
+		public BrewingStand() : base()
 		{
 			IsTransparent = true;
 			LightLevel = 1;
@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops(Item tool)
 		{
-			return new Item[] {ItemFactory.GetItem(379, 0, 1)};
+			return new Item[] { new ItemBrewingStand() };
 		}
 	}
 }

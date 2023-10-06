@@ -29,19 +29,78 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using LibNoise.Modifier;
 using log4net;
 using MiNET.Worlds;
 
 namespace MiNET.Utils
 {
-	public class Config
+	public abstract class ConfigProvider
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Config));
+		public ConfigProvider()
+		{
+			
+		}
 
+		public bool Initialized { get; private set; }
+		public void Initialize()
+		{
+			if (Initialized)
+				return;
+			
+			OnInitialize();
+			Initialized = true;
+		}
+
+		protected abstract void OnInitialize();
+		
+		public abstract string ReadString(string property);
+	}
+
+	public class DefaultConfigProvider : ConfigProvider
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(DefaultConfigProvider));
+		private IReadOnlyDictionary<string, string> KeyValues { get; set; }
+		
 		public static string ConfigFileName = "server.conf";
-		private static IReadOnlyDictionary<string, string> KeyValues { get; set; }
+		public DefaultConfigProvider()
+		{
 
-		static Config()
+		}
+		
+		private void LoadValues(string data)
+		{
+			var newDictionairy = new Dictionary<string, string>();
+			foreach (string rawLine in data.Split(new[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+			{
+				string line = rawLine.Trim();
+				if (line.StartsWith("#") || !line.Contains("=")) continue; //It's a comment or not a key value pair.
+
+				string[] splitLine = line.Split('=', 2);
+
+				string key = splitLine[0].ToLower();
+				string value = splitLine[1];
+#if DEBUG
+				value = value.Replace("{configuration}", "Debug", StringComparison.InvariantCultureIgnoreCase);
+#else
+				value = value.Replace("{configuration}", "Release", StringComparison.InvariantCultureIgnoreCase);
+#endif
+				Log.Debug($"Adding config {key}={value}");
+				newDictionairy.Remove(key);
+				newDictionairy.Add(key, value);
+			}
+			foreach (var key in newDictionairy.Keys.ToList())
+			{
+				foreach (KeyValuePair<string, string> keyVal in newDictionairy.ToList())
+				{
+					newDictionairy[keyVal.Key] = keyVal.Value.Replace($"{{{key}}}", newDictionairy[key], StringComparison.InvariantCultureIgnoreCase);
+				}
+			}
+			KeyValues = new ReadOnlyDictionary<string, string>(newDictionairy);
+		}
+
+		/// <inheritdoc />
+		protected override void OnInitialize()
 		{
 			try
 			{
@@ -79,35 +138,21 @@ namespace MiNET.Utils
 			}
 		}
 
-		private static void LoadValues(string data)
+		/// <inheritdoc />
+		public override string ReadString(string property)
 		{
-			var newDictionairy = new Dictionary<string, string>();
-			foreach (string rawLine in data.Split(new[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
-			{
-				string line = rawLine.Trim();
-				if (line.StartsWith("#") || !line.Contains("=")) continue; //It's a comment or not a key value pair.
+			return !KeyValues.ContainsKey(property) ? null : KeyValues[property];
+		}
+	}
+	
+	public class Config
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Config));
 
-				string[] splitLine = line.Split('=', 2);
-
-				string key = splitLine[0].ToLower();
-				string value = splitLine[1];
-#if DEBUG
-				value = value.Replace("{configuration}", "Debug", StringComparison.InvariantCultureIgnoreCase);
-#else
-				value = value.Replace("{configuration}", "Release", StringComparison.InvariantCultureIgnoreCase);
-#endif
-				Log.Debug($"Adding config {key}={value}");
-				newDictionairy.Remove(key);
-				newDictionairy.Add(key, value);
-			}
-			foreach (var key in newDictionairy.Keys.ToList())
-			{
-				foreach (KeyValuePair<string, string> keyVal in newDictionairy.ToList())
-				{
-					newDictionairy[keyVal.Key] = keyVal.Value.Replace($"{{{key}}}", newDictionairy[key], StringComparison.InvariantCultureIgnoreCase);
-				}
-			}
-			KeyValues = new ReadOnlyDictionary<string, string>(newDictionairy);
+		public static ConfigProvider Provider { get; set; } = new DefaultConfigProvider();
+		static Config()
+		{
+			
 		}
 
 		public static ServerRole GetProperty(string property, ServerRole defaultValue)
@@ -251,9 +296,11 @@ namespace MiNET.Utils
 
 		private static string ReadString(string property)
 		{
+			if (!Provider.Initialized)
+				Provider.Initialize();
+			
 			property = property.ToLower();
-			if (!KeyValues.ContainsKey(property)) return null;
-			return KeyValues[property];
+			return Provider.ReadString(property);
 		}
 	}
 }

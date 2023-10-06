@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class InvisibleBedrock : Block
 	{
-		public InvisibleBedrock() : base(95)
+		public InvisibleBedrock() : base()
 		{
 			BlastResistance = 18000000;
 			Hardness = 60000;

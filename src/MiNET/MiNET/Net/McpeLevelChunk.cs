@@ -29,20 +29,78 @@ using MiNET.Blocks;
 
 namespace MiNET.Net
 {
+	public enum SubChunkRequestMode
+	{
+		SubChunkRequestModeLegacy,
+		SubChunkRequestModeLimitless,
+		SubChunkRequestModeLimited
+	}
 	public partial class McpeLevelChunk : Packet<McpeLevelChunk>
 	{
-		public ulong[] blobHashes; // = null;
-		public byte[] chunkData; // = null;
+		public ulong[] blobHashes = null;
+		public byte[] chunkData = null;
+		public bool cacheEnabled;
+		//public bool subChunkRequestsEnabled;
+		public uint subChunkCount;
+		public SubChunkRequestMode subChunkRequestMode = SubChunkRequestMode.SubChunkRequestModeLegacy;
 
 		partial void AfterEncode()
 		{
-			if (cacheEnabled) Write(blobHashes);
+			switch (subChunkRequestMode)
+			{
+				case SubChunkRequestMode.SubChunkRequestModeLegacy:
+				{
+					WriteUnsignedVarInt(subChunkCount);
+
+					break;
+				}
+
+				case SubChunkRequestMode.SubChunkRequestModeLimitless:
+				{
+					WriteUnsignedVarInt(uint.MaxValue);
+					break;
+				}
+
+				case SubChunkRequestMode.SubChunkRequestModeLimited:
+				{
+					WriteUnsignedVarInt(uint.MaxValue -1);
+					Write((ushort)subChunkCount);
+					break;
+				}
+			}
+
+			Write(cacheEnabled);
+			
+			if (cacheEnabled) 
+				Write(blobHashes);
+			
 			WriteByteArray(chunkData);
 		}
 
 		partial void AfterDecode()
 		{
-			if (cacheEnabled) blobHashes = ReadUlongs();
+			var subChunkCountButNotReally = ReadUnsignedVarInt();
+
+			switch (subChunkCountButNotReally)
+			{
+				case uint.MaxValue:
+					subChunkRequestMode = SubChunkRequestMode.SubChunkRequestModeLimitless;
+					break;
+				case uint.MaxValue -1:
+					subChunkRequestMode = SubChunkRequestMode.SubChunkRequestModeLimited;
+					subChunkCount = (uint) ReadUshort();
+					break;
+				default:
+					subChunkRequestMode = SubChunkRequestMode.SubChunkRequestModeLegacy;
+					subChunkCount = subChunkCountButNotReally;
+					break;
+			}
+
+			cacheEnabled = ReadBool();
+			
+			if (cacheEnabled) 
+				blobHashes = ReadUlongs();
+			
 			chunkData = ReadByteArray();
 		}
 	}

@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class LightWeightedPressurePlate : Block
 	{
-		public LightWeightedPressurePlate() : base(147)
+		public LightWeightedPressurePlate() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

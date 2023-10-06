@@ -36,7 +36,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemPainting : Item
+	public partial class ItemPainting
 	{
 		public class PaintingData
 		{
@@ -89,21 +89,21 @@ namespace MiNET.Items
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemPainting));
 
-		public ItemPainting() : base("minecraft:painting", 321)
+		public ItemPainting() : base()
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block block = world.GetBlock(targetCoordinates);
 			var emptyCoordinates = block.IsReplaceable ? targetCoordinates : GetNewCoordinatesFromFace(targetCoordinates, face);
 			var coordinates = targetCoordinates;
 
 
-			if (face == BlockFace.Up || face == BlockFace.Down) return;
+			if (face == BlockFace.Up || face == BlockFace.Down) return false;
 
 			var paintings = FindPaintings(world, emptyCoordinates, face);
-			if (paintings.Count == 0) return;
+			if (paintings.Count == 0) return false;
 
 			var paintingTuple = paintings[new Random().Next(paintings.Count)];
 			var paintingData = paintingTuple.Item1;
@@ -121,7 +121,7 @@ namespace MiNET.Items
 			switch (face)
 			{
 				case BlockFace.North:
-					painting.Direction = 2;
+					painting.FacingDirection = 2;
 					bbox = new BoundingBox(new Vector3(-(width - 1 - widthOffset), -heightOffset, 0), new Vector3(widthOffset, height - 1 - heightOffset, 0));
 					bbox = bbox.OffsetBy(emptyCoordinates);
 					PaintBbox(world, bbox);
@@ -129,7 +129,7 @@ namespace MiNET.Items
 					PaintBbox(world, bbox);
 					break;
 				case BlockFace.East:
-					painting.Direction = 3;
+					painting.FacingDirection = 3;
 					bbox = new BoundingBox(new Vector3(0, -heightOffset, -(width - 1 - widthOffset)), new Vector3(0, height - 1 - heightOffset, widthOffset));
 					bbox = bbox.OffsetBy(emptyCoordinates);
 					PaintBbox(world, bbox);
@@ -137,7 +137,7 @@ namespace MiNET.Items
 					PaintBbox(world, bbox);
 					break;
 				case BlockFace.South:
-					painting.Direction = 0;
+					painting.FacingDirection = 0;
 					bbox = new BoundingBox(new Vector3(-widthOffset, -heightOffset, 0), new Vector3(width - 1 - widthOffset, height - 1 - heightOffset, 0));
 					bbox = bbox.OffsetBy(emptyCoordinates);
 					PaintBbox(world, bbox);
@@ -145,7 +145,7 @@ namespace MiNET.Items
 					PaintBbox(world, bbox);
 					break;
 				case BlockFace.West:
-					painting.Direction = 1;
+					painting.FacingDirection = 1;
 					bbox = new BoundingBox(new Vector3(0, -heightOffset, -widthOffset), new Vector3(0, height - 1 - heightOffset, width - 1 - widthOffset));
 					bbox = bbox.OffsetBy(emptyCoordinates);
 					PaintBbox(world, bbox);
@@ -162,6 +162,8 @@ namespace MiNET.Items
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
+
+			return true;
 		}
 
 		private List<(PaintingData, BoundingBox)> FindPaintings(Level world, BlockCoordinates emptyCoordinates, BlockFace face)
@@ -228,7 +230,7 @@ namespace MiNET.Items
 		{
 			return;
 
-			BlockCoordinates min = bbox.Min;
+			/*BlockCoordinates min = bbox.Min;
 			BlockCoordinates max = bbox.Max;
 			for (int x = min.X; x <= max.X; x++)
 			{
@@ -251,7 +253,7 @@ namespace MiNET.Items
 			{
 				Color = "gray",
 				Coordinates = bbox.Min
-			});
+			});*/
 		}
 
 		private bool IsSpawnAreaSolid(Level level, BoundingBox bbox)

@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class CyanGlazedTerracotta : GlazedTerracotta
 	{
-		public CyanGlazedTerracotta() : base(229)
+		public CyanGlazedTerracotta() : base()
 		{
 		}
 	}

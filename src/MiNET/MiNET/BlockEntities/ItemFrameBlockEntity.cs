@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -40,17 +40,12 @@ namespace MiNET.BlockEntities
 		{
 			Compound = new NbtCompound(string.Empty)
 			{
-				new NbtCompound("Item", new NbtCompound("Item")),
+				new ItemAir().ToNbt("Item"),
 				new NbtString("id", Id),
 				new NbtInt("x", Coordinates.X),
 				new NbtInt("y", Coordinates.Y),
 				new NbtInt("z", Coordinates.Z),
 			};
-
-			var item = (NbtCompound) Compound["Item"];
-			item.Add(new NbtShort("id", 0));
-			item.Add(new NbtShort("Damage", 0));
-			item.Add(new NbtByte("Count", 0));
 
 			//Log.Error($"New ItemFrame block entity: {Compound}");
 		}
@@ -69,10 +64,7 @@ namespace MiNET.BlockEntities
 			Compound = compound;
 			if (compound.TryGet("Item", out var item))
 			{
-				var id = item["id"].ShortValue;
-				var damage = item["Damage"].ShortValue;
-				var count = item["Count"].ShortValue;
-				ItemInFrame = ItemFactory.GetItem(id, damage, count);
+				ItemInFrame = ItemFactory.FromNbt(item);
 			}
 			if (compound.TryGet("ItemRotation", out var rotation))
 			{
@@ -101,21 +93,8 @@ namespace MiNET.BlockEntities
 
 			if (item != null)
 			{
-				var newItem = new NbtCompound("Item")
-				{
-					new NbtShort("id", item.Id),
-					new NbtShort("Damage", item.Metadata),
-					new NbtByte("Count", 1)
-				};
 
-				if (item.ExtraData != null)
-				{
-					var newTag = (NbtTag) item.ExtraData.Clone();
-					newTag.Name = "tag";
-					newItem.Add(newTag);
-				}
-
-				comp["Item"] = newItem;
+				comp["Item"] = item.ToNbt("Item");
 			}
 			else
 			{
@@ -132,8 +111,7 @@ namespace MiNET.BlockEntities
 			var itemComp = Compound["Item"] as NbtCompound;
 			if (itemComp == null) return slots;
 
-			Item item = ItemFactory.GetItem(itemComp["id"].ShortValue, itemComp["Damage"].ShortValue, itemComp["Count"].ByteValue);
-			slots.Add(item);
+			slots.Add(ItemFactory.FromNbt(itemComp));
 
 			return slots;
 		}

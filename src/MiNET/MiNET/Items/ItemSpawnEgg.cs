@@ -29,26 +29,49 @@ using log4net;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemSpawnEgg : Item
+	public partial class ItemSpawnEgg 
+	{
+		public ItemSpawnEgg() : base()
+		{ 
+		
+		}
+
+		public ItemSpawnEgg(EntityType entityType) : base(entityType)
+		{
+
+		}
+
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			return SpawnMob((EntityType) Metadata, world, player, blockCoordinates, face);
+		}
+	}
+
+	public abstract class ItemSpawnEggBase : Item
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemSpawnEgg));
 
-		public ItemSpawnEgg(EntityType type) : this((short) type)
+		protected ItemSpawnEggBase(EntityType entityType) : base()
 		{
+			Metadata = (short) entityType;
 		}
 
-		public ItemSpawnEgg(short metadata) : base("minecraft:spawn_egg", 383, metadata)
+		public ItemSpawnEggBase() : base()
 		{
-			MaxStackSize = 1;
+
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			return SpawnMob(EntityHelpers.ToEntityType(Id.Replace("_spawn_egg", "")), world, player, blockCoordinates, face);
+		}
+
+		protected bool SpawnMob(EntityType type, Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			Log.WarnFormat("Player {0} trying to spawn Mob #{1}.", player.Username, Metadata);
 
@@ -56,7 +79,6 @@ namespace MiNET.Items
 
 			Mob mob = null;
 
-			EntityType type = (EntityType) Metadata;
 			switch (type)
 			{
 				case EntityType.Chicken:
@@ -188,9 +210,9 @@ namespace MiNET.Items
 					break;
 			}
 
-			if (mob == null) return;
+			if (mob == null) return false;
 
-			mob.KnownPosition = new PlayerLocation(coordinates.X, coordinates.Y, coordinates.Z);
+			mob.KnownPosition = new PlayerLocation(coordinates.X, coordinates.Y, coordinates.Z) + new Vector3(0.5f, 0, 0.5f);
 			mob.NoAi = true;
 			mob.SpawnEntity();
 
@@ -202,6 +224,8 @@ namespace MiNET.Items
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
+
+			return true;
 		}
 	}
 }

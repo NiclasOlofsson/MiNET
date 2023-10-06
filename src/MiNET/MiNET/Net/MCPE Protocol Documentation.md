@@ -1890,9 +1890,6 @@ Wiki: [Play Sound](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlaySo
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Name | string |  |
-|Coordinates | BlockCoordinates |  |
-|Volume | float |  |
-|Pitch | float |  |
 -----------------------------------------------------------------------
 ### Stop Sound (0x57)
 Wiki: [Stop Sound](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StopSound)

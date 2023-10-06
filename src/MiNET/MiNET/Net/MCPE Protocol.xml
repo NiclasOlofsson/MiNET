@@ -868,9 +868,6 @@
 
 	<pdu id="0x56" online="false" client="false" server="true" name="MCPE_PLAY_SOUND">
 		<field name="Name" type="string" />
-		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Volume" type="float" />
-		<field name="Pitch" type="float" />
 	</pdu>
 
 	<pdu id="0x57" online="false" client="false" server="true" name="MCPE_STOP_SOUND">

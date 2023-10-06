@@ -3594,7 +3594,7 @@ namespace MiNET
 		///     Very important litle method. This does all the sending of packets for
 		///     the player class. Treat with respect!
 		/// </summary>
-		public void SendPacket(Packet packet)
+		public virtual void SendPacket(Packet packet)
 		{
 			if (NetworkHandler == null)
 			{

@@ -27,7 +27,6 @@ using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
-using System;
 
 namespace MiNET.Items
 {
@@ -47,16 +46,8 @@ namespace MiNET.Items
 		{
 			ArmorType = armorType;
 
-			ItemType = armorType switch
-			{
-				ArmorType.Helmet => ItemType.Helmet,
-				ArmorType.Chestplate => ItemType.Chestplate,
-				ArmorType.Leggings => ItemType.Leggings,
-				ArmorType.Boots => ItemType.Boots,
-				_ => throw new ArgumentException($"Unknown armor type [{armorType}]")
-			};
-
 			MaxStackSize = 1;
+			Durability = CalculateDurability();
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
@@ -67,6 +58,32 @@ namespace MiNET.Items
 		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
 		{
 			return ++Metadata >= Durability;
+		}
+
+		private int CalculateDurability()
+		{
+			var armor = ArmorType switch
+			{
+				ArmorType.Helmet => 11,
+				ArmorType.Chestplate => 16,
+				ArmorType.Leggings => 15,
+				ArmorType.Boots => 13,
+				_ => 0
+			};
+
+			var material = ItemMaterial switch
+			{
+				ItemMaterial.Leather => 5,
+				ItemMaterial.Gold => 7,
+				ItemMaterial.Chain => 15,
+				ItemMaterial.Iron => 15,
+				ItemMaterial.Turtle => 25,
+				ItemMaterial.Diamond => 33,
+				ItemMaterial.Netherite => 37,
+				_ => 0
+			};
+
+			return armor * material;
 		}
 
 		private void SwithItem(Player player)

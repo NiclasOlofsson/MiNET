@@ -99,6 +99,7 @@ namespace MiNET
 		public virtual Item DamageItem(Item item, ItemDamageReason reason, Entity target, Block block)
 		{
 			if (Player.GameMode != GameMode.Survival) return item;
+			if (item.Unbreakable) return item;
 
 			var unbreakingLevel = item.GetEnchantingLevel(EnchantingType.Unbreaking);
 			if (unbreakingLevel > 0)

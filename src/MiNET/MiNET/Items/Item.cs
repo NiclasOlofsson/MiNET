@@ -73,6 +73,8 @@ namespace MiNET.Items
 
 		[JsonIgnore] public int FuelEfficiency { get; set; }
 
+		[JsonIgnore] public bool Unbreakable { get; set; } = false;
+
 		private readonly Lazy<int> _runtimeId;
 
 		protected Item()
@@ -305,7 +307,8 @@ namespace MiNET.Items
 		Gold = 3,
 		Iron = 4,
 		Diamond = 5,
-		Netherite = 6
+		Netherite = 6,
+		Turtle = 7
 	}
 
 	public enum ItemType

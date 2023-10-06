@@ -2,6 +2,8 @@
 {
 	public enum ContainerId
 	{
+		Unknown = -1,
+
 		AnvilInput = 0,
 		AnvilMaterial = 1,
 		AnvilResultPreview = 2,

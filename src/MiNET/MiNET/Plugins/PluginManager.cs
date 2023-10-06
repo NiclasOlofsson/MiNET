@@ -531,11 +531,11 @@ namespace MiNET.Plugins
 			else if (parameter.ParameterType == typeof(Target))
 				value = "target";
 			else if (parameter.ParameterType == typeof(BlockPos))
-				value = "blockpos";
+				value = "xyz";
 			else if (parameter.ParameterType == typeof(EntityPos))
-				value = "entitypos";
+				value = "xyzfloat";
 			else if (parameter.ParameterType == typeof(RelValue))
-				value = "value";
+				value = "mixed";
 			else if (parameter.ParameterType.IsEnum)
 				value = "stringenum";
 			else if (parameter.ParameterType.BaseType == typeof(EnumBase))

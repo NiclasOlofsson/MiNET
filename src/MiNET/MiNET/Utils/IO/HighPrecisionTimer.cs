@@ -171,29 +171,29 @@ namespace MiNET.Utils.IO
 
 						if (msLeft < 16)
 						{
-							if (Thread.Yield())
-							{
-								Yields++;
-								continue;
-							}
+							//if (Thread.Yield())
+							//{
+							//	Yields++;
+							//	continue;
+							//}
 
 							Sleeps++;
 							Thread.Sleep(1);
-							if (!skipTicks && Log.IsDebugEnabled)
-							{
-								long t = nextStop - watch.ElapsedMilliseconds;
-								if (t < -5) Log.Warn($"We overslept {t}ms in thread yield/sleep");
-							}
+							//if (!skipTicks && Log.IsDebugEnabled)
+							//{
+							//	long t = nextStop - watch.ElapsedMilliseconds;
+							//	if (t < -5) Log.Warn($"We overslept {t}ms in thread yield/sleep");
+							//}
 							continue;
 						}
 
 						Sleeps++;
 						Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));
-						if (!skipTicks && Log.IsDebugEnabled)
-						{
-							long t = nextStop - watch.ElapsedMilliseconds;
-							if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
-						}
+						//if (!skipTicks && Log.IsDebugEnabled)
+						//{
+						//	long t = nextStop - watch.ElapsedMilliseconds;
+						//	if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
+						//}
 					}
 				}
 				catch (Exception e)

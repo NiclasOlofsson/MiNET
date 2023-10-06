@@ -159,14 +159,16 @@ namespace MiNET
 				if (Entity.Level.Difficulty <= Difficulty.Normal && Hearts <= 1) return;
 			}
 
-			Health -= damage * 10;
-			if (Health < 0)
+			var healthDamage = damage * 10;
+			if (Health < healthDamage)
 			{
 				OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
 				Health = 0;
 				Kill();
 				return;
 			}
+
+			Health -= healthDamage;
 
 			if (player != null)
 			{

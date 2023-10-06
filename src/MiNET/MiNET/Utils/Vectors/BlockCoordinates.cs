@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Newtonsoft.Json;
 
 namespace MiNET.Utils.Vectors
 {
@@ -97,6 +98,7 @@ namespace MiNET.Utils.Vectors
 		/// <summary>
 		///     Finds the distance of this Coordinate3D from BlockCoordinates.Zero
 		/// </summary>
+		[JsonIgnore]
 		public double Distance
 		{
 			get { return DistanceTo(Zero); }

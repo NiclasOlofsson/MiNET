@@ -508,6 +508,7 @@ namespace MiNET.Net
 				"blockpos" => 0x25,
 				"entitypos" => 0x26,
 				"xyz" => 0x28,
+				"xyzfloat" => 0x29,
 				"message" => 0x2c,
 				"rawtext" => 0x2e,
 				"json" => 0x32,
@@ -534,6 +535,7 @@ namespace MiNET.Net
 				0x25   => "blockpos",
 				0x26   => "entitypos",
 				0x28 => "xyz",
+				0x29 => "xyzfloat",
 				0x2c => "message", // kick, me, etc
 				0x2e => "rawtext", // kick, me, etc
 				0x32 => "json", // give, replace

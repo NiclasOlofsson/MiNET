@@ -75,7 +75,7 @@ namespace MiNET.Entities.Projectiles
 				{
 					//LastUpdatedTime = DateTime.UtcNow;
 
-					BroadcastMoveAndMotion();
+					BroadcastMoveAndMotion(true);
 				}
 			}
 		}
@@ -264,9 +264,9 @@ namespace MiNET.Entities.Projectiles
 		/// <summary>
 		///     For debugging of flight-path and rotation.
 		/// </summary>
-		private void BroadcastMoveAndMotion()
+		private void BroadcastMoveAndMotion(bool forcedVelocity = false)
 		{
-			if (new Random().Next(5) == 0)
+			if (forcedVelocity /*|| new Random().Next(5) == 0*/)
 			{
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
 				motions.runtimeEntityId = EntityId;
@@ -288,13 +288,6 @@ namespace MiNET.Entities.Projectiles
 			}
 
 			LastSentPosition = (PlayerLocation) KnownPosition.Clone(); // Used for delta
-
-			if (Shooter != null && IsCritical)
-			{
-				var particle = new CriticalParticle(Level);
-				particle.Position = KnownPosition.ToVector3();
-				particle.Spawn(new[] {Shooter});
-			}
 		}
 
 		public static bool Intersect(BoundingBox aabb, Ray2 ray)

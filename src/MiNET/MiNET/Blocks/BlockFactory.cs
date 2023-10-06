@@ -370,8 +370,12 @@ namespace MiNET.Blocks
 
 			var blockState = BlockPalette[runtimeId];
 			var block = GetBlockById(blockState.Id);
-			block.SetState(blockState.States);
-			block.Metadata = (byte) blockState.Data;
+
+			if (block != null)
+			{
+				block.SetState(blockState.States);
+				block.Metadata = (byte) blockState.Data;
+			}
 
 			return block;
 		}

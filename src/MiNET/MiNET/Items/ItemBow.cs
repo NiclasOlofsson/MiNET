@@ -112,7 +112,7 @@ namespace MiNET.Items
 					if (itemStack is ItemArrow)
 					{
 						haveArrow = true;
-						if (isInfinity) inventory.RemoveItems(ItemFactory.GetIdByType<ItemArrow>(), 1);
+						if (!isInfinity) inventory.RemoveItems(ItemFactory.GetIdByType<ItemArrow>(), 1);
 						break;
 					}
 				}
@@ -123,12 +123,15 @@ namespace MiNET.Items
 			float force = CalculateForce(timeUsed);
 			if (force < 0.1D) return;
 
-			var arrow = new Arrow(player, world, 2, !(force < 1.0));
+			var arrow = new Arrow(player, world, 2, force >= 1.0);
 			arrow.PowerLevel = this.GetEnchantingLevel(EnchantingType.Power);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
-			arrow.KnownPosition.Y += 1.62f;
+			arrow.KnownPosition.Y += 1.50f;
 
-			arrow.Velocity = arrow.KnownPosition.GetHeadDirection().Normalize() * (force * 3);
+			var vector = arrow.KnownPosition.GetHeadDirection().Normalize();
+			//arrow.KnownPosition += vector * 0.5f + vector * force;
+
+			arrow.Velocity = vector * force * 3;
 			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
 			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
 			arrow.BroadcastMovement = true;

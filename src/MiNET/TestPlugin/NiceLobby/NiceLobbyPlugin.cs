@@ -543,7 +543,7 @@ namespace TestPlugin.NiceLobby
 
 			player.SendPlayerInventory();
 
-			player.SendArmorForPlayer();
+			player.SendArmorEquipmentForPlayer();
 			player.SendEquipmentForPlayer();
 
 			_players.TryAdd(player.Username, player);

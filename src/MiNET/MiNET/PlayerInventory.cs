@@ -86,7 +86,9 @@ namespace MiNET
 			Chest = DamageArmorItem(Chest);
 			Leggings = DamageArmorItem(Leggings);
 			Boots = DamageArmorItem(Boots);
-			Player.SendArmorForPlayer();
+
+			Player.SendPlayerArmor();
+			Player.SendArmorEquipmentForPlayer();
 		}
 
 		public virtual Item DamageArmorItem(Item item)
@@ -140,7 +142,7 @@ namespace MiNET
 
 			UpdateArmorSlot(type, item, forceReplace);
 
-			Player.SendArmorForPlayer();
+			Player.SendArmorEquipmentForPlayer();
 			SendSetSlot((int) type, GetArmorSlot(type), WindowId.Armor);
 		}
 

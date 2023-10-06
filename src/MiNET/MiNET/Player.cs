@@ -1828,22 +1828,19 @@ namespace MiNET
 			//SendPacket(strangeContent);
 
 			var inventoryContent = McpeInventoryContent.CreateObject();
-			inventoryContent.inventoryId = (byte) 0x00;
+			inventoryContent.inventoryId = (byte) WindowId.Inventory;
 			inventoryContent.input = Inventory.GetSlots();
 			SendPacket(inventoryContent);
 
-			var armorContent = McpeInventoryContent.CreateObject();
-			armorContent.inventoryId = 0x78;
-			armorContent.input = Inventory.GetArmor();
-			SendPacket(armorContent);
+			SendPlayerArmor();
 
 			var uiContent = McpeInventoryContent.CreateObject();
-			uiContent.inventoryId = 0x7c;
+			uiContent.inventoryId = (byte) WindowId.UI;
 			uiContent.input = Inventory.GetUiSlots();
 			SendPacket(uiContent);
 
 			var offHandContent = McpeInventoryContent.CreateObject();
-			offHandContent.inventoryId = 0x77;
+			offHandContent.inventoryId = (byte) WindowId.Offhand;
 			offHandContent.input = Inventory.GetOffHand();
 			SendPacket(offHandContent);
 
@@ -1853,6 +1850,14 @@ namespace MiNET
 			mobEquipment.slot = (byte) Inventory.InHandSlot;
 			mobEquipment.selectedSlot = (byte) Inventory.InHandSlot;
 			SendPacket(mobEquipment);
+		}
+
+		public virtual void SendPlayerArmor()
+		{
+			var armorContent = McpeInventoryContent.CreateObject();
+			armorContent.inventoryId = (byte) WindowId.Armor;
+			armorContent.input = Inventory.GetArmor();
+			SendPacket(armorContent);
 		}
 
 		public virtual void SendCraftingRecipes()
@@ -3724,8 +3729,7 @@ namespace MiNET
 			}
 
 			SendEquipmentForPlayer(players);
-
-			SendArmorForPlayer(players);
+			SendArmorEquipmentForPlayer(players);
 		}
 
 		public virtual void SendEquipmentForPlayer(Player[] receivers = null)
@@ -3751,7 +3755,7 @@ namespace MiNET
 			}
 		}
 
-		public virtual void SendArmorForPlayer(Player[] receivers = null)
+		public virtual void SendArmorEquipmentForPlayer(Player[] receivers = null)
 		{
 			McpeMobArmorEquipment mcpePlayerArmorEquipment = McpeMobArmorEquipment.CreateObject();
 			mcpePlayerArmorEquipment.runtimeEntityId = EntityId;

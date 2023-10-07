@@ -465,7 +465,10 @@ namespace MiNET.Worlds.Anvil
 		{
 			if (!ReadBlockLight) return;
 
-			var blockLight = sectionTag["BlockLight"].ByteArrayValue;
+			var blockLight = sectionTag["BlockLight"]?.ByteArrayValue;
+
+			if (blockLight == null) return;
+
 			Array.Copy(blockLight, subChunk.BlockLight.Data, 0);
 		}
 
@@ -473,7 +476,10 @@ namespace MiNET.Worlds.Anvil
 		{
 			if (!ReadSkyLight) return;
 
-			var skyLight = sectionTag["SkyLight"].ByteArrayValue;
+			var skyLight = sectionTag["SkyLight"]?.ByteArrayValue;
+
+			if (skyLight == null) return;
+
 			Array.Copy(skyLight, subChunk.SkyLight.Data, 0);
 		}
 

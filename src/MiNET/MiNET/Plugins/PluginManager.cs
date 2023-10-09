@@ -325,7 +325,7 @@ namespace MiNET.Plugins
 				{
 					subCommmandParam = new Parameter();
 					subCommmandParam.Name = "subcommand";
-					subCommmandParam.Type = "stringenum";
+					subCommmandParam.Type = CommandParameterType.EnumFlag;
 					subCommmandParam.EnumType = "SubCommand" + commandName.Replace(" ", "-");
 					subCommmandParam.EnumValues = new[] {split[1]};
 					commandName = split[0];
@@ -377,17 +377,17 @@ namespace MiNET.Plugins
 					param.Type = GetParameterType(parameter);
 					param.Optional = parameter.IsOptional;
 
-					if (param.Type.Equals("bool"))
+					if (param.Type == CommandParameterType.Bool)
 					{
-						param.Type = "stringenum";
+						param.Type = CommandParameterType.EnumFlag;
 						param.EnumType = "bool";
 						param.EnumValues = new string[] {"false", "true"};
 					}
-					else if (param.Type.Equals("softenum"))
+					else if (param.Type == CommandParameterType.SoftEnumFlag)
 					{
 						param.EnumType = "string";
 					}
-					else if (param.Type.Equals("stringenum"))
+					else if (param.Type == CommandParameterType.EnumFlag)
 					{
 						if (parameter.ParameterType.IsEnum)
 						{
@@ -484,68 +484,43 @@ namespace MiNET.Plugins
 			return new string(chArray);
 		}
 
-
-		private static string GetPropertyType(PropertyInfo parameter)
+		private static CommandParameterType GetParameterType(ParameterInfo parameter)
 		{
-			string value = parameter.PropertyType.ToString();
-
-			if (parameter.PropertyType == typeof(int))
-				value = "int";
-			else if (parameter.PropertyType == typeof(short))
-				value = "int";
-			else if (parameter.PropertyType == typeof(byte))
-				value = "int";
-			else if (parameter.PropertyType == typeof(bool))
-				value = "bool";
-			else if (parameter.PropertyType == typeof(string))
-				value = "string";
-			else if (parameter.PropertyType == typeof(string[]))
-				value = "rawtext";
-			else
-			{
-				Log.Warn("No property type mapping for type: " + parameter.PropertyType.ToString());
-			}
-
-			return value;
-		}
-
-		private static string GetParameterType(ParameterInfo parameter)
-		{
-			string value = parameter.ParameterType.ToString();
+			var value = CommandParameterType.Value;
 
 			if (parameter.ParameterType == typeof(int))
-				value = "int";
+				value = CommandParameterType.Int;
 			else if (parameter.ParameterType == typeof(short))
-				value = "int";
+				value = CommandParameterType.Int;
 			else if (parameter.ParameterType == typeof(byte))
-				value = "int";
+				value = CommandParameterType.Int;
 			else if (parameter.ParameterType == typeof(float))
-				value = "float";
+				value = CommandParameterType.Float;
 			else if (parameter.ParameterType == typeof(double))
-				value = "float";
+				value = CommandParameterType.Float;
 			else if (parameter.ParameterType == typeof(bool))
-				value = "bool";
+				value = CommandParameterType.Bool;
 			else if (parameter.ParameterType == typeof(string))
-				value = "string";
+				value = CommandParameterType.String;
 			else if (parameter.ParameterType == typeof(string[]))
-				value = "rawtext";
+				value = CommandParameterType.Rawtext;
 			else if (parameter.ParameterType == typeof(Target))
-				value = "target";
+				value = CommandParameterType.Target;
 			else if (parameter.ParameterType == typeof(BlockPos))
-				value = "xyz";
+				value = CommandParameterType.IntPosition;
 			else if (parameter.ParameterType == typeof(EntityPos))
-				value = "xyzfloat";
+				value = CommandParameterType.Position;
 			else if (parameter.ParameterType == typeof(RelValue))
-				value = "mixed";
+				value = CommandParameterType.Value;
 			else if (parameter.ParameterType.IsEnum)
-				value = "stringenum";
+				value = CommandParameterType.EnumFlag;
 			else if (parameter.ParameterType.BaseType == typeof(EnumBase))
-				value = "stringenum";
+				value = CommandParameterType.EnumFlag;
 			else if (parameter.ParameterType.BaseType == typeof(SoftEnumBase))
-				value = "softenum";
+				value = CommandParameterType.SoftEnumFlag;
 			else if (typeof(IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
 				// Custom serialization
-				value = "string";
+				value = CommandParameterType.String;
 			else
 				Log.Warn("No parameter type mapping for type: " + parameter.ParameterType.ToString());
 

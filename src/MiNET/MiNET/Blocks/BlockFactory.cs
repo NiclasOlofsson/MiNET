@@ -262,45 +262,12 @@ namespace MiNET.Blocks
 		{
 			// TODO - rework on serialization
 			var id = compound["name"].StringValue;
-			var statesTag = compound["states"] as NbtList;
 
 			var states = new BlockStateContainer()
 			{
-				Id = id
+				Id = id,
+				States = GetBlockStates(compound)
 			};
-
-			foreach (var stateTag in statesTag)
-			{
-				IBlockState state = null;
-				switch (stateTag)
-				{
-					case NbtByte blockStateByte:
-						state = new BlockStateByte()
-						{
-							Name = stateTag.Name, 
-							Value = blockStateByte.Value
-						};
-						break;
-					case NbtInt blockStateInt:
-						state = new BlockStateInt()
-						{
-							Name = stateTag.Name,
-							Value = blockStateInt.Value
-						};
-						break;
-					case NbtString blockStateString:
-						state = new BlockStateString()
-						{
-							Name = stateTag.Name,
-							Value = blockStateString.Value
-						};
-						break;
-					default:
-						throw new ArgumentOutOfRangeException(nameof(stateTag));
-				}
-
-				states.States.Add(state);
-			}
 
 			if (BlockStates.TryGetValue(states, out var blockState))
 			{

@@ -369,12 +369,13 @@ namespace MiNET.Worlds.Anvil
 			var palette = blockStatesTag["palette"] as NbtList;
 
 			var runtimeIds = new List<int>(palette.Count);
+			var blockEntities = new List<BlockEntity>(palette.Count);
 			var waterloggedIds = new List<int>(palette.Count);
 			var snowyIds = new List<int>(palette.Count);
 
 			foreach (NbtCompound p in palette)
 			{
-				var id = AnvilPaletteConverter.GetRuntimeIdByPalette(subChunk, p);
+				var id = AnvilPaletteConverter.GetRuntimeIdByPalette(p, out var blockEntity);
 
 				waterloggedIds.Add(
 					p["Properties"]?["waterlogged"]?.StringValue == "true"
@@ -385,6 +386,7 @@ namespace MiNET.Worlds.Anvil
 				//	p["Properties"]?["snowy"]?.StringValue == "true" 
 				//		? id : -1);
 
+				blockEntities.Add(blockEntity);
 				runtimeIds.Add(id);
 			}
 
@@ -429,33 +431,43 @@ namespace MiNET.Worlds.Anvil
 			{
 				var y = i >> 8;
 				var x = i & 0xf;
-
-				if (x < y)
-					continue;
-
 				var z = i >> 4 & 0xf;
 				var j = x << 8 | z << 4 | y;
 
-				var iBlock = blocks[i];
-				var jBlock = blocks[i] = blocks[j];
-				blocks[j] = iBlock;
+				if (y <= x)
+				{
+					var iBlock = blocks[i];
+					var jBlock = blocks[i] = blocks[j];
+					blocks[j] = iBlock;
 
-				if (waterloggedIds[iBlock] >= 0)
-				{
-					subChunk.LoggedBlocks[j] = waterChunkId;
+					if (waterloggedIds[iBlock] >= 0)
+					{
+						subChunk.LoggedBlocks[j] = waterChunkId;
+					}
+					if (waterloggedIds[jBlock] >= 0)
+					{
+						subChunk.LoggedBlocks[i] = waterChunkId;
+					}
+					//if (snowyIds[iBlock] >= 0)
+					//{
+					//	subChunk.LoggedBlocks[j] = snowChunkId;
+					//}
+					//if (snowyIds[jBlock] >= 0)
+					//{
+					//	subChunk.LoggedBlocks[i] = snowChunkId;
+					//}
 				}
-				if (waterloggedIds[jBlock] >= 0)
+
+				if (blockEntities[blocks[j]] != null)
 				{
-					subChunk.LoggedBlocks[i] = waterChunkId;
+					var template = blockEntities[blocks[j]];
+					template.Coordinates = new BlockCoordinates(
+						(subChunk.X << 4) | x,
+						((subChunk.Index << 4) + ChunkColumn.WorldMinY) | y,
+						(subChunk.Z << 4) | z);
+
+					chunkColumn.SetBlockEntity(template.Coordinates, template.GetCompound());
 				}
-				//if (snowyIds[iBlock] >= 0)
-				//{
-				//	subChunk.LoggedBlocks[j] = snowChunkId;
-				//}
-				//if (snowyIds[jBlock] >= 0)
-				//{
-				//	subChunk.LoggedBlocks[i] = snowChunkId;
-				//}
 			}
 
 			chunkColumn.IsAllAir = false;
@@ -587,25 +599,19 @@ namespace MiNET.Worlds.Anvil
 									sourceTag.AddRange(itemTag);
 								}
 						}
-						else if (blockEntity is BedBlockEntity)
-						{
-							var color = blockEntityTag["color"];
-
-							if (color != null)
-							{
-								blockEntityTag.Remove("color");
-								blockEntityTag.Add(color is NbtByte ? color : new NbtByte("color", (byte) color.IntValue));
-							}
-						}
 						else
 						{
-							if (Log.IsDebugEnabled)
-								Log.Debug($"Loaded block entity\n{blockEntityTag}");
-							blockEntity.SetCompound(blockEntityTag);
-							blockEntityTag = blockEntity.GetCompound();
+							if (Log.IsDebugEnabled) Log.Debug($"Loaded block entity\n{blockEntityTag}");
+							// TODO - 1.20 - update
+							//blockEntity.SetCompound(blockEntityTag);
+							//blockEntityTag = blockEntity.GetCompound();
 						}
 
-						chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
+						var coordinates = new BlockCoordinates(x, y, z);
+						if (chunk.GetBlockEntity(coordinates) == null)
+						{
+							chunk.SetBlockEntity(coordinates, blockEntityTag);
+						}
 					}
 					else
 						if (Log.IsDebugEnabled)

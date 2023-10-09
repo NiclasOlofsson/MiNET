@@ -24,6 +24,7 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -37,7 +38,7 @@ namespace MiNET.Blocks
 			Hardness = 4;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			// For PE works differently than this. Need to check enchanting
 			if (tool is ItemShears)

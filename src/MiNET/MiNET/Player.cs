@@ -563,7 +563,7 @@ namespace MiNET
 					if (GameMode == GameMode.Survival)
 					{
 						Block target = Level.GetBlock(message.coordinates);
-						var drops = target.GetDrops(Inventory.GetItemInHand());
+						var drops = target.GetDrops(Level, Inventory.GetItemInHand());
 						float tooltypeFactor = drops == null || drops.Length == 0 ? 5f : 1.5f; // 1.5 if proper tool
 						double breakTime = Math.Ceiling(target.Hardness * tooltypeFactor * 20);
 
@@ -693,6 +693,11 @@ namespace MiNET
 				{
 					break;
 				}
+				case PlayerAction.StartItemUse:
+				{
+					Level.UseItem(this, Inventory.GetItemInHand(), message.coordinates, (BlockFace) message.face);
+					break;
+				}
 				case PlayerAction.GetUpdatedBlock:
 				case PlayerAction.DropItem:
 				case PlayerAction.Respawn:
@@ -703,7 +708,6 @@ namespace MiNET
 				case PlayerAction.StopSpinAttack:
 				case PlayerAction.PredictDestroyBlock:
 				case PlayerAction.ContinueDestroyBlock:
-				case PlayerAction.StartItemUse:
 				case PlayerAction.StopItemUse:
 				case PlayerAction.HandledTeleport:
 				case PlayerAction.MissedSwing:
@@ -810,7 +814,7 @@ namespace MiNET
 			packet.layers = GetAbilities();
 			packet.commandPermissions = (byte) CommandPermission;
 			packet.playerPermissions = (byte) PermissionLevel;
-			packet.entityUniqueId = BinaryPrimitives.ReverseEndianness(EntityId);
+			packet.entityUniqueId = (ulong) EntityId;
 			SendPacket(packet);
 		}
 
@@ -819,7 +823,7 @@ namespace MiNET
 			PlayerAbility abilities = 0;
 			PlayerAbility values = 0;
 
-			if (GameMode.AllowsFlying())
+			if (AllowFly || GameMode.AllowsFlying())
 			{
 				abilities |= PlayerAbility.MayFly;
 
@@ -829,7 +833,7 @@ namespace MiNET
 				}
 			}
 
-			if (!GameMode.HasCollision())
+			if (IsNoClip || !GameMode.HasCollision())
 			{
 				abilities |= PlayerAbility.NoClip;
 			}
@@ -844,7 +848,7 @@ namespace MiNET
 				abilities |= PlayerAbility.InstantBuild;
 			}
 
-			if (GameMode.AllowsEditing())
+			if (IsWorldBuilder || GameMode.AllowsEditing())
 			{
 				abilities |= PlayerAbility.Build | PlayerAbility.Mine;
 			}
@@ -931,7 +935,7 @@ namespace MiNET
 		public void SetAllowFly(bool allowFly)
 		{
 			AllowFly = allowFly;
-			SendAdventureSettings();
+			SendAbilities();
 		}
 
 		private object _loginSyncLock = new object();
@@ -2843,7 +2847,7 @@ namespace MiNET
 		{
 			Block block = Level.GetBlock(message.x, message.y, message.z);
 			Log.Debug($"Picked block {block.Id} from blockstate {block.GetRuntimeId()}. Expected block to be in slot {message.selectedSlot}");
-			Item item = block.GetItem();
+			Item item = block.GetItem(Level);
 			if (item is ItemBlock blockItem)
 			{
 				Log.Debug($"Have BlockItem with block state {blockItem.Block.GetRuntimeId()}");
@@ -3695,7 +3699,7 @@ namespace MiNET
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 			mcpeAddPlayer.uuid = ClientUuid;
 			mcpeAddPlayer.username = Username;
-			mcpeAddPlayer.entityIdSelf = EntityId;
+			mcpeAddPlayer.entityIdSelf = (ulong) EntityId;
 			mcpeAddPlayer.runtimeEntityId = EntityId;
 			mcpeAddPlayer.x = KnownPosition.X;
 			mcpeAddPlayer.y = KnownPosition.Y;

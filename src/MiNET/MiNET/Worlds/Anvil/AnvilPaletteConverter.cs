@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Xml.Linq;
 using fNbt;
 using log4net;
+using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Entities.Hostile;
 using MiNET.Utils;
-using Newtonsoft.Json.Linq;
 
 namespace MiNET.Worlds.Anvil
 {
 	public class AnvilPaletteConverter
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(AnvilPaletteConverter));
+
+		private const string AnvilIncompatibleBitName = "anvil_incompatible_bit";
 
 		private static readonly AnvilToBedrockStateMapper _mapper = new AnvilToBedrockStateMapper();
 
@@ -24,6 +25,7 @@ namespace MiNET.Worlds.Anvil
 			{ "old_growth_spruce_taiga", "redwood_taiga_mutated" },
 			{ "stony_shore", "stone_beach" },
 			{ "snowy_beach", "cold_beach" },
+			{ "snowy_taiga", "cold_taiga" },
 		};
 
 		private static readonly HashSet<string> _seaBlocks = new HashSet<string>
@@ -60,7 +62,6 @@ namespace MiNET.Worlds.Anvil
 			"pink",
 			"gray",
 			"light_gray",
-			"silver",
 			"cyan",
 			"purple",
 			"blue",
@@ -78,6 +79,24 @@ namespace MiNET.Worlds.Anvil
 			"mossy_stone_brick",
 			"cracked_stone_brick",
 			"chiseled_stone_brick"
+		};
+
+		private static readonly string[] _skullsList = new[]
+		{
+			"skeleton_skull",
+			"wither_skeleton_skull",
+			"zombie_head",
+			"player_head",
+			"creeper_head",
+			"dragon_head",
+			"piglin_head",
+			"skeleton_wall_skull",
+			"wither_skeleton_wall_skull",
+			"zombie_wall_head",
+			"player_wall_head",
+			"creeper_wall_head",
+			"dragon_wall_head",
+			"piglin_wall_head"
 		};
 
 		private static readonly string[] _slabMaterialsList = new[]
@@ -99,6 +118,7 @@ namespace MiNET.Worlds.Anvil
 			"nether_brick",
 			"red_nether_brick",
 			"sandstone",
+			"smooth_stone",
 			"smooth_sandstone",
 			"red_sandstone",
 			"smooth_red_sandstone",
@@ -128,8 +148,46 @@ namespace MiNET.Worlds.Anvil
 			.Concat(_woodList)
 			.ToArray();
 
+		private static readonly string[] _pottedPlantsList = new[]
+		{
+			"dandelion",
+			"poppy",
+			"blue_orchid",
+			"allium",
+			"azure_bluet",
+			"red_tulip",
+			"orange_tulip",
+			"white_tulip",
+			"pink_tulip",
+			"oxeye_daisy",
+			"cornflower",
+			"lily_of_the_valley",
+			"wither_rose",
+			"oak_sapling",
+			"spruce_sapling",
+			"birch_sapling",
+			"jungle_sapling",
+			"acacia_sapling",
+			"dark_oak_sapling",
+			"red_mushroom",
+			"brown_mushroom",
+			"fern",
+			"dead_bush",
+			"cactus",
+			"bamboo",
+			"azalea_bush",
+			"flowering_azalea_bush",
+			"crimson_fungus",
+			"warped_fungus",
+			"crimson_roots",
+			"warped_roots",
+			"mangrove_propagule"
+		};
+
 		static AnvilPaletteConverter()
 		{
+			var poweredSkipMap = 
+				new SkipPropertyStateMapper("powered");
 			var faceDirectionSkipMap = new BlockStateMapper(
 				new SkipPropertyStateMapper("down"),
 				new SkipPropertyStateMapper("up"),
@@ -150,26 +208,32 @@ namespace MiNET.Worlds.Anvil
 					new PropertyValueStateMapper("south", "3"),
 					new PropertyValueStateMapper("west", "4"),
 					new PropertyValueStateMapper("east", "5"));
+			var directionMap = new PropertyStateMapper("facing", "direction",
+					new PropertyValueStateMapper("south", "0"),
+					new PropertyValueStateMapper("west", "1"),
+					new PropertyValueStateMapper("north", "2"),
+					new PropertyValueStateMapper("east", "3"));
+
 			var multiFaceDirectonMap = new BlockStateMapper(
-				(name, properties) =>
+				context =>
 				{
 					var faceDirection = 0;
 
-					faceDirection |= properties["down"].StringValue == "true" ? 1 << 0 : 0;
-					faceDirection |= properties["up"].StringValue == "true" ? 1 << 1 : 0;
-					faceDirection |= properties["south"].StringValue == "true" ? 1 << 2 : 0;
-					faceDirection |= properties["west"].StringValue == "true" ? 1 << 3 : 0;
-					faceDirection |= properties["north"].StringValue == "true" ? 1 << 4 : 0;
-					faceDirection |= properties["east"].StringValue == "true" ? 1 << 5 : 0;
+					faceDirection |= context.Properties["down"].StringValue == "true" ? 1 << 0 : 0;
+					faceDirection |= context.Properties["up"].StringValue == "true" ? 1 << 1 : 0;
+					faceDirection |= context.Properties["south"].StringValue == "true" ? 1 << 2 : 0;
+					faceDirection |= context.Properties["west"].StringValue == "true" ? 1 << 3 : 0;
+					faceDirection |= context.Properties["north"].StringValue == "true" ? 1 << 4 : 0;
+					faceDirection |= context.Properties["east"].StringValue == "true" ? 1 << 5 : 0;
 
-					properties.Clear();
-					properties.Add(new NbtString("multi_face_direction_bits", faceDirection.ToString()));
+					context.Properties.Clear();
+					context.Properties.Add(new NbtString("multi_face_direction_bits", faceDirection.ToString()));
 				});
 			var litMap = new BlockStateMapper(
-				(name, properties) =>
+				context =>
 				{
-					var litName = properties["lit"].StringValue == "true" ? name.Replace("minecraft:", "minecraft:lit_") : name;
-					properties.Remove("lit");
+					var litName = context.Properties["lit"].StringValue == "true" ? context.AnvilName.Replace("minecraft:", "minecraft:lit_") : context.AnvilName;
+					context.Properties.Remove("lit");
 
 					return litName;
 				});
@@ -185,7 +249,7 @@ namespace MiNET.Worlds.Anvil
 			_mapper.AddDefault(new BlockStateMapper(
 				new SkipPropertyStateMapper("waterlogged"),
 				new SkipPropertyStateMapper("snowy"),
-				new SkipPropertyStateMapper("powered")));
+				poweredSkipMap));
 
 
 			_mapper.Add(new BlockStateMapper("minecraft:grass_block", "minecraft:grass"));
@@ -199,13 +263,21 @@ namespace MiNET.Worlds.Anvil
 			_mapper.Add(new BlockStateMapper("minecraft:dandelion", "minecraft:yellow_flower"));
 			_mapper.Add(new BlockStateMapper("minecraft:snow_block", "minecraft:snow"));
 			_mapper.Add(new BlockStateMapper("minecraft:sugar_cane", "minecraft:reeds"));
-			_mapper.Add(new BlockStateMapper("minecraft:terracotta", "minecraft:hardened_clay"));
-			_mapper.Add(new BlockStateMapper("minecraft:jack_o_lantern", "minecraft:lit_pumpkin"));
 			_mapper.Add(new BlockStateMapper("minecraft:bricks", "minecraft:brick_block"));
 			_mapper.Add(new BlockStateMapper("minecraft:dead_bush", "minecraft:deadbush"));
+			_mapper.Add(new BlockStateMapper("minecraft:terracotta", "minecraft:hardened_clay"));
+			_mapper.Add(new BlockStateMapper("minecraft:lily_pad", "minecraft:waterlily"));
+
+
+			_mapper.Add(new BlockStateMapper("minecraft:note_block", "minecraft:noteblock",
+				new SkipPropertyStateMapper("instrument"),
+				new SkipPropertyStateMapper("note"),
+				poweredSkipMap));
 
 			_mapper.Add(new BlockStateMapper("minecraft:bubble_column",
 				new PropertyStateMapper("drag", "drag_down")));
+
+			_mapper.Add(new BlockStateMapper("minecraft:jack_o_lantern", "minecraft:lit_pumpkin", directionMap));
 
 			_mapper.Add(new BlockStateMapper("minecraft:sculk_shrieker",
 				new PropertyStateMapper("shrieking", "active")));
@@ -214,7 +286,7 @@ namespace MiNET.Worlds.Anvil
 				new PropertyStateMapper("level", "composter_fill_level")));
 
 			_mapper.Add(new BlockStateMapper("minecraft:coarse_dirt", "minecraft:dirt",
-				(_, properties) => properties.Add(new NbtString("dirt_type", "coarse"))));
+				context => context.Properties.Add(new NbtString("dirt_type", "coarse"))));
 
 			_mapper.Add(new BlockStateMapper("minecraft:snow", "minecraft:snow_layer",
 				new PropertyStateMapper("layers",
@@ -232,7 +304,7 @@ namespace MiNET.Worlds.Anvil
 			_mapper.Add("minecraft:suspicious_gravel", suspiciousMap);
 
 			var tallGrassMap = new BlockStateMapper("minecraft:tallgrass",
-				(name, properties) => properties.Add(new NbtString("tall_grass_type", name.Replace("minecraft:", "").Replace("grass", "tall"))));
+				context => context.Properties.Add(new NbtString("tall_grass_type", context.AnvilName.Replace("minecraft:", "").Replace("grass", "tall"))));
 			_mapper.Add("minecraft:grass", tallGrassMap);
 			_mapper.Add("minecraft:fern", tallGrassMap);
 
@@ -251,13 +323,25 @@ namespace MiNET.Worlds.Anvil
 			_mapper.Add(new BlockStateMapper("minecraft:large_amethyst_bud", facingDirectionMap));
 			_mapper.Add(new BlockStateMapper("minecraft:amethyst_cluster", facingDirectionMap));
 			_mapper.Add(new BlockStateMapper("minecraft:ladder", facingDirectionMap));
+			_mapper.Add(new BlockStateMapper("minecraft:end_rod", facingDirectionMap));
+			_mapper.Add(new BlockStateMapper("minecraft:dropper",
+				facingDirectionMap, 
+				new BitPropertyStateMapper("triggered")));
+			_mapper.Add(new BlockStateMapper("minecraft:observer",
+				facingDirectionMap,
+				new BitPropertyStateMapper("powered")));
 
-			foreach (var color in _colorsList)
-				_mapper.Add(new BlockStateMapper($"minecraft:{color}_glazed_terracotta", facingDirectionMap));
-
+			_mapper.Add(new BlockStateMapper("minecraft:ender_chest", facingDirectionMap));
 			_mapper.Add(new BlockStateMapper("minecraft:chest",
 				facingDirectionMap,
 				new SkipPropertyStateMapper("type")));
+			_mapper.Add(new BlockStateMapper("minecraft:trapped_chest",
+				facingDirectionMap,
+				new SkipPropertyStateMapper("type")));
+
+			var furnaceMap = litMap.Clone();
+			furnaceMap.PropertiesMap.Add(facingDirectionMap.AnvilName, facingDirectionMap);
+			_mapper.Add("minecraft:furnace", furnaceMap);
 
 
 			_mapper.Add("minecraft:fire", faceDirectionSkipMap);
@@ -269,6 +353,7 @@ namespace MiNET.Worlds.Anvil
 
 			_mapper.Add("minecraft:deepslate_redstone_ore", litMap);
 			_mapper.Add("minecraft:redstone_ore", litMap);
+			_mapper.Add("minecraft:redstone_lamp", litMap);
 
 
 			var bigDripleafMap = new BlockStateMapper("minecraft:big_dripleaf",
@@ -280,25 +365,80 @@ namespace MiNET.Worlds.Anvil
 			_mapper.Add(bigDripleafMap);
 			_mapper.Add("minecraft:big_dripleaf_stem", bigDripleafMap);
 
+			var fenceGateMap = new BlockStateMapper(
+				directionMap,
+				new BitPropertyStateMapper("in_wall"),
+				new BitPropertyStateMapper("open"));
+
+			var oakFenceGateMap = fenceGateMap.Clone();
+			oakFenceGateMap.BedrockName = "minecraft:fence_gate";
+			_mapper.Add($"minecraft:oak_fence_gate", oakFenceGateMap);
+			foreach (var wood in _woodList)
+				_mapper.TryAdd($"minecraft:{wood}_fence_gate", fenceGateMap);
+
 			#endregion
 
 			#region Colored
 
 			foreach (var color in _colorsList)
 				_mapper.Add(new BlockStateMapper($"minecraft:{color}_terracotta", "minecraft:stained_hardened_clay",
-				(name, properties) =>
-				{
-					properties.Clear();
-					properties.Add(new NbtString("color", color));
-				}));
+					context =>
+					{
+						context.Properties.Clear();
+						context.Properties.Add(new NbtString("color", color.Replace("light_gray", "silver")));
+					}));
+
+			_mapper.Add(new BlockStateMapper($"minecraft:light_gray_glazed_terracotta", "minecraft:silver_glazed_terracotta", facingDirectionMap));
+			foreach (var color in _colorsList)
+				_mapper.TryAdd(new BlockStateMapper($"minecraft:{color}_glazed_terracotta", facingDirectionMap));
 
 			foreach (var color in _colorsList)
-				_mapper.Add(new BlockStateMapper($"minecraft:{color}_stained_glass_pane", "minecraft:hard_stained_glass_pane",
-				(name, properties) =>
-				{
-					properties.Clear();
-					properties.Add(new NbtString("color", color));
-				}));
+				_mapper.Add(new BlockStateMapper($"minecraft:{color}_stained_glass_pane", "minecraft:stained_glass_pane",
+					context =>
+					{
+						context.Properties.Clear();
+						context.Properties.Add(new NbtString("color", color.Replace("light_gray", "silver")));
+					}));
+
+			foreach (var color in _colorsList)
+				_mapper.Add(new BlockStateMapper($"minecraft:{color}_stained_glass", "minecraft:stained_glass",
+					context =>
+					{
+						context.Properties.Clear();
+						context.Properties.Add(new NbtString("color", color.Replace("light_gray", "silver")));
+					}));
+
+			foreach (var color in _colorsList)
+				_mapper.Add(new BlockStateMapper($"minecraft:{color}_carpet", "minecraft:carpet",
+					context =>
+					{
+						context.Properties.Clear();
+						context.Properties.Add(new NbtString("color", color.Replace("light_gray", "silver")));
+					}));
+
+			_mapper.Add(new BlockStateMapper($"minecraft:shulker_box", "minecraft:undyed_shulker_box",
+					context => context.Properties.Clear()));
+			foreach (var color in _colorsList)
+				_mapper.Add(new BlockStateMapper($"minecraft:{color}_shulker_box", "minecraft:shulker_box",
+					context =>
+					{
+						context.Properties.Clear();
+						context.Properties.Add(new NbtString("color", color.Replace("light_gray", "silver")));
+					}));
+
+			for (var i = 0; i < _colorsList.Length; i++)
+			{
+				var color = _colorsList[i];
+				var blockEntity = new BedBlockEntity() { Color = (byte) i };
+
+				_mapper.Add(new BlockStateMapper($"minecraft:{color}_bed", "minecraft:bed",
+					context => context.BlockEntityTemplate = blockEntity,
+					new PropertyStateMapper("part", "head_piece_bit",
+						new PropertyValueStateMapper("foot", "false"),
+						new PropertyValueStateMapper("head", "true")),
+					directionMap,
+					new BitPropertyStateMapper("occupied")));
+			}
 
 			#endregion
 
@@ -318,24 +458,24 @@ namespace MiNET.Worlds.Anvil
 			#region Wood and Leaves
 
 			var leavesMap = new BlockStateMapper(
-				(name, properties) =>
+				context =>
 				{
-					var leavesType = name.Replace("minecraft:", "").Replace("_leaves", "");
+					var leavesType = context.AnvilName.Replace("minecraft:", "").Replace("_leaves", "");
 					switch (leavesType)
 					{
 						case "oak":
 						case "spruce":
 						case "birch":
 						case "jungle":
-							properties.Add(new NbtString("old_leaf_type", leavesType));
+							context.Properties.Add(new NbtString("old_leaf_type", leavesType));
 							return "minecraft:leaves";
 						case "acacia":
 						case "dark_oak":
-							properties.Add(new NbtString("new_leaf_type", leavesType));
+							context.Properties.Add(new NbtString("new_leaf_type", leavesType));
 							return "minecraft:leaves2";
 					}
 
-					return name;
+					return context.AnvilName;
 				},
 				new PropertyStateMapper("persistent", "persistent_bit"),
 				new SkipPropertyStateMapper("distance"));
@@ -349,9 +489,9 @@ namespace MiNET.Worlds.Anvil
 
 
 			var planksMap = new BlockStateMapper(
-				(name, properties) =>
+				context =>
 				{
-					var planksType = name.Replace("minecraft:", "").Replace("_planks", "");
+					var planksType = context.AnvilName.Replace("minecraft:", "").Replace("_planks", "");
 					switch (planksType)
 					{
 						case "oak":
@@ -360,17 +500,84 @@ namespace MiNET.Worlds.Anvil
 						case "jungle":
 						case "acacia":
 						case "dark_oak":
-							properties.Add(new NbtString("wood_type", planksType));
+							context.Properties.Add(new NbtString("wood_type", planksType));
 							return "minecraft:planks";
 					}
 
-					return name;
+					return context.AnvilName;
 				},
 				new PropertyStateMapper("persistent", "persistent_bit"),
 				new SkipPropertyStateMapper("distance"));
 
 			foreach (var wood in _woodList)
 				_mapper.Add($"minecraft:{wood}_planks", planksMap);
+
+
+			var woodMap = new BlockStateMapper(
+				context =>
+				{
+					var woodType = context.AnvilName.Replace("minecraft:", "").Replace("stripped_", "").Replace("_wood", "");
+					switch (woodType)
+					{
+						case "oak":
+						case "spruce":
+						case "birch":
+						case "jungle":
+						case "acacia":
+						case "dark_oak":
+							context.Properties.Add(new NbtString("wood_type", woodType));
+							if (context.AnvilName.Contains("stripped_"))
+							{
+								context.Properties.Add(new NbtString("stripped_bit", "true"));
+							}
+							return "minecraft:wood";
+					}
+
+					return context.AnvilName;
+				},
+				new PropertyStateMapper("persistent", "persistent_bit"),
+				new SkipPropertyStateMapper("distance"));
+
+			foreach (var wood in _woodList)
+			{
+				_mapper.Add($"minecraft:{wood}_wood", woodMap);
+				_mapper.Add($"minecraft:stripped_{wood}_wood", woodMap);
+			}
+
+			#endregion
+
+			#region Sings
+
+			var singMap = new BlockStateMapper(context =>
+				{
+					var name = context.AnvilName.Replace("minecraft:", "");
+					if (name.Contains("_hanging") && !name.Contains("_wall"))
+					{
+						context.Properties.Add(new NbtString("hanging", "true"));
+					}
+
+					if (name.Replace("_sing", "").Split('_').Length == 1)
+					{
+						name = name.Replace("_sing", "_standing_sign");
+					}
+
+					if (!name.Contains("_hanging"))
+					{
+						name = name.Replace("oak_", "");
+					}
+
+					return $"minecraft:{name.Replace("_wall_hanging", "_hanging")}";
+				},
+				facingDirectionMap,
+				new PropertyStateMapper("rotation", "ground_sign_direction"));
+
+			foreach (var wood in _woodList)
+			{
+				_mapper.Add($"minecraft:{wood}_sign", singMap);
+				_mapper.Add($"minecraft:{wood}_wall_sign", singMap);
+				_mapper.Add($"minecraft:{wood}_hanging_sign", singMap);
+				_mapper.Add($"minecraft:{wood}_wall_hanging_sign", singMap);
+			}
 
 			#endregion
 
@@ -385,9 +592,12 @@ namespace MiNET.Worlds.Anvil
 					new PropertyValueStateMapper("north", "3")),
 				new PropertyStateMapper("open", "open_bit"));
 
+			var oakTrapdoorMap = trapdoorMap.Clone();
+			oakTrapdoorMap.BedrockName = "minecraft:trapdoor";
+			_mapper.Add($"minecraft:oak_trapdoor", oakTrapdoorMap);
 			_mapper.Add($"minecraft:iron_trapdoor", trapdoorMap);
 			foreach (var wood in _woodList)
-				_mapper.Add($"minecraft:{wood}_trapdoor", trapdoorMap);
+				_mapper.TryAdd($"minecraft:{wood}_trapdoor", trapdoorMap);
 
 			var doorFacingDirectionMap = new PropertyStateMapper("facing", "direction",
 					new PropertyValueStateMapper("east", "0"),
@@ -406,17 +616,48 @@ namespace MiNET.Worlds.Anvil
 			foreach (var wood in _woodList)
 				_mapper.Add($"minecraft:{wood}_door", doorMap);
 
+			var buttonMap = new BlockStateMapper(
+				context =>
+				{
+					var face = context.Properties["face"].StringValue;
+					var facing = context.Properties["facing"].StringValue;
+
+					var direction = (face, facing) switch
+					{
+						("ceiling", _) => "0",
+						("wall", "east") => "1",
+						("wall", "west") => "2",
+						("wall", "south") => "3",
+						("wall", "north") => "4",
+						("floor", _) => "5",
+						_ => "0"
+					};
+
+					context.Properties.Add(new NbtString("facing_direction", direction));
+				},
+				new PropertyStateMapper("powered", "button_pressed_bit"),
+				new SkipPropertyStateMapper("face"),
+				new SkipPropertyStateMapper("facing"));
+
+			_mapper.TryAdd($"minecraft:stone_button", buttonMap);
+			_mapper.TryAdd($"minecraft:polished_blackstone_button", buttonMap);
+			var oakButtonMap = buttonMap.Clone();
+			oakButtonMap.BedrockName = "minecraft:wooden_button";
+			_mapper.TryAdd($"minecraft:oak_button", oakButtonMap);
+			foreach (var wood in _woodList)
+				_mapper.TryAdd($"minecraft:{wood}_button", buttonMap);
+
 			#endregion
 
 			#region Stone
 
-			var stoneMap = new BlockStateMapper((name, properties) =>
+			var stoneMap = new BlockStateMapper(context =>
 			{
-				var stoneType = name.Replace("minecraft:", "");
+				var stoneType = context.AnvilName.Replace("minecraft:", "");
 				if (stoneType.StartsWith("polished_"))
 					stoneType = stoneType.Replace("polished_", "") + "_smooth";
 
-				properties.Add(new NbtString("stone_type", stoneType));
+				context.Properties.Add(new NbtString("stone_type", stoneType));
 				return "minecraft:stone";
 			});
 
@@ -433,37 +674,66 @@ namespace MiNET.Worlds.Anvil
 			#region Torch
 
 			var tourchMap = new BlockStateMapper(
-				(name, properties) =>
+				context =>
 				{
-					if (name.Contains("wall_"))
-						return name.Replace("wall_", "");
+					if (context.AnvilName.Contains("wall_"))
+						return context.AnvilName.Replace("wall_", "");
 
-					properties["facing"] = new NbtString("facing", "top");
-					return name;
+					context.Properties["facing"] = new NbtString("facing", "top");
+					return context.Properties["lit"]?.StringValue == "false" ? $"unlit_{context.AnvilName}" : context.AnvilName;
 				},
 				new PropertyStateMapper("facing", "torch_facing_direction",
 					new PropertyValueStateMapper("west", "east"),
 					new PropertyValueStateMapper("east", "west"),
 					new PropertyValueStateMapper("north", "south"),
-					new PropertyValueStateMapper("south", "north")));
+					new PropertyValueStateMapper("south", "north")),
+				new SkipPropertyStateMapper("lit"));
 
 			_mapper.Add("minecraft:torch", tourchMap);
 			_mapper.Add("minecraft:wall_torch", tourchMap);
 			_mapper.Add("minecraft:soul_torch", tourchMap);
 			_mapper.Add("minecraft:soul_wall_torch", tourchMap);
+			_mapper.Add("minecraft:redstone_torch", tourchMap);
+			_mapper.Add("minecraft:redstone_wall_torch", tourchMap);
+
+			#endregion
+
+			#region Pressure plates
+
+			var pressurePlateMap = new BlockStateMapper(
+				new PropertyStateMapper("powered", "redstone_signal",
+					new PropertyValueStateMapper("false", "0"),
+					new PropertyValueStateMapper("true", "1")));
+
+			var woodenPressurePlateMap = pressurePlateMap.Clone();
+			woodenPressurePlateMap.BedrockName = "minecraft:wooden_pressure_plate";
+
+			_mapper.Add($"minecraft:oak_pressure_plate", woodenPressurePlateMap);
+			_mapper.Add($"minecraft:stone_pressure_plate", pressurePlateMap);
+			_mapper.Add($"minecraft:polished_blackstone_pressure_plate", pressurePlateMap);
+			foreach (var wood in _woodList)
+			{
+				_mapper.TryAdd($"minecraft:{wood}_pressure_plate", pressurePlateMap);
+			}
+
+			var weightedPressurePlateMap = new BlockStateMapper(
+				new PropertyStateMapper("power", "redstone_signal"));
+
+			_mapper.Add($"minecraft:light_weighted_pressure_plate", weightedPressurePlateMap);
+			_mapper.Add($"minecraft:heavy_weighted_pressure_plate", weightedPressurePlateMap);
 
 			#endregion
 
 			#region Stone bricks
 
 			var stonebrickMap = new BlockStateMapper("minecraft:stonebrick",
-				(name, properties) =>
+				context =>
 				{
-					var stonebrickType = name.Replace("minecraft:", "").Replace("_stone_bricks", "");
+					var stonebrickType = context.AnvilName.Replace("minecraft:", "").Replace("_stone_bricks", "");
 					if (stonebrickType == "stone_bricks")
 						stonebrickType = "default";
 
-					properties.Add(new NbtString("stone_brick_type", stonebrickType));
+					context.Properties.Add(new NbtString("stone_brick_type", stonebrickType));
 				});
 
 			_mapper.Add("minecraft:stone_bricks", stonebrickMap);
@@ -489,9 +759,9 @@ namespace MiNET.Worlds.Anvil
 			#region Flowers
 
 			var flowerPlantMap = new BlockStateMapper("minecraft:red_flower",
-				(name, properties) =>
+				context =>
 				{
-					var flowerName = name.Replace("minecraft:", "");
+					var flowerName = context.AnvilName.Replace("minecraft:", "");
 					flowerName = flowerName switch
 					{
 						"blue_orchid" => "orchid",
@@ -504,7 +774,7 @@ namespace MiNET.Worlds.Anvil
 						_ => flowerName
 					};
 
-					properties.Add(new NbtString("flower_type", flowerName));
+					context.Properties.Add(new NbtString("flower_type", flowerName));
 				},
 				upperBlockBitMap);
 
@@ -519,6 +789,49 @@ namespace MiNET.Worlds.Anvil
 			_mapper.Add("minecraft:oxeye_daisy", flowerPlantMap);
 			_mapper.Add("minecraft:cornflower", flowerPlantMap);
 			_mapper.Add("minecraft:lily_of_the_valley", flowerPlantMap);
+
+			#endregion
+
+			#region Flower pot
+
+			var flowerPotMap = new BlockStateMapper(
+				context =>
+				{
+					var plantType = context.AnvilName.Replace("minecraft:", "").Replace("potted_", "");
+					plantType = plantType switch
+					{
+						"blue_orchid" => "orchid",
+						"azure_bluet" => "houstonia",
+						"red_tulip" => "tulip_red",
+						"orange_tulip" => "tulip_orange",
+						"white_tulip" => "tulip_white",
+						"pink_tulip" => "tulip_pink",
+						"oxeye_daisy" => "oxeye",
+						_ => plantType
+					};
+
+					var block = BlockFactory.GetBlockById($"minecraft:{plantType}");
+					if (block != null)
+					{
+						context.BlockEntityTemplate = new FlowerPotBlockEntity()
+						{
+							PlantBlock = block
+						};
+
+						context.Properties.Add(new NbtString("update_bit", "true"));
+					}
+					else
+					{
+						Log.Warn($"Can't find plant block for flower pot [{plantType}]");
+					}
+
+					return "minecraft:flower_pot";
+				});
+
+			foreach (var plant in _pottedPlantsList)
+			{
+				_mapper.Add($"minecraft:potted_{plant}", flowerPotMap);
+			}
 
 			#endregion
 
@@ -540,23 +853,327 @@ namespace MiNET.Worlds.Anvil
 
 			#endregion
 
+			#region Rails
+
+			var railDirection = new PropertyStateMapper("shape", "rail_direction",
+					new PropertyValueStateMapper("north_south", "0"),
+					new PropertyValueStateMapper("east_west", "1"),
+					new PropertyValueStateMapper("ascending_east", "2"),
+					new PropertyValueStateMapper("ascending_west", "3"),
+					new PropertyValueStateMapper("ascending_north", "4"),
+					new PropertyValueStateMapper("ascending_south", "5"),
+					new PropertyValueStateMapper("south_east", "6"),
+					new PropertyValueStateMapper("south_west", "7"),
+					new PropertyValueStateMapper("north_west", "8"),
+					new PropertyValueStateMapper("north_east", "9"));
+
+			_mapper.Add(new BlockStateMapper("minecraft:rail", railDirection));
+			_mapper.Add(new BlockStateMapper("minecraft:activator_rail", 
+				railDirection,
+				new PropertyStateMapper("powered", "rail_data_bit")));
+
+			#endregion
+
+			#region Mushroom blocks
+
+			var mashroomBlockMap = new BlockStateMapper(
+				context =>
+				{
+					var nameOnly = context.AnvilName.Replace("minecraft:", "");
+					var down = context.Properties["down"].StringValue == "true" ? 1 : 0;
+					var up = context.Properties["up"].StringValue == "true" ? 1 : 0;
+					var south = context.Properties["south"].StringValue == "true" ? 1 : 0;
+					var west = context.Properties["west"].StringValue == "true" ? 1 : 0;
+					var north = context.Properties["north"].StringValue == "true" ? 1 : 0;
+					var east = context.Properties["east"].StringValue == "true" ? 1 : 0;
+
+					var faceDirection = nameOnly switch
+					{
+						"mushroom_stem" => (down, up, south, west, north, east) switch
+						{
+							(0, 0, 1, 1, 1, 1) => 10,
+							(1, 1, 1, 1, 1, 1) => 15,
+							_ => 0
+						},
+
+						_ when nameOnly.Contains("mushroom_block") => (down, up, south, west, north, east) switch
+						{
+							(0, 1, 0, 1, 1, 0) => 1,
+							(0, 1, 0, 0, 1, 0) => 2,
+							(0, 1, 0, 0, 1, 1) => 3,
+							(0, 1, 0, 1, 0, 0) => 4,
+							(0, 1, 0, 0, 0, 0) => 5,
+							(0, 1, 0, 0, 0, 1) => 6,
+							(0, 1, 1, 1, 0, 0) => 7,
+							(0, 1, 1, 0, 0, 0) => 8,
+							(0, 1, 1, 0, 0, 1) => 9,
+							(1, 1, 1, 1, 1, 1) => 14,
+							_ => 0
+						},
+
+						_ => 0
+					};
+
+					context.Properties.Clear();
+					context.Properties.Add(new NbtString("huge_mushroom_bits", faceDirection.ToString()));
+
+					if (nameOnly == "mushroom_stem")
+					{
+						context.Properties.Add(new NbtByte(AnvilIncompatibleBitName, 1));
+						return "miencraft:brown_mushroom_block";
+					}
+
+					return context.AnvilName;
+				});
+
+			_mapper.Add("minecraft:brown_mushroom_block", mashroomBlockMap);
+			_mapper.Add("minecraft:red_mushroom_block", mashroomBlockMap);
+			_mapper.Add("minecraft:mushroom_stem", mashroomBlockMap);
+
+			#endregion
+
+			#region Slabs
+
+			var slabMapFunc = (string doubleSlabName, NbtCompound properties) =>
+			{
+				bool doubleSlab = false;
+
+				var type = properties["type"].StringValue;
+				if (type == "top")
+				{
+					properties.Add(new NbtString("top_slot_bit", "true"));
+				}
+				else if (type == "double")
+				{
+					doubleSlab = true;
+				}
+
+				var slabName = doubleSlabName.Replace("double_", "");
+				var slabType = slabName.Replace("minecraft:", "").Replace("_slab", "");
+
+				var woodType = slabType switch
+				{
+					"oak" => slabType,
+					"spruce" => slabType,
+					"birch" => slabType,
+					"jungle" => slabType,
+					"acacia" => slabType,
+					"dark_oak" => slabType,
+					_ => null
+				};
+
+				if (woodType != null)
+				{
+					properties.Add(new NbtString("wood_type", woodType));
+					return doubleSlab ? "minecraft:double_wooden_slab" : "minecraft:wooden_slab";
+				}
+
+				var stoneSlabType = slabType switch
+				{
+					"smooth_stone" => slabType,
+					"sandstone" => slabType,
+					"wood" => slabType,
+					"cobblestone" => slabType,
+					"brick" => slabType,
+					"stone_brick" => slabType,
+					"quartz" => slabType,
+					"nether_brick" => slabType,
+					_ => null
+				};
+
+				if (stoneSlabType != null)
+				{
+					properties.Add(new NbtString("stone_slab_type", stoneSlabType));
+					return doubleSlab ? "minecraft:double_stone_block_slab" : "minecraft:stone_block_slab";
+				}
+
+				var stoneSlabType2 = slabType switch
+				{
+					"red_sandstone" => slabType,
+					"purpur" => slabType,
+					"prismarine_rough" => slabType,
+					"prismarine_dark" => slabType,
+					"prismarine_brick" => slabType,
+					"mossy_cobblestone" => slabType,
+					"smooth_sandstone" => slabType,
+					"red_nether_brick" => slabType,
+					_ => null
+				};
+
+				if (stoneSlabType2 != null)
+				{
+					properties.Add(new NbtString("stone_slab_type_2", stoneSlabType2));
+					return doubleSlab ? "minecraft:double_stone_block_slab2" : "minecraft:stone_block_slab2";
+				}
+
+				var stoneSlabType3 = slabType switch
+				{
+					"end_stone_brick" => slabType,
+					"smooth_red_sandstone" => slabType,
+					"polished_andesite" => slabType,
+					"andesite" => slabType,
+					"diorite" => slabType,
+					"polished_diorite" => slabType,
+					"granite" => slabType,
+					"polished_granite" => slabType,
+					_ => null
+				};
+
+				if (stoneSlabType3 != null)
+				{
+					properties.Add(new NbtString("stone_slab_type_3", stoneSlabType3));
+					return doubleSlab ? "minecraft:double_stone_block_slab3" : "minecraft:stone_block_slab3";
+				}
+
+				var stoneSlabType4 = slabType switch
+				{
+					"mossy_stone_brick" => slabType,
+					"smooth_quartz" => slabType,
+					"stone" => slabType,
+					"cut_sandstone" => slabType,
+					"cut_red_sandstone" => slabType,
+					_ => null
+				};
+
+				if (stoneSlabType4 != null)
+				{
+					properties.Add(new NbtString("stone_slab_type_4", stoneSlabType4));
+					return doubleSlab ? "minecraft:double_stone_block_slab4" : "minecraft:stone_block_slab4";
+				}
+
+				return doubleSlab ? doubleSlabName : slabName;
+			};
+
+
+			var slabToDoubleMap = new Dictionary<string, string>();
+			foreach (var id in BlockFactory.Ids)
+			{
+				if (id.Contains("_slab") && id.Contains("double_"))
+				{
+					slabToDoubleMap.Add(id.Replace("double_", ""), id);
+				}
+			}
+
+			foreach (var material in _slabMaterialsList)
+			{
+				var slabName = $"minecraft:{material}_slab";
+				_mapper.Add(slabName, new BlockStateMapper(
+					context => slabMapFunc(slabToDoubleMap.GetValueOrDefault(slabName, slabName), context.Properties),
+					new SkipPropertyStateMapper("type")));
+			}
+
+			#endregion
+
+			#region Cauldron
+
+			var cauldronLevelMap = new PropertyStateMapper("level", (_, _, property) =>
+			{
+				var level = int.Parse(property.Value) * 2;
+				return new NbtString("fill_level", level.ToString());
+			});
+
+			_mapper.Add(new BlockStateMapper("minecraft:lava_cauldron",
+				cauldronLevelMap,
+				new AdditionalPropertyStateMapper("cauldron_liquid", "lava")));
+
+			_mapper.Add(new BlockStateMapper("minecraft:powder_snow_cauldron", "minecraft:cauldron",
+				cauldronLevelMap,
+				new AdditionalPropertyStateMapper("cauldron_liquid", "powder_snow")));
+
+			_mapper.Add(new BlockStateMapper("minecraft:water_cauldron", "minecraft:cauldron",
+				cauldronLevelMap,
+				new AdditionalPropertyStateMapper("cauldron_liquid", "water")));
+
+			#endregion
+
+			#region Quartz block
+
+			var quartzBlockMap = new BlockStateMapper(context =>
+				{
+					var chiselType = context.AnvilName.Replace("minecraft:", "") switch
+					{
+						"chiseled_quartz_block" => "chiseled",
+						"quartz_pillar" => "lines",
+						"smooth_quartz" => "smooth",
+						_ => "default"
+					};
+
+					context.Properties.Add(new NbtString("chisel_type", chiselType));
+
+					if (!context.Properties.Contains("axis"))
+					{
+						context.Properties.Add(new NbtString("axis", "x"));
+					}
+
+					return "minecraft:quartz_block";
+				});
+
+			_mapper.Add("minecraft:quartz_block", quartzBlockMap);
+			_mapper.Add("minecraft:chiseled_quartz_block", quartzBlockMap);
+			_mapper.Add("minecraft:quartz_pillar", quartzBlockMap);
+			_mapper.Add("minecraft:smooth_quartz", quartzBlockMap);
+
+			#endregion
+
+			#region Skull
+
+			var skullMap = new BlockStateMapper(context =>
+			{
+				var rotation = byte.Parse(context.Properties["rotation"]?.StringValue ?? "0");
+				if (!context.AnvilName.Contains("_wall"))
+				{
+					context.Properties["facing"] = new NbtString("facing", "up");
+				} 
+
+				var skullType = context.AnvilName.Replace("minecraft:", "").Replace("_head", "").Replace("_wall", "");
+
+				var skullTypeBit = skullType switch
+				{
+					"skeleton" => 0,
+					"wither_skeleton" => 1,
+					"zombie" => 2,
+					"player" => 3,
+					"creeper" => 4,
+					"dragon" => 5,
+					_ => 0
+				};
+
+				context.BlockEntityTemplate = new SkullBlockEntity()
+				{
+					Rotation = rotation,
+					SkullType = (byte) skullTypeBit
+				};
+
+				return "minecraft:skull";
+			},
+			facingDirectionMap,
+			poweredSkipMap,
+			new SkipPropertyStateMapper("rotation"));
+
+			foreach (var skull in _skullsList)
+			{
+				_mapper.Add($"minecraft:{skull}", skullMap);
+			}
+
+			#endregion
+
 
 			// minecraft:cave_vines
 			var caveVinesMap = new BlockStateMapper("minecraft:cave_vines",
-				(name, properties) =>
+				context =>
 				{
-					var barries = properties["barries"]?.StringValue;
+					var barries = context.Properties["barries"]?.StringValue;
 
 					if (barries != null)
 					{
-						properties.Remove("barries");
+						context.Properties.Remove("barries");
 
 						return barries == "true"
-						? name == "minecraft:cave_vines" ? "minecraft:cave_vines_head_with_berries" : "minecraft:cave_vines_body_with_berries"
-						: name;
+						? context.AnvilName == "minecraft:cave_vines" ? "minecraft:cave_vines_head_with_berries" : "minecraft:cave_vines_body_with_berries"
+						: context.AnvilName;
 					}
 
-					return name;
+					return context.AnvilName;
 				},
 				new PropertyStateMapper("age", "growing_plant_age"),
 				new SkipPropertyStateMapper("berries"));
@@ -567,28 +1184,28 @@ namespace MiNET.Worlds.Anvil
 
 			// minecraft:vine
 			_mapper.Add(new BlockStateMapper("minecraft:vine",
-				(name, properties) =>
+				context =>
 				{
 					var faceDirection = 0;
 
-					faceDirection |= properties["south"].StringValue == "true" ? 1 << 0 : 0;
-					faceDirection |= properties["west"].StringValue == "true" ? 1 << 1 : 0;
-					faceDirection |= properties["north"].StringValue == "true" ? 1 << 2 : 0;
-					faceDirection |= properties["east"].StringValue == "true" ? 1 << 3 : 0;
+					faceDirection |= context.Properties["south"].StringValue == "true" ? 1 << 0 : 0;
+					faceDirection |= context.Properties["west"].StringValue == "true" ? 1 << 1 : 0;
+					faceDirection |= context.Properties["north"].StringValue == "true" ? 1 << 2 : 0;
+					faceDirection |= context.Properties["east"].StringValue == "true" ? 1 << 3 : 0;
 
-					properties.Clear();
-					properties.Add(new NbtString("vine_direction_bits", faceDirection.ToString()));
+					context.Properties.Clear();
+					context.Properties.Add(new NbtString("vine_direction_bits", faceDirection.ToString()));
 
-					return name;
+					return context.AnvilName;
 				}));
 
 
 			// minecraft:kelp
 			var kelpMap = new BlockStateMapper("minecraft:kelp",
-				(name, properties) =>
+				context =>
 				{
-					if (properties["age"] != null)
-						properties["age"] = new NbtString("age", Math.Min(15, int.Parse(properties["age"].StringValue)).ToString());
+					if (context.Properties["age"] != null)
+						context.Properties["age"] = new NbtString("age", Math.Min(15, int.Parse(context.Properties["age"].StringValue)).ToString());
 				},
 				new PropertyStateMapper("age", "kelp_age"));
 
@@ -598,20 +1215,20 @@ namespace MiNET.Worlds.Anvil
 
 			// minecraft:double_plant
 			var doublePlantMap = new BlockStateMapper("minecraft:double_plant",
-				(name, properties) =>
+				context =>
 				{
-					var flowerName = name.Replace("minecraft:", "");
-					flowerName = flowerName switch
+					var plantName = context.AnvilName.Replace("minecraft:", "");
+					plantName = plantName switch
 					{
 						"tall_grass" => "grass",
 						"large_fern" => "fern",
 						"lilac" => "syringa",
 						"rose_bush" => "rose",
 						"peony" => "paeonia",
-						_ => flowerName
+						_ => plantName
 					};
 
-					properties.Add(new NbtString("double_plant_type", flowerName));
+					context.Properties.Add(new NbtString("double_plant_type", plantName));
 				},
 				upperBlockBitMap);
 
@@ -625,13 +1242,13 @@ namespace MiNET.Worlds.Anvil
 
 			// minecraft:seagrass
 			var seagrassMap = new BlockStateMapper("minecraft:seagrass",
-				(name, properties) =>
+				context =>
 				{
 					var grassType = "default";
-					if (name == "minecraft:tall_seagrass")
-						grassType = properties["half"].StringValue == "upper" ? "double_top" : "double_bot";
+					if (context.AnvilName == "minecraft:tall_seagrass")
+						grassType = context.Properties["half"].StringValue == "upper" ? "double_top" : "double_bot";
 
-					properties.Add(new NbtString("sea_grass_type", grassType));
+					context.Properties.Add(new NbtString("sea_grass_type", grassType));
 				},
 				new SkipPropertyStateMapper("half"));
 
@@ -649,21 +1266,6 @@ namespace MiNET.Worlds.Anvil
 				new PropertyStateMapper("powered", "toggle_bit")));
 
 
-			// minecraft:rail
-			_mapper.Add(new BlockStateMapper("minecraft:rail",
-				new PropertyStateMapper("shape", "rail_direction",
-					new PropertyValueStateMapper("north_south", "0"),
-					new PropertyValueStateMapper("east_west", "1"),
-					new PropertyValueStateMapper("ascending_east", "2"),
-					new PropertyValueStateMapper("ascending_west", "3"),
-					new PropertyValueStateMapper("ascending_north", "4"),
-					new PropertyValueStateMapper("ascending_south", "5"),
-					new PropertyValueStateMapper("south_east", "6"),
-					new PropertyValueStateMapper("south_west", "7"),
-					new PropertyValueStateMapper("north_west", "8"),
-					new PropertyValueStateMapper("north_east", "9"))));
-
-
 			// minecraft:sculk_sensor
 			_mapper.Add(new BlockStateMapper("minecraft:sculk_sensor",
 				new PropertyStateMapper("sculk_sensor_phase", "powered_bit",
@@ -676,10 +1278,10 @@ namespace MiNET.Worlds.Anvil
 			// minecraft:infested_*
 			foreach (var stone in _infestedStoneList)
 				_mapper.Add(new BlockStateMapper($"minecraft:infested_{stone.Replace("brick", "bricks")}", "minecraft:monster_egg",
-					(name, properties) =>
+					context =>
 					{
-						properties.Clear();
-						properties.Add(new NbtString("monster_egg_stone_type", stone));
+						context.Properties.Clear();
+						context.Properties.Add(new NbtString("monster_egg_stone_type", stone));
 					}));
 
 			// minecraft:*_stairs
@@ -721,10 +1323,10 @@ namespace MiNET.Worlds.Anvil
 				};
 
 				_mapper.Add(new BlockStateMapper($"minecraft:{material}_wall", $"minecraft:{bedrockName}_wall",
-					(name, properties) =>
+					context =>
 					{
 						if (material != bedrockName)
-							properties.Add(new NbtString("wall_block_type", material));
+							context.Properties.Add(new NbtString("wall_block_type", material));
 					},
 					new PropertyStateMapper("up", "wall_post_bit"),
 					new PropertyStateMapper("east", "wall_connection_type_east", wallConnectionMap),
@@ -732,16 +1334,42 @@ namespace MiNET.Worlds.Anvil
 					new PropertyStateMapper("south", "wall_connection_type_south", wallConnectionMap),
 					new PropertyStateMapper("west", "wall_connection_type_west", wallConnectionMap)));
 			}
+
+			// minecraft:lever
+			_mapper.Add(new BlockStateMapper("minecraft:lever",
+				context =>
+				{
+					var face = context.Properties["face"].StringValue;
+					var facing = context.Properties["facing"].StringValue;
+
+					var direction = (face, facing) switch
+					{
+						("ceiling", "east" or "west") => "down_east_west",
+						("wall", _) => facing,
+						("floor", "north" or "south") => "up_north_south",
+						("floor", "east" or "west") => "up_east_west",
+						("ceiling", "north" or "south") => "down_north_south",
+						_ => "down_east_west"
+					};
+
+					context.Properties.Add(new NbtString("lever_direction", direction));
+				},
+				new PropertyStateMapper("powered", "open_bit"),
+				new SkipPropertyStateMapper("face"),
+				new SkipPropertyStateMapper("facing")));
 		}
 
-		public static int GetRuntimeIdByPalette(SubChunk chunk, NbtCompound palette)
+		public static int GetRuntimeIdByPalette(NbtCompound palette, out BlockEntity blockEntity)
 		{
 			var name = palette["Name"].StringValue;
 			var properties = (NbtCompound) (palette["Properties"] as NbtCompound)?.Clone() ?? new NbtCompound();
 
+			blockEntity = null;
+			var context = new BlockStateMapperContext(name, properties);
+
 			try
 			{
-				name = _mapper.Resolve(name, properties);
+				name = _mapper.Resolve(context);
 
 				var block = BlockFactory.GetBlockById(name);
 
@@ -760,12 +1388,18 @@ namespace MiNET.Worlds.Anvil
 					return new InfoUpdate().GetRuntimeId();
 				}
 
+				if (block is QuartzBlock)
+				{
+					//Debugger.Launch();
+				}
+
 				if (!BlockFactory.BlockStates.TryGetValue(state, out var blockstate))
 				{
 					Log.Warn($"Did not find block state for {block}, {state}");
 					return new InfoUpdate().GetRuntimeId();
 				}
 
+				blockEntity = context.BlockEntityTemplate;
 				return blockstate.RuntimeId;
 			}
 			catch (Exception e)
@@ -799,10 +1433,16 @@ namespace MiNET.Worlds.Anvil
 		{
 			foreach (var prop in propertiesTag)
 			{
+				// workaround for incompatible mapping from anvil
+				if (prop.Name == AnvilIncompatibleBitName)
+				{
+					blockStateContainer.States.Add(new BlockStateByte() { Name = prop.Name, Value = 1 });
+					continue;
+				}
+
 				var state = blockStateContainer.States.FirstOrDefault(state => state.Name == prop.Name);
 
-				if (state == null)
-					return false;
+				if (state == null) return false;
 
 				var value = prop.StringValue;
 				switch (state)
@@ -842,20 +1482,48 @@ namespace MiNET.Worlds.Anvil
 				_map.Add(name, map);
 			}
 
+			public bool TryAdd(BlockStateMapper map)
+			{
+				return TryAdd(map.AnvilName, map);
+			}
+
+			public bool TryAdd(string name, BlockStateMapper map)
+			{
+				return _map.TryAdd(name, map);
+			}
+
 			public void AddDefault(BlockStateMapper map)
 			{
 				_defaultMap.Add(map);
 			}
 
-			public string Resolve(string anvilName, NbtCompound properties)
+			public string Resolve(BlockStateMapperContext context)
 			{
-				if (_map.TryGetValue(anvilName, out var map))
-					anvilName = map.Resolve(anvilName, properties);
+				if (_map.TryGetValue(context.AnvilName, out var map))
+				{
+					context.AnvilName = map.Resolve(context);
+				}
 
 				foreach (var defMap in _defaultMap)
-					defMap.ResolveDefault(anvilName, properties);
+				{
+					defMap.ResolveDefault(context);
+				}
 
-				return anvilName;
+				return context.AnvilName;
+			}
+		}
+
+		public class BlockStateMapperContext
+		{
+			public string AnvilName { get; set; }
+			public string BedrockName { get; set; }
+			public NbtCompound Properties { get; set; }
+			public BlockEntity BlockEntityTemplate { get; set; }
+
+			public BlockStateMapperContext(string anvilName, NbtCompound properties)
+			{
+				AnvilName = anvilName;
+				Properties = properties;
 			}
 		}
 
@@ -868,44 +1536,44 @@ namespace MiNET.Worlds.Anvil
 			public List<AdditionalPropertyStateMapper> AdditionalProperties { get; } = new List<AdditionalPropertyStateMapper>();
 			public Dictionary<string, SkipPropertyStateMapper> SkipProperties { get; } = new Dictionary<string, SkipPropertyStateMapper>();
 
-			private readonly Func<string, NbtCompound, string> _func;
+			private readonly Func<BlockStateMapperContext, string> _func;
 
-			public BlockStateMapper(Func<string, NbtCompound, string> func)
+			public BlockStateMapper(Func<BlockStateMapperContext, string> func)
 			{
 				_func = func;
 			}
 
-			public BlockStateMapper(Action<string, NbtCompound> func, params IPropertyStateMapper[] propertiesMap)
+			public BlockStateMapper(Action<BlockStateMapperContext> func, params IPropertyStateMapper[] propertiesMap)
 				: this(null, null, func, propertiesMap)
 			{
 
 			}
 
-			public BlockStateMapper(Func<string, NbtCompound, string> func, params IPropertyStateMapper[] propertiesMap)
+			public BlockStateMapper(Func<BlockStateMapperContext, string> func, params IPropertyStateMapper[] propertiesMap)
 				: this(null, null, func, propertiesMap)
 			{
 
 			}
 
-			public BlockStateMapper(string anvilName, Action<string, NbtCompound> func)
+			public BlockStateMapper(string anvilName, Action<BlockStateMapperContext> func)
 				: this(anvilName, anvilName, func)
 			{
 
 			}
 
-			public BlockStateMapper(string anvilName, Func<string, NbtCompound, string> func)
+			public BlockStateMapper(string anvilName, Func<BlockStateMapperContext, string> func)
 				: this(anvilName, anvilName, func)
 			{
 
 			}
 
-			public BlockStateMapper(string anvilName, Action<string, NbtCompound> func, params IPropertyStateMapper[] propertiesMap)
+			public BlockStateMapper(string anvilName, Action<BlockStateMapperContext> func, params IPropertyStateMapper[] propertiesMap)
 				: this(anvilName, anvilName, func, propertiesMap)
 			{
 
 			}
 
-			public BlockStateMapper(string anvilName, Func<string, NbtCompound, string> func, params IPropertyStateMapper[] propertiesMap)
+			public BlockStateMapper(string anvilName, Func<BlockStateMapperContext, string> func, params IPropertyStateMapper[] propertiesMap)
 				: this(anvilName, anvilName, func, propertiesMap)
 			{
 
@@ -929,16 +1597,16 @@ namespace MiNET.Worlds.Anvil
 
 			}
 
-			public BlockStateMapper(string anvilName, string bedrockName, Action<string, NbtCompound> func, params IPropertyStateMapper[] propertiesMap)
-				: this(anvilName, bedrockName, (name, properties) =>
+			public BlockStateMapper(string anvilName, string bedrockName, Action<BlockStateMapperContext> func, params IPropertyStateMapper[] propertiesMap)
+				: this(anvilName, bedrockName, context =>
 				{
-					func(name, properties);
-					return name;
+					func(context);
+					return context.AnvilName;
 				}, propertiesMap)
 			{
 			}
 
-			public BlockStateMapper(string anvilName, string bedrockName, Func<string, NbtCompound, string> func, params IPropertyStateMapper[] propertiesMap)
+			public BlockStateMapper(string anvilName, string bedrockName, Func<BlockStateMapperContext, string> func, params IPropertyStateMapper[] propertiesMap)
 			{
 				AnvilName = anvilName;
 				BedrockName = bedrockName;
@@ -954,52 +1622,60 @@ namespace MiNET.Worlds.Anvil
 						SkipProperties.Add(skipPropertyStateMapper.Name ?? skipPropertyStateMapper.GetHashCode().ToString(), skipPropertyStateMapper);
 			}
 
-			public string Resolve(string anvilName, NbtCompound properties)
+			public string Resolve(BlockStateMapperContext context)
 			{
-				if (_func != null)
-					anvilName = _func(anvilName, properties);
+				if (_func != null) context.AnvilName = _func(context);
 
-				foreach (NbtString prop in properties.ToArray())
-					if (SkipProperties.TryGetValue(prop.Name, out var skipMap) && skipMap.Resolve(anvilName, properties, prop))
-						properties.Remove(prop.Name);
+				foreach (NbtString prop in context.Properties.ToArray())
+				{
+					if (SkipProperties.TryGetValue(prop.Name, out var skipMap) && skipMap.Resolve(context.AnvilName, context.Properties, prop))
+					{
+						context.Properties.Remove(prop.Name);
+					}
 					else if (PropertiesMap.TryGetValue(prop.Name, out var propMap))
 					{
-						properties.Remove(prop.Name);
-						properties.Add(propMap.Resolve(anvilName, properties, prop));
+						context.Properties.Remove(prop.Name);
+						context.Properties.Add(propMap.Resolve(context.AnvilName, context.Properties, prop));
 					}
+				}
 
 				foreach (var prop in AdditionalProperties)
-					properties[prop.Name] = prop.Resolve(anvilName, properties);
+				{
+					context.Properties[prop.Name] = prop.Resolve(context.AnvilName, context.Properties);
+				}
 
-				return BedrockName ?? anvilName;
+				return BedrockName ?? context.AnvilName;
 			}
 
-			public string ResolveDefault(string anvilName, NbtCompound properties)
+			public string ResolveDefault(BlockStateMapperContext context)
 			{
-				if (_func != null)
-					return _func(anvilName, properties);
+				if (_func != null) return _func(context);
 
-				foreach (NbtString prop in properties.ToArray())
+				foreach (NbtString prop in context.Properties.ToArray())
 				{
 					var skipMap = SkipProperties.Values.FirstOrDefault(map => map.Name == prop.Name || map.Name == null);
-					if (skipMap != null && skipMap.Resolve(anvilName, properties, prop))
-						properties.Remove(prop.Name);
+					if (skipMap != null && skipMap.Resolve(context.AnvilName, context.Properties, prop))
+					{
+						context.Properties.Remove(prop.Name);
+					}
 					else
 					{
 						var propMap = PropertiesMap.Values.FirstOrDefault(map => map.AnvilName == prop.Name || map.AnvilName == null);
 
 						if (propMap != null)
 						{
-							properties.Remove(prop.Name);
-							properties.Add(propMap.Resolve(anvilName, properties, prop));
+							context.Properties.Remove(prop.Name);
+							context.Properties.Add(propMap.Resolve(context.AnvilName, context.Properties, prop));
 						}
 					}
 				}
 
 				foreach (var prop in AdditionalProperties)
-					properties[prop.Name] = prop.Resolve(anvilName, properties);
+				{
+					context.Properties[prop.Name] = prop.Resolve(context.AnvilName, context.Properties);
+				}
 
-				return BedrockName ?? anvilName;
+				return BedrockName ?? context.AnvilName;
 			}
 
 			public BlockStateMapper Clone()
@@ -1015,11 +1691,22 @@ namespace MiNET.Worlds.Anvil
 				foreach (var property in SkipProperties.Values)
 					propertiesMap.Add(property.Clone());
 
-				return new BlockStateMapper(AnvilName, BedrockName, (Func<string, NbtCompound, string>) _func?.Clone(), propertiesMap.ToArray());
+				return new BlockStateMapper(AnvilName, BedrockName, (Func<BlockStateMapperContext, string>) _func?.Clone(), propertiesMap.ToArray());
 			}
 		}
 
 		public interface IPropertyStateMapper { }
+
+		public class BitPropertyStateMapper : PropertyStateMapper
+		{
+			public BitPropertyStateMapper(string anvilName)
+				: base(anvilName, $"{anvilName}_bit",
+					  new PropertyValueStateMapper("false", "0"),
+					  new PropertyValueStateMapper("true", "1"))
+			{
+
+			}
+		}
 
 		public class PropertyStateMapper : IPropertyStateMapper
 		{

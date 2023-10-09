@@ -32,6 +32,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using System.Transactions;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
@@ -1377,6 +1378,21 @@ namespace MiNET.Worlds
 			itemInHand.PlaceBlock(this, player, blockCoordinates, face, faceCoords);
 		}
 
+		public void UseItem(Player player, Item itemInHand, BlockCoordinates blockCoordinates, BlockFace face)
+		{
+			itemInHand.UseItem(this, player, blockCoordinates);
+			if (itemInHand.Count == 0)
+			{
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, null, true);
+			}
+
+			if (!player.IsSneaking)
+			{
+				Block target = GetBlock(blockCoordinates);
+				target.UseItem(this, player, blockCoordinates, face);
+			}
+		}
+
 		public event EventHandler<BlockBreakEventArgs> BlockBreak;
 
 		protected virtual bool OnBlockBreak(BlockBreakEventArgs e)
@@ -1447,7 +1463,7 @@ namespace MiNET.Worlds
 		{
 			block.BreakBlock(this, face);
 			var drops = new List<Item>();
-			drops.AddRange(block.GetDrops(tool ?? new ItemAir()));
+			drops.AddRange(block.GetDrops(this, tool ?? new ItemAir()));
 
 			if (blockEntity != null)
 			{

@@ -205,7 +205,7 @@ namespace MiNET.Blocks
 		{
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new[] { ItemFactory.GetItem<Dirt>() };
 		}

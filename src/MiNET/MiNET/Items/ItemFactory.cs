@@ -97,6 +97,11 @@ namespace MiNET.Items
 			return item;
 		}
 
+		public static ItemBlock GetItem(Block block, int count = 1)
+		{
+			return GetItem<ItemBlock>(block.Id, block.GetGlobalState().Data, count) ?? GetItem<Air>();
+		}
+
 		public static ItemBlock GetItem<T>(short metadata = 0, int count = 1) where T : Block
 		{
 			return GetItem<ItemBlock>(BlockFactory.GetIdByType<T>(), metadata, count) ?? GetItem<Air>();

@@ -175,11 +175,11 @@ namespace MiNET.Blocks
 			return newVineDirectionBits;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			if (tool.ItemType != ItemType.Sheers) return new Item[0];
 
-			return base.GetDrops(tool);
+			return base.GetDrops(world, tool);
 		}
 	}
 }

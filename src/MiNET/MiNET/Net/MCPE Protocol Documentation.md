@@ -477,7 +477,7 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |Game Type | UnsignedVarInt |  |
 |Metadata | MetadataDictionary |  |
 |SyncData | PropertySyncData |  |
-|Entity ID Self | SignedVarLong |  |
+|Entity ID Self | ulong |  |
 |Player Permissions | byte |  |
 |Command Permissions | byte |  |
 |Layers | AbilityLayers |  |
@@ -2935,7 +2935,7 @@ Wiki: [Update Abilities](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity Unique ID | long |  |
+|Entity Unique ID | ulong |  |
 |Player Permissions | byte |  |
 |Command Permissions | byte |  |
 |Layers | AbilityLayers |  |

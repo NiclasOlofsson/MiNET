@@ -5,7 +5,7 @@ namespace MiNET.Worlds.Anvil
 	public class AnvilSubChunk : SubChunk
 	{
 		private byte[] _biomesNoise;
-		private bool _biomesResolved = false;
+		private bool _biomesResolved = true;
 
 		private AnvilBiomeManager _biomeManager;
 

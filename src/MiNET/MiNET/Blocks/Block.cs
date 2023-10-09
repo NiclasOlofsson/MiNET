@@ -109,7 +109,7 @@ namespace MiNET.Blocks
 			return blockstate.RuntimeId;
 		}
 
-		public virtual Item GetItem(bool blockItem = false)
+		public virtual Item GetItem(Level world, bool blockItem = false)
 		{
 			if (!BlockFactory.BlockStates.TryGetValue(GetState(), out BlockStateContainer stateFromPick)) return null;
 
@@ -184,6 +184,10 @@ namespace MiNET.Blocks
 			return false;
 		}
 
+		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		{
+		}
+
 		public virtual void OnTick(Level level, bool isRandom)
 		{
 		}
@@ -224,9 +228,9 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public virtual Item[] GetDrops(Item tool)
+		public virtual Item[] GetDrops(Level world, Item tool)
 		{
-			var item = GetItem();
+			var item = GetItem(world);
 			if (item == null) return new Item[0];
 
 			return new[] { item };

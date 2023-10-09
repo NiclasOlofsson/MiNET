@@ -24,6 +24,7 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -43,7 +44,7 @@ namespace MiNET.Blocks
 			// runtime id: 175 0xAF, data: 7
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new Item[0];
 		}

@@ -24,6 +24,7 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -34,7 +35,7 @@ namespace MiNET.Blocks
 			LightLevel = 13;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new[] { ItemFactory.GetItem<Furnace>() };
 		}

@@ -224,7 +224,7 @@
 		<field name="Game Type" type="UnsignedVarInt" />
 		<field name="Metadata" type="MetadataDictionary" />
 		<field name="SyncData" type="PropertySyncData" />
-		<field name="Entity ID Self" type="SignedVarLong" />
+		<field name="Entity ID Self" type="ulong" />
 		
 		<field name="Player Permissions" type="byte" />
 		<field name="Command Permissions" type="byte" />
@@ -1230,7 +1230,7 @@
 	</pdu>
 	
 	<pdu id="0xbb" online="false" client="false" server="true" name="MCPE_UPDATE_ABILITIES">
-		<field name="Entity Unique ID" type="long" />
+		<field name="Entity Unique ID" type="ulong" />
 		<field name="Player Permissions" type="byte" />
 		<field name="Command Permissions" type="byte" />
 		<field name="Layers" type="AbilityLayers" />

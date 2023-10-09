@@ -417,7 +417,7 @@ namespace MiNET.Worlds
 
 		public virtual object Clone()
 		{
-			var cc = (SubChunk) Activator.CreateInstance(GetType());
+			var cc = (SubChunk) MemberwiseClone();
 			cc._isAllAir = _isAllAir;
 			cc.IsDirty = IsDirty;
 

@@ -62,9 +62,9 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			if (UpperBlockBit) return base.GetDrops(tool);
+			if (UpperBlockBit) return base.GetDrops(world, tool);
 
 			return new Item[0];
 		}

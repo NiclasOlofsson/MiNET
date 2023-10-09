@@ -25,6 +25,7 @@
 
 using System;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -36,7 +37,7 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			var rnd = new Random();
 			return new[] { new ItemMelonSlice() { Count = (byte) (3 + rnd.Next(5)) } };

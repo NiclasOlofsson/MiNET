@@ -23,6 +23,7 @@
 
 #endregion
 
+using MiNET.BlockEntities;
 using MiNET.Items;
 using MiNET.Worlds;
 
@@ -37,6 +38,11 @@ namespace MiNET.Blocks
 			BlastResistance = 3000;
 			Hardness = 22.5f;
 			FuelEfficiency = 0;
+		}
+
+		protected override ChestBlockEntity CreateBlockEntity()
+		{
+			return new EnderChestBlockEntity();
 		}
 
 		public override Item[] GetDrops(Level world, Item tool)

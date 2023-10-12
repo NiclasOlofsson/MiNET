@@ -38,6 +38,8 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Bed));
 
+		public byte? Color { get; set; }
+
 		public Bed() : base()
 		{
 			BlastResistance = 1;
@@ -52,7 +54,7 @@ namespace MiNET.Blocks
 
 			if (world.GetBlockEntity(Coordinates) is BedBlockEntity bedBlockEntity)
 			{
-				item.Metadata = bedBlockEntity.Color;
+				item.Metadata = Color ?? bedBlockEntity.Color;
 			}
 
 			return item;
@@ -82,7 +84,7 @@ namespace MiNET.Blocks
 			world.SetBlockEntity(new BedBlockEntity
 			{
 				Coordinates = Coordinates,
-				Color = (byte) inHandItem.Metadata
+				Color = Color ?? (byte) inHandItem.Metadata
 			});
 
 			Bed blockOther = new Bed
@@ -96,7 +98,7 @@ namespace MiNET.Blocks
 			world.SetBlockEntity(new BedBlockEntity
 			{
 				Coordinates = blockOther.Coordinates,
-				Color = (byte) inHandItem.Metadata
+				Color = Color ?? (byte) inHandItem.Metadata
 			});
 
 			return false;
@@ -162,7 +164,7 @@ namespace MiNET.Blocks
 
 			if (!HeadPieceBit)
 			{
-				direction = direction * -1;
+				direction *= -1;
 			}
 
 			return Coordinates + direction;

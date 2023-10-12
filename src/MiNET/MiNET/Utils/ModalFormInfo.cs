@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MiNET.Utils
+﻿namespace MiNET.Utils
 {
 	public class ModalFormInfo
 	{
-		public uint formId;
-		public bool isData;
-		public string data = "null";
-		public bool isCancelReason;
-		public byte cancelReason;
+		public uint FormId { get; set; }
+		public string Data { get; set; } = "null";
+		public byte? CancelReason { get; set; }
 	}
 }

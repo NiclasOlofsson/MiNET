@@ -7591,7 +7591,7 @@ namespace MiNET.Net
 	public partial class McpeModalFormRequest : Packet<McpeModalFormRequest>
 	{
 
-		public ModalFormInfo modalforminfo; // = null;
+		public ModalFormInfo modalFormInfo; // = null;
 
 		public McpeModalFormRequest()
 		{
@@ -7605,7 +7605,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(modalforminfo);
+			Write(modalFormInfo);
 
 			AfterEncode();
 		}
@@ -7619,7 +7619,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			modalforminfo = ReadModalFormInfo();
+			modalFormInfo = ReadModalFormInfo();
 
 			AfterDecode();
 		}
@@ -7631,7 +7631,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			modalforminfo=default(ModalFormInfo);
+			modalFormInfo=default(ModalFormInfo);
 		}
 
 	}

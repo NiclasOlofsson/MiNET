@@ -1,20 +1,25 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 
 namespace MiNET.Worlds.Anvil
 {
 	public class AnvilSubChunk : SubChunk
 	{
-		private byte[] _biomesNoise;
+		private byte[] _biomesNoise = new byte[1];
 		private bool _biomesResolved = true;
 
 		private AnvilBiomeManager _biomeManager;
+
+		public AnvilSubChunk()
+			: base()
+		{
+
+		}
 
 		public AnvilSubChunk(AnvilBiomeManager biomeManager, int x, int z, int index, bool clearBuffers = true)
 			: base(x, z, index, false)
 		{
 			_biomeManager = biomeManager;
-
-			_biomesNoise = new byte[1];
 
 			if (clearBuffers)
 			{
@@ -42,13 +47,19 @@ namespace MiNET.Worlds.Anvil
 		{
 			base.ClearBuffers();
 
-			ChunkColumn.Fill<byte>(_biomesNoise, 1);
+			Array.Clear(_biomesNoise, 0, _biomesNoise.Length);
 		}
 
 		public override object Clone()
 		{
 			var cc = base.Clone() as AnvilSubChunk;
 
+			cc._biomeManager = _biomeManager;
+
+			if (_biomesNoise.Length > 1)
+			{
+				cc._biomesNoise = ArrayPool<byte>.Shared.Rent(_biomesNoise.Length);
+			}
 			_biomesNoise.CopyTo(cc._biomesNoise, 0);
 			cc._biomesResolved = _biomesResolved;
 
@@ -88,7 +99,6 @@ namespace MiNET.Worlds.Anvil
 
 			if (_biomesNoise.Length == 1)
 			{
-				ChunkColumn.Fill(biomes, _biomesNoise);
 				_biomesResolved = true;
 				return;
 			}
@@ -166,7 +176,14 @@ namespace MiNET.Worlds.Anvil
 				return GetNoiseBiome(noiseX, noiseY, noiseZ);
 			}
 
-			return _biomeManager.GetNoiseBiome(noiseX, noiseY, noiseZ);
+			var biome = _biomeManager.GetNoiseBiome(noiseX, noiseY, noiseZ);
+
+			if (!BiomeIds.Contains(biome))
+			{
+				BiomeIds.Add(biome);
+			}
+
+			return biome;
 		}
 
 		private int GetNoiseIndex(int x, int y, int z)
@@ -181,7 +198,7 @@ namespace MiNET.Worlds.Anvil
 
 			public static double GetFiddledDistance(long seed, int x, int y, int z, double distX, double distY, double distZ)
 			{
-				//aggressive optimisation
+				//agressive optimisation
 				long __7 = seed * (seed * MULTIPLIER + INCREMENT) + x;
 				__7 = __7 * (__7 * MULTIPLIER + INCREMENT) + y;
 				__7 = __7 * (__7 * MULTIPLIER + INCREMENT) + z;

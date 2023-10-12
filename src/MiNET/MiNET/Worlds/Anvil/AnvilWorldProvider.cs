@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -270,6 +271,11 @@ namespace MiNET.Worlds.Anvil
 						NeedSave = false
 					};
 
+					if (coordinates.X == -13 && coordinates.Z == -15)
+					{
+						Console.WriteLine();
+					}
+
 					ReadHeights(dataTag, chunk);
 					ReadSections(dataTag, chunk);
 					ReadEntities(dataTag, chunk);
@@ -355,6 +361,12 @@ namespace MiNET.Worlds.Anvil
 
 			// Y can be up to -4, but the array index starts from 0
 			var subChunkId = 4 + sectionIndex;
+
+			if (subChunkId < 0 || subChunkId >= ChunkColumn.WorldHeight << 4)
+			{
+				return;
+			}
+
 			var subChunk = (AnvilSubChunk) chunkColumn[subChunkId];
 
 			ReadBlockStates(sectionTag, chunkColumn, subChunk);
@@ -502,10 +514,11 @@ namespace MiNET.Worlds.Anvil
 
 			var usingBiomes = palette.Select(p => AnvilPaletteConverter.GetBiomeByName(p.StringValue)).ToArray();
 
+			subChunk.BiomeIds.Clear();
+			subChunk.BiomeIds.AddRange(usingBiomes.Select(biome => biome.Id));
+
 			if (usingBiomes.Length == 1)
 			{
-				subChunk.SetBiomesNoise(new[] { (byte) usingBiomes.Single().Id });
-
 				return;
 			}
 
@@ -515,15 +528,10 @@ namespace MiNET.Worlds.Anvil
 
 			var bitsPerBlock = (byte) Math.Ceiling(Math.Log(usingBiomes.Length, 2));
 
-			var sectionBiomesMap = new short[64];
+			var sectionBiomesMap = new byte[64];
 			ReadAnyBitLengthShortFromLongs(data, sectionBiomesMap, bitsPerBlock);
 
-			for (var i = 0; i < sectionBiomesMap.Length; i++)
-			{
-				biomesNoise[i] = (byte) usingBiomes[sectionBiomesMap[i]].Id;
-			}
-
-			subChunk.SetBiomesNoise(biomesNoise);
+			subChunk.SetBiomesNoise(sectionBiomesMap);
 		}
 
 		private void ReadBlockEntites(NbtCompound dataTag, ChunkColumn chunk)
@@ -543,12 +551,10 @@ namespace MiNET.Worlds.Anvil
 						var id = entityId.Split(':')[1];
 
 						entityId = id.First().ToString().ToUpper() + id.Substring(1);
-						if (entityId == "Flower_pot")
-							entityId = "FlowerPot";
-						else if (entityId == "Shulker_box")
-							entityId = "ShulkerBox";
-						else if (entityId == "Mob_spawner")
-							entityId = "MobSpawner";
+						if (entityId == "Flower_pot") entityId = "FlowerPot";
+						if (entityId == "Ender_chest") entityId = "EnderChest";
+						else if (entityId == "Shulker_box") entityId = "ShulkerBox";
+						else if (entityId == "Mob_spawner") entityId = "MobSpawner";
 
 						blockEntityTag["id"] = new NbtString("id", entityId);
 					}
@@ -608,9 +614,14 @@ namespace MiNET.Worlds.Anvil
 						}
 
 						var coordinates = new BlockCoordinates(x, y, z);
+						var existingBlockEntity = chunk.GetBlockEntity(coordinates);
 						if (chunk.GetBlockEntity(coordinates) == null)
 						{
 							chunk.SetBlockEntity(coordinates, blockEntityTag);
+						}
+						else
+						{
+							existingBlockEntity.AddRange(blockEntityTag.ExceptBy(existingBlockEntity.Select(tag => tag.Name), tag => tag.Name).Select(tag => (NbtTag) tag.Clone()));
 						}
 					}
 					else
@@ -646,12 +657,18 @@ namespace MiNET.Worlds.Anvil
 		{
 			var spawnPoint = new Vector3(LevelInfo.SpawnX, LevelInfo.SpawnY + 2 /* + WaterOffsetY*/, LevelInfo.SpawnZ);
 			if (Dimension == Dimension.TheEnd)
+			{
 				spawnPoint = new Vector3(100, 49, 0);
+			}
 			else if (Dimension == Dimension.Nether)
+			{
 				spawnPoint = new Vector3(0, 80, 0);
+			}
 
-			if (spawnPoint.Y > 256)
-				spawnPoint.Y = 255;
+			if (spawnPoint.Y > ChunkColumn.WorldMaxY)
+			{
+				spawnPoint.Y = ChunkColumn.WorldMaxY - 1;
+			}
 
 			return spawnPoint;
 		}
@@ -1084,6 +1101,22 @@ namespace MiNET.Worlds.Anvil
 				var longsOffset = i / shortsInLongCount;
 
 				shorts[i] = (short) (longs[longsOffset] >> offset & valueBits);
+			}
+		}
+
+		private void ReadAnyBitLengthShortFromLongs(long[] longs, byte[] shorts, byte shortSize)
+		{
+			var longBitSize = sizeof(long) * 8;
+			var valueBits = (1 << shortSize) - 1;
+
+			var shortsInLongCount = longBitSize / shortSize;
+
+			for (var i = 0; i < shorts.Length; i++)
+			{
+				var offset = i % shortsInLongCount * shortSize;
+				var longsOffset = i / shortsInLongCount;
+
+				shorts[i] = (byte) (longs[longsOffset] >> offset & valueBits);
 			}
 		}
 	}

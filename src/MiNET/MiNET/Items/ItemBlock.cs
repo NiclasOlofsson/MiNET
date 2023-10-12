@@ -50,7 +50,7 @@ namespace MiNET.Items
 
 		private readonly Lazy<int> _blockRuntimeId;
 
-		public ItemBlock() : base()
+		protected ItemBlock() : base()
 		{
 			_blockRuntimeId = new Lazy<int>(() => Block?.GetRuntimeId() ?? -1);
 		}

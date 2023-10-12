@@ -2274,10 +2274,21 @@ namespace MiNET
 			SendPacket(response);*/
 		}
 
-		/// <inheritdoc />
-		public void HandleMcpeRequestAbility(McpeRequestAbility message)
+		public virtual void HandleMcpeRequestAbility(McpeRequestAbility message)
 		{
-			//TODO: Implement ability requests
+			if (message.ability == 18) // flying??
+			{
+				var isFlying = (bool) message.Value;
+
+				if (isFlying && !AllowFly && !GameMode.AllowsFlying())
+				{
+					SendAbilities();
+					return;
+				}
+
+				IsFlying = isFlying;
+				return;
+			}
 		}
 
 		public virtual void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)
@@ -3230,11 +3241,9 @@ namespace MiNET
 			CurrentForm = form;
 
 			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.modalforminfo.formId = form.Id; // whatever
-			message.modalforminfo.data = form.ToJson();
-			message.modalforminfo.isData = true;
-			message.modalforminfo.isCancelReason = false;//????
-			message.modalforminfo.cancelReason = 0;
+			message.modalFormInfo = new ModalFormInfo();
+			message.modalFormInfo.FormId = form.Id; // whatever
+			message.modalFormInfo.Data = form.ToJson();
 			SendPacket(message);
 		}
 

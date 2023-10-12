@@ -267,6 +267,9 @@ namespace MiNET.Worlds.Anvil
 			_mapper.Add(new BlockStateMapper("minecraft:dead_bush", "minecraft:deadbush"));
 			_mapper.Add(new BlockStateMapper("minecraft:terracotta", "minecraft:hardened_clay"));
 			_mapper.Add(new BlockStateMapper("minecraft:lily_pad", "minecraft:waterlily"));
+			_mapper.Add(new BlockStateMapper("minecraft:nether_bricks", "minecraft:nether_brick"));
+			_mapper.Add(new BlockStateMapper("minecraft:red_nether_bricks", "minecraft:red_nether_brick"));
+			_mapper.Add(new BlockStateMapper("minecraft:slime_block", "minecraft:slime"));
 
 
 			_mapper.Add(new BlockStateMapper("minecraft:note_block", "minecraft:noteblock",
@@ -274,8 +277,14 @@ namespace MiNET.Worlds.Anvil
 				new SkipPropertyStateMapper("note"),
 				poweredSkipMap));
 
+			_mapper.Add(new BlockStateMapper("minecraft:jukebox",
+				new SkipPropertyStateMapper("has_record")));
+
 			_mapper.Add(new BlockStateMapper("minecraft:bubble_column",
 				new PropertyStateMapper("drag", "drag_down")));
+
+			_mapper.Add(new BlockStateMapper("minecraft:tnt",
+				new PropertyStateMapper("unstable", "explode_bit")));
 
 			_mapper.Add(new BlockStateMapper("minecraft:jack_o_lantern", "minecraft:lit_pumpkin", directionMap));
 
@@ -312,6 +321,9 @@ namespace MiNET.Worlds.Anvil
 			_mapper.Add(new BlockStateMapper("minecraft:farmland",
 				new PropertyStateMapper("moisture", "moisturized_amount")));
 
+			_mapper.Add(new BlockStateMapper("minecraft:red_sand", "minecraft:sand",
+				new AdditionalPropertyStateMapper("sand_type", "red")));
+
 			#region Facing
 
 			_mapper.Add("minecraft:glow_lichen", multiFaceDirectonMap);
@@ -345,6 +357,7 @@ namespace MiNET.Worlds.Anvil
 
 
 			_mapper.Add("minecraft:fire", faceDirectionSkipMap);
+			_mapper.Add("minecraft:iron_bars", faceDirectionSkipMap);
 			_mapper.Add("minecraft:glass_pane", faceDirectionSkipMap);
 			_mapper.Add("minecraft:nether_brick_fence", faceDirectionSkipMap);
 			foreach (var wood in _woodList)
@@ -438,6 +451,26 @@ namespace MiNET.Worlds.Anvil
 						new PropertyValueStateMapper("head", "true")),
 					directionMap,
 					new BitPropertyStateMapper("occupied")));
+			}
+
+			for (var i = 0; i < _colorsList.Length; i++)
+			{
+				var color = _colorsList[i];
+				var blockEntity = new BannerBlockEntity() { Base = 15 - i };
+
+				var banerMap = new BlockStateMapper(context =>
+				{
+					var name = context.AnvilName.Replace("minecraft:", "");
+
+					context.BlockEntityTemplate = blockEntity;
+
+					return context.AnvilName.Contains("_wall_banner") ? "minecraft:wall_banner" : "minecraft:standing_banner";
+				},
+					facingDirectionMap,
+					new PropertyStateMapper("rotation", "ground_sign_direction"));
+
+				_mapper.Add($"minecraft:{color}_banner", banerMap);
+				_mapper.Add($"minecraft:{color}_wall_banner", banerMap);
 			}
 
 			#endregion
@@ -556,9 +589,9 @@ namespace MiNET.Worlds.Anvil
 						context.Properties.Add(new NbtString("hanging", "true"));
 					}
 
-					if (name.Replace("_sing", "").Split('_').Length == 1)
+					if (name.Replace("_sign", "").Split('_').Length == 1)
 					{
-						name = name.Replace("_sing", "_standing_sign");
+						name = name.Replace("_sign", "_standing_sign");
 					}
 
 					if (!name.Contains("_hanging"))
@@ -677,10 +710,15 @@ namespace MiNET.Worlds.Anvil
 				context =>
 				{
 					if (context.AnvilName.Contains("wall_"))
-						return context.AnvilName.Replace("wall_", "");
+					{
+						context.AnvilName = context.AnvilName.Replace("wall_", "");
+					}
+					else
+					{
+						context.Properties["facing"] = new NbtString("facing", "top");
+					}
 
-					context.Properties["facing"] = new NbtString("facing", "top");
-					return context.Properties["lit"]?.StringValue == "false" ? $"unlit_{context.AnvilName}" : context.AnvilName;
+					return context.Properties["lit"]?.StringValue == "false" ? $"minecraft:unlit_{context.AnvilName.Replace("minecraft:", "")}" : context.AnvilName;
 				},
 				new PropertyStateMapper("facing", "torch_facing_direction",
 					new PropertyValueStateMapper("west", "east"),
@@ -1115,6 +1153,19 @@ namespace MiNET.Worlds.Anvil
 
 			#endregion
 
+			#region Cakes
+
+			var bitesMap = new PropertyStateMapper("bites", "bite_counter");
+
+			_mapper.Add(new BlockStateMapper("minecraft:cake", bitesMap));
+			_mapper.Add(new BlockStateMapper("minecraft:candle_cake", bitesMap));
+			foreach (var color in _colorsList)
+			{
+				_mapper.Add(new BlockStateMapper($"minecraft:{color}_candle_cake", bitesMap));
+			}
+
+			#endregion
+
 			#region Skull
 
 			var skullMap = new BlockStateMapper(context =>
@@ -1357,6 +1408,11 @@ namespace MiNET.Worlds.Anvil
 				new PropertyStateMapper("powered", "open_bit"),
 				new SkipPropertyStateMapper("face"),
 				new SkipPropertyStateMapper("facing")));
+
+			//minecraft:redstone_wire
+			var redstoneWireMap = faceDirectionSkipMap.Clone();
+			redstoneWireMap.PropertiesMap.Add("power", new PropertyStateMapper("power", "redstone_signal"));
+			_mapper.Add("minecraft:redstone_wire", redstoneWireMap);
 		}
 
 		public static int GetRuntimeIdByPalette(NbtCompound palette, out BlockEntity blockEntity)
@@ -1386,11 +1442,6 @@ namespace MiNET.Worlds.Anvil
 				{
 					Log.Warn($"Can't find block [{name}] with props1 [{palette["Properties"]}], props2 [{properties}]");
 					return new InfoUpdate().GetRuntimeId();
-				}
-
-				if (block is QuartzBlock)
-				{
-					//Debugger.Launch();
 				}
 
 				if (!BlockFactory.BlockStates.TryGetValue(state, out var blockstate))

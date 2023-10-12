@@ -1115,7 +1115,7 @@ namespace MiNET.Worlds
 		public int GetHeight(BlockCoordinates blockCoordinates)
 		{
 			ChunkColumn chunk = GetChunk(blockCoordinates);
-			if (chunk == null) return 256;
+			if (chunk == null) return ChunkColumn.WorldMaxY;
 
 			return chunk.GetHeight(blockCoordinates.X & 0x0f, blockCoordinates.Z & 0x0f);
 		}

@@ -150,13 +150,13 @@ namespace MiNET.Worlds
 
 		public void SetHeight(int bx, int bz, short h)
 		{
-			height[((bz << 4) + (bx))] = h;
+			height[((bz << 4) + (bx))] = (short) (h - WorldMinY);
 			SetDirty();
 		}
 
 		public short GetHeight(int bx, int bz)
 		{
-			return height[((bz << 4) + (bx))];
+			return (short) (height[((bz << 4) + (bx))] + WorldMinY);
 		}
 
 		public void SetBiome(int bx, int by, int bz, byte biome)
@@ -498,9 +498,7 @@ namespace MiNET.Worlds
 					SubChunk.WriteStore(stream, null, emptySubChunkBiomes, false, emptySubChunkUniqueBiomes);
 				}
 
-				var biomes = this[i].Biomes;
-				var uniqueBiomes = biomes.Distinct().Select(b => (int) b).ToList();
-				SubChunk.WriteStore(stream, null, biomes, false, uniqueBiomes);
+				SubChunk.WriteStore(stream, null, this[i].Biomes, false, subChunk.BiomeIds);
 			}
 
 			return stream.ToArray();

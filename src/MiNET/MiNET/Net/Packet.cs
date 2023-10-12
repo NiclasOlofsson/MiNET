@@ -2953,27 +2953,33 @@ namespace MiNET.Net
 		public ModalFormInfo ReadModalFormInfo()
 		{
 			ModalFormInfo form = new ModalFormInfo();
-			form.formId = ReadUnsignedVarInt();
-			if (form.isData = ReadBool())
+			form.FormId = ReadUnsignedVarInt();
+			if (ReadBool())
 			{
-				form.data = ReadString();
+				form.Data = ReadString();
 			}
-			if (form.isCancelReason = ReadBool())
+			if (ReadBool())
 			{
-				form.cancelReason = ReadByte();
+				form.CancelReason = ReadByte();
 			}
 			return form;
 		}
 
 		public void Write(ModalFormInfo form)
 		{
-			Write(form.formId);
-			Write(form.isData);
-			if (form.isData)
-				Write(form.data);
-			Write(form.isCancelReason);
-			if (form.isCancelReason)
-				Write(form.cancelReason);
+			Write(form.FormId);
+
+			Write(form.Data != null);
+			if (form.Data != null)
+			{
+				Write(form.Data);
+			}
+
+			Write(form.CancelReason.HasValue);
+			if (form.CancelReason.HasValue)
+			{
+				Write(form.CancelReason.Value);
+			}
 		}
 
 		public bool CanRead()

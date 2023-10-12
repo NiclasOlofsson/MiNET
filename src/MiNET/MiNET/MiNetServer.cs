@@ -82,8 +82,6 @@ namespace MiNET
 		public MiNetServer()
 		{
 			ServerRole = Config.GetProperty("ServerRole", ServerRole.Full);
-			FastThreadPool?.Dispose();
-			FastThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Config.GetProperty("FastThreads", 100), "Fast_Thread"));
 		}
 
 		public MiNetServer(IPEndPoint endpoint) : this()
@@ -115,6 +113,9 @@ namespace MiNET
 		
 		public bool StartServer()
 		{
+			FastThreadPool?.Dispose();
+			FastThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Config.GetProperty("FastThreads", 100), "Fast_Thread"));
+
 			DisplayTimerProperties();
 
 			if (_listener != null) return false; // Already started

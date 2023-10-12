@@ -153,9 +153,6 @@ namespace MiNET.Blocks
 			}
 
 			UpdateBlocks(world);
-
-			// not necessary?
-			//world.BroadcastSound(Coordinates, LevelSoundEventType.BreakBlock, GetRuntimeId());
 		}
 
 		protected void UpdateBlocks(Level world)

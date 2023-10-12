@@ -29,9 +29,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Particles
 {
-	public class DestroyBlockParticle : LegacyParticle
+	public class SilentDestroyBlockParticle : LegacyParticle
 	{
-		public DestroyBlockParticle(Level level, Block block) : base(0, level)
+		public SilentDestroyBlockParticle(Level level, Block block) : base(0, level)
 		{
 			Data =  block.GetRuntimeId();
 			Position = block.Coordinates;
@@ -40,7 +40,7 @@ namespace MiNET.Particles
 		public override void Spawn()
 		{
 			McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
-			particleEvent.eventId = (int) LevelEventType.ParticlesDestroyBlock;
+			particleEvent.eventId = (int) LevelEventType.ParticlesDestroyBlockNoSound;
 			particleEvent.position = Position;
 			particleEvent.data = Data;
 			Level.RelayBroadcast(particleEvent);

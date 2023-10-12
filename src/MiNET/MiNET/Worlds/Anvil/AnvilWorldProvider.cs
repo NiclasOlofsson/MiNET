@@ -271,11 +271,6 @@ namespace MiNET.Worlds.Anvil
 						NeedSave = false
 					};
 
-					if (coordinates.X == -13 && coordinates.Z == -15)
-					{
-						Console.WriteLine();
-					}
-
 					ReadHeights(dataTag, chunk);
 					ReadSections(dataTag, chunk);
 					ReadEntities(dataTag, chunk);

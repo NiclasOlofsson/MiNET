@@ -206,9 +206,24 @@ namespace MiNET
 
 		protected Form CurrentForm { get; set; } = null;
 
+		public virtual void SendForm(Form form)
+		{
+			CurrentForm = form;
+
+			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
+			message.formId = form.Id; // whatever
+			message.data = form.ToJson();
+			SendPacket(message);
+		}
+
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{
 			if (CurrentForm == null) Log.Warn("No current form set for player when processing response");
+			if (message.cancelReason == 1)
+			{
+				Log.Debug("The client cancels the form because it is still connecting");
+				return;
+			}
 
 			var form = CurrentForm;
 			if (form == null || form.Id != message.formId)
@@ -216,6 +231,7 @@ namespace MiNET
 				Log.Warn("Receive data for form not currently active");
 				return;
 			}
+
 			CurrentForm = null;
 			form?.FromJson(message.data, this);
 		}
@@ -297,6 +313,8 @@ namespace MiNET
 
 		public virtual void HandleMcpeSetLocalPlayerAsInitialized(McpeSetLocalPlayerAsInitialized message)
 		{
+			if (CurrentForm != null) SendForm(CurrentForm);
+
 			OnLocalPlayerIsInitialized(new PlayerEventArgs(this));
 		}
 
@@ -3234,17 +3252,6 @@ namespace MiNET
 			attributesPackate.runtimeEntityId = EntityManager.EntityIdSelf;
 			attributesPackate.attributes = attributes;
 			SendPacket(attributesPackate);
-		}
-
-		public virtual void SendForm(Form form)
-		{
-			CurrentForm = form;
-
-			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.modalFormInfo = new ModalFormInfo();
-			message.modalFormInfo.FormId = form.Id; // whatever
-			message.modalFormInfo.Data = form.ToJson();
-			SendPacket(message);
 		}
 
 		public virtual void SendSetTime()

@@ -7591,60 +7591,12 @@ namespace MiNET.Net
 	public partial class McpeModalFormRequest : Packet<McpeModalFormRequest>
 	{
 
-		public ModalFormInfo modalFormInfo; // = null;
+		public uint formId; // = null;
+		public string data; // = null;
 
 		public McpeModalFormRequest()
 		{
 			Id = 0x64;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			Write(modalFormInfo);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			modalFormInfo = ReadModalFormInfo();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			modalFormInfo=default(ModalFormInfo);
-		}
-
-	}
-
-	public partial class McpeModalFormResponse : Packet<McpeModalFormResponse>
-	{
-
-		public uint formId; // = null;
-		public string data; // = null;
-
-		public McpeModalFormResponse()
-		{
-			Id = 0x65;
 			IsMcpe = true;
 		}
 
@@ -7684,6 +7636,54 @@ namespace MiNET.Net
 
 			formId=default(uint);
 			data=default(string);
+		}
+
+	}
+
+	public partial class McpeModalFormResponse : Packet<McpeModalFormResponse>
+	{
+
+		public uint formId; // = null;
+
+		public McpeModalFormResponse()
+		{
+			Id = 0x65;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteUnsignedVarInt(formId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			formId = ReadUnsignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			formId=default(uint);
 		}
 
 	}

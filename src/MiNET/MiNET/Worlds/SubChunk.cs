@@ -112,54 +112,12 @@ namespace MiNET.Worlds
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool IsAllAir()
 		{
-			//if (IsDirty)
-			{
-				_isAllAir = AllZeroFast(_blocks);
-			}
-			return _isAllAir;
-		}
+			var airRuntimeId = new Air().GetRuntimeId();
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static unsafe bool AllZeroFast<T>(T[] data) where T : unmanaged
-		{
-			fixed (T* shorts = data)
-			{
-				byte* bytes = (byte*) shorts;
-				int len = data.Length * sizeof(T);
-				int rem = len % (sizeof(long) * 16);
-				long* b = (long*) bytes;
-				long* e = (long*) (shorts + len - rem);
-
-				while (b < e)
-				{
-					if ((*(b)
-						| *(b + 1)
-						| *(b + 2)
-						| *(b + 3)
-						| *(b + 4)
-						| *(b + 5)
-						| *(b + 6)
-						| *(b + 7)
-						| *(b + 8)
-						| *(b + 9)
-						| *(b + 10)
-						| *(b + 11)
-						| *(b + 12)
-						| *(b + 13)
-						| *(b + 14)
-						| *(b + 15)) != 0)
-						return false;
-					b += 16;
-				}
-
-				for (int i = 0; i < rem; i++)
-				{
-					if (data[len - 1 - i].Equals(default(T)))
-						return false;
-				}
-
-				return true;
-			}
+			return _isAllAir = _runtimeIds.Count <= 1
+				&& _loggedRuntimeIds.Count <= 1
+				&& _runtimeIds.SingleOrDefault(airRuntimeId) == airRuntimeId
+				&& _loggedRuntimeIds.SingleOrDefault(airRuntimeId) == airRuntimeId;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

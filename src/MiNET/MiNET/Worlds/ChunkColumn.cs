@@ -460,8 +460,7 @@ namespace MiNET.Worlds
 				this[ci].Write(stream);
 			}
 
-			var biomePalette = GetBiomePalette();
-			stream.Write(biomePalette, 0, biomePalette.Length);
+			WriteBiomePalette(stream);
 
 			stream.WriteByte(0); // Border blocks - nope (EDU)
 
@@ -481,10 +480,8 @@ namespace MiNET.Worlds
 			return stream.ToArray();
 		}
 
-		private byte[] GetBiomePalette()
+		private void WriteBiomePalette(MemoryStream stream)
 		{
-			using var stream = new MemoryStream();
-
 			var emptySubChunkBiomes = new byte[16 * 16 * 16];
 			var emptySubChunkUniqueBiomes = new List<int>() { 1 };
 			Array.Fill(emptySubChunkBiomes, (byte) emptySubChunkUniqueBiomes.Single());
@@ -500,8 +497,6 @@ namespace MiNET.Worlds
 
 				SubChunk.WriteStore(stream, null, this[i].Biomes, false, subChunk.BiomeIds);
 			}
-
-			return stream.ToArray();
 		}
 
 

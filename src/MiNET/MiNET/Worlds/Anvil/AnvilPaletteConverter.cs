@@ -213,6 +213,11 @@ namespace MiNET.Worlds.Anvil
 					new PropertyValueStateMapper("west", "1"),
 					new PropertyValueStateMapper("north", "2"),
 					new PropertyValueStateMapper("east", "3"));
+			var directionMap2 = new PropertyStateMapper("facing", "direction",
+					new PropertyValueStateMapper("north", "0"),
+					new PropertyValueStateMapper("east", "1"),
+					new PropertyValueStateMapper("south", "2"),
+					new PropertyValueStateMapper("west", "3"));
 
 			var multiFaceDirectonMap = new BlockStateMapper(
 				context =>
@@ -658,11 +663,11 @@ namespace MiNET.Worlds.Anvil
 					var direction = (face, facing) switch
 					{
 						("ceiling", _) => "0",
-						("wall", "east") => "1",
-						("wall", "west") => "2",
+						("floor", _) => "1",
+						("wall", "north") => "2",
 						("wall", "south") => "3",
-						("wall", "north") => "4",
-						("floor", _) => "5",
+						("wall", "west") => "4",
+						("wall", "east") => "5",
 						_ => "0"
 					};
 
@@ -1208,6 +1213,66 @@ namespace MiNET.Worlds.Anvil
 
 			#endregion
 
+			#region Anvil
+
+			var anvilMap = new BlockStateMapper("minecraft:anvil",
+				context =>
+				{
+					var name = context.AnvilName.Replace("minecraft:", "");
+
+					var damage = name switch
+					{
+						"chipped_anvil" => "slightly_damaged",
+						"damaged_anvil" => "very_damaged",
+						_ => "undamaged"
+					};
+
+					context.Properties.Add(new NbtString("damage", damage));
+				},
+				new PropertyStateMapper("facing", "direction",
+					new PropertyValueStateMapper("west", "0"),
+					new PropertyValueStateMapper("north", "1"),
+					new PropertyValueStateMapper("east", "2"),
+					new PropertyValueStateMapper("south", "3")));
+
+			_mapper.Add("minecraft:anvil", anvilMap);
+			_mapper.Add("minecraft:chipped_anvil", anvilMap);
+			_mapper.Add("minecraft:damaged_anvil", anvilMap);
+
+			#endregion
+
+			#region Pistons
+
+			var pistonFacingDirectionMap = new PropertyStateMapper("facing", "facing_direction",
+					new PropertyValueStateMapper("down", "0"),
+					new PropertyValueStateMapper("up", "1"),
+					new PropertyValueStateMapper("south", "2"),
+					new PropertyValueStateMapper("north", "3"),
+					new PropertyValueStateMapper("east", "4"),
+					new PropertyValueStateMapper("west", "5"));
+
+			var pistonMap = new BlockStateMapper(
+				pistonFacingDirectionMap,
+				new SkipPropertyStateMapper("extended"));
+
+			_mapper.Add("minecraft:piston", pistonMap);
+			_mapper.Add("minecraft:sticky_piston", pistonMap);
+
+			_mapper.Add("minecraft:piston_head", new BlockStateMapper(
+				context =>
+				{
+					return context.Properties["type"].StringValue == "sticky" ? "minecraft:sticky_piston_arm_collision" : "minecraft:piston_arm_collision";
+				},
+				pistonFacingDirectionMap,
+				new SkipPropertyStateMapper("short"),
+				new SkipPropertyStateMapper("type")));
+
+			_mapper.Add(new BlockStateMapper("minecraft:moving_piston", "minecraft:moving_block",
+				new SkipPropertyStateMapper("facing"),
+				new SkipPropertyStateMapper("type")));
+
+			#endregion
+
 
 			// minecraft:cave_vines
 			var caveVinesMap = new BlockStateMapper("minecraft:cave_vines",
@@ -1413,6 +1478,32 @@ namespace MiNET.Worlds.Anvil
 			var redstoneWireMap = faceDirectionSkipMap.Clone();
 			redstoneWireMap.PropertiesMap.Add("power", new PropertyStateMapper("power", "redstone_signal"));
 			_mapper.Add("minecraft:redstone_wire", redstoneWireMap);
+
+			//minecraft:repeater
+			_mapper.Add("minecraft:repeater", new BlockStateMapper(
+				context =>
+				{
+					return context.Properties["powered"].StringValue == "true" ? "minecraft:powered_repeater" : "minecraft:unpowered_repeater";
+				},
+				new PropertyStateMapper("delay", 
+					(name, properties, property) => new NbtString("repeater_delay", (int.Parse(property.Value) - 1).ToString())),
+				directionMap2,
+				new SkipPropertyStateMapper("locked"),
+				poweredSkipMap));
+
+
+			//minecraft:comparator
+			_mapper.Add("minecraft:comparator", new BlockStateMapper(
+				context =>
+				{
+					return context.Properties["powered"].StringValue == "true" ? "minecraft:powered_comparator" : "minecraft:unpowered_comparator";
+				},
+				new PropertyStateMapper("mode", "output_subtract_bit",
+					new PropertyValueStateMapper("compare", "false"),
+					new PropertyValueStateMapper("subtract", "true")),
+				new PropertyStateMapper("powered", "output_lit_bit"),
+				directionMap2,
+				new SkipPropertyStateMapper("locked")));
 		}
 
 		public static int GetRuntimeIdByPalette(NbtCompound palette, out BlockEntity blockEntity)

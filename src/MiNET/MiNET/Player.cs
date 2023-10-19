@@ -67,7 +67,7 @@ namespace MiNET
 		public INetworkHandler NetworkHandler { get; set; }
 
 		private Dictionary<ChunkCoordinates, McpeWrapper> _chunksUsed = new Dictionary<ChunkCoordinates, McpeWrapper>();
-		private ChunkCoordinates _currentChunkPosition;
+		private ChunkCoordinates _currentChunkPosition = new ChunkCoordinates(int.MaxValue);
 
 		internal IInventory _openInventory;
 		public PlayerInventory Inventory { get; set; }
@@ -1303,7 +1303,8 @@ namespace MiNET
 						HeadYaw = 91,
 					});
 
-					ForcedSendChunk(newPosition);
+					//ForcedSendChunk(newPosition);
+					_currentChunkPosition = new ChunkCoordinates(int.MaxValue);
 				}
 
 				// send teleport to spawn
@@ -1316,7 +1317,7 @@ namespace MiNET
 				Monitor.Exit(_teleportSync);
 			}
 
-			MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
+			//MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 		}
 
 		private bool IsChunkInCache(PlayerLocation position)
@@ -1786,7 +1787,8 @@ namespace MiNET
 
 				CleanCache();
 
-				ForcedSendChunk(SpawnPosition);
+				//ForcedSendChunk(SpawnPosition);
+				_currentChunkPosition = new ChunkCoordinates(int.MaxValue);
 
 				// send teleport to spawn
 				SetPosition(SpawnPosition);
@@ -1797,14 +1799,14 @@ namespace MiNET
 
 					SetNoAi(oldNoAi);
 
-					ForcedSendChunks(() =>
-					{
+					//ForcedSendChunks(() =>
+					//{
 						Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
 						SendSetTime();
 
 						postSpawnAction?.Invoke();
-					});
+					//});
 				});
 			};
 
@@ -2086,7 +2088,7 @@ namespace MiNET
 			}
 
 			LastUpdatedTime = DateTime.UtcNow;
-
+			
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
 			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) >= MoveRenderDistance)
 			{
@@ -3332,6 +3334,11 @@ namespace MiNET
 			{
 				if (PortalDetected != 0) Log.Debug($"Reset portal detected");
 				if (IsSpawned) PortalDetected = 0;
+			}
+
+			if (_currentChunkPosition != new ChunkCoordinates(KnownPosition))
+			{
+				MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 			}
 
 			HungerManager.OnTick();

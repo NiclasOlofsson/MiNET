@@ -10,7 +10,7 @@ using MiNET.Items;
 namespace MiNET.Test
 {
 	[TestClass]
-	//[Ignore("Manual code generation")]
+	[Ignore("Manual code generation")]
 	public class GenerateItemsTests
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GenerateItemsTests));

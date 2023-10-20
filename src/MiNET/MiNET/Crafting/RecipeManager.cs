@@ -72,10 +72,10 @@ namespace MiNET.Crafting
 			Recipes = new Recipes();
 
 			LoadShapedRecipes();
-			LoadShapedChemistryRecipes();
+			//LoadShapedChemistryRecipes(); // Edu only
 			LoadShapelessRecipes();
 			LoadShapelessShulkerBoxRecipes();
-			LoadShapelessChemistryRecipes();
+			//LoadShapelessChemistryRecipes(); // Edu only
 			LoadSmeltingRecipes();
 
 			Recipes.Add(new MultiRecipe() { Id = new UUID("442d85ed-8272-4543-a6f1-418f90ded05d"), UniqueId = _recipeUniqueIdCounter++ }); // 442d85ed-8272-4543-a6f1-418f90ded05d

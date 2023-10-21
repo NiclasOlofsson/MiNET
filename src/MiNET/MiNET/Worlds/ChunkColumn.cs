@@ -483,10 +483,6 @@ namespace MiNET.Worlds
 
 		private void WriteBiomePalette(MemoryStream stream)
 		{
-			var emptySubChunkBiomes = new byte[16 * 16 * 16];
-			var emptySubChunkUniqueBiomes = new List<int>() { 1 };
-			Array.Fill(emptySubChunkBiomes, (byte) emptySubChunkUniqueBiomes.Single());
-
 			for (int i = 0; i < 24; i++)
 			{
 				var subChunk = this[i];

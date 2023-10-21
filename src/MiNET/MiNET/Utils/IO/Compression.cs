@@ -58,8 +58,7 @@ namespace MiNET.Utils.IO
 		public static byte[] CompressPacketsForWrapper(List<Packet> packets, CompressionLevel compressionLevel = CompressionLevel.Fastest)
 		{
 			long length = 0;
-			foreach (Packet packet in packets)
-				length += packet.Encode().Length;
+			foreach (Packet packet in packets) length += packet.Encode().Length;
 
 			if (compressionLevel == CompressionLevel.NoCompression)
 			{

@@ -35,7 +35,7 @@ namespace MiNET.Worlds.Anvil
 			}
 			else
 			{
-				return chunk[j].GetBiomeIndex(x << 2, fixedY << 2, z << 2);
+				return chunk[j].GetBiome(x << 2, fixedY << 2, z << 2);
 			}
 		}
 

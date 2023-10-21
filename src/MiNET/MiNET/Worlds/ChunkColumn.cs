@@ -473,6 +473,7 @@ namespace MiNET.Worlds
 						BigEndian = false,
 						UseVarInt = true
 					};
+
 					file.SaveToStream(stream, NbtCompression.None);
 				}
 			}
@@ -490,9 +491,12 @@ namespace MiNET.Worlds
 			{
 				var subChunk = this[i];
 
-				if (subChunk == null)
+				if (subChunk == null || subChunk.BiomeIds.Count == 1 && subChunk.BiomeIds.First() == 0)
 				{
-					SubChunk.WriteStore(stream, null, emptySubChunkBiomes, false, emptySubChunkUniqueBiomes);
+					stream.WriteByte(1);
+					stream.WriteByte(0);
+
+					continue;
 				}
 
 				SubChunk.WriteStore(stream, null, this[i].Biomes, false, subChunk.BiomeIds);
@@ -539,12 +543,15 @@ namespace MiNET.Worlds
 				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound) blockEntityPair.Value.Clone());
 			}
 
-			McpeWrapper batch = McpeWrapper.CreateObject();
-			batch.payload = _cachedBatch.payload;
-			batch.Encode();
-			batch.MarkPermanent();
+			if (_cachedBatch != null)
+			{
+				McpeWrapper batch = McpeWrapper.CreateObject();
+				batch.payload = _cachedBatch.payload;
+				batch.Encode();
+				batch.MarkPermanent();
 
-			cc._cachedBatch = batch;
+				cc._cachedBatch = batch;
+			}
 
 			cc._cacheSync = new object();
 

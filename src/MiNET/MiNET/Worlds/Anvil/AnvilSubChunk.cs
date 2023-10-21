@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Buffers;
+using log4net;
 
 namespace MiNET.Worlds.Anvil
 {
 	public class AnvilSubChunk : SubChunk
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(AnvilSubChunk));
+
 		private byte[] _biomesNoise = new byte[1];
 		private bool _biomesResolved = true;
 
@@ -89,6 +92,21 @@ namespace MiNET.Worlds.Anvil
 
 		internal byte GetNoiseBiome(int x, int y, int z)
 		{
+			if (BiomeIds.Count == 0) return 0;
+
+			int paletteIndex = GetNoiseBiomeIndex(x, y, z);
+			if (paletteIndex >= BiomeIds.Count || paletteIndex < 0)
+			{
+				Log.Error($"Can't read biome index [{paletteIndex}] from [{(X << 4) | x}, {(Index << 4) + ChunkColumn.WorldMinY + y}, {(Z << 4) | z}] " +
+					$"in ids [{string.Join(", ", BiomeIds)}] of chunk [{X}, {Index + (ChunkColumn.WorldMinY >> 4)}, {Z}]");
+				return 0;
+			}
+
+			return (byte) BiomeIds[paletteIndex];
+		}
+
+		internal byte GetNoiseBiomeIndex(int x, int y, int z)
+		{
 			if (_biomesNoise.Length == 1) return _biomesNoise[0];
 			return _biomesNoise[GetNoiseIndex(x & 3, y & 3, z & 3)];
 		}
@@ -114,13 +132,13 @@ namespace MiNET.Worlds.Anvil
 				var z = cZ | ((i >> 4) & 0xF);
 				var y = cIndex | (i & 0xF);
 
-				biomes[i] = GetBiomeIdFromeNoisedCoordinates(x, y, z, seed);
+				biomes[i] = GetBiomeIndexFromeNoisedCoordinates(x, y, z, seed);
 			}
 
 			_biomesResolved = true;
 		}
 
-		private byte GetBiomeIdFromeNoisedCoordinates(int x, int y, int z, long seed)
+		private byte GetBiomeIndexFromeNoisedCoordinates(int x, int y, int z, long seed)
 		{
 			int leftX = x - 2;
 			int leftY = y - 2;
@@ -173,17 +191,19 @@ namespace MiNET.Worlds.Anvil
 
 			if (X == noiseX >> 2 && Z == noiseZ >> 2 && Index - 4 == noiseY >> 2)
 			{
-				return GetNoiseBiome(noiseX, noiseY, noiseZ);
+				return GetNoiseBiomeIndex(noiseX, noiseY, noiseZ);
 			}
 
 			var biome = _biomeManager.GetNoiseBiome(noiseX, noiseY, noiseZ);
+			var palettedIndex = BiomeIds.IndexOf(biome);
 
-			if (!BiomeIds.Contains(biome))
+			if (palettedIndex == -1)
 			{
 				BiomeIds.Add(biome);
+				palettedIndex = BiomeIds.IndexOf(biome);
 			}
 
-			return biome;
+			return (byte) palettedIndex;
 		}
 
 		private int GetNoiseIndex(int x, int y, int z)

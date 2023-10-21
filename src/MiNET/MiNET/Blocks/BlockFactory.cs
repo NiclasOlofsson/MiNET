@@ -76,6 +76,7 @@ namespace MiNET.Blocks
 
 				Ids = ids.ToList();
 
+				var visitedContainers = new HashSet<BlockStateContainer>();
 				var blockMapEntry = new List<R12ToCurrentBlockMapEntry>();
 
 				using (var stream = assembly.GetManifestResourceStream(typeof(BlockFactory).Namespace + ".Data.r12_to_current_block_map.bin"))
@@ -95,7 +96,12 @@ namespace MiNET.Blocks
 						var compound = Packet.ReadNbtCompound(stream, true);
 
 						var state = GetBlockStateContainer(compound);
-						blockMapEntry.Add(new R12ToCurrentBlockMapEntry(stringId, meta, state));
+
+						if (!visitedContainers.TryGetValue(state, out _))
+						{
+							blockMapEntry.Add(new R12ToCurrentBlockMapEntry(stringId, meta, state));
+							visitedContainers.Add(state);
+						}
 					}
 				}
 

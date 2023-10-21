@@ -370,9 +370,11 @@ namespace MiNET.Crafting
 				recipe.Input = input;
 				recipe.Output = output;
 
-				SmeltingRecipes.Add(recipe.GetHashCode(), recipe);
-				IdRecipeMap.Add(recipe.Id, recipe);
-				Recipes.Add(recipe);
+				if (SmeltingRecipes.TryAdd(recipe.GetHashCode(), recipe))
+				{
+					IdRecipeMap.Add(recipe.Id, recipe);
+					Recipes.Add(recipe);
+				}
 			}
 		}
 

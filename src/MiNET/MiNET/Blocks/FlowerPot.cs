@@ -41,7 +41,12 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			return base.PlaceBlock(world, player, targetCoordinates, face, faceCoords);
+			world.SetBlockEntity(new FlowerPotBlockEntity()
+			{
+				Coordinates = Coordinates
+			});
+
+			return false;
 		}
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)

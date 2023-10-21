@@ -46,7 +46,7 @@ namespace MiNET.Blocks.Tests
 			block.DoublePlantType = "grass";
 			block.UpperBlockBit = true;
 
-			Assert.AreNotEqual(0, block.GetRuntimeId());
+			Assert.AreNotEqual(-1, block.GetRuntimeId());
 		}
 	}
 }

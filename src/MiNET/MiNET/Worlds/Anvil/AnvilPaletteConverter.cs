@@ -275,6 +275,7 @@ namespace MiNET.Worlds.Anvil
 			_mapper.Add(new BlockStateMapper("minecraft:nether_bricks", "minecraft:nether_brick"));
 			_mapper.Add(new BlockStateMapper("minecraft:red_nether_bricks", "minecraft:red_nether_brick"));
 			_mapper.Add(new BlockStateMapper("minecraft:slime_block", "minecraft:slime"));
+			_mapper.Add(new BlockStateMapper("minecraft:melon", "minecraft:melon_block"));
 
 
 			_mapper.Add(new BlockStateMapper("minecraft:note_block", "minecraft:noteblock",
@@ -347,6 +348,11 @@ namespace MiNET.Worlds.Anvil
 			_mapper.Add(new BlockStateMapper("minecraft:observer",
 				facingDirectionMap,
 				new BitPropertyStateMapper("powered")));
+			_mapper.Add(new BlockStateMapper("minecraft:hopper",
+				facingDirectionMap,
+				new PropertyStateMapper("enabled", "toggle_bit",
+					new PropertyValueStateMapper("true", "false"),
+					new PropertyValueStateMapper("false", "true"))));
 
 			_mapper.Add(new BlockStateMapper("minecraft:ender_chest", facingDirectionMap));
 			_mapper.Add(new BlockStateMapper("minecraft:chest",
@@ -650,9 +656,12 @@ namespace MiNET.Worlds.Anvil
 				new PropertyStateMapper("hinge",
 					(name, properties, _) => new NbtString("door_hinge_bit", (int.Parse(properties["direction"]?.StringValue ?? doorFacingDirectionMap.Resolve(name, properties, properties["facing"] as NbtString).Value) % 2).ToString())));
 
+			var oakDoorMap = doorMap.Clone();
+			oakDoorMap.BedrockName = "minecraft:wooden_door";
+			_mapper.Add($"minecraft:oak_door", oakDoorMap);
 			_mapper.Add($"minecraft:iron_door", doorMap);
 			foreach (var wood in _woodList)
-				_mapper.Add($"minecraft:{wood}_door", doorMap);
+				_mapper.TryAdd($"minecraft:{wood}_door", doorMap);
 
 			var buttonMap = new BlockStateMapper(
 				context =>
@@ -853,20 +862,22 @@ namespace MiNET.Worlds.Anvil
 						_ => plantType
 					};
 
-					var block = BlockFactory.GetBlockById($"minecraft:{plantType}");
-					if (block != null)
-					{
-						context.BlockEntityTemplate = new FlowerPotBlockEntity()
-						{
-							PlantBlock = block
-						};
+					var block = BlockFactory.GetBlockById($"minecraft:{plantType}") ?? new RedFlower() { FlowerType = plantType };
 
+					if (block.GetRuntimeId() >= 0)
+					{
 						context.Properties.Add(new NbtString("update_bit", "true"));
 					}
 					else
 					{
+						block = null;
 						Log.Warn($"Can't find plant block for flower pot [{plantType}]");
 					}
+
+					context.BlockEntityTemplate = new FlowerPotBlockEntity()
+					{
+						PlantBlock = block
+					};
 
 					return "minecraft:flower_pot";
 				});
@@ -1491,7 +1502,6 @@ namespace MiNET.Worlds.Anvil
 				new SkipPropertyStateMapper("locked"),
 				poweredSkipMap));
 
-
 			//minecraft:comparator
 			_mapper.Add("minecraft:comparator", new BlockStateMapper(
 				context =>
@@ -1504,6 +1514,12 @@ namespace MiNET.Worlds.Anvil
 				new PropertyStateMapper("powered", "output_lit_bit"),
 				directionMap2,
 				new SkipPropertyStateMapper("locked")));
+
+			//minecraft:tripwire_hook
+			_mapper.Add(new BlockStateMapper("minecraft:tripwire_hook",
+				new BitPropertyStateMapper("attached"),
+				new BitPropertyStateMapper("powered"),
+				directionMap));
 		}
 
 		public static int GetRuntimeIdByPalette(NbtCompound palette, out BlockEntity blockEntity)

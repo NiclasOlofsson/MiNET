@@ -24,6 +24,7 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -34,7 +35,7 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new[] { new ItemRedstone() };
 		}

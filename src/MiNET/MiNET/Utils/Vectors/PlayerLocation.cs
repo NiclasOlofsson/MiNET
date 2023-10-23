@@ -151,7 +151,7 @@ namespace MiNET.Utils.Vectors
 
 		public override string ToString()
 		{
-			return $"X={X}, Y={Y}, Z={Z}, HeadYaw={HeadYaw}, Yaw={Yaw}, Pich={Pitch}";
+			return $"X={X}, Y={Y}, Z={Z}, HeadYaw={HeadYaw}, Yaw={Yaw}, Pitch={Pitch}";
 		}
 	}
 }

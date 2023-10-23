@@ -32,6 +32,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using System.Transactions;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
@@ -801,6 +802,8 @@ namespace MiNET.Worlds
 				int entiyMoveCount = 0;
 
 				List<Packet> movePackets = new List<Packet>();
+				
+				if (players.Length == 1 && entiyMoveCount == 0) return;
 
 				foreach (var player in players)
 				{
@@ -857,7 +860,7 @@ namespace MiNET.Worlds
 
 				if (movePackets.Count == 0) return;
 
-				//McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(stream.GetBuffer(), 0, (int) stream.Length), CompressionLevel.Optimal, false);
+				////McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(stream.GetBuffer(), 0, (int) stream.Length), CompressionLevel.Optimal, false);
 				var batch = McpeWrapper.CreateObject(players.Length);
 				batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
 				batch.payload = Compression.CompressPacketsForWrapper(movePackets);
@@ -1114,7 +1117,7 @@ namespace MiNET.Worlds
 		public int GetHeight(BlockCoordinates blockCoordinates)
 		{
 			ChunkColumn chunk = GetChunk(blockCoordinates);
-			if (chunk == null) return 256;
+			if (chunk == null) return ChunkColumn.WorldMaxY;
 
 			return chunk.GetHeight(blockCoordinates.X & 0x0f, blockCoordinates.Z & 0x0f);
 		}
@@ -1377,6 +1380,21 @@ namespace MiNET.Worlds
 			itemInHand.PlaceBlock(this, player, blockCoordinates, face, faceCoords);
 		}
 
+		public void UseItem(Player player, Item itemInHand, BlockCoordinates blockCoordinates, BlockFace face)
+		{
+			itemInHand.UseItem(this, player, blockCoordinates);
+			if (itemInHand.Count == 0)
+			{
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, null, true);
+			}
+
+			if (!player.IsSneaking)
+			{
+				Block target = GetBlock(blockCoordinates);
+				target.UseItem(this, player, blockCoordinates, face);
+			}
+		}
+
 		public event EventHandler<BlockBreakEventArgs> BlockBreak;
 
 		protected virtual bool OnBlockBreak(BlockBreakEventArgs e)
@@ -1447,7 +1465,7 @@ namespace MiNET.Worlds
 		{
 			block.BreakBlock(this, face);
 			var drops = new List<Item>();
-			drops.AddRange(block.GetDrops(tool ?? new ItemAir()));
+			drops.AddRange(block.GetDrops(this, tool ?? new ItemAir()));
 
 			if (blockEntity != null)
 			{

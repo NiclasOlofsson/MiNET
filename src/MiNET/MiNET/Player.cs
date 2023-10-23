@@ -67,7 +67,7 @@ namespace MiNET
 		public INetworkHandler NetworkHandler { get; set; }
 
 		private Dictionary<ChunkCoordinates, McpeWrapper> _chunksUsed = new Dictionary<ChunkCoordinates, McpeWrapper>();
-		private ChunkCoordinates _currentChunkPosition;
+		private ChunkCoordinates _currentChunkPosition = new ChunkCoordinates(int.MaxValue);
 
 		internal IInventory _openInventory;
 		public PlayerInventory Inventory { get; set; }
@@ -206,9 +206,24 @@ namespace MiNET
 
 		protected Form CurrentForm { get; set; } = null;
 
+		public virtual void SendForm(Form form)
+		{
+			CurrentForm = form;
+
+			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
+			message.formId = form.Id; // whatever
+			message.data = form.ToJson();
+			SendPacket(message);
+		}
+
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{
 			if (CurrentForm == null) Log.Warn("No current form set for player when processing response");
+			if (message.cancelReason == 1)
+			{
+				Log.Debug("The client cancels the form because it is still connecting");
+				return;
+			}
 
 			var form = CurrentForm;
 			if (form == null || form.Id != message.formId)
@@ -216,6 +231,7 @@ namespace MiNET
 				Log.Warn("Receive data for form not currently active");
 				return;
 			}
+
 			CurrentForm = null;
 			form?.FromJson(message.data, this);
 		}
@@ -297,6 +313,8 @@ namespace MiNET
 
 		public virtual void HandleMcpeSetLocalPlayerAsInitialized(McpeSetLocalPlayerAsInitialized message)
 		{
+			if (CurrentForm != null) SendForm(CurrentForm);
+
 			OnLocalPlayerIsInitialized(new PlayerEventArgs(this));
 		}
 
@@ -563,7 +581,7 @@ namespace MiNET
 					if (GameMode == GameMode.Survival)
 					{
 						Block target = Level.GetBlock(message.coordinates);
-						var drops = target.GetDrops(Inventory.GetItemInHand());
+						var drops = target.GetDrops(Level, Inventory.GetItemInHand());
 						float tooltypeFactor = drops == null || drops.Length == 0 ? 5f : 1.5f; // 1.5 if proper tool
 						double breakTime = Math.Ceiling(target.Hardness * tooltypeFactor * 20);
 
@@ -693,6 +711,11 @@ namespace MiNET
 				{
 					break;
 				}
+				case PlayerAction.StartItemUse:
+				{
+					Level.UseItem(this, Inventory.GetItemInHand(), message.coordinates, (BlockFace) message.face);
+					break;
+				}
 				case PlayerAction.GetUpdatedBlock:
 				case PlayerAction.DropItem:
 				case PlayerAction.Respawn:
@@ -703,7 +726,6 @@ namespace MiNET
 				case PlayerAction.StopSpinAttack:
 				case PlayerAction.PredictDestroyBlock:
 				case PlayerAction.ContinueDestroyBlock:
-				case PlayerAction.StartItemUse:
 				case PlayerAction.StopItemUse:
 				case PlayerAction.HandledTeleport:
 				case PlayerAction.MissedSwing:
@@ -810,7 +832,7 @@ namespace MiNET
 			packet.layers = GetAbilities();
 			packet.commandPermissions = (byte) CommandPermission;
 			packet.playerPermissions = (byte) PermissionLevel;
-			packet.entityUniqueId = BinaryPrimitives.ReverseEndianness(EntityId);
+			packet.entityUniqueId = (ulong) EntityId;
 			SendPacket(packet);
 		}
 
@@ -819,7 +841,7 @@ namespace MiNET
 			PlayerAbility abilities = 0;
 			PlayerAbility values = 0;
 
-			if (GameMode.AllowsFlying())
+			if (AllowFly || GameMode.AllowsFlying())
 			{
 				abilities |= PlayerAbility.MayFly;
 
@@ -829,7 +851,7 @@ namespace MiNET
 				}
 			}
 
-			if (!GameMode.HasCollision())
+			if (IsNoClip || !GameMode.HasCollision())
 			{
 				abilities |= PlayerAbility.NoClip;
 			}
@@ -844,7 +866,7 @@ namespace MiNET
 				abilities |= PlayerAbility.InstantBuild;
 			}
 
-			if (GameMode.AllowsEditing())
+			if (IsWorldBuilder || GameMode.AllowsEditing())
 			{
 				abilities |= PlayerAbility.Build | PlayerAbility.Mine;
 			}
@@ -931,7 +953,7 @@ namespace MiNET
 		public void SetAllowFly(bool allowFly)
 		{
 			AllowFly = allowFly;
-			SendAdventureSettings();
+			SendAbilities();
 		}
 
 		private object _loginSyncLock = new object();
@@ -1281,7 +1303,8 @@ namespace MiNET
 						HeadYaw = 91,
 					});
 
-					ForcedSendChunk(newPosition);
+					//ForcedSendChunk(newPosition);
+					_currentChunkPosition = new ChunkCoordinates(int.MaxValue);
 				}
 
 				// send teleport to spawn
@@ -1294,7 +1317,7 @@ namespace MiNET
 				Monitor.Exit(_teleportSync);
 			}
 
-			MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
+			//MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 		}
 
 		private bool IsChunkInCache(PlayerLocation position)
@@ -1764,7 +1787,8 @@ namespace MiNET
 
 				CleanCache();
 
-				ForcedSendChunk(SpawnPosition);
+				//ForcedSendChunk(SpawnPosition);
+				_currentChunkPosition = new ChunkCoordinates(int.MaxValue);
 
 				// send teleport to spawn
 				SetPosition(SpawnPosition);
@@ -1775,14 +1799,14 @@ namespace MiNET
 
 					SetNoAi(oldNoAi);
 
-					ForcedSendChunks(() =>
-					{
+					//ForcedSendChunks(() =>
+					//{
 						Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
 						SendSetTime();
 
 						postSpawnAction?.Invoke();
-					});
+					//});
 				});
 			};
 
@@ -2064,7 +2088,7 @@ namespace MiNET
 			}
 
 			LastUpdatedTime = DateTime.UtcNow;
-
+			
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
 			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) >= MoveRenderDistance)
 			{
@@ -2270,10 +2294,21 @@ namespace MiNET
 			SendPacket(response);*/
 		}
 
-		/// <inheritdoc />
-		public void HandleMcpeRequestAbility(McpeRequestAbility message)
+		public virtual void HandleMcpeRequestAbility(McpeRequestAbility message)
 		{
-			//TODO: Implement ability requests
+			if (message.ability == 18) // flying??
+			{
+				var isFlying = (bool) message.Value;
+
+				if (isFlying && !AllowFly && !GameMode.AllowsFlying())
+				{
+					SendAbilities();
+					return;
+				}
+
+				IsFlying = isFlying;
+				return;
+			}
 		}
 
 		public virtual void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)
@@ -2843,7 +2878,7 @@ namespace MiNET
 		{
 			Block block = Level.GetBlock(message.x, message.y, message.z);
 			Log.Debug($"Picked block {block.Id} from blockstate {block.GetRuntimeId()}. Expected block to be in slot {message.selectedSlot}");
-			Item item = block.GetItem();
+			Item item = block.GetItem(Level);
 			if (item is ItemBlock blockItem)
 			{
 				Log.Debug($"Have BlockItem with block state {blockItem.Block.GetRuntimeId()}");
@@ -3221,19 +3256,6 @@ namespace MiNET
 			SendPacket(attributesPackate);
 		}
 
-		public virtual void SendForm(Form form)
-		{
-			CurrentForm = form;
-
-			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.modalforminfo.formId = form.Id; // whatever
-			message.modalforminfo.data = form.ToJson();
-			message.modalforminfo.isData = true;
-			message.modalforminfo.isCancelReason = false;//????
-			message.modalforminfo.cancelReason = 0;
-			SendPacket(message);
-		}
-
 		public virtual void SendSetTime()
 		{
 			SendSetTime((int) Level.WorldTime);
@@ -3312,6 +3334,11 @@ namespace MiNET
 			{
 				if (PortalDetected != 0) Log.Debug($"Reset portal detected");
 				if (IsSpawned) PortalDetected = 0;
+			}
+
+			if (_currentChunkPosition != new ChunkCoordinates(KnownPosition))
+			{
+				MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 			}
 
 			HungerManager.OnTick();
@@ -3695,7 +3722,7 @@ namespace MiNET
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 			mcpeAddPlayer.uuid = ClientUuid;
 			mcpeAddPlayer.username = Username;
-			mcpeAddPlayer.entityIdSelf = EntityId;
+			mcpeAddPlayer.entityIdSelf = (ulong) EntityId;
 			mcpeAddPlayer.runtimeEntityId = EntityId;
 			mcpeAddPlayer.x = KnownPosition.X;
 			mcpeAddPlayer.y = KnownPosition.Y;

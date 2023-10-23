@@ -33,7 +33,7 @@ namespace MiNET.Items
 {
 	//A door specifies its hinge side in the block data of its upper block, 
 	// and its facing and opened status in the block data of its lower block
-	public partial class ItemDoorBase : ItemBlock
+	public abstract class ItemDoorBase : ItemBlock
 	{
 		public ItemDoorBase() : base()
 		{

@@ -1,20 +1,28 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
+using log4net;
 
 namespace MiNET.Worlds.Anvil
 {
 	public class AnvilSubChunk : SubChunk
 	{
-		private byte[] _biomesNoise;
-		private bool _biomesResolved = false;
+		private static readonly ILog Log = LogManager.GetLogger(typeof(AnvilSubChunk));
+
+		private byte[] _biomesNoise = new byte[1];
+		private bool _biomesResolved = true;
 
 		private AnvilBiomeManager _biomeManager;
+
+		public AnvilSubChunk()
+			: base()
+		{
+
+		}
 
 		public AnvilSubChunk(AnvilBiomeManager biomeManager, int x, int z, int index, bool clearBuffers = true)
 			: base(x, z, index, false)
 		{
 			_biomeManager = biomeManager;
-
-			_biomesNoise = new byte[1];
 
 			if (clearBuffers)
 			{
@@ -42,13 +50,19 @@ namespace MiNET.Worlds.Anvil
 		{
 			base.ClearBuffers();
 
-			ChunkColumn.Fill<byte>(_biomesNoise, 1);
+			Array.Clear(_biomesNoise, 0, _biomesNoise.Length);
 		}
 
 		public override object Clone()
 		{
 			var cc = base.Clone() as AnvilSubChunk;
 
+			cc._biomeManager = _biomeManager;
+
+			if (_biomesNoise.Length > 1)
+			{
+				cc._biomesNoise = ArrayPool<byte>.Shared.Rent(_biomesNoise.Length);
+			}
 			_biomesNoise.CopyTo(cc._biomesNoise, 0);
 			cc._biomesResolved = _biomesResolved;
 
@@ -78,6 +92,21 @@ namespace MiNET.Worlds.Anvil
 
 		internal byte GetNoiseBiome(int x, int y, int z)
 		{
+			if (BiomeIds.Count == 0) return 0;
+
+			int paletteIndex = GetNoiseBiomeIndex(x, y, z);
+			if (paletteIndex >= BiomeIds.Count || paletteIndex < 0)
+			{
+				Log.Error($"Can't read biome index [{paletteIndex}] from [{(X << 4) | x}, {(Index << 4) + ChunkColumn.WorldMinY + y}, {(Z << 4) | z}] " +
+					$"in ids [{string.Join(", ", BiomeIds)}] of chunk [{X}, {Index + (ChunkColumn.WorldMinY >> 4)}, {Z}]");
+				return 0;
+			}
+
+			return (byte) BiomeIds[paletteIndex];
+		}
+
+		internal byte GetNoiseBiomeIndex(int x, int y, int z)
+		{
 			if (_biomesNoise.Length == 1) return _biomesNoise[0];
 			return _biomesNoise[GetNoiseIndex(x & 3, y & 3, z & 3)];
 		}
@@ -88,7 +117,6 @@ namespace MiNET.Worlds.Anvil
 
 			if (_biomesNoise.Length == 1)
 			{
-				ChunkColumn.Fill(biomes, _biomesNoise);
 				_biomesResolved = true;
 				return;
 			}
@@ -104,13 +132,13 @@ namespace MiNET.Worlds.Anvil
 				var z = cZ | ((i >> 4) & 0xF);
 				var y = cIndex | (i & 0xF);
 
-				biomes[i] = GetBiomeIdFromeNoisedCoordinates(x, y, z, seed);
+				biomes[i] = GetBiomeIndexFromeNoisedCoordinates(x, y, z, seed);
 			}
 
 			_biomesResolved = true;
 		}
 
-		private byte GetBiomeIdFromeNoisedCoordinates(int x, int y, int z, long seed)
+		private byte GetBiomeIndexFromeNoisedCoordinates(int x, int y, int z, long seed)
 		{
 			int leftX = x - 2;
 			int leftY = y - 2;
@@ -163,10 +191,19 @@ namespace MiNET.Worlds.Anvil
 
 			if (X == noiseX >> 2 && Z == noiseZ >> 2 && Index - 4 == noiseY >> 2)
 			{
-				return GetNoiseBiome(noiseX, noiseY, noiseZ);
+				return GetNoiseBiomeIndex(noiseX, noiseY, noiseZ);
 			}
 
-			return _biomeManager.GetNoiseBiome(noiseX, noiseY, noiseZ);
+			var biome = _biomeManager.GetNoiseBiome(noiseX, noiseY, noiseZ);
+			var palettedIndex = BiomeIds.IndexOf(biome);
+
+			if (palettedIndex == -1)
+			{
+				BiomeIds.Add(biome);
+				palettedIndex = BiomeIds.IndexOf(biome);
+			}
+
+			return (byte) palettedIndex;
 		}
 
 		private int GetNoiseIndex(int x, int y, int z)
@@ -181,7 +218,7 @@ namespace MiNET.Worlds.Anvil
 
 			public static double GetFiddledDistance(long seed, int x, int y, int z, double distX, double distY, double distZ)
 			{
-				//aggressive optimisation
+				//agressive optimisation
 				long __7 = seed * (seed * MULTIPLIER + INCREMENT) + x;
 				__7 = __7 * (__7 * MULTIPLIER + INCREMENT) + y;
 				__7 = __7 * (__7 * MULTIPLIER + INCREMENT) + z;

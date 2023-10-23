@@ -120,7 +120,7 @@ namespace MiNET.Plugins
 	public class Parameter
 	{
 		public string Name { get; set; }
-		public string Type { get; set; }
+		public CommandParameterType Type { get; set; }
 
 		[JsonProperty(propertyName: "enum_type")]
 		public string EnumType { get; set; }

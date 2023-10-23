@@ -23,24 +23,27 @@
 
 #endregion
 
-using System;
-using MiNET.Items;
+using MiNET.Blocks;
+using MiNET.Net;
 using MiNET.Worlds;
 
-namespace MiNET.Blocks
+namespace MiNET.Particles
 {
-	public partial class MelonBlock : Block
+	public class SilentDestroyBlockParticle : LegacyParticle
 	{
-		public MelonBlock() : base()
+		public SilentDestroyBlockParticle(Level level, Block block) : base(0, level)
 		{
-			Hardness = 1;
-			IsTransparent = true;
+			Data =  block.GetRuntimeId();
+			Position = block.Coordinates;
 		}
 
-		public override Item[] GetDrops(Level world, Item tool)
+		public override void Spawn()
 		{
-			var rnd = new Random();
-			return new[] { new ItemMelonSlice() { Count = (byte) (3 + rnd.Next(5)) } };
+			McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
+			particleEvent.eventId = (int) LevelEventType.ParticlesDestroyBlockNoSound;
+			particleEvent.position = Position;
+			particleEvent.data = Data;
+			Level.RelayBroadcast(particleEvent);
 		}
 	}
 }

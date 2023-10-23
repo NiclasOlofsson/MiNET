@@ -24,6 +24,7 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -36,7 +37,7 @@ namespace MiNET.Blocks
 			Hardness = 0.5f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			if (BiteCounter == 0) return new Item[] { new ItemCake() };
 			return new Item[0];

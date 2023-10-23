@@ -138,7 +138,7 @@ namespace MiNET.Entities
 				var message = McpeAddPlayer.CreateObject();
 				message.uuid = ClientUuid;
 				message.username = NameTag;
-				message.entityIdSelf = EntityId;
+				message.entityIdSelf = (ulong) EntityId;
 				message.runtimeEntityId = EntityId;
 				message.x = KnownPosition.X;
 				message.y = KnownPosition.Y;
@@ -147,6 +147,7 @@ namespace MiNET.Entities
 				message.headYaw = KnownPosition.HeadYaw;
 				message.pitch = KnownPosition.Pitch;
 				message.metadata = GetMetadata();
+				message.layers = new AbilityLayers();
 			//	message.userId = -1;
 				Level.RelayBroadcast(players, message);
 			}

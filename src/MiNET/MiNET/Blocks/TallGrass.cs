@@ -68,7 +68,7 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			// 50% chance to drop seeds.
 			var rnd = new Random();

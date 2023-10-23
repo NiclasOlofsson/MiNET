@@ -193,7 +193,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | MapInfo [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-MapInfo) |
 | MaterialReducerRecipe[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-MaterialReducerRecipe[]) |
 | MetadataDictionary [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-MetadataDictionary) |
-| ModalFormInfo [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ModalFormInfo) |
 | Nbt [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Nbt) |
 | OFFLINE_MESSAGE_DATA_ID [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-OFFLINE_MESSAGE_DATA_ID) |
 | PlayerAttributes [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PlayerAttributes) |
@@ -477,7 +476,7 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |Game Type | UnsignedVarInt |  |
 |Metadata | MetadataDictionary |  |
 |SyncData | PropertySyncData |  |
-|Entity ID Self | SignedVarLong |  |
+|Entity ID Self | ulong |  |
 |Player Permissions | byte |  |
 |Command Permissions | byte |  |
 |Layers | AbilityLayers |  |
@@ -2112,7 +2111,8 @@ Wiki: [Modal Form Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|ModalFormInfo | ModalFormInfo |  |
+|Form Id | UnsignedVarInt |  |
+|Data | string |  |
 -----------------------------------------------------------------------
 ### Modal Form Response (0x65)
 Wiki: [Modal Form Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ModalFormResponse)
@@ -2128,7 +2128,6 @@ Wiki: [Modal Form Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Form Id | UnsignedVarInt |  |
-|Data | string |  |
 -----------------------------------------------------------------------
 ### Server Settings Request (0x66)
 Wiki: [Server Settings Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ServerSettingsRequest)
@@ -2935,7 +2934,7 @@ Wiki: [Update Abilities](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity Unique ID | long |  |
+|Entity Unique ID | ulong |  |
 |Player Permissions | byte |  |
 |Command Permissions | byte |  |
 |Layers | AbilityLayers |  |

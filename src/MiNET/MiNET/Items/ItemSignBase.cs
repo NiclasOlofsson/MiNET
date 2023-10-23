@@ -30,7 +30,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemSignBase : ItemBlock
+	public abstract class ItemSignBase : ItemBlock
 	{
 
 		public ItemSignBase() : base()

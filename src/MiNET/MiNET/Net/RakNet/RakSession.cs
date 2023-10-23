@@ -450,11 +450,10 @@ namespace MiNET.Net.RakNet
 
 			lock (_queueSync)
 			{
-				if (packet is McpeWrapper wrapper && _sendQueueNotConcurrent.Contains(packet))
+				if (_sendQueueNotConcurrent.Contains(packet))
 				{
-					var clone = McpeWrapper.CreateObject();
-					clone.payload = wrapper.payload;
-					packet = clone;
+					Log.Warn("Resending packet that already contains in queue");
+					return;
 				}
 
 				_sendQueueNotConcurrent.Enqueue(packet);
@@ -686,7 +685,7 @@ namespace MiNET.Net.RakNet
 
 				if (reliability == Reliability.ReliableOrdered)
 				{
-					message.ReliabilityHeader.OrderingIndex = Interlocked.Increment(ref OrderingIndex);
+					if (message.Encode().Length == 0) throw new Exception("Empty packet sending detected");
 				}
 
 				preppedSendList.Add(message);

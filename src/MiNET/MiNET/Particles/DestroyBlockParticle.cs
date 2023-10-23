@@ -40,7 +40,7 @@ namespace MiNET.Particles
 		public override void Spawn()
 		{
 			McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
-			particleEvent.eventId = 2001;
+			particleEvent.eventId = (int) LevelEventType.ParticlesDestroyBlock;
 			particleEvent.position = Position;
 			particleEvent.data = Data;
 			Level.RelayBroadcast(particleEvent);

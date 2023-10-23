@@ -150,13 +150,13 @@ namespace MiNET.Worlds
 
 		public void SetHeight(int bx, int bz, short h)
 		{
-			height[((bz << 4) + (bx))] = h;
+			height[((bz << 4) + (bx))] = (short) (h - WorldMinY);
 			SetDirty();
 		}
 
 		public short GetHeight(int bx, int bz)
 		{
-			return height[((bz << 4) + (bx))];
+			return (short) (height[((bz << 4) + (bx))] + WorldMinY);
 		}
 
 		public void SetBiome(int bx, int by, int bz, byte biome)
@@ -460,8 +460,7 @@ namespace MiNET.Worlds
 				this[ci].Write(stream);
 			}
 
-			var biomePalette = GetBiomePalette();
-			stream.Write(biomePalette, 0, biomePalette.Length);
+			WriteBiomePalette(stream);
 
 			stream.WriteByte(0); // Border blocks - nope (EDU)
 
@@ -474,6 +473,7 @@ namespace MiNET.Worlds
 						BigEndian = false,
 						UseVarInt = true
 					};
+
 					file.SaveToStream(stream, NbtCompression.None);
 				}
 			}
@@ -481,29 +481,22 @@ namespace MiNET.Worlds
 			return stream.ToArray();
 		}
 
-		private byte[] GetBiomePalette()
+		private void WriteBiomePalette(MemoryStream stream)
 		{
-			using var stream = new MemoryStream();
-
-			var emptySubChunkBiomes = new byte[16 * 16 * 16];
-			var emptySubChunkUniqueBiomes = new List<int>() { 1 };
-			Array.Fill(emptySubChunkBiomes, (byte) emptySubChunkUniqueBiomes.Single());
-
 			for (int i = 0; i < 24; i++)
 			{
 				var subChunk = this[i];
 
-				if (subChunk == null)
+				if (subChunk == null || subChunk.BiomeIds.Count == 1 && subChunk.BiomeIds.First() == 0)
 				{
-					SubChunk.WriteStore(stream, null, emptySubChunkBiomes, false, emptySubChunkUniqueBiomes);
+					stream.WriteByte(1);
+					stream.WriteByte(0);
+
+					continue;
 				}
 
-				var biomes = this[i].Biomes;
-				var uniqueBiomes = biomes.Distinct().Select(b => (int) b).ToList();
-				SubChunk.WriteStore(stream, null, biomes, false, uniqueBiomes);
+				SubChunk.WriteStore(stream, null, this[i].Biomes, false, subChunk.BiomeIds);
 			}
-
-			return stream.ToArray();
 		}
 
 
@@ -546,12 +539,15 @@ namespace MiNET.Worlds
 				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound) blockEntityPair.Value.Clone());
 			}
 
-			McpeWrapper batch = McpeWrapper.CreateObject();
-			batch.payload = _cachedBatch.payload;
-			batch.Encode();
-			batch.MarkPermanent();
+			if (_cachedBatch != null)
+			{
+				McpeWrapper batch = McpeWrapper.CreateObject();
+				batch.payload = _cachedBatch.payload;
+				batch.Encode();
+				batch.MarkPermanent();
 
-			cc._cachedBatch = batch;
+				cc._cachedBatch = batch;
+			}
 
 			cc._cacheSync = new object();
 

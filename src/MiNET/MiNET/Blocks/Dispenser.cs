@@ -24,6 +24,7 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -35,10 +36,10 @@ namespace MiNET.Blocks
 			Hardness = 3.5f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			// TODO: Needs Dispenser TileEntity.
-			return base.GetDrops(tool);
+			return base.GetDrops(world, tool);
 		}
 	}
 }

@@ -75,7 +75,7 @@ namespace MiNET.Items
 		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
 			long timeUsed = world.TickTime - _useTime;
-			if (timeUsed < 6) // questionable, but we go with it for now.
+			if (timeUsed < 3) // questionable, but we go with it for now.
 			{
 				player.SendPlayerInventory(); // Need to reset inventory, because we don't know what the client did here
 				return;
@@ -121,7 +121,7 @@ namespace MiNET.Items
 			if (!haveArrow) return;
 
 			float force = CalculateForce(timeUsed);
-			if (force < 0.1D) return;
+			if (force < 0.04D) return;
 
 			var arrow = new Arrow(player, world, 2, force >= 1.0);
 			arrow.PowerLevel = this.GetEnchantingLevel(EnchantingType.Power);
@@ -133,6 +133,7 @@ namespace MiNET.Items
 
 			arrow.Velocity = vector * force * 3;
 			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
+			arrow.KnownPosition.HeadYaw = arrow.KnownPosition.Yaw;
 			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
 			arrow.BroadcastMovement = true;
 			arrow.DespawnOnImpact = false;

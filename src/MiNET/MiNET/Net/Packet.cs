@@ -2950,32 +2950,6 @@ namespace MiNET.Net
 			return syncData;
 		}
 
-		public ModalFormInfo ReadModalFormInfo()
-		{
-			ModalFormInfo form = new ModalFormInfo();
-			form.formId = ReadUnsignedVarInt();
-			if (form.isData = ReadBool())
-			{
-				form.data = ReadString();
-			}
-			if (form.isCancelReason = ReadBool())
-			{
-				form.cancelReason = ReadByte();
-			}
-			return form;
-		}
-
-		public void Write(ModalFormInfo form)
-		{
-			Write(form.formId);
-			Write(form.isData);
-			if (form.isData)
-				Write(form.data);
-			Write(form.isCancelReason);
-			if (form.isCancelReason)
-				Write(form.cancelReason);
-		}
-
 		public bool CanRead()
 		{
 			return _reader.Position < _reader.Length;

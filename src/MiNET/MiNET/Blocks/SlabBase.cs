@@ -103,9 +103,9 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override Item GetItem(bool blockItem = false)
+		public override Item GetItem(Level world, bool blockItem = false)
 		{
-			var item = base.GetItem(blockItem) as ItemBlock;
+			var item = base.GetItem(world, blockItem) as ItemBlock;
 			var block = item.Block as SlabBase;
 
 			block.TopSlotBit = false;

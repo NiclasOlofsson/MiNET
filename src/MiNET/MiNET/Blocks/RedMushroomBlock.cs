@@ -25,6 +25,7 @@
 
 using System;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -36,7 +37,7 @@ namespace MiNET.Blocks
 			Hardness = 0.2f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			var rnd = new Random();
 			var next = rnd.Next(3);

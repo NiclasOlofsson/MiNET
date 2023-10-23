@@ -52,12 +52,12 @@ namespace MiNET.Blocks
 		{
 			FacingDirection = ItemBlock.GetFacingDirectionFromEntity(player);
 
-			var chestBlockEntity = new ChestBlockEntity {Coordinates = Coordinates};
+			var chestBlockEntity = CreateBlockEntity();
+			chestBlockEntity.Coordinates = Coordinates;
 			world.SetBlockEntity(chestBlockEntity);
 
 			return false;
 		}
-
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
@@ -65,6 +65,11 @@ namespace MiNET.Blocks
 			player.OpenInventory(blockCoordinates);
 
 			return true;
+		}
+
+		protected virtual ChestBlockEntity CreateBlockEntity()
+		{
+			return new ChestBlockEntity();
 		}
 	}
 }

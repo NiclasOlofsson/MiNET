@@ -29,9 +29,14 @@ namespace MiNET.Worlds.Anvil
 			int fixedY = Math.Clamp(y, MinNoiseY, MaxNoiseY);
 			int j = GetSectionIndex(ToBlock(fixedY));
 
-			var section = chunk[j] as AnvilSubChunk;
-
-			return section.GetNoiseBiome(x, fixedY, z);
+			if (chunk[j] is AnvilSubChunk section)
+			{
+				return section.GetNoiseBiome(x, fixedY, z);
+			}
+			else
+			{
+				return chunk[j].GetBiome(x << 2, fixedY << 2, z << 2);
+			}
 		}
 
 		private static int FromBlock(int value)

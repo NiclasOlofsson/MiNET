@@ -27,11 +27,11 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
-using MiNET.Utils.Vectors;
 
 namespace MiNET.Worlds
 {
@@ -43,10 +43,10 @@ namespace MiNET.Worlds
 
 		private List<int> _runtimeIds; // Add air, always as first (performance)
 		private List<int> _loggedRuntimeIds;
+		private List<int> _biomeIds;
 
 		private short[] _blocks;
 		private byte[] _loggedBlocks; // We use only byte size on this palette index table, because can basically only be water and snow-levels
-
 		private byte[] _biomes;
 
 		// Consider disabling these if we don't calculate lights
@@ -57,14 +57,14 @@ namespace MiNET.Worlds
 
 		public int X { get; set; }
 		public int Z { get; set; }
-		public int Index { get; }
+		public int Index { get; set; }
 
 		internal List<int> RuntimeIds => _runtimeIds;
 		internal List<int> LoggedRuntimeIds => _loggedRuntimeIds;
+		internal List<int> BiomeIds => _biomeIds;
 
 		internal short[] Blocks => _blocks;
 		internal byte[] LoggedBlocks => _loggedBlocks;
-
 		internal virtual byte[] Biomes => _biomes;
 
 		public NibbleArray BlockLight => _blockLight;
@@ -75,20 +75,25 @@ namespace MiNET.Worlds
 		public ulong Hash { get; set; }
 		public bool DisableCache { get; set; } = true;
 
-		public SubChunk(int x, int z, int index, bool clearBuffers = true)
+		public SubChunk()
 		{
-			X = x;
-			Z = z;
-			Index = index;
-
 			_runtimeIds = new List<int> { new Air().GetRuntimeId() };
 			_loggedRuntimeIds = new List<int> { new Air().GetRuntimeId() };
+			_biomeIds = new List<int> { 1 };
 
 			_blocks = ArrayPool<short>.Shared.Rent(4096);
 			_biomes = ArrayPool<byte>.Shared.Rent(4096);
 			_loggedBlocks = ArrayPool<byte>.Shared.Rent(4096);
 			_blockLight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));
 			_skyLight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));
+		}
+
+		public SubChunk(int x, int z, int index, bool clearBuffers = true)
+			: this()
+		{
+			X = x;
+			Z = z;
+			Index = index;
 
 			if (clearBuffers) ClearBuffers();
 		}
@@ -97,64 +102,22 @@ namespace MiNET.Worlds
 		{
 			Array.Clear(_blocks, 0, 4096);
 			Array.Clear(_biomes, 0, 4096);
+			Array.Clear(_biomes, 0, 4096);
 			Array.Clear(_loggedBlocks, 0, 4096);
 			Array.Clear(_blockLight.Data, 0, 2048);
 			ChunkColumn.Fill<byte>(_skyLight.Data, 0xff);
-			ChunkColumn.Fill<byte>(_biomes, 1);
 		}
 
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool IsAllAir()
 		{
-			//if (IsDirty)
-			{
-				_isAllAir = AllZeroFast(_blocks);
-			}
-			return _isAllAir;
-		}
+			var airRuntimeId = new Air().GetRuntimeId();
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static unsafe bool AllZeroFast<T>(T[] data) where T : unmanaged
-		{
-			fixed (T* shorts = data)
-			{
-				byte* bytes = (byte*) shorts;
-				int len = data.Length * sizeof(T);
-				int rem = len % (sizeof(long) * 16);
-				long* b = (long*) bytes;
-				long* e = (long*) (shorts + len - rem);
-
-				while (b < e)
-				{
-					if ((*(b)
-						| *(b + 1)
-						| *(b + 2)
-						| *(b + 3)
-						| *(b + 4)
-						| *(b + 5)
-						| *(b + 6)
-						| *(b + 7)
-						| *(b + 8)
-						| *(b + 9)
-						| *(b + 10)
-						| *(b + 11)
-						| *(b + 12)
-						| *(b + 13)
-						| *(b + 14)
-						| *(b + 15)) != 0)
-						return false;
-					b += 16;
-				}
-
-				for (int i = 0; i < rem; i++)
-				{
-					if (data[len - 1 - i].Equals(default(T)))
-						return false;
-				}
-
-				return true;
-			}
+			return _isAllAir = _runtimeIds.Count <= 1
+				&& _loggedRuntimeIds.Count <= 1
+				&& _runtimeIds.SingleOrDefault(airRuntimeId) == airRuntimeId
+				&& _loggedRuntimeIds.SingleOrDefault(airRuntimeId) == airRuntimeId;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -168,7 +131,14 @@ namespace MiNET.Worlds
 			if (_runtimeIds.Count == 0) return 0;
 
 			int paletteIndex = _blocks[GetIndex(bx, by, bz)];
-			if (paletteIndex >= _runtimeIds.Count || paletteIndex < 0) Log.Warn($"Unexpected paletteIndex of {paletteIndex} with size of palette is {_runtimeIds.Count}");
+
+			if (paletteIndex >= _runtimeIds.Count || paletteIndex < 0)
+			{
+				Log.Error($"Can't read block index [{paletteIndex}] from [{(X << 4) | bx}, {(Index << 4) + ChunkColumn.WorldMinY + by}, {(Z << 4) | bz}] " +
+					$"in ids [{string.Join(", ", _runtimeIds)}] of chunk [{X}, {Index + (ChunkColumn.WorldMinY >> 4)}, {Z}]");
+				return 0;
+			}
+
 			int runtimeId = _runtimeIds[paletteIndex];
 			if (runtimeId < 0 || runtimeId >= BlockFactory.BlockPalette.Count) Log.Warn($"Couldn't locate runtime id {runtimeId} for block");
 
@@ -177,11 +147,7 @@ namespace MiNET.Worlds
 
 		public Block GetBlockObject(int bx, int @by, int bz)
 		{
-			if (_runtimeIds.Count == 0) return new Air();
-
-			int index = _blocks[GetIndex(bx, by, bz)];
-			int runtimeId = _runtimeIds[index];
-			return BlockFactory.GetBlockByRuntimeId(runtimeId);
+			return BlockFactory.GetBlockByRuntimeId(GetBlockRuntimeId(bx, by, bz));
 		}
 
 		public void SetBlock(int bx, int by, int bz, Block block)
@@ -215,12 +181,34 @@ namespace MiNET.Worlds
 
 		public byte GetBiome(int bx, int by, int bz)
 		{
+			if (_biomeIds.Count == 0) return 0;
+
+			int paletteIndex = Biomes[GetIndex(bx, by, bz)];
+			if (paletteIndex >= _biomeIds.Count || paletteIndex < 0)
+			{
+				Log.Error($"Can't read biome index [{paletteIndex}] from [{(X << 4) | bx}, {(Index << 4) + ChunkColumn.WorldMinY + by}, {(Z << 4) | bz}] " +
+					$"in ids [{string.Join(", ", _biomeIds)}] of chunk [{X}, {Index + (ChunkColumn.WorldMinY >> 4)}, {Z}]");
+				return 0;
+			}
+
+			return (byte) _biomeIds[paletteIndex];
+		}
+
+		internal byte GetBiomeIndex(int bx, int by, int bz)
+		{
 			return Biomes[GetIndex(bx, by, bz)];
 		}
 
 		public void SetBiome(int bx, int by, int bz, byte biome)
 		{
-			Biomes[GetIndex(bx, by, bz)] = biome;
+			var paletteIndex = _biomeIds.IndexOf(biome);
+			if (paletteIndex == -1)
+			{
+				_biomeIds.Add(biome);
+				paletteIndex = _biomeIds.IndexOf(biome);
+			}
+
+			Biomes[GetIndex(bx, by, bz)] = (byte) paletteIndex;
 		}
 
 		public void SetLoggedBlock(int bx, int by, int bz, Block block)
@@ -418,11 +406,16 @@ namespace MiNET.Worlds
 		public virtual object Clone()
 		{
 			var cc = (SubChunk) Activator.CreateInstance(GetType());
+			cc.X = X;
+			cc.Z = Z;
+			cc.Index = Index;
+
 			cc._isAllAir = _isAllAir;
 			cc.IsDirty = IsDirty;
 
 			cc._runtimeIds = new List<int>(_runtimeIds);
 			cc._loggedRuntimeIds = new List<int>(_loggedRuntimeIds);
+			cc._biomeIds = new List<int>(_biomeIds);
 			_blocks.CopyTo(cc._blocks, 0);
 			_loggedBlocks.CopyTo(cc._loggedBlocks, 0);
 			_biomes.CopyTo(cc._biomes, 0);

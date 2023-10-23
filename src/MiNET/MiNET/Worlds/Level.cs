@@ -824,8 +824,6 @@ namespace MiNET.Worlds
 						move.otherRuntimeEntityId = player.Vehicle;
 						movePackets.Add(move);
 						playerMoveCount++;
-
-						RelayBroadcast(player, move);
 					}
 				}
 
@@ -856,18 +854,18 @@ namespace MiNET.Worlds
 				//	}
 				//}
 
-				//if (playerMoveCount == 0 && entiyMoveCount == 0) return;
+				if (playerMoveCount == 0 && entiyMoveCount == 0) return;
 
-				//if (players.Length == 1 && entiyMoveCount == 0) return;
+				if (players.Length == 1 && entiyMoveCount == 0) return;
 
-				//if (movePackets.Count == 0) return;
+				if (movePackets.Count == 0) return;
 
 				////McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(stream.GetBuffer(), 0, (int) stream.Length), CompressionLevel.Optimal, false);
-				//var batch = McpeWrapper.CreateObject(players.Length);
-				//batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
-				//batch.payload = Compression.CompressPacketsForWrapper(movePackets);
-				//batch.Encode();
-				//foreach (Player player in players) MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPacket(batch));
+				var batch = McpeWrapper.CreateObject(players.Length);
+				batch.ReliabilityHeader.Reliability = Reliability.ReliableOrdered;
+				batch.payload = Compression.CompressPacketsForWrapper(movePackets);
+				batch.Encode();
+				foreach (Player player in players) MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPacket(batch));
 				_lastBroadcast = DateTime.UtcNow;
 			}
 		}

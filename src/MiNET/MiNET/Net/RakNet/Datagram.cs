@@ -298,14 +298,21 @@ namespace MiNET.Net.RakNet
 
 			List<(int @from, int length)> splits = ArraySplit(encodedMessage.Length, mtuSize - RakOfflineHandler.UdpHeaderSize - 4 /*datagram header*/ - GetHeaderSize(message.ReliabilityHeader, split));
 			int count = splits.Count;
-			if (count == 0) Log.Warn("Got zero parts back from split");
+			if (count == 0)
+			{
+				Log.Warn("Got zero parts back from split");
+				return new List<MessagePart>(0);
+			}
+
+			var orderingIndex = message.ReliabilityHeader.Reliability == Reliability.ReliableOrdered ? Interlocked.Increment(ref session.OrderingIndex) : 0;
+
 			if (count <= 1)
 			{
 				var messagePart = MessagePart.CreateObject();
 				messagePart.ReliabilityHeader.Reliability = message.ReliabilityHeader.Reliability;
 				messagePart.ReliabilityHeader.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
 				messagePart.ReliabilityHeader.OrderingChannel = 0;
-				messagePart.ReliabilityHeader.OrderingIndex = message.ReliabilityHeader.OrderingIndex;
+				messagePart.ReliabilityHeader.OrderingIndex = orderingIndex;
 				messagePart.ReliabilityHeader.HasSplit = false;
 				messagePart.Buffer = encodedMessage;
 
@@ -326,7 +333,7 @@ namespace MiNET.Net.RakNet
 				messagePart.ReliabilityHeader.Reliability = message.ReliabilityHeader.Reliability;
 				messagePart.ReliabilityHeader.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
 				messagePart.ReliabilityHeader.OrderingChannel = 0;
-				messagePart.ReliabilityHeader.OrderingIndex = message.ReliabilityHeader.OrderingIndex;
+				messagePart.ReliabilityHeader.OrderingIndex = orderingIndex;
 				messagePart.ReliabilityHeader.HasSplit = count > 1;
 				messagePart.ReliabilityHeader.PartCount = count;
 				messagePart.ReliabilityHeader.PartId = splitId;

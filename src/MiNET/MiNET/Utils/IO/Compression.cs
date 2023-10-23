@@ -32,26 +32,46 @@ using MiNET.Net;
 
 namespace MiNET.Utils.IO
 {
+	//TODO - rework on NONE and ZLib instances
 	public class Compression
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Compression));
 
 		public static byte[] Compress(Memory<byte> input, bool writeLen = false, CompressionLevel compressionLevel = CompressionLevel.Fastest)
 		{
-			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
+			if (compressionLevel == CompressionLevel.NoCompression)
 			{
-				using (var compressStream = new DeflateStream(stream, compressionLevel, true))
+				using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 				{
 					if (writeLen)
 					{
-						WriteLength(compressStream, input.Length);
+						WriteLength(stream, input.Length);
 					}
 
-					compressStream.Write(input.Span);
-				}
+					stream.Write(input.Span);
 
-				byte[] bytes = stream.ToArray();
-				return bytes;
+					byte[] bytes = stream.ToArray();
+					return bytes;
+				}
+			}
+			else
+			{
+				compressionLevel = input.Length > 1000 ? compressionLevel : CompressionLevel.NoCompression;
+				using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
+				{
+					using (var compressStream = new DeflateStream(stream, compressionLevel, true))
+					{
+						if (writeLen)
+						{
+							WriteLength(compressStream, input.Length);
+						}
+
+						compressStream.Write(input.Span);
+					}
+
+					byte[] bytes = stream.ToArray();
+					return bytes;
+				}
 			}
 		}
 
@@ -96,7 +116,6 @@ namespace MiNET.Utils.IO
 							}
 							packet.PutPool();
 						}
-						compressStream.Flush();
 					}
 
 					byte[] bytes = stream.ToArray();
@@ -104,7 +123,6 @@ namespace MiNET.Utils.IO
 				}
 			}
 		}
-
 
 		public static void WriteLength(Stream stream, int lenght)
 		{

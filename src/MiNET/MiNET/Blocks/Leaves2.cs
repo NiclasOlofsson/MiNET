@@ -68,7 +68,7 @@ namespace MiNET.Blocks
 				return;
 			}
 
-			var drops = GetDrops(null);
+			var drops = GetDrops(level, null);
 			BreakBlock(level, BlockFace.None, drops.Length == 0);
 			foreach (var drop in drops)
 			{
@@ -76,7 +76,7 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			var rnd = new Random();
 			if (NewLeafType == "dark_oak") // Oak and dark oak drops apple

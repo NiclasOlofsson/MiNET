@@ -2555,7 +2555,7 @@ namespace MiNET.Net
 		public uint gameType; // = null;
 		public MetadataDictionary metadata; // = null;
 		public PropertySyncData syncdata; // = null;
-		public long entityIdSelf; // = null;
+		public ulong entityIdSelf; // = null;
 		public byte playerPermissions; // = null;
 		public byte commandPermissions; // = null;
 		public AbilityLayers layers; // = null;
@@ -2592,7 +2592,7 @@ namespace MiNET.Net
 			WriteUnsignedVarInt(gameType);
 			Write(metadata);
 			Write(syncdata);
-			WriteSignedVarLong(entityIdSelf);
+			Write(entityIdSelf);
 			Write(playerPermissions);
 			Write(commandPermissions);
 			Write(layers);
@@ -2629,7 +2629,7 @@ namespace MiNET.Net
 			gameType = ReadUnsignedVarInt();
 			metadata = ReadMetadataDictionary();
 			syncdata = ReadPropertySyncData();
-			entityIdSelf = ReadSignedVarLong();
+			entityIdSelf = ReadUlong();
 			playerPermissions = ReadByte();
 			commandPermissions = ReadByte();
 			layers = ReadAbilityLayers();
@@ -2664,7 +2664,7 @@ namespace MiNET.Net
 			gameType=default(uint);
 			metadata=default(MetadataDictionary);
 			syncdata=default(PropertySyncData);
-			entityIdSelf=default(long);
+			entityIdSelf=default(ulong);
 			playerPermissions=default(byte);
 			commandPermissions=default(byte);
 			layers=default(AbilityLayers);
@@ -7591,60 +7591,12 @@ namespace MiNET.Net
 	public partial class McpeModalFormRequest : Packet<McpeModalFormRequest>
 	{
 
-		public ModalFormInfo modalforminfo; // = null;
+		public uint formId; // = null;
+		public string data; // = null;
 
 		public McpeModalFormRequest()
 		{
 			Id = 0x64;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			Write(modalforminfo);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			modalforminfo = ReadModalFormInfo();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			modalforminfo=default(ModalFormInfo);
-		}
-
-	}
-
-	public partial class McpeModalFormResponse : Packet<McpeModalFormResponse>
-	{
-
-		public uint formId; // = null;
-		public string data; // = null;
-
-		public McpeModalFormResponse()
-		{
-			Id = 0x65;
 			IsMcpe = true;
 		}
 
@@ -7684,6 +7636,54 @@ namespace MiNET.Net
 
 			formId=default(uint);
 			data=default(string);
+		}
+
+	}
+
+	public partial class McpeModalFormResponse : Packet<McpeModalFormResponse>
+	{
+
+		public uint formId; // = null;
+
+		public McpeModalFormResponse()
+		{
+			Id = 0x65;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteUnsignedVarInt(formId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			formId = ReadUnsignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			formId=default(uint);
 		}
 
 	}
@@ -10099,7 +10099,7 @@ namespace MiNET.Net
 	public partial class McpeUpdateAbilities : Packet<McpeUpdateAbilities>
 	{
 
-		public long entityUniqueId; // = null;
+		public ulong entityUniqueId; // = null;
 		public byte playerPermissions; // = null;
 		public byte commandPermissions; // = null;
 		public AbilityLayers layers; // = null;
@@ -10133,7 +10133,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityUniqueId = ReadLong();
+			entityUniqueId = ReadUlong();
 			playerPermissions = ReadByte();
 			commandPermissions = ReadByte();
 			layers = ReadAbilityLayers();
@@ -10148,7 +10148,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			entityUniqueId=default(long);
+			entityUniqueId=default(ulong);
 			playerPermissions=default(byte);
 			commandPermissions=default(byte);
 			layers=default(AbilityLayers);

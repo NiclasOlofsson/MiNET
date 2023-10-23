@@ -361,7 +361,7 @@ namespace MiNET
 				return;
 			}
 
-			if (Entity.KnownPosition.Y < 0 && !IsDead)
+			if (Entity.KnownPosition.Y < ChunkColumn.WorldMinY && !IsDead)
 			{
 				CooldownTick = 0;
 				TakeHit(null, 300, DamageCause.Void);

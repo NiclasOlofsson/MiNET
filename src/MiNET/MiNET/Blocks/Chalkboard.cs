@@ -202,7 +202,7 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new[] { new ItemOakSign() };
 		}

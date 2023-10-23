@@ -75,7 +75,7 @@ namespace MiNET.Blocks
 		}
 
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			var rnd = new Random();
 			if (rnd.NextDouble() <= 0.1)
@@ -83,7 +83,7 @@ namespace MiNET.Blocks
 				return new[] { new ItemFlint() };
 			}
 
-			return base.GetDrops(tool);
+			return base.GetDrops(world, tool);
 		}
 	}
 }

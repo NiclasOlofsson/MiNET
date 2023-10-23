@@ -224,7 +224,7 @@
 		<field name="Game Type" type="UnsignedVarInt" />
 		<field name="Metadata" type="MetadataDictionary" />
 		<field name="SyncData" type="PropertySyncData" />
-		<field name="Entity ID Self" type="SignedVarLong" />
+		<field name="Entity ID Self" type="ulong" />
 		
 		<field name="Player Permissions" type="byte" />
 		<field name="Command Permissions" type="byte" />
@@ -944,12 +944,12 @@
 	</pdu>
 
 	<pdu id="0x64" online="false" client="false" server="true" name="MCPE_MODAL_FORM_REQUEST">
-		<field name="ModalFormInfo" type="ModalFormInfo" />
+		<field name="Form Id" type="UnsignedVarInt" />
+		<field name="Data" type="string" />
 	</pdu>
 
 	<pdu id="0x65" online="false" client="true" server="false" name="MCPE_MODAL_FORM_RESPONSE">
 		<field name="Form Id" type="UnsignedVarInt" />
-		<field name="Data" type="string" />
 	</pdu>
 
 	<pdu id="0x66" online="false" client="true" server="false" name="MCPE_SERVER_SETTINGS_REQUEST">
@@ -1230,7 +1230,7 @@
 	</pdu>
 	
 	<pdu id="0xbb" online="false" client="false" server="true" name="MCPE_UPDATE_ABILITIES">
-		<field name="Entity Unique ID" type="long" />
+		<field name="Entity Unique ID" type="ulong" />
 		<field name="Player Permissions" type="byte" />
 		<field name="Command Permissions" type="byte" />
 		<field name="Layers" type="AbilityLayers" />

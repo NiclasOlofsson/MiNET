@@ -529,7 +529,7 @@ namespace MiNET.Blocks
 			return block is FlowingWater || block is Water;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new Item[0];
 		}

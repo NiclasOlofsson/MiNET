@@ -24,6 +24,7 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -37,7 +38,7 @@ namespace MiNET.Blocks
 			IsBlockingSkylight = false; // Partial - blocks light.
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new[] { ItemFactory.GetItem<Dirt>() };
 		}

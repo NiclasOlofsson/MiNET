@@ -44,7 +44,6 @@ using MiNET.Utils.Metadata;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace MiNET.Client
 {

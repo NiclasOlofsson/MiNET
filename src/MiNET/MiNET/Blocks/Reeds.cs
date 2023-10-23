@@ -30,9 +30,9 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override Item GetItem(bool blockItem = false)
+		public override Item GetItem(Level world, bool blockItem = false)
 		{
-			return blockItem ? base.GetItem(blockItem) : new ItemSugarCane();
+			return blockItem ? base.GetItem(world, blockItem) : new ItemSugarCane();
 		}
 
 		private bool CanGrowOn(Level world, BlockCoordinates blockCoordinates)

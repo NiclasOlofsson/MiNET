@@ -87,7 +87,7 @@ namespace MiNET.Blocks
 			return false;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new[] { ItemFactory.GetItem<RedstoneTorch>() };
 		}

@@ -23,7 +23,9 @@
 
 #endregion
 
+using MiNET.BlockEntities;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -38,7 +40,12 @@ namespace MiNET.Blocks
 			FuelEfficiency = 0;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		protected override ChestBlockEntity CreateBlockEntity()
+		{
+			return new EnderChestBlockEntity();
+		}
+
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new Item[] { ItemFactory.GetItem<Obsidian>(count: 8) };
 		}

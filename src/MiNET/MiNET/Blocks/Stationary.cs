@@ -24,17 +24,11 @@
 #endregion
 
 using log4net;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public interface IStationary
-	{
-		int LiquidDepth { get; set; }
-	}
-
 	public abstract class Stationary : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Stationary));

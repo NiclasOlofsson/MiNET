@@ -75,14 +75,13 @@ namespace MiNET
 
 		public virtual void HandleMcpeRequestNetworkSettings(McpeRequestNetworkSettings message)
 		{
-			Log.Warn(message.protocolVersion);
-			//_playerInfo.ProtocolVersion = message.protocolVersion;
-			/*if (_playerInfo.ProtocolVersion < McpeProtocolInfo.ProtocolVersion || _playerInfo.ProtocolVersion > 65535)
+			_playerInfo.ProtocolVersion = message.protocolVersion;
+			if (_playerInfo.ProtocolVersion < McpeProtocolInfo.ProtocolVersion || _playerInfo.ProtocolVersion > 65535)
 			{
 				Log.Warn($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
 				_session.Disconnect($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
 				return;
-			}*/
+			}
 
 			McpeNetworkSettings settingsPacket = McpeNetworkSettings.CreateObject();
 			settingsPacket.compressionAlgorithm = 0;//zlib

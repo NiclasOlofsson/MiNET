@@ -113,7 +113,7 @@ namespace MiNET.Net.RakNet
 
 				if (message == null)
 				{
-					_greyListManager.Blacklist(senderEndpoint);
+					_greyListManager.Blacklist(senderEndpoint.Address);
 					Log.Error($"Receive bad packet with ID: {messageId} (0x{messageId:x2}) {messageType} from {senderEndpoint.Address}");
 
 					return;
@@ -147,7 +147,7 @@ namespace MiNET.Net.RakNet
 						HandleRakNetMessage(senderEndpoint, (OpenConnectionReply2) message);
 						break;
 					default:
-						_greyListManager.Blacklist(senderEndpoint);
+						_greyListManager.Blacklist(senderEndpoint.Address);
 						if (Log.IsInfoEnabled) Log.Error($"Receive unexpected packet with ID: {messageId} (0x{messageId:x2}) {messageType} from {senderEndpoint.Address}");
 						break;
 				}

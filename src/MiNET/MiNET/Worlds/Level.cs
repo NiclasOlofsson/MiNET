@@ -152,10 +152,13 @@ namespace MiNET.Worlds
 
 				// Pre-cache chunks for spawn coordinates
 				int i = 0;
+
+				var chunkCoordinates = new ChunkCoordinates(SpawnPoint);
 				if (Dimension == Dimension.Nether)
 				{
+					chunkCoordinates /= 8;
 				}
-				var chunkCoordinates = new ChunkCoordinates(SpawnPoint) / 8;
+
 				foreach (var chunk in GenerateChunks(chunkCoordinates, new Dictionary<ChunkCoordinates, McpeWrapper>(), ViewDistance))
 				{
 					if (chunk != null) i++;

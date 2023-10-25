@@ -30,7 +30,7 @@ namespace MiNET
 {
 	public interface INetworkHandler
 	{
-		void Close();
+		void Close(bool sendDisconnect = true);
 
 		void SendPacket(Packet packet);
 		void SendDirectPacket(Packet packet);

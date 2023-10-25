@@ -629,7 +629,7 @@ namespace MiNET.Net.RakNet
 			return NetworkIdentifier;
 		}
 
-		public void Close()
+		public void Close(bool sendDisconnect = true)
 		{
 			if (!ConnectionInfo.RakSessions.TryRemove(EndPoint, out _))
 			{
@@ -640,10 +640,13 @@ namespace MiNET.Net.RakNet
 			Evicted = true;
 			CustomMessageHandler = null;
 
-			// Send with high priority, bypass queue
-			SendDirectPacket(DisconnectionNotification.CreateObject());
-
 			SendQueueAsync(500).Wait();
+
+			if (sendDisconnect)
+			{
+				// Send with high priority, bypass queue
+				SendDirectPacket(DisconnectionNotification.CreateObject());
+			}
 
 			_cancellationToken.Cancel();
 			_packetQueuedWaitEvent.Set();

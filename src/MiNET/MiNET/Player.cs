@@ -1975,7 +1975,7 @@ namespace MiNET
 							NetworkHandler.SendPrepareDirectPacket(disconnect);
 						}
 
-						NetworkHandler.Close();
+						NetworkHandler.Close(!sendDisconnect);
 						NetworkHandler = null;
 
 						IsConnected = false;

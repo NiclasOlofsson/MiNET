@@ -68,10 +68,7 @@ namespace MiNET
 
 		public virtual void Blacklist(IPEndPoint endPoint)
 		{
-			lock (_blacklist)
-			{
-				_blacklist.Add(endPoint.Address);
-			}
+			Blacklist(endPoint.Address);
 		}
 
 		public virtual bool AcceptConnection(IPEndPoint endPoint)
@@ -117,8 +114,7 @@ namespace MiNET
 
 		public virtual void Greylist(IPEndPoint endPoint, int time)
 		{
-			var dateTime = DateTime.UtcNow.AddMilliseconds(time);
-			_greylist.TryAdd(endPoint.Address, dateTime);
+			Greylist(endPoint.Address, time);
 		}
 	}
 }

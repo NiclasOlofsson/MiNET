@@ -42,10 +42,6 @@ namespace MiNET
 
 		public GreyListManager(ConnectionInfo connectionInfo = null)
 		{
-			_blacklist.Add(IPAddress.Parse("86.126.166.61"));
-			//_blacklist.Add(IPAddress.Parse("185.89.216.247"));
-			//_blacklist.Add(IPAddress.Parse("66.176.197.86"));
-			//_blacklist.Add(IPAddress.Parse("78.197.138.50"));
 			ConnectionInfo = connectionInfo;
 		}
 
@@ -58,8 +54,15 @@ namespace MiNET
 		{
 			lock (_blacklist)
 			{
-				//if (senderAddress.ToString().StartsWith("185.89.216")) return true;
 				return _blacklist.Contains(endPoint.Address);
+			}
+		}
+
+		public virtual void Blacklist(IPAddress address)
+		{
+			lock (_blacklist)
+			{
+				_blacklist.Add(address);
 			}
 		}
 
@@ -104,6 +107,12 @@ namespace MiNET
 				_greylist.TryRemove(address, out waste);
 			}
 			return false;
+		}
+
+		public virtual void Greylist(IPAddress address, int time)
+		{
+			var dateTime = DateTime.UtcNow.AddMilliseconds(time);
+			_greylist.TryAdd(address, dateTime);
 		}
 
 		public virtual void Greylist(IPEndPoint endPoint, int time)

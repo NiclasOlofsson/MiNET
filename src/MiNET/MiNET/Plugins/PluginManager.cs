@@ -67,7 +67,7 @@ namespace MiNET.Plugins
 
 		public PluginManager()
 		{
-			LoadCommands(new VanillaCommands());
+
 		}
 
 		internal void LoadPlugins()

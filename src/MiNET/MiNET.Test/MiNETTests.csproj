@@ -3,7 +3,7 @@
     <IsPackable>false</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TargetFramework>net6.0</TargetFramework>
-	  <RootNamespace>MiNET.Test</RootNamespace>
+    <RootNamespace>MiNET.Test</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />

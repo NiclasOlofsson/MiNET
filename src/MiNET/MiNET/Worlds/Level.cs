@@ -189,7 +189,7 @@ namespace MiNET.Worlds
 
 			_tickTimer = new Stopwatch();
 			_tickTimer.Restart();
-			_tickerHighPrecisionTimer = new HighPrecisionTimer(50, WorldTick, false, false);
+			_tickerHighPrecisionTimer = new HighPrecisionTimer(50, WorldTick, false, false, Config.GetProperty("EnableHighPrecision", true));
 		}
 
 		private void _tickerHighPrecisionTimer_Tick()

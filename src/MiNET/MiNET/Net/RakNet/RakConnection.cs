@@ -299,7 +299,7 @@ namespace MiNET.Net.RakNet
 							}
 							catch (Exception e)
 							{
-								Log.Warn($"Process message error from: {senderEndpoint.Address}", e);
+								Log.Warn($"Process message error from: {senderEndpoint}", e);
 							}
 						});
 					}
@@ -429,7 +429,7 @@ namespace MiNET.Net.RakNet
 
 				Log.Warn($"Bad packet {receivedBytes.Span[0]}\n{Packet.HexDump(receivedBytes)}", e);
 
-				_greyListManager.Blacklist(clientEndpoint);
+				_greyListManager.Blacklist(clientEndpoint.Address);
 
 				return;
 			}

@@ -2122,6 +2122,13 @@ Wiki: [Modal Form Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 
 
 
+#### Cancel Reason constants
+
+| Name | Value |
+|:-----|:-----|
+|User Closed | 0 |
+|User Busy | 1 |
+
 
 #### Fields
 

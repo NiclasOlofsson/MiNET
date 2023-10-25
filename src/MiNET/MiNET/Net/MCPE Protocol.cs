@@ -7642,6 +7642,11 @@ namespace MiNET.Net
 
 	public partial class McpeModalFormResponse : Packet<McpeModalFormResponse>
 	{
+		public enum CancelReason
+		{
+			UserClosed = 0,
+			UserBusy = 1,
+		}
 
 		public uint formId; // = null;
 

@@ -219,7 +219,7 @@ namespace MiNET
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{
 			if (CurrentForm == null) Log.Warn("No current form set for player when processing response");
-			if (message.cancelReason == 1)
+			if (message.cancelReason == (byte) McpeModalFormResponse.CancelReason.UserBusy)
 			{
 				Log.Debug("The client cancels the form because it is still connecting");
 				return;

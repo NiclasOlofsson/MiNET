@@ -949,6 +949,10 @@
 	</pdu>
 
 	<pdu id="0x65" online="false" client="true" server="false" name="MCPE_MODAL_FORM_RESPONSE">
+		<enums id="Cancel Reason">
+			<enum id="User Closed" value="0" />
+			<enum id="User Busy" value="1" />
+		</enums>
 		<field name="Form Id" type="UnsignedVarInt" />
 	</pdu>
 

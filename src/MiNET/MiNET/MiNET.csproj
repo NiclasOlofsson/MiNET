@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
   <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>CRPE-MiNET</PackageId>
+    <PackageId>MiNET</PackageId>
     <Version>0.0.0</Version>
     <Authors>gurun</Authors>
     <Company>Niclas Olofsson</Company>

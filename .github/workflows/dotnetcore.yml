@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - 1.19-update
 
 jobs:
   nuget:

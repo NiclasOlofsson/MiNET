@@ -100,14 +100,14 @@
 		</filter>-->
 
 		<filter type="log4net.Filter.LevelRangeFilter">
-			<levelMin value="INFO" />
+			<levelMin value="TRACE" />
 			<levelMax value="FATAL" />
 		</filter>
 
 	</appender>
 
 	<root>
-		<level value="TRACE" />
+		<level value="INFO" />
 		<appender-ref ref="Console" />
 		<appender-ref ref="RollingFile" />
 		<!--<appender-ref ref="DebuggerAppender"/>-->

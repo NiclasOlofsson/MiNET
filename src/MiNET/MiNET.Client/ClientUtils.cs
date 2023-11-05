@@ -187,11 +187,6 @@ namespace MiNET.Client
 						return chunkColumn;
 					}
 
-					// TODO - 1.20 - update
-					//if (stream.Read(chunkColumn.biomeId, 0, 256) != 256)
-						return chunkColumn;
-					//Log.Debug($"biomeId:\n{Package.HexDump(chunk.biomeId)}");
-
 					if (stream.Position >= stream.Length - 1)
 						return chunkColumn;
 

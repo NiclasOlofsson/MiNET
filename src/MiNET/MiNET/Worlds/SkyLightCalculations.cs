@@ -179,7 +179,7 @@ namespace MiNET.Worlds
 			sw.Restart();
 
 			HighPrecisionTimer tickerHighPrecisionTimer = null;
-			if (calculator.TrackResults) tickerHighPrecisionTimer = new HighPrecisionTimer(100, _ => calculator.SnapshotVisits());
+			if (calculator.TrackResults) tickerHighPrecisionTimer = new HighPrecisionTimer(100, _ => calculator.SnapshotVisits(), highPrecision: false);
 
 			calculator.StartTimeInMilliseconds = Environment.TickCount;
 

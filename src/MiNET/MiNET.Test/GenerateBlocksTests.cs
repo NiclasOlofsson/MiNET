@@ -46,18 +46,20 @@ namespace MiNET.Test
 		[TestMethod]
 		public void GetItemByName()
 		{
-			// TODO - 1.19-update
+			foreach (var keyValuePair in ItemFactory.IdToType)
+			{
+				if (keyValuePair.Key.Equals("minecraft:sapling"))
+				{
+					Console.WriteLine(keyValuePair.Key);
+				}
+			}
 
-			//foreach (KeyValuePair<string, int> keyValuePair in ItemFactory.IdToRuntimeId)
-			//{
-			//	if(keyValuePair.Key.Equals("sapling")) Console.WriteLine(keyValuePair.Key);
-			//}
-			//var itemId = ItemFactory.GetItemIdByName("minecraft:sapling");
-			//Assert.AreEqual(6, itemId);
+			Item item = ItemFactory.GetItem("minecraft:sapling");
+			Assert.AreEqual("minecraft:sapling", item.Id);
+			Assert.IsInstanceOfType(item, typeof(ItemBlock));
 
-			//Item item = ItemFactory.GetItem("minecraft:sapling");
-			//Assert.AreEqual("minecraft:sapling", item.Name);
-			//Assert.IsNotNull(item as ItemBlock);
+			var itemBlock = item as ItemBlock;
+			Assert.IsInstanceOfType(itemBlock.Block, typeof(Sapling));
 		}
 
 		[TestMethod]

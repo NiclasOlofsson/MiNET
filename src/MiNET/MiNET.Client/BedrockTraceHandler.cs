@@ -678,7 +678,7 @@ namespace MiNET.Client
 					writer.Indent++;
 					foreach (var ingredient in shapelessRecipe.Input)
 					{
-						// TODO - 1.19-update
+						// TODO - 1.20-update (make an analog of generating recipe files from Bedrock Data?)
 						//writer.WriteLine($"new Item(\"{ingredient.Id}\", {ingredient.Metadata}, {ingredient.Count}){{ UniqueId = {ingredient.UniqueId}, RuntimeId={ingredient.BlockRuntimeId} }},");
 					}
 					writer.Indent--;
@@ -718,7 +718,7 @@ namespace MiNET.Client
 					writer.Indent++;
 					foreach (var ingredient in shapedRecipe.Input)
 					{
-						// TODO - 1.19-update
+						// TODO - 1.20-update (make an analog of generating recipe files from Bedrock Data?)
 						//writer.WriteLine($"new Item(\"{ingredient.Id}\", {ingredient.Metadata}, {ingredient.Count}){{ RuntimeId={ingredient.BlockRuntimeId} }},");
 					}
 					writer.Indent--;

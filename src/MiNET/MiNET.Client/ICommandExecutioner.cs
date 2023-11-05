@@ -133,7 +133,7 @@ namespace MiNET.Client
 			
 			ClearInventory(caller);
 
-			Dictionary<string, short> idMapping = new Dictionary<string, short>();
+			var idMapping = new HashSet<string>();
 			
 			//for(int i = -400; i < 900; i++)
 			{
@@ -152,7 +152,7 @@ namespace MiNET.Client
 							
 							string itemName = item.Id;
 
-							if (idMapping.ContainsKey(item.Id))
+							if (idMapping.Contains(item.Id))
 								continue;
 
 							ClearInventory(caller);
@@ -171,11 +171,10 @@ namespace MiNET.Client
 
 								if (newItem != null && (newItem is not ItemAir && newItem.Count > 0))
 								{
-									// TODO - 1.19-update
-									//if (!idMapping.TryAdd(item.Id, newItem.LegacyId))
-									//{
-									//	Log.Warn($"Duplicate key! Name={item.Id} Id={item.Id} NewName={newItem.Id} NewId={newItem.Id}");
-									//}
+									if (!idMapping.Add(item.Id))
+									{
+										Log.Warn($"Duplicate key! Id={item.Id} NewId={newItem.Id}");
+									}
 								}
 
 								_lastItem = new ItemAir() { Count = 0 };

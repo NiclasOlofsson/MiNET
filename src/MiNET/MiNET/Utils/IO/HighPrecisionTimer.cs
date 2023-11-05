@@ -68,7 +68,7 @@ namespace MiNET.Utils.IO
 		public long Avarage = 0;
 
 
-		public HighPrecisionTimer(int interval, Action<object> action, bool useSignaling = false, bool skipTicks = true, bool highPrecision = false)
+		public HighPrecisionTimer(int interval, Action<object> action, bool useSignaling = false, bool skipTicks = true, bool highPrecision = true)
 		{
 			// The following is dangerous code. It will increase windows timer frequence to interrupt
 			// every 1ms instead of default 15ms. It is the same tech that games use to increase FPS and

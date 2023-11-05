@@ -75,7 +75,7 @@ namespace MiNET.BuilderBase.Commands
 				{
 					for (int z = 0; z < length; ++z)
 					{
-						// TODO - 1.19 - update
+						// TODO - 1.20 - update (local support for legacy ids only for BuilderBase)
 						//int index = y*width*length + z*width + x;
 						//BlockCoordinates coord = new BlockCoordinates(x, y, z);
 

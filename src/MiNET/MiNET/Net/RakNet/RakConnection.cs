@@ -54,6 +54,8 @@ namespace MiNET.Net.RakNet
 		private Thread _receiveThread;
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
 
+		private int _datagramSendTimeout;
+
 		public ConnectionInfo ConnectionInfo { get; }
 
 		public bool FoundServer => _rakOfflineHandler.HaveServer;
@@ -86,6 +88,8 @@ namespace MiNET.Net.RakNet
 			ConnectionInfo = new ConnectionInfo(_rakSessions);
 
 			_rakOfflineHandler = new RakOfflineHandler(this, this, _greyListManager, motdProvider, ConnectionInfo);
+
+			_datagramSendTimeout = Config.GetProperty("DatagramSendTimeout", 3000);
 		}
 
 		public void Start()
@@ -98,7 +102,7 @@ namespace MiNET.Net.RakNet
 			_receiveThread = new Thread(ReceiveDatagram) {IsBackground = true};
 			_receiveThread.Start(_listener);
 
-			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
+			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, Config.GetProperty("EnableHighPrecision", true));
 		}
 
 		public bool TryLocate(out (IPEndPoint serverEndPoint, string serverName) serverInfo, int numberOfAttempts = int.MaxValue)
@@ -676,7 +680,7 @@ namespace MiNET.Net.RakNet
 
 					long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 					long datagramTimeout = rto * (datagram.TransmissionCount + session.ResendCount + 1);
-					//datagramTimeout = Math.Min(datagramTimeout, 3000);
+					datagramTimeout = Math.Min(datagramTimeout, _datagramSendTimeout);
 					datagramTimeout = Math.Max(datagramTimeout, 100);
 
 					if (datagram.RetransmitImmediate || elapsedTime >= datagramTimeout)

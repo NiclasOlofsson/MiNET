@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 
 		private int _tickRate = 1;
 
-		public Sand() : base(12)
+		public Sand() : base()
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;
@@ -74,11 +74,6 @@ namespace MiNET.Blocks
 
 				new FallingBlock(level, GetRuntimeId()) {KnownPosition = new PlayerLocation(Coordinates.X + d.X, Coordinates.Y - 0.03f, Coordinates.Z + d.Z)}.SpawnEntity();
 			}
-		}
-
-		public override Item GetSmelt()
-		{
-			return ItemFactory.GetItem(20, 0);
 		}
 	}
 }

@@ -25,17 +25,16 @@
 
 using log4net;
 using MiNET.Entities.World;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemEmptyMap : Item
+	public partial class ItemEmptyMap
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemEmptyMap));
 
-		public ItemEmptyMap(short metadata = 0, byte count = 1) : base("minecraft:empty_map", 395, metadata, count)
+		public ItemEmptyMap() : base()
 		{
 		}
 
@@ -45,7 +44,7 @@ namespace MiNET.Items
 			mapEntity.SpawnEntity();
 
 			// Initialize a new map and add it.
-			ItemMap itemMap = new ItemMap(mapEntity.EntityId);
+			ItemMap itemMap = new ItemMap() { MapId = mapEntity.EntityId };
 			player.Inventory.SetFirstEmptySlot(itemMap, true);
 		}
 	}

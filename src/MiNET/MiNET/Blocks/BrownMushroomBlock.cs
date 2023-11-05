@@ -25,24 +25,25 @@
 
 using System;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class BrownMushroomBlock : Block
 	{
-		public BrownMushroomBlock() : base(99)
+		public BrownMushroomBlock() : base()
 		{
 			BlastResistance = 1;
 			Hardness = 0.2f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			var rnd = new Random();
 			var next = rnd.Next(3);
 			if (next > 0)
 			{
-				return new Item[] {ItemFactory.GetItem(39, 0, (byte) next)};
+				return new Item[] { ItemFactory.GetItem<BrownMushroom>() };
 			}
 			return new Item[0];
 		}

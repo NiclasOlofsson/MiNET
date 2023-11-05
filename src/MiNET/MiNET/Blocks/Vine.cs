@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Vine));
 
-		public Vine() : base(106)
+		public Vine() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;
@@ -175,11 +175,11 @@ namespace MiNET.Blocks
 			return newVineDirectionBits;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			if (tool.Id != 359) return new Item[0];
+			if (tool.ItemType != ItemType.Sheers) return new Item[0];
 
-			return base.GetDrops(tool);
+			return base.GetDrops(world, tool);
 		}
 	}
 }

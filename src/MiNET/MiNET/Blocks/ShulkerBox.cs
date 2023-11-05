@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class ShulkerBox : UndyedShulkerBox
 	{
-		public ShulkerBox() : base(218)
+		public ShulkerBox() : base()
 		{
 		}
 	}

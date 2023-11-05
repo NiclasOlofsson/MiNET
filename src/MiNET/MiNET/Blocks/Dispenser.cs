@@ -24,21 +24,22 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class Dispenser : Block
 	{
-		public Dispenser() : base(23)
+		public Dispenser() : base()
 		{
 			BlastResistance = 17.5f;
 			Hardness = 3.5f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			// TODO: Needs Dispenser TileEntity.
-			return base.GetDrops(tool);
+			return base.GetDrops(world, tool);
 		}
 	}
 }

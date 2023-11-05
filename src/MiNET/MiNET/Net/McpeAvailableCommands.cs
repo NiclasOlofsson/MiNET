@@ -183,24 +183,24 @@ namespace MiNET.Net
 							{
 								Name = commandParamName,
 								Optional = optional,
-								Type = GetParameterTypeName((paramType & 0xffff))
+								Type = (CommandParameterType) (paramType & 0xffff)
 							};
 
 							overload.Input.Parameters[k] = parameter;
 
-							if ((paramType & 0x200000) != 0) //Enum
+							if ((paramType & (int) CommandParameterType.EnumFlag) != 0) //Enum
 							{
 								var paramEnum = enums[paramType & 0xffff];
 								parameter.EnumValues = paramEnum.Values;
 								parameter.EnumType = paramEnum.Name;
-								parameter.Type = "stringenum";
+								parameter.Type = CommandParameterType.EnumFlag;
 							}
-							else if ((paramType & 0x1000000) != 0) //Postfix
+							else if ((paramType & (int) CommandParameterType.PostfixFlag) != 0) //Postfix
 							{
 								var paramEnum = enums[paramType & 0xffff];
 								parameter.EnumValues = paramEnum.Values;
 								parameter.EnumType = paramEnum.Name;
-								parameter.Type = "stringenum";
+								parameter.Type = CommandParameterType.EnumFlag;
 							}
 							
 							//Log.Debug($"\t{commandParamName}, 0x{tmp:X4}, 0x{tmp1:X4}, {isEnum}, {isSoftEnum}, {(GetParameterTypeName(commandParamType))}, {commandParamEnumIndex}, {commandParamSoftEnumIndex}, {commandParamPostfixIndex}, {optional}, {unknown}");
@@ -284,7 +284,7 @@ namespace MiNET.Net
 							if (parameters == null) continue;
 							foreach (var parameter in parameters)
 							{
-								if (parameter.Type == "stringenum")
+								if (parameter.Type == CommandParameterType.EnumFlag)
 								{
 									if (parameter.EnumValues == null) continue;
 									foreach (var enumValue in parameter.EnumValues)
@@ -328,7 +328,7 @@ namespace MiNET.Net
 						if (parameters == null) continue;
 						foreach (var parameter in parameters)
 						{
-							if (parameter.Type == "stringenum")
+							if (parameter.Type == CommandParameterType.EnumFlag)
 							{
 								if (parameter.EnumValues == null) continue;
 
@@ -382,7 +382,7 @@ namespace MiNET.Net
 						if (parameters == null) continue;
 						foreach (var parameter in parameters)
 						{
-							if (parameter.Type == "stringenum")
+							if (parameter.Type == CommandParameterType.EnumFlag)
 							{
 								if (parameter.EnumValues == null) continue;
 
@@ -456,19 +456,19 @@ namespace MiNET.Net
 							//Log.Debug($"Writing command overload parameter {command.Name}, {parameter.Name}, {parameter.Type}");
 
 							Write(parameter.Name); // parameter name
-							if (parameter.Type == "stringenum" && parameter.EnumValues != null)
+							if (parameter.Type == CommandParameterType.EnumFlag && parameter.EnumValues != null)
 							{
 								Write((short) enumList.IndexOf(parameter.EnumType));
 								Write((short) 0x30);
 							}
-							else if (parameter.Type == "softenum" && parameter.EnumValues != null)
+							else if (parameter.Type == CommandParameterType.SoftEnumFlag && parameter.EnumValues != null)
 							{
 								Write((short) 0); // soft enum index below
 								Write((short) 0x0410);
 							}
 							else
 							{
-								Write((short) GetParameterTypeId(parameter.Type)); // param type
+								Write((short) parameter.Type); // param type
 								Write((short) 0x10);
 							}
 
@@ -489,57 +489,6 @@ namespace MiNET.Net
 				Log.Error("Sending commands", e);
 				//throw;
 			}
-		}
-
-		private int GetParameterTypeId(string type)
-		{
-			return type switch
-			{
-				"enum" => -1,
-				"unknown" => 0,
-				"int" => 0x01,
-				"float" => 0x03,
-				"mixed" => 0x04,
-				"wildcardint" => 0x05,
-				"operator" => 0x06,
-				"target" => 0x07,
-				"filename" => 0x10,
-				"string" => 0x20,
-				"blockpos" => 0x25,
-				"entitypos" => 0x26,
-				"xyz" => 0x28,
-				"message" => 0x2c,
-				"rawtext" => 0x2e,
-				"json" => 0x32,
-				"command" => 0x3f,
-				_ => 0
-			};
-		}
-
-		private string GetParameterTypeName(int type)
-		{
-
-			return type switch
-			{
-				-1   => "enum",
-				0    => "unknown",
-				0x01 => "int",
-				0x03 => "float",
-				0x04 => "mixed",
-				0x05 => "wildcardint",
-				0x06 => "operator",
-				0x07 => "target",
-				0x10 => "filename",
-				0x20 => "string",
-				0x25   => "blockpos",
-				0x26   => "entitypos",
-				0x28 => "xyz",
-				0x2c => "message", // kick, me, etc
-				0x2e => "rawtext", // kick, me, etc
-				0x32 => "json", // give, replace
-				0x3f => "command",
-				_    => $"undefined({type})"
-			};
 		}
 	}
 }

@@ -30,6 +30,10 @@ using Newtonsoft.Json;
 
 namespace MiNET
 {
+	public class AttributeModifiers : Dictionary<string, AttributeModifier>
+	{
+	}
+
 	public class PlayerAttributes : Dictionary<string, PlayerAttribute>
 	{
 	}
@@ -71,7 +75,7 @@ namespace MiNET
 	{
 	}
 
-	public class Itemstates : List<Itemstate>
+	public class Itemstates : Dictionary<string, Itemstate>
 	{
 		public static Itemstates FromJson(string json)
 		{
@@ -82,13 +86,9 @@ namespace MiNET
 	public class Itemstate
 	{
 		[JsonProperty("runtime_id")]
-		public short Id { get; set; }
-
-		[JsonProperty("name")]
-		public string Name { get; set; }
+		public short RuntimeId { get; set; }
 
 		[JsonProperty("component_based")]
-		public bool ComponentBased { get; set; } = false; 
-		//public int RuntimeId { get; set; }
+		public bool ComponentBased { get; set; } = false;
 	}
 }

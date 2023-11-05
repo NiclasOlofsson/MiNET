@@ -46,9 +46,10 @@ namespace MiNET.BuilderBase.Patterns
 		{
 			public BlockDataEntry()
 			{
+				Id = BlockFactory.GetIdByType<Air>();
 			}
 
-			public int Id { get; set; }
+			public string Id { get; set; }
 			public byte Metadata { get; set; }
 			public bool HasMetadata { get; set; }
 			public int Weight { get; set; } = 100;
@@ -73,11 +74,11 @@ namespace MiNET.BuilderBase.Patterns
 			_random = new Random();
 		}
 
-		public Pattern(int blockId, int metadata)
+		public Pattern(string blockId, int metadata)
 		{
 			BlockList.Add(new BlockDataEntry()
 			{
-				Id = (byte) blockId,
+				Id = blockId,
 				Metadata = (byte) metadata,
 				HasMetadata = true
 			});
@@ -166,7 +167,7 @@ namespace MiNET.BuilderBase.Patterns
 				Log.Debug($"Matching {pattern}");
 				var blockDataEntry = new BlockDataEntry();
 
-				var regex = new Regex(@"(?<pattern>((?<weight>\d+)%)?((?<blockId>\d+)|(?<blockName>(minecraft:)?\w+)){1}(:(?<meta>\d+))?(\[(?<states>[a-zA-Z0-9_=,]*)])?)*");
+				var regex = new Regex(@"(?<pattern>((?<weight>\d+)%)?((?<legacyId>\d+)|(?<blockId>(minecraft:)?\w+)){1}(:(?<meta>\d+))?(\[(?<states>[a-zA-Z0-9_=,]*)])?)*");
 				var stateEx = new Regex(@"(?<name>\w+)\=(?<value>\w+)");
 
 				Match match = regex.Match(pattern.Trim());
@@ -179,15 +180,17 @@ namespace MiNET.BuilderBase.Patterns
 							Log.Debug($"Matched weight group {matchGroup.Value}");
 							if (int.TryParse(matchGroup.Value.Trim(), out int weight)) blockDataEntry.Weight = weight;
 						}
-						else if (matchGroup.Name == "blockName" && matchGroup.Success)
-						{
-							Log.Debug($"Matched blockName group {matchGroup.Value}");
-							blockDataEntry.Id = BlockFactory.GetBlockIdByName(matchGroup.Value.Trim());
-						}
-						if (matchGroup.Name == "blockId" && matchGroup.Success)
+						else if (matchGroup.Name == "blockId" && matchGroup.Success)
 						{
 							Log.Debug($"Matched blockId group {matchGroup.Value}");
-							if (int.TryParse(matchGroup.Value.Trim(), out int id)) blockDataEntry.Id = id;
+
+							var id = matchGroup.Value.Trim();
+							blockDataEntry.Id = id.StartsWith("minecraft:") ? id : $"minecraft:{id}";
+						}
+						if (matchGroup.Name == "legacyId" && matchGroup.Success)
+						{
+							Log.Debug($"Matched legacyId group {matchGroup.Value}");
+							throw new InvalidOperationException("blockId now is string id only support.");
 						}
 						else if (matchGroup.Name == "meta" && matchGroup.Success)
 						{

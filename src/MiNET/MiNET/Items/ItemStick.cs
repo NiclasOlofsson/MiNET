@@ -28,17 +28,16 @@ using System.Numerics;
 using System.Threading.Tasks;
 using log4net;
 using MiNET.Net;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemStick : Item
+	public partial class ItemStick
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemStick));
 
-		public ItemStick() : base("minecraft:stick", 280)
+		public ItemStick() : base()
 		{
 			FuelEfficiency = 5;
 		}

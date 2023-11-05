@@ -48,7 +48,7 @@ namespace MiNET.Worlds
 		public string GeneratorName { get; set; }
 		public int GeneratorVersion { get; set; }
 		public string GeneratorOptions { get; set; }
-		public long RandomSeed { get; set; }
+		public long Seed { get; set; }
 		public bool MapFeatures { get; set; }
 		public long LastPlayed { get; set; }
 		public bool AllowCommands { get; set; }
@@ -257,7 +257,7 @@ namespace MiNET.Worlds
 			GetPropertyValue(dataTag, () => GeneratorName);
 			GetPropertyValue(dataTag, () => GeneratorVersion);
 			GetPropertyValue(dataTag, () => GeneratorOptions);
-			GetPropertyValue(dataTag, () => RandomSeed);
+			GetPropertyValue(dataTag["WorldGenSettings"], () => Seed);
 			GetPropertyValue(dataTag, () => MapFeatures);
 			GetPropertyValue(dataTag, () => LastPlayed);
 			GetPropertyValue(dataTag, () => AllowCommands);
@@ -282,7 +282,7 @@ namespace MiNET.Worlds
 			SetPropertyValue(dataTag, () => GeneratorName);
 			SetPropertyValue(dataTag, () => GeneratorVersion);
 			SetPropertyValue(dataTag, () => GeneratorOptions);
-			SetPropertyValue(dataTag, () => RandomSeed);
+			SetPropertyValue(dataTag, () => Seed);
 			SetPropertyValue(dataTag, () => MapFeatures);
 			SetPropertyValue(dataTag, () => LastPlayed);
 			SetPropertyValue(dataTag, () => AllowCommands);

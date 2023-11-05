@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class JungleStairs : BlockStairs
 	{
-		public JungleStairs() : base(136)
+		public JungleStairs() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 2;

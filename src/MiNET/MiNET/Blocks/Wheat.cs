@@ -25,16 +25,17 @@
 
 using System;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class Wheat : Crops
 	{
-		public Wheat() : base(59)
+		public Wheat() : base()
 		{
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			if (Growth == 7)
 			{
@@ -43,12 +44,13 @@ namespace MiNET.Blocks
 				var count = rnd.Next(4);
 				if (count > 0)
 				{
-					return new[] {ItemFactory.GetItem(296, 0, 1), ItemFactory.GetItem(295, 0, (byte) count)};
+					return new Item[] { new ItemWheat(), new ItemWheatSeeds() { Count = (byte) count } };
 				}
-				return new[] {ItemFactory.GetItem(296, 0, 1)};
+
+				return new[] { new ItemWheat() };
 			}
 
-			return new[] {ItemFactory.GetItem(295, 0, 1)};
+			return new[] { new ItemWheatSeeds() };
 		}
 	}
 }

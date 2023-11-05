@@ -24,12 +24,13 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class Rail : Block
 	{
-		public Rail() : base(66)
+		public Rail() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;
@@ -37,10 +38,10 @@ namespace MiNET.Blocks
 			Hardness = 0.7f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			// No special metadata
-			return new[] {new ItemBlock(this, 0)};
+			return new[] { ItemFactory.GetItem<Rail>() };
 		}
 	}
 }

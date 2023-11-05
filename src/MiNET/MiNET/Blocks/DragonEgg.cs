@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class DragonEgg : Block
 	{
-		public DragonEgg() : base(122)
+		public DragonEgg() : base()
 		{
 			IsTransparent = true;
 			LightLevel = 1;

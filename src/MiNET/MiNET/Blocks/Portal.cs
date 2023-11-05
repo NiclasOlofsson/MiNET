@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 
 	public partial class Portal : Block
 	{
-		public Portal() : base(90)
+		public Portal() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;
@@ -77,7 +77,7 @@ namespace MiNET.Blocks
 			return block is Obsidian || block is Portal;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new Item[0];
 		}

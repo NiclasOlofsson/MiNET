@@ -35,11 +35,11 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemBow : Item
+	public partial class ItemBow
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBow));
 
-		public ItemBow() : base("minecraft:bow", 261)
+		public ItemBow() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Bow;
@@ -75,7 +75,7 @@ namespace MiNET.Items
 		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
 			long timeUsed = world.TickTime - _useTime;
-			if (timeUsed < 6) // questionable, but we go with it for now.
+			if (timeUsed < 3) // questionable, but we go with it for now.
 			{
 				player.SendPlayerInventory(); // Need to reset inventory, because we don't know what the client did here
 				return;
@@ -89,13 +89,13 @@ namespace MiNET.Items
 			{
 				// Try off-hand first
 				Item item = inventory.OffHand;
-				if (item.Id == 262)
+				if (item is ItemArrow)
 				{
 					haveArrow = true;
 					if (!isInfinity)
 					{
 						item.Count -= 1;
-						item.UniqueId = Environment.TickCount;
+						item.UniqueId = GetUniqueId();
 						if (item.Count <= 0) inventory.OffHand = new ItemAir();
 
 						player.SendPlayerInventory();
@@ -109,10 +109,10 @@ namespace MiNET.Items
 				for (byte i = 0; i < inventory.Slots.Count; i++)
 				{
 					Item itemStack = inventory.Slots[i];
-					if (itemStack.Id == 262)
+					if (itemStack is ItemArrow)
 					{
 						haveArrow = true;
-						if (isInfinity) inventory.RemoveItems(262, 1);
+						if (!isInfinity) inventory.RemoveItems(ItemFactory.GetIdByType<ItemArrow>(), 1);
 						break;
 					}
 				}
@@ -121,15 +121,19 @@ namespace MiNET.Items
 			if (!haveArrow) return;
 
 			float force = CalculateForce(timeUsed);
-			if (force < 0.1D) return;
+			if (force < 0.04D) return;
 
-			var arrow = new Arrow(player, world, 2, !(force < 1.0));
+			var arrow = new Arrow(player, world, 2, force >= 1.0);
 			arrow.PowerLevel = this.GetEnchantingLevel(EnchantingType.Power);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
-			arrow.KnownPosition.Y += 1.62f;
+			arrow.KnownPosition.Y += 1.50f;
 
-			arrow.Velocity = arrow.KnownPosition.GetHeadDirection().Normalize() * (force * 3);
+			var vector = arrow.KnownPosition.GetHeadDirection().Normalize();
+			//arrow.KnownPosition += vector * 0.5f + vector * force;
+
+			arrow.Velocity = vector * force * 3;
 			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
+			arrow.KnownPosition.HeadYaw = arrow.KnownPosition.Yaw;
 			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
 			arrow.BroadcastMovement = true;
 			arrow.DespawnOnImpact = false;

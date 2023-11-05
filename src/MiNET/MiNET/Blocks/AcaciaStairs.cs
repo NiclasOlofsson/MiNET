@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class AcaciaStairs : BlockStairs
 	{
-		public AcaciaStairs() : base(163)
+		public AcaciaStairs() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 2;

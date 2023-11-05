@@ -25,23 +25,24 @@
 
 using System;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class ChorusPlant : Block
 	{
-		public ChorusPlant() : base(240)
+		public ChorusPlant() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 2;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			var rnd = new Random();
 			if (rnd.Next(2) > 0) // Note that random.Next EXCLUDES the parameter so this is 50/50
 			{
-				return new Item[] {ItemFactory.GetItem(432, 0, 1)}; // Chorus Fruit
+				return new Item[] { new ItemChorusFruit() };
 			}
 
 			return new Item[0];

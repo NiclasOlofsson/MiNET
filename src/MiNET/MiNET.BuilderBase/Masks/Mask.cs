@@ -39,7 +39,7 @@ namespace MiNET.BuilderBase.Masks
 
 		private class BlockDataEntry
 		{
-			public int Id { get; set; }
+			public string Id { get; set; }
 			public byte Metadata { get; set; }
 			public bool IgnoreMetadata { get; set; } = true;
 		}
@@ -159,15 +159,7 @@ namespace MiNET.BuilderBase.Masks
 
 					var dataEntry = new BlockDataEntry();
 
-					int id;
-
-					string binfo = blockInfos[0];
-					if (!int.TryParse(binfo, out id))
-					{
-						id = BlockFactory.GetBlockIdByName(binfo);
-					}
-
-					dataEntry.Id = id;
+					dataEntry.Id = blockInfos[0];
 
 					if (blockInfos.Length == 2)
 					{

@@ -24,12 +24,13 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class Web : Block
 	{
-		public Web() : base(30)
+		public Web() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true; // Partial - diffuses sky light
@@ -37,16 +38,16 @@ namespace MiNET.Blocks
 			Hardness = 4;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			// For PE works differently than this. Need to check enchanting
 			if (tool is ItemShears)
 			{
-				return new[] {ItemFactory.GetItem(30)};
+				return new[] { ItemFactory.GetItem<Web>() };
 			}
 			if (tool.ItemType == ItemType.Sword)
 			{
-				return new[] {ItemFactory.GetItem(287)};
+				return new[] { new ItemString() };
 			}
 
 			return new Item[0];

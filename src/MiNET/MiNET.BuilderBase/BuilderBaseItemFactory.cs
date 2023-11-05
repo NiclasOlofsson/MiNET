@@ -1,4 +1,4 @@
-using fNbt;
+﻿using fNbt;
 using MiNET.BuilderBase.Tools;
 using MiNET.Items;
 
@@ -6,7 +6,7 @@ namespace MiNET.BuilderBase
 {
 	public class BuilderBaseItemFactory : ICustomItemFactory
 	{
-		public Item GetItem(short id, short metadata, int count)
+		public Item GetItem(string id, short metadata, int count)
 		{
 			if (id == new BrushTool().Id)
 			{

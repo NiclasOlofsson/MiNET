@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemPumpkinPie : FoodItem
+	public partial class ItemPumpkinPie
 	{
-		public ItemPumpkinPie() : base("minecraft:pumpkin_pie", 400, 0, 8, 4.8)
+		public ItemPumpkinPie() : base(8, 4.8)
 		{
 		}
 	}

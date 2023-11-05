@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemBakedPotato : FoodItem
+	public partial class ItemBakedPotato
 	{
-		public ItemBakedPotato() : base("minecraft:baked_potato", 393, 0, 5, 7.2)
+		public ItemBakedPotato() : base(5, 7.2)
 		{
 		}
 	}

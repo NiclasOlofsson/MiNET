@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class SoulSand : Block
 	{
-		public SoulSand() : base(88)
+		public SoulSand() : base()
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;

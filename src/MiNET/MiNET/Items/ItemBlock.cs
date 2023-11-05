@@ -25,6 +25,7 @@
 
 using System;
 using System.Numerics;
+using fNbt;
 using JetBrains.Annotations;
 using log4net;
 using MiNET.Blocks;
@@ -43,29 +44,38 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemBlock));
 
-		[JsonIgnore] public Block Block { get; protected set; }
+		[JsonIgnore] public virtual Block Block { get; protected set; }
 
-		protected ItemBlock(string name, short id, short metadata = 0) : base(name, id, metadata)
+		public override int BlockRuntimeId => _blockRuntimeId.Value;
+
+		private readonly Lazy<int> _blockRuntimeId;
+
+		protected ItemBlock() : base()
 		{
-			//TODO: Problematic block
-			Block = BlockFactory.GetBlockById(id);
+			_blockRuntimeId = new Lazy<int>(() => Block?.GetRuntimeId() ?? -1);
 		}
 
-		public ItemBlock([NotNull] Block block, short metadata = 0) : base(block.Name, (short) (block.Id > 255 ? 255 - block.Id : block.Id), metadata)
+		public ItemBlock([NotNull] Block block, short metadata = 0) : this()
 		{
 			Block = block ?? throw new ArgumentNullException(nameof(block));
+
+			Id = block.Id;
+			Metadata = metadata;
 	
 			if (BlockFactory.BlockStates.TryGetValue(block.GetState(), out BlockStateContainer value))
 			{
-				Metadata = (short) (value.ItemInstance?.Metadata ?? (value.Data == -1 ? 0 : value.Data));
+				var instanceMetadata = value.ItemInstance?.Metadata;
+				if (Id != value.ItemInstance?.Id) instanceMetadata = null;
+
+				Metadata = (short) (instanceMetadata ?? (value.Data == -1 ? 0 : value.Data));
 			}
 
 			FuelEfficiency = Block.FuelEfficiency;
 		}
 
-		public override Item GetSmelt()
+		public override Item GetSmelt(string block)
 		{
-			return Block.GetSmelt();
+			return Block.GetSmelt(block) ?? base.GetSmelt(block);
 		}
 
 		public static int GetFacingDirectionFromEntity(Entity entity)
@@ -94,7 +104,7 @@ namespace MiNET.Items
 			};
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block currentBlock = world.GetBlock(targetCoordinates);
 			Block newBlock = BlockFactory.GetBlockById(Block.Id);
@@ -112,22 +122,43 @@ namespace MiNET.Items
 
 			if (!newBlock.CanPlace(world, player, targetCoordinates, face))
 			{
-				return;
+				return false;
 			}
 
+			// TODO - invert logic
 			if (!newBlock.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
 			{
 				world.SetBlock(newBlock);
 			}
 
-			if (player.GameMode == GameMode.Survival && newBlock.Id != 0)
+			if (player.GameMode == GameMode.Survival && newBlock is not Air)
 			{
 				var itemInHand = player.Inventory.GetItemInHand();
 				itemInHand.Count--;
 				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
 			}
 
-			world.BroadcastSound(newBlock.Coordinates, LevelSoundEventType.Place, newBlock.Id);
+			world.BroadcastSound(newBlock.Coordinates, LevelSoundEventType.Place, newBlock.GetRuntimeId());
+
+			return true;
+		}
+
+		public override NbtCompound ToNbt(string name = null)
+		{
+			var tag = base.ToNbt(name);
+
+			tag.Add(Block.ToNbt("Block"));
+
+			return tag;
+		}
+
+		public override object Clone()
+		{
+			var item = (ItemBlock) base.Clone();
+
+			item.Block = Block?.Clone() as Block;
+
+			return item;
 		}
 
 		public override string ToString()

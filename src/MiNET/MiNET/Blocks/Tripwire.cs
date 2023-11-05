@@ -24,20 +24,21 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class TripWire : Block
 	{
-		public TripWire() : base(132)
+		public TripWire() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			return new[] {ItemFactory.GetItem(287, 0, 1)};
+			return new[] { new ItemString() };
 		}
 	}
 }

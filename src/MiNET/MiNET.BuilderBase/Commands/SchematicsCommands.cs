@@ -75,41 +75,42 @@ namespace MiNET.BuilderBase.Commands
 				{
 					for (int z = 0; z < length; ++z)
 					{
-						int index = y*width*length + z*width + x;
-						BlockCoordinates coord = new BlockCoordinates(x, y, z);
+						// TODO - 1.20 - update (local support for legacy ids only for BuilderBase)
+						//int index = y*width*length + z*width + x;
+						//BlockCoordinates coord = new BlockCoordinates(x, y, z);
 
-						if (blocks[index] == 0) continue;
+						//if (blocks[index] == 0) continue;
 
-						int blockId = blocks[index];
-						byte data = blockData[index];
+						//int blockId = blocks[index];
+						//byte data = blockData[index];
 
-						Func<int, byte, byte> dataConverter = (i, b) => b; // Default no-op converter
-						if (AnvilWorldProvider.Convert.ContainsKey(blockId))
-						{
-							dataConverter = AnvilWorldProvider.Convert[blockId].Item2;
-							blockId = AnvilWorldProvider.Convert[blockId].Item1;
-						}
-						else
-						{
-							if (BlockFactory.GetBlockById((byte) blockId).GetType() == typeof (Block))
-							{
-								Log.Warn($"No block implemented for block ID={blockId}, Meta={data}");
-								//blockId = 57;
-							}
-						}
+						//Func<int, byte, byte> dataConverter = (i, b) => b; // Default no-op converter
+						//if (AnvilWorldProvider.Convert.ContainsKey(blockId))
+						//{
+						//	dataConverter = AnvilWorldProvider.Convert[blockId].Item2;
+						//	blockId = AnvilWorldProvider.Convert[blockId].Item1;
+						//}
+						//else
+						//{
+						//	if (BlockFactory.GetBlockById((byte) blockId).GetType() == typeof (Block))
+						//	{
+						//		Log.Warn($"No block implemented for block ID={blockId}, Meta={data}");
+						//		//blockId = 57;
+						//	}
+						//}
 
-						if (blockId > 255)
-						{
-							Log.Warn($"Failed mapping for block ID={blockId}, Meta={data}");
-							blockId = 41;
-						}
+						//if (blockId > 255)
+						//{
+						//	Log.Warn($"Failed mapping for block ID={blockId}, Meta={data}");
+						//	blockId = 41;
+						//}
 
-						var metadata = dataConverter(blockId, data);
+						//var metadata = dataConverter(blockId, data);
 
-						Block block = BlockFactory.GetBlockById((byte) blockId);
-						block.Coordinates = coord;
-						block.Metadata = metadata;
-						buffer.Add(block);
+						//Block block = BlockFactory.GetBlockById((byte) blockId);
+						//block.Coordinates = coord;
+						//block.Metadata = metadata;
+						//buffer.Add(block);
 					}
 				}
 			}

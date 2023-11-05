@@ -294,7 +294,7 @@ namespace MiNET.Entities
 				if (canSpawnPassive) possibleMobs.Add(EntityType.Ocelot);
 			}
 
-			if (spawnBlock.BiomeId == 2 || BiomeUtils.Biomes.Where(biome => biome.Temperature < 0).Count(biome => biome.Id == spawnBlock.BiomeId) == 1)
+			if (spawnBlock.BiomeId == 2 || BiomeUtils.IdBiomeMap.Values.Where(biome => biome.Temperature < 0).Count(biome => biome.Id == spawnBlock.BiomeId) == 1)
 			{
 				// Desert and snowy biomes (except cold taiga) do not spawn animals other than rabbits.
 

@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class EndPortalFrame : Block
 	{
-		public EndPortalFrame() : base(120)
+		public EndPortalFrame() : base()
 		{
 			LightLevel = 1;
 			BlastResistance = 18000000;

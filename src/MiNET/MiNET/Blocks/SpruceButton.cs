@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class SpruceButton : Button
 	{
-		public SpruceButton() : base(399)
+		public SpruceButton() : base()
 		{
 			TickRate = 30;
 		}

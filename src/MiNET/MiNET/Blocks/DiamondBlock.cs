@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class DiamondBlock : Block
 	{
-		public DiamondBlock() : base(57)
+		public DiamondBlock() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 5;

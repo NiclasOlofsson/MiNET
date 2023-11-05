@@ -142,9 +142,7 @@ namespace MiNET.Entities
 		Npc = 51,
 		Agent = 56,
 		Camera = 62,
-		Chalkboard = 78,
-
-		Herobrine = 666
+		Chalkboard = 78
 	}
 
 	public static class EntityHelpers

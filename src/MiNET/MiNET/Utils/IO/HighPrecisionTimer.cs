@@ -68,7 +68,7 @@ namespace MiNET.Utils.IO
 		public long Avarage = 0;
 
 
-		public HighPrecisionTimer(int interval, Action<object> action, bool useSignaling = false, bool skipTicks = true)
+		public HighPrecisionTimer(int interval, Action<object> action, bool useSignaling = false, bool skipTicks = true, bool highPrecision = true)
 		{
 			// The following is dangerous code. It will increase windows timer frequence to interrupt
 			// every 1ms instead of default 15ms. It is the same tech that games use to increase FPS and
@@ -171,7 +171,7 @@ namespace MiNET.Utils.IO
 
 						if (msLeft < 16)
 						{
-							if (Thread.Yield())
+							if (highPrecision && Thread.Yield())
 							{
 								Yields++;
 								continue;
@@ -179,7 +179,7 @@ namespace MiNET.Utils.IO
 
 							Sleeps++;
 							Thread.Sleep(1);
-							if (!skipTicks && Log.IsDebugEnabled)
+							if (highPrecision && !skipTicks && Log.IsDebugEnabled)
 							{
 								long t = nextStop - watch.ElapsedMilliseconds;
 								if (t < -5) Log.Warn($"We overslept {t}ms in thread yield/sleep");
@@ -189,7 +189,7 @@ namespace MiNET.Utils.IO
 
 						Sleeps++;
 						Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));
-						if (!skipTicks && Log.IsDebugEnabled)
+						if (highPrecision && !skipTicks && Log.IsDebugEnabled)
 						{
 							long t = nextStop - watch.ElapsedMilliseconds;
 							if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");

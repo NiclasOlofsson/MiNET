@@ -25,22 +25,20 @@
 
 using System.Numerics;
 using MiNET.Blocks;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemCarrot : FoodItem
+	public partial class ItemCarrot
 	{
-		public ItemCarrot() : base("minecraft:carrot", 391, 0, 3, 4.8)
+		public ItemCarrot() : base(3, 4.8)
 		{
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			ItemBlock itemBlock = new ItemBlock(BlockFactory.GetBlockById(141));
-			itemBlock.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
+			return ItemFactory.GetItem<Carrots>().PlaceBlock(world, player, blockCoordinates, face, faceCoords);
 		}
 	}
 }

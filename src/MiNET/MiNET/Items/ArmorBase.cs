@@ -23,78 +23,123 @@
 
 #endregion
 
-using System;
-using MiNET.Utils;
+using MiNET.Blocks;
+using MiNET.Entities;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public abstract class ArmorHelmetBase : Item
+	public enum ArmorType
 	{
-		protected ArmorHelmetBase(string name, short id, short metadata = 0, int count = 1) : base(name, id, metadata, count)
+		Helmet,
+		Chestplate,
+		Leggings,
+		Boots
+	}
+
+	public abstract class ArmorBase : Item
+	{
+		protected ArmorType ArmorType { get; set; }
+
+		protected ArmorBase(ArmorType armorType) : base()
 		{
+			ArmorType = armorType;
+
+			MaxStackSize = 1;
+			Durability = CalculateDurability();
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
-			player.Inventory.SetInventorySlot(slot, player.Inventory.Helmet);
+			SwithItem(player);
+		}
 
-			UniqueId = Environment.TickCount;
-			player.Inventory.Helmet = this;
-			player.SendArmorForPlayer();
+		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		{
+			return ++Metadata >= Durability;
+		}
+
+		private int CalculateDurability()
+		{
+			var armor = ArmorType switch
+			{
+				ArmorType.Helmet => 11,
+				ArmorType.Chestplate => 16,
+				ArmorType.Leggings => 15,
+				ArmorType.Boots => 13,
+				_ => 0
+			};
+
+			var material = ItemMaterial switch
+			{
+				ItemMaterial.Leather => 5,
+				ItemMaterial.Gold => 7,
+				ItemMaterial.Chain => 15,
+				ItemMaterial.Iron => 15,
+				ItemMaterial.Turtle => 25,
+				ItemMaterial.Diamond => 33,
+				ItemMaterial.Netherite => 37,
+				_ => 0
+			};
+
+			return armor * material;
+		}
+
+		private void SwithItem(Player player)
+		{
+			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
+			player.Inventory.SetInventorySlot(slot, player.Inventory.GetArmorSlot(ArmorType));
+
+			UniqueId = GetUniqueId();
+			player.Inventory.SetArmorSlot(ArmorType, this);
+
+			PlayEquipSound(player);
+		}
+
+		private void PlayEquipSound(Player player)
+		{
+			var soundType = (ItemMaterial, ItemType) switch
+			{
+				(ItemMaterial.Leather, _) => LevelSoundEventType.ArmorEquipLeather,
+				(ItemMaterial.Chain, _) => LevelSoundEventType.ArmorEquipChain,
+				(ItemMaterial.Gold, _) => LevelSoundEventType.ArmorEquipGold,
+				(ItemMaterial.Iron, _) => LevelSoundEventType.ArmorEquipIron,
+				(ItemMaterial.Diamond, _) => LevelSoundEventType.ArmorEquipDiamond,
+				(ItemMaterial.Netherite, _) => LevelSoundEventType.ArmorEquipNetherite,
+				(_, ItemType.Elytra) => LevelSoundEventType.ArmorEquipElytra,
+				_ => LevelSoundEventType.ArmorEquipGeneric
+			};
+
+			player.Level.BroadcastSound(player.GetEyesPosition(), soundType);
 		}
 	}
 
-	public abstract class ArmorChestplateBase : Item
+	public abstract class ItemArmorHelmetBase : ArmorBase
 	{
-		protected ArmorChestplateBase(string name, short id, short metadata = 0, int count = 1) : base(name, id, metadata, count)
+		protected ItemArmorHelmetBase() : base(ArmorType.Helmet)
 		{
-		}
-
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
-		{
-			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
-			player.Inventory.SetInventorySlot(slot, player.Inventory.Chest);
-
-			UniqueId = Environment.TickCount;
-			player.Inventory.Chest = this;
-			player.SendArmorForPlayer();
 		}
 	}
 
-	public abstract class ArmorLeggingsBase : Item
+	public abstract class ItemArmorChestplateBase : ArmorBase
 	{
-		protected ArmorLeggingsBase(string name, short id, short metadata = 0, int count = 1) : base(name, id, metadata, count)
+		protected ItemArmorChestplateBase() : base(ArmorType.Chestplate)
 		{
-		}
-
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
-		{
-			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
-			player.Inventory.SetInventorySlot(slot, player.Inventory.Leggings);
-
-			UniqueId = Environment.TickCount;
-			player.Inventory.Leggings = this;
-			player.SendArmorForPlayer();
 		}
 	}
 
-	public abstract class ArmorBootsBase : Item
+	public abstract class ItemArmorLeggingsBase : ArmorBase
 	{
-		protected ArmorBootsBase(string name, short id, short metadata = 0, int count = 1) : base(name, id, metadata, count)
+		protected ItemArmorLeggingsBase() : base(ArmorType.Leggings)
 		{
 		}
+	}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+	public abstract class ItemArmorBootsBase : ArmorBase
+	{
+		protected ItemArmorBootsBase() : base(ArmorType.Boots)
 		{
-			byte slot = (byte) player.Inventory.Slots.IndexOf(this);
-			player.Inventory.SetInventorySlot(slot, player.Inventory.Boots);
-
-			UniqueId = Environment.TickCount;
-			player.Inventory.Boots = this;
-			player.SendArmorForPlayer();
 		}
 	}
 }

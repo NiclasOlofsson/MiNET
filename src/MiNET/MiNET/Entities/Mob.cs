@@ -427,7 +427,7 @@ namespace MiNET.Entities
 
 			var block = Level.GetBlock(waterPos);
 
-			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
+			if (block == null || (block is not Water && block is not FlowingWater)) return false;
 
 			return y < Math.Floor(y) + 1 - ((1f / 9f) - 0.1111111);
 		}

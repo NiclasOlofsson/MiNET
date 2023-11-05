@@ -28,7 +28,7 @@ namespace MiNET.Blocks
 {
 	public partial class PumpkinStem : Block
 	{
-		public PumpkinStem() : base(104)
+		public PumpkinStem() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

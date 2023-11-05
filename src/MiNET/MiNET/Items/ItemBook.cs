@@ -25,16 +25,16 @@
 
 namespace MiNET.Items
 {
-	public class ItemBook : Item
+	public partial class ItemBook
 	{
-		public ItemBook() : base("minecraft:book", 340)
+		public ItemBook() : base()
 		{
 		}
 	}
 
-	public class ItemEnchantedBook : Item
+	public partial class ItemEnchantedBook
 	{
-		public ItemEnchantedBook() : base("minecraft:enchanted_book", 403)
+		public ItemEnchantedBook() : base()
 		{
 		}
 	}

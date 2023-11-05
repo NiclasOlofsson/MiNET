@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class EndRod : Block
 	{
-		public EndRod() : base(208)
+		public EndRod() : base()
 		{
 			LightLevel = 14;
 		}

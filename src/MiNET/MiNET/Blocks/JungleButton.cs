@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class JungleButton : Button
 	{
-		public JungleButton() : base(398)
+		public JungleButton() : base()
 		{
 			TickRate = 30;
 		}

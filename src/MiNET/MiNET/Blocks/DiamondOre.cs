@@ -25,27 +25,23 @@
 
 using System;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class DiamondOre : Block
 	{
-		public DiamondOre() : base(56)
+		public DiamondOre() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			if (tool.ItemMaterial < ItemMaterial.Iron) return new Item[0];
 
-			return new[] {ItemFactory.GetItem(264, 0, 1)};
-		}
-
-		public override Item GetSmelt()
-		{
-			return ItemFactory.GetItem(264, 0);
+			return new[] { new ItemDiamond() };
 		}
 
 		public override float GetExperiencePoints()

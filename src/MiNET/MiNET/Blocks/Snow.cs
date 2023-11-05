@@ -24,20 +24,21 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class Snow : Block
 	{
-		public Snow() : base(80)
+		public Snow() : base()
 		{
 			BlastResistance = 1;
 			Hardness = 0.2f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			return new[] {ItemFactory.GetItem(332, 0, 4)}; // Drop snowball
+			return new[] { new ItemSnowball() { Count = 4 } };
 		}
 	}
 }

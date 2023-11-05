@@ -29,9 +29,9 @@ using MiNET.Entities.Passive;
 
 namespace MiNET.Items
 {
-	public class ItemShears : Item
+	public partial class ItemShears
 	{
-		public ItemShears() : base("minecraft:shears", 359)
+		public ItemShears() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Sheers;
@@ -43,7 +43,7 @@ namespace MiNET.Items
 			{
 				case ItemDamageReason.BlockBreak:
 				{
-					if (block is Web || block is Leaves || block is Leaves2 || block is Wool || block is Vine)
+					if (block is Web || block is Leaves || block is Leaves2 || block is WoolBase || block is Vine)
 					{
 						Metadata++;
 						return Metadata >= GetMaxUses() - 1;

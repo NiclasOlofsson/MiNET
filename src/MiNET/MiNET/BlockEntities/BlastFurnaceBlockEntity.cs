@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using fNbt;
 using MiNET.Blocks;
+using MiNET.Inventory;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Worlds;
@@ -36,11 +37,13 @@ namespace MiNET.BlockEntities
 	public class BlastFurnaceBlockEntity : BlockEntity
 	{
 		private NbtCompound Compound { get; set; }
-		public Inventory Inventory { get; set; }
+		public ContainerInventory Inventory { get; set; }
 
 		public short CookTime { get; set; }
 		public short BurnTime { get; set; }
 		public short BurnTick { get; set; }
+
+		public string Block { get; } = BlockFactory.GetIdByType<BlastFurnace>(false);
 
 
 		public BlastFurnaceBlockEntity() : base("BlastFurnace")
@@ -59,13 +62,10 @@ namespace MiNET.BlockEntities
 			NbtList items = (NbtList) Compound["Items"];
 			for (byte i = 0; i < 3; i++)
 			{
-				items.Add(new NbtCompound()
-				{
-					new NbtByte("Count", 0),
-					new NbtByte("Slot", i),
-					new NbtShort("id", 0),
-					new NbtShort("Damage", 0),
-				});
+				var itemTag = new ItemAir().ToNbt();
+				itemTag.Add(new NbtByte("Slot", i));
+
+				items.Add(itemTag);
 			}
 		}
 
@@ -87,13 +87,10 @@ namespace MiNET.BlockEntities
 				var items = new NbtList("Items");
 				for (byte i = 0; i < 3; i++)
 				{
-					items.Add(new NbtCompound()
-					{
-						new NbtByte("Count", 0),
-						new NbtByte("Slot", i),
-						new NbtShort("id", 0),
-						new NbtShort("Damage", 0),
-					});
+					var itemTag = new ItemAir().ToNbt();
+					itemTag.Add(new NbtByte("Slot", i));
+
+					items.Add(itemTag);
 				}
 				Compound["Items"] = items;
 			}
@@ -110,7 +107,7 @@ namespace MiNET.BlockEntities
 			{
 				Item fuel = GetFuel();
 				Item ingredient = GetIngredient();
-				Item smelt = ingredient.GetSmelt();
+				Item smelt = ingredient.GetSmelt(Block);
 				// To light a furnace you need both fuel and proper ingredient.
 				if (fuel.Count > 0 && fuel.FuelEfficiency > 0 && smelt != null)
 				{
@@ -137,7 +134,7 @@ namespace MiNET.BlockEntities
 					BurnTick = (short) Math.Ceiling((double) BurnTime / FuelEfficiency * 200d);
 
 					Item ingredient = GetIngredient();
-					Item smelt = ingredient.GetSmelt();
+					Item smelt = ingredient.GetSmelt(Block);
 					if (smelt != null)
 					{
 						CookTime++;
@@ -159,7 +156,7 @@ namespace MiNET.BlockEntities
 				{
 					var fuel = GetFuel();
 					Item ingredient = GetIngredient();
-					Item smelt = ingredient.GetSmelt();
+					Item smelt = ingredient.GetSmelt(Block);
 					if (fuel.Count > 0 && fuel.FuelEfficiency > 0 && smelt != null)
 					{
 						Inventory.DecreaseSlot(1);
@@ -205,7 +202,7 @@ namespace MiNET.BlockEntities
 
 		private Item GetResult(Item ingredient)
 		{
-			return ingredient.GetSmelt();
+			return ingredient.GetSmelt(Block);
 		}
 
 		public short FuelEfficiency { get; set; }
@@ -234,9 +231,7 @@ namespace MiNET.BlockEntities
 
 			for (byte i = 0; i < items.Count; i++)
 			{
-				var itemData = (NbtCompound) items[i];
-				Item item = ItemFactory.GetItem(itemData["id"].ShortValue, itemData["Damage"].ShortValue, itemData["Count"].ByteValue);
-				slots.Add(item);
+				slots.Add(ItemFactory.FromNbt(items[i]));
 			}
 
 			return slots;

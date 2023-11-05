@@ -34,7 +34,7 @@ namespace MiNET.Blocks
 {
 	public partial class Beacon : Block
 	{
-		public Beacon() : base(138)
+		public Beacon() : base()
 		{
 			LightLevel = 15;
 			BlastResistance = 15;

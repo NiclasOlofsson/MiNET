@@ -41,7 +41,7 @@ namespace MiNET.Entities.Vehicles
 		{
 			return new[]
 			{
-				ItemFactory.GetItem(328)
+				new ItemMinecart()
 			};
 		}
 	}

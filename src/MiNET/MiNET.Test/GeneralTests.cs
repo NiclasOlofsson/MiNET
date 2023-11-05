@@ -77,16 +77,6 @@ namespace MiNET.Test
 		}
 
 		[TestMethod]
-		public void Check_all_air_fast_test()
-		{
-			var buffer = new short[10_000].Concat(new short[] {42}).ToArray();
-			for (int i = 0; i < _iterations; i++)
-			{
-				Assert.IsFalse(SubChunk.AllZeroFast(buffer));
-			}
-		}
-
-		[TestMethod]
 		public void Check_all_air_vector_test()
 		{
 			Assert.IsTrue(Vector.IsHardwareAccelerated);
@@ -531,106 +521,6 @@ namespace MiNET.Test
 			}
 			Console.WriteLine($"Core clear {sw.ElapsedMilliseconds}ms");
 		}
-
-		[TestMethod]
-		public void GenerateClassesForBlocks()
-		{
-			BlockPalette palette = null;
-
-			var assembly = Assembly.GetAssembly(typeof(Block));
-			using (var stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
-			using (var reader = new StreamReader(stream))
-			{
-				palette = BlockPalette.FromJson(reader.ReadToEnd());
-			}
-			//Assert.AreEqual(3045, palette.Count);
-			BlockStateContainer stateContainer = palette.First(b => b.Id == 6 && b.Data == 10);
-			Assert.AreEqual(2, stateContainer.States.Count);
-
-			foreach (IBlockState recordState in stateContainer.States)
-			{
-				switch (recordState)
-				{
-					case BlockStateByte blockStateByte:
-						Assert.AreEqual("age_bit", blockStateByte.Name);
-						Assert.AreEqual(1, blockStateByte.Value);
-						break;
-					case BlockStateInt blockStateInt:
-						Assert.AreEqual(0, blockStateInt.Value);
-						break;
-					case BlockStateString blockStateString:
-						Assert.AreEqual("sapling_type", blockStateString.Name);
-						Assert.AreEqual("birch", blockStateString.Value);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException(nameof(recordState));
-				}
-			}
-
-
-			List<(int, string)> blocks = new List<(int, string)>();
-
-			string fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
-			using (FileStream file = File.OpenWrite(fileName))
-			{
-				Log.Warn($"Writing new blocks to filename:\n{fileName}");
-
-				IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
-
-				writer.WriteLine($"namespace MiNET.Blocks");
-				writer.WriteLine($"{{");
-				writer.Indent++;
-
-
-				foreach (IGrouping<string, BlockStateContainer> blockstate in palette.OrderBy(r => r.Name).ThenBy(r => r.Data).GroupBy(r => r.Name))
-				{
-					var enumerator = blockstate.GetEnumerator();
-					enumerator.MoveNext();
-					var value = enumerator.Current;
-					if (value == null) continue;
-					Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
-					int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
-
-					if (id == 0 && !value.Name.Contains("air"))
-					{
-						string blockName = CodeName(value.Name.Replace("minecraft:", ""), true);
-
-						blocks.Add((value.Id, blockName));
-
-						writer.WriteLine($"public class {blockName}: Block");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-
-						writer.WriteLine($"public {blockName}() : base({value.Id})");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-
-						writer.WriteLine($"Name = \"{value.Name}\";");
-
-						do
-						{
-							writer.WriteLine($"// runtime id: {enumerator.Current.RuntimeId} 0x{enumerator.Current.RuntimeId:X}, data: {enumerator.Current.Data}");
-						} while (enumerator.MoveNext());
-
-						writer.Indent--;
-						writer.WriteLine($"}}");
-
-						writer.Indent--;
-						writer.WriteLine($"}}");
-					}
-				}
-				writer.Indent--;
-				writer.WriteLine($"}}");
-
-				foreach (var block in blocks.OrderBy(tuple => tuple.Item1))
-				{
-					writer.WriteLine($"else if (blockId == {block.Item1}) block = new {block.Item2}();");
-				}
-
-				writer.Flush();
-			}
-		}
-
 
 		private string CodeName(string name, bool firstUpper = false)
 		{

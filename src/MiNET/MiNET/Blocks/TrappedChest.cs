@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class TrappedChest : ChestBase
 	{
-		public TrappedChest() : base(146)
+		public TrappedChest() : base()
 		{
 		}
 	}

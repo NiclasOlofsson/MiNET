@@ -133,7 +133,7 @@ namespace MiNET.Client
 			
 			ClearInventory(caller);
 
-			Dictionary<string, short> idMapping = new Dictionary<string, short>();
+			var idMapping = new HashSet<string>();
 			
 			//for(int i = -400; i < 900; i++)
 			{
@@ -145,20 +145,14 @@ namespace MiNET.Client
 						{
 							var item = Activator.CreateInstance(itemType) as Item;
 
-							if (item == null || string.IsNullOrWhiteSpace(item?.Name) || item is ItemAir)
+							if (item == null || string.IsNullOrWhiteSpace(item?.Id) || item is ItemAir)
 							{
 								continue;
 							}
 							
-							string itemName = item.Name;
+							string itemName = item.Id;
 
-							if (ItemFactory.Translator.TryGetName(itemName, out var newName))
-							{
-								Log.Warn($"Name mistmatch for item: {item} (Current={item.Name} New={newName})");
-								itemName = newName;
-							}
-
-							if (idMapping.ContainsKey(item.Name))
+							if (idMapping.Contains(item.Id))
 								continue;
 
 							ClearInventory(caller);
@@ -177,9 +171,9 @@ namespace MiNET.Client
 
 								if (newItem != null && (newItem is not ItemAir && newItem.Count > 0))
 								{
-									if (!idMapping.TryAdd(item.Name, newItem.Id))
+									if (!idMapping.Add(item.Id))
 									{
-										Log.Warn($"Duplicate key! Name={item.Name} Id={item.Id} NewName={newItem.Name} NewId={newItem.Id}");
+										Log.Warn($"Duplicate key! Id={item.Id} NewId={newItem.Id}");
 									}
 								}
 
@@ -207,101 +201,102 @@ namespace MiNET.Client
 			var palette = client.BlockPalette;
 			foreach (BlockStateContainer blockState in palette.OrderByDescending(bs => bs.Id))
 			{
-				Log.Warn($"{blockState.Name}");
+				Log.Warn($"{blockState.Id}");
 			}
 		}
 
 		private void ExecutePickBlocks(BedrockTraceHandler caller)
 		{
-			var client = caller.Client;
-			int count = 600;
-			int yStart = 100;
-			int x = 0;
-			int z = 0;
+			// TODO - 1.19-update (test world code only?!?!?!?!?!?!?)
+			//var client = caller.Client;
+			//int count = 600;
+			//int yStart = 100;
+			//int x = 0;
+			//int z = 0;
 
-			SendCommand(client, $"/clear TheGrey");
+			//SendCommand(client, $"/clear TheGrey");
 
-			string fileName = Path.GetTempPath() + "pick_items_" + Guid.NewGuid() + ".json";
-			var writer = File.AppendText(fileName);
+			//string fileName = Path.GetTempPath() + "pick_items_" + Guid.NewGuid() + ".json";
+			//var writer = File.AppendText(fileName);
 
-			var jsonSerializerSettings = new JsonSerializerSettings
-			{
-				PreserveReferencesHandling = PreserveReferencesHandling.None,
-				Formatting = Formatting.None,
-			};
-			jsonSerializerSettings.Converters.Add(new NbtIntConverter());
-			jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+			//var jsonSerializerSettings = new JsonSerializerSettings
+			//{
+			//	PreserveReferencesHandling = PreserveReferencesHandling.None,
+			//	Formatting = Formatting.None,
+			//};
+			//jsonSerializerSettings.Converters.Add(new NbtIntConverter());
+			//jsonSerializerSettings.Converters.Add(new NbtStringConverter());
 
-			//BlockPalette palette = client.BlockPalette;
-			BlockPalette palette = BlockFactory.BlockPalette; // only if we have updated it
+			////BlockPalette palette = client.BlockPalette;
+			//BlockPalette palette = BlockFactory.BlockPalette; // only if we have updated it
 
-			_resetEventPlayerHotbar.Reset();
+			//_resetEventPlayerHotbar.Reset();
 
-			for (int id = 0; id < count; id++)
-			{
-				try
-				{
-					SendCommand(client, $"/tp TheGrey {x} {150} {z}");
+			//for (int id = 0; id < count; id++)
+			//{
+			//	try
+			//	{
+			//		SendCommand(client, $"/tp TheGrey {x} {150} {z}");
 
-					int y = yStart;
-					for (int meta = 0; meta <= 15; meta++)
-					{
-						var blockstate = palette.FirstOrDefault(b => b.Id == id && b.Data == meta);
-						if (blockstate == null) continue;
-						blockstate.ItemInstance = null; // reset to nothing
+			//		int y = yStart;
+			//		for (int meta = 0; meta <= 15; meta++)
+			//		{
+			//			var blockstate = palette.FirstOrDefault(b => b.Id == id && b.Data == meta);
+			//			if (blockstate == null) continue;
+			//			blockstate.ItemInstance = null; // reset to nothing
 
-						string name = blockstate.Name.Replace("minecraft:", "");
-						if (name == "double_plant" || name == "air" /*|| name.StartsWith("element")*/) break;
+			//			string name = blockstate.Name.Replace("minecraft:", "");
+			//			if (name == "double_plant" || name == "air" /*|| name.StartsWith("element")*/) break;
 
-						var pick = McpeBlockPickRequest.CreateObject();
-						pick.x = x;
-						pick.y = y;
-						pick.z = z;
-						client.SendPacket(pick);
+			//			var pick = McpeBlockPickRequest.CreateObject();
+			//			pick.x = x;
+			//			pick.y = y;
+			//			pick.z = z;
+			//			client.SendPacket(pick);
 
-						//Thread.Sleep(100);
-						if (!_resetEventPlayerHotbar.WaitOne(300))
-						{
-							Log.Error($"No picked item for {id}, {meta}, {name}");
-							_lastSelectedItem = new ItemAir();
-							continue;
-							//break;
-						}
+			//			//Thread.Sleep(100);
+			//			if (!_resetEventPlayerHotbar.WaitOne(300))
+			//			{
+			//				Log.Error($"No picked item for {id}, {meta}, {name}");
+			//				_lastSelectedItem = new ItemAir();
+			//				continue;
+			//				//break;
+			//			}
 
-						// Investigate last selected item. This should be the one we picked
-						Item item;
-						lock (_lastSelectedItem)
-						{
-							item = _lastSelectedItem;
-							_lastSelectedItem = new ItemAir();
-						}
-						Log.Warn($"For {id}, {meta} we picked {item}");
-						blockstate.ItemInstance = new ItemPickInstance()
-						{
-							Id = item.Id,
-							Metadata = item.Metadata,
-							WantNbt = item.ExtraData != null
-						};
-						string result = JsonConvert.SerializeObject(blockstate, jsonSerializerSettings);
-						writer.WriteLine($"{item}; {result}");
-						writer.Flush();
+			//			// Investigate last selected item. This should be the one we picked
+			//			Item item;
+			//			lock (_lastSelectedItem)
+			//			{
+			//				item = _lastSelectedItem;
+			//				_lastSelectedItem = new ItemAir();
+			//			}
+			//			Log.Warn($"For {id}, {meta} we picked {item}");
+			//			blockstate.ItemInstance = new ItemPickInstance()
+			//			{
+			//				Id = item.Name,
+			//				Metadata = item.Metadata,
+			//				WantNbt = item.ExtraData != null
+			//			};
+			//			string result = JsonConvert.SerializeObject(blockstate, jsonSerializerSettings);
+			//			writer.WriteLine($"{item}; {result}");
+			//			writer.Flush();
 
-						if (blockstate.States.Count == 0)
-							break;
+			//			if (blockstate.States.Count == 0)
+			//				break;
 
-						y += 2;
-					}
-				}
-				finally
-				{
-					x += 2;
-				}
-			}
+			//			y += 2;
+			//		}
+			//	}
+			//	finally
+			//	{
+			//		x += 2;
+			//	}
+			//}
 
-			writer.Close();
+			//writer.Close();
 
-			WritePaletteToJson(palette);
-			Log.Warn("Finished!");
+			//WritePaletteToJson(palette);
+			//Log.Warn("Finished!");
 		}
 
 		private void ExecuteWritePallet(BedrockTraceHandler caller)
@@ -346,7 +341,7 @@ namespace MiNET.Client
 			var stringRecords = records.Where(r => r.States.Any(s => s is BlockStateString));
 			foreach (BlockStateContainer stringRecord in stringRecords)
 			{
-				writer.WriteLine($"Item {stringRecord.Name}");
+				writer.WriteLine($"Item {stringRecord.Id}");
 			}
 
 			writer.Close();
@@ -354,91 +349,92 @@ namespace MiNET.Client
 
 		private void ExecuteDiscoveryOfItemDrops(BedrockTraceHandler caller)
 		{
-			var client = caller.Client;
+			// TODO - 1.19-update (test world code only?!?!?!?!?!?!?)
+			//var client = caller.Client;
 
-			{
-				SendCommand(client, $"/gamerule dotiledrops true");
-			}
+			//{
+			//	SendCommand(client, $"/gamerule dotiledrops true");
+			//}
 
-			int x = 0;
-			int yStart = 100;
-			int z = 0;
+			//int x = 0;
+			//int yStart = 100;
+			//int z = 0;
 
-			{
-				SendCommand(client, $"/tp TheGrey {x} {150} {z}");
-			}
+			//{
+			//	SendCommand(client, $"/tp TheGrey {x} {150} {z}");
+			//}
 
-			{
-				for (int xd = x - 1; xd <= x + 1; xd++)
-				{
-					for (int zd = z - 1; zd <= z + 1; zd++)
-					{
-						for (int yd = yStart - 1; yd < yStart + 34; yd++)
-						{
-							{
-								SendCommand(client, $"/setblock {xd} {yd} {zd} glass 0 replace");
-							}
+			//{
+			//	for (int xd = x - 1; xd <= x + 1; xd++)
+			//	{
+			//		for (int zd = z - 1; zd <= z + 1; zd++)
+			//		{
+			//			for (int yd = yStart - 1; yd < yStart + 34; yd++)
+			//			{
+			//				{
+			//					SendCommand(client, $"/setblock {xd} {yd} {zd} glass 0 replace");
+			//				}
 
-							{
-								SendCommand(client, $"/setblock {xd} {yd} {zd} barrier 0 replace");
-							}
-						}
-					}
-				}
-			}
+			//				{
+			//					SendCommand(client, $"/setblock {xd} {yd} {zd} barrier 0 replace");
+			//				}
+			//			}
+			//		}
+			//	}
+			//}
 
-			x = 0;
-			z = 0;
+			//x = 0;
+			//z = 0;
 
-			Log.Warn("Running!");
-			_resetEventAddItemEntity.Reset();
+			//Log.Warn("Running!");
+			//_resetEventAddItemEntity.Reset();
 
-			int count = 600;
-			int y = yStart;
+			//int count = 600;
+			//int y = yStart;
 
-			for (int id = 1; id < count; id++)
-			{
-				try
-				{
-					var blockstate = client.BlockPalette.FirstOrDefault(b => b.Id == id);
-					string name = blockstate.Name.Replace("minecraft:", "");
+			//for (int id = 1; id < count; id++)
+			//{
+			//	try
+			//	{
+			//		var blockstate = client.BlockPalette.FirstOrDefault(b => b.Id == id);
+			//		string name = blockstate.Name.Replace("minecraft:", "");
 
-					//if (name.StartsWith("element")) continue;
+			//		//if (name.StartsWith("element")) continue;
 
-					client.BlockPalette.Where(bs => bs.Id == id).ToList().ForEach(
-						bs =>
-						{
-							bs.Data = -1;
-						});
+			//		client.BlockPalette.Where(bs => bs.Id == id).ToList().ForEach(
+			//			bs =>
+			//			{
+			//				bs.Data = -1;
+			//			});
 					
-					SendCommand(client, $"/setblock {x} {y} {z} air 0 replace");
-					Log.Warn($"Setting block {id} {name}");
+			//		SendCommand(client, $"/setblock {x} {y} {z} air 0 replace");
+			//		Log.Warn($"Setting block {id} {name}");
 
-					for (int meta = 0; meta <= 15; meta++)
-					{
-						try
-						{
-							Log.Debug($"Setting block {id} {meta} {name}");
-							SendCommand(client, $"/setblock {x} {y} {z} {name} {meta} replace");
-							SendCommand(client, $"/setblock {x} {y} {z} air 0 destroy");
+			//		for (int meta = 0; meta <= 15; meta++)
+			//		{
+			//			try
+			//			{
+			//				Log.Debug($"Setting block {id} {meta} {name}");
+			//				SendCommand(client, $"/setblock {x} {y} {z} {name} {meta} replace");
+			//				SendCommand(client, $"/setblock {x} {y} {z} air 0 destroy");
 							
-							if (!_resetEventAddItemEntity.WaitOne(1000))
-								break;
-						}
-						finally
-						{
-							SendCommand(client, $"/kill @e[r=150]");
-						}
+			//				if (!_resetEventAddItemEntity.WaitOne(1000))
+			//					break;
+			//			}
+			//			finally
+			//			{
+			//				SendCommand(client, $"/kill @e[r=150]");
+			//			}
 
-						if (blockstate.States.Count == 0)
-							break;
-					}
-				}
-				finally { }
-			}
+			//			if (blockstate.States.Count == 0)
+			//				break;
+			//		}
+			//	}
+			//	finally { }
+			//}
 
-			client.SendChat($"Finished setting blocks.");
-			Log.Warn("Finished!");
+			//client.SendChat($"Finished setting blocks.");
+			//Log.Warn("Finished!");
 		}
 
 		private static void SendCommand(MiNetClient client, string command)
@@ -466,170 +462,171 @@ namespace MiNET.Client
 		
 		private void ExecuteAllBlocks(BedrockTraceHandler caller)
 		{
-			var client = caller.Client;
+			// TODO - 1.19-update (test world code only?!?!?!?!?!?!?)
+			//var client = caller.Client;
 
-			if (_runningBlockMetadataDiscovery) return;
+			//if (_runningBlockMetadataDiscovery) return;
 
-			client.SendChat("Starting...");
+			//client.SendChat("Starting...");
 
-			SetGameRules(caller);
-			int count = 600;
+			//SetGameRules(caller);
+			//int count = 600;
 
-			void Report(string message)
-			{
-				Log.Warn(message);
-				client.SendChat(message);
-			}
+			//void Report(string message)
+			//{
+			//	Log.Warn(message);
+			//	client.SendChat(message);
+			//}
 
-			var width = (int)MathF.Ceiling(MathF.Sqrt(count));
-			var depth = (int)MathF.Ceiling((float)count / width);
+			//var width = (int)MathF.Ceiling(MathF.Sqrt(count));
+			//var depth = (int)MathF.Ceiling((float)count / width);
 			
 			
-			const int yStart = 100;
-			_blockCoordinates.Clear();
-			var prevProgress = -1d;
-			for (int bx = -width; bx < width; bx += 2)
-			{
-				if (_blockCoordinates.Count >= count)
-					break;
+			//const int yStart = 100;
+			//_blockCoordinates.Clear();
+			//var prevProgress = -1d;
+			//for (int bx = -width; bx < width; bx += 2)
+			//{
+			//	if (_blockCoordinates.Count >= count)
+			//		break;
 				
-				for (int bz = -depth; bz < depth; bz += 2)
-				{
-					if (_blockCoordinates.Count >= count)
-						break;
+			//	for (int bz = -depth; bz < depth; bz += 2)
+			//	{
+			//		if (_blockCoordinates.Count >= count)
+			//			break;
 					
-					if (bx % 10 == 0)
-					{
-						SendCommand(client, $"/tp TheGrey {bx} {(yStart + 50)} {bz}");
-					}
+			//		if (bx % 10 == 0)
+			//		{
+			//			SendCommand(client, $"/tp TheGrey {bx} {(yStart + 50)} {bz}");
+			//		}
 
-					_blockCoordinates.Add(new BlockCoordinates(bx, 0, bz));
+			//		_blockCoordinates.Add(new BlockCoordinates(bx, 0, bz));
 					
-					for (int yd = yStart; yd < yStart + 33; yd++)
-					{
+			//		for (int yd = yStart; yd < yStart + 33; yd++)
+			//		{
 
-						SendCommand(client, $"/setblock {bx} {yd} {bz} log 0 replace");
-							//if (!_resetEventUpdateBlock.WaitOne(250)) Log.Warn("wait timeout");
+			//			SendCommand(client, $"/setblock {bx} {yd} {bz} log 0 replace");
+			//				//if (!_resetEventUpdateBlock.WaitOne(250)) Log.Warn("wait timeout");
 
-						SendCommand(client, $"/setblock {bx} {yd} {bz} barrier 0 replace");
-							//if (!_resetEventUpdateBlock.WaitOne(250)) Log.Warn("wait timeout");
+			//			SendCommand(client, $"/setblock {bx} {yd} {bz} barrier 0 replace");
+			//				//if (!_resetEventUpdateBlock.WaitOne(250)) Log.Warn("wait timeout");
 
-						for (int xd = bx - 1; xd <= bx + 1; xd++)
-						{
-							for (int zd = bz - 1; zd <= bz + 1; zd++)
-							{
-								SendCommand(client, $"/setblock {xd} {yd} {zd} air 0 replace");
-								SendCommand(client, $"/setblock {xd} {yd} {zd} barrier 0 replace");
-							}
-						}
-					}
+			//			for (int xd = bx - 1; xd <= bx + 1; xd++)
+			//			{
+			//				for (int zd = bz - 1; zd <= bz + 1; zd++)
+			//				{
+			//					SendCommand(client, $"/setblock {xd} {yd} {zd} air 0 replace");
+			//					SendCommand(client, $"/setblock {xd} {yd} {zd} barrier 0 replace");
+			//				}
+			//			}
+			//		}
 
-					//if (bx % 2 == 0 && bz % 2 == 0)
-					{
+			//		//if (bx % 2 == 0 && bz % 2 == 0)
+			//		{
 					
-						var progress = ((double)_blockCoordinates.Count / (count)) * 100d;
+			//			var progress = ((double)_blockCoordinates.Count / (count)) * 100d;
 
-						if ((int)progress > prevProgress)
-						{
-							Report($"Prep Progress: {(int)progress}%");
-							prevProgress = progress;
-						}
-					}
-				}
-			}
+			//			if ((int)progress > prevProgress)
+			//			{
+			//				Report($"Prep Progress: {(int)progress}%");
+			//				prevProgress = progress;
+			//			}
+			//		}
+			//	}
+			//}
 
-			prevProgress = -1;
-			_resetEventUpdateBlock.Reset();
-			_resetEventPlayerHotbar.Reset();
+			//prevProgress = -1;
+			//_resetEventUpdateBlock.Reset();
+			//_resetEventPlayerHotbar.Reset();
 			
-			var cQueue = new Queue<BlockCoordinates>(_blockCoordinates);
-			SendCommand(client, $"/tp TheGrey 0 150 0");
+			//var cQueue = new Queue<BlockCoordinates>(_blockCoordinates);
+			//SendCommand(client, $"/tp TheGrey 0 150 0");
 
-			Report("Staring to run in 1s");
-			Thread.Sleep(1000);
-			Report("Running!");
+			//Report("Staring to run in 1s");
+			//Thread.Sleep(1000);
+			//Report("Running!");
 			
-		//	client.BlockPalette = BlockFactory.BlockPalette;
-			client.BlockPalette.ForEach(bs => { bs.Data = -1; });
-			_runningBlockMetadataDiscovery = true;
-			_resetEventUpdateBlock.Reset();
-			_resetEventPlayerHotbar.Reset();
+			////	client.BlockPalette = BlockFactory.BlockPalette;
+			//client.BlockPalette.ForEach(bs => { bs.Data = -1; });
+			//_runningBlockMetadataDiscovery = true;
+			//_resetEventUpdateBlock.Reset();
+			//_resetEventPlayerHotbar.Reset();
 
-			for (int id = 0; id < count; id++)
-			{
-				var progress = ((double)id / (count)) * 100d;
+			//for (int id = 0; id < count; id++)
+			//{
+			//	var progress = ((double)id / (count)) * 100d;
 
-				if ((int)progress > prevProgress)
-				{
-					Report($"Place Progress: {(int)progress}%");
-					prevProgress = progress;
-				}
+			//	if ((int)progress > prevProgress)
+			//	{
+			//		Report($"Place Progress: {(int)progress}%");
+			//		prevProgress = progress;
+			//	}
 
-				var c = cQueue.Dequeue();
-				try
-				{
-					SendCommand(client, $"/tp TheGrey {c.X} {150} {c.Z}");
+			//	var c = cQueue.Dequeue();
+			//	try
+			//	{
+			//		SendCommand(client, $"/tp TheGrey {c.X} {150} {c.Z}");
 
-					//var block = BlockFactory.GetBlockById(id);
-					//if (block.GetType() == typeof(Block))
-					//{
-					//	continue;
-					//}
+			//		//var block = BlockFactory.GetBlockById(id);
+			//		//if (block.GetType() == typeof(Block))
+			//		//{
+			//		//	continue;
+			//		//}
 
-					var blockstate = client.BlockPalette.FirstOrDefault(b => b.Id == id);
-					if (blockstate == null) continue;
+			//		var blockstate = client.BlockPalette.FirstOrDefault(b => b.Id == id);
+			//		if (blockstate == null) continue;
 
-					string name = blockstate.Name.Replace("minecraft:", "");
+			//		string name = blockstate.Name.Replace("minecraft:", "");
 
-					if ("air".Equals(name))
-					{
-						blockstate.Data = 0;
-						continue; // don't want
-					}
+			//		if ("air".Equals(name))
+			//		{
+			//			blockstate.Data = 0;
+			//			continue; // don't want
+			//		}
 
-					//if (name.StartsWith("element")) continue;
+			//		//if (name.StartsWith("element")) continue;
 
-					int y = yStart;
-					for (int meta = 0; meta <= 15; meta++)
-					{
-					//	Log.Warn($"Setting block {id} {meta} {name}");
+			//		int y = yStart;
+			//		for (int meta = 0; meta <= 15; meta++)
+			//		{
+			//		//	Log.Warn($"Setting block {id} {meta} {name}");
 
-						SendCommand(client, $"/setblock {c.X} {y} {c.Z} {name} {meta} replace");
+			//			SendCommand(client, $"/setblock {c.X} {y} {c.Z} {name} {meta} replace");
 
-						if (!_resetEventUpdateBlock.WaitOne(500))
-						{
-							SendCommand(client, $"/setblock {c.X} {y} {c.Z} air 0 replace");
-							//break;
-						}
+			//			if (!_resetEventUpdateBlock.WaitOne(500))
+			//			{
+			//				SendCommand(client, $"/setblock {c.X} {y} {c.Z} air 0 replace");
+			//				//break;
+			//			}
 
-						lock (_lastUpdatedBlockstate)
-						{
-							if (_lastUpdatedBlockstate.Id != blockstate.Id) Log.Warn($"Got wrong ID for blockstate. Expected {blockstate.Id}, got {_lastUpdatedBlockstate.Id} (Expected: {blockstate.Name} Got: {_lastUpdatedBlockstate.Name})");
+			//			lock (_lastUpdatedBlockstate)
+			//			{
+			//				if (_lastUpdatedBlockstate.Id != blockstate.Id) Log.Warn($"Got wrong ID for blockstate. Expected {blockstate.Id}, got {_lastUpdatedBlockstate.Id} (Expected: {blockstate.Name} Got: {_lastUpdatedBlockstate.Id})");
 
-							var minetBlockstate = GetServerRuntimeId(client.BlockPalette, _internalStates, _lastUpdatedBlockstate.RuntimeId);
-							if (minetBlockstate != null)
-							{
-								if (minetBlockstate.Id != _lastUpdatedBlockstate.Id) Log.Warn($"Blockstate BID is different between MiNET and bedrock?");
-								if (minetBlockstate.Data != _lastUpdatedBlockstate.Data) Log.Warn($"Blockstate data is different between MiNET and bedrock? {minetBlockstate}, {_lastUpdatedBlockstate}");
-							}
-						}
+			//				var minetBlockstate = GetServerRuntimeId(client.BlockPalette, _internalStates, _lastUpdatedBlockstate.RuntimeId);
+			//				if (minetBlockstate != null)
+			//				{
+			//					if (minetBlockstate.Id != _lastUpdatedBlockstate.Id) Log.Warn($"Blockstate BID is different between MiNET and bedrock?");
+			//					if (minetBlockstate.Data != _lastUpdatedBlockstate.Data) Log.Warn($"Blockstate data is different between MiNET and bedrock? {minetBlockstate}, {_lastUpdatedBlockstate}");
+			//				}
+			//			}
 
-						if (blockstate.States.Count == 0) break;
+			//			if (blockstate.States.Count == 0) break;
 
-						y += 2;
-					}
-				}
-				finally
-				{
-					//x += 2;
-				}
-			}
+			//			y += 2;
+			//		}
+			//	}
+			//	finally
+			//	{
+			//		//x += 2;
+			//	}
+			//}
 
-			_runningBlockMetadataDiscovery = false;
+			//_runningBlockMetadataDiscovery = false;
 
-			WritePaletteToJson(client.BlockPalette);
+			//WritePaletteToJson(client.BlockPalette);
 
-			Report($"Finished setting blocks.");
+			//Report($"Finished setting blocks.");
 		}
 
 		HashSet<BlockStateContainer> _internalStates = new HashSet<BlockStateContainer>(BlockFactory.BlockPalette);
@@ -728,81 +725,82 @@ namespace MiNET.Client
 
 		private void HandleMcpeUpdateBlock(BedrockTraceHandler caller, McpeUpdateBlock message)
 		{
-			//if (message.OrderingIndex <= lastNumber) return;
-			//lastNumber = message.OrderingIndex;
+			// TODO - 1.19-update (test world code only?!?!?!?!?!?!?)
+			////if (message.OrderingIndex <= lastNumber) return;
+			////lastNumber = message.OrderingIndex;
 
-			if (message.storage != 0) return;
-			if (message.blockPriority != 3) return;
+			//if (message.storage != 0) return;
+			//if (message.blockPriority != 3) return;
 
-			if (!_runningBlockMetadataDiscovery)
-			{
-				_resetEventUpdateBlock.Set();
-				return;
-			}
+			//if (!_runningBlockMetadataDiscovery)
+			//{
+			//	_resetEventUpdateBlock.Set();
+			//	return;
+			//}
 
-			int runtimeId = (int) message.blockRuntimeId;
-			int bid = message.coordinates.X / 2;
-			int meta = (message.coordinates.Y - 100) / 2;
+			//int runtimeId = (int) message.blockRuntimeId;
+			//int bid = message.coordinates.X / 2;
+			//int meta = (message.coordinates.Y - 100) / 2;
 
-			//TODO: Fix for doors and beds. They get 2 updates.
-			BlockStateContainer blockstate = caller.Client.BlockPalette[runtimeId];
-			if (!_blockCoordinates.Contains(new BlockCoordinates(message.coordinates.X, 0, message.coordinates.Z)))
-			{
-				Log.Warn($"Update block outside of grid {message.coordinates}, {caller.Client.BlockPalette[runtimeId]}");
+			////TODO: Fix for doors and beds. They get 2 updates.
+			//BlockStateContainer blockstate = caller.Client.BlockPalette[runtimeId];
+			//if (!_blockCoordinates.Contains(new BlockCoordinates(message.coordinates.X, 0, message.coordinates.Z)))
+			//{
+			//	Log.Warn($"Update block outside of grid {message.coordinates}, {caller.Client.BlockPalette[runtimeId]}");
 
-				if (blockstate.Name.EndsWith("_door"))
-				{
-					if (blockstate.States.First(s => s.Name.Equals("upper_block_bit") && ((BlockStateInt) s).Value == 1) != null)
-						blockstate.Data = (short) meta;
-				}
-				else if (blockstate.Name.Equals("minecraft:bed"))
-				{
-					if (blockstate.States.First(s => s.Name.Equals("head_piece_bit") && ((BlockStateInt) s).Value == 0) != null)
-						blockstate.Data = (short) meta;
-				}
+			//	if (blockstate.Id.EndsWith("_door"))
+			//	{
+			//		if (blockstate.States.First(s => s.Name.Equals("upper_block_bit") && ((BlockStateInt) s).Value == 1) != null)
+			//			blockstate.Data = (short) meta;
+			//	}
+			//	else if (blockstate.Id.Equals("minecraft:bed"))
+			//	{
+			//		if (blockstate.States.First(s => s.Name.Equals("head_piece_bit") && ((BlockStateInt) s).Value == 0) != null)
+			//			blockstate.Data = (short) meta;
+			//	}
 
-				_resetEventUpdateBlock.Set();
-				return;
-			}
+			//	_resetEventUpdateBlock.Set();
+			//	return;
+			//}
 
-			if (blockstate.Id == 0)
-			{
-				_resetEventUpdateBlock.Set();
-				return;
-			}
+			//if (BlockFactory.IsBlock<Air>(blockstate.Id))
+			//{
+			//	_resetEventUpdateBlock.Set();
+			//	return;
+			//}
 
-			if (blockstate.Data == -1)
-			{
-				lock (_lastUpdatedBlockstate)
-				{
-					try
-					{
-						if (bid != blockstate.Id)
-						{
-							Log.Warn($"Wrong id. Expected {blockstate.Id}, got {bid}");
-						}
-						else
-						{
-							blockstate.Data = (short) meta;
+			//if (blockstate.Data == -1)
+			//{
+			//	lock (_lastUpdatedBlockstate)
+			//	{
+			//		try
+			//		{
+			//			if (bid != blockstate.Id)
+			//			{
+			//				Log.Warn($"Wrong id. Expected {blockstate.Id}, got {bid}");
+			//			}
+			//			else
+			//			{
+			//				blockstate.Data = (short) meta;
 
-							Log.Debug($"Correct id. Expected {blockstate.Id}, and got {bid}");
-						}
+			//				Log.Debug($"Correct id. Expected {blockstate.Id}, and got {bid}");
+			//			}
 
-						Log.Debug($"Block update {bid}, {meta}, with blockstate\n{blockstate}");
-					}
-					finally
-					{
-						Log.Warn($"Got {blockstate.Id}, {meta} storage {message.storage}, {message.blockPriority} (Name={blockstate.Name} Id={blockstate.Id})");
-						_lastUpdatedBlockstate = blockstate;
-						_resetEventUpdateBlock.Set();
-					}
-				}
-			}
-			else
-			{
-				Log.Warn($"Blockstate {runtimeId} {blockstate.Id}, {meta} already had meta set to {blockstate.Data}");
-				_resetEventUpdateBlock.Set();
-			}
+			//			Log.Debug($"Block update {bid}, {meta}, with blockstate\n{blockstate}");
+			//		}
+			//		finally
+			//		{
+			//			Log.Warn($"Got {blockstate.Id}, {meta} storage {message.storage}, {message.blockPriority} (Name={blockstate.Id} Id={blockstate.Id})");
+			//			_lastUpdatedBlockstate = blockstate;
+			//			_resetEventUpdateBlock.Set();
+			//		}
+			//	}
+			//}
+			//else
+			//{
+			//	Log.Warn($"Blockstate {runtimeId} {blockstate.Id}, {meta} already had meta set to {blockstate.Data}");
+			//	_resetEventUpdateBlock.Set();
+			//}
 		}
 	}
 }

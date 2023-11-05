@@ -120,5 +120,7 @@ public enum AuthInputFlags : long
 	
 	PerformItemInteraction = 1L <<34,
 	PerformBlockActions = 1L <<35,
-	PerformItemStackRequest = 1L <<36
+	PerformItemStackRequest = 1L <<36,
+	HandledTeleport = 1L << 37,
+	Emoting = 1L << 38
 }

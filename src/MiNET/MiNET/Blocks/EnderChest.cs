@@ -23,13 +23,15 @@
 
 #endregion
 
+using MiNET.BlockEntities;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class EnderChest : ChestBase
 	{
-		public EnderChest() : base(130)
+		public EnderChest() : base()
 		{
 			IsTransparent = true;
 			LightLevel = 7;
@@ -38,9 +40,14 @@ namespace MiNET.Blocks
 			FuelEfficiency = 0;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		protected override ChestBlockEntity CreateBlockEntity()
 		{
-			return new Item[] {ItemFactory.GetItem(49, 0, 8)}; // 8 Obsidian
+			return new EnderChestBlockEntity();
+		}
+
+		public override Item[] GetDrops(Level world, Item tool)
+		{
+			return new Item[] { ItemFactory.GetItem<Obsidian>(count: 8) };
 		}
 	}
 }

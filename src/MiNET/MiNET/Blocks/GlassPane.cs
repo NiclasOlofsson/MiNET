@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class GlassPane : Block
 	{
-		public GlassPane() : base(102)
+		public GlassPane() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 1.5f;

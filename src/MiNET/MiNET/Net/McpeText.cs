@@ -101,6 +101,7 @@ namespace MiNET.Net
 				case ChatTypes.System:
 				case ChatTypes.Json:
 				case ChatTypes.Jsonwhisper:
+				case ChatTypes.Jsonannouncement:
 					message = ReadString();
 					break;
 

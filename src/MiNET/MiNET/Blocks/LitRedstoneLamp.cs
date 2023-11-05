@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class LitRedstoneLamp : RedstoneLamp
 	{
-		public LitRedstoneLamp() : base(124)
+		public LitRedstoneLamp() : base()
 		{
 			LightLevel = 15;
 		}

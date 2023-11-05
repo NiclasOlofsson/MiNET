@@ -50,7 +50,7 @@ namespace MiNET.Worlds
 					Seed = Config.GetProperty("superflat.nether", "3;minecraft:bedrock,2*minecraft:netherrack,3*minecraft:lava,2*minecraft:netherrack,20*minecraft:air,minecraft:bedrock;1;village");
 					break;
 				case Dimension.TheEnd:
-					Seed = Config.GetProperty("superflat.theend", "3;40*minecraft:air,minecraft:bedrock,7*minecraft:endstone;1;village");
+					Seed = Config.GetProperty("superflat.theend", "3;40*minecraft:air,minecraft:bedrock,7*minecraft:end_stone;1;village");
 					break;
 			}
 		}
@@ -199,7 +199,8 @@ namespace MiNET.Worlds
 
 					// need to take care of skylight for non overworld to make it 0.
 
-					chunk.SetBiome(x, z, 1); // use pattern for this
+					// TODO - 1.20 - update
+					chunk.SetBiome(x, ChunkColumn.WorldMaxY, z, 1); // use pattern for this
 				}
 			}
 		}
@@ -227,16 +228,7 @@ namespace MiNET.Worlds
 
 				if (blockAndMeta.Length == 0) continue;
 
-				Block block;
-
-				if (byte.TryParse(blockAndMeta[0], out byte id))
-				{
-					block = BlockFactory.GetBlockById(id);
-				}
-				else
-				{
-					block = BlockFactory.GetBlockByName(blockAndMeta[0]);
-				}
+				Block block = BlockFactory.GetBlockById($"minecraft:{blockAndMeta[0]}");
 
 				if (blockAndMeta.Length > 1 && byte.TryParse(blockAndMeta[1], out byte meta))
 				{

@@ -30,6 +30,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using fNbt;
 using Jose;
 using log4net;
@@ -70,6 +71,29 @@ namespace MiNET
 
 		public void Disconnect(string reason, bool sendDisconnect = true)
 		{
+		}
+
+		public virtual void HandleMcpeRequestNetworkSettings(McpeRequestNetworkSettings message)
+		{
+			_playerInfo.ProtocolVersion = message.protocolVersion;
+			if (_playerInfo.ProtocolVersion < McpeProtocolInfo.ProtocolVersion || _playerInfo.ProtocolVersion > 65535)
+			{
+				Log.Warn($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
+				_session.Disconnect($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
+				return;
+			}
+
+			McpeNetworkSettings settingsPacket = McpeNetworkSettings.CreateObject();
+			settingsPacket.compressionAlgorithm = 0;//zlib
+			settingsPacket.compressionThreshold = 1;
+			settingsPacket.clientThrottleEnabled = false;
+			settingsPacket.clientThrottleScalar = 0;
+			settingsPacket.clientThrottleThreshold = 0;
+			settingsPacket.ForceClear = true; // Must be!
+
+			_session.SendPrepareDirectPacket(settingsPacket);
+			//Thread.Sleep(1000);
+			_session.EnableCompression = true;
 		}
 
 		public virtual void HandleMcpeLogin(McpeLogin message)
@@ -589,6 +613,12 @@ namespace MiNET
 
 		/// <inheritdoc />
 		public void HandleMcpeSubChunkRequestPacket(McpeSubChunkRequestPacket message)
+		{
+			
+		}
+
+		/// <inheritdoc />
+		public void HandleMcpeRequestAbility(McpeRequestAbility message)
 		{
 			
 		}

@@ -32,7 +32,7 @@ namespace MiNET.Blocks
 {
 	public partial class DoublePlant : Block
 	{
-		public DoublePlant() : base(175)
+		public DoublePlant() : base()
 		{
 			BlastResistance = 3;
 			Hardness = 0.6f;
@@ -62,9 +62,9 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			if (UpperBlockBit) return base.GetDrops(tool);
+			if (UpperBlockBit) return base.GetDrops(world, tool);
 
 			return new Item[0];
 		}

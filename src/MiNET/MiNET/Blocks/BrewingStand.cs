@@ -24,12 +24,13 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class BrewingStand : Block
 	{
-		public BrewingStand() : base(117)
+		public BrewingStand() : base()
 		{
 			IsTransparent = true;
 			LightLevel = 1;
@@ -37,9 +38,9 @@ namespace MiNET.Blocks
 			Hardness = 0.5f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			return new Item[] {ItemFactory.GetItem(379, 0, 1)};
+			return new Item[] { new ItemBrewingStand() };
 		}
 	}
 }

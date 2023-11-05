@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 			Fern = 2
 		}
 
-		public Tallgrass() : base(31)
+		public Tallgrass() : base()
 		{
 			BlastResistance = 3;
 			Hardness = 0.6f;
@@ -68,13 +68,13 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			// 50% chance to drop seeds.
 			var rnd = new Random();
 			if (rnd.NextDouble() > 0.5)
 			{
-				return new[] {ItemFactory.GetItem(295)};
+				return new[] { new ItemWheatSeeds() };
 			}
 
 			return new Item[0];

@@ -42,38 +42,38 @@ namespace MiNET
 
 		public GreyListManager(ConnectionInfo connectionInfo = null)
 		{
-			_blacklist.Add(IPAddress.Parse("86.126.166.61"));
-			//_blacklist.Add(IPAddress.Parse("185.89.216.247"));
-			//_blacklist.Add(IPAddress.Parse("66.176.197.86"));
-			//_blacklist.Add(IPAddress.Parse("78.197.138.50"));
 			ConnectionInfo = connectionInfo;
 		}
 
-		public virtual bool IsWhitelisted(IPAddress senderAddress)
+		public virtual bool IsWhitelisted(IPEndPoint endPoint)
 		{
 			return true;
 		}
 
-		public virtual bool IsBlacklisted(IPAddress senderAddress)
+		public virtual bool IsBlacklisted(IPEndPoint endPoint)
 		{
 			lock (_blacklist)
 			{
-				//if (senderAddress.ToString().StartsWith("185.89.216")) return true;
-				return _blacklist.Contains(senderAddress);
+				return _blacklist.Contains(endPoint.Address);
 			}
 		}
 
-		public virtual void Blacklist(IPAddress senderAddress)
+		public virtual void Blacklist(IPAddress address)
 		{
 			lock (_blacklist)
 			{
-				_blacklist.Add(senderAddress);
+				_blacklist.Add(address);
 			}
 		}
 
-		public virtual bool AcceptConnection(IPAddress senderAddress)
+		public virtual void Blacklist(IPEndPoint endPoint)
 		{
-			if (IsWhitelisted(senderAddress)) return true;
+			Blacklist(endPoint.Address);
+		}
+
+		public virtual bool AcceptConnection(IPEndPoint endPoint)
+		{
+			if (IsWhitelisted(endPoint)) return true;
 
 			ConnectionInfo connectionInfo = ConnectionInfo;
 			if (connectionInfo == null) return true;
@@ -81,7 +81,7 @@ namespace MiNET
 			if (connectionInfo.NumberOfPlayers >= connectionInfo.MaxNumberOfPlayers || connectionInfo.ConnectionsInConnectPhase >= connectionInfo.MaxNumberOfConcurrentConnects)
 			{
 				if (Log.IsInfoEnabled)
-					Log.InfoFormat("Rejected connection (server full) from: {0}", senderAddress);
+					Log.InfoFormat("Rejected connection (server full) from: {0}", endPoint);
 
 				return false;
 			}
@@ -89,8 +89,10 @@ namespace MiNET
 			return true;
 		}
 
-		public virtual bool IsGreylisted(IPAddress address)
+		public virtual bool IsGreylisted(IPEndPoint endPoint)
 		{
+			var address = endPoint.Address;
+
 			if (_greylist.ContainsKey(address))
 			{
 				if (_greylist[address] > DateTime.UtcNow)
@@ -108,6 +110,11 @@ namespace MiNET
 		{
 			var dateTime = DateTime.UtcNow.AddMilliseconds(time);
 			_greylist.TryAdd(address, dateTime);
+		}
+
+		public virtual void Greylist(IPEndPoint endPoint, int time)
+		{
+			Greylist(endPoint.Address, time);
 		}
 	}
 }

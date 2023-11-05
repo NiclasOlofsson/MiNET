@@ -25,27 +25,24 @@
 
 using System;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class RedstoneOre : Block
 	{
-		public RedstoneOre() : this(73)
-		{
-		}
-
-		public RedstoneOre(byte id) : base(id)
+		public RedstoneOre() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			if (tool.ItemMaterial < ItemMaterial.Iron) return new Item[0];
 
 			var rnd = new Random();
-			return new[] {ItemFactory.GetItem(331, 0, (byte) (4 + rnd.Next(1)))};
+			return new[] { new ItemRedstone() { Count = (byte) (4 + rnd.Next(1)) } };
 		}
 
 		public override float GetExperiencePoints()

@@ -25,15 +25,10 @@
 
 namespace MiNET.Items
 {
-	public class ItemBeef : FoodItem
+	public partial class ItemBeef
 	{
-		public ItemBeef() : base("minecraft:beef", 363, 0, 3, 1.8)
+		public ItemBeef() : base(3, 1.8)
 		{
-		}
-
-		public override Item GetSmelt()
-		{
-			return ItemFactory.GetItem(364);
 		}
 	}
 }

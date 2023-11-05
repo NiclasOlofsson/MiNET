@@ -31,13 +31,13 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public partial class TrapdoorBase : Block
+	public abstract partial class TrapdoorBase : Block
 	{
 		[StateRange(0, 3)] public virtual int Direction { get; set; } = 0;
 		[StateBit] public virtual bool OpenBit { get; set; } = false;
 		[StateBit] public virtual bool UpsideDownBit { get; set; } = false;
 
-		protected TrapdoorBase(int id) : base(id)
+		protected TrapdoorBase() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 15;
@@ -71,41 +71,41 @@ namespace MiNET.Blocks
 
 	public partial class Trapdoor : TrapdoorBase
 	{
-		public Trapdoor() : base(96) { }
+		public Trapdoor() : base() { }
 	}
 
 	public partial class AcaciaTrapdoor : TrapdoorBase
 	{
-		public AcaciaTrapdoor() : base(400) { }
+		public AcaciaTrapdoor() : base() { }
 	}
 
 	public partial class BirchTrapdoor : TrapdoorBase
 	{
-		public BirchTrapdoor() : base(401) { }
+		public BirchTrapdoor() : base() { }
 	}
 
 	public partial class DarkOakTrapdoor : TrapdoorBase
 	{
-		public DarkOakTrapdoor() : base(402) { }
+		public DarkOakTrapdoor() : base() { }
 	}
 
 	public partial class JungleTrapdoor : TrapdoorBase
 	{
-		public JungleTrapdoor() : base(403) { }
+		public JungleTrapdoor() : base() { }
 	}
 
 	public partial class SpruceTrapdoor : TrapdoorBase
 	{
-		public SpruceTrapdoor() : base(404) { }
+		public SpruceTrapdoor() : base() { }
 	}
 
 	public partial class CrimsonTrapdoor : TrapdoorBase
 	{
-		public CrimsonTrapdoor() : base(501) { }
+		public CrimsonTrapdoor() : base() { }
 	}
 
 	public partial class WarpedTrapdoor : TrapdoorBase
 	{
-		public WarpedTrapdoor() : base(502) { }
+		public WarpedTrapdoor() : base() { }
 	}
 }

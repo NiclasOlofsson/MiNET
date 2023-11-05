@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Cactus : Block
 	{
-		public Cactus() : base(81)
+		public Cactus() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 2;

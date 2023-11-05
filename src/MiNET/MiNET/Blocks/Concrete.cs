@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Concrete : Block
 	{
-		public Concrete() : base(236)
+		public Concrete() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;

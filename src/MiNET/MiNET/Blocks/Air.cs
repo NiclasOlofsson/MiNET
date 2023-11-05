@@ -24,12 +24,13 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class Air : Block
 	{
-		public Air() : base(0)
+		public Air() : base()
 		{
 			IsReplaceable = true;
 			IsSolid = false;
@@ -38,7 +39,7 @@ namespace MiNET.Blocks
 			IsBlockingSkylight = false;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new Item[0];
 		}

@@ -24,19 +24,20 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class LitFurnace : FurnaceBase
 	{
-		public LitFurnace() : base(62)
+		public LitFurnace() : base()
 		{
 			LightLevel = 13;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			return new[] {new ItemBlock(new Furnace(), 0)};
+			return new[] { ItemFactory.GetItem<Furnace>() };
 		}
 	}
 }

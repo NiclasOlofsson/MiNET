@@ -49,7 +49,7 @@ namespace MiNET.Entities.Projectiles
 		{
 			for (int i = 0; i < 6; i++)
 			{
-				var particle = new ItemBreakParticle(Level, ItemFactory.GetItem(344)) {Position = KnownPosition};
+				var particle = new ItemBreakParticle(Level, new ItemEgg()) {Position = KnownPosition};
 				particle.Spawn();
 			}
 

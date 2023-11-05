@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class LitPumpkin : Block
 	{
-		public LitPumpkin() : base(91)
+		public LitPumpkin() : base()
 		{
 			LightLevel = 15;
 			BlastResistance = 5;

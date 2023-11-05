@@ -37,17 +37,20 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemCommand));
 
+		public override string Id { get; protected set; } = "minet:command";
+
 		public Action<ItemCommand, Level, Player, BlockCoordinates> Action { get; set; }
 		public bool NeedBlockRevert { get; set; }
 
-		public ItemCommand(short id, short metadata, Action<ItemCommand, Level, Player, BlockCoordinates> action) : base("minet:command", id, metadata)
+		public ItemCommand(string id, short metadata, Action<ItemCommand, Level, Player, BlockCoordinates> action) : base()
 		{
+			Metadata = metadata;
 			Action = action ?? throw new ArgumentNullException(nameof(action));
 			Item realItem = ItemFactory.GetItem(id, metadata);
 			NeedBlockRevert = realItem is ItemBlock;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			if (NeedBlockRevert)
 			{
@@ -60,6 +63,8 @@ namespace MiNET.Items
 			}
 
 			Action(this, world, player, blockCoordinates);
+
+			return true;
 		}
 	}
 }

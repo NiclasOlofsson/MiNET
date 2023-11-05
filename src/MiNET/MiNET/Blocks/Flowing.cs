@@ -27,7 +27,6 @@ using System;
 using System.Numerics;
 using log4net;
 using MiNET.Items;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -39,12 +38,16 @@ namespace MiNET.Blocks
 
 		[StateRange(0, 15)] public virtual int LiquidDepth { get; set; } = 0;
 
+		public string StationeryId { get; }
+
 		private int _adjacentSources;
 		private int[] _flowCost = new int[4];
 		private bool[] _optimalFlowDirections = new bool[4];
 
-		protected Flowing(byte id) : base(id)
+		protected Flowing(string stationeryId) : base()
 		{
+			StationeryId = stationeryId;
+
 			IsSolid = false;
 			IsBuildable = false;
 			IsReplaceable = true;
@@ -406,7 +409,7 @@ namespace MiNET.Blocks
 		{
 			var block = (Flowing) world.GetBlock(coord);
 
-			var stillBlock = (Stationary) BlockFactory.GetBlockById((byte) (Id + 1));
+			var stillBlock = (Stationary) BlockFactory.GetBlockById(StationeryId);
 			stillBlock.LiquidDepth = block.LiquidDepth;
 			stillBlock.Coordinates = new BlockCoordinates(coord);
 			world.SetBlock(stillBlock, applyPhysics: false);
@@ -526,7 +529,7 @@ namespace MiNET.Blocks
 			return block is FlowingWater || block is Water;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			return new Item[0];
 		}

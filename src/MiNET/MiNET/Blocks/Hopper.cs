@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Hopper : Block
 	{
-		public Hopper() : base(154)
+		public Hopper() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 15;

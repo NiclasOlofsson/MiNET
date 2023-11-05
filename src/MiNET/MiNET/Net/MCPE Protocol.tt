@@ -52,6 +52,7 @@ using LongString = System.String;
 using MiNET.Utils.Metadata;
 using MiNET.Utils.Vectors;
 using MiNET.Utils.Nbt;
+using MiNET.Net.Crafting;
 
 namespace MiNET.Net
 {
@@ -124,7 +125,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @ser
 	{
 		public static ICustomPacketFactory CustomPacketFactory { get; set; } = null;
 
-		public static Packet Create(byte messageId, ReadOnlyMemory<byte> buffer, string ns)
+		public static Packet Create(short messageId, ReadOnlyMemory<byte> buffer, string ns)
 		{
 			Packet packet = CustomPacketFactory?.Create(messageId, buffer, ns);
 			if (packet != null) return packet;

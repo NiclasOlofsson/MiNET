@@ -25,25 +25,26 @@
 
 using System;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class LapisOre : Block
 	{
-		public LapisOre() : base(21)
+		public LapisOre() : base()
 		{
 			BlastResistance = 15;
 			Hardness = 3;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			if (tool.ItemMaterial < ItemMaterial.Stone) return new Item[0];
 
 			// Random between 4-8
 			var rnd = new Random();
 			var plus = rnd.Next(4);
-			return new[] {ItemFactory.GetItem(351, 4, (byte) (4 + plus))};
+			return new[] { new ItemLapisLazuli() { Count = (byte) (4 + plus) } };
 		}
 
 		public override float GetExperiencePoints()

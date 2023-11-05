@@ -23,9 +23,9 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using MiNET.Utils;
+using MiNET.Items;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -33,21 +33,29 @@ namespace MiNET.Blocks
 {
 	public abstract class SlabBase : Block
 	{
-		private int _doubleSlabId;
+		public static Dictionary<string, string> DoubleSlabToSlabMap { get; } = new Dictionary<string, string>();
+		public static Dictionary<string, string> SlabToDoubleSlabMap { get; } = new Dictionary<string, string>();
 
-		[StateBit] public virtual bool TopSlotBit { get; set; } = false;
-
-		protected SlabBase(int id, int doubleSlabId = -1) : base(id)
+		static SlabBase()
 		{
-			_doubleSlabId = doubleSlabId;
+			foreach (var id in BlockFactory.Ids)
+			{
+				if (id.Contains("_slab") && id.Contains("double_"))
+				{
+					var slabId = id.Replace("double_", "");
+					SlabToDoubleSlabMap.Add(slabId, id);
+					DoubleSlabToSlabMap.Add(id, slabId);
+				}
+			}
 		}
+
+		public virtual bool TopSlotBit { get; set; } = false;
 
 		public override BoundingBox GetBoundingBox()
 		{
 			var bottom = (Vector3)Coordinates;
 
-			if (TopSlotBit)
-				bottom.Y += 0.5f;
+			if (TopSlotBit) bottom.Y += 0.5f;
 			
 			var top = bottom + new Vector3(1f, 0.5f, 1f);
 			
@@ -95,6 +103,16 @@ namespace MiNET.Blocks
 			return true;
 		}
 
+		public override Item GetItem(Level world, bool blockItem = false)
+		{
+			var item = base.GetItem(world, blockItem) as ItemBlock;
+			var block = item.Block as SlabBase;
+
+			block.TopSlotBit = false;
+
+			return item;
+		}
+
 		protected virtual bool AreSameType(Block obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
@@ -104,22 +122,10 @@ namespace MiNET.Blocks
 
 		protected void SetDoubleSlab(Level world, BlockCoordinates coordinates)
 		{
-			Block slab = _doubleSlabId == -1 ? BlockFactory.GetBlockByName(GetType().Name.Replace("Slab", "DoubleSlab")) : BlockFactory.GetBlockById(_doubleSlabId);
+			var slab = BlockFactory.GetBlockById(SlabToDoubleSlabMap[Id]);
 			slab.Coordinates = coordinates;
-			slab.SetState(GetState().States);
+			slab.SetState(GetState());
 			world.SetBlock(slab);
 		}
 	}
-
-	public partial class CrimsonSlab : SlabBase { public CrimsonSlab() : base(519) { IsGenerated = false; } }
-	public partial class WarpedSlab : SlabBase { public WarpedSlab() : base(520) { IsGenerated = false; } }
-	public partial class BlackstoneSlab : SlabBase { public BlackstoneSlab() : base(537) { IsGenerated = false; } }
-	public partial class PolishedBlackstoneBrickSlab : SlabBase { public PolishedBlackstoneBrickSlab() : base(539) { IsGenerated = false; } }
-	public partial class PolishedBlackstoneSlab : SlabBase { public PolishedBlackstoneSlab() : base(548) { IsGenerated = false; } }
-	public partial class CrimsonDoubleSlab : Block { public CrimsonDoubleSlab() : base(521) { IsGenerated = false; } }
-	public partial class WarpedDoubleSlab : Block { public WarpedDoubleSlab() : base(522) { IsGenerated = false; } }
-	public partial class BlackstoneDoubleSlab : Block { public BlackstoneDoubleSlab() : base(538) { IsGenerated = false; } }
-	public partial class PolishedBlackstoneBrickDoubleSlab : Block { public PolishedBlackstoneBrickDoubleSlab() : base(540) { IsGenerated = false; } }
-	public partial class PolishedBlackstoneDoubleSlab : Block { public PolishedBlackstoneDoubleSlab() : base(549) { IsGenerated = false; } }
-
 }

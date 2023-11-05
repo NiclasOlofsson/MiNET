@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Leaves));
 
-		public Leaves() : base(18)
+		public Leaves() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 1;
@@ -58,6 +58,7 @@ namespace MiNET.Blocks
 
 		public override void OnTick(Level level, bool isRandom)
 		{
+			if (!isRandom) return;
 			if (PersistentBit) return;
 			if (!UpdateBit) return;
 
@@ -68,7 +69,7 @@ namespace MiNET.Blocks
 				return;
 			}
 
-			var drops = GetDrops(null);
+			var drops = GetDrops(level, null);
 			BreakBlock(level, BlockFace.None, drops.Length == 0);
 			foreach (var drop in drops)
 			{
@@ -76,22 +77,21 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			var rnd = new Random();
 			if (OldLeafType == "oak") // Oak and dark oak drops apple
 			{
 				if (rnd.Next(200) == 0)
 				{
-					// Apple
-					return new Item[] {ItemFactory.GetItem(260, 0, 1)};
+					return new Item[] { new ItemApple() };
 				}
 			}
 			if (rnd.Next(20) == 0)
 			{
 				// Sapling
 				var blockstate = GetState();
-				return new[] {ItemFactory.GetItem(6, blockstate.Data, 1)};
+				return new[] { ItemFactory.GetItem<Sapling>(blockstate.Data) };
 			}
 
 			return new Item[0];
@@ -102,7 +102,7 @@ namespace MiNET.Blocks
 			if (visited.Contains(coord)) return false;
 
 			var block = level.GetBlock(coord);
-			if (block is Log) return true;
+			if (block is LogBase) return true;
 
 			visited.Add(coord);
 

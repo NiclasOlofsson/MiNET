@@ -25,15 +25,10 @@
 
 namespace MiNET.Items
 {
-	public class ItemChicken : FoodItem
+	public partial class ItemChicken
 	{
-		public ItemChicken() : base("minecraft:chicken", 365, 0, 2, 1.2)
+		public ItemChicken() : base(2, 1.2)
 		{
-		}
-
-		public override Item GetSmelt()
-		{
-			return ItemFactory.GetItem(366);
 		}
 	}
 }

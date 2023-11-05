@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class StonePressurePlate : Block
 	{
-		public StonePressurePlate() : base(70)
+		public StonePressurePlate() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;

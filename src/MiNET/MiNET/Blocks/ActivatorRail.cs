@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class ActivatorRail : Block
 	{
-		public ActivatorRail() : base(126)
+		public ActivatorRail() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

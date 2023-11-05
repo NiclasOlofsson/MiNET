@@ -102,6 +102,7 @@ namespace MiNET.Utils.Skins
 		public List<SkinPiece> SkinPieces { get; set; } = new List<SkinPiece>();
 		public bool IsVerified { get; set; }
 		public bool IsPrimaryUser { get; set; }
+		public bool isOverride { get; set; } = true;
 
 		public static byte[] GetTextureFromFile(string filename)
 		{

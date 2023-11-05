@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class GoldenRail : Block
 	{
-		public GoldenRail() : base(27)
+		public GoldenRail() : base()
 		{
 			IsSolid = false;
 			IsTransparent = true;

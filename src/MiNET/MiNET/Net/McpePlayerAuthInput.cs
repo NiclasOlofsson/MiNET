@@ -44,6 +44,11 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 	/// PlayMode specifies the way that the player is playing. 
 	/// </summary>
 	public PlayerPlayMode PlayMode;
+
+	/// <summary>
+	///		InteractionModel is a constant representing the interaction model the player is using. 
+	/// </summary>
+	public PlayerInteractionModel InteractionModel;
 	
 	/// <summary>
 	///		GazeDirection is the direction in which the player is gazing, when the PlayMode is PlayModeReality: In other words, when the player is playing in virtual reality.
@@ -60,6 +65,8 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 	/// </summary>
 	public Vector3 Delta;
 
+	public Vector2 AnalogMoveVector;
+
 	partial void AfterDecode()
 	{
 		Pitch = ReadFloat();
@@ -70,6 +77,7 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		InputFlags = (AuthInputFlags)ReadUnsignedVarLong();
 		InputMode = (PlayerInputMode)ReadUnsignedVarInt();
 		PlayMode = (PlayerPlayMode)ReadUnsignedVarInt();
+		InteractionModel = (PlayerInteractionModel) ReadUnsignedVarInt();
 		//IF VR.
 		if (PlayMode == PlayerPlayMode.VR)
 		{
@@ -83,6 +91,8 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		{
 			
 		}
+
+		AnalogMoveVector = ReadVector2();
 	}
 
 	partial void AfterEncode()
@@ -95,6 +105,7 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		WriteUnsignedVarLong((long)InputFlags);
 		WriteUnsignedVarInt((uint)InputMode);
 		WriteUnsignedVarInt((uint) PlayMode);
+		WriteUnsignedVarInt((uint)InteractionModel);
 
 		if (PlayMode == PlayerPlayMode.VR)
 		{
@@ -103,6 +114,7 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		
 		WriteUnsignedVarLong(Tick);
 		Write(Delta);
+		Write(AnalogMoveVector);
 	}
 
 	/// <inheritdoc />
@@ -115,8 +127,10 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		InputFlags = 0;
 		InputMode = PlayerInputMode.Mouse;
 		PlayMode = PlayerPlayMode.Normal;
+		InteractionModel = PlayerInteractionModel.Touch;
 		Tick = 0;
 		Delta = Vector3.Zero;
+		AnalogMoveVector = Vector2.Zero;
 	}
 
 	public enum PlayerPlayMode
@@ -138,5 +152,12 @@ public partial class McpePlayerAuthInput : Packet<McpePlayerAuthInput>
 		Touch = 2,
 		GamePad = 3,
 		MotionController = 4
+	}
+
+	public enum PlayerInteractionModel
+	{
+		Touch = 0,
+		Crosshair = 1,
+		Classic = 2
 	}
 }

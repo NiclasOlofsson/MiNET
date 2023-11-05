@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class QuartzBlock : Block
 	{
-		public QuartzBlock() : base(155)
+		public QuartzBlock() : base()
 		{
 			BlastResistance = 4;
 			Hardness = 0.8f;

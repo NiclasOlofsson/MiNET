@@ -24,6 +24,8 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Add Item Entity | 0x0f | 15 |   
 | Take Item Entity | 0x11 | 17 |   
 | Move Entity | 0x12 | 18 |   
+| Trim Data | 0x12e | 18 |   
+| Open Sign | 0x12f | 18 |   
 | Move Player | 0x13 | 19 |   
 | Rider Jump | 0x14 | 20 |   
 | Update Block | 0x15 | 21 |   
@@ -152,6 +154,10 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Sub Chunk Packet | 0xae | 174 |   
 | Sub Chunk Request Packet | 0xaf | 175 |   
 | Dimension Data | 0xb4 | 180 |   
+| Request Ability | 0xb8 | 184 |   
+| Update Abilities | 0xbb | 187 |   
+| Update Adventure Settings | 0xbc | 188 |   
+| Request Network Settings | 0xc1 | 193 |   
 | Alex Entity Animation | 0xe0 | 224 |   
 
 
@@ -159,6 +165,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 
 | Data type | 
 |:--- |
+| AbilityLayers [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-AbilityLayers) |
 | AnimationKey[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-AnimationKey[]) |
 | BlockCoordinates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockCoordinates) |
 | bool [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-bool) |
@@ -193,6 +200,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | PlayerRecords [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PlayerRecords) |
 | PotionContainerChangeRecipe[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PotionContainerChangeRecipe[]) |
 | PotionTypeRecipe[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PotionTypeRecipe[]) |
+| PropertySyncData [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PropertySyncData) |
 | Recipes [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Recipes) |
 | ResourcePackIds [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIds) |
 | ResourcePackIdVersions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIdVersions) |
@@ -400,6 +408,7 @@ Wiki: [Text](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Text)
 |Announcement | 8 |
 |Json | 9 |
 |Jsonwhisper | 10 |
+|Jsonannouncement | 11 |
 
 
 #### Fields
@@ -452,7 +461,6 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |:-----|:-----|:-----|
 |UUID | UUID |  |
 |Username | string |  |
-|Entity ID Self | SignedVarLong |  |
 |Runtime Entity ID | UnsignedVarLong |  |
 |Platform Chat ID | string |  |
 |X | float |  |
@@ -467,12 +475,11 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |Item | Item |  |
 |Game Type | UnsignedVarInt |  |
 |Metadata | MetadataDictionary |  |
-|Flags | UnsignedVarInt |  |
-|Command permission | UnsignedVarInt |  |
-|Action Permissions | UnsignedVarInt |  |
-|Permission Level | UnsignedVarInt |  |
-|Custom stored permissions | UnsignedVarInt |  |
-|User Id | long |  |
+|SyncData | PropertySyncData |  |
+|Entity ID Self | ulong |  |
+|Player Permissions | byte |  |
+|Command Permissions | byte |  |
+|Layers | AbilityLayers |  |
 |Links | EntityLinks |  |
 |Device ID | string |  |
 |Device OS | int |  |
@@ -514,8 +521,10 @@ val2 float
 |Pitch | float |  |
 |Yaw | float |  |
 |Head Yaw | float |  |
+|Body Yaw | float |  |
 |Attributes | EntityAttributes |  |
 |Metadata | MetadataDictionary |  |
+|SyncData | PropertySyncData |  |
 |Links | EntityLinks |  |
 -----------------------------------------------------------------------
 ### Remove Entity (0x0e)
@@ -1016,6 +1025,7 @@ Wiki: [Player Action](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Pla
 |Runtime Entity ID | UnsignedVarLong |  |
 |Action ID | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
+|Result Coordinates | BlockCoordinates |  |
 |Face | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Hurt Armor (0x26)
@@ -1050,6 +1060,7 @@ Wiki: [Set Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-S
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
 |Metadata | MetadataDictionary |  |
+|SyncData | PropertySyncData |  |
 |Tick | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Set Entity Motion (0x28)
@@ -1310,6 +1321,8 @@ Wiki: [Crafting Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Cr
 |Shulker Box | 5 |
 |Chemistry Shapeless | 6 |
 |Chemistry Shaped | 7 |
+|Smithing Transform | 8 |
+|Smithing Trim | 9 |
 
 
 #### Fields
@@ -1317,7 +1330,7 @@ Wiki: [Crafting Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Cr
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Window ID | byte |  |
-|Recipe Type | SignedVarInt |  |
+|Recipe Type | VarInt |  |
 |Recipe ID | UUID |  |
 |Input | ItemStacks |  |
 |Result | ItemStacks |  |
@@ -1576,6 +1589,7 @@ Wiki: [Request Chunk Radius](https://github.com/NiclasOlofsson/MiNET/wiki//Proto
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Chunk Radius | SignedVarInt |  |
+|Max Radius | byte |  |
 -----------------------------------------------------------------------
 ### Chunk Radius Update (0x46)
 Wiki: [Chunk Radius Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ChunkRadiusUpdate)
@@ -1715,7 +1729,8 @@ Wiki: [Command Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-C
 |Command type | UnsignedVarInt |  |
 |Unknown UUID | UUID |  |
 |Request ID | string |  |
-|Unknown | bool |  |
+|IsInternal | bool |  |
+|Version | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Command Block Update (0x4e)
 Wiki: [Command Block Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandBlockUpdate)
@@ -1874,9 +1889,6 @@ Wiki: [Play Sound](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlaySo
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Name | string |  |
-|Coordinates | BlockCoordinates |  |
-|Volume | float |  |
-|Pitch | float |  |
 -----------------------------------------------------------------------
 ### Stop Sound (0x57)
 Wiki: [Stop Sound](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StopSound)
@@ -2110,13 +2122,19 @@ Wiki: [Modal Form Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 
 
 
+#### Cancel Reason constants
+
+| Name | Value |
+|:-----|:-----|
+|User Closed | 0 |
+|User Busy | 1 |
+
 
 #### Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Form Id | UnsignedVarInt |  |
-|Data | string |  |
 -----------------------------------------------------------------------
 ### Server Settings Request (0x66)
 Wiki: [Server Settings Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ServerSettingsRequest)
@@ -2449,6 +2467,7 @@ Wiki: [Network Chunk Publisher Update](https://github.com/NiclasOlofsson/MiNET/w
 |:-----|:-----|:-----|
 |Coordinates | BlockCoordinates |  |
 |Radius | UnsignedVarInt |  |
+|Saved Chunks | int |  |
 -----------------------------------------------------------------------
 ### Biome Definition List (0x7a)
 Wiki: [Biome Definition List](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BiomeDefinitionList)
@@ -2666,8 +2685,11 @@ Wiki: [Network Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Unknown | byte |  |
-|Compression threshold | byte |  |
+|Compression Threshold | short |  |
+|Compression Algorithm | short |  |
+|Client Throttle Enabled | bool |  |
+|Client Throttle Threshold | byte |  |
+|Client Throttle Scalar | float |  |
 -----------------------------------------------------------------------
 ### Player Auth Input (0x90)
 Wiki: [Player Auth Input](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerAuthInput)
@@ -2905,6 +2927,103 @@ Wiki: [Dimension Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Di
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Definitions | DimensionDefinitions |  |
+-----------------------------------------------------------------------
+### Update Abilities (0xbb)
+Wiki: [Update Abilities](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateAbilities)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity Unique ID | ulong |  |
+|Player Permissions | byte |  |
+|Command Permissions | byte |  |
+|Layers | AbilityLayers |  |
+-----------------------------------------------------------------------
+### Update Adventure Settings (0xbc)
+Wiki: [Update Adventure Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateAdventureSettings)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|No PvM | bool |  |
+|No MvP | bool |  |
+|Immutable World | bool |  |
+|Show NameTags | bool |  |
+|Auto Jump | bool |  |
+-----------------------------------------------------------------------
+### Request Ability (0xb8)
+Wiki: [Request Ability](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-RequestAbility)
+
+**Sent from server:** false  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Ability | VarInt |  |
+-----------------------------------------------------------------------
+### Request Network Settings (0xc1)
+Wiki: [Request Network Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-RequestNetworkSettings)
+
+**Sent from server:** false  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Protocol Version | int |  |
+-----------------------------------------------------------------------
+### Trim Data (0x12e)
+Wiki: [Trim Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TrimData)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Open Sign (0x12f)
+Wiki: [Open Sign](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-OpenSign)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Coordinates | BlockCoordinates |  |
+|Front | bool |  |
 -----------------------------------------------------------------------
 ### Alex Entity Animation (0xe0)
 Wiki: [Alex Entity Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AlexEntityAnimation)

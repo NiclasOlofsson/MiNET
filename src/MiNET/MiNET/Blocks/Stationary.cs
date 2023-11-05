@@ -24,20 +24,23 @@
 #endregion
 
 using log4net;
-using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Stationary : Block
+	public abstract class Stationary : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Stationary));
 
 		[StateRange(0, 15)] public virtual int LiquidDepth { get; set; } = 0;
 
-		internal Stationary(byte id) : base(id)
+		public string FlowingId { get; }
+
+		internal Stationary(string flowingId) : base()
 		{
+			FlowingId = flowingId;
+
 			IsSolid = false;
 			IsBuildable = false;
 			IsReplaceable = true;
@@ -56,7 +59,7 @@ namespace MiNET.Blocks
 
 		private void SetToFlowing(Level world)
 		{
-			var flowingBlock = (Flowing) BlockFactory.GetBlockById((byte) (Id - 1));
+			var flowingBlock = (Flowing) BlockFactory.GetBlockById(FlowingId);
 			flowingBlock.LiquidDepth = LiquidDepth;
 			flowingBlock.Coordinates = Coordinates;
 			world.SetBlock(flowingBlock, applyPhysics: false);

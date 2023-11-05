@@ -29,15 +29,10 @@ namespace MiNET.Blocks
 {
 	public partial class Stonebrick : Block
 	{
-		public Stonebrick() : base(98)
+		public Stonebrick() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 1.5f;
-		}
-
-		public override Item GetSmelt()
-		{
-			return ItemFactory.GetItem(1, 2);
 		}
 	}
 }

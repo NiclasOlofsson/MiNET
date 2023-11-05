@@ -174,7 +174,7 @@ namespace MiNET.Worlds
 
 					if (sectionBytes == null)
 					{
-						chunkColumn[y]?.PutPool();
+						chunkColumn[y]?.Dispose();
 						chunkColumn[y] = null;
 						continue;
 					}
@@ -189,7 +189,9 @@ namespace MiNET.Worlds
 				if (flatDataBytes != null)
 				{
 					Buffer.BlockCopy(flatDataBytes.AsSpan().Slice(0, 512).ToArray(), 0, chunkColumn.height, 0, 512);
-					chunkColumn.biomeId = flatDataBytes.AsSpan().Slice(512, 256).ToArray();
+
+					// TODO - 1.20 - update
+					//chunkColumn.biomeId = flatDataBytes.AsSpan().Slice(512, 256).ToArray();
 				}
 
 				// Block entities
@@ -284,7 +286,7 @@ namespace MiNET.Worlds
 					file.LoadFromStream(reader, NbtCompression.None);
 					var tag = (NbtCompound) file.RootTag;
 
-					Block block = BlockFactory.GetBlockByName(tag["name"].StringValue);
+					Block block = BlockFactory.GetBlockById(tag["name"].StringValue);
 					if (block != null && block.GetType() != typeof(Block) && !(block is Air))
 					{
 						List<IBlockState> blockState = ReadBlockState(tag);
@@ -446,7 +448,9 @@ namespace MiNET.Worlds
 			// Biomes & heights
 			byte[] heightBytes = new byte[512];
 			Buffer.BlockCopy(chunk.height, 0, heightBytes, 0, 512);
-			byte[] data2D = Combine(heightBytes, chunk.biomeId);
+
+			// TODO - 1.20 - update
+			byte[] data2D = Combine(heightBytes, new byte[256]); //Combine(heightBytes, chunk.biomeId);
 			Db.Put(Combine(index, 0x2D), data2D);
 
 			//// Block entities
@@ -640,7 +644,7 @@ namespace MiNET.Worlds
 						coords.Add(chunkCoordinates);
 				}
 
-				Parallel.ForEach(_chunkCache, (chunkColumn) =>
+				Parallel.ForEach(_chunkCache, (Action<KeyValuePair<ChunkCoordinates, ChunkColumn>>) ((chunkColumn) =>
 				{
 					bool keep = coords.Exists(c => c.DistanceTo(chunkColumn.Key) < maxViewDistance);
 					if (!keep)
@@ -651,13 +655,13 @@ namespace MiNET.Worlds
 						{
 							foreach (var chunk in waste)
 							{
-								chunk.PutPool();
+								chunk.Dispose();
 							}
 						}
 
 						Interlocked.Increment(ref removed);
 					}
-				});
+				}));
 			}
 
 			return removed;
@@ -705,7 +709,7 @@ namespace MiNET.Worlds
 		{
 			var tag = new NbtCompound("");
 
-			tag.Add(new NbtString("name", container.Name));
+			tag.Add(new NbtString("name", container.Id));
 			var nbtStates = new NbtCompound("states");
 
 			foreach (IBlockState state in container.States)

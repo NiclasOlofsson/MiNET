@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class HayBlock : Block
 	{
-		public HayBlock() : base(170)
+		public HayBlock() : base()
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;

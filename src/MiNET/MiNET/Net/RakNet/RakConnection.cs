@@ -43,15 +43,20 @@ namespace MiNET.Net.RakNet
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(RakConnection));
 
-		private          UdpClient           _listener;
-		private readonly IPEndPoint          _endpoint;
-		private readonly DedicatedThreadPool _receiveThreadPool;
-		private Thread _receiveThread;
-		private          HighPrecisionTimer                           _tickerHighPrecisionTimer;
 		private readonly ConcurrentDictionary<IPEndPoint, RakSession> _rakSessions = new ConcurrentDictionary<IPEndPoint, RakSession>();
-		private readonly GreyListManager                              _greyListManager;
-		public readonly  RakOfflineHandler                            _rakOfflineHandler;
-		public           ConnectionInfo                               ConnectionInfo { get; }
+		private readonly IPEndPoint _endpoint;
+		private readonly DedicatedThreadPool _receiveThreadPool;
+		private readonly GreyListManager _greyListManager;
+
+		public readonly RakOfflineHandler _rakOfflineHandler;
+
+		private UdpClient _listener;
+		private Thread _receiveThread;
+		private HighPrecisionTimer _tickerHighPrecisionTimer;
+
+		private int _datagramSendTimeout;
+
+		public ConnectionInfo ConnectionInfo { get; }
 
 		public bool FoundServer => _rakOfflineHandler.HaveServer;
 
@@ -83,6 +88,8 @@ namespace MiNET.Net.RakNet
 			ConnectionInfo = new ConnectionInfo(_rakSessions);
 
 			_rakOfflineHandler = new RakOfflineHandler(this, this, _greyListManager, motdProvider, ConnectionInfo);
+
+			_datagramSendTimeout = Config.GetProperty("DatagramSendTimeout", 3000);
 		}
 
 		public void Start()
@@ -95,7 +102,7 @@ namespace MiNET.Net.RakNet
 			_receiveThread = new Thread(ReceiveDatagram) {IsBackground = true};
 			_receiveThread.Start(_listener);
 
-			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
+			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, Config.GetProperty("EnableHighPrecision", true));
 		}
 
 		public bool TryLocate(out (IPEndPoint serverEndPoint, string serverName) serverInfo, int numberOfAttempts = int.MaxValue)
@@ -288,15 +295,15 @@ namespace MiNET.Net.RakNet
 							{
 								if (_greyListManager != null)
 								{
-									if (!_greyListManager.IsWhitelisted(senderEndpoint.Address) && _greyListManager.IsBlacklisted(senderEndpoint.Address)) return;
-									if (_greyListManager.IsGreylisted(senderEndpoint.Address)) return;
+									if (!_greyListManager.IsWhitelisted(senderEndpoint) && _greyListManager.IsBlacklisted(senderEndpoint)) return;
+									if (_greyListManager.IsGreylisted(senderEndpoint)) return;
 								}
 
 								ReceiveDatagram(receiveBytes, senderEndpoint);
 							}
 							catch (Exception e)
 							{
-								Log.Warn($"Process message error from: {senderEndpoint.Address}", e);
+								Log.Warn($"Process message error from: {senderEndpoint}", e);
 							}
 						});
 					}
@@ -673,7 +680,7 @@ namespace MiNET.Net.RakNet
 
 					long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 					long datagramTimeout = rto * (datagram.TransmissionCount + session.ResendCount + 1);
-					datagramTimeout = Math.Min(datagramTimeout, 3000);
+					datagramTimeout = Math.Min(datagramTimeout, _datagramSendTimeout);
 					datagramTimeout = Math.Max(datagramTimeout, 100);
 
 					if (datagram.RetransmitImmediate || elapsedTime >= datagramTimeout)

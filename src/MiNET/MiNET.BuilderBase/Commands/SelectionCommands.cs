@@ -416,7 +416,7 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Counts the number of a certain type of block")]
-		public void Count(Player player, int tileId, int tileData = 0, bool separateByData = false)
+		public void Count(Player player, string tileId, int tileData = 0, bool separateByData = false)
 		{
 			var selector = RegionSelector.GetSelector(player);
 
@@ -435,10 +435,10 @@ namespace MiNET.BuilderBase.Commands
 			var selector = RegionSelector.GetSelector(player);
 
 			var selection = selector.GetSelectedBlocks().Select(coord => player.Level.GetBlock(coord)).ToArray();
-			Dictionary<Tuple<int, int>, int> dist = new Dictionary<Tuple<int, int>, int>();
+			Dictionary<Tuple<string, int>, int> dist = new Dictionary<Tuple<string, int>, int>();
 			foreach (var block in selection)
 			{
-				Tuple<int, int> tuple = Tuple.Create(block.Id, separateByData ? block.Metadata : 0);
+				Tuple<string, int> tuple = Tuple.Create(block.Id, separateByData ? block.Metadata : 0);
 				if (dist.ContainsKey(tuple)) dist[tuple] = dist[tuple] + 1;
 				else dist.Add(tuple, 1);
 			}

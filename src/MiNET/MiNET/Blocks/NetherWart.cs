@@ -25,26 +25,27 @@
 
 using System;
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class NetherWart : Block
 	{
-		public NetherWart() : base(115)
+		public NetherWart() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			if (Age == 3)
 			{
 				var rnd = new Random();
-				return new[] {ItemFactory.GetItem(372, 0, (2 + rnd.Next(3)))};
+				return new[] { new ItemNetherWart() { Count = (byte) (2 + rnd.Next(3)) } };
 			}
 
-			return new[] {ItemFactory.GetItem(372, 0, 1)};
+			return new[] { new ItemNetherWart() };
 		}
 	}
 }

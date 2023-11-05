@@ -24,20 +24,21 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class Clay : Block
 	{
-		public Clay() : base(82)
+		public Clay() : base()
 		{
 			BlastResistance = 3;
 			Hardness = 0.6f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			return new Item[] {ItemFactory.GetItem(337, 0, 4)};
+			return new Item[] { new ItemClayBall() { Count = 4 } };
 		}
 	}
 }

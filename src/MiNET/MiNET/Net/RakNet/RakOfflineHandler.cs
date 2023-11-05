@@ -84,7 +84,7 @@ namespace MiNET.Net.RakNet
 			// Shortcut to reply fast, and no parsing
 			if (messageType == DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1)
 			{
-				if (!_greyListManager.AcceptConnection(senderEndpoint.Address))
+				if (!_greyListManager.AcceptConnection(senderEndpoint))
 				{
 					var noFree = NoFreeIncomingConnections.CreateObject();
 					var bytes = noFree.Encode();
@@ -230,7 +230,7 @@ namespace MiNET.Net.RakNet
 			MtuSize = mtuSize; // This is what we will use from connections this point forward
 
 			var packet = OpenConnectionRequest1.CreateObject();
-			packet.raknetProtocolVersion = 10;
+			packet.raknetProtocolVersion = 11;
 			packet.mtuSize = mtuSize;
 
 			byte[] data = packet.Encode();

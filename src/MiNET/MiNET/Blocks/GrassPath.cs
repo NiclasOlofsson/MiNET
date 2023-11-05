@@ -24,12 +24,13 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class GrassPath : Block
 	{
-		public GrassPath() : base(198)
+		public GrassPath() : base()
 		{
 			BlastResistance = 3.25f;
 			Hardness = 0.6f;
@@ -37,9 +38,9 @@ namespace MiNET.Blocks
 			IsBlockingSkylight = false; // Partial - blocks light.
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			return new[] {new ItemBlock(new Dirt(), 0) {Count = 1}}; // Drop dirt block
+			return new[] { ItemFactory.GetItem<Dirt>() };
 		}
 	}
 }

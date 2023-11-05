@@ -24,21 +24,22 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class Cake : Block
 	{
-		public Cake() : base(92)
+		public Cake() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			if (BiteCounter == 0) return new Item[] {ItemFactory.GetItem(354, 0, 1)};
+			if (BiteCounter == 0) return new Item[] { new ItemCake() };
 			return new Item[0];
 		}
 	}

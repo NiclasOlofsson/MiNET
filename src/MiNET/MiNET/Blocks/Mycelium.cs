@@ -24,20 +24,21 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class Mycelium : Block
 	{
-		public Mycelium() : base(110)
+		public Mycelium() : base()
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.6f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			return new[] {new ItemBlock(new Dirt(), 0)};
+			return new[] { ItemFactory.GetItem<Dirt>() };
 		}
 	}
 }

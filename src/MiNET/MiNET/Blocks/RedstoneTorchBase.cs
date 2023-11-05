@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 		[StateEnum("east", "north", "south", "top", "unknown", "west")]
 		public virtual string TorchFacingDirection { get; set; }
 
-		public RedstoneTorchBase(byte id) : base(id)
+		public RedstoneTorchBase() : base()
 		{
 			IsTransparent = true;
 			IsSolid = false;
@@ -87,9 +87,9 @@ namespace MiNET.Blocks
 			return false;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			return new[] {new ItemBlock(new RedstoneTorch(), 0)};
+			return new[] { ItemFactory.GetItem<RedstoneTorch>() };
 		}
 	}
 }

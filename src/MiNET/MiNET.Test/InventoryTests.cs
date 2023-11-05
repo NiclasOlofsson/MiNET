@@ -26,6 +26,8 @@
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
+using MiNET.Crafting;
+using MiNET.Inventory;
 using MiNET.Items;
 
 namespace MiNET.Test
@@ -44,19 +46,31 @@ namespace MiNET.Test
 			inventory.Slots[2] = new ItemBlock(new Stone()) {Count = 64};
 			inventory.Slots[3] = new ItemBlock(new Stone()) {Count = 64};
 
-			inventory.RemoveItems((short) new Stone().Id, 2);
+			inventory.RemoveItems(BlockFactory.GetIdByType<Stone>(), 2);
 
 			Assert.AreEqual(64, inventory.Slots[0].Count);
 			Assert.AreEqual(62, inventory.Slots[1].Count);
 			Assert.AreEqual(64, inventory.Slots[2].Count);
 			Assert.AreEqual(64, inventory.Slots[3].Count);
 
-			inventory.RemoveItems((short) new Stone().Id, 64);
+			inventory.RemoveItems(BlockFactory.GetIdByType<Stone>(), 64);
 
 			Assert.AreEqual(64, inventory.Slots[0].Count);
 			Assert.AreEqual(0, inventory.Slots[1].Count);
 			Assert.AreEqual(62, inventory.Slots[2].Count);
 			Assert.AreEqual(64, inventory.Slots[3].Count);
+		}
+
+		[TestMethod]
+		public void CreateiveInventoryTest()
+		{
+			var items = InventoryUtils.CreativeInventoryItems;
+		}
+
+		[TestMethod]
+		public void CraftingTest()
+		{
+			var recipes = RecipeManager.Recipes;
 		}
 	}
 }

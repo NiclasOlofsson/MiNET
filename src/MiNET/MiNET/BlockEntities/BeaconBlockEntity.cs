@@ -27,6 +27,7 @@ using System.Linq;
 using System.Numerics;
 using fNbt;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Effects;
 using MiNET.Utils;
 using MiNET.Utils.Vectors;
@@ -141,7 +142,7 @@ namespace MiNET.BlockEntities
 			for (int y = 1; y < height - Coordinates.Y; y++)
 			{
 				if (level.IsTransparent(Coordinates + (BlockCoordinates.Up * y))) continue;
-				if (level.IsBlock(Coordinates + (BlockCoordinates.Up * y), 7)) continue;
+				if (level.IsBlock<Bedrock>(Coordinates + (BlockCoordinates.Up * y))) continue;
 
 				return false;
 			}
@@ -236,7 +237,7 @@ namespace MiNET.BlockEntities
 					for (int z = -i; z < i + 1; z++)
 					{
 						var block = level.GetBlock(Coordinates + new BlockCoordinates(x, -i, z));
-						if (block.Id == 42 || block.Id == 41 || block.Id == 57 || block.Id == 133) continue;
+						if (block is GoldBlock || block is IronBlock || block is EmeraldBlock || block is DiamondBlock || block is CopperBlock) continue;
 
 						return i - 1;
 					}

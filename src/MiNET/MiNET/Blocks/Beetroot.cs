@@ -34,7 +34,7 @@ namespace MiNET.Blocks
 {
 	public partial class Beetroot : Crops
 	{
-		public Beetroot() : base(244)
+		public Beetroot() : base()
 		{
 			MaxGrowth = 4;
 		}
@@ -54,7 +54,7 @@ namespace MiNET.Blocks
 		}
 
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			if (Growth == MaxGrowth)
 			{
@@ -63,12 +63,12 @@ namespace MiNET.Blocks
 				var count = rnd.Next(4);
 				if (count > 0)
 				{
-					return new[] {ItemFactory.GetItem(457, 0, 1), ItemFactory.GetItem(458, 0, (byte) count)};
+					return new Item[] { new ItemBeetroot(), new ItemBeetrootSeeds() { Count = (byte) count } };
 				}
-				return new[] {ItemFactory.GetItem(457, 0, 1)};
+				return new[] { new ItemBeetroot() };
 			}
 
-			return new[] {ItemFactory.GetItem(458, 0, 1)};
+			return new[] { new ItemBeetrootSeeds() };
 		}
 	}
 }

@@ -24,22 +24,23 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class Stone : Block
 	{
-		public Stone() : base(1)
+		public Stone() : base()
 		{
 			BlastResistance = 30;
 			Hardness = 1.5f;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
 			if (tool.ItemType != ItemType.PickAxe) return new Item[0];
 
-			return new[] {new ItemBlock(new Cobblestone(), 0) {Count = 1}}; // Drop cobblestone
+			return new[] { ItemFactory.GetItem<Cobblestone>() }; // Drop cobblestone
 		}
 	}
 }

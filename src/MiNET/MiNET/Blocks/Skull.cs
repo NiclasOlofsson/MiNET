@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 {
 	public partial class Skull : Block
 	{
-		public Skull() : base(144)
+		public Skull() : base()
 		{
 			IsTransparent = true;
 			BlastResistance = 5;

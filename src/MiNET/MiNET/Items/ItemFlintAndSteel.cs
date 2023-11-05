@@ -37,20 +37,20 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemFlintAndSteel : Item
+	public partial class ItemFlintAndSteel
 	{
 		public static int MaxPortalHeight = 30;
 		public static int MaxPortalWidth = 30;
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemFlintAndSteel));
 
-		public ItemFlintAndSteel() : base("minecraft:flint_and_steel", 259)
+		public ItemFlintAndSteel() : base()
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.FlintAndSteel;
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var block = world.GetBlock(blockCoordinates);
 			if (block is Tnt)
@@ -71,7 +71,7 @@ namespace MiNET.Items
 			else if (block is Obsidian)
 			{
 				var affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, face));
-				if (affectedBlock.Id == 0)
+				if (affectedBlock is Air)
 				{
 					var blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.West);
 					if (blocks.Count == 0)
@@ -91,7 +91,7 @@ namespace MiNET.Items
 						if (face == BlockFace.Up)
 						{
 							affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.Up));
-							if (affectedBlock.Id == 0)
+							if (affectedBlock is Air)
 							{
 								var fire = new Fire {Coordinates = affectedBlock.Coordinates};
 								world.SetBlock(fire);
@@ -99,18 +99,24 @@ namespace MiNET.Items
 						}
 					}
 				}
+
 				player.Inventory.DamageItemInHand(ItemDamageReason.BlockInteract, null, block);
+				return true;
 			}
 			else if (block.IsSolid)
 			{
 				var affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.Up));
-				if (affectedBlock.Id == 0)
+				if (affectedBlock is Air)
 				{
 					var fire = new Fire {Coordinates = affectedBlock.Coordinates};
 					world.SetBlock(fire);
 				}
+
 				player.Inventory.DamageItemInHand(ItemDamageReason.BlockInteract, null, block);
+				return true;
 			}
+
+			return false;
 		}
 
 		public List<Block> Fill(Level level, BlockCoordinates origin, int radius, BlockFace direction)

@@ -24,19 +24,20 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
 	public partial class RedstoneWire : Block
 	{
-		public RedstoneWire() : base(55)
+		public RedstoneWire() : base()
 		{
 			IsTransparent = true;
 		}
 
-		public override Item[] GetDrops(Item tool)
+		public override Item[] GetDrops(Level world, Item tool)
 		{
-			return new[] {ItemFactory.GetItem(331)};
+			return new[] { new ItemRedstone() };
 		}
 	}
 }

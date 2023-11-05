@@ -36,7 +36,7 @@ namespace MiNET.Blocks
 	{
 		[StateRange(0, 5)] public virtual int FacingDirection { get; set; }
 
-		protected FurnaceBase(byte id) : base(id)
+		protected FurnaceBase() : base()
 		{
 			BlastResistance = 17.5f;
 			Hardness = 3.5f;

@@ -1303,7 +1303,7 @@ namespace MiNET
 						HeadYaw = 91,
 					});
 
-					//ForcedSendChunk(newPosition);
+					ForcedSendChunk(newPosition);
 					_currentChunkPosition = new ChunkCoordinates(int.MaxValue);
 				}
 
@@ -1787,7 +1787,7 @@ namespace MiNET
 
 				CleanCache();
 
-				//ForcedSendChunk(SpawnPosition);
+				ForcedSendChunk(SpawnPosition);
 				_currentChunkPosition = new ChunkCoordinates(int.MaxValue);
 
 				// send teleport to spawn

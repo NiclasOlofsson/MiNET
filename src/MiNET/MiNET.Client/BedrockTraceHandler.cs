@@ -187,7 +187,7 @@ namespace MiNET.Client
 
 		public override void HandleMcpeCreativeContent(McpeCreativeContent message)
 		{
-			ItemStacks slots = message.input;
+			var slots = message.input;
 
 			string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
 			Client.WriteInventoryToFile(fileName, slots);

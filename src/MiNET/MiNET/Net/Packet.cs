@@ -830,66 +830,14 @@ namespace MiNET.Net
 			return metadata;
 		}
 
-		public void Write(CreativeItemStacks itemStacks)
-		{
-			if (itemStacks == null)
-			{
-				WriteUnsignedVarInt(0);
-				return;
-			}
-
-			WriteUnsignedVarInt((uint) itemStacks.Count);
-
-			foreach (var item in itemStacks)
-			{
-				WriteUnsignedVarInt((uint) item.UniqueId);
-				Write(item, false);
-			}
-		}
-
 		public CreativeItemStacks ReadCreativeItemStacks()
 		{
-			var metadata = new CreativeItemStacks();
-
-			var count = ReadUnsignedVarInt();
-			for (int i = 0; i < count; i++)
-			{
-				var networkId = ReadUnsignedVarInt();
-				Item item = ReadItem(false);
-				item.UniqueId = (int) networkId;
-				metadata.Add(item);
-				Log.Debug(item);
-			}
-
-			return metadata;
-		}
-
-		public void Write(ItemStacks itemStacks)
-		{
-			if (itemStacks == null)
-			{
-				WriteUnsignedVarInt(0);
-				return;
-			}
-
-			WriteUnsignedVarInt((uint) itemStacks.Count);
-			for (int i = 0; i < itemStacks.Count; i++)
-			{
-				Write(itemStacks[i]);
-			}
+			return CreativeItemStacks.Read(this);
 		}
 
 		public ItemStacks ReadItemStacks()
 		{
-			var itemStacks = new ItemStacks();
-
-			var count = ReadUnsignedVarInt();
-			for (int i = 0; i < count; i++)
-			{
-				itemStacks.Add(ReadItem());
-			}
-
-			return itemStacks;
+			return ItemStacks.Read(this);
 		}
 
 		public void Write(Transaction transaction)

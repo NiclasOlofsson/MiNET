@@ -115,7 +115,9 @@ namespace MiNET.Worlds
 		///         stale sub-chunk look current.
 		///     </para>
 		/// </summary>
-		private readonly ConcurrentDictionary<int, SubChunkPacketData> _cachedSubChunkData = new ConcurrentDictionary<int, SubChunkPacketData>();
+		// Not readonly: Clone() must hand the copy its own dictionary. Shared, the first column
+		// to serialize a section answers for every clone of the same template.
+		private ConcurrentDictionary<int, SubChunkPacketData> _cachedSubChunkData = new ConcurrentDictionary<int, SubChunkPacketData>();
 
 		public ChunkColumn(bool clearBuffers = true)
 		{
@@ -1007,6 +1009,7 @@ namespace MiNET.Worlds
 			}
 
 			cc._cacheSync = new object();
+			cc._cachedSubChunkData = new ConcurrentDictionary<int, SubChunkPacketData>();
 
 			// Never shared with the original: a clone is typically relocated (new X/Z) and then
 			// mutated, and the seed's position and biome hash describe the column it was built

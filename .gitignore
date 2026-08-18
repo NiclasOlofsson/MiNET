@@ -216,3 +216,6 @@ keys/
 # server.conf itself stays tracked: it is the documented default and holds nothing private.
 server.*.conf
 *.server.conf
+
+# BDS scratch world dropped in the repo root by a docgen/test run
+/World/

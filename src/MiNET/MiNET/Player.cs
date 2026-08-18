@@ -2168,6 +2168,8 @@ namespace MiNET
 
 			bool oldNoAi = NoAi;
 			SetNoAi(true);
+			int oldChunkRadius = ChunkRadius;
+			SendChunkRadiusUpdate(1);
 
 			if (useLoadingScreen)
 			{
@@ -2217,22 +2219,39 @@ namespace MiNET
 
 				CleanCache();
 
-				ForcedSendChunk(SpawnPosition);
+				// Level.AddPlayer(this, true);
 
-				// send teleport to spawn
-				SetPosition(SpawnPosition);
+				// KnownPosition = SpawnPosition;
+
+				// SendChunkRadiusUpdate(oldChunkRadius);
+
+				// SendSetTime();
+
+				// // send teleport to spawn
+				// SetPosition(SpawnPosition);
+				// SetNoAi(oldNoAi);
+
+				// Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+
+				// postSpawnAction?.Invoke();
 
 				MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
 				{
 					Level.AddPlayer(this, true);
 
-					SetNoAi(oldNoAi);
+					KnownPosition = SpawnPosition;
+
+					SendChunkRadiusUpdate(oldChunkRadius);
 
 					ForcedSendChunks(() =>
 					{
 						Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
 						SendSetTime();
+
+						// send teleport to spawn
+						SetPosition(SpawnPosition);
+						SetNoAi(oldNoAi);
 
 						postSpawnAction?.Invoke();
 					});
@@ -3185,11 +3204,22 @@ namespace MiNET
 			// The block half of the chunk flow: the skeleton LevelChunk carried only biomes, and
 			// the client asks here for the sections it wants, as offsets from an origin in absolute
 			// sub-chunk coordinates. One entry is answered per offset; the column serializes it.
-			var response = McpeSubChunkPacket.CreateObject();
-			response.cacheEnabled = true;
-			response.dimensionType = message.dimension;
-			response.centerPos = new SubChunkPos {subchunkPositionX = message.originX, subchunkPositionY = message.originY, subchunkPositionZ = message.originZ};
-			response.subchunkData = new List<SubChunkPacketData>();
+			// The client rejects a SubChunkPacket with more than 8192 entries (packet violation
+			// 0xAE, "too many input elements"), so a mass re-request is answered as a run of
+			// packets at the cap instead of one mirror of the request.
+			const int maxEntriesPerPacket = 8192;
+
+			McpeSubChunkPacket response = null;
+
+			McpeSubChunkPacket NewResponse()
+			{
+				var packet = McpeSubChunkPacket.CreateObject();
+				packet.cacheEnabled = true;
+				packet.dimensionType = message.dimension;
+				packet.centerPos = new SubChunkPos {subchunkPositionX = message.originX, subchunkPositionY = message.originY, subchunkPositionZ = message.originZ};
+				packet.subchunkData = new List<SubChunkPacketData>();
+				return packet;
+			}
 
 			foreach (SubChunkPosOffset offset in message.offsets)
 			{
@@ -3200,10 +3230,17 @@ namespace MiNET
 				EngineMetrics.SubChunkResult(entry.subchunkRequestResult.ToString().ToLowerInvariant());
 				if (entry.serializedSubChunk != null) EngineMetrics.SubChunkBytes(entry.serializedSubChunk.Length);
 
+				response ??= NewResponse();
 				response.subchunkData.Add(entry);
+
+				if (response.subchunkData.Count >= maxEntriesPerPacket)
+				{
+					SendPacket(response);
+					response = null;
+				}
 			}
 
-			SendPacket(response);
+			if (response != null) SendPacket(response);
 		}
 
 		private SubChunkPacketData BuildSubChunkEntry(McpeSubChunkRequestPacket message, SubChunkPosOffset offset)

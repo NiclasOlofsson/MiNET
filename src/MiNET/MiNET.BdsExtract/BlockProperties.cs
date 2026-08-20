@@ -37,8 +37,6 @@ public sealed class BlockProperties
 	public float Friction { get; init; }
 	public float Thickness { get; init; }
 	public float Translucency { get; init; }
-	public int LightEmission { get; init; }
-	public int LightDampening { get; init; }
 	public int BurnOdds { get; init; }
 	public int FlameOdds { get; init; }
 	public bool IsSolid { get; init; }
@@ -55,8 +53,8 @@ public sealed class BlockProperties
 ///     Finds every block in a running server and reads its properties.
 ///     The search has no list of expected names. It sweeps memory for the HashedString pattern, a
 ///     hash followed by text that hashes to it, which identifies a block name and nothing else.
-///     Each block then points at a second object holding hardness and blast resistance, and both
-///     are read at the offsets in <see cref="MemoryLayout" />.
+///     Each block points at its default state, which is where hardness, blast resistance and the
+///     rest are read from, at the offsets in <see cref="MemoryLayout" />.
 /// </summary>
 public static class BlockRegistry
 {
@@ -67,7 +65,7 @@ public static class BlockRegistry
 		var found = new Dictionary<ulong, BlockProperties>();
 		var window = new byte[8 * 1024 * 1024];
 		var heap = new byte[256];
-		var material = new byte[MemoryLayout.MaterialSize];
+		var defaultState = new byte[MemoryLayout.BlockSize];
 		var word = new byte[8];
 
 		foreach (var region in process.Regions)
@@ -87,7 +85,7 @@ public static class BlockRegistry
 					ulong nameAddress = at + (ulong) i;
 					if (nameAddress < MemoryLayout.NameInsideLegacy) continue;
 					ulong legacy = nameAddress - MemoryLayout.NameInsideLegacy;
-					var block = ReadBlock(process, legacy, name, window, i, material, word);
+					var block = ReadBlock(process, legacy, name, window, i, defaultState, word);
 					if (block is null) continue;
 
 					// Several copies of a name can exist; keep the one that reads as a real block.
@@ -102,11 +100,11 @@ public static class BlockRegistry
 	}
 
 	private static BlockProperties ReadBlock(BedrockProcess process, ulong legacy, string name,
-		byte[] window, int at, byte[] material, byte[] word)
+		byte[] window, int at, byte[] defaultState, byte[] word)
 	{
-		ulong materialAddress = process.ReadUInt64(legacy + MemoryLayout.NameInsideLegacy + MemoryLayout.MaterialPointer, word);
-		if (materialAddress < 0x10000 || !process.IsMapped(materialAddress)) return null;
-		if (!process.TryRead(materialAddress, material, MemoryLayout.MaterialSize)) return null;
+		ulong stateAddress = process.ReadUInt64(legacy + MemoryLayout.NameInsideLegacy + MemoryLayout.DefaultStatePointer, word);
+		if (stateAddress < 0x10000 || !process.IsMapped(stateAddress)) return null;
+		if (!process.TryRead(stateAddress, defaultState, MemoryLayout.BlockSize)) return null;
 
 		int nameAt = at; // the HashedString, and every BlockLegacy field is relative to it
 		var color = new float[4];
@@ -125,17 +123,15 @@ public static class BlockRegistry
 			TintMethod = MemoryLayout.Describe(MemoryLayout.TintMethods,
 				window[nameAt + MemoryLayout.TintMethod]),
 			MapColor = ToHex(color),
-			Hardness = BitConverter.ToSingle(material, MemoryLayout.MaterialHardness),
-			ExplosionResistance = BitConverter.ToSingle(material, MemoryLayout.MaterialExplosionResistance),
-			Friction = BitConverter.ToSingle(material, MemoryLayout.MaterialFriction),
-			LightEmission = material[MemoryLayout.MaterialLightEmission],
-			LightDampening = material[MemoryLayout.MaterialLightDampening],
-			BurnOdds = material[MemoryLayout.MaterialBurnOdds],
-			FlameOdds = material[MemoryLayout.MaterialFlameOdds],
-			IsSolid = material[MemoryLayout.MaterialIsSolid] != 0,
-			CanContainLiquidSource = material[MemoryLayout.MaterialCanContainLiquid] != 0,
+			Hardness = BitConverter.ToSingle(defaultState, MemoryLayout.BlockHardness),
+			ExplosionResistance = BitConverter.ToSingle(defaultState, MemoryLayout.BlockExplosionResistance),
+			Friction = BitConverter.ToSingle(defaultState, MemoryLayout.BlockFriction),
+			BurnOdds = defaultState[MemoryLayout.BlockBurnOdds],
+			FlameOdds = defaultState[MemoryLayout.BlockFlameOdds],
+			IsSolid = defaultState[MemoryLayout.BlockIsSolid] != 0,
+			CanContainLiquidSource = defaultState[MemoryLayout.BlockCanContainLiquid] != 0,
 			LiquidReactionOnTouch = MemoryLayout.Describe(MemoryLayout.LiquidReactions,
-				material[MemoryLayout.MaterialLiquidReaction]),
+				defaultState[MemoryLayout.BlockLiquidReaction]),
 			Address = legacy
 		};
 	}

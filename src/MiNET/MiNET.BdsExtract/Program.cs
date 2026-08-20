@@ -140,22 +140,35 @@ public static class Program
 		// State the id scheme in the file itself. Without it a reader cannot tell whether
 		// networkId is a hash or a repeat of index, and both look equally reasonable.
 		var text = new StringBuilder("{\n");
-		text.Append($"  \"networkIdsAreHashes\": {Boolean(report.NetworkIdsAreHashes)},\n");
-		text.Append($"  \"count\": {palette.Count},\n");
-		text.Append("  \"palette\": [\n");
+		text.Append($"\t\"networkIdsAreHashes\": {Boolean(report.NetworkIdsAreHashes)},\n");
+		text.Append($"\t\"count\": {palette.Count},\n");
+		text.Append("\t\"palette\": [\n");
 		for (int i = 0; i < palette.Count; i++)
 		{
 			var entry = palette[i];
-			text.Append("    { ");
+			// One entry per line. Seventeen thousand entries broken across eight lines each is
+			// not more readable than this, it is just longer.
+			text.Append("\t\t{ ");
 			text.Append($"\"index\": {entry.Index}, ");
 			text.Append($"\"name\": \"{entry.Name}\", ");
 			text.Append($"\"nameHash\": \"0x{entry.NameHash:X16}\", ");
 			text.Append($"\"networkId\": {entry.NetworkId}, ");
-			text.Append($"\"legacyId\": {entry.LegacyId}");
+			text.Append($"\"legacyId\": {entry.LegacyId}, ");
+			text.Append($"\"lightEmission\": {entry.LightEmission}, ");
+			text.Append($"\"lightDampening\": {entry.LightDampening}, ");
+			text.Append($"\"version\": {entry.Version}, ");
+			text.Append("\"states\": {");
+			for (int s = 0; s < entry.States.Count; s++)
+			{
+				var property = entry.States[s];
+				text.Append(s == 0 ? " " : ", ");
+				text.Append($"\"{property.Name}\": {property.ToJson()}");
+			}
+			text.Append(entry.States.Count == 0 ? "}" : " }");
 			text.Append(" }");
 			text.Append(i == palette.Count - 1 ? "\n" : ",\n");
 		}
-		return text.Append("]\n").ToString();
+		return text.Append("\t]\n}\n").ToString();
 	}
 
 	private static string WriteProperties(IReadOnlyList<BlockProperties> blocks)
@@ -164,25 +177,23 @@ public static class Program
 		for (int i = 0; i < blocks.Count; i++)
 		{
 			var block = blocks[i];
-			text.Append("  {\n");
-			text.Append($"    \"name\": \"{block.Name}\",\n");
-			text.Append($"    \"nameHash\": \"0x{block.NameHash:X16}\",\n");
-			text.Append($"    \"legacyId\": {block.LegacyId},\n");
-			text.Append($"    \"hardness\": {Number(block.Hardness)},\n");
-			text.Append($"    \"explosionResistance\": {Number(block.ExplosionResistance)},\n");
-			text.Append($"    \"friction\": {Number(block.Friction)},\n");
-			text.Append($"    \"thickness\": {Number(block.Thickness)},\n");
-			text.Append($"    \"translucency\": {Number(block.Translucency)},\n");
-			text.Append($"    \"lightEmission\": {block.LightEmission},\n");
-			text.Append($"    \"lightDampening\": {block.LightDampening},\n");
-			text.Append($"    \"burnOdds\": {block.BurnOdds},\n");
-			text.Append($"    \"flameOdds\": {block.FlameOdds},\n");
-			text.Append($"    \"isSolid\": {Boolean(block.IsSolid)},\n");
-			text.Append($"    \"canContainLiquidSource\": {Boolean(block.CanContainLiquidSource)},\n");
-			text.Append($"    \"liquidReactionOnTouch\": \"{block.LiquidReactionOnTouch}\",\n");
-			text.Append($"    \"tintMethod\": \"{block.TintMethod}\",\n");
-			text.Append($"    \"mapColor\": \"{block.MapColor}\"\n");
-			text.Append("  }");
+			text.Append("\t{\n");
+			text.Append($"\t\t\"name\": \"{block.Name}\",\n");
+			text.Append($"\t\t\"nameHash\": \"0x{block.NameHash:X16}\",\n");
+			text.Append($"\t\t\"legacyId\": {block.LegacyId},\n");
+			text.Append($"\t\t\"hardness\": {Number(block.Hardness)},\n");
+			text.Append($"\t\t\"explosionResistance\": {Number(block.ExplosionResistance)},\n");
+			text.Append($"\t\t\"friction\": {Number(block.Friction)},\n");
+			text.Append($"\t\t\"thickness\": {Number(block.Thickness)},\n");
+			text.Append($"\t\t\"translucency\": {Number(block.Translucency)},\n");
+			text.Append($"\t\t\"burnOdds\": {block.BurnOdds},\n");
+			text.Append($"\t\t\"flameOdds\": {block.FlameOdds},\n");
+			text.Append($"\t\t\"isSolid\": {Boolean(block.IsSolid)},\n");
+			text.Append($"\t\t\"canContainLiquidSource\": {Boolean(block.CanContainLiquidSource)},\n");
+			text.Append($"\t\t\"liquidReactionOnTouch\": \"{block.LiquidReactionOnTouch}\",\n");
+			text.Append($"\t\t\"tintMethod\": \"{block.TintMethod}\",\n");
+			text.Append($"\t\t\"mapColor\": \"{block.MapColor}\"\n");
+			text.Append("\t}");
 			text.Append(i == blocks.Count - 1 ? "\n" : ",\n");
 		}
 		return text.Append("]\n").ToString();

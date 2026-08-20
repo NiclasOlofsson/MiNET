@@ -33,6 +33,14 @@ public sealed class PaletteEntry
 	public ulong NameHash { get; init; }
 	public uint NetworkId { get; init; }
 	public int LegacyId { get; init; }
+	public int LightEmission { get; init; }
+	public int LightDampening { get; init; }
+
+	/// <summary>What this state is, sorted by property name. Empty for a block with one state.</summary>
+	public IReadOnlyList<StateProperty> States { get; init; } = [];
+
+	/// <summary>The block state version stamped into the state's own NBT.</summary>
+	public int Version { get; init; }
 }
 
 /// <summary>
@@ -131,6 +139,9 @@ public static class BlockPalette
 		var heap = new byte[256];
 		var entries = new List<PaletteEntry>(header.Count);
 
+		// The tag types are learned once and used for the whole palette.
+		var reader = new BlockStateReader(process, Addresses(slots, header.Count));
+
 		for (int i = 0; i < header.Count; i++)
 		{
 			ulong address = BitConverter.ToUInt64(slots, i * 8);
@@ -138,10 +149,17 @@ public static class BlockPalette
 			ulong hash = 0;
 			uint network = 0;
 			int legacyId = -1;
+			int emission = 0;
+			int dampening = 0;
+			int version = 0;
+			IReadOnlyList<StateProperty> properties = [];
 
 			if (process.IsMapped(address) && process.TryRead(address, state, state.Length))
 			{
 				network = BitConverter.ToUInt32(state, MemoryLayout.BlockNetworkId);
+				emission = state[MemoryLayout.BlockLightEmission];
+				dampening = state[MemoryLayout.BlockLightDampening];
+				properties = reader.Read(address, out version);
 				ulong owner = BitConverter.ToUInt64(state, MemoryLayout.BlockLegacyPointer);
 				if (process.IsMapped(owner) && process.TryRead(owner, legacy, legacy.Length))
 				{
@@ -159,10 +177,19 @@ public static class BlockPalette
 				Name = name ?? "",
 				NameHash = hash,
 				NetworkId = network,
-				LegacyId = legacyId
+				LegacyId = legacyId,
+				LightEmission = emission,
+				LightDampening = dampening,
+				States = properties,
+				Version = version
 			});
 		}
 		return entries;
+	}
+
+	private static IEnumerable<ulong> Addresses(byte[] slots, int count)
+	{
+		for (int i = 0; i < count; i++) yield return BitConverter.ToUInt64(slots, i * 8);
 	}
 
 	private static bool SpanIsAllStates(BedrockProcess process, ulong begin, long count, HashSet<ulong> states, byte[] word)

@@ -34,13 +34,15 @@ namespace MiNET.BdsExtract;
 ///     quietly produce wrong numbers: the checks in <see cref="ExtractionReport" /> fail, because
 ///     a name stops hashing to its own hash and the palette stops being ordered. Re-derive these
 ///     rather than nudging them until something compiles.
-///     Three objects are involved:
+///     Two objects are involved, and their old names still show up in the wild: BlockLegacy used
+///     to be Tile, and Block used to be Material.
 ///     BlockLegacy is the block, one per block name. Its name is a HashedString partway inside it,
 ///     and since that is what the memory sweep finds, every BlockLegacy field below is measured
 ///     from the name rather than from the object start.
-///     Material is a second object BlockLegacy points at, holding what it takes to destroy the
-///     block. Its fields are measured from its own start.
-///     Block is a state, one per palette entry. Its fields are measured from its own start.
+///     Block is a state, one per palette entry, and its fields are measured from its own start.
+///     BlockLegacy points at one of them, its default state, and that is where the per block
+///     values are read from. Verified against every block: the address at name+352 is always a
+///     palette entry, always one belonging to that same block, and shares its method table.
 /// </summary>
 public static class MemoryLayout
 {
@@ -53,24 +55,53 @@ public static class MemoryLayout
 	public const int MapColor = 136;          // four floats: red, green, blue, alpha
 	public const int TintMethod = 156;
 	public const int LegacyId = 158;          // the pre-flattening numeric id
-	public const int MaterialPointer = 352;
+	public const int DefaultStatePointer = 352;
 	public const int LegacyReach = 360;       // how far past the name we ever read
 
-	// Material, measured from its own start.
-	public const int MaterialIsSolid = 113;
-	public const int MaterialLightEmission = 164;
-	public const int MaterialLightDampening = 165;
-	public const int MaterialFlameOdds = 168;
-	public const int MaterialBurnOdds = 170;
-	public const int MaterialExplosionResistance = 172;
-	public const int MaterialFriction = 176;
-	public const int MaterialHardness = 180;
-	public const int MaterialCanContainLiquid = 184;
-	public const int MaterialLiquidReaction = 186;
-	public const int MaterialSize = 192;
+	/// <summary>
+	///     Block fields that are the same for every state of a block, so the default state
+	///     answers for all of them. Checked across all 17,700 states: none of these differ
+	///     between the states of one block, unlike the two light fields below.
+	/// </summary>
+	public const int BlockIsSolid = 113;
+
+	public const int BlockFlameOdds = 168;
+	public const int BlockBurnOdds = 170;
+	public const int BlockExplosionResistance = 172;
+	public const int BlockFriction = 176;
+	public const int BlockHardness = 180;
+	public const int BlockCanContainLiquid = 184;
+	public const int BlockLiquidReaction = 186;
 
 	// Block, the per-state object, measured from its own start.
 	public const int BlockLegacyPointer = 104;
+
+	/// <summary>
+	///     Light is a property of the state, not of the block. A candle emits nothing unlit and
+	///     3, 6, 9 or 12 lit depending on how many candles the state has; a respawn anchor runs
+	///     0, 3, 7, 11, 15 across its charges; a cauldron dampens 3 empty and 14 full. Fifty one
+	///     blocks disagree with themselves this way, so reading one value per block gets them
+	///     wrong. Both are 0..15.
+	/// </summary>
+	/// <summary>
+	///     The serialized NBT for this state: the compound of name, states and version that the
+	///     network id is a hash of. It is an MSVC std::map, walked by <see cref="BlockStateReader" />.
+	/// </summary>
+	public const int BlockStateNbt = 248;
+
+	// One node of that map, measured from its own start.
+	public const int MapNodeLeft = 0;
+	public const int MapNodeParent = 8;      // on the head sentinel this is the real root
+	public const int MapNodeRight = 16;
+	public const int MapNodeFlags = 24;      // colour, then a byte marking the sentinel itself
+	public const int MapNodeKey = 32;        // std::string
+	public const int MapNodeVtable = 64;     // which tag the value is
+	public const int MapNodePayload = 72;
+	public const int MapNodeSize = 128;
+
+	public const int BlockLightEmission = 164;
+
+	public const int BlockLightDampening = 165;
 	public const int BlockNetworkId = 276;
 	public const int BlockSize = 304;
 

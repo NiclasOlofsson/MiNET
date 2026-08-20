@@ -29,17 +29,18 @@ using System.Text;
 namespace MiNET.BdsExtract;
 
 /// <summary>
-///     Reads a running Bedrock Dedicated Server and writes what it finds as JSON.
-///     Two outputs, and they answer different questions.
+///     Reads a running Bedrock Dedicated Server and writes what it finds as JSON, into the Data
+///     folder of this project unless told otherwise. Three outputs, answering different questions.
 ///     block_palette.json is the palette: every block state the server knows, in the server's own
 ///     order. Position in that list is the palette index, which is the runtime id when the server
 ///     is not using hashed ids. Each entry also carries its network id, which is the runtime id
-///     when it is. Nothing about the order is computed here, it is the order the server holds.
-///     block_properties.json is per block, not per state: hardness, friction, light and the rest.
-///     Neither file describes what a state actually is, the "facing east, upside down" part. That
-///     is deliberate. Every entry carries a network id, and that id is a hash of the state, so a
-///     separate program that knows the states can hash them and join on that number. Nothing about
-///     ordering has to pass between the two sides, so neither can corrupt the other.
+///     when it is, what state it is, and the light it gives off and takes away. Nothing about the
+///     order is computed here, it is the order the server holds.
+///     block_properties.json is per block, not per state: hardness, friction, blast resistance and
+///     the rest, the things every state of a block shares.
+///     block_upgrade_rules.json is what the server does to blocks that no longer exist when it
+///     loads an old world. Nothing else publishes those rules; every copy in circulation was
+///     reconstructed from the outside by people who could not read them.
 /// </summary>
 public static class Program
 {
@@ -49,7 +50,7 @@ public static class Program
 		// line and returns: none of the memory-side options apply to it.
 		if (args.Length > 0 && args[0] == "--probe") return BlockProbe.Run(args[1..]);
 
-		string outputDirectory = ".";
+		string outputDirectory = DefaultOutputDirectory();
 		string pathFilter = null;
 
 		for (int i = 0; i < args.Length; i++)
@@ -66,7 +67,7 @@ public static class Program
 					Console.Error.WriteLine("usage: MiNET.BdsExtract [--out <directory>] [--server <path fragment>]");
 					Console.Error.WriteLine("       MiNET.BdsExtract --probe <bds directory> [output directory]");
 					Console.Error.WriteLine();
-					Console.Error.WriteLine("  --out     where to write the two json files, default the working directory");
+					Console.Error.WriteLine("  --out     where to write the json files, default the Data folder in this project");
 					Console.Error.WriteLine("  --server  which server to read when several are running, matched on");
 					Console.Error.WriteLine(@"            executable path, for example --server bds\probe");
 					return 2;
@@ -82,6 +83,29 @@ public static class Program
 			Console.Error.WriteLine($"error: {e.Message}");
 			return 1;
 		}
+	}
+
+	/// <summary>
+	///     Where the extraction lands unless told otherwise: the Data folder beside this project's
+	///     source, so a run updates the copy that is committed rather than dropping files wherever
+	///     it happened to be started from.
+	///     The data is the point of the tool. Reading it needs a Windows machine, a matching
+	///     server build and the patience to run one, so committing the result is what lets everyone
+	///     else use it without any of that.
+	/// </summary>
+	private static string DefaultOutputDirectory()
+	{
+		var directory = new DirectoryInfo(AppContext.BaseDirectory);
+		while (directory is not null)
+		{
+			if (directory.GetFiles("MiNET.BdsExtract.csproj").Length > 0)
+			{
+				return Path.Combine(directory.FullName, "Data");
+			}
+			directory = directory.Parent;
+		}
+		// Running from somewhere that is not a build of this project, so stay where we are.
+		return "Data";
 	}
 
 	private static int Run(string outputDirectory, string pathFilter)
@@ -124,13 +148,20 @@ public static class Program
 		var report = ExtractionReport.Check(palette);
 		report.WriteTo(Console.Out);
 
+		var upgrades = BlockUpgradeReader.Read(server);
+		Console.WriteLine($"upgrade rules: {upgrades.Count:N0} blocks, "
+						+ $"{upgrades.Sum(u => u.RenamedProperties.Count):N0} property renames");
+
 		Directory.CreateDirectory(outputDirectory);
 		string palettePath = Path.Combine(outputDirectory, "block_palette.json");
 		string propertiesPath = Path.Combine(outputDirectory, "block_properties.json");
+		string upgradePath = Path.Combine(outputDirectory, "block_upgrade_rules.json");
 		File.WriteAllText(palettePath, WritePalette(palette, report), new UTF8Encoding(false));
 		File.WriteAllText(propertiesPath, WriteProperties(blocks), new UTF8Encoding(false));
+		File.WriteAllText(upgradePath, WriteUpgrades(upgrades), new UTF8Encoding(false));
 		Console.WriteLine($"written {palettePath}");
 		Console.WriteLine($"written {propertiesPath}");
+		Console.WriteLine($"written {upgradePath}");
 
 		return report.Passed ? 0 : 1;
 	}
@@ -169,6 +200,27 @@ public static class Program
 			text.Append(i == palette.Count - 1 ? "\n" : ",\n");
 		}
 		return text.Append("\t]\n}\n").ToString();
+	}
+
+	private static string WriteUpgrades(IReadOnlyList<BlockUpgradeRule> rules)
+	{
+		// A rule names the properties it touches. What those properties turn into is not read
+		// yet, so the file says which are renamed and leaves the rest listed rather than
+		// implying it knows their new values.
+		var text = new StringBuilder("[\n");
+		for (int i = 0; i < rules.Count; i++)
+		{
+			var rule = rules[i];
+			text.Append("\t{\n");
+			text.Append($"\t\t\"block\": \"{rule.Block}\",\n");
+			text.Append($"\t\t\"properties\": [{string.Join(", ", rule.Properties.Select(p => $"\"{p}\""))}],\n");
+			text.Append("\t\t\"renamedProperties\": {");
+			text.Append(string.Join(",", rule.RenamedProperties.Select(r => $" \"{r.Key}\": \"{r.Value}\"")));
+			text.Append(rule.RenamedProperties.Count == 0 ? "}\n" : " }\n");
+			text.Append("\t}");
+			text.Append(i == rules.Count - 1 ? "\n" : ",\n");
+		}
+		return text.Append("]\n").ToString();
 	}
 
 	private static string WriteProperties(IReadOnlyList<BlockProperties> blocks)

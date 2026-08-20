@@ -80,7 +80,9 @@ namespace MiNET.Test
 			Assert.AreEqual(source.clickPosition, result.clickPosition);
 		}
 
-		// Captured from the hand-written codec before the conversion:
+		// The 2168 capture from the hand-written codec, updated for the one 2192 change: a Hand
+		// enum (uint8 varint, mainhand 0) between Face and the carried item, shifting everything
+		// after it (Mojang's ItemUseInventoryTransaction schema, ordinal 6).
 		//
 		//   1e            packet id 0x1e
 		//   00            request id 0, zigzag
@@ -94,6 +96,7 @@ namespace MiNET.Test
 		//   14 8201 27    position 10, 65, -20, three zigzag varints
 		//   01            face 1
 		//   06            slot 3, zigzag
+		//   00            hand 0, mainhand (new at 2192)
 		//   0000 0000 00 00 00 00      the carried item, air, eight bytes
 		//   00002841 00008442 00009cc1 from position 10.5, 66.0, -19.5
 		//   0000003f 0000803f 0000003f click position 0.5, 1.0, 0.5
@@ -101,7 +104,7 @@ namespace MiNET.Test
 		//   00 00         client prediction, client cooldown state
 		private const string ExpectedItemUse =
 			"1e" + "00" + "00" + "01" + "02" + "01" + "00" +
-			"00" + "01" + "14820127" + "01" + "06" +
+			"00" + "01" + "14820127" + "01" + "06" + "00" +
 			"0000000000000000" +
 			"000028410000844200009cc1" +
 			"0000003f0000803f0000003f" +

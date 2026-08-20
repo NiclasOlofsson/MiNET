@@ -30,11 +30,6 @@ namespace MiNET.Blocks
 {
 	public partial class MelonBlock : Block
 	{
-		public MelonBlock()
-		{
-			Hardness = 1;
-		}
-
 		public override Item[] GetDrops(Item tool)
 		{
 			var rnd = new Random();

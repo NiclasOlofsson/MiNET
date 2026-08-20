@@ -304,8 +304,12 @@ namespace MiNET.Client
 
 		static void Main(string[] args)
 		{
-			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-			XmlConfigurator.Configure(logRepository, new FileInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log4net.xml")));
+			// Both repositories, deliberately: log4net repositories are per assembly, so configuring
+			// only the entry assembly leaves every logger inside MiNET.dll (the whole NetherNet and
+			// Rtc stack) writing into an unconfigured repository, which is silence.
+			var logConfig = new FileInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log4net.xml"));
+			XmlConfigurator.Configure(LogManager.GetRepository(Assembly.GetEntryAssembly()), logConfig);
+			XmlConfigurator.Configure(LogManager.GetRepository(typeof(MiNetServer).Assembly), logConfig);
 
 			Log.Info(MiNET);
 			Console.WriteLine(MiNET);
@@ -350,7 +354,16 @@ namespace MiNET.Client
 			// MINET_XBL=1 logs in with a real Xbox Live account instead of an offline identity, which
 			// is what an online-mode server requires. The first run prints a code to enter in a
 			// browser; after that the saved refresh token is used and nothing is asked.
-			if (Environment.GetEnvironmentVariable("MINET_XBL") == "1")
+			// MINET_XBL=signaling uses the account only for the NetherNet signaling assertion
+			// (mandatory on BDS 1.26.50) and still logs in offline under the bot's own name, so the
+			// bot can share a server with the account's real client session.
+			// MINET_XUID makes the offline login chain claim an xuid instead of the empty one a real
+			// offline player has. Only useful to get the bot named in a server's permissions file.
+			string offlineXuid = Environment.GetEnvironmentVariable("MINET_XUID");
+			if (!string.IsNullOrWhiteSpace(offlineXuid)) client.OfflineXuid = offlineXuid.Trim();
+
+			string xblMode = Environment.GetEnvironmentVariable("MINET_XBL");
+			if (xblMode == "1" || xblMode == "signaling")
 			{
 				var authentication = new XboxAuthentication();
 				authentication.DeviceCodeRequired += (uri, code) =>
@@ -364,7 +377,8 @@ namespace MiNET.Client
 				};
 
 				client.XboxIdentity = authentication.AuthenticateAsync().GetAwaiter().GetResult();
-				Console.WriteLine($"Authenticated as {client.XboxIdentity.DisplayName}");
+				client.SignalingAuthOnly = xblMode == "signaling";
+				Console.WriteLine($"Authenticated as {client.XboxIdentity.DisplayName}{(client.SignalingAuthOnly ? " (signaling only, offline login)" : "")}");
 			}
 
 			// There is no offline ping and no connection handshake on NetherNet: signaling is one
@@ -409,6 +423,22 @@ namespace MiNET.Client
 			if (Environment.GetEnvironmentVariable("MINET_BLOCK_PROBE") == "1")
 			{
 				ProbeContainerBlocks(client);
+			}
+
+			// MINET_STATE_PROBE=<path to mojang-blocks.json> derives every block's real integer state
+			// ranges from the server itself, because no shipped file carries them: the module declares
+			// one domain per state NAME, which is the union over every block using it. Writes
+			// MINET_STATE_PROBE_OUT (default temp_auto/state-ranges.json).
+			string stateProbe = Environment.GetEnvironmentVariable("MINET_STATE_PROBE");
+			if (!string.IsNullOrWhiteSpace(stateProbe))
+			{
+				// Two below the bot, so the probe's own blocks never land where it stands.
+				var scratch = (BlockCoordinates) client.CurrentLocation;
+				scratch.Y -= 2;
+
+				new StateRangeProber(client, scratch).Run(
+					stateProbe,
+					Environment.GetEnvironmentVariable("MINET_STATE_PROBE_OUT") ?? "temp_auto/state-ranges.json");
 			}
 
 			// MINET_INSPECT="x,y,z;x,y,z" walks the bot to the first coordinate and reports what the

@@ -533,6 +533,28 @@ public static class CerealEmitter
 			yield break;
 		}
 
+		if (field.Kind == FieldKind.Map)
+		{
+			string entryValue = field.Element.Enum != null ? $"({field.Element.Type.CsType}) entry.Value" : "entry.Value";
+			string writeValue = field.Element.Kind == FieldKind.Struct ? "Write(entry.Value);" : string.Format(field.Element.Type.Write, entryValue);
+			if (field.Optional)
+			{
+				yield return $"Write({name} != null);";
+				yield return $"if ({name} != null)";
+				yield return "{";
+				yield return $"\tWriteUnsignedVarInt((uint) {name}.Count);";
+				yield return $"\tforeach (KeyValuePair<string, {field.Element.CsType}> entry in {name}) {{ Write(entry.Key); {writeValue} }}";
+				yield return "}";
+			}
+			else
+			{
+				// Cereal has no null: an unset map is an empty map, count 0.
+				yield return $"WriteUnsignedVarInt((uint) ({name}?.Count ?? 0));";
+				yield return $"if ({name} != null) foreach (KeyValuePair<string, {field.Element.CsType}> entry in {name}) {{ Write(entry.Key); {writeValue} }}";
+			}
+			yield break;
+		}
+
 		if (field.Kind == FieldKind.Array)
 		{
 			string itemValue = field.Element.Enum != null ? $"({field.Element.Type.CsType}) item" : "item";
@@ -636,6 +658,26 @@ public static class CerealEmitter
 			else
 			{
 				yield return $"{name} = Read{field.Struct.Name}();";
+			}
+			yield break;
+		}
+
+		if (field.Kind == FieldKind.Map)
+		{
+			if (field.Optional)
+			{
+				yield return $"if ({present})";
+				yield return "{";
+				yield return $"\tuint {field.FieldName}Count = ReadUnsignedVarInt();";
+				yield return $"\t{name} = new Dictionary<string, {field.Element.CsType}>((int) {field.FieldName}Count);";
+				yield return $"\tfor (int i = 0; i < {field.FieldName}Count; i++) {name}.TryAdd(ReadString(), {ReadExpression(field.Element)});";
+				yield return "}";
+			}
+			else
+			{
+				yield return $"uint {field.FieldName}Count = ReadUnsignedVarInt();";
+				yield return $"{name} = new Dictionary<string, {field.Element.CsType}>((int) {field.FieldName}Count);";
+				yield return $"for (int i = 0; i < {field.FieldName}Count; i++) {name}.TryAdd(ReadString(), {ReadExpression(field.Element)});";
 			}
 			yield break;
 		}

@@ -2996,6 +2996,11 @@ namespace MiNET
 			// Client resource pack setting (slider/toggle) change. Ignored.
 		}
 
+		public virtual void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message)
+		{
+			// Client furnace UI layout preference (new at 2192). Ignored.
+		}
+
 		public virtual void HandleMcpeServerboundDataStore(McpeServerboundDataStore message)
 		{
 			// Client data store update request. Ignored.
@@ -4062,7 +4067,7 @@ namespace MiNET
 				seed = (ulong) Level.Seed,
 				generatorType = (LevelSettings.GeneratorType) Level.GeneratorType,
 				gameType = (LevelSettings.GameType) GameMode,
-				gameDifficulty = (LevelSettings.GameDifficulty) Level.Difficulty,
+				gameDifficulty = (LevelSettings.Difficulty) Level.Difficulty,
 				// The LEVEL spawn, not this player's: SpawnPosition is per-player and plugins
 				// (Plotter) persist it, so it is wherever this player last was. Vanilla puts the
 				// world's fixed spawn block here.
@@ -4081,7 +4086,7 @@ namespace MiNET
 				experiments = new Experiments(),
 				hasBonusChestEnabled = Level.BonusChest,
 				startWithMapEnabled = Level.MapEnabled,
-				playerPermissions = (LevelSettings.PlayerPermissions) PermissionLevel,
+				playerPermissions = (LevelSettings.PlayerPermissionLevel) PermissionLevel,
 				// "*" is what vanilla sends here, not the version string and not empty.
 				baseGameVersion = "*",
 

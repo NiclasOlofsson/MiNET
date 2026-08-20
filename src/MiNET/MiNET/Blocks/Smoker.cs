@@ -33,7 +33,7 @@ namespace MiNET.Blocks
 {
 	/// <summary>Holds its three slots and smelts nothing. The furnace family drives its cooking from
 	/// FurnaceBlockEntity.OnTick, and a smoker has no equivalent yet, so what goes in stays in.</summary>
-	public partial class Smoker
+	public partial class Smoker : Block
 	{
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
@@ -52,7 +52,7 @@ namespace MiNET.Blocks
 		}
 	}
 
-	public partial class LitSmoker
+	public partial class LitSmoker : Block
 	{
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{

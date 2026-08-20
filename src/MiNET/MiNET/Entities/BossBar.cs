@@ -77,10 +77,10 @@ namespace MiNET.Entities
 			NameTag = nameTag;
 
 			var bossEvent = McpeBossEvent.CreateObject();
-			bossEvent.bossEntityId = EntityId;
-			bossEvent.title = NameTag;
-			bossEvent.filteredTitle = NameTag;
-			bossEvent.eventType = (byte) McpeBossEvent.Type.UpdateName;
+			bossEvent.targetActorId = EntityId;
+			bossEvent.name = NameTag;
+			bossEvent.filteredname = NameTag;
+			bossEvent.eventType = McpeBossEvent.BossEventUpdateType.UpdateName;
 			Level?.RelayBroadcast(bossEvent);
 		}
 
@@ -91,9 +91,9 @@ namespace MiNET.Entities
 			if (maxProgress != Int32.MinValue) MaxProgress = maxProgress;
 
 			var bossEvent = McpeBossEvent.CreateObject();
-			bossEvent.bossEntityId = EntityId;
+			bossEvent.targetActorId = EntityId;
 			bossEvent.healthPercent = (float) Progress / MaxProgress;
-			bossEvent.eventType = (byte) McpeBossEvent.Type.UpdateProgress;
+			bossEvent.eventType = McpeBossEvent.BossEventUpdateType.UpdatePercent;
 			Level?.RelayBroadcast(bossEvent);
 		}
 
@@ -102,10 +102,10 @@ namespace MiNET.Entities
 			base.SpawnToPlayers(players);
 
 			var bossEvent = McpeBossEvent.CreateObject();
-			bossEvent.bossEntityId = EntityId;
-			bossEvent.eventType = (byte) (IsVisible ? McpeBossEvent.Type.AddBoss : McpeBossEvent.Type.RemoveBoss);
-			bossEvent.title = NameTag;
-			bossEvent.filteredTitle = NameTag;
+			bossEvent.targetActorId = EntityId;
+			bossEvent.eventType = IsVisible ? McpeBossEvent.BossEventUpdateType.Add : McpeBossEvent.BossEventUpdateType.Remove;
+			bossEvent.name = NameTag;
+			bossEvent.filteredname = NameTag;
 			bossEvent.healthPercent = (float)Progress / MaxProgress;
 			Level?.RelayBroadcast(players, bossEvent);
 		}
@@ -115,8 +115,8 @@ namespace MiNET.Entities
 			base.DespawnFromPlayers(players);
 
 			var bossEvent = McpeBossEvent.CreateObject();
-			bossEvent.bossEntityId = EntityId;
-			bossEvent.eventType = (byte) McpeBossEvent.Type.RemoveBoss;
+			bossEvent.targetActorId = EntityId;
+			bossEvent.eventType = McpeBossEvent.BossEventUpdateType.Remove;
 			Level?.RelayBroadcast(players, bossEvent);
 		}
 

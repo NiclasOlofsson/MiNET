@@ -60,7 +60,10 @@ namespace MiNET.Net.NetherNet
 		/// </summary>
 		public static string AddTo(string sdp, XboxIdentity identity, string issuerDomain)
 		{
-			if (identity == null) return sdp;
+			// 26.50 BDS rejects an offer with no a=identity at all (numeric error body instead of
+			// an answer SDP), so the offline case sends a "self" assertion: an ephemeral key that
+			// vouches for itself, the same shape BDS uses in its own answers.
+			if (identity == null) return AddSelfTo(sdp);
 
 			string assertion = Build(sdp, identity, issuerDomain);
 
@@ -116,6 +119,52 @@ namespace MiNET.Net.NetherNet
 			if (fingerprints.Count == 0) throw new InvalidOperationException("The SDP carries no a=fingerprint line to sign");
 
 			return $"{{\"fingerprint\":[{string.Join(",", fingerprints)}]}}";
+		}
+
+		/// <summary>
+		///     The offline client identity: an ephemeral P-384 key self-signs a 60-second token
+		///     carrying its own public key (cpk as a JWK object, x5u header with the DER SPKI), and
+		///     the same key signs the fingerprints. Mirrors byte-for-byte the shape BDS 1.26.50.26
+		///     puts in its own answers with idp domain "self" (relay capture, 2026-08-19).
+		/// </summary>
+		public static string AddSelfTo(string sdp)
+		{
+			using ECDsa key = ECDsa.Create(ECCurve.NamedCurves.nistP384);
+			ECParameters parameters = key.ExportParameters(false);
+			long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+			string token = Jose.JWT.Encode(new Dictionary<string, object>
+			{
+				["cpk"] = new Dictionary<string, object>
+				{
+					["crv"] = "P-384",
+					["kty"] = "EC",
+					["x"] = Base64Url(parameters.Q.X),
+					["y"] = Base64Url(parameters.Q.Y)
+				},
+				["exp"] = now + 60,
+				["iat"] = now
+			}, key, Jose.JwsAlgorithm.ES384, extraHeaders: new Dictionary<string, object>
+			{
+				["x5u"] = Convert.ToBase64String(key.ExportSubjectPublicKeyInfo())
+			});
+
+			string inner = JsonConvert.SerializeObject(new
+			{
+				fingerprints = SignDetached(CanonicalFingerprints(sdp), key),
+				token
+			});
+
+			string envelope = JsonConvert.SerializeObject(new
+			{
+				assertion = inner,
+				idp = new {domain = "self", protocol = "default"}
+			});
+
+			string line = $"a=identity:{Convert.ToBase64String(Encoding.UTF8.GetBytes(envelope))}\r\n";
+
+			int firstMedia = sdp.IndexOf("m=", StringComparison.Ordinal);
+			return firstMedia < 0 ? sdp + line : sdp.Insert(firstMedia, line);
 		}
 
 		/// <summary>

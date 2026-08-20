@@ -23,45 +23,21 @@
 
 #endregion
 
+using System.Collections.Generic;
+
 namespace MiNET.Net
 {
-	public partial class McpeServerboundPackSettingChange : Packet<McpeServerboundPackSettingChange>
+	/// <summary>
+	///     The tagged value of a resource pack setting change: a varint type tag, then the payload
+	///     the tag selects. Tags 0-2 (float, bool, string) are the 2168 wire unchanged; 2192 adds
+	///     tag 3, a varint-counted list of strings.
+	/// </summary>
+	public class PackSettingValue
 	{
-		// PackSettingType (typeId): 0=FLOAT, 1=BOOL, 2=STRING - gates which of these is on the wire.
-		public float? floatValue;
-		public bool? boolValue;
-		public string stringValue;
-
-		partial void AfterEncode()
-		{
-			switch (typeId)
-			{
-				case 0:
-					Write(floatValue ?? 0f);
-					break;
-				case 1:
-					Write(boolValue ?? false);
-					break;
-				case 2:
-					Write(stringValue ?? string.Empty);
-					break;
-			}
-		}
-
-		partial void AfterDecode()
-		{
-			switch (typeId)
-			{
-				case 0:
-					floatValue = ReadFloat();
-					break;
-				case 1:
-					boolValue = ReadBool();
-					break;
-				case 2:
-					stringValue = ReadString();
-					break;
-			}
-		}
+		public uint TypeId { get; set; }
+		public float FloatValue { get; set; }
+		public bool BoolValue { get; set; }
+		public string StringValue { get; set; }
+		public List<string> StringListValue { get; set; }
 	}
 }

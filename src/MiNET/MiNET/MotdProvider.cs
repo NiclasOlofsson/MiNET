@@ -30,6 +30,7 @@ using System.Net.NetworkInformation;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;
+using Newtonsoft.Json;
 
 namespace MiNET
 {
@@ -158,6 +159,36 @@ namespace MiNET
 			if (address.IsIPv4MappedToIPv6) address = address.MapToIPv4();
 
 			return LocalAddresses.Value.Contains(address);
+		}
+
+		/// <summary>
+		///     The HTTP server-list status: since 1.26.50 the client's ping is <c>GET /v1/join</c> on
+		///     the signaling port and this JSON body is what the server tab renders, same shape BDS
+		///     answers with. gameType is the numeric Bedrock GameType (0 survival, 1 creative,
+		///     2 adventure); the world-name slot carries the same second line the legacy pong used.
+		/// </summary>
+		public virtual string GetJoinStatus(ConnectionInfo connectionInfo, int playerCount)
+		{
+			NumberOfPlayers = playerCount;
+			MaxNumberOfPlayers = connectionInfo.MaxNumberOfPlayers;
+
+			int gameType = GameMode?.Trim().ToLowerInvariant() switch
+			{
+				"creative" or "1" => 1,
+				"adventure" or "2" => 2,
+				_ => 0
+			};
+
+			return JsonConvert.SerializeObject(new
+			{
+				name = Motd,
+				protocol = McpeProtocolInfo.ProtocolVersion,
+				version = McpeProtocolInfo.GameVersion,
+				level = SecondLine,
+				players = NumberOfPlayers,
+				maxPlayers = MaxNumberOfPlayers,
+				gameType
+			});
 		}
 
 		public virtual string GetMotd(ConnectionInfo connectionInfo, IPEndPoint caller, bool eduMotd = false)

@@ -128,7 +128,13 @@ namespace MiNET.Utils.Cryptography
 
 		// Protocol 944+ offline login: identity moves out of the certificate chain into the
 		// envelope's Token field, as a self-signed OIDC-style JWT.
-		public static string EncodeOfflineMultiplayerToken(string username, ECDsa newKey)
+		/// <param name="xuid">
+		///     Normally empty, which is what an offline player has. A value is only useful against a
+		///     server that keys something on the xuid and takes an offline chain's word for it, which
+		///     BDS does for permissions.json when online-mode is off: it is the only way to give an
+		///     offline bot operator, since that file has no other handle on a player.
+		/// </param>
+		public static string EncodeOfflineMultiplayerToken(string username, ECDsa newKey, string xuid = "")
 		{
 			long iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 			long exp = DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds();
@@ -140,9 +146,9 @@ namespace MiNET.Utils.Cryptography
 			{
 				["cpk"] = b64Key,
 
-				// Empty, not "0". This is an Xbox account id and the bot has no account; vanilla BDS
-				// sends an empty xuid for an offline player, and "0" is a value, not an absence.
-				["xid"] = "",
+				// Empty by default, not "0". This is an Xbox account id and an offline player has no
+				// account; vanilla BDS sends an empty xuid for one, and "0" is a value, not an absence.
+				["xid"] = xuid ?? "",
 				["xname"] = username,
 
 				// Stable per username. A fresh GUID here made the bot a different person on every

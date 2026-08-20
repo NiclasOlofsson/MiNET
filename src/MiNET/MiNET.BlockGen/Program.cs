@@ -24,6 +24,7 @@
 #endregion
 
 using System.Globalization;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using fNbt;
@@ -860,28 +861,155 @@ public static class Program
 
 	/// <summary>
 	///     The physical properties of a block, from CloudburstMC block_properties.json. The file is
-	///     per block state, 16913 of them, but only 51 blocks vary these values between their own
-	///     states (candles, whose light scales with how many are lit), so the first state's values
-	///     stand for the block. Those 51 keep whatever their hand-written class does.
-	///     Emitted as overrides with initializers rather than constructor assignments, so a
-	///     hand-written constructor still wins: an override's initializer runs before the body.
+	///     per block STATE and in palette order, so a block's rows pair positionally with its
+	///     permutations. A property whose value is the same across all of them is emitted as a
+	///     constant; one that differs is emitted as a switch over the states it depends on, which is
+	///     how a lit candle reports 3, 6, 9 or 12 instead of the unlit 0 that leads its palette run.
+	///     Emitted get-only, because these describe the block rather than record anything: a block
+	///     needing a different value overrides the property.
 	/// </summary>
-	private static void WriteBlockProperties(StringBuilder sb, string blockName, Dictionary<string, BlockProperties> properties)
+	private static void WriteBlockProperties(StringBuilder sb, IGrouping<string, BlockState> group, Dictionary<string, List<BlockProperties>> properties)
 	{
-		if (!properties.TryGetValue(blockName, out BlockProperties p)) return;
+		if (!properties.TryGetValue(group.Key, out List<BlockProperties> rows) || rows.Count == 0) return;
 
-		sb.AppendLine($"\t\tpublic override float Hardness {{ get; protected set; }} = {Literal(p.Hardness)};");
-		sb.AppendLine($"\t\tpublic override float BlastResistance {{ get; protected set; }} = {Literal(p.ExplosionResistance)};");
-		sb.AppendLine($"\t\tpublic override float FrictionFactor {{ get; protected set; }} = {Literal(p.Friction)};");
-		sb.AppendLine($"\t\tpublic override int LightLevel {{ get; set; }} = {p.LightEmission};");
-		sb.AppendLine($"\t\tpublic override int LightDampening {{ get; protected set; }} = {p.LightDampening};");
-		sb.AppendLine($"\t\tpublic override float Translucency {{ get; protected set; }} = {Literal(p.Translucency)};");
-		sb.AppendLine($"\t\tpublic override int BurnOdds {{ get; protected set; }} = {p.BurnOdds};");
-		sb.AppendLine($"\t\tpublic override int FlameOdds {{ get; protected set; }} = {p.FlameOdds};");
-		sb.AppendLine($"\t\tpublic override bool IsSolid {{ get; protected set; }} = {(p.IsSolid ? "true" : "false")};");
-		sb.AppendLine($"\t\tpublic override bool RequiresCorrectToolForDrops {{ get; protected set; }} = {(p.RequiresCorrectToolForDrops ? "true" : "false")};");
-		sb.AppendLine($"\t\tpublic override bool CanContainLiquidSource {{ get; protected set; }} = {(p.CanContainLiquidSource ? "true" : "false")};");
+		List<BlockState> permutations = group.ToList();
+
+		WriteProperty(sb, "float", "Hardness", group.Key, rows, permutations, p => Literal(p.Hardness));
+		WriteProperty(sb, "float", "BlastResistance", group.Key, rows, permutations, p => Literal(p.ExplosionResistance));
+		WriteProperty(sb, "float", "FrictionFactor", group.Key, rows, permutations, p => Literal(p.Friction));
+		WriteProperty(sb, "int", "LightLevel", group.Key, rows, permutations, p => p.LightEmission.ToString(CultureInfo.InvariantCulture));
+		WriteProperty(sb, "int", "LightDampening", group.Key, rows, permutations, p => p.LightDampening.ToString(CultureInfo.InvariantCulture));
+		WriteProperty(sb, "float", "Translucency", group.Key, rows, permutations, p => Literal(p.Translucency));
+		WriteProperty(sb, "int", "BurnOdds", group.Key, rows, permutations, p => p.BurnOdds.ToString(CultureInfo.InvariantCulture));
+		WriteProperty(sb, "int", "FlameOdds", group.Key, rows, permutations, p => p.FlameOdds.ToString(CultureInfo.InvariantCulture));
+		WriteProperty(sb, "bool", "IsSolid", group.Key, rows, permutations, p => p.IsSolid ? "true" : "false");
+		WriteProperty(sb, "bool", "RequiresCorrectToolForDrops", group.Key, rows, permutations, p => p.RequiresCorrectToolForDrops ? "true" : "false");
+		WriteProperty(sb, "bool", "CanContainLiquidSource", group.Key, rows, permutations, p => p.CanContainLiquidSource ? "true" : "false");
 		sb.AppendLine();
+	}
+
+	/// <summary>
+	///     One property: a constant when every state agrees, otherwise a switch over the smallest set
+	///     of states that decides it. A block whose rows do not pair with its permutations cannot be
+	///     resolved per state, so a varying value there is an error rather than a silent first-row
+	///     guess, which is the bug this replaces.
+	/// </summary>
+	private static void WriteProperty(StringBuilder sb, string type, string name, string blockName,
+		List<BlockProperties> rows, List<BlockState> permutations, Func<BlockProperties, string> format)
+	{
+		List<string> values = rows.Select(format).ToList();
+		string first = values[0];
+		if (values.All(v => v == first))
+		{
+			sb.AppendLine($"\t\tpublic override {type} {name} => {first};");
+			return;
+		}
+
+		if (rows.Count != permutations.Count)
+		{
+			throw new InvalidDataException(
+				$"{blockName}.{name} differs between states, but it has {rows.Count} property rows against " +
+				$"{permutations.Count} palette permutations, so no row can be attributed to a state.");
+		}
+
+		List<string> deciding = FindDecidingStates(permutations, values)
+			?? throw new InvalidDataException($"{blockName}.{name} differs between states but no combination of its states decides it.");
+
+		// The commonest value carries the default arm, so the switch lists only the exceptions.
+		string fallback = values.GroupBy(v => v).OrderByDescending(g => g.Count()).First().Key;
+		var arms = new List<string>();
+		var seen = new HashSet<string>(StringComparer.Ordinal);
+		for (int i = 0; i < permutations.Count; i++)
+		{
+			if (values[i] == fallback) continue;
+			string pattern = StatePattern(permutations, deciding, i);
+			if (seen.Add(pattern)) arms.Add($"\t\t\t{pattern} => {values[i]},");
+		}
+
+		string subject = deciding.Count == 1
+			? StateProperty(deciding[0])
+			: $"({string.Join(", ", deciding.Select(StateProperty))})";
+
+		sb.AppendLine($"\t\tpublic override {type} {name} => {subject} switch");
+		sb.AppendLine("\t\t{");
+		foreach (string arm in arms) sb.AppendLine(arm);
+		sb.AppendLine($"\t\t\t_ => {fallback}");
+		sb.AppendLine("\t\t};");
+	}
+
+	/// <summary>
+	///     The smallest group of states whose values decide this property, preferring fewer states so
+	///     a candle switches on lit and candles rather than on every state it happens to carry.
+	///     Null when no group does, which means the data disagrees with itself.
+	/// </summary>
+	private static List<string> FindDecidingStates(List<BlockState> permutations, List<string> values)
+	{
+		List<string> candidates = permutations[0].States
+			.Select(s => s.Name)
+			.Where(n => permutations.Select(p => StateValue(p, n)).Distinct().Count() > 1)
+			.ToList();
+		if (candidates.Count == 0 || candidates.Count > 12) return null;
+
+		for (int size = 1; size <= candidates.Count; size++)
+		{
+			for (int mask = 0; mask < 1 << candidates.Count; mask++)
+			{
+				if (BitOperations.PopCount((uint) mask) != size) continue;
+
+				List<string> subset = candidates.Where((_, i) => (mask & (1 << i)) != 0).ToList();
+				var byKey = new Dictionary<string, string>(StringComparer.Ordinal);
+				bool consistent = true;
+				for (int i = 0; i < permutations.Count && consistent; i++)
+				{
+					string key = string.Join("", subset.Select(n => StateValue(permutations[i], n)));
+					if (byKey.TryGetValue(key, out string existing)) consistent = existing == values[i];
+					else byKey[key] = values[i];
+				}
+				if (consistent) return subset;
+			}
+		}
+		return null;
+	}
+
+	private static string StateValue(BlockState permutation, string stateName)
+	{
+		object value = permutation.States.First(s => s.Name == stateName).Value;
+		return Convert.ToString(value, CultureInfo.InvariantCulture);
+	}
+
+	private static string StateProperty(string stateName)
+	{
+		return CodeName(stateName.Replace("minecraft:", ""));
+	}
+
+	/// <summary>
+	///     The case pattern for one permutation, matching how the state itself is declared: a byte
+	///     that only ever holds 0 or 1 is a bool property, so it has to be matched as true or false.
+	/// </summary>
+	private static string StatePattern(List<BlockState> permutations, List<string> deciding, int index)
+	{
+		var parts = new List<string>();
+		foreach (string stateName in deciding)
+		{
+			object value = permutations[index].States.First(s => s.Name == stateName).Value;
+			List<object> all = permutations.Select(p => p.States.First(s => s.Name == stateName).Value).Distinct().ToList();
+			parts.Add(value switch
+			{
+				byte b when IsBitState(all) => b == 1 ? "true" : "false",
+				byte b => b.ToString(CultureInfo.InvariantCulture),
+				int n => n.ToString(CultureInfo.InvariantCulture),
+				_ => $"\"{value}\""
+			});
+		}
+		return deciding.Count == 1 ? parts[0] : $"({string.Join(", ", parts)})";
+	}
+
+	/// <summary>Matches the rule the state declaration uses: a 0/1 byte state becomes a bool.</summary>
+	private static bool IsBitState(List<object> values)
+	{
+		if (values.Count == 0 || values[0] is not byte) return false;
+		List<byte> bytes = values.Cast<byte>().ToList();
+		return bytes.Count <= 2 && bytes.Min() == 0 && bytes.Max() <= 1;
 	}
 
 	private static string Literal(float value)
@@ -889,19 +1017,29 @@ public static class Program
 		return value.ToString("0.0###########", CultureInfo.InvariantCulture) + "f";
 	}
 
-	/// <summary>Reads block_properties.json, keeping the first state seen for each block name.</summary>
-	private static Dictionary<string, BlockProperties> ReadBlockProperties(string path)
+	/// <summary>
+	///     Reads block_properties.json, keeping every row a block has rather than only its first.
+	///     The file is per block STATE and in palette order, so a block's rows line up positionally
+	///     with its palette permutations, which is what lets a per-state value be generated as a
+	///     switch. Only lightEmission (51 blocks, the candles) and lightDampening (cauldron) differ
+	///     between a block's own states; the rest are constant and collapse back to one value.
+	/// </summary>
+	private static Dictionary<string, List<BlockProperties>> ReadBlockProperties(string path)
 	{
 		if (!File.Exists(path))
 		{
 			Console.Error.WriteLine($"block properties not found: {path}");
-			return new Dictionary<string, BlockProperties>();
+			return new Dictionary<string, List<BlockProperties>>();
 		}
 
 		var all = JsonConvert.DeserializeObject<List<BlockProperties>>(File.ReadAllText(path));
 
-		var result = new Dictionary<string, BlockProperties>(StringComparer.Ordinal);
-		foreach (BlockProperties p in all) result.TryAdd(p.Name, p);
+		var result = new Dictionary<string, List<BlockProperties>>(StringComparer.Ordinal);
+		foreach (BlockProperties p in all)
+		{
+			if (!result.TryGetValue(p.Name, out List<BlockProperties> rows)) result[p.Name] = rows = new List<BlockProperties>();
+			rows.Add(p);
+		}
 		return result;
 	}
 
@@ -940,7 +1078,7 @@ public static class Program
 			else sharedStateNames[owner] = names;
 		}
 
-		Dictionary<string, BlockProperties> properties = ReadBlockProperties(
+		Dictionary<string, List<BlockProperties>> properties = ReadBlockProperties(
 			Path.Combine(Path.GetDirectoryName(path)!, "..", "..", "MiNET.BlockGen", "Data", "block_properties.json"));
 		Console.WriteLine($"block properties: {properties.Count} blocks");
 
@@ -978,7 +1116,7 @@ public static class Program
 			sb.AppendLine("\t{");
 			sb.AppendLine($"\t\tpublic override string Name => \"{group.Key}\";");
 			sb.AppendLine();
-			WriteBlockProperties(sb, group.Key, properties);
+			WriteBlockProperties(sb, group, properties);
 
 			// A family shares one state signature, so its states are declared once on the base
 			// rather than repeated on every member. Emitted into baseStates here and written out

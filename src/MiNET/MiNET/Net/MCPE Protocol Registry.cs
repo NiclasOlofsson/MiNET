@@ -112,6 +112,7 @@ namespace MiNET.Net
 		void HandleMcpePartyChanged(McpePartyChanged message);
 		void HandleMcpeServerboundDataDrivenScreenClosed(McpeServerboundDataDrivenScreenClosed message);
 		void HandleMcpePartyDestinationCookieResponse(McpePartyDestinationCookieResponse message);
+		void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message);
 	}
 
 	public interface IMcpeClientMessageHandler
@@ -302,6 +303,8 @@ namespace MiNET.Net
 		void HandleMcpeServerPresenceInfo(McpeServerPresenceInfo message);
 		void HandleMcpeClientboundUpdateSoundData(McpeClientboundUpdateSoundData message);
 		void HandleMcpeSendPartyDestinationCookie(McpeSendPartyDestinationCookie message);
+		void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message);
+		void HandleMcpeRecordStarted(McpeRecordStarted message);
 	}
 
 	public class McpeClientMessageDispatcher
@@ -875,6 +878,12 @@ namespace MiNET.Net
 				case McpeSendPartyDestinationCookie msg:
 					_messageHandler.HandleMcpeSendPartyDestinationCookie(msg);
 					break;
+				case McpeSetPlayerFurnaceOptions msg:
+					_messageHandler.HandleMcpeSetPlayerFurnaceOptions(msg);
+					break;
+				case McpeRecordStarted msg:
+					_messageHandler.HandleMcpeRecordStarted(msg);
+					break;
 				default:
 					return false;
 			}
@@ -1372,6 +1381,10 @@ namespace MiNET.Net
 						return McpeSendPartyDestinationCookie.CreateObject().Decode(buffer);
 					case 0x15e:
 						return McpePartyDestinationCookieResponse.CreateObject().Decode(buffer);
+					case 0x15f:
+						return McpeSetPlayerFurnaceOptions.CreateObject().Decode(buffer);
+					case 0x160:
+						return McpeRecordStarted.CreateObject().Decode(buffer);
 				}
 			}
 

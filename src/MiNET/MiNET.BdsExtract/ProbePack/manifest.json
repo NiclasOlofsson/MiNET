@@ -1,0 +1,37 @@
+{
+ "format_version": 2,
+ "header": {
+  "name": "MiNET Block Probe",
+  "description": "Reports what the server says about every block, so MiNET.BlockGen can extract block data without a third party dump.",
+  "uuid": "9a4b7c10-2e55-4f8d-8b31-0c6d9e4a7f11",
+  "version": [
+   1,
+   0,
+   0
+  ],
+  "min_engine_version": [
+   1,
+   26,
+   50
+  ]
+ },
+ "modules": [
+  {
+   "type": "script",
+   "language": "javascript",
+   "uuid": "9a4b7c10-2e55-4f8d-8b31-0c6d9e4a7f12",
+   "version": [
+    1,
+    0,
+    0
+   ],
+   "entry": "scripts/main.js"
+  }
+ ],
+ "dependencies": [
+  {
+   "module_name": "@minecraft/server",
+   "version": "2.9.0"
+  }
+ ]
+}

@@ -85,6 +85,13 @@
 
 	</appender>
 
+	<!-- Trace session (protocol 2192): the parse loop's per-frame decode failure (hex dump +
+	     exception) is Debug-gated; this surfaces it for exactly one logger. Remove when the
+	     2192 decode defects are closed. -->
+	<logger name="MiNET.Net.BedrockMessageHandlerBase">
+		<level value="DEBUG" />
+	</logger>
+
 	<root>
 		<!-- INFO is the floor for anything measured. TRACE/VERBOSE puts ~29k events a second
 		     through two serialized appenders, which blocks threads at almost no CPU cost and

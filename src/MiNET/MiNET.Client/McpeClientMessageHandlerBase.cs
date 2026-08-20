@@ -962,6 +962,14 @@ namespace MiNET.Client
 		{
 		}
 
+		public virtual void HandleMcpeRecordStarted(McpeRecordStarted message)
+		{
+		}
+
+		public virtual void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message)
+		{
+		}
+
 		public virtual void HandleMcpeSendPartyDestinationCookie(McpeSendPartyDestinationCookie message)
 		{
 		}

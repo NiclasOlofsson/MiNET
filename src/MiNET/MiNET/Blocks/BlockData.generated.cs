@@ -412,14 +412,6 @@ namespace MiNET.Blocks
 		}
 	} // class
 
-	public partial class Barrel : Block // minecraft:barrel
-	{
-		public Barrel()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
 	public partial class Barrier : Block // minecraft:barrier
 	{
 		public Barrier()
@@ -1111,14 +1103,6 @@ namespace MiNET.Blocks
 	public partial class CandleCake : Block // minecraft:candle_cake
 	{
 		public CandleCake()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
-	public partial class CartographyTable : Block // minecraft:cartography_table
-	{
-		public CartographyTable()
 		{
 			IsGenerated = true;
 		}
@@ -1831,14 +1815,6 @@ namespace MiNET.Blocks
 	public partial class CrackedStoneBricks : StoneBrickBase // minecraft:cracked_stone_bricks
 	{
 		public CrackedStoneBricks()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
-	public partial class Crafter : Block // minecraft:crafter
-	{
-		public Crafter()
 		{
 			IsGenerated = true;
 		}
@@ -2815,14 +2791,6 @@ namespace MiNET.Blocks
 	public partial class DripstoneBlock : Block // minecraft:dripstone_block
 	{
 		public DripstoneBlock()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
-	public partial class Dropper : Block // minecraft:dropper
-	{
-		public Dropper()
 		{
 			IsGenerated = true;
 		}
@@ -4364,14 +4332,6 @@ namespace MiNET.Blocks
 		}
 	} // class
 
-	public partial class Grindstone : Block // minecraft:grindstone
-	{
-		public Grindstone()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
 	public partial class HangingRoots : Block // minecraft:hanging_roots
 	{
 		public HangingRoots()
@@ -4687,14 +4647,6 @@ namespace MiNET.Blocks
 	public partial class HoneycombBlock : Block // minecraft:honeycomb_block
 	{
 		public HoneycombBlock()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
-	public partial class Hopper : Block // minecraft:hopper
-	{
-		public Hopper()
 		{
 			IsGenerated = true;
 		}
@@ -5471,14 +5423,6 @@ namespace MiNET.Blocks
 	public partial class LitRedstoneLamp : Block // minecraft:lit_redstone_lamp
 	{
 		public LitRedstoneLamp()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
-	public partial class LitSmoker : Block // minecraft:lit_smoker
-	{
-		public LitSmoker()
 		{
 			IsGenerated = true;
 		}
@@ -8068,22 +8012,6 @@ namespace MiNET.Blocks
 		}
 	} // class
 
-	public partial class SmithingTable : Block // minecraft:smithing_table
-	{
-		public SmithingTable()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
-	public partial class Smoker : Block // minecraft:smoker
-	{
-		public Smoker()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
 	public partial class SmoothBasalt : Block // minecraft:smooth_basalt
 	{
 		public SmoothBasalt()
@@ -8479,14 +8407,6 @@ namespace MiNET.Blocks
 	public partial class Stonecutter : Block // minecraft:stonecutter
 	{
 		public Stonecutter()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
-	public partial class StonecutterBlock : Block // minecraft:stonecutter_block
-	{
-		public StonecutterBlock()
 		{
 			IsGenerated = true;
 		}

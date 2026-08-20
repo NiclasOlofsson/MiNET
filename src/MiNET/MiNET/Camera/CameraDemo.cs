@@ -421,7 +421,7 @@ namespace MiNET.Camera
 		{
 			for (int i = 0; i < camera.Presets.Count; i++)
 			{
-				if (camera.Presets[i].Name == CameraPresets.Free) return i;
+				if (camera.Presets[i].name == CameraPresets.Free) return i;
 			}
 
 			return 0;

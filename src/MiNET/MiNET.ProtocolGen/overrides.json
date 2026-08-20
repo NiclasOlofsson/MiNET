@@ -40,6 +40,22 @@
 			"read": "{0} = ReadSkin();",
 			"reason": "Not generatable: PieceTintColors is typed 'object' with no layout, so the schema does not say how it is written (it is a bare type name plus exactly four raw colours, no count). The hand-written ReadSkin/Write(Skin) is verified byte-identical against a real 284KB persona PlayerList from BDS 1.26.40, so packets that carry a skin use it."
 		},
+		"SharedTypes__Identifier_SharedTypes__AssetType__CameraPreset_": {
+			"csType": "string",
+			"write": "Write({0});",
+			"read": "{0} = ReadString();",
+			"reason": "Typed asset identifier, schema type plain string; the wire is the length-prefixed identifier string the retired hand codec read for preset names."
+		},
+		"SharedTypes__Reference_SharedTypes__AssetType__CameraPreset_": {
+			"csType": "string",
+			"write": "Write({0});",
+			"read": "{0} = ReadString();"
+		},
+		"SharedTypes__Reference_SharedTypes__AssetType__CameraAimAssist_": {
+			"csType": "string",
+			"write": "Write({0});",
+			"read": "{0} = ReadString();"
+		},
 		"WebToken": {
 			"csType": "string",
 			"write": "Write({0});",
@@ -149,19 +165,19 @@
 					"name": "heights",
 					"type": {
 						"csType": "byte[]",
-						"write": "Write({0});",
-						"read": "{0} = ReadBytes(256);"
+						"write": "WriteSubChunkHeightmap({0});",
+						"read": "{0} = ReadSubChunkHeightmap();"
 					},
-					"reason": "A fixed 16x16 int8 grid with no counts on the wire (minItems==maxItems); carried as the raw 256-byte blob like the old hand codec."
+					"reason": "A 16x16 int8 grid whose ROWS are each length-prefixed on the wire, so 272 bytes travel for 256 values. The fixed minItems==maxItems reads like a bare blob and is not one: every BDS 1.26.50.26 SubChunkPacket capture (67 of 67, temp_auto/dump-2192-first) consumes to exactly zero only with a count per row, and writing it flat makes a real client read the first height as a row length and reject the packet (0xAE malformed, 'too many bytes'). Held flat in memory, since every caller builds and indexes it that way."
 				},
 				"Subchunk Render Height Map": {
 					"name": "renderHeights",
 					"type": {
 						"csType": "byte[]",
-						"write": "Write({0});",
-						"read": "{0} = ReadBytes(256);"
+						"write": "WriteSubChunkHeightmap({0});",
+						"read": "{0} = ReadSubChunkHeightmap();"
 					},
-					"reason": "Same fixed 16x16 int8 grid as the height map."
+					"reason": "Same length-prefixed 16x16 int8 grid as the height map."
 				}
 			}
 		},
@@ -438,6 +454,70 @@
 				}
 			}
 		},
+		"CameraPresetsPacket": {
+			"fields": {
+				"Camera Presets": {
+					"array": true,
+					"name": "presets",
+					"reason": "Schema bug: the payload refs a single CameraPresets struct, but the wire is a varint-counted list of presets (the retired hand codec, CloudburstMC's CameraPresetsSerializer, and the packet's own plural name agree)."
+				}
+			}
+		},
+		"CameraPresets": {
+			"typeName": "CameraPreset",
+			"fields": {
+				"Pos X": {
+					"optional": true,
+					"reason": "Schema bug carried since 2168: the schema marks every preset field required, but the wire bool-prefixes each field from Pos X onward (the preset struct is std::optional per member). The retired hand-written codec read exactly this shape and was verified against real 1.26.40-1.26.44 clients. Only Name and Inherit From are unconditional. The 26.50 rumor that optional encoding changed is unresolved; if the tunnel shows a new shape, fix the emitter's optional policy, not these flags."
+				},
+				"Pos Y": { "optional": true },
+				"Pos Z": { "optional": true },
+				"Rot X": { "optional": true },
+				"Rot Y": { "optional": true },
+				"Rotation Speed": { "optional": true },
+				"Snap to Target": { "optional": true },
+				"Horizontal Rotation Limit": { "optional": true },
+				"Vertical Rotation Limit": { "optional": true },
+				"Continue Targeting": { "optional": true },
+				"Block Listening Radius": { "optional": true },
+				"View Offset": { "optional": true },
+				"Entity Offset": { "optional": true },
+				"Radius": { "optional": true },
+				"Yaw Limit Min": { "optional": true },
+				"Yaw Limit Max": { "optional": true },
+				"Listener": { "optional": true },
+				"Player Effects": { "optional": true },
+				"Aim Assist": { "optional": true },
+				"Control Scheme": { "optional": true },
+				"Apply Inherited Starting Rotation": { "optional": true },
+				"Starting Rotation": { "optional": true }
+			}
+		},
+		"SharedTypes__Comprehensive__CameraAimAssistCommandDefinition": {
+			"typeName": "CameraPresetAimAssist",
+			"fields": {
+				"Preset Id": {
+					"optional": true,
+					"reason": "Same schema bug as CameraPresets: all four members are bool-prefixed optionals on the wire (the retired hand codec, verified live at 2168)."
+				},
+				"Target Mode": { "optional": true },
+				"View Angle": { "optional": true },
+				"Distance": { "optional": true }
+			}
+		},
+		"ServerboundPackSettingChangePacket": {
+			"fields": {
+				"PackSettingValue": {
+					"name": "value",
+					"type": {
+						"csType": "PackSettingValue",
+						"write": "Write({0});",
+						"read": "{0} = ReadPackSettingValue();"
+					},
+					"reason": "Inline anyOf union with x-control-value-type, which the generator does not model: a varint type tag selects float/bool/string/string-list. Tags 0-2 are the 2168 wire the retired partial handled; 2192 adds the string-list variant. Hand codec in Packet.cs; the tag width (varint, matching the old Type ID field) is unverified against 2192 bytes."
+				}
+			}
+		},
 		"PlayerListPacket": {
 			"fields": {
 				"Entries": {
@@ -482,9 +562,8 @@
 					"name": "legacyRequestId"
 				},
 				"Transaction": {
-					"variantPayloadGate": true,
 					"name": "transaction",
-					"reason": "The schema shows one required oneOf, but the engine keeps mTransactionType and mTransactionData as two separate optionals and the docs collapse them, so the wire is presence, tag, presence, payload. Measured from the hand-written codec that a real 1.26.40 client accepts: an item-use place encodes as 1e 00 00 01 02 01 00 ..., where the 01 either side of the type byte are those two presence bytes. The hand codec called them dummy optional bools."
+					"reason": "Tag then payload, no presence byte either side. Through 2168 the engine's mTransactionType and mTransactionData travelled as two separate optionals, so the wire was presence, tag, presence, payload (an item-use place encoded as 1e 00 00 01 02 01 00 ...). 2192 dropped both markers with every other doubled optional, and the schema agrees: Transaction is required. Measured on a real 1.26.50.26 client placing a block: 1e 00 00 02 00 00 01 ..., where 02 is the variant tag (ItemUse) sitting immediately after the Legacy Set Item Slots presence byte. Reading a marker there takes the tag as Normal and the packet decodes as garbage."
 				}
 			}
 		},
@@ -540,16 +619,14 @@
 		"ItemStackResponseInfo": {
 			"fields": {
 				"Containers": {
-					"presenceBytes": 2,
-					"reason": "The 2168 changelog says 'Containers is present iff Result == Success', and that invariant is a byte of its own in front of the optional's presence byte. CloudburstMC's ItemStackResponseSerializer_v2168 writes true then the presence and reads 'readBoolean() && readBoolean()'; our hand-written ReadItemStackResponses did the same against live BDS. The schema says only that the field is optional, so the count of gate bytes cannot come from it."
+					"reason": "ONE presence byte. Through 2168 this took two, an invariant marker ('Containers is present iff Result == Success') in front of the optional's own presence byte, which is what CloudburstMC's ItemStackResponseSerializer_v2168 writes and reads as 'readBoolean() && readBoolean()'. 2192 dropped the marker along with every other doubled optional (proven on PlayerAuthInput from real client bytes). Writing two makes a real 1.26.50.26 client read the marker as the presence and the presence as the container count, and it rejects the packet with a terminating violation on 0x94, 'BinaryStream read() incomplete'. One presence byte is the default, so this entry is a note rather than an override."
 				}
 			}
 		},
 		"ItemStackResponseSlotInfo": {
 			"fields": {
 				"Item Stack Net Id": {
-					"presenceBytes": 2,
-					"reason": "Same invariant gating as ItemStackResponseInfo.Containers, for the changelog's 'a slot's Item Stack Net Id is present iff Amount > 0'. CloudburstMC's writeItemEntry writes a bare true then writeOptional(id > 0)."
+					"reason": "One presence byte, same collapse as ItemStackResponseInfo.Containers. The 2168 shape was a bare marker for 'a slot's Item Stack Net Id is present iff Amount > 0' followed by the presence byte."
 				}
 			}
 		},
@@ -677,13 +754,12 @@
 		"PlayerAuthInputPacket": {
 			"fields": {
 				"Input Data": {
-					"optional": true,
 					"type": {
 						"csType": "AuthInputFlags",
 						"write": "WriteAuthInputFlags({0});",
 						"read": "{0} = ReadAuthInputFlags();"
 					},
-					"reason": "The pressed flags are a varint count of ordinals as zigzag varints behind a presence bool, not an array of li32 enum values, so the codec is ours. AuthInputFlags is that enum, including the 65th ordinal that does not fit a 64-bit mask; naming a csType is what keeps it, since a field type override suppresses the inline one."
+					"reason": "The pressed flags are a varint count of ordinals as zigzag varints, not an array of li32 enum values, so the codec is ours. The field is required and carries no presence bool: a real 1.26.50.26 client's frame reads count=1 directly after Player Head Rotation, and taking a bool there makes the count 96 and runs off the end of a 93-byte packet. AuthInputFlags is that enum, including the 65th ordinal that does not fit a 64-bit mask; naming a csType is what keeps it, since a field type override suppresses the inline one."
 				},
 				"New Interaction Model": {
 					"type": {
@@ -691,26 +767,6 @@
 						"read": "{0} = ReadUnsignedVarInt();"
 					},
 					"reason": "Unsigned varint, not zigzag (PMMP VarInt::readUnsignedInt). The schema says int32 without saying how it travels, and the values are small and non-negative, so the two disagree from 1 upward."
-				},
-				"Item Use Transaction": {
-					"presenceBytes": 2,
-					"reason": "Marker bool then presence."
-				},
-				"Item Stack Request": {
-					"presenceBytes": 2,
-					"reason": "Marker bool then presence."
-				},
-				"Player Block Actions": {
-					"presenceBytes": 2,
-					"reason": "Marker bool then presence."
-				},
-				"Vehicle Rotation": {
-					"presenceBytes": 2,
-					"reason": "Marker bool then presence."
-				},
-				"Client Predicted Vehicle": {
-					"presenceBytes": 2,
-					"reason": "Marker bool then presence."
 				}
 			}
 		},

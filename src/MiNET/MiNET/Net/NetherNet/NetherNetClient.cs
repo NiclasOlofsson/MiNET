@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
@@ -92,6 +93,29 @@ namespace MiNET.Net.NetherNet
 		///     Connects to a NetherNet server and returns a client whose <see cref="Session" /> has its
 		///     reliable channel open.
 		/// </summary>
+		/// <summary>
+		///     The whole exchange, both halves and verbatim: the request line and every header we
+		///     sent, then the status line, every header that came back, and the body. The 26.50
+		///     signaling grew (server-list status over HTTP, TLS, domain support) and its body is
+		///     now the interesting half of a GET, so a headers-only log drops exactly the evidence
+		///     this exists to collect. Mirrors what NetherNetListener logs on the serving side, so
+		///     the two directions read the same.
+		/// </summary>
+		private static async Task LogSignalingAsync(string what, HttpResponseMessage response, CancellationToken cancellationToken)
+		{
+			HttpRequestMessage request = response.RequestMessage;
+
+			// Content is buffered by default, so reading it here does not consume it for the caller.
+			string body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+			Log.Info($"NetherNet signaling >>> {what}\n{HeaderLines(request?.Headers, request?.Content?.Headers)}\n"
+					+ $"NetherNet signaling <<< HTTP/{response.Version} {(int) response.StatusCode} {response.ReasonPhrase}\n"
+					+ $"{HeaderLines(response.Headers, response.Content.Headers)}\n{body}");
+		}
+
+		private static string HeaderLines(params HttpHeaders[] headers) =>
+			string.Join("\n", headers.Where(h => h != null).SelectMany(h => h).SelectMany(h => h.Value.Select(v => $"{h.Key}: {v}")));
+
 		/// <param name="host">Host running the signaling endpoint, which is the BDS server-port.</param>
 		/// <param name="port">The signaling port. Under NetherNet, server-port is TCP, not UDP.</param>
 		/// <param name="networkId">Our own NetworkID. Opaque to the server; generated when omitted.</param>
@@ -106,6 +130,7 @@ namespace MiNET.Net.NetherNet
 			// The client checks for the endpoint before it spends anything on WebRTC. A non-2xx here
 			// means the server is not speaking NetherNet, which on BDS means transport=raknet.
 			HttpResponseMessage capability = await http.GetAsync($"{baseUrl}/v1/join", cancellationToken);
+			await LogSignalingAsync($"GET {baseUrl}/v1/join", capability, cancellationToken);
 			if (!capability.IsSuccessStatusCode) throw new IOException($"{host}:{port} does not accept NetherNet connections (GET /v1/join returned {(int) capability.StatusCode})");
 
 			// OS-ephemeral port: a client needs no forwardable address, and every connection gets its
@@ -131,6 +156,7 @@ namespace MiNET.Net.NetherNet
 				content.Headers.ContentType = new MediaTypeHeaderValue("application/sdp");
 
 				HttpResponseMessage response = await http.PostAsync($"{baseUrl}/v1/join/{networkId}", content, cancellationToken);
+				await LogSignalingAsync($"POST {baseUrl}/v1/join/{networkId}", response, cancellationToken);
 				if (!response.IsSuccessStatusCode) throw new IOException($"NetherNet signaling rejected the offer with {(int) response.StatusCode} {response.ReasonPhrase}");
 
 				string answerSdp = await response.Content.ReadAsStringAsync(cancellationToken);

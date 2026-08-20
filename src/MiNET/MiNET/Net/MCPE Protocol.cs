@@ -47,8 +47,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 2168;
-		public const string GameVersion = "1.26.40";
+		public const int ProtocolVersion = 2192;
+		public const string GameVersion = "1.26.50";
 	}
 
 	public enum CommandPermission
@@ -2872,94 +2872,6 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeBossEvent : Packet<McpeBossEvent>
-	{
-		public enum Type
-		{
-			AddBoss = 0,
-			AddPlayer = 1,
-			RemoveBoss = 2,
-			RemovePlayer = 3,
-			UpdateProgress = 4,
-			UpdateName = 5,
-			UpdateOptions = 6,
-			UpdateStyle = 7,
-			Query = 8,
-		}
-
-		public long bossEntityId; // = null;
-		public long playerId; // = null;
-		public byte eventType; // = null;
-		public string title; // = null;
-		public string filteredTitle; // = null;
-		public float healthPercent; // = null;
-		public byte color; // = null;
-		public byte overlay; // = null;
-
-		public McpeBossEvent()
-		{
-			Id = 0x4a;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			WriteSignedVarLong(bossEntityId);
-			WriteSignedVarLong(playerId);
-			Write(eventType);
-			Write(title);
-			Write(filteredTitle);
-			Write(healthPercent);
-			Write(color);
-			Write(overlay);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			bossEntityId = ReadSignedVarLong();
-			playerId = ReadSignedVarLong();
-			eventType = ReadByte();
-			title = ReadString();
-			filteredTitle = ReadString();
-			healthPercent = ReadFloat();
-			color = ReadByte();
-			overlay = ReadByte();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			bossEntityId=default(long);
-			playerId=default(long);
-			eventType=default(byte);
-			title=default(string);
-			filteredTitle=default(string);
-			healthPercent=default(float);
-			color=default(byte);
-			overlay=default(byte);
-		}
-
-	}
-
 	public partial class McpeShowCredits : Packet<McpeShowCredits>
 	{
 
@@ -3536,66 +3448,6 @@ namespace MiNET.Net
 
 			packageId=default(string);
 			chunkIndex=default(uint);
-		}
-
-	}
-
-	public partial class McpePlaySound : Packet<McpePlaySound>
-	{
-
-		public string name; // = null;
-		public BlockCoordinates coordinates; // = null;
-		public float volume; // = null;
-		public float pitch; // = null;
-
-		public McpePlaySound()
-		{
-			Id = 0x56;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			Write(name);
-			Write(coordinates);
-			Write(volume);
-			Write(pitch);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			name = ReadString();
-			coordinates = ReadBlockCoordinates();
-			volume = ReadFloat();
-			pitch = ReadFloat();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			name=default(string);
-			coordinates=default(BlockCoordinates);
-			volume=default(float);
-			pitch=default(float);
 		}
 
 	}
@@ -7354,54 +7206,6 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeDimensionData : Packet<McpeDimensionData>
-	{
-
-		public DimensionDefinitions definitions; // = null;
-
-		public McpeDimensionData()
-		{
-			Id = 0xb4;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			Write(definitions);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			definitions = ReadDimensionDefinitions();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			definitions=default(DimensionDefinitions);
-		}
-
-	}
-
 	public partial class McpeAgentActionEvent : Packet<McpeAgentActionEvent>
 	{
 
@@ -8226,50 +8030,6 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			flags=default(uint);
-		}
-
-	}
-
-	public partial class McpeCameraPresets : Packet<McpeCameraPresets>
-	{
-
-
-		public McpeCameraPresets()
-		{
-			Id = 0xc6;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
 		}
 
 	}
@@ -9474,62 +9234,6 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-		}
-
-	}
-
-	public partial class McpeServerboundPackSettingChange : Packet<McpeServerboundPackSettingChange>
-	{
-
-		public UUID packId; // = null;
-		public string name; // = null;
-		public uint typeId; // = null;
-
-		public McpeServerboundPackSettingChange()
-		{
-			Id = 0x149;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			Write(packId);
-			Write(name);
-			WriteUnsignedVarInt(typeId);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			packId = ReadUUID();
-			name = ReadString();
-			typeId = ReadUnsignedVarInt();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			packId=default(UUID);
-			name=default(string);
-			typeId=default(uint);
 		}
 
 	}

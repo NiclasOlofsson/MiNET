@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>MiNET.BdsExtract</RootNamespace>
+    <AssemblyName>MiNET.BdsExtract</AssemblyName>
+  </PropertyGroup>
+
+  <!-- Deliberately no reference to MiNET, and no reference to MiNET.BlockGen. This tool only
+       reads a running Bedrock Dedicated Server and writes data files. Keeping it independent
+       means it still runs when the generated block code is broken or absent, which is exactly
+       when the data is needed. Windows only: it uses the Win32 process-reading API. -->
+
+  <!-- The memory side writes its JSON by hand and needs nothing. The probe side has to READ JSON,
+       both the rows the pack reports and the server's own block documentation, and hand-rolling a
+       parser for that would be its own bug farm. -->
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+
+  <!-- The behaviour pack the probe deploys into a server. It has to reach the build output as
+       files rather than embedded resources, because the server loads it off disk. -->
+  <ItemGroup>
+    <None Include="ProbePack\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="ProbePack" />
+  </ItemGroup>
+
+</Project>

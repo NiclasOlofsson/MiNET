@@ -29,8 +29,6 @@ namespace MiNET.Blocks
 	{
 		public Noteblock()
 		{
-			BlastResistance = 4;
-			Hardness = 0.8f;
 			//IsFlammable = true; // It can catch fire from lava, but not other means.
 		}
 	}

@@ -275,6 +275,29 @@ namespace MiNET.Client
 		/// </summary>
 		public XboxIdentity XboxIdentity { get; set; }
 
+		/// <summary>
+		///     Use <see cref="XboxIdentity" /> only for the NetherNet signaling assertion and still
+		///     log in with an offline identity under the bot's own name. BDS 1.26.50 signaling
+		///     rejects identity-less offers outright, but online-mode=false still accepts an offline
+		///     login chain, so this is how a bot shares a server with the account's real session.
+		/// </summary>
+		public bool SignalingAuthOnly { get; set; }
+
+		/// <summary>
+		///     The xuid the offline login chain claims, empty by default the way a real offline player's
+		///     is. A made-up value is what lets a bot be named in a server's permissions file, which
+		///     otherwise has no handle on a player with no account.
+		/// </summary>
+		public string OfflineXuid { get; set; } = "";
+
+		/// <summary>
+		///     Raised for every McpeCommandOutput the server sends back. A command's result is only
+		///     readable here: the request carries an origin UUID and the answer echoes it, so a caller
+		///     that runs commands one at a time can tell which reply belongs to which command, and
+		///     read SuccessCount rather than parsing the message text.
+		/// </summary>
+		public Action<McpeCommandOutput> CommandOutputReceived { get; set; }
+
 		public McpeClientMessageDispatcher MessageDispatcher
 		{
 			get => throw new NotSupportedException("Use ClientMessageHandlerFactory instead");
@@ -365,7 +388,7 @@ namespace MiNET.Client
 			// 1.21.90+ wraps login identity in an authentication envelope; since protocol 944 the
 			// identity is an OIDC-style JWT in Token rather than a certificate chain.
 			// AuthenticationType: 0 = full auth, 1 = self-signed, 2 = offline.
-			if (XboxIdentity != null)
+			if (XboxIdentity != null && !SignalingAuthOnly)
 			{
 				// The keypair is not ours to choose here: the token names it in cpk, and the server
 				// keys its handshake on that, so signing the skin with any other key fails the login.
@@ -387,7 +410,7 @@ namespace MiNET.Client
 				{
 					Certificate = JsonConvert.SerializeObject(new {chain = new[] {""}}),
 					AuthenticationType = 2,
-					Token = CryptoUtils.EncodeOfflineMultiplayerToken(username, clientKey)
+					Token = CryptoUtils.EncodeOfflineMultiplayerToken(username, clientKey, OfflineXuid)
 				});
 			}
 
@@ -730,7 +753,9 @@ namespace MiNET.Client
 			List<Entity.DataFlags> flags = new List<Entity.DataFlags>();
 			foreach (var val in Enum.GetValues(typeof(Entity.DataFlags)))
 			{
-				if (bits[(int) val]) flags.Add((Entity.DataFlags) val);
+				// The flag space spans two longs; values 64+ belong to the second word and are not
+				// addressable in this one's 64 bits.
+				if ((int) val < bits.Count && bits[(int) val]) flags.Add((Entity.DataFlags) val);
 			}
 
 			StringBuilder sb = new StringBuilder();

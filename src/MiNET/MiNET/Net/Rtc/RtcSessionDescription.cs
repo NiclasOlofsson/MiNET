@@ -95,7 +95,10 @@ namespace MiNET.Net.Rtc
 
 			if (string.IsNullOrEmpty(description.IceUfrag) || string.IsNullOrEmpty(description.IcePassword) || string.IsNullOrEmpty(description.FingerprintSha256))
 			{
-				throw new FormatException("SDP is missing ice-ufrag, ice-pwd or fingerprint.");
+				// The rejected SDP travels in the exception: a format drift (26.50 reshaped
+				// signaling) is diagnosed from what was actually received, not from which field
+				// came up empty.
+				throw new FormatException($"SDP is missing ice-ufrag, ice-pwd or fingerprint. Received:\n{sdp}");
 			}
 
 			description.Candidates = candidates;

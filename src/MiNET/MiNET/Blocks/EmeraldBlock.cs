@@ -27,10 +27,5 @@ namespace MiNET.Blocks
 {
 	public partial class EmeraldBlock : Block
 	{
-		public EmeraldBlock()
-		{
-			BlastResistance = 30;
-			Hardness = 5;
-		}
 	}
 }

@@ -30,8 +30,6 @@ namespace MiNET.Blocks
 		public CoalBlock()
 		{
 			FuelEfficiency = 800;
-			BlastResistance = 30;
-			Hardness = 5;
 		}
 	}
 }

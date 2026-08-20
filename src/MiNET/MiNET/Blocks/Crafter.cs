@@ -33,7 +33,7 @@ namespace MiNET.Blocks
 {
 	/// <summary>The nine-slot grid, held but never crafted from: redstone does not fire it, and the
 	/// per-slot disabled flags the screen can set are not kept.</summary>
-	public partial class Crafter
+	public partial class Crafter : Block
 	{
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{

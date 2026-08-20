@@ -154,8 +154,8 @@ namespace MiNET.Worlds
 		public bool IsMultiplayer { get; set; } = true;
 		public bool BroadcastToLan { get; set; } = true;
 		// Enum-typed, not int: the client rejects a broadcast setting outside GamePublishSetting.
-		public LevelSettings.XboxLiveBroadcastSetting XboxLiveBroadcastMode { get; set; } = LevelSettings.XboxLiveBroadcastSetting.Nomultiplay;
-		public LevelSettings.PlatformBroadcastSetting PlatformBroadcastMode { get; set; } = LevelSettings.PlatformBroadcastSetting.Nomultiplay;
+		public LevelSettings.GamePublishSetting XboxLiveBroadcastMode { get; set; } = LevelSettings.GamePublishSetting.Nomultiplay;
+		public LevelSettings.GamePublishSetting PlatformBroadcastMode { get; set; } = LevelSettings.GamePublishSetting.Nomultiplay;
 		public bool UseMsaGamertagsOnly { get; set; } = true;
 		public bool IsTexturepacksRequired { get; set; }
 		public bool BonusChest { get; set; }

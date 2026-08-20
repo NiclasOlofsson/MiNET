@@ -22,14 +22,13 @@ A running server knows all of it. So this asks the server, twice, in two differe
 They answer different questions and neither can answer the other's.
 
 **Memory** reads the process directly. It gets the palette in the server's own order, which is the
-runtime id when hashed ids are off, and the compiled properties: hardness, friction, blast
-resistance and the rest. It cannot say what a state *is*: there is no "facing east, upside down"
-anywhere in memory that it can attribute.
+runtime id when hashed ids are off, the compiled properties (hardness, friction, blast resistance
+and the rest), and light emission and dampening per state as the server stores them. It cannot say
+what a state *is*: there is no "facing east, upside down" anywhere in memory that it can attribute.
 
 **Probe** runs a server with a behaviour pack that walks every block. It gets exactly what each
-state is, which values each block accepts, its tags, components, item form, and light measured by
-experiment. It has no idea what order the palette is in, and cannot: nothing the runtime publishes
-carries the index.
+state is, which values each block accepts, its tags, its components and its item form. It has no
+idea what order the palette is in, and cannot: nothing the runtime publishes carries the index.
 
 They meet on the **network id**, a hash of the name and states. Both sides compute it
 independently, and so does the client, so no assumption about ordering ever passes between them. If
@@ -82,14 +81,8 @@ From memory, `block_properties.json`, one entry per block:
 From the probe, `blockstates-runtime.json`, one row per block state, each carrying everything that
 state answered: its states and the values its block accepts, tags, the four liquid answers, the item
 form, `isAir` / `isLiquid` / `isWaterlogged`, redstone power, multi-block parts, component names and
-every value each component exposes, measured light emission, and light dampening. Plus its network
-id, which is what joins it to the memory rows.
-
-Dampening is written as the value, with the corridor reading kept beside it. The mapping was
-calibrated once against a known table and is exact: `dampening = 14 - reading`. Light loses a level
-crossing any block at all, so an empty corridor reads 13 and a block that dampens by three reads 11.
-Every block the table calls 15 read nothing at all, 577 of them, no exceptions. Where a reading
-cannot be taken the row says why instead of implying a precision it does not have.
+every value each component exposes. Plus its network id, which is what joins it to the memory rows,
+and light, which comes from there.
 
 From the probe, `blockstates.json`, the same set reduced to name, states and network id.
 
@@ -161,19 +154,22 @@ The documentation publishes one shared range per state *name*, across every bloc
 the state's default. So asking for each value in turn and checking whether the answer is what was
 asked is an exact test, it runs in memory, and it takes milliseconds. Cocoa accepts 0 to 2.
 
-### Two rooms
+### One pocket
 
-Light needs the block to exist somewhere, and the two light questions need opposite conditions.
+Components exist on a block that is really somewhere and nowhere else, so each state is set into a
+pocket sealed in deepslate and read there. That is the only reason anything is placed at all.
 
-The **dark room** is a pocket sealed in deepslate. The block goes in, and the cell beside it reads
-what the block emits, one step of decay away, so emission is that reading plus one.
+Light used to be measured here, in two rooms: a dark one for emission and a lit corridor for
+dampening. That is gone. The memory side reads both as the server stores them, per state, which is
+better in every respect. It costs no placements, and placements are what wear the server down. It is
+exact where measurement was not: light propagation loses `max(1, dampening)` per block, so a block
+that dampens by zero and one behave identically and no arrangement of lamps can separate them, and
+everything from fourteen up saturates at nothing. And it works for blocks that could not be measured
+at all: an emitting block lights the far cell itself, and a liquid does not stay where it is put.
 
-The **lit room** is a sealed corridor with a lamp at one end, the block in the middle and the
-reading taken at the far end, so what arrives has crossed exactly one block.
-
-Both get the same permutation in the same tick and both are read on the next, so one pass answers
-both. The corridor reading is kept alongside the value derived from it, so the measurement and the
-interpretation of it stay separable.
+Measurement did earn its keep first. It agreed with the memory values on 1,422 of 1,429 blocks for
+emission, candle by candle, which is how both sides were known to be right before either was
+trusted.
 
 ### Surviving the server
 
@@ -228,17 +224,6 @@ runtime's own. Three blocks even rank the same pair of states in opposite orders
 simply reads it, and the probe side never has to care.
 
 What genuinely is not answered:
-
-**Dampening of zero and one cannot be told apart by measurement**, and no rig can fix that: Bedrock
-propagates light losing `max(1, dampening)` per block, so the two behave identically and the game
-itself does not distinguish them. Leaves, powder snow and water are the blocks in that gap, and the
-exact number comes from the memory side, which reads the stored value rather than its effect.
-
-Two more readings are refused rather than guessed. A block that **emits light** lights the far cell
-itself, and every one of them reads exactly its own emission minus one: crying obsidian 9 for its
-10, a lit furnace 12 for its 13. A block that **did not stay where it was put**, which is every
-liquid and anything needing support, was never there to be measured, so the reading is of whatever
-replaced it.
 
 **Fourteen blocks are absent from the documentation** and are named on every run rather than
 dropped: chalkboard, the deprecated purpur blocks, `info_update`, `glowingobsidian`, `end_gateway`

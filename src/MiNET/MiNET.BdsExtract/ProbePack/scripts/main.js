@@ -18,11 +18,10 @@ let ticks = 0;
 
 const Y = -58;
 
-// Two rooms, so one placement answers both light questions. The dark room gives emission: the block
-// sits in a sealed pocket and the cell beside it reads whatever the block puts out. The lit room
-// gives dampening: a lamp at one end, the block in the middle, the reading at the far end, so what
-// arrives has crossed exactly one block. They are far enough apart that the lamp cannot reach the
-// dark room, which would swamp the very thing it is there to measure.
+// One pocket. Light is not measured here at all: the memory side reads emission and dampening as
+// the server stores them, per state, exactly, including the two values light propagation cannot
+// tell apart. Placement is still needed for one thing only, components, which exist on a block that
+// is really somewhere and nowhere else.
 // The rooms move. Whatever the readings cost the server, it accumulates where the blocks land: it
 // takes about four thousand placements in one spot to start crashing, and then it crashes every
 // fifty or so for the rest of that world's life. Saving is per chunk, so the rooms move a chunk at
@@ -31,10 +30,6 @@ const ROTATE_EVERY = 250;
 let placements = 0;
 let slot = -1;
 let TEST = { x: 1, y: Y, z: 0 };
-let READ = { x: 2, y: Y, z: 0 };
-let LAMP = { x: 1, y: Y, z: 48 };
-let MID = { x: 2, y: Y, z: 48 };
-let FAR = { x: 3, y: Y, z: 48 };
 
 let work = [];
 let index = 0;
@@ -62,24 +57,14 @@ function carve() {
 	const x0 = ((slot % 9) - 4) * 16 + 4;
 	const z0 = ((Math.floor(slot / 9) % 7) - 4) * 16 + 2;
 	TEST = { x: x0 + 1, y: Y, z: z0 };
-	READ = { x: x0 + 2, y: Y, z: z0 };
-	LAMP = { x: x0 + 1, y: Y, z: z0 + 32 };
-	MID = { x: x0 + 2, y: Y, z: z0 + 32 };
-	FAR = { x: x0 + 3, y: Y, z: z0 + 32 };
 
-	if (!d().getBlock(TEST) || !d().getBlock(FAR)) { console.warn(`[BX] pocket at ${x0},${z0} is not loaded`); return; }
+	if (!d().getBlock(TEST)) { console.warn(`[BX] pocket at ${x0},${z0} is not loaded`); return; }
 
 	const deepslate = mc.BlockPermutation.resolve("minecraft:deepslate");
 	const air = mc.BlockPermutation.resolve("minecraft:air");
 
 	fill(x0 - 1, x0 + 4, z0 - 2, z0 + 2, deepslate);
 	d().getBlock(TEST).setPermutation(air);
-	d().getBlock(READ).setPermutation(air);
-
-	fill(x0 - 1, x0 + 5, z0 + 30, z0 + 34, deepslate);
-	d().getBlock(MID).setPermutation(air);
-	d().getBlock(FAR).setPermutation(air);
-	d().getBlock(LAMP).setPermutation(mc.BlockPermutation.resolve("minecraft:sea_lantern"));
 }
 
 function usePocket() {
@@ -257,9 +242,7 @@ function step() {
 	if (placing) {
 		usePocket();
 		try {
-			const permutation = mc.BlockPermutation.resolve(id, states);
-			d().getBlock(TEST).setPermutation(permutation);
-			d().getBlock(MID).setPermutation(permutation);
+			d().getBlock(TEST).setPermutation(mc.BlockPermutation.resolve(id, states));
 			placing = false;
 		} catch (e) {
 			console.warn(`[BX] ${JSON.stringify({ i: index, id, states, unplaceable: String(e).slice(0, 40) })}`);
@@ -290,12 +273,6 @@ function step() {
 	row.allStates = row.states;
 	row.states = states;
 	row.i = index;
-
-	// The cell beside the block in the dark room is one step of decay away, so emission is what it
-	// reads plus one. The far end of the lit room is the raw reading, and turning that into a
-	// dampening value is done afterwards against blocks whose value is known.
-	try { const l = d().getBlock(READ)?.getLightLevel() ?? 0; row.light = l > 0 ? l + 1 : 0; } catch (e) { row.light = "ERR"; }
-	try { row.dampeningRaw = d().getBlock(FAR)?.getLightLevel() ?? 0; } catch (e) { row.dampeningRaw = "ERR"; }
 
 	console.warn(`[BX] ${JSON.stringify(row)}`);
 	index++;
@@ -368,7 +345,7 @@ function probeTick() {
 	if (!started && ticks === 200) console.warn("[BX] the probe position never loaded; is the ticking area there?");
 
 	if (!started) {
-		if (ticks < 6 || !d().getBlock(TEST) || !d().getBlock(FAR)) return;
+		if (ticks < 6 || !d().getBlock(TEST)) return;
 		carve();
 		buildWork();
 		started = true;

@@ -34,11 +34,11 @@ namespace MiNET.BdsExtract;
 ///     Extracts block data by asking a running Bedrock Dedicated Server, through a behaviour pack
 ///     this deploys into it and drives.
 ///     <para>
-///         This is the other half of the tool. The memory side reads the palette and the compiled
-///         properties out of the process: it knows the order but not what a state is. This side knows
-///         exactly what each state is, having asked the game, but nothing about the order. They meet
-///         on the network id, a hash of the name and states computed the same way on both sides and
-///         by the client, so neither has to trust the other's ordering.
+///         This is the other half of the tool. The memory side reads the palette, the compiled
+///         properties and the light values out of the process: it knows the order but not what a
+///         state is. This side knows exactly what each state is, having asked the game, but nothing
+///         about the order. They meet on the network id, a hash of the name and states computed the
+///         same way on both sides and by the client, so neither has to trust the other's ordering.
 ///     </para>
 ///     <para>
 ///         Every value here comes from the server itself: a behaviour pack runs inside it and reports
@@ -151,8 +151,6 @@ public static class BlockProbe
 		if (states.Count == 0) return 1;
 
 		Console.WriteLine($"swept {states.Count} block states");
-
-		foreach (JObject row in states) Dampening(row);
 
 		// The hash is the join key. It is computed the same way the client computes it, from the
 		// name and states alone, so a row here and a row from a memory extraction of the same server
@@ -431,67 +429,6 @@ public static class BlockProbe
 		string id = (string) row["id"];
 		if (!into.TryGetValue(id, out List<JObject> rows)) into[id] = rows = new List<JObject>();
 		rows.Add(row);
-	}
-
-	/// <summary>
-	///     Turns the corridor reading into a dampening value, and says so when it cannot.
-	///     <para>
-	///         Calibrated once against a known table, and the mapping is exact:
-	///         <c>dampening = 14 - reading</c>. Light loses a level crossing any block at all, so an
-	///         empty corridor reads 13, and a block that dampens by three reads 11. Every block the
-	///         table calls 15 read nothing at all, 577 of them, with no exceptions.
-	///     </para>
-	///     <para>
-	///         Three cases cannot be read and are not guessed. A block that emits light lights the far
-	///         cell itself: every one of those reads exactly its own emission minus one, crying
-	///         obsidian at 9 for its 10, a lit furnace at 12 for its 13. A block that did not stay
-	///         where it was put, which is every liquid and anything needing support, was not there to
-	///         be measured. And zero and one are the same block as far as the game is concerned, since
-	///         propagation costs <c>max(1, dampening)</c> per block, so no arrangement of lamps can
-	///         separate them: leaves, powder snow and water sit in that gap, and the exact number for
-	///         them comes from the memory side, which reads the stored value rather than its effect.
-	///     </para>
-	/// </summary>
-	private static void Dampening(JObject row)
-	{
-		const int EmptyCorridor = 13;
-
-		if (row["dampeningRaw"] is not JValue value || value.Type != JTokenType.Integer) return;
-		int raw = (int) value;
-
-		if (row["light"] is JValue light && light.Type == JTokenType.Integer && (int) light > 0)
-		{
-			Unmeasurable(row, "the block emits light, which reaches the far cell itself");
-			return;
-		}
-
-		if (row["stayed"] is JValue stayed && stayed.Type == JTokenType.Boolean && !(bool) stayed)
-		{
-			Unmeasurable(row, "the block did not stay where it was put, so this reading is of what replaced it");
-			return;
-		}
-
-		if (raw > EmptyCorridor)
-		{
-			Unmeasurable(row, "brighter than an empty corridor, so something else lit the far cell");
-			return;
-		}
-
-		if (raw == EmptyCorridor)
-		{
-			// Not a limitation of the rig: the game cannot tell these apart either.
-			row["lightDampening"] = 0;
-			row["lightDampeningNote"] = "0 or 1, which behave identically; take the exact value from the memory side";
-			return;
-		}
-
-		row["lightDampening"] = EmptyCorridor + 1 - raw;
-	}
-
-	private static void Unmeasurable(JObject row, string why)
-	{
-		row["lightDampening"] = null;
-		row["lightDampeningNote"] = why;
 	}
 
 	/// <summary>

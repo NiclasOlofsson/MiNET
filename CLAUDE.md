@@ -225,6 +225,13 @@ Most work in this repo is keeping up with Mojang protocol changes. The network c
 
 A protocol update is reverse engineering against a real vanilla BDS. Work it in this order; the early steps are not preamble, they are what makes the later evidence trustworthy.
 
+**Always launch BDS from its own server folder, never from the repo root.** It resolves every
+path against its working directory, so starting it anywhere else makes it create its world, its
+`docs/` and its config there. That is where the stray `World/` in the repo root came from, and
+the gitignore line for it is a symptom, not a fix. `cd temp_auto/bds/server-<version>` first,
+then run `./bedrock_server.exe`, so everything it writes stays inside that folder where it
+belongs and can be thrown away with the folder.
+
 **1. Get the reference server right.** Download the BDS build matching the target protocol and run it with the configuration we are comparing against. In `server.properties`:
 
 - `block-network-ids-are-hashes=false`, ALWAYS, when testing. Both schemes are legal (the server declares which one it uses in StartGame and the client honours it), but with hashes off both sides speak palette indices, which is what the CloudburstMC data we generate from gives us. Leave it on and every block id in a capture is a hash, comparable to nothing we hold.

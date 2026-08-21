@@ -66,9 +66,9 @@ namespace MiNET.Items
 		}
 	}
 
-	public class ItemSign : ItemSignBase
+	public class ItemOakSign : ItemSignBase
 	{
-		public ItemSign() : base("minecraft:oak_sign", "minecraft:standing_sign", "minecraft:wall_sign") { }
+		public ItemOakSign() : base("minecraft:oak_sign", "minecraft:standing_sign", "minecraft:wall_sign") { }
 	}
 
 	public class ItemAcaciaSign : ItemSignBase
@@ -91,9 +91,9 @@ namespace MiNET.Items
 		public ItemJungleSign() : base("minecraft:jungle_sign", "minecraft:jungle_standing_sign", "minecraft:jungle_wall_sign") { }
 	}
 
-	public class ItemDarkoakSign : ItemSignBase
+	public class ItemDarkOakSign : ItemSignBase
 	{
-		public ItemDarkoakSign() : base("minecraft:dark_oak_sign", "minecraft:darkoak_standing_sign", "minecraft:darkoak_wall_sign") { }
+		public ItemDarkOakSign() : base("minecraft:dark_oak_sign", "minecraft:darkoak_standing_sign", "minecraft:darkoak_wall_sign") { }
 	}
 
 	public class ItemCrimsonSign : ItemSignBase

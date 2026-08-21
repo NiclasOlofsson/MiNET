@@ -120,8 +120,7 @@ public static class Program
 		HashSet<string> handWrittenItems = ReadHandWrittenClasses(itemsDir, "ItemData.generated.cs", "ItemRegistryData.generated.cs");
 		Console.WriteLine($"hand-written item classes: {handWrittenItems.Count}");
 
-		int itemClasses = WriteItemDataClasses(Path.Combine(itemsDir, "ItemData.generated.cs"), items, blockNames, handWrittenItems,
-			Path.Combine(dataDir, "item_mappings.json"));
+		int itemClasses = WriteItemDataClasses(Path.Combine(itemsDir, "ItemData.generated.cs"), items, blockNames, handWrittenItems);
 		Console.WriteLine($"ItemData.generated.cs: {itemClasses} classes");
 
 		// The creative catalog, regenerated from Cloudburst's name-addressed creative_items.json
@@ -147,13 +146,12 @@ public static class Program
 	///     it changes every protocol version, and an identity that carries a stale number is worse
 	///     than one that carries none.
 	/// </summary>
-	private static int WriteItemDataClasses(string path, List<ItemEntry> items, HashSet<string> blockNames, HashSet<string> handWritten, string mappingsPath)
+	private static int WriteItemDataClasses(string path, List<ItemEntry> items, HashSet<string> blockNames, HashSet<string> handWritten)
 	{
-		// Renames, current name back to the old one the class was written under.
-		var mappings = JsonConvert.DeserializeObject<ItemMappingsJson>(File.ReadAllText(mappingsPath));
-		var renamedFrom = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-		foreach (KeyValuePair<string, string> rename in mappings.Simple) renamedFrom[rename.Value] = rename.Key;
-
+		// A hand-written class is matched on the item's own name and nothing else. There used to be a
+		// rename map here as well, so a class written under an item's old name still suppressed the
+		// class for its current one. The hand-written classes carry current names now, which is what
+		// the map was compensating for.
 		var sb = new StringBuilder();
 		WriteHeader(sb, "CloudburstMC/Data runtime_item_states.json");
 		sb.AppendLine("namespace MiNET.Items");
@@ -167,7 +165,6 @@ public static class Program
 
 			string className = "Item" + CodeName(item.Name.Replace("minecraft:", ""));
 			if (handWritten.Contains(className)) continue;
-			if (renamedFrom.TryGetValue(item.Name, out string oldName) && handWritten.Contains("Item" + CodeName(oldName.Replace("minecraft:", "")))) continue;
 			if (!seen.Add(className)) continue;
 
 			string baseClass = BaseClassFor(className);
@@ -207,10 +204,6 @@ public static class Program
 		return "Item";
 	}
 
-	private sealed class ItemMappingsJson
-	{
-		[JsonProperty("simple")] public Dictionary<string, string> Simple { get; set; } = new Dictionary<string, string>();
-	}
 
 	// One item registry identity: the durable string id, this protocol version's network id, and
 	// the component blob for the items that carry one. ComponentNbt is already serialized as

@@ -18,6 +18,45 @@ Every difference between what vanilla BDS puts on the wire and what MiNET puts o
 
 The division of labour: the diff enumerates EVERY divergence with its field, offset, and both values; classifying one as acceptable is Niclas's call, not Claude's. Stating a hypothesis about a difference is fine ("this is probably world state") as long as the difference is still listed and still counted. Building a catalogue of which divergences are genuinely benign is a goal of this work, so each ruling gets recorded here or in the effort memory with the reason and the evidence. Until a difference has been explicitly ruled benign, it is an open defect.
 
+## Every byte read is declared, identified and emitted
+
+This governs every extraction [MiNET.BdsExtract](src/MiNET/MiNET.BdsExtract/) does, not just the
+block upgrader. **No data loss, no skipping. All data declared, identified and emitted.**
+
+- **No data loss.** A value that was read reaches the output. Not "most of it", not "the part that
+  fit the shape I chose".
+- **No skipping.** A field that is not understood is emitted saying so, with its size or offset, so
+  the hole is countable. Omitting it makes the output look complete when it is not.
+- **Nothing is filtered on judgment.** What is interesting is the reader's call, not the tool's.
+- **Nothing is invented.** A read that failed is reported as failed. The tool may fail to find a
+  thing; it may never write something it did not read.
+
+Every one of those came from losing real data, and the losses were invisible until something else
+contradicted them:
+
+- Two different kinds of entry written into one JSON object put the same property in twice. JSON
+  keeps the last, so every rule that constrained a property silently lost the constraint.
+- A walk that stopped at a node whose size would not measure hid `minecraft:cut_copper_slab`
+  entirely, and it read as a rule with an empty pattern rather than as an error.
+- Anchoring the upgrade rules on a block name discarded 49 of the 59 renames sitting in memory.
+- Reading a value at one fixed offset made "has no value", "holds a number" and "holds a pattern"
+  all come out as `null`, which is three facts flattened into one wrong one.
+- An empty candidate that scored 5 out of 7 shipped three invented block rows per run, with a
+  hardness of zero and an enum value that does not exist.
+
+The practices that follow from it:
+
+- **Measure, do not assume.** Object size comes from the allocator's block header, string length
+  from the length field beside the pointer. Reading to the first zero returned
+  `minecraft:powered_repeaterer`, which is an earlier occupant's slack.
+- **Structure, never adjacency.** Two things sitting next to each other prove nothing. Adjacency
+  sweeps returned 2,717 fake component pairs, 2,173 fake id renames, and named the wrong block on
+  106 of 130 upgrade rules. Follow the container's own links and keep what is connected.
+- **Make the read self proving.** A HashedString must hash to its own text, a `{pointer, length}`
+  pair must agree with the text it points at, a class must measure one size across every instance.
+  A check that arbitrary bytes cannot pass is what separates a find from a coincidence.
+- **Unknown is a value.** Emit it (`{"unread": 96}`) rather than dropping the entry.
+
 ## Commands
 
 ```bash

@@ -67,12 +67,25 @@ public static class HashedString
 	/// </summary>
 	public static string ReadVerified(BedrockProcess process, byte[] buffer, int at, byte[] heapScratch)
 	{
+		return ReadVerified(process, buffer, at, heapScratch, MinimumNameLength, MaximumNameLength);
+	}
+
+	/// <summary>
+	///     The same read with its own length bounds, for HashedStrings that are not block names.
+	///     A block name is at least "minecraft:" and a character, and holding the sweep to that is
+	///     part of what keeps it from matching things that are not blocks. A tag has no namespace to
+	///     require and runs as short as "dirt", so it needs its own floor rather than a lowered one:
+	///     the hash still has to match the text either way, so nothing is being taken on trust.
+	/// </summary>
+	public static string ReadVerified(BedrockProcess process, byte[] buffer, int at, byte[] heapScratch,
+		int minimum, int maximum)
+	{
 		ulong hash = BitConverter.ToUInt64(buffer, at + HashOffset);
 		if (hash == 0) return null;
 
 		ulong length = BitConverter.ToUInt64(buffer, at + LengthOffset);
 		ulong capacity = BitConverter.ToUInt64(buffer, at + CapacityOffset);
-		if (length < MinimumNameLength || length > MaximumNameLength) return null;
+		if (length < (ulong) minimum || length > (ulong) maximum) return null;
 
 		// A std::string grows in sixteen byte steps and keeps short text inline. Anything else
 		// is not a string header.

@@ -1,0 +1,38 @@
+{
+	"minecraft:block": [
+		{ "name": "minecraft:aim_collision", "field": "block_aim_collision" },
+		{ "name": "minecraft:pick_collision", "field": "block_aim_collision" },
+		{ "name": "minecraft:breathability", "field": "block_breathability" },
+		{ "name": "minecraft:block_collision", "field": "block_collision" },
+		{ "name": "minecraft:entity_collision", "field": "block_collision" },
+		{ "name": "minecraft:destroy_time", "field": "block_destroy_time" },
+		{ "name": "minecraft:explosion_resistance", "field": "block_destructible_by_explosion" },
+		{ "name": "minecraft:destroy_time", "field": "block_destructible_by_mining" },
+		{ "name": "minecraft:destructible_by_mining", "field": "block_destructible_by_mining" },
+		{ "name": "minecraft:display_name", "field": "block_display_name" },
+		{ "name": "minecraft:friction", "field": "block_friction" },
+		{ "name": "minecraft:geometry", "field": "block_geometry" },
+		{ "name": "minecraft:block_light_absorption", "field": "block_light_filter" },
+		{ "name": "minecraft:block_light_filter", "field": "block_light_filter" },
+		{ "name": "minecraft:map_color", "field": "block_map_color" },
+		{ "name": "minecraft:transformation", "field": "block_transformation" },
+		{ "name": "minecraft:unit_cube", "field": "block_unit_cube" },
+		{ "name": "minecraft:crafting_table", "field": "crafting_table" },
+		{ "name": "minecraft:creative_category", "field": "creativeGroup" },
+		{ "name": "minecraft:flammable", "field": "flammable" },
+		{ "name": "minecraft:block_light_filter", "field": "light_dampening" },
+		{ "name": "minecraft:block_light_emission", "field": "light_emission" },
+		{ "name": "minecraft:liquid_detection", "field": "liquid_detection" },
+		{ "name": "minecraft:loot", "field": "loot" },
+		{ "name": "minecraft:explosion_resistance", "field": "minecraft:explosion_resistance" },
+		{ "name": "minecraft:ticking", "field": "queued_ticking" },
+		{ "name": "minecraft:aim_collision", "field": "selection_box" }
+	],
+	"minecraft:item": [
+		{ "name": "minecraft:armor", "field": "minecraft:armor" },
+		{ "name": "minecraft:durability", "field": "minecraft:durability" },
+		{ "name": "minecraft:food", "field": "minecraft:food" },
+		{ "name": "minecraft:repairable", "field": "minecraft:repairable" },
+		{ "name": "minecraft:wearable", "field": "minecraft:wearable" }
+	]
+}

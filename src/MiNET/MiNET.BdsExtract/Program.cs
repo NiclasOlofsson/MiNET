@@ -106,7 +106,7 @@ public static class Program
 	///     server build and the patience to run one, so committing the result is what lets everyone
 	///     else use it without any of that.
 	/// </summary>
-	private static string DefaultOutputDirectory()
+	internal static string DefaultOutputDirectory()
 	{
 		var directory = new DirectoryInfo(AppContext.BaseDirectory);
 		while (directory is not null)

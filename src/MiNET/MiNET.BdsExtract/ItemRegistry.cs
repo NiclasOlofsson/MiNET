@@ -241,7 +241,10 @@ public static class ItemRegistry
 	/// </summary>
 	public static int Run(string[] args)
 	{
-		string pathFilter = null, output = "items-runtime.json";
+		// The Data folder beside this project's source, the same place the block extraction lands,
+		// so a run updates the copy that is committed instead of dropping files wherever it was
+		// started from. --out still overrides.
+		string pathFilter = null, output = Path.Combine(Program.DefaultOutputDirectory(), "items-runtime.json");
 		bool anyWorld = args.Contains("--any-world");
 		for (int i = 0; i < args.Length; i++)
 		{
@@ -1327,6 +1330,8 @@ public static class ItemRegistry
 
 	public static void Write(BedrockProcess process, IEnumerable<Item> items, string path)
 	{
+		if (Path.GetDirectoryName(path) is { Length: > 0 } directory) Directory.CreateDirectory(directory);
+
 		var byClass = new Dictionary<ulong, List<string>>();
 		List<Item> ordered = items.OrderBy(i => i.Name, StringComparer.Ordinal).ToList();
 		foreach (Item item in ordered)

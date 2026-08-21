@@ -219,3 +219,10 @@ server.*.conf
 
 # BDS scratch world dropped in the repo root by a docgen/test run
 /World/
+
+# The evidence half of the item extraction, not its result: every byte of every item object as
+# hex, plus the holes. Its job was finding the holes, and there are none left to find, so it is
+# worth regenerating on the next version bump and not worth 3MB in every clone. The data it was
+# read out of, and the layout, class and component maps that say what is still undecoded, stay
+# tracked beside it.
+/src/MiNET/MiNET.BdsExtract/Data/items-runtime-forensics.json

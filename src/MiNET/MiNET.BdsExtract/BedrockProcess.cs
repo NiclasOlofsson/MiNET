@@ -126,6 +126,16 @@ public sealed partial class BedrockProcess : IDisposable
 		return ReadProcessMemory(_handle, (IntPtr) address, buffer, (nuint) length, out nuint read) && (int) read == length;
 	}
 
+	/// <summary>Reads into the middle of a buffer, for filling in the rest of an object already begun.</summary>
+	public bool TryRead(ulong address, byte[] buffer, int offset, int length)
+	{
+		if (offset < 0 || length < 0 || offset + length > buffer.Length) return false;
+		var slice = new byte[length];
+		if (!TryRead(address, slice, length)) return false;
+		Array.Copy(slice, 0, buffer, offset, length);
+		return true;
+	}
+
 	public ulong ReadUInt64(ulong address, byte[] scratch)
 	{
 		return TryRead(address, scratch, 8) ? BitConverter.ToUInt64(scratch, 0) : 0;

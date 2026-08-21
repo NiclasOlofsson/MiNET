@@ -22,10 +22,5 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
-  <!-- The behaviour pack the probe deploys into a server. It has to reach the build output as
-       files rather than embedded resources, because the server loads it off disk. -->
-  <ItemGroup>
-    <None Include="ProbePack\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="ProbePack" />
-  </ItemGroup>
 
 </Project>

@@ -24,6 +24,7 @@
 #endregion
 
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 
 namespace MiNET.BdsExtract;
@@ -53,12 +54,46 @@ public sealed partial class BedrockProcess : IDisposable
 
 	public int Id { get; }
 	public string ExecutablePath { get; }
+
+	/// <summary>
+	///     Where the server's own image is loaded, so an address inside it can be stated as the
+	///     offset the image itself uses. That offset is what a symbol file names, and it is the same
+	///     on every run, where the address is not.
+	/// </summary>
+	public ulong ModuleBase { get; }
+
+	/// <summary>
+	///     Which build is running, or null when it cannot be told. The executable states it from
+	///     1.26.50.24 on and every older one leaves the field empty, so the folder BDS was unpacked
+	///     into is the fallback: it is named for the build it holds. Null is a real answer and the
+	///     callers treat it as one, because a rule that depends on the version must not fire on a
+	///     guess about which version this is.
+	/// </summary>
+	public Version BuildVersion { get; private set; }
+
+	private void ReadBuildVersion()
+	{
+		if (string.IsNullOrEmpty(ExecutablePath)) return;
+
+		string stated = FileVersionInfo.GetVersionInfo(ExecutablePath).FileVersion;
+		if (Version.TryParse(stated ?? "", out Version version) && version.Major > 0)
+		{
+			BuildVersion = version;
+			return;
+		}
+
+		Match named = Regex.Match(ExecutablePath, @"[\\/]server-(\d+(?:\.\d+){2,3})");
+		if (named.Success && Version.TryParse(named.Groups[1].Value, out version)) BuildVersion = version;
+	}
+
 	public IReadOnlyList<Region> Regions => _regions;
 
 	private BedrockProcess(Process process)
 	{
 		Id = process.Id;
 		ExecutablePath = process.MainModule?.FileName ?? "";
+		ModuleBase = (ulong) (process.MainModule?.BaseAddress ?? IntPtr.Zero);
+		ReadBuildVersion();
 		_handle = OpenProcess(ProcessQueryInformation | ProcessVmRead, false, process.Id);
 		if (_handle == IntPtr.Zero)
 		{
@@ -139,6 +174,35 @@ public sealed partial class BedrockProcess : IDisposable
 	public ulong ReadUInt64(ulong address, byte[] scratch)
 	{
 		return TryRead(address, scratch, 8) ? BitConverter.ToUInt64(scratch, 0) : 0;
+	}
+
+	/// <summary>
+	///     Reads as much of the requested span as is actually mapped, and says how much that was.
+	///     For reading an object whose exact size is not known in advance: a heap allocation never
+	///     spans out of committed memory, so a read clipped at the end of the contiguous mapped run
+	///     still holds every byte the object really has. A full-length read that would straddle
+	///     into an uncommitted neighbour page fails whole instead, which is how one component per
+	///     server instance used to vanish, decided by where the allocator happened to place it.
+	/// </summary>
+	public int ReadClipped(ulong address, byte[] buffer, int length)
+	{
+		int low = 0, high = _regions.Count - 1, found = -1;
+		while (low <= high)
+		{
+			int mid = (low + high) / 2;
+			var region = _regions[mid];
+			if (address < region.Base) high = mid - 1;
+			else if (address >= region.End) low = mid + 1;
+			else { found = mid; break; }
+		}
+		if (found < 0) return 0;
+
+		// Contiguous committed regions read as one run; only a genuine hole clips.
+		ulong end = _regions[found].End;
+		for (int i = found + 1; i < _regions.Count && _regions[i].Base == end; i++) end = _regions[i].End;
+
+		int clipped = (int) Math.Min((ulong) length, end - address);
+		return clipped > 0 && TryRead(address, buffer, clipped) ? clipped : 0;
 	}
 
 	private List<Region> ReadRegions()

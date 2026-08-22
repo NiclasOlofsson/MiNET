@@ -40,15 +40,45 @@ namespace MiNET.BdsExtract;
 /// </summary>
 public static class BlockDocument
 {
+	/// <summary>
+	///     The header lines every output leads with: the block state schema version and, spelled out
+	///     beside it, the release it encodes (the number is four bytes, major.minor.patch.revision).
+	///     Every state carries the same stamp (frozen at 1.21.60.33 for years); if a build ever
+	///     splits it, the split is written as the list it is instead of one value hiding the other.
+	/// </summary>
+	public static string VersionHeader(IReadOnlyList<PaletteEntry> palette)
+	{
+		int[] versions = palette.Select(p => p.Version).Distinct().OrderBy(v => v).ToArray();
+		static string Release(int v) => $"{v >> 24 & 0xff}.{v >> 16 & 0xff}.{v >> 8 & 0xff}.{v & 0xff}";
+		return versions.Length == 1
+			? $"\t\"blockStateVersion\": {versions[0]},\n\t\"blockStateRelease\": \"{Release(versions[0])}\",\n"
+			: $"\t\"blockStateVersions\": [{string.Join(", ", versions)}],\n\t\"blockStateReleases\": [{string.Join(", ", versions.Select(v => $"\"{Release(v)}\""))}],\n";
+	}
+
 	/// <summary>One row per block, with everything the extraction knows about it.</summary>
-	public static string WriteBlocks(IReadOnlyList<BlockProperties> blocks,
+	public static string WriteBlocks(BedrockProcess process, string versionHeader,
+		IReadOnlyList<BlockProperties> blocks,
 		IReadOnlyDictionary<ulong, string> classNames,
 		IReadOnlyDictionary<string, BlockStateRange> ranges,
 		IReadOnlyDictionary<string, int> propertyIds,
 		IReadOnlyDictionary<string, LegacyStateTable> legacy,
 		IReadOnlyDictionary<string, List<BlockComponent>> components)
 	{
+		var window = new byte[BlockLayout.Reach];
+		var scratch = new byte[256];
 		var text = new StringBuilder("{\n");
+		text.Append(versionHeader);
+		text.Append($"\t\"blockClassSize\": {BlockMembers.ClassSize},\n");
+		text.Append($"\t\"layoutPublishedFor\": \"{BlockMembers.Build}\",\n");
+		text.Append("\t\"members\": [\n");
+		for (int m = 0; m < BlockLayout.Members.Count; m++)
+		{
+			BlockMember member = BlockLayout.Members[m];
+			text.Append($"\t\t{{ \"name\": \"{member.Name}\", \"at\": {BlockLayout.At(member.Name)}, "
+					+ $"\"bytes\": {member.Bytes}, \"kind\": \"{member.Kind}\" }}");
+			text.Append(m == BlockLayout.Members.Count - 1 ? "\n" : ",\n");
+		}
+		text.Append("\t],\n");
 		text.Append($"\t\"count\": {blocks.Count},\n");
 		text.Append("\t\"blocks\": [\n");
 		for (int i = 0; i < blocks.Count; i++)
@@ -68,32 +98,33 @@ public static class BlockDocument
 
 			text.Append("\t\t{\n");
 			text.Append($"\t\t\t\"name\": \"{Escape(block.Name)}\",\n");
-			text.Append($"\t\t\t\"legacyId\": {block.LegacyId},\n");
-			text.Append($"\t\t\t\"serializationId\": {Text(block.SerializationId)},\n");
-			text.Append($"\t\t\t\"creativeGroup\": {Text(block.CreativeGroup)},\n");
-			text.Append($"\t\t\t\"creativeCategory\": {Byte(block, MemoryLayout.CreativeCategoryByte)},\n");
-			text.Append($"\t\t\t\"blockEntityType\": {Byte(block, MemoryLayout.BlockEntityTypeByte)},\n");
-			text.Append($"\t\t\t\"material\": {Byte(block, MemoryLayout.MaterialByte)},\n");
+
+			// Every member of the class, under the class's own name, read from where this build
+			// keeps it. Not a selection: a member holding a container is a row with a null value,
+			// so what nothing reads is counted rather than absent.
+			foreach (BlockMemberReader.Value value in BlockMemberReader.Read(process, block.Address, window, scratch))
+			{
+				if (value.Name == "fullName") continue;
+				if (value.Name == "tags")
+				{
+					// The tags member is the vector this tool reads, so its own row carries them
+					// rather than a null beside a second list under the same name. Two entries under
+					// one key is a value lost: a reader keeps the last and never sees the first.
+					text.Append("			\"tags\": [");
+					for (int t = 0; t < block.Tags.Count; t++)
+					{
+						text.Append(t == 0 ? "" : ", ");
+						text.Append($"\"{Escape(block.Tags[t])}\"");
+					}
+					text.Append("],\n");
+					continue;
+				}
+				text.Append($"\t\t\t\"{value.Name}\": {value.Json ?? "null"},\n");
+			}
+
 			text.Append($"\t\t\t\"class\": \"{Escape(classNames.GetValueOrDefault(block.Vtable, "block"))}\",\n");
 			text.Append($"\t\t\t\"geometry\": {Text(geometry)},\n");
-			text.Append($"\t\t\t\"hardness\": {Number(block.Hardness)},\n");
-			text.Append($"\t\t\t\"explosionResistance\": {Number(block.ExplosionResistance)},\n");
-			text.Append($"\t\t\t\"friction\": {Number(block.Friction)},\n");
-			text.Append($"\t\t\t\"thickness\": {Number(block.Thickness)},\n");
-			text.Append($"\t\t\t\"translucency\": {Number(block.Translucency)},\n");
-			text.Append($"\t\t\t\"burnOdds\": {block.BurnOdds},\n");
-			text.Append($"\t\t\t\"flameOdds\": {block.FlameOdds},\n");
-			text.Append($"\t\t\t\"isSolid\": {Boolean(block.IsSolid)},\n");
-			text.Append($"\t\t\t\"requiresCorrectToolForDrops\": {Boolean(Flag(block,
-				MemoryLayout.ToolRequiredByte, MemoryLayout.ToolRequiredBit))},\n");
-			text.Append($"\t\t\t\"fallable\": {Boolean(Flag(block,
-				MemoryLayout.FallableByte, MemoryLayout.FallableBit))},\n");
-			text.Append($"\t\t\t\"blockLightEmission\": {Byte(block, MemoryLayout.LightEmissionByte)},\n");
-			text.Append($"\t\t\t\"blockLightDampening\": {Byte(block, MemoryLayout.LightDampeningByte)},\n");
-			text.Append($"\t\t\t\"canContainLiquidSource\": {Boolean(block.CanContainLiquidSource)},\n");
-			text.Append($"\t\t\t\"liquidReactionOnTouch\": \"{block.LiquidReactionOnTouch}\",\n");
-			text.Append($"\t\t\t\"tintMethod\": \"{block.TintMethod}\",\n");
-			text.Append($"\t\t\t\"mapColor\": \"{block.MapColor}\",\n");
+
 			// Where the row was read. Not a fact about the block and only good while that server
 			// lives, but it is what lets a follow up probe go straight to the object instead of
 			// finding the name again and hoping it landed on a BlockLegacy.
@@ -121,44 +152,16 @@ public static class BlockDocument
 				text.Append("],\n");
 			}
 
-			// The eight bytes at name+128. Only one is identified, bit 1 of the fifth being the
-			// solid flag, so the rest go out by offset with their values and no interpretation.
-			text.Append($"\t\t\t\"unnamedBytes\": {{ \"at\": \"name+{MemoryLayout.UnnamedBytes}\", \"values\": [");
-			text.Append(string.Join(", ", block.UnnamedBytes));
-			text.Append("] },\n");
+			// The carried components are not published. Their ids are per-instance registration
+			// numbers, so two runs of the same build disagree on every block, and rows that change
+			// with the heap are noise dressed as data. They are still read, because the geometry
+			// field above is resolved through them; they are just not rows in this file.
 
-			// What the block actually carries, against the forty nine the schema allows. An
-			// unnamed one still goes out with its size: dropping it would make the block look
-			// like it holds fewer components than it does.
-			var held = components.GetValueOrDefault(block.Name) ?? [];
-			text.Append("\t\t\t\"components\": [");
-			for (int c = 0; c < held.Count; c++)
-			{
-				text.Append(c == 0 ? "" : ", ");
-				var component = held[c];
-				// The id is always written, the name only when it is known. The id is the server's
-				// own identity for the component, so a row with an id and no name still says
-				// exactly which component the block carries.
-				text.Append(component.Name is null
-					? $"{{ \"id\": {component.Id}, \"name\": null, \"size\": {component.Size}, "
-					+ $"\"bytes\": {Text(component.Bytes)} }}"
-					: $"{{ \"id\": {component.Id}, \"name\": \"{Escape(component.Name)}\", "
-					+ $"\"value\": {Text(component.Value)} }}");
-			}
-			text.Append("],\n");
-
-			text.Append("\t\t\t\"tags\": [");
-			for (int t = 0; t < block.Tags.Count; t++)
-			{
-				text.Append(t == 0 ? "" : ", ");
-				text.Append($"\"{Escape(block.Tags[t])}\"");
-			}
-			text.Append("],\n");
 
 			// The properties and their values, which is what a state of this block can be.
 			var range = ranges.GetValueOrDefault(block.Name);
 			text.Append($"\t\t\t\"stateCount\": {range?.States ?? 0},\n");
-			text.Append("\t\t\t\"properties\": {");
+			text.Append("\t\t\t\"stateProperties\": {");
 			if (range is not null)
 			{
 				for (int p = 0; p < range.Properties.Count; p++)
@@ -199,6 +202,9 @@ public static class BlockDocument
 		// hash or a repeat of the index, and both look equally reasonable.
 		var text = new StringBuilder("{\n");
 		text.Append($"\t\"networkIdsAreHashes\": {Boolean(report.NetworkIdsAreHashes)},\n");
+
+		text.Append(VersionHeader(palette));
+
 		text.Append($"\t\"count\": {palette.Count},\n");
 		text.Append("\t\"states\": [\n");
 		for (int i = 0; i < palette.Count; i++)
@@ -254,11 +260,6 @@ public static class BlockDocument
 			string s => $"\"{Escape(s)}\"",
 			_ => "null"
 		};
-	}
-
-	private static string Number(float value)
-	{
-		return float.IsFinite(value) ? value.ToString("0.######", CultureInfo.InvariantCulture) : "null";
 	}
 
 	private static string Boolean(bool value)

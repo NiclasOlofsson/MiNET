@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -59,7 +59,11 @@ public sealed class BlockStateReader
 {
 	private readonly BedrockProcess _process;
 	private readonly Dictionary<ulong, TagKind> _tags = new();
-	private readonly byte[] _node = new byte[MemoryLayout.MapNodeSize];
+	// The traversal decodes only a node's links and its sentinel flag, bytes 0 through 25; key,
+	// tag and payload are separate exact reads by address. Reading a node's full declared size
+	// here can straddle out of the allocation into an uncommitted page and fail whole, which
+	// silently drops the node and every state below it.
+	private readonly byte[] _node = new byte[32];
 	private readonly byte[] _text = new byte[256];
 
 	private enum TagKind
@@ -95,7 +99,7 @@ public sealed class BlockStateReader
 	{
 		version = 0;
 		var properties = new List<StateProperty>();
-		ulong head = _process.ReadUInt64(block + MemoryLayout.BlockStateNbt, _text);
+		ulong head = _process.ReadUInt64(block + (ulong) MemoryLayout.BlockStateNbt, _text);
 		if (head < 0x10000) return properties;
 
 		foreach (ulong node in Nodes(head))
@@ -129,7 +133,7 @@ public sealed class BlockStateReader
 
 	private void Learn(ulong block)
 	{
-		ulong head = _process.ReadUInt64(block + MemoryLayout.BlockStateNbt, _text);
+		ulong head = _process.ReadUInt64(block + (ulong) MemoryLayout.BlockStateNbt, _text);
 		if (head < 0x10000) return;
 
 		foreach (ulong node in Nodes(head))
@@ -194,14 +198,16 @@ public sealed class BlockStateReader
 	private List<ulong> Nodes(ulong head)
 	{
 		var found = new List<ulong>();
+		var seen = new HashSet<ulong>();
 		var pending = new Stack<ulong>();
 		pending.Push(_process.ReadUInt64(head + MemoryLayout.MapNodeParent, _text));
 
 		// A malformed tree would otherwise loop forever, and no block has anything like this many.
+		// The seen set keeps a malformed one from reporting a node twice on its way to the guard.
 		for (int guard = 0; pending.Count > 0 && guard < 8192; guard++)
 		{
 			ulong node = pending.Pop();
-			if (node < 0x10000 || node == head) continue;
+			if (node < 0x10000 || node == head || !seen.Add(node)) continue;
 			if (!_process.TryRead(node, _node, _node.Length)) continue;
 			if (_node[MemoryLayout.MapNodeFlags + 1] == 1) continue;
 

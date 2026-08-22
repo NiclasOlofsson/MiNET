@@ -42,6 +42,28 @@ public sealed class BlockProperties
 	public int BurnOdds { get; init; }
 	public int FlameOdds { get; init; }
 	public bool IsSolid { get; init; }
+	/// <summary>
+	///     The block's own solid flag, which is a different field from the state's <see cref="IsSolid" />.
+	/// </summary>
+	public bool Solid { get; init; }
+
+	public bool Fallable { get; init; }
+	/// <summary>
+	///     Null on a build that does not have the field at all, which is not the same as false. See
+	///     <see cref="Sentinels" /> for which build each such field first appears in.
+	/// </summary>
+	public bool? RequiresCorrectToolForDrops { get; init; }
+	public int CreativeCategory { get; init; }
+	public int BlockEntityType { get; init; }
+	public int Material { get; init; }
+
+	/// <summary>
+	///     The block's own light, which the state objects carry their own copy of. The two disagree
+	///     exactly where light depends on state: campfire reads 0 here and 15 on its lit state.
+	/// </summary>
+	public int LightEmission { get; init; }
+
+	public int LightDampening { get; init; }
 	public bool CanContainLiquidSource { get; init; }
 	public string LiquidReactionOnTouch { get; init; }
 	public string TintMethod { get; init; }
@@ -123,7 +145,7 @@ public static class BlockRegistry
 		foreach (var region in process.Regions)
 		{
 			// Overlap each window by one object so a block spanning a boundary is not missed.
-			for (ulong at = region.Base; at < region.End; at += (ulong) window.Length - MemoryLayout.LegacyReach)
+			for (ulong at = region.Base; at < region.End; at += (ulong) (window.Length - MemoryLayout.LegacyReach))
 			{
 				int length = (int) Math.Min((ulong) window.Length, region.End - at);
 				if (length < MemoryLayout.LegacyReach || !process.TryRead(at, window, length)) continue;
@@ -141,8 +163,8 @@ public static class BlockRegistry
 
 					// The HashedString sits partway into BlockLegacy, so step back to the object.
 					ulong nameAddress = at + (ulong) i;
-					if (nameAddress < MemoryLayout.NameInsideLegacy) continue;
-					ulong legacy = nameAddress - MemoryLayout.NameInsideLegacy;
+					if (nameAddress < (ulong) MemoryLayout.NameInsideLegacy) continue;
+					ulong legacy = nameAddress - (ulong) MemoryLayout.NameInsideLegacy;
 					var block = ReadBlock(process, legacy, name, window, i, defaultState, word);
 					if (block is null) continue;
 
@@ -215,7 +237,7 @@ public static class BlockRegistry
 	private static BlockProperties ReadBlock(BedrockProcess process, ulong legacy, string name,
 		byte[] window, int at, byte[] defaultState, byte[] word)
 	{
-		ulong stateAddress = process.ReadUInt64(legacy + MemoryLayout.NameInsideLegacy + MemoryLayout.DefaultStatePointer, word);
+		ulong stateAddress = process.ReadUInt64(legacy + (ulong) (MemoryLayout.NameInsideLegacy + MemoryLayout.DefaultStatePointer), word);
 		if (stateAddress < 0x10000 || !process.IsMapped(stateAddress)) return null;
 		if (!process.TryRead(stateAddress, defaultState, MemoryLayout.BlockSize)) return null;
 
@@ -250,11 +272,19 @@ public static class BlockRegistry
 			BurnOdds = defaultState[MemoryLayout.BlockBurnOdds],
 			FlameOdds = defaultState[MemoryLayout.BlockFlameOdds],
 			IsSolid = defaultState[MemoryLayout.BlockIsSolid] != 0,
+			Solid = window[nameAt + MemoryLayout.BlockSolidAt] != 0,
+			Fallable = (window[nameAt + MemoryLayout.FallableAt] >> MemoryLayout.FallableBit & 1) != 0,
+			RequiresCorrectToolForDrops = (window[nameAt + MemoryLayout.ToolRequiredAt] >> MemoryLayout.ToolRequiredBit & 1) != 0,
+			CreativeCategory = window[nameAt + MemoryLayout.CreativeCategoryAt],
+			BlockEntityType = window[nameAt + MemoryLayout.BlockEntityTypeAt],
+			Material = window[nameAt + MemoryLayout.MaterialAt],
+			LightEmission = window[nameAt + MemoryLayout.BlockLightEmissionAt],
+			LightDampening = window[nameAt + MemoryLayout.BlockLightDampeningAt],
 			CanContainLiquidSource = defaultState[MemoryLayout.BlockCanContainLiquid] != 0,
 			LiquidReactionOnTouch = MemoryLayout.Describe(MemoryLayout.LiquidReactions,
 				defaultState[MemoryLayout.BlockLiquidReaction]),
-			SerializationId = StdString(process, legacy + MemoryLayout.SerializationId),
-			CreativeGroup = StdString(process, legacy + MemoryLayout.CreativeGroup),
+			SerializationId = StdString(process, legacy + (ulong) MemoryLayout.SerializationId),
+			CreativeGroup = StdString(process, legacy + (ulong) MemoryLayout.CreativeGroup),
 			Tags = ReadTags(process, window, nameAt, word),
 			Geometry = ReadGeometry(process, legacy, word),
 			Vtable = process.ReadUInt64(legacy, word),
@@ -274,8 +304,8 @@ public static class BlockRegistry
 	/// </summary>
 	private static string ReadGeometry(BedrockProcess process, ulong legacy, byte[] word)
 	{
-		ulong begin = process.ReadUInt64(legacy + MemoryLayout.BlockComponents, word);
-		ulong end = process.ReadUInt64(legacy + MemoryLayout.BlockComponents + 8, word);
+		ulong begin = process.ReadUInt64(legacy + (ulong) MemoryLayout.BlockComponents, word);
+		ulong end = process.ReadUInt64(legacy + (ulong) (MemoryLayout.BlockComponents + 8), word);
 		if (begin < 0x10000 || end <= begin || (end - begin) % 8 != 0) return null;
 		if (end - begin > MaximumComponentBytes || !process.IsMapped(begin)) return null;
 
@@ -284,7 +314,7 @@ public static class BlockRegistry
 			ulong component = process.ReadUInt64(at, word);
 			if (component < 0x10000 || !process.IsMapped(component)) continue;
 
-			string text = StdString(process, component + MemoryLayout.ComponentText);
+			string text = StdString(process, component + (ulong) MemoryLayout.ComponentText);
 			if (text is not null && text.StartsWith(Namespace, StringComparison.Ordinal)) return text;
 		}
 		return null;
@@ -307,12 +337,12 @@ public static class BlockRegistry
 		if (begin < 0x10000 || end <= begin) return tags;
 
 		ulong span = end - begin;
-		if (span % MemoryLayout.TagStride != 0 || span > MaximumTagBytes) return tags;
+		if (span % (ulong) MemoryLayout.TagStride != 0 || span > (ulong) MaximumTagBytes) return tags;
 		if (!process.IsMapped(begin)) return tags;
 
 		var element = new byte[HashedString.Size];
 		var heap = new byte[MemoryLayout.MaximumTagLength];
-		for (ulong at = begin; at < end; at += MemoryLayout.TagStride)
+		for (ulong at = begin; at < end; at += (ulong) MemoryLayout.TagStride)
 		{
 			if (!process.TryRead(at, element, element.Length)) continue;
 			string tag = HashedString.ReadVerified(process, element, 0, heap,
@@ -323,7 +353,7 @@ public static class BlockRegistry
 	}
 
 	/// <summary>No block carries anywhere near this many, so a longer span is not a tag vector.</summary>
-	private const int MaximumTagBytes = MemoryLayout.TagStride * 64;
+	private static int MaximumTagBytes => MemoryLayout.TagStride * 64;
 
 	/// <summary>
 	///     How much a candidate reads like a real block, used to choose between copies of one name

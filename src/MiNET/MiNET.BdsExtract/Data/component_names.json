@@ -1,4 +1,6 @@
 {
+	"blockStateVersion": 18168865,
+	"blockStateRelease": "1.21.60.33",
 	"minecraft:block": [
 		{ "name": "minecraft:aim_collision", "field": "block_aim_collision" },
 		{ "name": "minecraft:pick_collision", "field": "block_aim_collision" },

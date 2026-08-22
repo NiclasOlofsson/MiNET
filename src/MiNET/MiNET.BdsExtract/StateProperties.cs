@@ -128,21 +128,47 @@ public static class StateProperties
 	}
 
 	/// <summary>
-	///     The distinct entries of a block's property table. Sixteen buckets, and an empty one
-	///     points at the table's own head, so the same node is reached many times over.
+	///     The distinct entries of a block's property table. Sixteen buckets pointing into a linked
+	///     chain of nodes, and an empty bucket points at the table's own head. A bucket holding two
+	///     properties keeps the second behind the first node's link words, so the walk follows every
+	///     node's own links as well as the bucket heads. Only a node whose name verifies as a
+	///     HashedString is yielded, which no arbitrary byte run can pass; the head sentinel fails it
+	///     and yields nothing, while its links still lead to real nodes. Found on 1.26.50, where
+	///     trip_wire is the first block to land two properties in one bucket and a heads-only walk
+	///     read 7 of its 8, silently dropping minecraft:connection_east.
 	/// </summary>
 	private static IEnumerable<ulong> Nodes(BedrockProcess process, ulong legacy, byte[] word)
 	{
-		ulong begin = process.ReadUInt64(legacy + MemoryLayout.BlockProperties, word);
-		ulong end = process.ReadUInt64(legacy + MemoryLayout.BlockProperties + 8, word);
+		ulong begin = process.ReadUInt64(legacy + (ulong) MemoryLayout.BlockProperties, word);
+		ulong end = process.ReadUInt64(legacy + (ulong) (MemoryLayout.BlockProperties + 8), word);
 		if (begin < 0x10000 || end <= begin || (end - begin) / 8 != Buckets) yield break;
 		if (!process.IsMapped(begin)) yield break;
 
+		var heap = new byte[256];
+		var header = new byte[HashedString.Size];
 		var seen = new HashSet<ulong>();
+		var pending = new Queue<ulong>();
 		for (int i = 0; i < Buckets; i++)
 		{
-			ulong node = process.ReadUInt64(begin + (ulong) (i * 8), word);
+			pending.Enqueue(process.ReadUInt64(begin + (ulong) (i * 8), word));
+		}
+
+		// The visit cap is a runaway backstop only: a table cannot hold more nodes than the
+		// registry holds properties, and the seen set already stops every cycle.
+		while (pending.Count > 0 && seen.Count <= MaximumId)
+		{
+			ulong node = pending.Dequeue();
 			if (node < 0x10000 || !seen.Add(node) || !process.IsMapped(node)) continue;
+
+			// The first two words of a node are its links. Followed unconditionally: a word that
+			// is not a link fails the mapped or verified test on the far side and goes no further.
+			pending.Enqueue(process.ReadUInt64(node, word));
+			pending.Enqueue(process.ReadUInt64(node + 8, word));
+
+			if (!process.TryRead(node + NodeName, header, header.Length)) continue;
+			if (HashedString.ReadVerified(process, header, 0, heap,
+				MemoryLayout.MinimumTagLength, MemoryLayout.MaximumTagLength) is null) continue;
+
 			yield return node;
 		}
 	}

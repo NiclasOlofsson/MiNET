@@ -46,7 +46,7 @@ public static class ObjectLayout
 	///     not cover. Offsets past the name are written as the name plus their own offset, which is
 	///     how <see cref="MemoryLayout" /> states them.
 	/// </summary>
-	private static readonly (int At, int Bytes, string Field)[] Fields =
+	private static (int At, int Bytes, string Field)[] Fields() =>
 	[
 		(0, 8, "method table"),
 		(MemoryLayout.SerializationId, 32, "serializationId"),
@@ -95,7 +95,7 @@ public static class ObjectLayout
 		if (size <= 0) return null;
 
 		var covered = new bool[size];
-		foreach (var (at, bytes, _) in Fields)
+		foreach (var (at, bytes, _) in Fields())
 		{
 			for (int i = at; i < Math.Min(at + bytes, size); i++) covered[i] = true;
 		}

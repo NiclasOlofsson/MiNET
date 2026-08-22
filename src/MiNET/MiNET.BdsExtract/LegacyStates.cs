@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -65,8 +65,8 @@ public static class LegacyStates
 
 		foreach (var block in blocks)
 		{
-			ulong begin = process.ReadUInt64(block.Address + MemoryLayout.BlockStates, word);
-			ulong end = process.ReadUInt64(block.Address + MemoryLayout.BlockStates + 8, word);
+			ulong begin = process.ReadUInt64(block.Address + (ulong) MemoryLayout.BlockStates, word);
+			ulong end = process.ReadUInt64(block.Address + (ulong) (MemoryLayout.BlockStates + 8), word);
 			if (begin < 0x10000 || end <= begin || (end - begin) % 8 != 0) continue;
 
 			int count = (int) ((end - begin) / 8);
@@ -81,12 +81,12 @@ public static class LegacyStates
 				// one. Only a slot that belongs to this block counts: the back pointer is what
 				// says so, and it is the same check the palette read uses.
 				if (state < 0x10000 || !process.IsMapped(state)
-					|| process.ReadUInt64(state + MemoryLayout.BlockLegacyPointer, word) != block.Address)
+					|| process.ReadUInt64(state + (ulong) MemoryLayout.BlockLegacyPointer, word) != block.Address)
 				{
 					byData.Add(null);
 					continue;
 				}
-				byData.Add(process.TryRead(state + MemoryLayout.BlockNetworkId, word, 4)
+				byData.Add(process.TryRead(state + (ulong) MemoryLayout.BlockNetworkId, word, 4)
 					? BitConverter.ToUInt32(word, 0)
 					: null);
 			}

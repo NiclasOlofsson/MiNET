@@ -46,12 +46,77 @@ namespace MiNET.BdsExtract;
 /// </summary>
 public static class MemoryLayout
 {
-	/// <summary>How far the name sits inside BlockLegacy. Subtract to get the object start.</summary>
-	public const int NameInsideLegacy = 224;
+	/// <summary>
+	///     How far the name sits inside BlockLegacy. Subtract to get the object start.
+	///     <para>
+	///         Measured from the server before the sweep runs, not fixed: this and the two pointers
+	///         below moved between 1.26.3.1 and 1.26.30, and a build whose numbers differ finds no
+	///         blocks at all. The value here is what the builds we target hold, kept as the answer
+	///         to fall back on when the measurement cannot be made.
+	///     </para>
+	/// </summary>
+	public static int NameInsideLegacy { get; private set; } = 224;
+
+	/// <summary>
+	///     Takes the block layout this server actually has. Applied only when the round trip that
+	///     measures it closed on enough blocks to mean something; the caller decides that, and says
+	///     out loud what it applied.
+	/// </summary>
+	public static void UseMeasured(int nameInsideLegacy, int defaultStatePointer, int blockLegacyPointer)
+	{
+		NameInsideLegacy = nameInsideLegacy;
+		DefaultStatePointer = defaultStatePointer;
+		BlockLegacyPointer = blockLegacyPointer;
+	}
+
+	/// <summary>
+	///     Takes a value's position as measured on this server. The name is the one the extraction
+	///     writes the value under, so what was measured and what is applied cannot drift apart.
+	/// </summary>
+	public static bool UseMeasuredField(string field, int at)
+	{
+		switch (field)
+		{
+			case "hardness": BlockHardness = at; return true;
+			case "explosionResistance": BlockExplosionResistance = at; return true;
+			case "friction": BlockFriction = at; return true;
+			case "burnOdds": BlockBurnOdds = at; return true;
+			case "flameOdds": BlockFlameOdds = at; return true;
+			case "isSolid": BlockIsSolid = at; return true;
+			case "blockLightEmission": BlockLightEmissionAt = at; return true;
+			case "blockLightDampening": BlockLightDampeningAt = at; return true;
+			case "creativeCategory": CreativeCategoryAt = at; return true;
+			case "solid": BlockSolidAt = at; return true;
+			case "stateNbt": BlockStateNbt = at; return true;
+			case "properties": BlockProperties = at; return true;
+			case "components": BlockComponents = at; return true;
+			case "componentIds": BlockComponentIds = at; return true;
+			case "tags": BlockTags = at; return true;
+			case "tagStride": TagStride = at; return true;
+			case "blockEntityType": BlockEntityTypeAt = at; return true;
+			case "material": MaterialAt = at; return true;
+			case "fallable": FallableAt = at >> 3; FallableBit = at & 7; return true;
+			case "requiresCorrectToolForDrops": ToolRequiredAt = at >> 3; ToolRequiredBit = at & 7; return true;
+			case "lightEmission": StateLightEmission = at; return true;
+			case "lightDampening": StateLightDampening = at; return true;
+			case "translucency": Translucency = at; return true;
+			case "thickness": Thickness = at; return true;
+			case "states": BlockStates = at; return true;
+			case "networkId": BlockNetworkId = at; return true;
+			case "mapColor": MapColor = at; return true;
+			case "tintMethod": TintMethod = at; return true;
+			case "legacyId": LegacyId = at; return true;
+			case "canContainLiquidSource": BlockCanContainLiquid = at; return true;
+			case "liquidReactionOnTouch": BlockLiquidReaction = at; return true;
+			case "serializationId": SerializationId = at; return true;
+			case "creativeGroup": CreativeGroup = at; return true;
+			default: return false;
+		}
+	}
 
 	// BlockLegacy, measured from its name.
-	public const int Thickness = 120;
-	public const int Translucency = 124;
+	public static int Thickness { get; private set; } = 120;
+	public static int Translucency { get; private set; } = 124;
 	/// <summary>
 	///     Eight bytes between the translucency float and the map colour, read because they are
 	///     inside the object and skipping them is loss, not economy. Five of them have their own
@@ -60,104 +125,111 @@ public static class MemoryLayout
 	///     object's own isSolid on all 1,429 blocks. The rest are emitted by offset with no name,
 	///     because a byte whose meaning is unknown is still a byte that was there.
 	/// </summary>
-	public const int UnnamedBytes = 128;
+	/// <summary>
+	///     The eight bytes between the translucency float and the map colour. Every one of them is
+	///     named below and located against the reference, so the span itself is derived from those
+	///     positions rather than stated: it runs from the first named byte to the last. It is still
+	///     emitted whole, because the bits inside three of them have no name yet and a byte whose
+	///     meaning is unknown is still a byte that was there.
+	/// </summary>
+	public static int UnnamedBytes => Math.Min(CreativeCategoryAt, Math.Min(BlockEntityTypeAt, Math.Min(MaterialAt,
+		Math.Min(FallableAt, Math.Min(ToolRequiredAt,
+			Math.Min(BlockLightDampeningAt, BlockLightEmissionAt))))));
 
-	public const int UnnamedByteCount = 8;
+	public static int UnnamedByteCount => Math.Max(CreativeCategoryAt, Math.Max(BlockEntityTypeAt, Math.Max(MaterialAt,
+		Math.Max(FallableAt, Math.Max(ToolRequiredAt,
+			Math.Max(BlockLightDampeningAt, BlockLightEmissionAt)))))) - UnnamedBytes + 1;
 
-	/// <summary>Which of the eight carries the solid flag, and in which bit.</summary>
-	public const int SolidFlagByte = 4;
-
-	public const int SolidFlagBit = 1;
+	/// <summary>
+	///     The block's own solid flag, a whole byte of its own. Read here as well as on the state,
+	///     because they are two fields on two objects and only measuring both says whether they
+	///     agree. It was previously read as bit 1 of name+132, which BlockType says is a byte of the
+	///     particle quantity float, and nothing used that read.
+	/// </summary>
+	public static int BlockSolidAt { get; private set; } = 180;
 
 	/// <summary>
 	///     Whether the block drops nothing unless mined with the right tool, which is a different
 	///     question from which tool is fastest: the tool tags say stone is quicker with a pickaxe
 	///     AND that dirt is quicker with a shovel, and only stone withholds its drop.
-	///     Identified against the rest of the extraction rather than by shape. Every one of the 118
-	///     blocks carrying a minimum tier tag has it set, no axe, hoe or crop block has it, and the
-	///     only two shovel blocks that do are snow and snow_layer, which is exactly right. The 85
-	///     pickaxe blocks without it are rails, shulker boxes, bells and the like, mined faster
-	///     with a pickaxe but dropping themselves either way.
 	/// </summary>
-	public const int ToolRequiredByte = 5;
+	public static int ToolRequiredAt { get; private set; } = 133;
 
-	public const int ToolRequiredBit = 2;
+	public static int ToolRequiredBit { get; private set; } = 2;
 
 	/// <summary>
 	///     Whether the block falls when unsupported. Anvils, every concrete powder, gravel, sand
 	///     and the dragon egg, and it agrees with CloudburstMC's independently produced
 	///     block_attributes.json on all 496 blocks the two have in common.
 	/// </summary>
-	public const int FallableByte = 3;
+	public static int FallableAt { get; private set; } = 131;
 
-	public const int FallableBit = 4;
+	public static int FallableBit { get; private set; } = 4;
 
 	/// <summary>
-	///     The block's own light values, which are not flags at all: the last two of the eight
-	///     bytes are the emission and the dampening outright.
+	///     The block's own light values, emission and dampening outright rather than flags.
 	///     These are the block's defaults and the state objects carry their own, so the two
 	///     disagree exactly where light depends on state: campfire, soul_campfire and vault read
 	///     0 here and 15, 10 and 6 on their lit states. Both are kept, because "what the block
 	///     says" and "what this state emits" are different facts.
 	/// </summary>
-	public const int LightEmissionByte = 7;
+	public static int BlockLightEmissionAt { get; private set; } = 135;
 
-	public const int LightDampeningByte = 6;
+	public static int BlockLightDampeningAt { get; private set; } = 134;
 
 	/// <summary>
 	///     Which block entity the block has, or zero for the 1,269 that have none.
 	///     The grouping is its own proof: every chest variant reads 2, every sign 4, every shulker
-	///     box 25, every hanging sign 50, every shelf 59, every copper golem statue 60. Fifty nine
-	///     values, each one collecting exactly the blocks that share a block entity kind, which is
-	///     not something a byte read at the wrong offset produces.
+	///     box 25, every hanging sign 50, every shelf 59, every copper golem statue 60.
 	/// </summary>
-	public const int BlockEntityTypeByte = 1;
+	public static int BlockEntityTypeAt { get; private set; } = 129;
 
 	/// <summary>
 	///     The creative menu category, of which <see cref="CreativeGroup" /> is the group inside it.
-	///     Seven values, and the groups nest correctly: 1 holds slabs, stairs, copper and
-	///     trapdoors, 2 holds coral, logs, flowers and food, 4 holds shulker boxes, pressure plates
-	///     and buttons, 5 holds the permission blocks. Emitted as the number rather than a name,
-	///     because naming 3 and 6 would be guessing at two values nothing here pins down.
+	///     Emitted as the number rather than a name, because naming 3 and 6 would be guessing at
+	///     two values nothing here pins down.
 	/// </summary>
-	public const int CreativeCategoryByte = 0;
+	public static int CreativeCategoryAt { get; private set; } = 128;
 
 	/// <summary>
 	///     The block's material, which the server sets per block type in its constructor: 251 of
 	///     the 256 classes hold one value, and the five that vary do so because the class takes it
 	///     as an argument, which is how water and lava share a class and read 3 and 5.
-	///     Named by the fifty data driven blocks BDS ships, whose JSON states it: the 48 declaring
-	///     "solid" read 5 and the one declaring "plant" reads 11. The rest of the values are not
-	///     named because no block declares them, so the number goes out on its own. Observed:
-	///     3 for glass, panes, ice and water, 5 solid, 7 for torches and the newer leaves, 8 for
-	///     bars, chains and coral fans, 10 for the six classic leaves, 11 plant, and one value each
-	///     for the end portals, barrier, light blocks and structure void.
 	/// </summary>
-	public const int MaterialByte = 2;
+	public static int MaterialAt { get; private set; } = 130;
 
-	public const int MapColor = 136;          // four floats: red, green, blue, alpha
-	public const int TintMethod = 156;
-	public const int LegacyId = 158;          // the pre-flattening numeric id
-	public const int DefaultStatePointer = 352;
-	public const int LegacyReach = 360;       // how far past the name we ever read
+	public static int MapColor { get; private set; } = 136;   // four floats: red, green, blue, alpha
+	public static int TintMethod { get; private set; } = 156;
+	public static int LegacyId { get; private set; } = 158;   // the pre-flattening numeric id
+	public static int DefaultStatePointer { get; private set; } = 352;
+	/// <summary>How far past the name is ever read, which is as far as the furthest field there reaches.</summary>
+	public static int LegacyReach => Round(Max(
+		DefaultStatePointer + 8, MapColor + 16, TintMethod + 1, LegacyId + 2,
+		Thickness + 4, Translucency + 4, BlockTags + 24,
+		UnnamedBytes + UnnamedByteCount, HashedString.Size));
+
+	private static int Max(params int[] values) => values.Max();
+
+	/// <summary>Up to the next eight, because everything here is read a word at a time.</summary>
+	private static int Round(int value) => (value + 7) / 8 * 8;
 
 	/// <summary>
 	///     Block fields that are the same for every state of a block, so the default state
 	///     answers for all of them. Checked across all 17,700 states: none of these differ
 	///     between the states of one block, unlike the two light fields below.
 	/// </summary>
-	public const int BlockIsSolid = 113;
+	public static int BlockIsSolid { get; private set; } = 113;
 
-	public const int BlockFlameOdds = 168;
-	public const int BlockBurnOdds = 170;
-	public const int BlockExplosionResistance = 172;
-	public const int BlockFriction = 176;
-	public const int BlockHardness = 180;
-	public const int BlockCanContainLiquid = 184;
-	public const int BlockLiquidReaction = 186;
+	public static int BlockFlameOdds { get; private set; } = 168;
+	public static int BlockBurnOdds { get; private set; } = 170;
+	public static int BlockExplosionResistance { get; private set; } = 172;
+	public static int BlockFriction { get; private set; } = 176;
+	public static int BlockHardness { get; private set; } = 180;
+	public static int BlockCanContainLiquid { get; private set; } = 184;
+	public static int BlockLiquidReaction { get; private set; } = 186;
 
 	// Block, the per-state object, measured from its own start.
-	public const int BlockLegacyPointer = 104;
+	public static int BlockLegacyPointer { get; private set; } = 104;
 
 	/// <summary>
 	///     Light is a property of the state, not of the block. A candle emits nothing unlit and
@@ -170,7 +242,7 @@ public static class MemoryLayout
 	///     The serialized NBT for this state: the compound of name, states and version that the
 	///     network id is a hash of. It is an MSVC std::map, walked by <see cref="BlockStateReader" />.
 	/// </summary>
-	public const int BlockStateNbt = 248;
+	public static int BlockStateNbt { get; private set; } = 248;
 
 	// One node of that map, measured from its own start.
 	public const int MapNodeLeft = 0;
@@ -182,11 +254,20 @@ public static class MemoryLayout
 	public const int MapNodePayload = 72;
 	public const int MapNodeSize = 128;
 
-	public const int BlockLightEmission = 164;
+	public static int StateLightEmission { get; private set; } = 164;
 
-	public const int BlockLightDampening = 165;
-	public const int BlockNetworkId = 276;
-	public const int BlockSize = 304;
+	public static int StateLightDampening { get; private set; } = 165;
+	public static int BlockNetworkId { get; private set; } = 276;
+	/// <summary>
+	///     How much of a state object is read, which is as far as the furthest field measured in it
+	///     reaches. Stating it as a number instead meant a build that moved a field further out read
+	///     short and lost it silently.
+	/// </summary>
+	public static int BlockSize => Round(Max(
+		BlockNetworkId + 4, BlockHardness + 4, BlockFriction + 4, BlockExplosionResistance + 4,
+		BlockLegacyPointer + 8, BlockStateNbt + 8, BlockIsSolid + 1, BlockBurnOdds + 1,
+		BlockFlameOdds + 1, BlockCanContainLiquid + 1, BlockLiquidReaction + 1,
+		StateLightEmission + 1, StateLightDampening + 1));
 
 	/// <summary>
 	///     Two strings on BlockLegacy, measured from the START of the object rather than from the
@@ -194,22 +275,22 @@ public static class MemoryLayout
 	///     tile.acacia_button, which every block has; the creative group is the tab it appears in,
 	///     itemGroup.name.buttons, which only the blocks a player can reach have.
 	/// </summary>
-	public const int SerializationId = 8;
-	public const int CreativeGroup = 312;
+	public static int SerializationId { get; private set; } = 8;
+	public static int CreativeGroup { get; private set; } = 312;
 
 	/// <summary>
 	///     The block's states indexed by the old data value, also from the object start. Not the
 	///     palette's list: it is the full product of each property's bit width, so it holds a slot
 	///     for every data value the four bits could carry and leaves the illegal ones null.
 	/// </summary>
-	public const int BlockStates = 552;
+	public static int BlockStates { get; private set; } = 552;
 
 	/// <summary>
 	///     The block's own state properties, a sixteen bucket hash on BlockLegacy. Each entry is a
 	///     list node, links then the property's name as a HashedString at +16 and the server's
 	///     number for it at +64. That number is the same on every block carrying the property.
 	/// </summary>
-	public const int BlockProperties = 512;
+	public static int BlockProperties { get; private set; } = 512;
 
 	/// <summary>
 	///     The block's components, a vector of pointers on BlockLegacy. Each is a method table then
@@ -217,7 +298,7 @@ public static class MemoryLayout
 	///     geometry. Only a block that overrides its shape has one; the rest take the shape of the
 	///     class implementing them.
 	/// </summary>
-	public const int BlockComponents = 72;
+	public static int BlockComponents { get; private set; } = 72;
 	public const int ComponentText = 16;
 
 	/// <summary>
@@ -227,15 +308,15 @@ public static class MemoryLayout
 	///     a component by the value it holds mistakes any component holding a similar value for it.
 	///     The id does neither. Across all 1,429 blocks not one id covers two components.
 	/// </summary>
-	public const int BlockComponentIds = 48;
+	public static int BlockComponentIds { get; private set; } = 48;
 
 	/// <summary>
 	///     The block's tags: a vector of HashedString on BlockLegacy, so they belong to the block
 	///     and every one of its states shares them. The state objects hold no tag list of their own.
 	///     Elements are forty eight bytes, a HashedString of forty and eight of padding.
 	/// </summary>
-	public const int BlockTags = 192;
-	public const int TagStride = 48;
+	public static int BlockTags { get; private set; } = 192;
+	public static int TagStride { get; private set; } = 48;
 
 	/// <summary>A tag has no namespace to require, and the shortest here is four characters.</summary>
 	public const int MinimumTagLength = 3;

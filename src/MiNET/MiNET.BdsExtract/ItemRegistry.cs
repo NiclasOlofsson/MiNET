@@ -17,7 +17,71 @@ public static class ItemRegistry
 	///     sits exactly here on every item, including the ones carrying a nearer pointer, which are
 	///     other bases rather than the start.
 	/// </summary>
-	public const int NameInsideItem = 288;
+	public static int NameInsideItem { get; private set; } = 288;
+
+	/// <summary>
+	///     How far the name sits inside the object, measured rather than stated. A candidate start
+	///     is a position holding a method table whose class states a size, and the object is then
+	///     required to END where that size says: the allocator writes its block header there, and a
+	///     pointer that merely happens to sit at the right distance does not have one behind it.
+	/// </summary>
+	private static void DeriveNameInsideItem(BedrockProcess process, IReadOnlyList<ulong> names)
+	{
+		// The population is the names that sit inside an object at all, not every verified name in
+		// memory: most "minecraft:" strings are tags and block ids that no class contains, and
+		// counting them makes any position look like it holds for a fraction of nothing.
+		var word = new byte[8];
+		var text = new byte[256];
+		var window = new byte[32];
+		var counts = new Dictionary<int, int>();
+		int inside = 0;
+
+		foreach (ulong name in names)
+		{
+			// Only the names an item carries. The translation key sits at a fixed distance from the
+			// name, so it can say which of them is an item before the object start is known, and
+			// without it the population is every "minecraft:" string in the process.
+			string key = StdString(process, window, 0, text, name + (ulong) ItemLayout.TranslationKey);
+			if (key is null) continue;
+			if (!key.StartsWith("item.", StringComparison.Ordinal) && !key.StartsWith("tile.", StringComparison.Ordinal)) continue;
+			inside++;
+			for (int at = 8; at <= Before; at += 8)
+			{
+				if ((ulong) at > name) continue;
+				ulong vtable = process.ReadUInt64(name - (ulong) at, word);
+				if (!IsVtable(process, vtable)) continue;
+
+				// The class has to be big enough to contain the name at that distance. A module
+				// pointer further back belongs to some other object, and its class does not reach.
+				int size = ClassSize(process, vtable);
+				if (size < at + HashedString.Size) continue;
+				counts[at] = counts.GetValueOrDefault(at) + 1;
+			}
+		}
+
+		if (counts.Count == 0)
+		{
+			Console.WriteLine($"  no position starts an object that ends where its class says, keeping name at +{NameInsideItem}");
+			return;
+		}
+
+		// The furthest position that still holds, because the object starts at its lowest address:
+		// a nearer one is a base class inside the same object and also carries a method table.
+		var holding = counts.Where(c => c.Value >= Sentinels.Floor * inside).ToList();
+		KeyValuePair<int, int> best = holding.Count > 0
+			? holding.OrderByDescending(c => c.Key).First()
+			: counts.OrderByDescending(c => c.Value).First();
+		Console.WriteLine("  object start candidates: "
+						+ string.Join(", ", counts.OrderByDescending(c => c.Key).Take(6).Select(c => $"+{c.Key} on {c.Value:N0}")));
+		if (best.Value < Sentinels.Floor * inside)
+		{
+			Console.WriteLine($"  the object start holds for only {best.Value:N0} of {inside:N0} items, keeping name at +{NameInsideItem}");
+			return;
+		}
+
+		NameInsideItem = best.Key;
+		Console.WriteLine($"  the name sits at object+{NameInsideItem}, on {best.Value:N0} of {inside:N0} items");
+	}
 
 	/// <summary>How much of the object travels out as bytes, measured from the name.</summary>
 	private const int Before = 448;
@@ -61,6 +125,9 @@ public static class ItemRegistry
 		public int I32(int offset) => BitConverter.ToInt32(Window, Before + offset);
 		public float F32(int offset) => BitConverter.ToSingle(Window, Before + offset);
 		public ulong Ptr(int offset) => BitConverter.ToUInt64(Window, Before + offset);
+
+		/// <summary>Whether the window actually reaches that far, so a short read is not read as a value.</summary>
+		public bool Covers(int offset, int bytes) => Before + offset >= 0 && Before + offset + bytes <= Window.Length;
 	}
 
 	/// <summary>
@@ -84,8 +151,55 @@ public static class ItemRegistry
 			ClassStatesItsSize(items),
 			TagVectorDivides(process, items),
 			IdsAreUnique(items),
-			ComponentContainersClose(process, items)
+			DeriveClassTail(process, items),
+			DataDrivenFieldsAgree(process, items)
 		];
+	}
+
+	/// <summary>
+	///     Pins the data-driven field group to its derived place with values two structures state
+	///     independently: the damage field must equal the minecraft:damage component the same item
+	///     carries, the way the spears were fitted in the first place. Where no item carries the
+	///     component there is nothing to compare, and the verdict says so instead of failing on
+	///     absence.
+	/// </summary>
+	private static Sentinel DataDrivenFieldsAgree(BedrockProcess process, ICollection<Item> items)
+	{
+		if (_tail is null)
+		{
+			return new Sentinel {Name = "data-driven fields", Guards = "the field group at declared-56", Held = false, Detail = "no derived tail to check against"};
+		}
+
+		var scratch = new byte[96];
+		int attempted = 0, agreed = 0;
+		var failed = new List<string>();
+		foreach (Item item in items)
+		{
+			foreach ((string name, ulong address) in Components(process, item, _tail.Built, false))
+			{
+				if (name != "minecraft:damage") continue;
+				if (address < 0x10000 || !process.TryRead(address, scratch, scratch.Length)) continue;
+				int at = BitConverter.ToUInt64(scratch, 8) == item.Address && IsVtable(process, BitConverter.ToUInt64(scratch, 16)) ? 24 : 16;
+				attempted++;
+				// The component's damage member is a declared short (see the damage decode); the
+				// item's own field is a full int the parser stores.
+				int component = BitConverter.ToInt16(scratch, at);
+				int field = BitConverter.ToInt32(item.Window, item.At(_tail.DataDriven + 8));
+				if (component == field) agreed++;
+				else failed.Add($"{item.Name} (field {field}, component {component})");
+			}
+		}
+
+		return new Sentinel
+		{
+			Name = "data-driven fields",
+			Guards = "the field group at declared-56",
+			Held = attempted == 0 || agreed == attempted,
+			Detail = attempted == 0
+				? "no item carries a damage component; nothing to compare"
+				: $"{agreed:N0} of {attempted:N0} damage fields equal the damage component beside them"
+				+ (failed.Count == 0 ? "" : $"; disagreeing: {string.Join(", ", failed.Take(4))}")
+		};
 	}
 
 	/// <summary>
@@ -115,7 +229,7 @@ public static class ItemRegistry
 			// The namespace is read as a plain string. It is stored as a hashed string like the other
 			// two, but its hash is zero: the hash is computed lazily and nothing has ever needed the
 			// one for the constant "minecraft". Verifying it would fail on every item in the registry.
-			string space = StdString(process, item.Window, item.At(-32), text);
+			string space = StdString(process, item.Window, item.At(ItemLayout.Namespace), text);
 			string bare = HashedString.ReadVerified(process, item.Window, item.At(-80), heap, 2, 64);
 			string full = HashedString.ReadVerified(process, item.Window, item.At(0), heap, 2, 96);
 			if (space is not null && bare is not null && full == $"{space}:{bare}") agreed++;
@@ -140,7 +254,7 @@ public static class ItemRegistry
 	/// </summary>
 	private static Sentinel StackSizeInRange(ICollection<Item> items)
 	{
-		int agreed = items.Count(i => i.Byte(-120) is >= 1 and <= 64);
+		int agreed = items.Count(i => i.Byte(ItemLayout.MaxStackSize) is >= 1 and <= 64);
 		return Verdict("stack size", "-120", agreed, items.Count, "items hold a stack between 1 and 64");
 	}
 
@@ -168,7 +282,7 @@ public static class ItemRegistry
 		int attempted = 0, agreed = 0;
 		foreach (Item item in items)
 		{
-			ulong begin = item.Ptr(216), end = item.Ptr(224);
+			ulong begin = item.Ptr(ItemLayout.TagVector), end = item.Ptr(ItemLayout.TagVector + 8);
 			if (begin < 0x10000 || end <= begin || end - begin > 4096) continue;
 			attempted++;
 			if ((end - begin) % 48 != 0) continue;
@@ -189,39 +303,83 @@ public static class ItemRegistry
 	/// </summary>
 	private static Sentinel IdsAreUnique(ICollection<Item> items)
 	{
-		int distinct = items.Select(i => i.I16(-118)).Distinct().Count();
+		int distinct = items.Select(i => i.I16(ItemLayout.Id)).Distinct().Count();
 		return Verdict("ids are unique", "-118", distinct, items.Count, "items hold an id no other item holds");
 	}
 
 	/// <summary>
-	///     The component containers are trees, and a tree closes: the head points at the root as its
-	///     parent and the root points back at the head. Random memory does not close that loop, and
-	///     the node count has to match the size stored beside it.
+	///     Where the class tail keeps its parts: the declared component set, the built component map,
+	///     and the data-driven field group that sits 56 bytes before the declared set. Derived from
+	///     the running server rather than carried as constants, because 1.26.50 grew every item class
+	///     by eight bytes and the whole tail moved with it; a fixed offset survives that only by luck.
 	/// </summary>
-	private static Sentinel ComponentContainersClose(BedrockProcess process, ICollection<Item> items)
+	public sealed record ClassTail(int DataDriven, int Declared, int Built);
+
+	private static ClassTail _tail;
+
+	/// <summary>
+	///     Finds the two container slots by sweeping the class tail for the container shape, proven
+	///     the same way the old fixed offsets were checked: the tree closes (head points at the root
+	///     as its parent, the root points back, which random memory does not do) and walking it yields
+	///     exactly the count stored beside it with every key verifying. The population decides, not
+	///     one item: a slot qualifies only when every closing tree on it walks out whole. The declared
+	///     set keys by HashedString and the built map by plain string, so the key kind tells the two
+	///     apart, and a slot that closes without either kind walking is reported rather than skipped.
+	/// </summary>
+	private static Sentinel DeriveClassTail(BedrockProcess process, ICollection<Item> items)
 	{
-		int attempted = 0, agreed = 0;
-		foreach (Item item in items)
+		var word = new byte[8];
+		var hashedSlots = new List<(int Slot, int Count)>();
+		var plainSlots = new List<(int Slot, int Count)>();
+		var other = new List<string>();
+		for (int slot = 240; slot + 16 <= After; slot += 8)
 		{
-			foreach (int slot in (int[]) [296, 336])
+			int closes = 0, hashed = 0, plain = 0, ints = 0;
+			var failers = new List<string>();
+			var intKeys = new SortedSet<long>();
+			foreach (Item item in items)
 			{
-				// Attempted where the tree actually closes, not merely where the slot looks plausible.
-				// On a class that has no container these offsets hold other fields, and counting those
-				// as attempts made the guard fail on 61 items that never had a container at all.
+				// Attempted where the tree actually closes, not merely where the slot looks
+				// plausible. On a class without a container the slot holds other fields.
 				long size = BitConverter.ToInt64(item.Window, item.At(slot + 8));
 				ulong head = item.Ptr(slot);
 				if (head < 0x10000 || size is < 1 or > 512 || !process.IsMapped(head)) continue;
-				var word = new byte[8];
 				ulong root = process.ReadUInt64(head + 8, word);
 				if (root == 0 || root == head || !process.IsMapped(root)) continue;
 				if (process.ReadUInt64(root + 8, word) != head) continue;
 
-				attempted++;
-				if (Components(process, item, slot, slot == 296).Count == size) agreed++;
+				closes++;
+				if (Components(process, item, slot, true).Count == size) hashed++;
+				else if (Components(process, item, slot, false).Count == size) plain++;
+				else if (IntKeys(process, item, slot, size) is { } keys)
+				{
+					ints++;
+					foreach (long key in keys) intKeys.Add(key);
+				}
+				else failers.Add(item.Name);
 			}
+			if (closes == 0) continue;
+			if (hashed == closes) hashedSlots.Add((slot, closes));
+			else if (plain == closes) plainSlots.Add((slot, closes));
+			else if (ints == closes)
+			{
+				other.Add($"+{slot} ({closes} int-keyed containers, keys {intKeys.Min}..{intKeys.Max}, values unfollowed)");
+			}
+			else other.Add($"+{slot} ({closes} close, {hashed} walk hashed, {plain} walk plain, {ints} int-keyed; failing: {string.Join(", ", failers.Take(4))}{(failers.Count > 4 ? ", ..." : "")})");
 		}
-		return Verdict("component containers", "296, 336", agreed, attempted,
-			"containers close their links and hold exactly the count stored beside them");
+
+		// A container that closes but walks as neither key kind is a class's own structure, not a
+		// component container: the sign classes keep one at the head of their tail. It is reported
+		// by name so it stays a known unknown, and its bytes travel out with the class tail, but it
+		// is not ambiguity. Ambiguity is two slots claiming the same key kind, and that fails.
+		bool held = hashedSlots.Count == 1 && plainSlots.Count == 1;
+		_tail = held ? new ClassTail(hashedSlots[0].Slot - 56, hashedSlots[0].Slot, plainSlots[0].Slot) : null;
+
+		string detail = held
+			? $"declared set at +{_tail.Declared} ({hashedSlots[0].Count} containers), built map at +{_tail.Built} ({plainSlots[0].Count}), every one walks to its stated count"
+			: $"hashed-key slots [{string.Join(", ", hashedSlots.Select(s => $"+{s.Slot}"))}], plain-key slots [{string.Join(", ", plainSlots.Select(s => $"+{s.Slot}"))}]; needed exactly one of each";
+		if (other.Count > 0) detail += $"; class-own tree containers: [{string.Join(", ", other)}]";
+		return new Sentinel {Name = "component containers", Guards = "the class tail slots, derived", Held = held, Detail = detail};
 	}
 
 	private static Sentinel Verdict(string name, string guards, int agreed, int attempted, string detail)
@@ -267,6 +425,10 @@ public static class ItemRegistry
 		Console.WriteLine($"distinct items: {chosen.Count:N0}");
 		MeasureSizes(process, chosen.Values);
 
+		// Where each value sits on this build, measured against the reference before anything is
+		// checked or written, so the guards below prove the positions this run will actually read.
+		ItemDerivation.Measure(process, chosen.Values);
+
 		// The offsets are proven against this server before anything is written, so a version that
 		// moved a field is a loud failure rather than a file full of plausible numbers.
 		// Only the objects that passed the item checks. The rest are things that share a name with an
@@ -309,6 +471,7 @@ public static class ItemRegistry
 		var text = new byte[256];
 		var window = new byte[Before + After];
 		var found = new List<Item>();
+		var names = new List<(string Name, ulong At)>();
 
 		foreach (BedrockProcess.Region region in process.Regions)
 		{
@@ -324,6 +487,19 @@ public static class ItemRegistry
 					if (name is null || !name.StartsWith("minecraft:", StringComparison.Ordinal)) continue;
 					ulong nameAddress = at + (ulong) i;
 					if (nameAddress < Before) continue;
+					names.Add((name, nameAddress));
+				}
+			}
+		}
+
+		// Measured before a single field is read, because every position an item states is stated
+		// from the name and the object start is what they are all measured against.
+		DeriveNameInsideItem(process, names.Select(n => n.At).ToList());
+
+		foreach ((string name, ulong nameAddress) in names)
+		{
+			{
+				{
 
 					// The lead-in is context, not the object: everything decoded sits at -288 or
 					// later. When the wider read crosses out of a mapped region the object is still
@@ -334,20 +510,20 @@ public static class ItemRegistry
 					string shortfall = null;
 					if (!process.TryRead(nameAddress - Before, window, window.Length))
 					{
-						if (!process.TryRead(nameAddress - NameInsideItem, window, Before - NameInsideItem + After)) continue;
+						if (!process.TryRead(nameAddress - (ulong) NameInsideItem, window, Before - NameInsideItem + After)) continue;
 						Array.Copy(window, 0, window, Before - NameInsideItem, After + NameInsideItem);
 						Array.Clear(window, 0, Before - NameInsideItem);
 						shortfall = null;
 					}
 
-					string key = StdString(process, window, Before - 112, text);
+					string key = StdString(process, window, Before + ItemLayout.TranslationKey, text);
 					if (key is null) continue;
 
 					var item = new Item
 					{
 						Name = name,
 						NameAddress = nameAddress,
-						Address = nameAddress - NameInsideItem,
+						Address = nameAddress - (ulong) NameInsideItem,
 						Window = (byte[]) window.Clone(),
 						Key = key
 					};
@@ -361,12 +537,12 @@ public static class ItemRegistry
 					// One byte, not two. Read as a short it drags the neighbouring byte in and the
 					// range check then rejects every item whose neighbour is not zero, which is
 					// eighty one of the ones the server documents, bow and comparator among them.
-					if (item.Byte(-120) is < 1 or > 64)
+					if (item.Byte(ItemLayout.MaxStackSize) is < 1 or > 64)
 					{
-						item.Doubts.Add($"stack size {item.Byte(-120)}");
+						item.Doubts.Add($"stack size {item.Byte(ItemLayout.MaxStackSize)}");
 						item.IsItem = false;
 					}
-					if (!IsModule(item.Ptr(-288)))
+					if (!IsModule(item.Ptr(ItemLayout.MethodTable)))
 					{
 						item.Doubts.Add("no class pointer at the object start");
 						item.IsItem = false;
@@ -376,7 +552,7 @@ public static class ItemRegistry
 					// own size into its destructor. Something that merely carries a name at the right
 					// distance does not. This is what tells the live dirt from the eight other things
 					// in memory that answer to the name.
-					item.ObjectSize = ClassSize(process, item.Ptr(-288));
+					item.ObjectSize = ClassSize(process, item.Ptr(ItemLayout.MethodTable));
 
 					// Now that the object's own size is known, read the rest of it. Only the objects
 					// that need it pay for it, and a failure here costs the tail rather than the item.
@@ -450,8 +626,8 @@ public static class ItemRegistry
 			if (copies.Count > 1)
 			{
 				pick.Doubts.Add($"{copies.Count} objects carry this name, ids "
-					+ string.Join(", ", copies.Select(c => $"{c.I16(-118)} ({references.GetValueOrDefault(c.Address)} refs)"))
-					+ $"; took {pick.I16(-118)} at 0x{pick.Address:X}");
+					+ string.Join(", ", copies.Select(c => $"{c.I16(ItemLayout.Id)} ({references.GetValueOrDefault(c.Address)} refs)"))
+					+ $"; took {pick.I16(ItemLayout.Id)} at 0x{pick.Address:X}");
 			}
 			chosen[group.Key] = pick;
 		}
@@ -496,7 +672,14 @@ public static class ItemRegistry
 		if (root == 0 || root == head || !process.IsMapped(root)) return found;
 		if (process.ReadUInt64(root + 8, scratch) != head) return found;
 
-		var node = new byte[160];
+		// Exactly the bytes a node is decoded from: links and flags to 32, the key (a 40 byte
+		// HashedString or a 32 byte string) and the value pointer behind it, ending at 80. Reading
+		// more looked harmless and was not: a node allocated just under a page whose neighbour page
+		// is uncommitted fails the whole straddling read, and WHICH node that is is heap lottery,
+		// so one bundle's map walked short on one instance and clean on the next. An allocation
+		// never spans into uncommitted memory, so a read that stays inside the node cannot fail
+		// this way.
+		var node = new byte[80];
 		var text = new byte[256];
 		var heap = new byte[256];
 		var visited = new HashSet<ulong>();
@@ -587,66 +770,86 @@ public static class ItemRegistry
 	/// </summary>
 	private static readonly (int Offset, int Length, string Kind, string Name)[] Layout =
 	[
-		(-288, 8, "pointer", "method table"),
-		(-280, 4, "i32", "item parse version"),
+		(ItemLayout.MethodTable, 8, "pointer", "method table"),
+		(ItemLayout.ParseVersion, 4, "i32", "item parse version"),
 		(-276, 4, "slack", "uninitialised"),
-		(-272, 32, "string", "texture atlas"),
-		(-240, 4, "i32", "icon frame count"),
-		(-236, 1, "bool", "animates in toolbar"),
-		(-235, 1, "bool", "mirrored art"),
-		(-234, 1, "u8", "use animation"),
+		(ItemLayout.TextureAtlas, 32, "string", "texture atlas"),
+		(ItemLayout.IconFrameCount, 4, "i32", "icon frame count"),
+		(ItemLayout.AnimatesInToolbar, 1, "bool", "animates in toolbar"),
+		(ItemLayout.MirroredArt, 1, "bool", "mirrored art"),
+		(ItemLayout.UseAnimation, 1, "u8", "use animation"),
 		(-233, 1, "slack", "uninitialised"),
-		(-232, 32, "string", "hover text colour format"),
+		(ItemLayout.HoverTextColour, 32, "string", "hover text colour format"),
 		(-200, 4, "slack", "icon frame, which a server never sets"),
 		(-196, 4, "slack", "atlas frame, which a server never sets"),
 		(-192, 4, "u32", "atlas total frames"),
 		(-188, 4, "slack", "uninitialised"),
-		(-184, 32, "string", "icon name"),
-		(-152, 32, "string", "atlas name"),
-		(-120, 1, "u8", "max stack size"),
+		(ItemLayout.Icon, 32, "string", "icon name"),
+		(ItemLayout.SecondIcon, 32, "string", "atlas name"),
+		(ItemLayout.MaxStackSize, 1, "u8", "max stack size"),
 		(-119, 1, "slack", "uninitialised"),
-		(-118, 2, "i16", "id"),
+		(ItemLayout.Id, 2, "i16", "id"),
 		(-116, 4, "slack", "uninitialised"),
-		(-112, 32, "string", "translation key"),
-		(-80, 48, "hashed string", "bare name"),
-		(-32, 32, "string", "namespace"),
+		(ItemLayout.TranslationKey, 32, "string", "translation key"),
+		(ItemLayout.BareName, 48, "hashed string", "bare name"),
+		(ItemLayout.Namespace, 32, "string", "namespace"),
 		(0, 48, "hashed string", "full name"),
-		(48, 2, "u16", "max durability"),
-		(50, 1, "u8", "flags: foil 0x01, hand equipped 0x02, stacked by data 0x04, fire resistant 0x20, should despawn 0x40, allow off hand 0x80"),
-		(51, 1, "slack", "uninitialised"),
-		(52, 4, "u32", "use duration"),
-		(56, 8, "u16 x4", "minimum game version"),
-		(64, 16, "pointer x2", "the version's own text"),
-		(80, 1, "u8", "inside the minimum game version"),
-		(81, 7, "slack", "uninitialised"),
-		(88, 8, "pointer", "the block this item places"),
-		(96, 1, "u8", "creative category"),
+		(ItemLayout.MaxDurability, 2, "u16", "max durability"),
+		(ItemLayout.Flags, 1, "u8", "flags: glint 0x01, hand equipped 0x02, stacked by data 0x04, requires world builder 0x08, explodable 0x10, fire resistant 0x20, should despawn 0x40, allow off hand 0x80"),
+		(ItemLayout.SecondFlags, 1, "u8", "flags, second byte: ignores permissions 0x01, then seven bits of padding"),
+		(ItemLayout.UseDuration, 4, "u32", "use duration"),
+		// The 32 bytes of the minimum base game version, which is one field: a semantic version of
+		// three numbers, two flags and two strings, and a flag of its own after it. Written out
+		// member by member rather than as four spans named by what the bytes look like.
+		(ItemLayout.MinimumVersion, 2, "u16", "minimum game version: major"),
+		(ItemLayout.MinimumVersion + 2, 2, "u16", "minimum game version: minor"),
+		(ItemLayout.MinimumVersion + 4, 2, "u16", "minimum game version: patch"),
+		(ItemLayout.MinimumVersion + 6, 1, "bool", "minimum game version: the version parsed"),
+		(ItemLayout.MinimumVersion + 7, 1, "bool", "minimum game version: any version matches"),
+		(ItemLayout.MinimumVersion + 8, 8, "pointer", "minimum game version: the pre-release part, a packed pointer to text"),
+		(ItemLayout.MinimumVersion + 16, 8, "pointer", "minimum game version: the build metadata part, a packed pointer to text"),
+		(ItemLayout.MinimumVersion + 24, 1, "bool", "minimum game version: never compatible"),
+		(ItemLayout.MinimumVersion + 25, 7, "slack", "padding to the eight the version is aligned to"),
+		(ItemLayout.Block, 8, "pointer", "the block this item places"),
+		(ItemLayout.CreativeCategory, 1, "u8", "creative category"),
 		(97, 7, "slack", "uninitialised"),
-		(104, 8, "padding", "zero on every item"),
-		(112, 32, "string", "creative group"),
-		(144, 4, "f32", "furnace fuel duration"),
-		(148, 4, "f32", "smelting experience"),
-		(152, 1, "u8", "hidden in commands"),
+		(ItemLayout.CraftingRemainingItem, 8, "pointer", "the item left behind when this one is crafted with, null on every vanilla item"),
+		(ItemLayout.CreativeGroup, 32, "string", "creative group"),
+		(ItemLayout.FurnaceFuel, 4, "f32", "furnace fuel duration"),
+		(ItemLayout.SmeltingExperience, 4, "f32", "smelting experience"),
+		(ItemLayout.HiddenInCommands, 1, "u8", "hidden in commands"),
 		(153, 3, "slack", "uninitialised"),
-		(156, 4, "i32", "rarity"),
-		(160, 4, "i32", "mine block item effect type"),
+		(ItemLayout.Rarity, 4, "i32", "rarity"),
+		(ItemLayout.MineBlockType, 4, "i32", "mine block item effect type"),
 		(164, 4, "slack", "uninitialised"),
-		(168, 8, "pointer", "food component"),
-		(176, 8, "pointer", "seed component"),
-		(184, 8, "pointer", "camera component"),
-		(192, 24, "vector", "seed vector"),
-		(216, 24, "vector", "tag vector"),
-		(240, 1, "u8", "flags on the data-driven class: can destroy in creative 0x02, liquid clipped 0x08"),
-		(241, 3, "class specific", "decoded per class where the class is known"),
-		(244, 4, "f32", "mining speed, on the data-driven class"),
-		(248, 4, "i32", "damage, on the data-driven class"),
-		(252, 4, "i32", "enchantable slot bitmask, on the data-driven class"),
-		(256, 4, "i32", "enchantable value, on the data-driven class"),
-		(260, 36, "class specific", "decoded per class where the class is known"),
-		(296, 16, "set", "declared component names, and its count"),
-		(312, 24, "class specific", "decoded per class where the class is known"),
-		(336, 16, "map", "built components, and its count")
+		(ItemLayout.FoodComponent, 8, "pointer", "food component"),
+		(ItemLayout.SeedComponent, 8, "pointer", "seed component"),
+		(ItemLayout.CameraComponent, 8, "pointer", "camera component"),
+		(ItemLayout.ResetCallbacks, 24, "vector", "the callbacks run when the item's block AI is reset"),
+		(ItemLayout.TagVector, 24, "vector", "tag vector")
 	];
+
+	/// <summary>
+	///     The class tail's rows, positioned from the derived slots rather than declared at fixed
+	///     offsets: 1.26.50 moved the whole tail by eight bytes and the declaration has to move with
+	///     it or claim bytes it is not reading. The internal shape of the data-driven field group is what
+	///     stays: flags, mining speed, damage, the enchantable pair, then class-specific bytes up to
+	///     the declared set, and class-specific bytes again between the two containers.
+	/// </summary>
+	private static IEnumerable<(int Offset, int Length, string Kind, string Name)> TailLayout()
+	{
+		if (_tail is null) yield break;
+		yield return (_tail.DataDriven, 1, "u8", "flags on the data-driven class: can destroy in creative 0x02, liquid clipped 0x08");
+		yield return (_tail.DataDriven + 1, 3, "class specific", "decoded per class where the class is known");
+		yield return (_tail.DataDriven + 4, 4, "f32", "mining speed, on the data-driven class");
+		yield return (_tail.DataDriven + 8, 4, "i32", "damage, on the data-driven class");
+		yield return (_tail.DataDriven + 12, 4, "i32", "enchantable slot bitmask, on the data-driven class");
+		yield return (_tail.DataDriven + 16, 4, "i32", "enchantable value, on the data-driven class");
+		yield return (_tail.DataDriven + 20, _tail.Declared - _tail.DataDriven - 20, "class specific", "decoded per class where the class is known");
+		yield return (_tail.Declared, 16, "set", "declared component names, and its count");
+		yield return (_tail.Declared + 16, _tail.Built - _tail.Declared - 16, "class specific", "decoded per class where the class is known");
+		yield return (_tail.Built, 16, "map", "built components, and its count");
+	}
 
 	/// <summary>
 	///     Positions inside the object that no constructor writes, so their content is left over from
@@ -783,7 +986,7 @@ public static class ItemRegistry
 		if (descriptor > 0x10000)
 		{
 			ulong block = process.ReadUInt64(descriptor + 104, scratch);
-			string cropName = block > 0x10000 ? HashedAt(process, block + MemoryLayout.NameInsideLegacy) : null;
+			string cropName = block > 0x10000 ? HashedAt(process, block + (ulong) MemoryLayout.NameInsideLegacy) : null;
 			if (cropName is not null) parts.Add($"\"cropResult\": {Json(cropName)}");
 		}
 
@@ -916,7 +1119,7 @@ public static class ItemRegistry
 			string str = StdString(process, window, 0, text);
 			if (str is { Length: > 0 }) return "string: " + str;
 		}
-		if (process.TryRead(address + MemoryLayout.NameInsideLegacy, scratch, HashedString.Size))
+		if (process.TryRead(address + (ulong) MemoryLayout.NameInsideLegacy, scratch, HashedString.Size))
 		{
 			string block = HashedString.ReadVerified(process, scratch, 0, heap);
 			if (block is not null) return "block: " + block;
@@ -965,12 +1168,43 @@ public static class ItemRegistry
 	private static string Component(BedrockProcess process, string name, ulong address, ulong owner, byte[] scratch)
 	{
 		var parts = new List<string>();
-		if (address < 0x10000 || !process.TryRead(address, scratch, 96)) return $"{Json(name)}: {{ }}";
+		// Clipped, because the object's length is not known before reading it: a fixed 96 failed
+		// whole when the allocation sat against an uncommitted page, dropping the component by
+		// heap lottery. The clip still holds every byte the object really has.
+		int have = address < 0x10000 ? 0 : process.ReadClipped(address, scratch, 256);
+		if (have < 24) return $"{Json(name)}: {{ }}";
 
-		int at = BitConverter.ToUInt64(scratch, 8) == owner && IsModule(BitConverter.ToUInt64(scratch, 16)) ? 24 : 16;
+		int at = BitConverter.ToUInt64(scratch, 8) == owner && IsVtable(process, BitConverter.ToUInt64(scratch, 16)) ? 24 : 16;
 		int I32(int offset) => BitConverter.ToInt32(scratch, at + offset);
 		float F32(int offset) => BitConverter.ToSingle(scratch, at + offset);
 		ushort U16(int offset) => BitConverter.ToUInt16(scratch, at + offset);
+
+		// How far past the field base each kind's decode reaches. Checked against what was read
+		// before anything decodes: a kind whose fields do not fit in the bytes the object really
+		// has is a layout that does not describe this build, said as such instead of read as
+		// neighbouring garbage. Real fields always sit inside the allocation, so this fires only
+		// when something is genuinely wrong.
+		int extent = name switch
+		{
+			"minecraft:damage" or "minecraft:max_stack_size" => 2,
+			"minecraft:fuel" or "minecraft:swing_duration" or "minecraft:bundle_interaction"
+				or "minecraft:compostable" or "minecraft:storage_weight_limit"
+				or "minecraft:storage_weight_modifier" or "minecraft:hand_equipped"
+				or "minecraft:fire_resistant" or "minecraft:use_animation"
+				or "minecraft:use_modifiers" => 4,
+			"minecraft:food" or "minecraft:block_placer" => 8,
+			"minecraft:durability" => 12,
+			"minecraft:icon" or "minecraft:tags" or "minecraft:repairable" => 16,
+			"minecraft:throwable" or "minecraft:piercing_weapon" => 24,
+			"minecraft:display_name" => 32,
+			"minecraft:enchantable" => 40,
+			"minecraft:cooldown" or "minecraft:storage_item" => 48,
+			"minecraft:swing_sounds" => 52,
+			"minecraft:projectile" => 72,
+			"minecraft:kinetic_weapon" => 80,
+			_ => 0
+		};
+		if (at + extent > have) return $"{Json(name)}: {{ \"clipped\": {have - at} }}";
 
 		switch (name)
 		{
@@ -1038,9 +1272,14 @@ public static class ItemRegistry
 				if (allowed.Count > 0) parts.Add($"\"allowedItems\": [{string.Join(", ", allowed.Select(Json))}]");
 				break;
 			}
+			// Both members are declared short in the server's own class layout
+			// (SharedTypes DamageItemComponent.mDamage, MaxStackSizeItemComponent.mValue), so
+			// sixteen bits is the width, not a choice. Reading thirty two published allocator
+			// slack: on 1.26.3.1 the copper spear's damage read -285540350, the true 2 in the low
+			// half with slack above it. The same lesson as enchantable below.
 			case "minecraft:damage":
 			case "minecraft:max_stack_size":
-				parts.Add($"\"value\": {I32(0)}");
+				parts.Add($"\"value\": {BitConverter.ToInt16(scratch, at)}");
 				break;
 			case "minecraft:hand_equipped":
 			case "minecraft:fire_resistant":
@@ -1061,7 +1300,7 @@ public static class ItemRegistry
 			{
 				var probe = new byte[HashedString.Size];
 				ulong block = BitConverter.ToUInt64(scratch, at);
-				if (block > 0x10000 && process.TryRead(block + MemoryLayout.NameInsideLegacy, probe, HashedString.Size))
+				if (block > 0x10000 && process.TryRead(block + (ulong) MemoryLayout.NameInsideLegacy, probe, HashedString.Size))
 				{
 					string placed = HashedString.ReadVerified(process, probe, 0, new byte[256]);
 					if (placed is not null) parts.Add($"\"block\": {Json(placed)}");
@@ -1140,8 +1379,9 @@ public static class ItemRegistry
 				// The schema calls this a textures object, and in memory it is a list of key and value
 				// strings: the key is the state the texture is for and the value is the texture name.
 				// Apple holds one entry, "default" to "apple". The pointer at +24 is the list head, so
-				// the entries are reached by walking it rather than read at any offset.
-				var probe = new byte[96];
+				// the entries are reached by walking it rather than read at any offset. The node read
+				// is exactly what a node decodes to: links, then two strings ending at 80.
+				var probe = new byte[80];
 				var text = new byte[256];
 				ulong head = BitConverter.ToUInt64(scratch, at + 8);
 				var textures = new List<string>();
@@ -1177,11 +1417,12 @@ public static class ItemRegistry
 		}
 
 		// What was read, always, plus what was not. A component is a heap object of unknown length,
-		// so 96 bytes is a reach rather than its extent, and every field of it that holds a pointer
-		// leads to data nothing here follows. Both are stated: a hole that is counted can be closed,
-		// and one that is silent looks like a complete reading.
+		// and every field of it that holds a pointer leads to data nothing here follows. Both are
+		// stated: a hole that is counted can be closed, and one that is silent looks like a
+		// complete reading. Bounded by the bytes actually read, never by the buffer: scanning past
+		// them reads whatever the buffer held before, which is not this object.
 		int size = ClassSize(process, BitConverter.ToUInt64(scratch, 0));
-		int limit = size > 0 ? Math.Min(size, scratch.Length) : 96;
+		int limit = Math.Min(size > 0 ? Math.Min(size, scratch.Length) : 96, have);
 		var unfollowed = new List<string>();
 		for (int off = at; off + 8 <= limit; off += 8)
 		{
@@ -1201,9 +1442,11 @@ public static class ItemRegistry
 	/// </summary>
 	private static string FoodAt(BedrockProcess process, ulong component, ulong owner, byte[] scratch)
 	{
-		if (component < 0x10000 || !process.TryRead(component, scratch, 40)) return null;
+		// 32 is the furthest byte decoded (payload at 24 plus two ints); reading past what is
+		// used can straddle out of a small allocation and fail whole.
+		if (component < 0x10000 || !process.TryRead(component, scratch, 32)) return null;
 		int payload = BitConverter.ToUInt64(scratch, 8) == owner ? 24 : 16;
-		if (IsModule(BitConverter.ToUInt64(scratch, 16)) && payload == 16) payload = 24;
+		if (IsVtable(process, BitConverter.ToUInt64(scratch, 16)) && payload == 16) payload = 24;
 		int nutrition = BitConverter.ToInt32(scratch, payload);
 		float saturation = BitConverter.ToSingle(scratch, payload + 4);
 		if (nutrition is < 0 or > 64 || !(saturation >= 0 && saturation <= 16)) return null;
@@ -1218,12 +1461,12 @@ public static class ItemRegistry
 	private static string BlockNameAt(BedrockProcess process, ulong pointer)
 	{
 		if (pointer < 0x10000 || !process.IsMapped(pointer)) return null;
-		if (HashedAt(process, pointer + MemoryLayout.NameInsideLegacy) is { } direct) return direct;
+		if (HashedAt(process, pointer + (ulong) MemoryLayout.NameInsideLegacy) is { } direct) return direct;
 
 		var word = new byte[8];
 		ulong held = process.ReadUInt64(pointer, word);
 		return held > 0x10000 && process.IsMapped(held)
-			? HashedAt(process, held + MemoryLayout.NameInsideLegacy)
+			? HashedAt(process, held + (ulong) MemoryLayout.NameInsideLegacy)
 			: null;
 	}
 
@@ -1235,13 +1478,18 @@ public static class ItemRegistry
 	///     toughness 2 and enchantability 10; iron is 15 with 2, 6, 5 and 2; leather is 5 with 1, 3,
 	///     2 and 1 and enchantability 15.
 	/// </summary>
-	private static string ArmorMaterial(BedrockProcess process, ulong pointer)
+	private static string ArmorMaterial(BedrockProcess process, ulong pointer, int maxDurability)
 	{
 		if (!IsModule(pointer)) return null;
 		var body = new byte[32];
 		if (!process.TryRead(pointer, body, body.Length)) return null;
 		int Field(int at) => BitConverter.ToInt32(body, at);
 		if (Field(0) is < 1 or > 100 || Field(24) is < 0 or > 64) return null;
+		// The struct must reproduce the piece's own durability: the multiplier divides it down to
+		// the game's per-slot base of 11, 13, 15 or 16. This is what makes a slot sweep safe: a
+		// stray module pointer whose target happens to read plausibly still cannot know this item's
+		// durability.
+		if (maxDurability % Field(0) != 0 || maxDurability / Field(0) is not (11 or 13 or 15 or 16)) return null;
 		return "{ " + $"\"durabilityMultiplier\": {Field(0)}, \"protection\": {{ \"boots\": {Field(4)}, "
 			+ $"\"chestplate\": {Field(8)}, \"leggings\": {Field(12)}, \"helmet\": {Field(16)} }}, "
 			+ $"\"toughness\": {Field(20)}, \"enchantability\": {Field(24)}" + " }";
@@ -1254,7 +1502,7 @@ public static class ItemRegistry
 	///     one. Wood, stone, iron, gold, diamond and netherite each have exactly one of these and
 	///     every tool of that material points at the same one.
 	/// </summary>
-	private static string Tier(BedrockProcess process, ulong pointer, byte[] scratch)
+	private static string Tier(BedrockProcess process, ulong pointer, byte[] scratch, int? mustMatchUses)
 	{
 		if (!IsModule(pointer) || !process.TryRead(pointer, scratch, 20)) return null;
 		int level = BitConverter.ToInt32(scratch, 0);
@@ -1262,6 +1510,11 @@ public static class ItemRegistry
 		float speed = BitConverter.ToSingle(scratch, 8);
 		int damage = BitConverter.ToInt32(scratch, 12);
 		int enchantment = BitConverter.ToInt32(scratch, 16);
+		// The tier's durability must be the item's own. This is what makes a slot sweep safe: a
+		// stray module pointer whose target happens to read plausibly cannot know this item's max
+		// durability. Null skips the check, for an item adopting a tier other tools already proved
+		// (the mace points at the diamond tier while carrying its own 500 durability).
+		if (mustMatchUses is not null && uses != mustMatchUses) return null;
 		if (level is < 0 or > 8 || uses is < 1 or > 10000) return null;
 		if (!(speed > 0 && speed < 100) || damage is < 0 or > 32 || enchantment is < 0 or > 64) return null;
 		return $"{{ \"level\": {level}, \"uses\": {uses}, \"speed\": {Num(speed)}, "
@@ -1302,11 +1555,13 @@ public static class ItemRegistry
 		var lines = new List<string>();
 		foreach (Item item in items.OrderBy(i => i.Name, StringComparer.Ordinal))
 		{
-			foreach ((string name, ulong address) in Components(process, item, 336, false))
+			foreach ((string name, ulong address) in _tail is null ? [] : Components(process, item, _tail.Built, false))
 			{
-				if (address < 0x10000 || !process.TryRead(address, payload, payload.Length)) continue;
+				int have = address < 0x10000 ? 0 : process.ReadClipped(address, payload, payload.Length);
+				if (have < 16) continue;
 				int bound = ClassSize(process, BitConverter.ToUInt64(payload, 0));
 				if (bound <= 0) bound = 96;
+				bound = Math.Min(bound, have);
 				var notes = new List<string>();
 				for (int off = 16; off + 8 <= Math.Min(bound, payload.Length); off += 8)
 				{
@@ -1328,15 +1583,79 @@ public static class ItemRegistry
 	/// <summary>What produced the file, written into it rather than beside it.</summary>
 	public static string SourceJson = "{ }";
 
+	/// <summary>
+	///     The keys of a tree container keyed by integers rather than strings, or null when it does
+	///     not walk out that way. The sign classes keep one at the head of their tail (twelve
+	///     entries keyed 0 through 11). The proof is the same shape as the component walk: exactly
+	///     the stored count of nodes, and every key distinct and small, which arbitrary bytes
+	///     surviving the closure test do not produce.
+	/// </summary>
+	private static List<long> IntKeys(BedrockProcess process, Item item, int slot, long size)
+	{
+		ulong head = item.Ptr(slot);
+		var word = new byte[8];
+		ulong root = process.ReadUInt64(head + 8, word);
+		var node = new byte[48];
+		var keys = new List<long>();
+		var visited = new HashSet<ulong>();
+		var stack = new Stack<ulong>();
+		stack.Push(root);
+		while (stack.Count > 0 && keys.Count <= size)
+		{
+			ulong at = stack.Pop();
+			if (at == head || at == 0 || !visited.Add(at) || !process.IsMapped(at)) continue;
+			if (!process.TryRead(at, node, node.Length)) continue;
+			if (node[25] == 0)
+			{
+				long key = BitConverter.ToInt64(node, 32);
+				if (key is < -65536 or > 65536) return null;
+				keys.Add(key);
+			}
+			stack.Push(BitConverter.ToUInt64(node, 0));
+			stack.Push(BitConverter.ToUInt64(node, 16));
+		}
+
+		if (keys.Count != size || keys.Distinct().Count() != keys.Count) return null;
+		keys.Sort();
+		return keys;
+	}
+
+	/// <summary>How far into the class tail an item's own slots reach, bounded by its window.</summary>
+	private static int TailEnd(Item item) =>
+		Math.Min(After - 8, item.ObjectSize > 0 ? item.ObjectSize - NameInsideItem - 8 : After - 8);
+
+	/// <summary>
+	///     The tier structs, proven before any row is written: a tool whose max durability equals the
+	///     tier's uses anchors that struct, and every material's struct is anchored by several tools.
+	///     An item pointing at an anchored struct without the matching durability is adopting it,
+	///     which is real data rather than a coincidence an address can produce.
+	/// </summary>
+	private static readonly HashSet<ulong> _tierStructs = [];
+
+	private static void CollectTierStructs(BedrockProcess process, IEnumerable<Item> items)
+	{
+		_tierStructs.Clear();
+		var scratch = new byte[20];
+		foreach (Item item in items)
+		{
+			if (!item.IsItem || item.U16(ItemLayout.MaxDurability) == 0) continue;
+			for (int slot = 240; slot <= TailEnd(item); slot += 8)
+			{
+				if (Tier(process, item.Ptr(slot), scratch, item.U16(ItemLayout.MaxDurability)) is not null) _tierStructs.Add(item.Ptr(slot));
+			}
+		}
+	}
+
 	public static void Write(BedrockProcess process, IEnumerable<Item> items, string path)
 	{
 		if (Path.GetDirectoryName(path) is { Length: > 0 } directory) Directory.CreateDirectory(directory);
 
 		var byClass = new Dictionary<ulong, List<string>>();
 		List<Item> ordered = items.OrderBy(i => i.Name, StringComparer.Ordinal).ToList();
+		CollectTierStructs(process, ordered);
 		foreach (Item item in ordered)
 		{
-			ulong vtable = item.Ptr(-288);
+			ulong vtable = item.Ptr(ItemLayout.MethodTable);
 			byClass.TryAdd(vtable, []);
 			byClass[vtable].Add(item.Name.Replace("minecraft:", ""));
 		}
@@ -1362,7 +1681,7 @@ public static class ItemRegistry
 
 		string layoutPath = Path.ChangeExtension(path, null) + "-layout.json";
 		var layout = new List<string>();
-		foreach ((int offset, int length, string kind, string name) in Layout.OrderBy(l => l.Offset))
+		foreach ((int offset, int length, string kind, string name) in Layout.Concat(TailLayout()).OrderBy(l => l.Offset))
 		{
 			layout.Add($"  {{ \"offset\": {offset}, \"size\": {length}, \"kind\": {Json(kind)}, \"name\": {Json(name)} }}");
 		}
@@ -1410,7 +1729,7 @@ public static class ItemRegistry
 		Dictionary<ulong, string> classNames, string path)
 	{
 		var byClass = items.Where(i => i.IsItem && i.ObjectSize > 0)
-			.GroupBy(i => i.Ptr(-288))
+			.GroupBy(i => i.Ptr(ItemLayout.MethodTable))
 			.OrderByDescending(g => g.Count());
 
 		var rows = new List<string>();
@@ -1531,7 +1850,7 @@ public static class ItemRegistry
 		var instances = new Dictionary<string, List<(ulong Address, ulong Owner)>>(StringComparer.Ordinal);
 		foreach (Item item in items.Where(i => i.IsItem))
 		{
-			foreach ((string name, ulong address) in Components(process, item, 336, false))
+			foreach ((string name, ulong address) in _tail is null ? [] : Components(process, item, _tail.Built, false))
 			{
 				instances.TryAdd(name, []);
 				instances[name].Add((address, item.Address));
@@ -1542,16 +1861,22 @@ public static class ItemRegistry
 		var rows = new List<string>();
 		foreach ((string kind, List<(ulong Address, ulong Owner)> list) in instances.OrderByDescending(i => i.Value.Count))
 		{
-			var bytes = new List<byte[]>();
+			// Clipped reads, kept when the bytes actually read cover the decode reach. A fixed-size
+			// read dropped any instance allocated within 256 bytes of an uncommitted page, by heap
+			// lottery; the clip keeps them without ever describing bytes that were not read.
+			var candidates = new List<(byte[] Bytes, int Have)>();
 			foreach ((ulong address, ulong _) in list)
 			{
 				var buffer = new byte[256];
-				if (process.TryRead(address, buffer, buffer.Length)) bytes.Add(buffer);
+				int have = address < 0x10000 ? 0 : process.ReadClipped(address, buffer, buffer.Length);
+				if (have >= 16) candidates.Add((buffer, have));
 			}
-			if (bytes.Count == 0) continue;
+			if (candidates.Count == 0) continue;
 
-			int size = ClassSize(process, BitConverter.ToUInt64(bytes[0], 0));
+			int size = ClassSize(process, BitConverter.ToUInt64(candidates[0].Bytes, 0));
 			int reach = size > 0 ? Math.Min(size, 224) : 96;
+			List<byte[]> bytes = candidates.Where(c => c.Have >= reach).Select(c => c.Bytes).ToList();
+			if (bytes.Count == 0) continue;
 			var slots = new List<string>();
 			int accounted = 16;   // the method table and the owner pointer
 			for (int off = 16; off + 8 <= reach; off += 8)
@@ -1625,8 +1950,8 @@ public static class ItemRegistry
 			$"\"name\": {Json(item.Name)}",
 			$"\"isItem\": {(item.IsItem ? "true" : "false")}",
 			$"\"address\": \"0x{item.Address:X}\"",
-			$"\"classPointer\": \"0x{item.Ptr(-288):X}\"",
-			$"\"class\": {Json(classNames.GetValueOrDefault(item.Ptr(-288), "unknown_class"))}",
+			$"\"classPointer\": \"0x{item.Ptr(ItemLayout.MethodTable):X}\"",
+			$"\"class\": {Json(classNames.GetValueOrDefault(item.Ptr(ItemLayout.MethodTable), "unknown_class"))}",
 			$"\"classSlots\": {Json(Slots(item))}"
 		};
 		if (item.ObjectSize > 0) parts.Add($"\"objectSize\": {item.ObjectSize}");
@@ -1639,10 +1964,10 @@ public static class ItemRegistry
 		if (item.ObjectSize > 0)
 		{
 			var cover = new Coverage(-NameInsideItem, item.ObjectSize - NameInsideItem);
-			foreach ((int offset, int length, string kind, string _) in Layout)
+			foreach ((int offset, int length, string kind, string _) in Layout.Concat(TailLayout()))
 			{
 				if (kind == "class specific") continue;
-				if (offset is 296 or 336 && declared.Count == 0 && built.Count == 0) continue;
+				if (_tail is not null && (offset == _tail.Declared || offset == _tail.Built) && declared.Count == 0 && built.Count == 0) continue;
 				cover.Claim(offset, length);
 			}
 			int described = Math.Min(item.ObjectSize - NameInsideItem, item.Window.Length - Before - 16);
@@ -1676,65 +2001,76 @@ public static class ItemRegistry
 		var parts = new List<string>
 		{
 			$"\"name\": {Json(item.Name)}",
-			$"\"id\": {item.I16(-118)}",
+			$"\"id\": {item.I16(ItemLayout.Id)}",
 			$"\"translationKey\": {Json(item.Key)}",
-			$"\"maxStackSize\": {item.Byte(-120)}",
+			$"\"maxStackSize\": {item.Byte(ItemLayout.MaxStackSize)}",
 			// The two fields the item registry packet needs beside the name and the id. The version
 			// is the byte at -280, which agrees with the registry on all 1,968 items that can be
 			// compared; component-based is not a flag anywhere in the object but the presence of the
 			// declared-component set, which matches the same registry on all 73 it lists and adds the
 			// two experimental items its own source could not see.
-			$"\"version\": {item.Byte(-280)}",
+			$"\"version\": {item.Byte(ItemLayout.ParseVersion)}",
 			// How many frames the item's icon has. One for almost everything; the three compasses
 			// hold 32, the clock 64 and the fishing rod 2, which is exactly how many states each of
 			// those icons has. Bow and crossbow hold 0 and draw their pull states another way.
-			$"\"iconFrameCount\": {item.Byte(-240)}",
+			$"\"iconFrameCount\": {item.Byte(ItemLayout.IconFrameCount)}",
 			// Whether the icon cycles through those frames in the toolbar, and whether its art is drawn
 			// flipped. Six items animate; the camera, the fishing rod and the two mob on a stick items
 			// are the mirrored ones.
-			$"\"animatesInToolbar\": {(item.Byte(-236) != 0 ? "true" : "false")}",
-			$"\"mirroredArt\": {(item.Byte(-235) != 0 ? "true" : "false")}",
+			$"\"animatesInToolbar\": {(item.Byte(ItemLayout.AnimatesInToolbar) != 0 ? "true" : "false")}",
+			$"\"mirroredArt\": {(item.Byte(ItemLayout.MirroredArt) != 0 ? "true" : "false")}",
 			// How the item animates while used. Every food answers 1, every drinkable answers 2,
 			// the bow 4 and the brush 12, and nothing else answers anything but 0.
-			$"\"useAnimation\": {{ \"value\": {item.Byte(-234)}, \"name\": "
-				+ (NameOf(UseAnimationNames, item.Byte(-234)) is { } an ? Json(an) : "null") + " }",
+			$"\"useAnimation\": {{ \"value\": {item.Byte(ItemLayout.UseAnimation)}, \"name\": "
+				+ (NameOf(UseAnimationNames, item.Byte(ItemLayout.UseAnimation)) is { } an ? Json(an) : "null") + " }",
 			// Rarity. The 75 that answer 1 are the pottery sherds, armour trims and chainmail; the 14
 			// that answer 2 are the beacon, nether star, banner patterns and music discs; the 5 that
 			// answer 3 are dragon egg, elytra, heavy core, mace and the silence trim. That is the
 			// uncommon, rare and epic set, which is what makes this rarity rather than a number.
-			$"\"rarity\": {{ \"value\": {item.Byte(156)}, \"name\": "
-				+ (NameOf(RarityNames, item.Byte(156)) is { } rn ? Json(rn) : "null") + " }",
+			$"\"rarity\": {{ \"value\": {item.Byte(ItemLayout.Rarity)}, \"name\": "
+				+ (NameOf(RarityNames, item.Byte(ItemLayout.Rarity)) is { } rn ? Json(rn) : "null") + " }",
 			// What mining a block costs this item. The 28 axes, hoes, pickaxes and shovels answer
 			// digger_item, shears answers shears_item on its own, the component items answer
 			// component_item, and armour, bows, the shield, the fishing rod and the sticks answer
 			// do_nothing, which is exactly the set that takes no durability from mining.
-			$"\"mineBlockType\": {{ \"value\": {item.Byte(160)}, \"name\": "
-				+ (NameOf(MineBlockTypeNames, item.Byte(160)) is { } mb ? Json(mb) : "null") + " }",
-			$"\"maxDurability\": {item.U16(48)}",
-			$"\"useDuration\": {item.U32(52)}"
+			$"\"mineBlockType\": {{ \"value\": {item.Byte(ItemLayout.MineBlockType)}, \"name\": "
+				+ (NameOf(MineBlockTypeNames, item.Byte(ItemLayout.MineBlockType)) is { } mb ? Json(mb) : "null") + " }",
+			$"\"maxDurability\": {item.U16(ItemLayout.MaxDurability)}",
+			$"\"useDuration\": {item.U32(ItemLayout.UseDuration)}"
 		};
 
-		// The flag bits that have been pinned against items whose behaviour is not in dispute, and
-		// only those. A bit with no name is still in "flags" above, so nothing is lost by omission.
+		// All eight bits, named. The order is the one Item declares them in, packed low bit first,
+		// and six of the eight already matched names pinned here against item behaviour, which is
+		// what makes the other two the same fact rather than a reading of a list.
+		// requiresWorldBuilder is set on exactly allow, deny, border_block and chalkboard, the four
+		// items that need that permission. explodable is set on every item but nether_star, which
+		// is the one item immune to all explosions, and that same item reads shouldDespawn clear,
+		// which is the name we already had confirming itself on the one item that breaks the run.
+		// Item declares a ninth flag, ignoresPermissions, which is not in this byte and is not read
+		// anywhere. It is not in the byte after it either: that one is 0 on 1,846 of 2,076 items,
+		// scattered over 111, 240, 233 and 255 on the rest, and differs between two runs of the same
+		// build on 155 items, which is slack rather than data.
 		var flags = new List<string>();
-		byte f = item.Byte(50);
+		byte f = item.Byte(ItemLayout.Flags);
 		if ((f & 0x01) != 0) flags.Add("glint");
 		if ((f & 0x02) != 0) flags.Add("handEquipped");
 		if ((f & 0x04) != 0) flags.Add("stackedByData");
+		if ((f & 0x08) != 0) flags.Add("requiresWorldBuilder");
+		if ((f & 0x10) != 0) flags.Add("explodable");
 		if ((f & 0x20) != 0) flags.Add("fireResistant");
 		if ((f & 0x40) != 0) flags.Add("shouldDespawn");
 		if ((f & 0x80) != 0) flags.Add("allowOffHand");
 		// Only the byte at +50. The one after it was published here as a second flag byte until the
 		// two process test showed it differs on 155 items, which makes it uninitialised memory rather
 		// than data, and publishing slack as a field is worse than leaving a hole.
-		parts.Add($"\"flags\": {{ \"raw\": \"0x{item.Byte(50):X2}\""
+		parts.Add($"\"flags\": {{ \"raw\": \"0x{item.Byte(ItemLayout.Flags):X2}\""
 			+ (flags.Count > 0 ? $", \"set\": [{string.Join(", ", flags.Select(Json))}]" : "") + " }");
 
 		// Three sixteen bit numbers reading 1, minor, patch, which is the version a pack has to
 		// declare before the server will hand this item out. Nothing carries it below 1.14.
-		if (item.U16(56) != 0)
+		if (item.U16(ItemLayout.MinimumVersion) != 0)
 		{
-			parts.Add($"\"minRequiredVersion\": \"{item.U16(56)}.{item.U16(58)}.{item.U16(60)}\"");
+			parts.Add($"\"minRequiredVersion\": \"{item.U16(ItemLayout.MinimumVersion)}.{item.U16(ItemLayout.MinimumVersion + 2)}.{item.U16(ItemLayout.MinimumVersion + 4)}\"");
 
 		}
 
@@ -1743,7 +2079,9 @@ public static class ItemRegistry
 		// comparator with no block at all, and the holder is what the wire calls minecraft:block.
 		if (item.IsItem)
 		{
-			foreach (int slot in (int[]) [88, 328])
+			// Directly at +88, or through the holder the class tail keeps just before the built
+			// component map, wherever that map sits on this build.
+			foreach (int slot in _tail is null ? (int[]) [88] : [88, _tail.Built - 8])
 			{
 				if (slot + 8 > item.Window.Length - Before) break;
 				string blockName = BlockNameAt(process, item.Ptr(slot));
@@ -1753,26 +2091,26 @@ public static class ItemRegistry
 			}
 		}
 
-		string creativeGroupName = StdString(process, item.Window, item.At(112), text);
-		parts.Add($"\"creative\": {{ \"category\": {item.Byte(96)}, \"categoryName\": "
-			+ (NameOf(CreativeCategoryNames, item.Byte(96)) is { } cn ? Json(cn) : "null")
+		string creativeGroupName = StdString(process, item.Window, item.At(ItemLayout.CreativeGroup), text);
+		parts.Add($"\"creative\": {{ \"category\": {item.Byte(ItemLayout.CreativeCategory)}, \"categoryName\": "
+			+ (NameOf(CreativeCategoryNames, item.Byte(ItemLayout.CreativeCategory)) is { } cn ? Json(cn) : "null")
 			+ (string.IsNullOrEmpty(creativeGroupName) ? "" : $", \"group\": {Json(creativeGroupName)}") + " }");
 
 
 		// Furnace behaviour, both halves: how many items this one burns for, and the experience
 		// smelting it gives. Fitted against lava bucket at a hundred, boats at six and sticks at a
 		// half, and against gold at one, iron at seven tenths and nuggets at a tenth.
-		if (item.F32(144) != 0 || item.F32(148) != 0)
+		if (item.F32(ItemLayout.FurnaceFuel) != 0 || item.F32(ItemLayout.SmeltingExperience) != 0)
 		{
-			parts.Add($"\"furnace\": {{ \"fuelDuration\": {Num(item.F32(144))}, "
-				+ $"\"smeltingExperience\": {Num(item.F32(148))} }}");
+			parts.Add($"\"furnace\": {{ \"fuelDuration\": {Num(item.F32(ItemLayout.FurnaceFuel))}, "
+				+ $"\"smeltingExperience\": {Num(item.F32(ItemLayout.SmeltingExperience))} }}");
 		}
 
-		string icon = StdString(process, item.Window, item.At(-184), text);
+		string icon = StdString(process, item.Window, item.At(ItemLayout.Icon), text);
 		if (!string.IsNullOrEmpty(icon)) parts.Add($"\"icon\": {Json(icon)}");
-		string icon2 = StdString(process, item.Window, item.At(-152), text);
+		string icon2 = StdString(process, item.Window, item.At(ItemLayout.SecondIcon), text);
 		if (!string.IsNullOrEmpty(icon2)) parts.Add($"\"icon2\": {Json(icon2)}");
-		string atlas = StdString(process, item.Window, item.At(-272), text);
+		string atlas = StdString(process, item.Window, item.At(ItemLayout.TextureAtlas), text);
 		if (!string.IsNullOrEmpty(atlas)) parts.Add($"\"textureAtlas\": {Json(atlas)}");
 
 		List<string> tags = Tags(process, item, scratch, heap);
@@ -1782,8 +2120,8 @@ public static class ItemRegistry
 		// older items keep a typed pointer per kind at a fixed offset, the newer ones keep a map, and
 		// a consumer should not have to know which: both end up under "components" keyed by the same
 		// names, so food is food wherever the server put it.
-		List<(string Name, ulong Address)> declared = Components(process, item, 296, true);
-		List<(string Name, ulong Address)> built = Components(process, item, 336, false);
+		List<(string Name, ulong Address)> declared = _tail is null ? [] : Components(process, item, _tail.Declared, true);
+		List<(string Name, ulong Address)> built = _tail is null ? [] : Components(process, item, _tail.Built, false);
 		parts.Add($"\"componentBased\": {(declared.Count > 0 ? "true" : "false")}");
 		if (declared.Count > 0) parts.Add($"\"declaredComponents\": [{string.Join(", ", declared.Select(c => Json(c.Name)))}]");
 
@@ -1791,52 +2129,67 @@ public static class ItemRegistry
 			.Select(c => Component(process, c.Name, c.Address, item.Address, scratch))
 			.ToList();
 
-		ulong food = item.IsItem ? item.Ptr(168) : 0;
-		if (food > 0x10000 && built.All(c => c.Name != "minecraft:food") && process.TryRead(food, scratch, 32))
+		ulong food = item.IsItem ? item.Ptr(ItemLayout.FoodComponent) : 0;
+		if (food > 0x10000 && built.All(c => c.Name != "minecraft:food") && process.TryRead(food, scratch, 24))
 		{
 			componentJson.Add($"{Json("minecraft:food")}: {{ \"nutrition\": {BitConverter.ToInt32(scratch, 16)}, "
 				+ $"\"saturationModifier\": {Num(BitConverter.ToSingle(scratch, 20))} }}");
 		}
-		ulong camera = item.IsItem ? item.Ptr(184) : 0;
+		ulong camera = item.IsItem ? item.Ptr(ItemLayout.CameraComponent) : 0;
 		if (camera > 0x10000 && process.TryRead(camera, scratch, 32))
 		{
 			var values = new List<string>();
 			for (int k = 8; k < 32; k += 4) values.Add(Num(BitConverter.ToSingle(scratch, k)));
 			componentJson.Add($"{Json("minecraft:camera")}: {{ \"values\": [{string.Join(", ", values)}] }}");
 		}
-		ulong seed = item.IsItem ? item.Ptr(176) : 0;
+		ulong seed = item.IsItem ? item.Ptr(ItemLayout.SeedComponent) : 0;
 		if (seed > 0x10000) componentJson.Add(Seed(process, seed));
 
 		if (componentJson.Count > 0) parts.Add($"\"components\": {{ {string.Join(", ", componentJson)} }}");
 
-		// The tier a tool is made of, shared between every tool of that material and held as a
-		// pointer into the module. Which slot holds it depends on the class, so both are tried and
-		// the contents decide: a tier reads as a level, a durability, a mining speed, a damage bonus
-		// and an enchantment value, and diamond comes back 3, 1561, 8, 3, 10.
-		foreach (int slot in item.IsItem ? (int[]) [240, 248] : [])
+		// The class tail's own fields sit at no fixed place: which slot holds what depends on the
+		// class, and the whole tail moves when a version grows the object, so every slot in the tail
+		// is tried and the contents decide. Each probe proves itself against a value the item states
+		// elsewhere, so a wider sweep cannot invent a hit.
+		int tailEnd = TailEnd(item);
+
+		// A tier reads as a level, a durability, a mining speed, a damage bonus and an enchantment
+		// value, and its durability must be the item's own: diamond comes back 3, 1561, 8, 3, 10 on
+		// a tool whose max durability is 1561. An item may instead adopt a struct other tools proved
+		// that way; the mace points at the diamond tier while carrying its own 500 durability.
+		if (item.IsItem)
 		{
-			string tier = Tier(process, item.Ptr(slot), scratch);
-			if (tier is null) continue;
-			parts.Add($"\"tier\": {tier}");
-			break;
+			for (int slot = 240; slot <= tailEnd; slot += 8)
+			{
+				string tier = item.U16(ItemLayout.MaxDurability) > 0 ? Tier(process, item.Ptr(slot), scratch, item.U16(ItemLayout.MaxDurability)) : null;
+				if (tier is null && _tierStructs.Contains(item.Ptr(slot))) tier = Tier(process, item.Ptr(slot), scratch, null);
+				if (tier is null) continue;
+				parts.Add($"\"tier\": {tier}");
+				break;
+			}
 		}
 
-		// A digger names the block tag it can destroy. Which slot holds it differs by class, so both
-		// are tried and the hash decides: a hashed string only reads back when its text hashes to the
-		// number in front of it, so a wrong offset gives nothing rather than a wrong tag.
-		foreach (int slot in (int[]) [240, 248, 256])
+		// A digger names the block tag it can destroy. The hash decides: a hashed string only reads
+		// back when its text hashes to the number in front of it, so a wrong slot gives nothing
+		// rather than a wrong tag.
+		for (int slot = 240; slot <= tailEnd; slot += 8)
 		{
-			if (item.ObjectSize - NameInsideItem <= slot + 8) break;
 			if (HashedAt(process, item.Ptr(slot)) is not { } tag || !tag.Contains("destructible", StringComparison.Ordinal)) continue;
 			parts.Add($"\"destroysBlocksTagged\": {Json(tag)}");
 			break;
 		}
 
-		// Armour keeps its material past the shared fields, at the one offset where every piece of a
-		// set points at the same struct.
-		if (item.ObjectSize - NameInsideItem > 264 && ArmorMaterial(process, item.Ptr(256)) is { } material)
+		// Armour keeps its material where every piece of a set points at the same struct, and the
+		// struct must reproduce the piece's own durability: the multiplier divides it to the per-slot
+		// base the game uses, 11, 13, 15 or 16.
+		if (item.IsItem && item.U16(ItemLayout.MaxDurability) > 0)
 		{
-			parts.Add($"\"armorMaterial\": {material}");
+			for (int slot = 240; slot <= tailEnd; slot += 8)
+			{
+				if (ArmorMaterial(process, item.Ptr(slot), item.U16(ItemLayout.MaxDurability)) is not { } material) continue;
+				parts.Add($"\"armorMaterial\": {material}");
+				break;
+			}
 		}
 
 		// Whatever the class adds after the shared fields, carried out as its own bytes rather than
@@ -1844,7 +2197,7 @@ public static class ItemRegistry
 		// belongs to this item and nothing beyond it.
 
 
-		ulong vtable = item.Ptr(-288);
+		ulong vtable = item.Ptr(ItemLayout.MethodTable);
 
 		// Where the object ends, which is where the next allocation's header sits. Object sizes are
 		// not uniform: the base runs to +248 and each class adds its own fields after it, so this is
@@ -1858,7 +2211,7 @@ public static class ItemRegistry
 		// Named from the code that writes them: the item parser holds the key's text and stores the
 		// value it read into the object, so the store offset beside the literal is the field. Checked
 		// against two offsets already known, creative_category at name+96 and frame_count at name-240.
-		parts.Add($"\"hiddenInCommands\": {item.Byte(152)}");
+		parts.Add($"\"hiddenInCommands\": {item.Byte(ItemLayout.HiddenInCommands)}");
 		// These three sit past +240, which is class specific, so they only mean anything on the class
 		// the parser writes them into: the data-driven items. Gated on the object being big enough
 		// they were read off every class, and a diamond pickaxe reported a mining speed taken from
@@ -1867,16 +2220,17 @@ public static class ItemRegistry
 		// and no item outside them does.
 		if (declared.Count > 0)
 		{
-			parts.Add($"\"miningSpeed\": {Num(BitConverter.ToSingle(item.Window, item.At(244)))}");
-			parts.Add($"\"liquidClipped\": {((item.Byte(240) & 0x08) != 0 ? "true" : "false")}");
-			parts.Add($"\"canDestroyInCreative\": {((item.Byte(240) & 0x02) != 0 ? "true" : "false")}");
-			parts.Add($"\"enchantableValue\": {BitConverter.ToInt32(item.Window, item.At(256))}");
+			int dd = _tail.DataDriven;
+			parts.Add($"\"miningSpeed\": {Num(BitConverter.ToSingle(item.Window, item.At(dd + 4)))}");
+			parts.Add($"\"liquidClipped\": {((item.Byte(dd) & 0x08) != 0 ? "true" : "false")}");
+			parts.Add($"\"canDestroyInCreative\": {((item.Byte(dd) & 0x02) != 0 ? "true" : "false")}");
+			parts.Add($"\"enchantableValue\": {BitConverter.ToInt32(item.Window, item.At(dd + 16))}");
 			// Located the same way as the rest: the parser holds the key's text and stores the value
 			// beside it. Damage verifies against the damage component on all seven spears, and the
 			// slot is a bitmask rather than an index, reading 0x00800000 for melee_spear and 0 for
 			// none, so the number goes out rather than a name invented for a bit.
-			parts.Add($"\"damage\": {BitConverter.ToInt32(item.Window, item.At(248))}");
-			parts.Add($"\"enchantableSlot\": \"0x{BitConverter.ToInt32(item.Window, item.At(252)):X}\"");
+			parts.Add($"\"damage\": {BitConverter.ToInt32(item.Window, item.At(dd + 8))}");
+			parts.Add($"\"enchantableSlot\": \"0x{BitConverter.ToInt32(item.Window, item.At(dd + 12)):X}\"");
 		}
 
 		// The forensic half of the row goes to its own file: the bytes it was read from, the holes,
@@ -1896,7 +2250,7 @@ public static class ItemRegistry
 	private static List<string> Tags(BedrockProcess process, Item item, byte[] scratch, byte[] heap)
 	{
 		var tags = new List<string>();
-		ulong begin = item.Ptr(216), end = item.Ptr(224);
+		ulong begin = item.Ptr(ItemLayout.TagVector), end = item.Ptr(ItemLayout.TagVector + 8);
 		if (begin < 0x10000 || end <= begin || end - begin > 4096 || (end - begin) % 48 != 0) return tags;
 		for (ulong at = begin; at < end; at += 48)
 		{
@@ -1924,7 +2278,7 @@ public static class ItemRegistry
 		// whichever object is last in its arena, which was 89 of them.
 		foreach (Item item in items)
 		{
-			item.ObjectSize = ClassSize(process, item.Ptr(-288));
+			item.ObjectSize = ClassSize(process, item.Ptr(ItemLayout.MethodTable));
 		}
 	}
 
@@ -1954,6 +2308,21 @@ public static class ItemRegistry
 
 	private static bool IsModule(ulong value) => value is >= 0x7FF000000000 and < 0x800000000000;
 
+	/// <summary>
+	///     Whether a pointer is a method table: in the module, and its first slot holds module code.
+	///     The range test alone is not enough where a component's first field sits: a small value
+	///     plus the allocator's slack above it can compose a word that lands in the module range on
+	///     one instance and not the next, which flipped the field base per run and read a spear's
+	///     damage component as string bytes. Slack can fake an address; it cannot also place module
+	///     code behind it.
+	/// </summary>
+	private static bool IsVtable(BedrockProcess process, ulong pointer)
+	{
+		if (!IsModule(pointer) || !process.IsMapped(pointer)) return false;
+		var word = new byte[8];
+		return IsModule(process.ReadUInt64(pointer, word));
+	}
+
 	private static string Num(float value) => value.ToString("0.#####", CultureInfo.InvariantCulture);
 
 	private static string Json(string text) => "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
@@ -1961,7 +2330,13 @@ public static class ItemRegistry
 	public static string ReadStdString(BedrockProcess process, byte[] window, int at, byte[] scratch) =>
 		StdString(process, window, at, scratch);
 
-	private static string StdString(BedrockProcess process, byte[] window, int at, byte[] scratch)
+	/// <summary>A string read straight from an address, for the reads that happen before any window exists.</summary>
+	private static string StdString(BedrockProcess process, byte[] window, int at, byte[] scratch, ulong address)
+	{
+		return process.TryRead(address, window, 32) ? StdString(process, window, at, scratch) : null;
+	}
+
+	internal static string StdString(BedrockProcess process, byte[] window, int at, byte[] scratch)
 	{
 		if (at < 0 || at + 32 > window.Length) return null;
 		ulong size = BitConverter.ToUInt64(window, at + 16);

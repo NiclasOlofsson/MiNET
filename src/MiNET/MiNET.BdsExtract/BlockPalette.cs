@@ -77,7 +77,7 @@ public static class BlockPalette
 		var tally = new Dictionary<ulong, int>();
 		foreach (ulong site in pointers)
 		{
-			ulong start = site - MemoryLayout.BlockLegacyPointer;
+			ulong start = site - (ulong) MemoryLayout.BlockLegacyPointer;
 			ulong table = process.ReadUInt64(start, word);
 			if (table > 0x10000) tally[table] = tally.GetValueOrDefault(table) + 1;
 		}
@@ -86,7 +86,7 @@ public static class BlockPalette
 		var states = new HashSet<ulong>();
 		foreach (ulong site in pointers)
 		{
-			ulong start = site - MemoryLayout.BlockLegacyPointer;
+			ulong start = site - (ulong) MemoryLayout.BlockLegacyPointer;
 			if (accepted.Contains(process.ReadUInt64(start, word))) states.Add(start);
 		}
 		return states;
@@ -128,6 +128,132 @@ public static class BlockPalette
 		return headers;
 	}
 
+	/// <summary>
+	///     Where a state keeps its network id, measured rather than assumed.
+	///     <para>
+	///         The palette is a list, so a state's place in it is known before anything is read, and
+	///         with hashed ids off the network id is that place. The position holding each state's
+	///         own index, for every state in the list, is the field. A position holding anything
+	///         else fails on the second state, and one holding a constant fails on the first.
+	///     </para>
+	///     <para>
+	///         With hashed ids on there is no index to match and no position answers, which is not a
+	///         failure to find the field but the server saying it is not numbering states this way.
+	///         The two cases are told apart by the count, never inferred from a value that looks
+	///         wrong.
+	///     </para>
+	/// </summary>
+	public static (int At, int Agreed) DeriveNetworkId(BedrockProcess process, VectorHeader header, int reach = 512)
+	{
+		var slots = new byte[header.Count * 8];
+		if (!process.TryRead(header.Begin, slots, slots.Length)) return (-1, 0);
+
+		// One state, one value. The state at place 222 must hold 222 somewhere, so every position
+		// holding 222 in that state is a candidate and everything else is out. Then the candidates
+		// are put to the whole list: the one that holds every other state's own place too is the
+		// field. One state proposes, the population decides.
+		const int probe = 222;
+		var state = new byte[reach];
+		ulong at222 = BitConverter.ToUInt64(slots, probe * 8);
+		if (header.Count <= probe || at222 < 0x10000
+			|| process.ReadClipped(at222, state, state.Length) < state.Length)
+		{
+			return (-1, 0);
+		}
+
+		var candidates = new List<int>();
+		for (int at = 0; at + 4 <= reach; at += 4)
+		{
+			if (BitConverter.ToUInt32(state, at) == probe) candidates.Add(at);
+		}
+
+		if (candidates.Count == 0) return (-1, 0);
+
+		var counts = new Dictionary<int, int>();
+		foreach (int at in candidates) counts[at] = 0;
+		for (int i = 0; i <= probe; i++)
+		{
+			ulong address = BitConverter.ToUInt64(slots, i * 8);
+			if (address < 0x10000 || process.ReadClipped(address, state, state.Length) < state.Length) continue;
+			foreach (int at in candidates)
+			{
+				if (BitConverter.ToUInt32(state, at) == (uint) i) counts[at]++;
+			}
+		}
+
+		// The states that do not hold their own place, named with what they hold instead. A position
+		// that is right for fifteen thousand states and wrong for thirteen is telling something
+		// about those thirteen, and they cannot be seen unless they are listed.
+		KeyValuePair<int, int> best = counts.OrderByDescending(c => c.Value).First();
+		var missed = new List<string>();
+		int unread = 0, agreed = 0;
+		for (int i = 0; i < header.Count; i++)
+		{
+			ulong address = BitConverter.ToUInt64(slots, i * 8);
+			if (address < 0x10000 || process.ReadClipped(address, state, best.Key + 4) < best.Key + 4)
+			{
+				unread++;
+				continue;
+			}
+			uint held = BitConverter.ToUInt32(state, best.Key);
+			if (held == (uint) i) agreed++;
+			else if (missed.Count < 20) missed.Add($"slot {i} holds {held}");
+		}
+
+		Console.WriteLine($"  at state+{best.Key} over the whole palette: {missed.Count:N0} hold something else, {unread:N0} could not be read"
+						+ (missed.Count > 0 ? $" ({string.Join(", ", missed)})" : ""));
+
+		Console.WriteLine($"  state {probe} holds {probe} at {candidates.Count} position(s): "
+						+ string.Join(", ", candidates.Select(c => $"state+{c} on {counts[c]:N0} of the first {probe + 1}")));
+
+		// The whole palette's agreement, not the probe's. One state proposes and the population
+		// decides, so the count that goes back is the one the population produced: returning the
+		// proposal's count instead capped it at 223 and made the caller reject a position that had
+		// just been verified against every state in the list.
+		return (best.Key, agreed);
+	}
+
+	/// <summary>
+	///     Each palette entry paired with what the reference says its light is, found by what the
+	///     state IS rather than by where it sits: the block's name with its property values. Only
+	///     the states the reference also knows come back, so a build with states it does not have
+	///     contributes nothing rather than a wrong answer.
+	/// </summary>
+	public static (List<(ulong Address, int Value)> Emission, List<(ulong Address, int Value)> Dampening)
+		KnownLight(BedrockProcess process, VectorHeader header)
+	{
+		var emission = new List<(ulong, int)>();
+		var dampening = new List<(ulong, int)>();
+		var slots = new byte[header.Count * 8];
+		if (!process.TryRead(header.Begin, slots, slots.Length)) return (emission, dampening);
+
+		var word = new byte[8];
+		var heap = new byte[256];
+		var legacy = new byte[MemoryLayout.NameInsideLegacy + MemoryLayout.LegacyReach];
+		var reader = new BlockStateReader(process, Addresses(slots, header.Count));
+		Dictionary<string, (int Emission, int Dampening)> known = StateSentinels.Known;
+
+		for (int i = 0; i < header.Count; i++)
+		{
+			ulong address = BitConverter.ToUInt64(slots, i * 8);
+			if (!process.IsMapped(address)) continue;
+
+			ulong owner = process.ReadUInt64(address + (ulong) MemoryLayout.BlockLegacyPointer, word);
+			if (!process.IsMapped(owner) || !process.TryRead(owner, legacy, legacy.Length)) continue;
+
+			string name = HashedString.ReadVerified(process, legacy, MemoryLayout.NameInsideLegacy, heap);
+			if (name is null) continue;
+
+			List<StateProperty> properties = reader.Read(address, out _);
+			if (!known.TryGetValue(StateSentinels.Key(name, properties), out (int Emission, int Dampening) light)) continue;
+
+			emission.Add((address, light.Emission));
+			dampening.Add((address, light.Dampening));
+		}
+
+		return (emission, dampening);
+	}
+
 	/// <summary>Reads the palette in order, resolving each entry through its own object.</summary>
 	public static List<PaletteEntry> Read(BedrockProcess process, VectorHeader header)
 	{
@@ -157,8 +283,8 @@ public static class BlockPalette
 			if (process.IsMapped(address) && process.TryRead(address, state, state.Length))
 			{
 				network = BitConverter.ToUInt32(state, MemoryLayout.BlockNetworkId);
-				emission = state[MemoryLayout.BlockLightEmission];
-				dampening = state[MemoryLayout.BlockLightDampening];
+				emission = state[MemoryLayout.StateLightEmission];
+				dampening = state[MemoryLayout.StateLightDampening];
 				properties = reader.Read(address, out version);
 				ulong owner = BitConverter.ToUInt64(state, MemoryLayout.BlockLegacyPointer);
 				if (process.IsMapped(owner) && process.TryRead(owner, legacy, legacy.Length))

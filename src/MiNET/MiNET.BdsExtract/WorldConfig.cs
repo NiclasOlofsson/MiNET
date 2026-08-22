@@ -21,7 +21,7 @@ using System.Text;
 public static class WorldConfig
 {
 	public sealed record Config(string ServerPath, string World, string WorldPath,
-		IReadOnlyList<string> Experiments, IReadOnlyList<string> AllToggles);
+		IReadOnlyList<string> Experiments, IReadOnlyList<string> AllToggles, string NetworkIdsAreHashes);
 
 	/// <summary>
 	///     Bookkeeping rather than content. These two say a world has been near an experiment, not
@@ -42,11 +42,13 @@ public static class WorldConfig
 		string root = Path.GetDirectoryName(executablePath) ?? ".";
 		string properties = Path.Combine(root, "server.properties");
 		string world = null;
+		string hashes = null;
 		if (File.Exists(properties))
 		{
 			foreach (string line in File.ReadAllLines(properties))
 			{
 				if (line.StartsWith("level-name=", StringComparison.Ordinal)) world = line["level-name=".Length..].Trim();
+				if (line.StartsWith("block-network-ids-are-hashes=", StringComparison.Ordinal)) hashes = line["block-network-ids-are-hashes=".Length..].Trim();
 			}
 		}
 
@@ -55,18 +57,104 @@ public static class WorldConfig
 		var all = new List<string>();
 		string level = worldPath is null ? null : Path.Combine(worldPath, "level.dat");
 		if (level is not null && File.Exists(level)) ReadExperiments(level, on, all);
-		return new Config(root, world, worldPath, on, all);
+		return new Config(root, world, worldPath, on, all, hashes);
 	}
 
 	/// <summary>
-	///     Refuses to extract from a server whose world has no experiment enabled, because what comes
-	///     out is short and silently misnumbered rather than merely incomplete. Says what it found,
+	///     The canonical configuration this project carries: the server.properties and the
+	///     experimental flatworld every extraction runs against, so two runs are comparable because
+	///     they ran the same config, not because somebody remembered to set it up the same way.
+	/// </summary>
+	public static string AssetsDirectory()
+	{
+		var directory = new DirectoryInfo(AppContext.BaseDirectory);
+		while (directory is not null)
+		{
+			if (directory.GetFiles("MiNET.BdsExtract.csproj").Length > 0)
+			{
+				return Path.Combine(directory.FullName, "Assets");
+			}
+			directory = directory.Parent;
+		}
+		return "Assets";
+	}
+
+	/// <summary>The experiments the asset world carries, which is what a run's world must have on.</summary>
+	public static List<string> AssetExperiments()
+	{
+		var on = new List<string>();
+		var all = new List<string>();
+		string level = Path.Combine(AssetsDirectory(), "flatworld", "level.dat");
+		if (File.Exists(level)) ReadExperiments(level, on, all);
+		return on;
+	}
+
+	/// <summary>
+	///     Brings a server folder to the canonical configuration: the asset server.properties, and a
+	///     fresh copy of the asset world. The world is replaced rather than merged, because a world a
+	///     newer server has already upgraded in place is not the asset any more, and a conformance
+	///     run on top of it measures the leftovers instead of the config.
+	/// </summary>
+	public static int Prepare(string serverDirectory)
+	{
+		if (!File.Exists(Path.Combine(serverDirectory, "bedrock_server.exe")))
+		{
+			Console.Error.WriteLine($"not a server folder (no bedrock_server.exe): {serverDirectory}");
+			return 1;
+		}
+
+		string assets = AssetsDirectory();
+		string properties = Path.Combine(assets, "server.properties");
+		string world = Path.Combine(assets, "flatworld");
+		if (!File.Exists(properties) || !Directory.Exists(world))
+		{
+			Console.Error.WriteLine($"assets missing under {assets}; expected server.properties and flatworld");
+			return 1;
+		}
+
+		File.Copy(properties, Path.Combine(serverDirectory, "server.properties"), true);
+		Console.WriteLine($"wrote {Path.Combine(serverDirectory, "server.properties")}");
+
+		// A leftover documentation config makes the server generate its docs and quit right after
+		// "Server started", and an extraction that attaches then reads a dying process: the guards
+		// refuse it, but the run is wasted. Part of the canonical config is that this file is gone.
+		string testConfig = Path.Combine(serverDirectory, "test_config.json");
+		if (File.Exists(testConfig))
+		{
+			File.Delete(testConfig);
+			Console.WriteLine($"removed {testConfig} (documentation mode: the server would quit after startup)");
+		}
+
+		string target = Path.Combine(serverDirectory, "worlds", "flatworld");
+		if (Directory.Exists(target))
+		{
+			Directory.Delete(target, true);
+			Console.WriteLine($"removed {target} (a world an earlier run upgraded is not the asset)");
+		}
+		CopyTree(world, target);
+		Console.WriteLine($"copied the asset world to {target}");
+		return 0;
+	}
+
+	private static void CopyTree(string from, string to)
+	{
+		Directory.CreateDirectory(to);
+		foreach (string file in Directory.GetFiles(from)) File.Copy(file, Path.Combine(to, Path.GetFileName(file)));
+		foreach (string sub in Directory.GetDirectories(from)) CopyTree(sub, Path.Combine(to, Path.GetFileName(sub)));
+	}
+
+	/// <summary>
+	///     Refuses to extract from a server that is not running the canonical configuration, because
+	///     what comes out is wrong in ways the output does not show. A world without the asset's
+	///     experiments loses registrations AND shifts every id after them; hashed network ids make
+	///     every palette position incomparable to anything this project holds. Says what it found,
 	///     either way, so the configuration is on the record next to the run.
 	/// </summary>
 	public static bool Check(Config config, bool require)
 	{
 		Console.WriteLine($"server   {config.ServerPath}");
 		Console.WriteLine($"world    {config.World ?? "(no level-name in server.properties)"}");
+		Console.WriteLine($"network ids  block-network-ids-are-hashes={config.NetworkIdsAreHashes ?? "(not stated)"}");
 		if (config.AllToggles.Count == 0)
 		{
 			Console.WriteLine("experiments  none recorded in level.dat");
@@ -78,14 +166,49 @@ public static class WorldConfig
 			if (off.Any()) Console.WriteLine($"             off: {string.Join(", ", off)}");
 		}
 
-		if (config.Experiments.Count > 0 || !require) return true;
+		if (!require) return true;
+
+		var reasons = new List<string>();
+		if (config.NetworkIdsAreHashes != "false")
+		{
+			reasons.Add("block-network-ids-are-hashes is not false, so palette positions are not runtime");
+			reasons.Add("  ids and nothing extracted is comparable to the data this project holds.");
+		}
+
+		List<string> expected = AssetExperiments();
+		if (expected.Count == 0)
+		{
+			reasons.Add($"the asset world under {AssetsDirectory()} is missing or carries no experiments,");
+			reasons.Add("  so there is nothing to hold this run's world against.");
+		}
+		else
+		{
+			// An asset experiment this build does not even list cannot filter its registry: 1.26.30
+			// drops y_2026_drop_3 from the level.dat outright because nothing in that build knows the
+			// toggle. That is said out loud and tolerated. A toggle the build KNOWS but has off is
+			// the silent-loss case, and that refuses.
+			List<string> unknown = expected.Except(config.AllToggles).ToList();
+			if (unknown.Count > 0)
+			{
+				Console.WriteLine($"             not known to this build (tolerated): {string.Join(", ", unknown)}");
+			}
+
+			List<string> missing = expected.Intersect(config.AllToggles).Except(config.Experiments).ToList();
+			if (missing.Count > 0)
+			{
+				reasons.Add($"the world has experiments off that the asset world has on: {string.Join(", ", missing)}.");
+				reasons.Add("  The registries a server holds are filtered by its world's toggles: content is");
+				reasons.Add("  absent AND every id after it is short by the number missing, which is not");
+				reasons.Add("  visible in the output.");
+			}
+		}
+
+		if (reasons.Count == 0) return true;
 		Console.WriteLine();
-		Console.WriteLine("REFUSING to extract: this world has no experiment enabled.");
-		Console.WriteLine("  The registry a server holds is filtered by its world's toggles. Without them the");
-		Console.WriteLine("  experimental items are absent AND every id registered after them is short by the");
-		Console.WriteLine("  number missing, which is not visible in the output.");
-		Console.WriteLine($"  Enable them in {config.WorldPath}\\level.dat, or point level-name at a world that has");
-		Console.WriteLine("  them, and start the server again. Pass --any-world to extract anyway.");
+		Console.WriteLine("REFUSING to extract: this server is not running the canonical configuration.");
+		foreach (string reason in reasons) Console.WriteLine($"  {reason}");
+		Console.WriteLine($"  Run --prepare {config.ServerPath} and start the server again,");
+		Console.WriteLine("  or pass --any-world to extract anyway.");
 		return false;
 	}
 

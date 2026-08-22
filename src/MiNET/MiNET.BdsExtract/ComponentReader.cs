@@ -116,8 +116,6 @@ public static class ComponentReader
 			named[id] = Identify(process, instances, blocks, word);
 		}
 
-		ApplyKnownIds(named);
-
 		var result = new Dictionary<string, List<BlockComponent>>(StringComparer.Ordinal);
 		foreach (var block in blocks)
 		{
@@ -141,72 +139,22 @@ public static class ComponentReader
 	}
 
 	/// <summary>
-	///     Components named by experiment rather than by reading their contents, keyed by the id
-	///     they had when the experiment ran.
-	///     They were found by giving a behaviour pack one block per component and seeing which id
-	///     appeared. That is the only way to name a component whose payload says nothing about what
-	///     it is: a byte holding 1 is a byte holding 1 whether it means movable or replaceable.
-	///     An id is NOT a stable name for a component. Registering a pack moved loot from 28 to 31
-	///     on the very server this was measured against, so the table is applied only while the
-	///     anchors below still sit where they did, and dropped whole if any has moved.
-	/// </summary>
-	private static readonly Dictionary<int, string> KnownIds = new()
-	{
-		[5] = "minecraft:precipitation_interactions",
-		[6] = "minecraft:connection_rule",
-		[7] = "minecraft:redstone_conductivity",
-		[8] = "minecraft:movable",
-		[13] = "minecraft:collision_box",
-		[14] = "minecraft:selection_box",
-		[24] = "minecraft:support",
-		[26] = "minecraft:leashable"
-	};
-
-	/// <summary>
-	///     Ids this run works out on its own, and where the table expects them. One disagreement
-	///     means the enumeration has moved and the table describes an ordering that no longer
-	///     exists, so none of it is applied.
-	/// </summary>
-	private static readonly Dictionary<int, string> Anchors = new()
-	{
-		[1] = "minecraft:destructible_by_explosion",
-		[2] = "minecraft:destructible_by_mining",
-		[3] = "minecraft:liquid_detection",
-		[11] = "minecraft:destruction_particles",
-		[12] = "minecraft:map_color",
-		[15] = "minecraft:flammable",
-		[20] = "minecraft:geometry"
-	};
-
-	private static void ApplyKnownIds(Dictionary<int, string> named)
-	{
-		foreach (var (id, expected) in Anchors)
-		{
-			if (named.GetValueOrDefault(id) != expected) return;
-		}
-		foreach (var (id, name) in KnownIds)
-		{
-			if (named.TryGetValue(id, out string already) && already is null) named[id] = name;
-		}
-	}
-
-	/// <summary>
 	///     The components on one block, each with the id the server files it under.
 	///     Two vectors run in step: pointers at <see cref="MemoryLayout.BlockComponents" /> and one
 	///     sixteen bit id each at <see cref="MemoryLayout.BlockComponentIds" />. They are required
 	///     to be the same length, which is what says they are the same list, and a block where they
 	///     disagree is skipped rather than paired up by position and hoped for.
 	/// </summary>
-	private static List<(int Id, ulong At)> Instances(BedrockProcess process, ulong legacy, byte[] word)
+	internal static List<(int Id, ulong At)> Instances(BedrockProcess process, ulong legacy, byte[] word)
 	{
 		var held = new List<(int, ulong)>();
-		ulong begin = process.ReadUInt64(legacy + MemoryLayout.BlockComponents, word);
-		ulong end = process.ReadUInt64(legacy + MemoryLayout.BlockComponents + 8, word);
+		ulong begin = process.ReadUInt64(legacy + (ulong) MemoryLayout.BlockComponents, word);
+		ulong end = process.ReadUInt64(legacy + (ulong) (MemoryLayout.BlockComponents + 8), word);
 		if (begin < 0x10000 || end <= begin || (end - begin) % 8 != 0) return held;
 		if (end - begin > VectorReach || !process.IsMapped(begin)) return held;
 
-		ulong idBegin = process.ReadUInt64(legacy + MemoryLayout.BlockComponentIds, word);
-		ulong idEnd = process.ReadUInt64(legacy + MemoryLayout.BlockComponentIds + 8, word);
+		ulong idBegin = process.ReadUInt64(legacy + (ulong) MemoryLayout.BlockComponentIds, word);
+		ulong idEnd = process.ReadUInt64(legacy + (ulong) (MemoryLayout.BlockComponentIds + 8), word);
 		int count = (int) ((end - begin) / 8);
 		if (idBegin < 0x10000 || idEnd - idBegin != (ulong) (count * 2)) return held;
 		if (!process.IsMapped(idBegin)) return held;

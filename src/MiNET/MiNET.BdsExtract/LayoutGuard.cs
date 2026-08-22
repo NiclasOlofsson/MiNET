@@ -52,11 +52,16 @@ public sealed class Sentinel
 ///     number, the number still has the right type, and the row it lands in looks exactly like the
 ///     rows that are correct. Nothing downstream can tell the difference, so the difference has to
 ///     be caught here or not at all.
-///     Every check below is all or nothing across the whole registry, never a count and never a
-///     threshold. Counts move on their own when a version adds blocks, so a guard built on them
-///     cries wolf on every bump and gets ignored, which is worse than no guard. An invariant that
-///     holds for 1,429 blocks today holds for 1,600 tomorrow, and the only thing that breaks it is
-///     the thing this is looking for.
+///     Every structural check below is all or nothing across the whole registry, never a count and
+///     never a threshold. Counts move on their own when a version adds blocks, so a guard built on
+///     them cries wolf on every bump and gets ignored, which is worse than no guard. An invariant
+///     that holds for 1,429 blocks today holds for 1,600 tomorrow, and the only thing that breaks it
+///     is the thing this is looking for.
+///     Known values are the one exception, and they are a different kind of check: they compare this
+///     build against a frozen extraction of another one, so a value the game itself changed reads as
+///     a difference. That check holds a field at the same nine tenths the locate accepted its
+///     position at, because the two run off one reference and the locate runs first. Every
+///     difference is still listed and counted; what relaxes is the verdict, never the reporting.
 ///     What each check rests on is that arbitrary bytes cannot pass it. A pointer that round trips
 ///     back to the object it came from, a name that hashes to its own hash, two structures built
 ///     for different purposes agreeing block for block: none of those happen by accident at a
@@ -95,9 +100,9 @@ public static class LayoutGuard
 		foreach (var block in blocks)
 		{
 			ulong state = process.ReadUInt64(
-				block.Address + MemoryLayout.NameInsideLegacy + MemoryLayout.DefaultStatePointer, word);
+				block.Address + (ulong) (MemoryLayout.NameInsideLegacy + MemoryLayout.DefaultStatePointer), word);
 			if (state >= 0x10000 && process.IsMapped(state)
-				&& process.ReadUInt64(state + MemoryLayout.BlockLegacyPointer, word) == block.Address)
+				&& process.ReadUInt64(state + (ulong) MemoryLayout.BlockLegacyPointer, word) == block.Address)
 			{
 				agreed++;
 			}
@@ -151,19 +156,36 @@ public static class LayoutGuard
 		}
 
 		// Every block is asked, including the ones with no properties: a wrong offset that invents
-		// a property where the palette has none has to fail too. But an empty table matching an
-		// empty set is not evidence of anything, so the count of blocks that actually carry
-		// properties is reported beside it. That is the part of the number doing real work.
-		int agreed = 0, carrying = 0;
+		// a property where the palette has none has to fail too.
+		int agreed = 0, carrying = 0, read = 0;
+		var failed = new List<string>();
 		foreach (var block in blocks)
 		{
 			if (!fromPalette.TryGetValue(block.Name, out var expected)) continue;
 			if (expected.Count > 0) carrying++;
-			var read = StateProperties.NamesOf(process, block, word);
-			if (read.Count == expected.Count && read.All(expected.Contains)) agreed++;
+			var held = StateProperties.NamesOf(process, block, word);
+			if (held.Count > 0) read++;
+			if (held.Count == expected.Count && held.All(expected.Contains)) agreed++;
+			else failed.Add($"{block.Name} (registry: [{string.Join(",", held)}] palette: [{string.Join(",", expected)}])");
 		}
+
+		// Empty matching empty is not agreement, it is two things that were not read. Both sides
+		// have to carry properties before their agreeing means anything, so a run where either
+		// side comes out empty fails here rather than passing on nothing.
+		if (carrying == 0 || read == 0)
+		{
+			return new Sentinel
+			{
+				Name = "property registry",
+				Guards = "BlockProperties",
+				Held = false,
+				Detail = $"nothing to compare: {carrying:N0} blocks carry properties in the palette and "
+						+ $"{read:N0} carry any in their own table, so agreement would be empty matching empty"
+			};
+		}
+
 		return Verdict("property registry", "BlockProperties",
-			agreed, blocks.Count, $"blocks match the palette, {carrying:N0} of them carrying properties");
+			agreed, blocks.Count, $"blocks match the palette, {carrying:N0} of them carrying properties", failed);
 	}
 
 	/// <summary>
@@ -178,8 +200,8 @@ public static class LayoutGuard
 		int agreed = 0;
 		foreach (var block in blocks)
 		{
-			ulong begin = process.ReadUInt64(block.Address + MemoryLayout.BlockStates, word);
-			ulong end = process.ReadUInt64(block.Address + MemoryLayout.BlockStates + 8, word);
+			ulong begin = process.ReadUInt64(block.Address + (ulong) MemoryLayout.BlockStates, word);
+			ulong end = process.ReadUInt64(block.Address + (ulong) MemoryLayout.BlockStates + 8, word);
 			if (begin < 0x10000 || end <= begin || (end - begin) % 8 != 0 || !process.IsMapped(begin))
 			{
 				failed.Add(block.Name);
@@ -192,7 +214,7 @@ public static class LayoutGuard
 			{
 				ulong state = process.ReadUInt64(at, word);
 				if (state < 0x10000 || !process.IsMapped(state)) continue;
-				if (process.ReadUInt64(state + MemoryLayout.BlockLegacyPointer, word) == block.Address) filled++;
+				if (process.ReadUInt64(state + (ulong) MemoryLayout.BlockLegacyPointer, word) == block.Address) filled++;
 				else wrong = true;
 			}
 			if (filled > 0 && !wrong) agreed++;
@@ -214,7 +236,6 @@ public static class LayoutGuard
 		return Verdict("serialization id", "SerializationId",
 			agreed, blocks.Count, "blocks carry a pre flattening name", failed);
 	}
-
 	/// <summary>
 	///     Light is four bits. Both fields are read as bytes, so a wrong offset lands on something
 	///     that is not four bits wide and runs past fifteen almost at once.
@@ -223,9 +244,10 @@ public static class LayoutGuard
 	{
 		int agreed = palette.Count(e => e.LightEmission is >= 0 and <= MaximumLight
 									&& e.LightDampening is >= 0 and <= MaximumLight);
-		return Verdict("light range", "BlockLightEmission, BlockLightDampening",
+		return Verdict("light range", "StateLightEmission, StateLightDampening",
 			agreed, palette.Count, "states light both within four bits");
 	}
+
 
 	private static Sentinel Verdict(string name, string guards, int agreed, int of, string what,
 		List<string> failed = null)

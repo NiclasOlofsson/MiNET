@@ -49,20 +49,67 @@ public static class BlockMemberReader
 	/// <summary>Every member of one block, in the order the class declares them.</summary>
 	public static List<Value> Read(BedrockProcess process, ulong address, byte[] window, byte[] scratch)
 	{
-		var values = new List<Value>(BlockLayout.Members.Count);
-		int reach = Math.Min(window.Length, BlockLayout.Reach);
-		int read = process.ReadClipped(address, window, reach);
+		int read = process.ReadClipped(address, window, Math.Min(window.Length, BlockLayout.Reach));
+		return Read(process, address, window, scratch, read, false, BlockLayout.Has, BlockLayout.At);
+	}
 
-		foreach (BlockMember member in BlockLayout.Members)
+	/// <summary>Every member of one state, in the order the class declares them.</summary>
+	public static List<Value> ReadState(BedrockProcess process, ulong address, byte[] window, byte[] scratch)
+	{
+		int read = process.ReadClipped(address, window, Math.Min(window.Length, BlockLayout.StateReach));
+		return Read(process, address, window, scratch, read, true, BlockLayout.StateHas, BlockLayout.StateAt);
+	}
+
+	private static List<Value> Read(BedrockProcess process, ulong address, byte[] window, byte[] scratch,
+		int read, bool state, Func<string, bool> has, Func<string, int> at)
+	{
+		IReadOnlyList<BlockMember> members = state ? BlockLayout.StateMembers : BlockLayout.Members;
+		var values = new List<Value>(members.Count);
+		foreach (BlockMember member in members)
 		{
-			int at = BlockLayout.At(member.Name);
-			string json = at + member.Bytes > read
+			// A member nothing placed on this build sits nowhere, and says so with a position of
+			// -1 and no value. Reading it from where it sat on another build is the one mistake
+			// the output cannot show.
+			if (!has(member.Name))
+			{
+				values.Add(new Value(member.Name, -1, member.Bytes, member.Kind, null));
+				continue;
+			}
+
+			int position = at(member.Name);
+			string json = position + member.Bytes > read
 				? null
-				: Text(process, address, window, scratch, at, member);
-			values.Add(new Value(member.Name, at, member.Bytes, member.Kind, json));
+				: Held(process, address, window, scratch, position, member, state);
+			values.Add(new Value(member.Name, position, member.Bytes, member.Kind, json));
 		}
 
 		return values;
+	}
+
+	/// <summary>
+	///     What a member holds. A member that is another object is read as that object, from its own
+	///     class, and comes out as one: its members are inside it, not spelled into its parent's
+	///     names. Nothing inside is placed by searching, because nothing inside can move on its own.
+	/// </summary>
+	private static string Held(BedrockProcess process, ulong address, byte[] window, byte[] scratch,
+		int at, BlockMember member, bool state)
+	{
+		if (member.Kind != MemberKind.Container || member.Holds is null)
+		{
+			return Text(process, address, window, scratch, at, member);
+		}
+
+		ClassLayout held = BlockMembers.Held(member.Holds, state);
+		var text = new System.Text.StringBuilder("{ ");
+		for (int m = 0; m < held.Members.Count; m++)
+		{
+			BlockMember inner = held.Members[m];
+			text.Append(m == 0 ? "" : ", ");
+			text.Append($"\"{inner.Name}\": ");
+			text.Append(Held(process, address, window, scratch, at + inner.At, inner, state) ?? "null");
+		}
+
+		return text.Append(" }").ToString();
 	}
 
 	/// <summary>What one position holds, written the way that kind of value is written.</summary>

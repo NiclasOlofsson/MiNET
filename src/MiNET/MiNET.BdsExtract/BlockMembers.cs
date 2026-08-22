@@ -47,8 +47,15 @@ public enum MemberKind
 	Container
 }
 
-/// <summary>One member of the block class: where it starts, how wide it is, and what it is called.</summary>
-public readonly record struct BlockMember(int At, int Bytes, MemberKind Kind, string Name);
+/// <summary>
+///     One member of a class: where it starts inside that class, how wide it is, and what it is
+///     called. A member holding another object names the class it holds, and its own position is
+///     the only thing that can move: what is inside it is that class's business.
+/// </summary>
+public readonly record struct BlockMember(int At, int Bytes, MemberKind Kind, string Name, string Holds = null);
+
+/// <summary>One class: how big it is and what it holds, in the order it declares them.</summary>
+public sealed record ClassLayout(string Name, int Size, IReadOnlyList<BlockMember> Members);
 
 /// <summary>
 ///     Every member of the block class, read out of the reference in Assets rather than written
@@ -68,27 +75,32 @@ public readonly record struct BlockMember(int At, int Bytes, MemberKind Kind, st
 /// </summary>
 public static class BlockMembers
 {
-	private static BlockMember[] _all;
-	private static int _classSize;
+	/// <summary>Every class the block file states, by name, and which of them a block is.</summary>
+	private static Dictionary<string, ClassLayout> _blockClasses;
+	private static string _blockRoot;
 	private static Version _build;
 
-	/// <summary>Every member, in the order the class declares them.</summary>
-	public static BlockMember[] All
+	/// <summary>Every class the state file states, by name, and which of them a state is.</summary>
+	private static Dictionary<string, ClassLayout> _stateClasses;
+	private static string _stateRoot;
+
+	/// <summary>The class a block is.</summary>
+	public static ClassLayout Block
 	{
 		get
 		{
-			Load();
-			return _all;
+			LoadBlocks();
+			return Class(_blockClasses, _blockRoot);
 		}
 	}
 
-	/// <summary>The class, before whatever a derived block class adds after it.</summary>
-	public static int ClassSize
+	/// <summary>The class a state is.</summary>
+	public static ClassLayout State
 	{
 		get
 		{
-			Load();
-			return _classSize;
+			LoadStates();
+			return Class(_stateClasses, _stateRoot);
 		}
 	}
 
@@ -97,46 +109,88 @@ public static class BlockMembers
 	{
 		get
 		{
-			Load();
+			LoadBlocks();
 			return _build;
 		}
 	}
 
-	private static void Load()
+	/// <summary>The class a member holds, from the same file that member came from.</summary>
+	public static ClassLayout Held(string name, bool state)
 	{
-		if (_all is not null) return;
-		_all = [];
+		if (state) LoadStates();
+		else LoadBlocks();
+		return Class(state ? _stateClasses : _blockClasses, name);
+	}
 
-		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference", "blocks.json");
+	private static ClassLayout Class(Dictionary<string, ClassLayout> classes, string name)
+	{
+		if (name is null) return null;
+		return classes.TryGetValue(name, out ClassLayout held)
+			? held
+			: throw new InvalidOperationException($"the reference names a class {name} and then does not state it");
+	}
+
+	private static void LoadStates()
+	{
+		if (_stateClasses is not null) return;
+		(_stateClasses, _stateRoot, _) = LoadClasses("block_states.json");
+	}
+
+	private static void LoadBlocks()
+	{
+		if (_blockClasses is not null) return;
+		(_blockClasses, _blockRoot, _build) = LoadClasses("blocks.json");
+	}
+
+	/// <summary>
+	///     The class table a reference states: every class it knows with its size and its members,
+	///     and which of them the file's objects are.
+	/// </summary>
+	private static (Dictionary<string, ClassLayout>, string, Version) LoadClasses(string file)
+	{
+		var classes = new Dictionary<string, ClassLayout>(StringComparer.Ordinal);
+		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference", file);
 		if (!File.Exists(path))
 		{
-			Console.Error.WriteLine($"no reference at {path}; the block class has no member list, so nothing can be read from it");
-			return;
+			Console.Error.WriteLine($"no reference at {path}; there is no class to read anything as");
+			return (classes, null, null);
 		}
 
 		using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
 		JsonElement root = document.RootElement;
 
-		if (root.TryGetProperty("blockClassSize", out JsonElement size)) _classSize = size.GetInt32();
-		if (root.TryGetProperty("layoutPublishedFor", out JsonElement build)
-			&& Version.TryParse(build.GetString() ?? "", out Version parsed))
+		Version build = null;
+		if (root.TryGetProperty("layoutPublishedFor", out JsonElement stated)
+			&& Version.TryParse(stated.GetString() ?? "", out Version parsed))
 		{
-			_build = parsed;
+			build = parsed;
 		}
 
-		if (!root.TryGetProperty("members", out JsonElement members)) return;
+		string name = root.TryGetProperty("class", out JsonElement which) ? which.GetString() : null;
+		if (!root.TryGetProperty("classes", out JsonElement stateClasses)) return (classes, name, build);
 
-		var all = new List<BlockMember>();
-		foreach (JsonElement member in members.EnumerateArray())
+		foreach (JsonProperty held in stateClasses.EnumerateObject())
 		{
-			if (!member.TryGetProperty("name", out JsonElement name)) continue;
-			if (!member.TryGetProperty("at", out JsonElement at)) continue;
-			if (!member.TryGetProperty("bytes", out JsonElement bytes)) continue;
-			if (!member.TryGetProperty("kind", out JsonElement kind)) continue;
-			if (!Enum.TryParse(kind.GetString(), out MemberKind parsedKind)) continue;
-			all.Add(new BlockMember(at.GetInt32(), bytes.GetInt32(), parsedKind, name.GetString()));
+			int size = held.Value.TryGetProperty("size", out JsonElement bytes) ? bytes.GetInt32() : 0;
+			var members = new List<BlockMember>();
+			if (held.Value.TryGetProperty("members", out JsonElement stated2))
+			{
+				foreach (JsonElement member in stated2.EnumerateArray())
+				{
+					if (!member.TryGetProperty("name", out JsonElement memberName)) continue;
+					if (!member.TryGetProperty("at", out JsonElement at)) continue;
+					if (!member.TryGetProperty("bytes", out JsonElement memberBytes)) continue;
+					if (!member.TryGetProperty("kind", out JsonElement kind)) continue;
+					if (!Enum.TryParse(kind.GetString(), out MemberKind parsedKind)) continue;
+					string holds = member.TryGetProperty("holds", out JsonElement inner) ? inner.GetString() : null;
+					members.Add(new BlockMember(at.GetInt32(), memberBytes.GetInt32(), parsedKind,
+						memberName.GetString(), holds));
+				}
+			}
+
+			classes[held.Name] = new ClassLayout(held.Name, size, members);
 		}
 
-		_all = all.ToArray();
+		return (classes, name, build);
 	}
 }

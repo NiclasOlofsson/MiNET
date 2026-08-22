@@ -902,20 +902,34 @@ public static class ItemRegistry
 
 	public static int ClassSize(BedrockProcess process, ulong vtable)
 	{
-		if (!IsModule(vtable)) return 0;
 		if (SizeByClass.TryGetValue(vtable, out int cached)) return cached;
+		List<int> sizes = ClassSizeCandidates(process, vtable);
+		int size = sizes.Count == 0 ? 0 : sizes[0];
+		SizeByClass[vtable] = size;
+		return size;
+	}
+
+	/// <summary>
+	///     Every size the deleting destructor passes to a call, in the order it passes them. A
+	///     destructor that destroys members first hands their sizes to their own deletes before its
+	///     own, so a class whose first one is not its own is visible here rather than answered wrong.
+	/// </summary>
+	public static List<int> ClassSizeCandidates(BedrockProcess process, ulong vtable)
+	{
+		var sizes = new List<int>();
+		if (!IsModule(vtable)) return sizes;
 		var scratch = new byte[8];
 		ulong destructor = process.ReadUInt64(vtable, scratch);
-		if (!IsModule(destructor)) return 0;
+		if (!IsModule(destructor)) return sizes;
 
 		var code = new byte[1024];
-		if (!process.TryRead(destructor, code, code.Length)) return 0;
+		if (!process.TryRead(destructor, code, code.Length)) return sizes;
 
 		// A slot that only jumps is a thunk, so the destructor is wherever it jumps to.
 		if (code[0] == 0xE9)
 		{
 			ulong target = (ulong) ((long) destructor + 5 + BitConverter.ToInt32(code, 1));
-			if (!IsModule(target) || !process.TryRead(target, code, code.Length)) return 0;
+			if (!IsModule(target) || !process.TryRead(target, code, code.Length)) return sizes;
 		}
 
 		for (int i = 0; i + 5 <= code.Length; i++)
@@ -926,12 +940,12 @@ public static class ItemRegistry
 			for (int j = i + 5; j < Math.Min(i + 21, code.Length); j++)
 			{
 				if (code[j] != 0xE8) continue;
-				SizeByClass[vtable] = value;
-				return value;
+				sizes.Add(value);
+				break;
 			}
 		}
-		SizeByClass[vtable] = 0;
-		return 0;
+
+		return sizes;
 	}
 
 	/// <summary>

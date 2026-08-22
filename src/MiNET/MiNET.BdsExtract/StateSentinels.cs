@@ -58,6 +58,25 @@ public static class StateSentinels
 		return text.ToString();
 	}
 
+	/// <summary>The same key, built from a state the reference states rather than one in memory.</summary>
+	public static string KeyOf(JsonElement state)
+	{
+		if (!state.TryGetProperty("name", out JsonElement name)) return null;
+		if (name.ValueKind != JsonValueKind.String) return null;
+
+		var text = new StringBuilder(name.GetString());
+		if (state.TryGetProperty("states", out JsonElement properties))
+		{
+			foreach (string property in properties.EnumerateObject()
+				.Select(p => $"{p.Name}={p.Value.GetRawText()}").OrderBy(p => p, StringComparer.Ordinal))
+			{
+				text.Append('|').Append(property);
+			}
+		}
+
+		return text.ToString();
+	}
+
 	private static Dictionary<string, (int, int)> Load()
 	{
 		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference", "block_states.json");
@@ -73,23 +92,16 @@ public static class StateSentinels
 
 		foreach (JsonElement state in states.EnumerateArray())
 		{
-			if (!state.TryGetProperty("name", out JsonElement name)) continue;
-			if (!state.TryGetProperty("lightEmission", out JsonElement emission)) continue;
-			if (!state.TryGetProperty("lightDampening", out JsonElement dampening)) continue;
-
-			var text = new StringBuilder(name.GetString() ?? "");
-			if (state.TryGetProperty("states", out JsonElement properties))
-			{
-				foreach (string property in properties.EnumerateObject()
-					.Select(p => $"{p.Name}={p.Value.GetRawText()}").OrderBy(p => p, StringComparer.Ordinal))
-				{
-					text.Append('|').Append(property);
-				}
-			}
+			// Both sit inside the state's direct data, which is where the class puts them.
+			if (!state.TryGetProperty("directData", out JsonElement direct)) continue;
+			if (direct.ValueKind != JsonValueKind.Object) continue;
+			if (!direct.TryGetProperty("lightEmission", out JsonElement emission)) continue;
+			if (!direct.TryGetProperty("light", out JsonElement dampening)) continue;
 
 			// A state that appears twice is one the key does not separate, so neither copy is used:
 			// a value that could belong to either proves nothing about where it was read from.
-			string key = text.ToString();
+			string key = KeyOf(state);
+			if (key is null) continue;
 			if (!known.TryAdd(key, (emission.GetInt32(), dampening.GetInt32()))) known.Remove(key);
 		}
 

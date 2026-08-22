@@ -165,6 +165,7 @@ public static class Program
 		var blocks = BlockRegistry.Read(server);
 		Console.WriteLine($"blocks found: {blocks.Count:N0}");
 
+
 		// Where a block keeps its own states, measured from the blocks just found: every state in
 		// that table names the block it belongs to, so the position where they all do is the table.
 		(int nbtAt, int nbtAgreed) = RegistryDiscovery.DeriveStateNbt(server, blocks);
@@ -235,15 +236,8 @@ public static class Program
 		// against that build rather than assumed to sit where it did.
 		if (!BlockLayout.IsReferenceBuild(server.BuildVersion))
 		{
-			List<BlockMemberDerivation.Found> located = BlockMemberDerivation.Measure(server, blocks, LargestBlock(server, blocks));
-			int settled = located.Count(f => f.Settled);
-			Console.WriteLine($"block members: {settled} of {located.Count} located against {BlockMembers.Build}");
-			foreach (BlockMemberDerivation.Found f in located)
-			{
-				Console.WriteLine(f.Settled
-					? $"  {f.Name,-42} at +{f.At}, on {f.Held:N0} of {f.Of:N0}"
-					: $"  {f.Name,-42} NOT LOCATED, best {f.Held:N0} of {f.Of:N0}, keeping +{f.At}");
-			}
+			Report("block members",
+				BlockMemberDerivation.MeasureBlocks(server, blocks, LargestBlock(server, blocks)));
 		}
 
 
@@ -294,6 +288,21 @@ public static class Program
 
 		var palette = BlockPalette.Read(server, header);
 		Console.WriteLine($"palette read from 0x{header.Begin:X}");
+
+		// The state class gets the same treatment as the block class, and for the same reason: its
+		// members are only stated for the one build the declaration is published for.
+		if (!BlockLayout.IsReferenceBuild(server.BuildVersion))
+		{
+			int stateSize = StateClassSize(server, palette);
+			if (stateSize == 0)
+			{
+				Console.Error.WriteLine("the state class does not record its own size, so no state member can be measured");
+				return 1;
+			}
+
+			Console.WriteLine($"  the state class records itself as {stateSize} bytes");
+			Report("state members", BlockMemberDerivation.MeasureStates(server, palette, stateSize));
+		}
 
 		// The palette decides what a block is. The memory sweep also turns up features, biomes and
 		// other named things that are not blocks, and there is no need to guess which: anything the
@@ -374,7 +383,7 @@ public static class Program
 			ranges.ToDictionary(r => r.Name, StringComparer.Ordinal),
 			stateProperties.ToDictionary(p => p.Name, p => p.Id, StringComparer.Ordinal),
 			legacyStates.ToDictionary(t => t.Name, StringComparer.Ordinal), held), new UTF8Encoding(false));
-		File.WriteAllText(statePath, BlockDocument.WriteStates(palette, report), new UTF8Encoding(false));
+		File.WriteAllText(statePath, BlockDocument.WriteStates(server, palette, report), new UTF8Encoding(false));
 		File.WriteAllText(upgradePath, WriteUpgrades(versionHeader, rules, renamedIds), new UTF8Encoding(false));
 		Console.WriteLine($"written {blockPath}");
 		Console.WriteLine($"written {statePath}");
@@ -391,6 +400,49 @@ public static class Program
 	///     How far the member search looks, which is as far as the largest block object goes. The
 	///     classes state their own sizes, so this is measured rather than chosen.
 	/// </summary>
+	/// <summary>What one class's search found, member by member, settled or not.</summary>
+	private static void Report(string what, IReadOnlyList<BlockMemberDerivation.Found> located)
+	{
+		Console.WriteLine($"{what}: {located.Count(f => f.Settled)} of {located.Count} located against {BlockMembers.Build}");
+		foreach (BlockMemberDerivation.Found f in located)
+		{
+			Console.WriteLine(f.Settled
+				? $"  {f.Name,-52} at +{f.At}, on {f.Held:N0} of {f.Of:N0}"
+				: $"  {f.Name,-52} NOT LOCATED, best {f.Held:N0} of {f.Of:N0}, placed nowhere");
+		}
+	}
+
+	/// <summary>
+	///     How big a state is, from the class itself: the size is baked into the deleting destructor
+	///     the method table points at. Every state in the palette is the same class, so a palette
+	///     holding two method tables is a reason to stop rather than to pick one.
+	///     <para>
+	///         A destructor destroys its members before itself, so it hands out their sizes first:
+	///         this one offers 112, 296, 64, 56 and only the second is the class. Which one it is
+	///         comes from what this run has already measured inside a state, not from its place in
+	///         that list. A class cannot be smaller than a field read out of it, so the answer is the
+	///         smallest size that still covers the furthest one.
+	///     </para>
+	/// </summary>
+	private static int StateClassSize(BedrockProcess process, IReadOnlyList<PaletteEntry> palette)
+	{
+		var word = new byte[8];
+		var tables = new HashSet<ulong>();
+		foreach (PaletteEntry entry in palette) tables.Add(process.ReadUInt64(entry.Address, word));
+		if (tables.Count != 1)
+		{
+			Console.Error.WriteLine($"the palette holds {tables.Count} method tables, so the states are not one class");
+			return 0;
+		}
+
+		int measured = Math.Max(MemoryLayout.StateLightEmission + 1, MemoryLayout.StateLightDampening + 1);
+		List<int> sizes = ItemRegistry.ClassSizeCandidates(process, tables.First());
+		int size = sizes.Where(s => s >= measured).DefaultIfEmpty(0).Min();
+		Console.WriteLine($"  the state destructor hands out {string.Join(", ", sizes)}; "
+						+ $"a state is read as far as +{measured}, so the class is {size}");
+		return size;
+	}
+
 	private static int LargestBlock(BedrockProcess process, IReadOnlyList<BlockProperties> blocks)
 	{
 		var word = new byte[8];
@@ -405,7 +457,7 @@ public static class Program
 	private static string WriteLayout(BedrockProcess process, IReadOnlyList<BlockProperties> blocks)
 	{
 		var placed = BlockLayout.Members
-			.Where(m => m.Name != "nameInfo")
+			.Where(m => m.Name != "nameInfo" && BlockLayout.Has(m.Name))
 			.Select(m => (At: BlockLayout.At(m.Name), m.Bytes, m.Kind, m.Name))
 			.OrderBy(m => m.At).ThenBy(m => m.Bytes).ToList();
 
@@ -414,7 +466,7 @@ public static class Program
 		text.Append("\t\"object\": \"BlockType\",\n");
 		text.Append($"\t\"build\": \"{(process.BuildVersion is null ? "unknown" : process.BuildVersion.ToString())}\",\n");
 		text.Append($"\t\"layoutPublishedFor\": \"{BlockMembers.Build}\",\n");
-		text.Append($"\t\"classSize\": {BlockMembers.ClassSize},\n");
+		text.Append($"\t\"classSize\": {BlockMembers.Block.Size},\n");
 		text.Append($"\t\"objectSize\": {{ \"smallest\": {(sizes.Count > 0 ? sizes[0] : 0)}, "
 				+ $"\"median\": {(sizes.Count > 0 ? sizes[sizes.Count / 2] : 0)}, "
 				+ $"\"largest\": {(sizes.Count > 0 ? sizes[^1] : 0)}, "
@@ -434,18 +486,18 @@ public static class Program
 			end = Math.Max(end, m.At + m.Bytes);
 		}
 
-		if (BlockMembers.ClassSize > end)
+		if (BlockMembers.Block.Size > end)
 		{
-			rows.Add($"\t\t{{ \"at\": {end}, \"bytes\": {BlockMembers.ClassSize - end}, \"kind\": \"padding\", \"name\": null, \"from\": null }}");
+			rows.Add($"\t\t{{ \"at\": {end}, \"bytes\": {BlockMembers.Block.Size - end}, \"kind\": \"padding\", \"name\": null, \"from\": null }}");
 		}
 
 		// Past the class is whatever the derived block class adds. Nothing here states its layout,
 		// so it is one row saying how far it runs rather than an absence.
-		if (sizes.Count > 0 && sizes[^1] > BlockMembers.ClassSize)
+		if (sizes.Count > 0 && sizes[^1] > BlockMembers.Block.Size)
 		{
-			int median = Math.Max(0, sizes[sizes.Count / 2] - BlockMembers.ClassSize);
-			rows.Add($"\t\t{{ \"at\": {BlockMembers.ClassSize}, \"bytes\": null, \"kind\": \"derived class tail\", "
-					+ $"\"name\": null, \"from\": null, \"medianBytes\": {median}, \"largestBytes\": {sizes[^1] - BlockMembers.ClassSize} }}");
+			int median = Math.Max(0, sizes[sizes.Count / 2] - BlockMembers.Block.Size);
+			rows.Add($"\t\t{{ \"at\": {BlockMembers.Block.Size}, \"bytes\": null, \"kind\": \"derived class tail\", "
+					+ $"\"name\": null, \"from\": null, \"medianBytes\": {median}, \"largestBytes\": {sizes[^1] - BlockMembers.Block.Size} }}");
 		}
 
 		text.Append(string.Join(",\n", rows)).Append('\n');

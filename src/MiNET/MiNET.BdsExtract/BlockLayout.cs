@@ -62,8 +62,12 @@ public static class BlockLayout
 
 	private static readonly Dictionary<string, Source> Found = new(StringComparer.Ordinal);
 
-	/// <summary>Every member, in the order the class declares them.</summary>
-	public static IReadOnlyList<BlockMember> Members => BlockMembers.All;
+	/// <summary>
+	///     Every member of the block class, in the order it declares them. Only these are ever
+	///     placed: a member inside one of them sits where its own class says, and moves only when
+	///     the thing holding it does.
+	/// </summary>
+	public static IReadOnlyList<BlockMember> Members => BlockMembers.Block.Members;
 
 	/// <summary>How far into the object anything is read, which is as far as the furthest member.</summary>
 	public static int Reach => Placed.Count == 0
@@ -100,12 +104,34 @@ public static class BlockLayout
 	public static void PublishedFor(Version build)
 	{
 		if (!IsReferenceBuild(build)) return;
-		foreach (BlockMember member in BlockMembers.All)
+		foreach (BlockMember member in BlockMembers.Block.Members)
 		{
 			Placed[member.Name] = member.At;
 			Found[member.Name] = Source.Published;
 		}
+
+		foreach (BlockMember member in BlockMembers.State.Members) StatePlaced[member.Name] = member.At;
 	}
+
+	/// <summary>Where each member of the state class sits, on the same terms as the block's.</summary>
+	private static readonly Dictionary<string, int> StatePlaced = new(StringComparer.Ordinal);
+
+	/// <summary>Every member of the state class, in the order it declares them.</summary>
+	public static IReadOnlyList<BlockMember> StateMembers => BlockMembers.State.Members;
+
+	/// <summary>Where a state member sits on this server, or a refusal.</summary>
+	public static int StateAt(string name) => StatePlaced.TryGetValue(name, out int at)
+		? at
+		: throw new InvalidOperationException($"the state class member {name} was never placed on this server");
+
+	public static bool StateHas(string name) => StatePlaced.ContainsKey(name);
+
+	public static void StateMeasured(string name, int at) => StatePlaced[name] = at;
+
+	/// <summary>How far into a state anything is read.</summary>
+	public static int StateReach => StatePlaced.Count == 0
+		? throw new InvalidOperationException("no member of the state class has been placed on this server")
+		: StatePlaced.Values.Max() + 64;
 
 	/// <summary>Whether this build is the one the layout is published for.</summary>
 	public static bool IsReferenceBuild(Version build) => build is not null && build == BlockMembers.Build;

@@ -29,6 +29,10 @@ namespace MiNET.BdsExtract;
 public sealed class PaletteEntry
 {
 	public int Index { get; init; }
+
+	/// <summary>Where the state object is, so its own members can be read from it.</summary>
+	public ulong Address { get; init; }
+
 	public string Name { get; init; }
 	public ulong NameHash { get; init; }
 	public uint NetworkId { get; init; }
@@ -349,6 +353,7 @@ public static class BlockPalette
 			entries.Add(new PaletteEntry
 			{
 				Index = i,
+				Address = address,
 				Name = name ?? "",
 				NameHash = hash,
 				NetworkId = network,

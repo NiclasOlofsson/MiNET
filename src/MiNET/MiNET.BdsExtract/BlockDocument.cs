@@ -68,17 +68,8 @@ public static class BlockDocument
 		var scratch = new byte[256];
 		var text = new StringBuilder("{\n");
 		text.Append(versionHeader);
-		text.Append($"\t\"blockClassSize\": {BlockMembers.ClassSize},\n");
 		text.Append($"\t\"layoutPublishedFor\": \"{BlockMembers.Build}\",\n");
-		text.Append("\t\"members\": [\n");
-		for (int m = 0; m < BlockLayout.Members.Count; m++)
-		{
-			BlockMember member = BlockLayout.Members[m];
-			text.Append($"\t\t{{ \"name\": \"{member.Name}\", \"at\": {BlockLayout.At(member.Name)}, "
-					+ $"\"bytes\": {member.Bytes}, \"kind\": \"{member.Kind}\" }}");
-			text.Append(m == BlockLayout.Members.Count - 1 ? "\n" : ",\n");
-		}
-		text.Append("\t],\n");
+		text.Append(Classes(BlockMembers.Block, false, BlockLayout.Has, BlockLayout.At));
 		text.Append($"\t\"count\": {blocks.Count},\n");
 		text.Append("\t\"blocks\": [\n");
 		for (int i = 0; i < blocks.Count; i++)
@@ -104,7 +95,6 @@ public static class BlockDocument
 			// so what nothing reads is counted rather than absent.
 			foreach (BlockMemberReader.Value value in BlockMemberReader.Read(process, block.Address, window, scratch))
 			{
-				if (value.Name == "fullName") continue;
 				if (value.Name == "tags")
 				{
 					// The tags member is the vector this tool reads, so its own row carries them
@@ -196,15 +186,21 @@ public static class BlockDocument
 	}
 
 	/// <summary>One row per state, in the server's own order, which is the runtime id order.</summary>
-	public static string WriteStates(IReadOnlyList<PaletteEntry> palette, ExtractionReport report)
+	public static string WriteStates(BedrockProcess process, IReadOnlyList<PaletteEntry> palette, ExtractionReport report)
 	{
 		// Say the id scheme in the file. Without it a reader cannot tell whether networkId is a
 		// hash or a repeat of the index, and both look equally reasonable.
+		var stateWindow = new byte[BlockLayout.StateReach];
+		var scratch = new byte[256];
 		var text = new StringBuilder("{\n");
 		text.Append($"\t\"networkIdsAreHashes\": {Boolean(report.NetworkIdsAreHashes)},\n");
 
 		text.Append(VersionHeader(palette));
 
+		// The states file states its own class table, the same way the block file does, so its own
+		// output can be the next reference without a layout living anywhere else.
+		text.Append($"\t\"layoutPublishedFor\": \"{BlockMembers.Build}\",\n");
+		text.Append(Classes(BlockMembers.State, true, BlockLayout.StateHas, BlockLayout.StateAt));
 		text.Append($"\t\"count\": {palette.Count},\n");
 		text.Append("\t\"states\": [\n");
 		for (int i = 0; i < palette.Count; i++)
@@ -213,10 +209,17 @@ public static class BlockDocument
 			text.Append("\t\t{ ");
 			text.Append($"\"index\": {entry.Index}, ");
 			text.Append($"\"name\": \"{Escape(entry.Name)}\", ");
-			text.Append($"\"networkId\": {entry.NetworkId}, ");
-			text.Append($"\"lightEmission\": {entry.LightEmission}, ");
-			text.Append($"\"lightDampening\": {entry.LightDampening}, ");
 			text.Append($"\"version\": {entry.Version}, ");
+
+			// Every member of the state class, under the class's own name, read from where this
+			// build keeps it. networkId is one of them, so it is not written twice, and neither is
+			// the light: the palette's own reading of it locates the field and the class member is
+			// what the file states.
+			foreach (BlockMemberReader.Value value in
+				BlockMemberReader.ReadState(process, entry.Address, stateWindow, scratch))
+			{
+				text.Append($"\"{value.Name}\": {value.Json ?? "null"}, ");
+			}
 			text.Append("\"states\": {");
 			for (int s = 0; s < entry.States.Count; s++)
 			{
@@ -229,6 +232,50 @@ public static class BlockDocument
 			text.Append(i == palette.Count - 1 ? "\n" : ",\n");
 		}
 		return text.Append("\t]\n}\n").ToString();
+	}
+
+	/// <summary>
+	///     Which class the file's objects are, and every class reachable from it: each one's size
+	///     and its members, at the offsets that class declares. The root's members carry where this
+	///     server keeps them, because those are the only ones that can move; everything reachable
+	///     from them states its own offsets, which is the whole reason a class is written down once
+	///     rather than spelled into whatever holds it.
+	/// </summary>
+	private static string Classes(ClassLayout root, bool state, Func<string, bool> has, Func<string, int> at)
+	{
+		var written = new List<ClassLayout>();
+		Reach(root, state, written);
+
+		var text = new StringBuilder($"\t\"class\": \"{root.Name}\",\n\t\"classes\": {{\n");
+		for (int c = 0; c < written.Count; c++)
+		{
+			ClassLayout held = written[c];
+			text.Append($"\t\t\"{held.Name}\": {{ \"size\": {held.Size}, \"members\": [\n");
+			for (int m = 0; m < held.Members.Count; m++)
+			{
+				BlockMember member = held.Members[m];
+				int position = held == root ? has(member.Name) ? at(member.Name) : -1 : member.At;
+				text.Append($"\t\t\t{{ \"name\": \"{member.Name}\", \"at\": {position}, "
+						+ $"\"bytes\": {member.Bytes}, \"kind\": \"{member.Kind}\"");
+				if (member.Holds is not null) text.Append($", \"holds\": \"{member.Holds}\"");
+				text.Append(m == held.Members.Count - 1 ? " }\n" : " },\n");
+			}
+
+			text.Append(c == written.Count - 1 ? "\t\t] }\n" : "\t\t] },\n");
+		}
+
+		return text.Append("\t},\n").ToString();
+	}
+
+	/// <summary>Every class the root holds, and every class those hold, each written once.</summary>
+	private static void Reach(ClassLayout held, bool state, List<ClassLayout> written)
+	{
+		if (held is null || written.Contains(held)) return;
+		written.Add(held);
+		foreach (BlockMember member in held.Members)
+		{
+			if (member.Holds is not null) Reach(BlockMembers.Held(member.Holds, state), state, written);
+		}
 	}
 
 	/// <summary>The value of one component the block carries, or null when it has none.</summary>

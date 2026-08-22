@@ -49,7 +49,11 @@ public static class Sentinels
 	///     everywhere else, terracotta hardness 1.25 and barrier's blast resistance 3600000.75 being
 	///     the most precise values those fields take.
 	/// </summary>
-	private static int Decimals(string field) => field == "friction" ? 3 : 2;
+	/// <remarks>
+	///     A member inside a container carries the path it sits under, so the field is the last name
+	///     in it: directData.friction is friction wherever it is declared.
+	/// </remarks>
+	private static int Decimals(string field) => field[(field.LastIndexOf('.') + 1)..] == "friction" ? 3 : 2;
 
 	/// <summary>A float as the value the game states, rounded to that field's decimals.</summary>
 	public static string Number(string field, float value)

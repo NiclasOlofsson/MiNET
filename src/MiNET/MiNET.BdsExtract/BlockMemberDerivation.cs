@@ -171,7 +171,7 @@ public static class BlockMemberDerivation
 	/// <summary>Every block the reference knows, by name, with each member's value as it writes it.</summary>
 	private static Dictionary<string, Dictionary<string, string>> Load()
 	{
-		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference-blocks.json");
+		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference", "blocks.json");
 		var known = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
 		if (!File.Exists(path))
 		{

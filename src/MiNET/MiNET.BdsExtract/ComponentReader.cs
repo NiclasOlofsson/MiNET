@@ -148,13 +148,14 @@ public static class ComponentReader
 	internal static List<(int Id, ulong At)> Instances(BedrockProcess process, ulong legacy, byte[] word)
 	{
 		var held = new List<(int, ulong)>();
-		ulong begin = process.ReadUInt64(legacy + (ulong) MemoryLayout.BlockComponents, word);
-		ulong end = process.ReadUInt64(legacy + (ulong) (MemoryLayout.BlockComponents + 8), word);
+		if (!BlockLayout.Has("components")) return held;
+		ulong begin = process.ReadUInt64(legacy + (ulong) BlockLayout.At("components"), word);
+		ulong end = process.ReadUInt64(legacy + (ulong) (BlockLayout.At("components") + 8), word);
 		if (begin < 0x10000 || end <= begin || (end - begin) % 8 != 0) return held;
 		if (end - begin > VectorReach || !process.IsMapped(begin)) return held;
 
-		ulong idBegin = process.ReadUInt64(legacy + (ulong) MemoryLayout.BlockComponentIds, word);
-		ulong idEnd = process.ReadUInt64(legacy + (ulong) (MemoryLayout.BlockComponentIds + 8), word);
+		ulong idBegin = process.ReadUInt64(legacy + (ulong) (BlockLayout.At("components") + 24), word);
+		ulong idEnd = process.ReadUInt64(legacy + (ulong) (BlockLayout.At("components") + 32), word);
 		int count = (int) ((end - begin) / 8);
 		if (idBegin < 0x10000 || idEnd - idBegin != (ulong) (count * 2)) return held;
 		if (!process.IsMapped(idBegin)) return held;
@@ -241,83 +242,12 @@ public static class ComponentReader
 			return "minecraft:random_offset";
 		}
 
-		// One float that is this block's hardness, on every block in the group. Hardness takes
-		// dozens of values across the registry, so agreeing everywhere is not a coincidence.
-		var hardness = blocks.ToDictionary(b => b.Name, b => b.Hardness, StringComparer.Ordinal);
-		if (weighty && sample.All(i => Floats(process, i.At + FirstField, 1, word) is { } one
-							&& hardness.TryGetValue(i.Block, out float h)
-							&& Math.Abs(one[0] - h) < 1e-4f))
-		{
-			return "minecraft:destructible_by_mining";
-		}
+		// Four more components were named here by matching their contents against the block's
+		// hardness, its liquid pair, its flame odds and its blast resistance. Those four values live
+		// on the state object, which has no measured layout on this build, so the comparison has no
+		// left hand side and the names it produced are not produced any more:
+		// destructible_by_mining, liquid_detection, flammable, destructible_by_explosion.
 
-		// Liquid detection, which is where both liquid answers actually come from: a flag at +8 and
-		// the reaction at +10. Every block that can hold a liquid source carries this component,
-		// and every block without it reads the default reaction, so the state object's two fields
-		// are a copy of what this says.
-		// Named from the fifty data driven blocks the server ships, whose JSON declares their
-		// components outright, then checked here against both fields on all 771 carriers.
-		var liquid = blocks.ToDictionary(b => b.Name,
-			b => (b.CanContainLiquidSource, b.LiquidReactionOnTouch), StringComparer.Ordinal);
-		if (weighty && sample.All(i => Bytes(process, i.At + FirstField, 3, word) is { } raw
-							&& raw[0] <= 1 && raw[2] < MemoryLayout.LiquidReactions.Length
-							&& liquid.TryGetValue(i.Block, out var want)
-							&& (raw[0] != 0) == want.CanContainLiquidSource
-							&& MemoryLayout.LiquidReactions[raw[2]] == want.LiquidReactionOnTouch))
-		{
-			return "minecraft:liquid_detection";
-		}
-
-		// Catching fire: two sixteen bit odds at +10 and +12, matching the pair already read off
-		// the state object. 411 blocks carry it and all 411 agree, including the 122 that carry it
-		// with both odds at zero, which is a block saying outright that it does not burn.
-		var flame = blocks.ToDictionary(b => b.Name, b => (b.FlameOdds, b.BurnOdds), StringComparer.Ordinal);
-		if (weighty && sample.All(i => Shorts(process, i.At + FlammableOdds, 2, word) is { } odds
-							&& flame.TryGetValue(i.Block, out var want)
-							&& odds[0] == want.FlameOdds && odds[1] == want.BurnOdds))
-		{
-			return "minecraft:flammable";
-		}
-
-		// Blast resistance, stated five times over. Only instances on blocks with a non zero
-		// resistance are asked, because at zero the test proves nothing; but the id already says
-		// these are all one component, so agreeing on the ones that CAN be checked names the
-		// whole group, zero-resistance blocks included. That is what the id buys over guessing
-		// per instance, which had to abandon 267 blocks.
-		var resistance = blocks.ToDictionary(b => b.Name, b => b.ExplosionResistance, StringComparer.Ordinal);
-		var checkable = sample
-			.Where(i => resistance.TryGetValue(i.Block, out float r) && r > 0f)
-			.ToList();
-		if (weighty && checkable.Count > 0
-			&& checkable.All(i => Floats(process, i.At + FirstField, 1, word) is { } one
-								&& Math.Abs(one[0] - (resistance[i.Block] * ResistanceScale)) < 1e-3f))
-		{
-			return "minecraft:destructible_by_explosion";
-		}
-
-		return null;
-	}
-
-	/// <summary>
-	///     Names an instance whose type could not be named as a whole.
-	///     The largest group here is one class holding a single float, instantiated for several
-	///     different components, so a name for the group would be a name for none of them. What
-	///     separates them is the value: a float that is five times this block's blast resistance is
-	///     the explosion component, because five times blast resistance is what that number is, and
-	///     it holds on 1,350 blocks across the full spread of resistances.
-	///     Blocks without the component read as an uninitialised float here, which fails the test
-	///     rather than passing it with a wrong number.
-	/// </summary>
-	private static string PerInstance(BedrockProcess process, BlockProperties block, ulong at, byte[] word)
-	{
-		var one = Floats(process, at + FirstField, 1, word);
-		if (one is null) return null;
-
-		if (block.ExplosionResistance > 0f
-			&& Math.Abs(one[0] - (block.ExplosionResistance * ResistanceScale)) < 1e-3f)
-		{
-			return "minecraft:destructible_by_explosion";
-		}
 		return null;
 	}
 

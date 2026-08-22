@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -60,7 +60,7 @@ public static class StateSentinels
 
 	private static Dictionary<string, (int, int)> Load()
 	{
-		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference-block-states.json");
+		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference", "block_states.json");
 		var known = new Dictionary<string, (int, int)>(StringComparer.Ordinal);
 		if (!File.Exists(path))
 		{

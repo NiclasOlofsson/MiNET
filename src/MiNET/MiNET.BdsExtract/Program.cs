@@ -52,25 +52,9 @@ public static class Program
 {
 	public static int Main(string[] args)
 	{
-		// Reconnaissance for the item side: what is named in the process that the block palette does
-		// not claim. It reports rather than writes, because offsets are worth having only once they
-		// have been fitted against items whose values are known.
-		if (args.Length > 0 && args[0] == "--items") return ItemRegistry.Run(args[1..]);
-
-		// Finds the registries rather than their members: what a container holds is the membership,
-		// which is the one thing a sweep cannot state.
-		if (args.Length > 0 && args[0] == "--registry") return RegistryDiscovery.Run(args[1..]);
-
-		// Looks for the reflection system's identifiers, which are hashes of names the server
-		// publishes as schemas.
-		if (args.Length > 0 && args[0] == "--hashes") return HashProbe.Run(args[1..]);
-
-		// Names the components a block carries by their class, which does not move between runs,
-		// rather than by the number the server registered them under this time.
-		if (args.Length > 0 && args[0] == "--name-components") return ComponentNaming.Run(args[1..]);
-
-		// Brings a server folder to the canonical configuration in Assets, so every run everywhere
-		// extracts from the same config rather than from whatever the folder happened to hold.
+		// One job: read the server and write the files. The only thing worth saying on the command
+		// line is which server, because several run at once when every build is being checked, and
+		// the one action that is not a read, bringing a server folder to the canonical config.
 		if (args.Length > 0 && args[0] == "--prepare")
 		{
 			if (args.Length != 2)
@@ -83,43 +67,26 @@ public static class Program
 
 		string outputDirectory = DefaultOutputDirectory();
 		string pathFilter = null;
-		bool upgradesOnly = false;
-		bool anyWorld = false;
 
 		for (int i = 0; i < args.Length; i++)
 		{
-			switch (args[i])
+			if (args[i] == "--server" && i + 1 < args.Length)
 			{
-				case "--out" when i + 1 < args.Length:
-					outputDirectory = args[++i];
-					break;
-				case "--server" when i + 1 < args.Length:
-					pathFilter = args[++i];
-					break;
-				// The palette read is the slow half, so it can be skipped while the upgrade side
-				// is what is being worked on.
-				case "--upgrades":
-					upgradesOnly = true;
-					break;
-				case "--any-world":
-					anyWorld = true;
-					break;
-				default:
-					Console.Error.WriteLine("usage: MiNET.BdsExtract [--out <directory>] [--server <path fragment>]");
-							Console.Error.WriteLine();
-					Console.Error.WriteLine("  --out     where to write the json files, default the Data folder in this project");
-					Console.Error.WriteLine("  --upgrades  read only the upgrade table, skipping the palette");
-					Console.Error.WriteLine("  --server  which server to read when several are running, matched on");
-					Console.Error.WriteLine(@"            executable path, for example --server bds\probe");
-					Console.Error.WriteLine("  --prepare <server folder>  write the canonical config from Assets into a server folder");
-					Console.Error.WriteLine("  --any-world  extract even from a server not running the canonical config");
-					return 2;
+				pathFilter = args[++i];
+				continue;
 			}
+
+			Console.Error.WriteLine("usage: MiNET.BdsExtract [--server <path fragment>]");
+			Console.Error.WriteLine();
+			Console.Error.WriteLine("  --server   which server to read when several are running, matched on");
+			Console.Error.WriteLine(@"             executable path, for example --server server-1.26.20.5");
+			Console.Error.WriteLine("  --prepare <server folder>  write the canonical config from Assets into a server folder");
+			return 2;
 		}
 
 		try
 		{
-			return Run(outputDirectory, pathFilter, upgradesOnly, anyWorld);
+			return Run(outputDirectory, pathFilter);
 		}
 		catch (Exception e)
 		{
@@ -157,10 +124,14 @@ public static class Program
 		return "Data";
 	}
 
-	private static int Run(string outputDirectory, string pathFilter, bool upgradesOnly, bool anyWorld)
+	private static int Run(string outputDirectory, string pathFilter)
 	{
 		using var server = BedrockProcess.Attach(pathFilter);
 		Console.WriteLine($"reading pid {server.Id}");
+
+		// The class declaration is this build's own layout on the build it was published for, and
+		// nothing at all on any other, where every member has to be measured before it can be read.
+		BlockLayout.PublishedFor(server.BuildVersion);
 		Console.WriteLine(server.BuildVersion is null
 			? "  build      not stated by the executable and not named by its folder"
 			: $"  build      {server.BuildVersion}");
@@ -169,20 +140,8 @@ public static class Program
 		// Before anything is read, not after. The palette a server holds is filtered by its
 		// world's experiments and positioned by the id scheme, and neither mistake is visible
 		// in the output.
-		if (!WorldConfig.Check(WorldConfig.Read(server.ExecutablePath), !anyWorld)) return 1;
+		if (!WorldConfig.Check(WorldConfig.Read(server.ExecutablePath), true)) return 1;
 		Console.WriteLine();
-
-		if (upgradesOnly)
-		{
-			var only = BlockUpgradeReader.Read(server);
-			Console.WriteLine($"upgrade records: {only.Count:N0}, {only.Count(x => x.IsRule):N0} read as rules");
-			Directory.CreateDirectory(outputDirectory);
-			string onlyPath = Path.Combine(outputDirectory, "block_upgrade_rules.json");
-			// No palette in this mode, so no version header to stamp.
-			File.WriteAllText(onlyPath, WriteUpgrades("", only, IdRenames.Read(server)), new UTF8Encoding(false));
-			Console.WriteLine($"written {onlyPath}");
-			return 0;
-		}
 
 		// The block layout is measured from this server before anything is swept. A block and its
 		// default state point at each other, and where those two pointers sit moves between builds:
@@ -272,18 +231,30 @@ public static class Program
 			return 1;
 		}
 
-		var states = BlockPalette.FindStateObjects(server, blocks);
-		var vectors = BlockPalette.FindVectors(server, states);
-		Console.WriteLine($"block states: {states.Count:N0}, candidate palettes: {vectors.Count}");
-		if (vectors.Count == 0)
+		// On any build but the one the class layout is published for, every member is looked for
+		// against that build rather than assumed to sit where it did.
+		if (!BlockLayout.IsReferenceBuild(server.BuildVersion))
 		{
-			Console.Error.WriteLine("no palette found; the field offsets probably do not match this server build");
-			return 1;
+			List<BlockMemberDerivation.Found> located = BlockMemberDerivation.Measure(server, blocks, LargestBlock(server, blocks));
+			int settled = located.Count(f => f.Settled);
+			Console.WriteLine($"block members: {settled} of {located.Count} located against {BlockMembers.Build}");
+			foreach (BlockMemberDerivation.Found f in located)
+			{
+				Console.WriteLine(f.Settled
+					? $"  {f.Name,-42} at +{f.At}, on {f.Held:N0} of {f.Of:N0}"
+					: $"  {f.Name,-42} NOT LOCATED, best {f.Held:N0} of {f.Of:N0}, keeping +{f.At}");
+			}
 		}
 
-		// The palette is the largest such vector. The smaller ones are chunk storage, which holds
-		// the same kind of pointer but only as many as fit in a sixteen cubed section.
-		var header = vectors.OrderByDescending(v => v.Count).First();
+
+		BlockPalette.VectorHeader? found = BlockPalette.FindPalette(server, blocks);
+		if (found is null)
+		{
+			Console.Error.WriteLine("no container holds every block's default state, so the palette was not found");
+			return 1;
+		}
+		BlockPalette.VectorHeader header = found.Value;
+		Console.WriteLine($"  the palette holds {header.Count:N0} states");
 
 		// Where a state keeps its own light, from the states the reference already knows. The block
 		// carries light of its own and the two disagree wherever light depends on state, so this is
@@ -335,18 +306,6 @@ public static class Program
 		var report = ExtractionReport.Check(palette);
 		report.WriteTo(Console.Out);
 
-		// A block whose read failed is not written. The row that would go out otherwise is not a
-		// weaker measurement, it is an invented one: zero hardness, zero friction and a liquid
-		// reaction that is not in the enum, in the same shape as the blocks that read correctly and
-		// with nothing to mark it. This tool's whole claim is that it can fail to find a block but
-		// cannot invent one, and writing that row is the one way it breaks that claim.
-		var incomplete = blocks.Where(b => !BlockRegistry.IsComplete(b)).ToList();
-		blocks = blocks.Where(BlockRegistry.IsComplete).ToList();
-		if (incomplete.Count > 0)
-		{
-			Console.Error.WriteLine($"  {incomplete.Count} block(s) did not read and are NOT in the output:");
-			foreach (var block in incomplete) Console.Error.WriteLine($"      {block.Name}");
-		}
 
 		// The offsets, proved against this build before anything downstream trusts them. This runs
 		// ahead of the upgrade table because a failure here invalidates every read, so there is no
@@ -404,32 +363,12 @@ public static class Program
 		string blockPath = Path.Combine(outputDirectory, "blocks.json");
 		string statePath = Path.Combine(outputDirectory, "block_states.json");
 		string upgradePath = Path.Combine(outputDirectory, "block_upgrade_rules.json");
-		string componentPath = Path.Combine(outputDirectory, "component_names.json");
 
 		string versionHeader = BlockDocument.VersionHeader(palette);
 
 		// Every member of the block class, each under the class's own name, read from where the
 		// published layout says it is. This is the whole object rather than the values this tool
 		// happened to name, so what nothing reads is a row saying so instead of an absence.
-		BlockLayout.PublishedFor(server.BuildVersion);
-
-		// On any build but the one the class layout is published for, every member is looked for
-		// against that build rather than assumed to sit where it did.
-		if (!BlockLayout.IsReferenceBuild(server.BuildVersion))
-		{
-			List<BlockMemberDerivation.Found> located = BlockMemberDerivation.Measure(server, blocks, BlockLayout.Reach);
-			int settled = located.Count(f => f.Settled);
-			Console.WriteLine($"block members: {settled} of {located.Count} located against {BlockMembers.Build}");
-			foreach (BlockMemberDerivation.Found f in located)
-			{
-				Console.WriteLine(f.Settled
-					? $"  {f.Name,-42} at +{f.At}, on {f.Held:N0} of {f.Of:N0}"
-					: $"  {f.Name,-42} NOT LOCATED, best {f.Held:N0} of {f.Of:N0}, keeping +{f.At}");
-			}
-		}
-		string layoutPath = Path.Combine(outputDirectory, "block_layout.json");
-		File.WriteAllText(layoutPath, WriteLayout(server, blocks), new UTF8Encoding(false));
-		Console.WriteLine($"written {layoutPath}");
 
 		File.WriteAllText(blockPath, BlockDocument.WriteBlocks(server, versionHeader, blocks, classNames,
 			ranges.ToDictionary(r => r.Name, StringComparer.Ordinal),
@@ -437,21 +376,32 @@ public static class Program
 			legacyStates.ToDictionary(t => t.Name, StringComparer.Ordinal), held), new UTF8Encoding(false));
 		File.WriteAllText(statePath, BlockDocument.WriteStates(palette, report), new UTF8Encoding(false));
 		File.WriteAllText(upgradePath, WriteUpgrades(versionHeader, rules, renamedIds), new UTF8Encoding(false));
-		File.WriteAllText(componentPath, WriteComponents(versionHeader, components), new UTF8Encoding(false));
 		Console.WriteLine($"written {blockPath}");
 		Console.WriteLine($"written {statePath}");
 		Console.WriteLine($"written {upgradePath}");
-		Console.WriteLine($"written {componentPath}");
 
-		return report.Passed && incomplete.Count == 0 ? 0 : 1;
+		// The items, from the same process, in the same run. One command, one set of files, and
+		// the run fails if either half does.
+		Console.WriteLine();
+		int items = ItemRegistry.Run(server);
+		return report.Passed && items == 0 ? 0 : 1;
 	}
 
 	/// <summary>
-	///     The block object as this run actually read it: every member at the position it was read
-	///     from, how that position was arrived at, and every stretch between them that no member
-	///     covers. The gaps are rows of their own, so the object is described end to end rather than
-	///     as a list of the parts that happen to have names.
+	///     How far the member search looks, which is as far as the largest block object goes. The
+	///     classes state their own sizes, so this is measured rather than chosen.
 	/// </summary>
+	private static int LargestBlock(BedrockProcess process, IReadOnlyList<BlockProperties> blocks)
+	{
+		var word = new byte[8];
+		int largest = 0;
+		foreach (BlockProperties block in blocks)
+		{
+			largest = Math.Max(largest, ObjectLayout.Measure(process, block.Address, word));
+		}
+		return largest;
+	}
+
 	private static string WriteLayout(BedrockProcess process, IReadOnlyList<BlockProperties> blocks)
 	{
 		var placed = BlockLayout.Members
@@ -502,87 +452,6 @@ public static class Program
 		return text.Append("\t]\n}\n").ToString();
 	}
 
-	private static string WritePalette(IReadOnlyList<PaletteEntry> palette, ExtractionReport report)
-	{
-		// State the id scheme in the file itself. Without it a reader cannot tell whether
-		// networkId is a hash or a repeat of index, and both look equally reasonable.
-		var text = new StringBuilder("{\n");
-		text.Append($"\t\"networkIdsAreHashes\": {Boolean(report.NetworkIdsAreHashes)},\n");
-		text.Append($"\t\"count\": {palette.Count},\n");
-		text.Append("\t\"palette\": [\n");
-		for (int i = 0; i < palette.Count; i++)
-		{
-			var entry = palette[i];
-			// One entry per line. Seventeen thousand entries broken across eight lines each is
-			// not more readable than this, it is just longer.
-			text.Append("\t\t{ ");
-			text.Append($"\"index\": {entry.Index}, ");
-			text.Append($"\"name\": \"{entry.Name}\", ");
-			text.Append($"\"nameHash\": \"0x{entry.NameHash:X16}\", ");
-			text.Append($"\"networkId\": {entry.NetworkId}, ");
-			text.Append($"\"legacyId\": {entry.LegacyId}, ");
-			text.Append($"\"lightEmission\": {entry.LightEmission}, ");
-			text.Append($"\"lightDampening\": {entry.LightDampening}, ");
-			text.Append($"\"version\": {entry.Version}, ");
-			text.Append("\"states\": {");
-			for (int s = 0; s < entry.States.Count; s++)
-			{
-				var property = entry.States[s];
-				text.Append(s == 0 ? " " : ", ");
-				text.Append($"\"{property.Name}\": {property.ToJson()}");
-			}
-			text.Append(entry.States.Count == 0 ? "}" : " }");
-			text.Append(" }");
-			text.Append(i == palette.Count - 1 ? "\n" : ",\n");
-		}
-		return text.Append("\t]\n}\n").ToString();
-	}
-
-	/// <summary>
-	///     What values each block's properties take, with both counts kept.
-	///     "states" is how many the palette holds and "combinations" is the product of the ranges.
-	///     They are equal for most blocks and are written whether or not they agree, because a block
-	///     that does not use every combination is telling us something and correcting one number
-	///     against the other would erase it.
-	/// </summary>
-	private static string WriteRanges(IReadOnlyList<BlockStateRange> ranges)
-	{
-		var text = new StringBuilder("{\n");
-		text.Append($"\t\"count\": {ranges.Count},\n");
-		text.Append($"\t\"blocks\": [\n");
-		for (int i = 0; i < ranges.Count; i++)
-		{
-			var block = ranges[i];
-			text.Append("\t\t{ ");
-			text.Append($"\"name\": \"{Escape(block.Name)}\", ");
-			text.Append($"\"states\": {block.States}, ");
-			text.Append($"\"combinations\": {block.Product}, ");
-			text.Append("\"properties\": {");
-			for (int p = 0; p < block.Properties.Count; p++)
-			{
-				var property = block.Properties[p];
-				text.Append(p == 0 ? " " : ", ");
-				text.Append($"\"{Escape(property.Name)}\": {{ \"type\": \"{property.Type}\", \"values\": [");
-				for (int v = 0; v < property.Values.Count; v++)
-				{
-					text.Append(v == 0 ? "" : ", ");
-					text.Append(RangeValue(property.Values[v]));
-				}
-				text.Append("] }");
-			}
-			text.Append(block.Properties.Count == 0 ? "}" : " }");
-			text.Append(" }");
-			text.Append(i == ranges.Count - 1 ? "\n" : ",\n");
-		}
-		return text.Append("\t]\n}\n").ToString();
-	}
-
-	/// <summary>
-	///     The component vocabulary, grouped by what owns each component.
-	///     Names only, which is all that is missing elsewhere: the values are the compiled fields in
-	///     block_properties.json and the shape of each component is in the JSON schemas BDS writes
-	///     about itself. An alias listed twice has two live names and both are kept.
-	/// </summary>
 	private static string WriteComponents(string versionHeader, IReadOnlyList<ComponentName> components)
 	{
 		var text = new StringBuilder("{\n");
@@ -615,29 +484,6 @@ public static class Program
 		};
 	}
 
-	private static string WriteRenames(IReadOnlyDictionary<string, string> renames)
-	{
-		var text = new StringBuilder("{\n");
-		var ordered = renames.OrderBy(r => r.Key, StringComparer.Ordinal).ToList();
-		for (int i = 0; i < ordered.Count; i++)
-		{
-			text.Append($"\t\"{Escape(ordered[i].Key)}\": \"{Escape(ordered[i].Value)}\"");
-			text.Append(i == ordered.Count - 1 ? "\n" : ",\n");
-		}
-		return text.Append("}\n").ToString();
-	}
-
-	/// <summary>
-	///     The whole migration as one list, in the order the server applies it, one step per line.
-	///     Nothing is nested and nothing lives in a second file. A flattening used to be a rule with
-	///     children hanging off it, so reading what happened to wool meant descending into the rule
-	///     and carrying the parent's block down with you; here each child is a step of its own that
-	///     names its block and its condition outright. The renames that carry no version are the
-	///     same kind of thing and sit at the top, where they belong: they are applied first and to
-	///     everything.
-	///     Every step has the same four parts, so the file reads down the page: when it applies,
-	///     what it applies to, what has to match, and what comes out.
-	/// </summary>
 	private static string WriteUpgrades(string versionHeader, IReadOnlyList<UpgradeSchema> schemas,
 		IReadOnlyList<KeyValuePair<string, string>> renamedIds)
 	{
@@ -833,57 +679,6 @@ public static class Program
 	private static string Escape(string value)
 	{
 		return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
-	}
-
-	/// <summary>A string, or null when the server does not hold one. Absent is a value.</summary>
-	private static string Text(string value)
-	{
-		return value is null ? "null" : $"\"{Escape(value)}\"";
-	}
-	private static string WriteProperties(IReadOnlyList<BlockProperties> blocks,
-		IReadOnlyDictionary<ulong, string> classNames)
-	{
-		var text = new StringBuilder("[\n");
-		for (int i = 0; i < blocks.Count; i++)
-		{
-			var block = blocks[i];
-			text.Append("\t{\n");
-			text.Append($"\t\t\"name\": \"{block.Name}\",\n");
-			text.Append($"\t\t\"nameHash\": \"0x{block.NameHash:X16}\",\n");
-			text.Append($"\t\t\"legacyId\": {block.LegacyId},\n");
-			// The pre-flattening name, and the creative tab, which not every block has.
-			text.Append($"\t\t\"serializationId\": {Text(block.SerializationId)},\n");
-			text.Append($"\t\t\"creativeGroup\": {Text(block.CreativeGroup)},\n");
-			text.Append($"\t\t\"hardness\": {Sentinels.Number("hardness", block.Hardness)},\n");
-			text.Append($"\t\t\"explosionResistance\": {Sentinels.Number("explosionResistance", block.ExplosionResistance)},\n");
-			text.Append($"\t\t\"friction\": {Sentinels.Number("friction", block.Friction)},\n");
-			text.Append($"\t\t\"thickness\": {Sentinels.Number("thickness", block.Thickness)},\n");
-			text.Append($"\t\t\"translucency\": {Sentinels.Number("translucency", block.Translucency)},\n");
-			text.Append($"\t\t\"burnOdds\": {block.BurnOdds},\n");
-			text.Append($"\t\t\"flameOdds\": {block.FlameOdds},\n");
-			text.Append($"\t\t\"isSolid\": {Boolean(block.IsSolid)},\n");
-			text.Append($"\t\t\"canContainLiquidSource\": {Boolean(block.CanContainLiquidSource)},\n");
-			text.Append($"\t\t\"liquidReactionOnTouch\": \"{block.LiquidReactionOnTouch}\",\n");
-			text.Append($"\t\t\"tintMethod\": \"{block.TintMethod}\",\n");
-			text.Append($"\t\t\"mapColor\": \"{block.MapColor}\",\n");
-			// The implementing class: the method table is the only type identity this binary
-			// carries, and the name is derived from what the class holds so it survives a rebuild.
-			text.Append($"\t\t\"class\": \"{Escape(classNames.GetValueOrDefault(block.Vtable, "block"))}\",\n");
-			text.Append($"\t\t\"classPointer\": \"0x{block.Vtable:X}\",\n");
-			// Where this was read. Only meaningful while that server lives, and the thing that
-			// makes a follow up probe exact instead of re-finding the name and hoping.
-			text.Append($"\t\t\"address\": \"0x{block.Address:X}\",\n");
-			text.Append("\t\t\"tags\": [");
-			for (int t = 0; t < block.Tags.Count; t++)
-			{
-				text.Append(t == 0 ? "" : ", ");
-				text.Append($"\"{Escape(block.Tags[t])}\"");
-			}
-			text.Append("]\n");
-			text.Append("\t}");
-			text.Append(i == blocks.Count - 1 ? "\n" : ",\n");
-		}
-		return text.Append("]\n").ToString();
 	}
 
 	private static string Boolean(bool value)

@@ -54,40 +54,57 @@ public static class BlockLayout
 		Unsettled
 	}
 
-	private static readonly Dictionary<string, int> Placed = BlockMembers.All
-		.ToDictionary(m => m.Name, m => m.At, StringComparer.Ordinal);
+	/// <summary>
+	///     Where each member sits on the server being read. Empty until something says so, which on
+	///     the reference build is the class declaration and on every other build is a measurement.
+	/// </summary>
+	private static readonly Dictionary<string, int> Placed = new(StringComparer.Ordinal);
 
-	private static readonly Dictionary<string, Source> Found = BlockMembers.All
-		.ToDictionary(m => m.Name, _ => Source.Unsettled, StringComparer.Ordinal);
+	private static readonly Dictionary<string, Source> Found = new(StringComparer.Ordinal);
 
 	/// <summary>Every member, in the order the class declares them.</summary>
 	public static IReadOnlyList<BlockMember> Members => BlockMembers.All;
 
-	/// <summary>How far into the object anything is read.</summary>
-	public static int Reach => Placed.Values.Max() + 64;
+	/// <summary>How far into the object anything is read, which is as far as the furthest member.</summary>
+	public static int Reach => Placed.Count == 0
+		? throw new InvalidOperationException("no member of the block class has been placed on this server")
+		: Placed.Values.Max() + 64;
 
-	/// <summary>Where a member sits on this server.</summary>
-	public static int At(string name) => Placed[name];
+	/// <summary>
+	///     Where a member sits on this server. A member nothing has placed is refused rather than
+	///     answered with where it sat on another build: reading one field at the wrong offset is
+	///     invisible in the output, and a build that moved one moved several.
+	/// </summary>
+	public static int At(string name) => Placed.TryGetValue(name, out int at)
+		? at
+		: throw new InvalidOperationException($"the block class member {name} was never placed on this server");
+
+	/// <summary>Whether a member has been placed at all.</summary>
+	public static bool Has(string name) => Placed.ContainsKey(name);
 
 	/// <summary>How this member's position was arrived at on this server.</summary>
-	public static Source Provenance(string name) => Found[name];
+	public static Source Provenance(string name) => Found.TryGetValue(name, out Source source) ? source : Source.Unsettled;
 
 	/// <summary>Takes a member's position as measured on this server.</summary>
 	public static void Measured(string name, int at)
 	{
-		if (!Placed.ContainsKey(name)) return;
 		Placed[name] = at;
 		Found[name] = Source.Measured;
 	}
 
 	/// <summary>
-	///     Says the published positions are this build's own, which they are on the one build the
-	///     class declaration was published for and on no other.
+	///     Takes the published positions as this build's own, which they are on the one build the
+	///     class declaration was published for and on no other. Nothing is placed until this or a
+	///     measurement says so.
 	/// </summary>
 	public static void PublishedFor(Version build)
 	{
 		if (!IsReferenceBuild(build)) return;
-		foreach (string name in Found.Keys.ToList()) Found[name] = Source.Published;
+		foreach (BlockMember member in BlockMembers.All)
+		{
+			Placed[member.Name] = member.At;
+			Found[member.Name] = Source.Published;
+		}
 	}
 
 	/// <summary>Whether this build is the one the layout is published for.</summary>

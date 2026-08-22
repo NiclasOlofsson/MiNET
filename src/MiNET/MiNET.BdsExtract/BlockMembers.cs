@@ -107,7 +107,7 @@ public static class BlockMembers
 		if (_all is not null) return;
 		_all = [];
 
-		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference-blocks.json");
+		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference", "blocks.json");
 		if (!File.Exists(path))
 		{
 			Console.Error.WriteLine($"no reference at {path}; the block class has no member list, so nothing can be read from it");

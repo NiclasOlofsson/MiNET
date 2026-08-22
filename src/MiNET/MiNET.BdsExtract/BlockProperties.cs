@@ -32,42 +32,11 @@ public sealed class BlockProperties
 {
 	public string Name { get; init; }
 	public ulong NameHash { get; init; }
+
+	/// <summary>The pre-flattening numeric id, and the tint, both read from where the class keeps them.</summary>
 	public int LegacyId { get; init; }
 
-	public float Hardness { get; init; }
-	public float ExplosionResistance { get; init; }
-	public float Friction { get; init; }
-	public float Thickness { get; init; }
-	public float Translucency { get; init; }
-	public int BurnOdds { get; init; }
-	public int FlameOdds { get; init; }
-	public bool IsSolid { get; init; }
-	/// <summary>
-	///     The block's own solid flag, which is a different field from the state's <see cref="IsSolid" />.
-	/// </summary>
-	public bool Solid { get; init; }
-
-	public bool Fallable { get; init; }
-	/// <summary>
-	///     Null on a build that does not have the field at all, which is not the same as false. See
-	///     <see cref="Sentinels" /> for which build each such field first appears in.
-	/// </summary>
-	public bool? RequiresCorrectToolForDrops { get; init; }
-	public int CreativeCategory { get; init; }
-	public int BlockEntityType { get; init; }
-	public int Material { get; init; }
-
-	/// <summary>
-	///     The block's own light, which the state objects carry their own copy of. The two disagree
-	///     exactly where light depends on state: campfire reads 0 here and 15 on its lit state.
-	/// </summary>
-	public int LightEmission { get; init; }
-
-	public int LightDampening { get; init; }
-	public bool CanContainLiquidSource { get; init; }
-	public string LiquidReactionOnTouch { get; init; }
 	public string TintMethod { get; init; }
-	public string MapColor { get; init; }
 
 	/// <summary>
 	///     The block's tags, in the server's order. These say what the block IS to the rest of the
@@ -118,9 +87,6 @@ public sealed class BlockProperties
 	public int ObjectSize { get; init; }
 
 	public IReadOnlyList<ByteRange> Unread { get; init; }
-
-	/// <summary>The eight bytes at name+128, read but named only where the method table names them.</summary>
-	public IReadOnlyList<byte> UnnamedBytes { get; init; } = [];
 }
 
 /// <summary>
@@ -132,25 +98,42 @@ public sealed class BlockProperties
 /// </summary>
 public static class BlockRegistry
 {
+	/// <summary>
+	///     How much of a candidate the sweep reads before it knows anything about the class. Far
+	///     enough to hold a name and the pointer behind it; what the object actually is comes from
+	///     its own class the moment the start is found.
+	/// </summary>
+	private const int SweepWindow = 1024;
+
+	/// <summary>
+	///     Room for the largest state object any class declares, so one buffer serves every read.
+	///     Nothing is read past what a given object's own class states.
+	/// </summary>
+	private const int LargestState = 8192;
+
 	private const string Namespace = "minecraft:";
 
 	public static List<BlockProperties> Read(BedrockProcess process)
 	{
+		var hits = new Dictionary<string, int>(StringComparer.Ordinal);
 		var found = new Dictionary<ulong, BlockProperties>();
 		var window = new byte[8 * 1024 * 1024];
 		var heap = new byte[256];
-		var defaultState = new byte[MemoryLayout.BlockSize];
+		// Sized to the largest state class rather than to a field offset: the class states its own
+		// size and this buffer is reused, so it holds the biggest of them and each read takes only
+		// as many bytes as that object actually is.
+		var defaultState = new byte[LargestState];
 		var word = new byte[8];
 
 		foreach (var region in process.Regions)
 		{
 			// Overlap each window by one object so a block spanning a boundary is not missed.
-			for (ulong at = region.Base; at < region.End; at += (ulong) (window.Length - MemoryLayout.LegacyReach))
+			for (ulong at = region.Base; at < region.End; at += (ulong) (window.Length - SweepWindow))
 			{
 				int length = (int) Math.Min((ulong) window.Length, region.End - at);
-				if (length < MemoryLayout.LegacyReach || !process.TryRead(at, window, length)) continue;
+				if (length < SweepWindow || !process.TryRead(at, window, length)) continue;
 
-				for (int i = 0; i + MemoryLayout.LegacyReach <= length; i += 8)
+				for (int i = 0; i + SweepWindow <= length; i += 8)
 				{
 					// Any namespaced name, not just Mojang's. A block defined by a behaviour pack
 					// is a real block with a real BlockLegacy, and requiring "minecraft:" made the
@@ -160,6 +143,7 @@ public static class BlockRegistry
 					// palette filter afterwards still drops anything no state refers to.
 					string name = HashedString.ReadVerified(process, window, i, heap);
 					if (name is null || !IsNamespaced(name)) continue;
+					hits[name] = hits.GetValueOrDefault(name) + 1;
 
 					// The HashedString sits partway into BlockLegacy, so step back to the object.
 					ulong nameAddress = at + (ulong) i;
@@ -168,14 +152,27 @@ public static class BlockRegistry
 					var block = ReadBlock(process, legacy, name, window, i, defaultState, word);
 					if (block is null) continue;
 
-					// Several copies of a name can exist; keep the one that reads as a real block.
-					if (!found.TryGetValue(block.NameHash, out var existing) || Score(block) > Score(existing))
+					// A candidate that gets this far has rooted: its name hashed to its own text
+					// and the state it points at points back at it. That is the block, and there is
+					// nothing left to weigh. Where a name appears twice the second copy has to root
+					// as well, and two objects that both root are reported rather than voted on.
+					if (found.TryGetValue(block.NameHash, out var existing) && existing.Address != block.Address)
 					{
-						found[block.NameHash] = block;
+						Console.Error.WriteLine($"  {name} roots at 0x{existing.Address:X} and 0x{block.Address:X}");
 					}
+
+					found[block.NameHash] = block;
 				}
 			}
 		}
+		Console.WriteLine($"  names that hash to their own text: {hits.Values.Sum():N0} hits over {hits.Count:N0} names, "
+						+ $"{hits.Count(h => h.Value == 1):N0} of them hit once");
+		foreach ((string name, int count) in hits.OrderByDescending(h => h.Value).Take(5))
+		{
+			Console.WriteLine($"      {name} hit {count:N0} times");
+		}
+		Console.WriteLine($"      minecraft:air hit {hits.GetValueOrDefault("minecraft:air"):N0} times");
+
 		return found.Values.OrderBy(b => b.Name, StringComparer.Ordinal).ToList();
 	}
 
@@ -239,7 +236,11 @@ public static class BlockRegistry
 	{
 		ulong stateAddress = process.ReadUInt64(legacy + (ulong) (MemoryLayout.NameInsideLegacy + MemoryLayout.DefaultStatePointer), word);
 		if (stateAddress < 0x10000 || !process.IsMapped(stateAddress)) return null;
-		if (!process.TryRead(stateAddress, defaultState, MemoryLayout.BlockSize)) return null;
+		// The state's own class says how long it is. A class that states no size is a read that
+		// failed, not an object to read a made up length from.
+		int stateSize = ObjectLayout.Measure(process, stateAddress, word);
+		if (stateSize <= 0 || stateSize > defaultState.Length) return null;
+		if (!process.TryRead(stateAddress, defaultState, stateSize)) return null;
 
 		// The state has to name this block back. A name can appear on more than one object, and
 		// without this the sweep sometimes keeps one that is not the BlockLegacy at all: it reads,
@@ -248,52 +249,32 @@ public static class BlockRegistry
 		// block it will reject.
 		if (BitConverter.ToUInt64(defaultState, MemoryLayout.BlockLegacyPointer) != legacy) return null;
 
-		int nameAt = at; // the HashedString, and every BlockLegacy field is relative to it
+		int nameAt = at; // the HashedString the sweep found
 		int size = ObjectLayout.Measure(process, legacy, word);
-		var color = new float[4];
-		for (int c = 0; c < 4; c++)
-		{
-			color[c] = BitConverter.ToSingle(window, nameAt + MemoryLayout.MapColor + (c * 4));
-		}
 
 		return new BlockProperties
 		{
 			Name = name,
 			NameHash = BitConverter.ToUInt64(window, nameAt),
-			LegacyId = BitConverter.ToUInt16(window, nameAt + MemoryLayout.LegacyId),
-			Thickness = BitConverter.ToSingle(window, nameAt + MemoryLayout.Thickness),
-			Translucency = BitConverter.ToSingle(window, nameAt + MemoryLayout.Translucency),
-			TintMethod = MemoryLayout.Describe(MemoryLayout.TintMethods,
-				window[nameAt + MemoryLayout.TintMethod]),
-			MapColor = ToHex(color),
-			Hardness = BitConverter.ToSingle(defaultState, MemoryLayout.BlockHardness),
-			ExplosionResistance = BitConverter.ToSingle(defaultState, MemoryLayout.BlockExplosionResistance),
-			Friction = BitConverter.ToSingle(defaultState, MemoryLayout.BlockFriction),
-			BurnOdds = defaultState[MemoryLayout.BlockBurnOdds],
-			FlameOdds = defaultState[MemoryLayout.BlockFlameOdds],
-			IsSolid = defaultState[MemoryLayout.BlockIsSolid] != 0,
-			Solid = window[nameAt + MemoryLayout.BlockSolidAt] != 0,
-			Fallable = (window[nameAt + MemoryLayout.FallableAt] >> MemoryLayout.FallableBit & 1) != 0,
-			RequiresCorrectToolForDrops = (window[nameAt + MemoryLayout.ToolRequiredAt] >> MemoryLayout.ToolRequiredBit & 1) != 0,
-			CreativeCategory = window[nameAt + MemoryLayout.CreativeCategoryAt],
-			BlockEntityType = window[nameAt + MemoryLayout.BlockEntityTypeAt],
-			Material = window[nameAt + MemoryLayout.MaterialAt],
-			LightEmission = window[nameAt + MemoryLayout.BlockLightEmissionAt],
-			LightDampening = window[nameAt + MemoryLayout.BlockLightDampeningAt],
-			CanContainLiquidSource = defaultState[MemoryLayout.BlockCanContainLiquid] != 0,
-			LiquidReactionOnTouch = MemoryLayout.Describe(MemoryLayout.LiquidReactions,
-				defaultState[MemoryLayout.BlockLiquidReaction]),
-			SerializationId = StdString(process, legacy + (ulong) MemoryLayout.SerializationId),
-			CreativeGroup = StdString(process, legacy + (ulong) MemoryLayout.CreativeGroup),
+			LegacyId = BlockLayout.Has("id")
+				? (int) (process.ReadUInt64(legacy + (ulong) BlockLayout.At("id"), word) & 0xFFFF)
+				: -1,
+			TintMethod = BlockLayout.Has("tintMethod")
+				? MemoryLayout.Describe(MemoryLayout.TintMethods,
+					(byte) (process.ReadUInt64(legacy + (ulong) BlockLayout.At("tintMethod"), word) & 0xFF))
+				: null,
+			SerializationId = BlockLayout.Has("descriptionId")
+				? StdString(process, legacy + (ulong) BlockLayout.At("descriptionId"))
+				: null,
+			CreativeGroup = BlockLayout.Has("creativeGroup")
+				? StdString(process, legacy + (ulong) BlockLayout.At("creativeGroup"))
+				: null,
 			Tags = ReadTags(process, window, nameAt, word),
 			Geometry = ReadGeometry(process, legacy, word),
 			Vtable = process.ReadUInt64(legacy, word),
 			Address = legacy,
 			ObjectSize = size,
 			Unread = ObjectLayout.Holes(size),
-			UnnamedBytes = window
-				.AsSpan(nameAt + MemoryLayout.UnnamedBytes, MemoryLayout.UnnamedByteCount)
-				.ToArray()
 		};
 	}
 
@@ -304,8 +285,9 @@ public static class BlockRegistry
 	/// </summary>
 	private static string ReadGeometry(BedrockProcess process, ulong legacy, byte[] word)
 	{
-		ulong begin = process.ReadUInt64(legacy + (ulong) MemoryLayout.BlockComponents, word);
-		ulong end = process.ReadUInt64(legacy + (ulong) (MemoryLayout.BlockComponents + 8), word);
+		if (!BlockLayout.Has("components")) return null;
+		ulong begin = process.ReadUInt64(legacy + (ulong) BlockLayout.At("components"), word);
+		ulong end = process.ReadUInt64(legacy + (ulong) (BlockLayout.At("components") + 8), word);
 		if (begin < 0x10000 || end <= begin || (end - begin) % 8 != 0) return null;
 		if (end - begin > MaximumComponentBytes || !process.IsMapped(begin)) return null;
 
@@ -329,22 +311,27 @@ public static class BlockRegistry
 	///     it. A block with no tags and a vector this misread look the same from here, and the hash
 	///     is what makes the difference not matter.
 	/// </summary>
-	private static List<string> ReadTags(BedrockProcess process, byte[] window, int nameAt, byte[] word)
+	private static List<string> ReadTags(BedrockProcess process, byte[] window, int at, byte[] word)
 	{
 		var tags = new List<string>();
-		ulong begin = BitConverter.ToUInt64(window, nameAt + MemoryLayout.BlockTags);
-		ulong end = BitConverter.ToUInt64(window, nameAt + MemoryLayout.BlockTags + 8);
+		// The tag vector is a member of the class like any other, so it is read from where the
+		// member map puts it rather than from a second offset measured later in the run.
+		if (!BlockLayout.Has("tags")) return tags;
+		int tagsAt = at - MemoryLayout.NameInsideLegacy + BlockLayout.At("tags");
+		if (tagsAt < 0 || tagsAt + 16 > window.Length) return tags;
+		ulong begin = BitConverter.ToUInt64(window, tagsAt);
+		ulong end = BitConverter.ToUInt64(window, tagsAt + 8);
 		if (begin < 0x10000 || end <= begin) return tags;
 
 		ulong span = end - begin;
-		if (span % (ulong) MemoryLayout.TagStride != 0 || span > (ulong) MaximumTagBytes) return tags;
+		if (span % (ulong) HashedString.Size != 0 || span > (ulong) MaximumTagBytes) return tags;
 		if (!process.IsMapped(begin)) return tags;
 
 		var element = new byte[HashedString.Size];
 		var heap = new byte[MemoryLayout.MaximumTagLength];
-		for (ulong at = begin; at < end; at += (ulong) MemoryLayout.TagStride)
+		for (ulong record = begin; record < end; record += (ulong) HashedString.Size)
 		{
-			if (!process.TryRead(at, element, element.Length)) continue;
+			if (!process.TryRead(record, element, element.Length)) continue;
 			string tag = HashedString.ReadVerified(process, element, 0, heap,
 				MemoryLayout.MinimumTagLength, MemoryLayout.MaximumTagLength);
 			if (tag is not null) tags.Add(tag);
@@ -353,53 +340,9 @@ public static class BlockRegistry
 	}
 
 	/// <summary>No block carries anywhere near this many, so a longer span is not a tag vector.</summary>
-	private static int MaximumTagBytes => MemoryLayout.TagStride * 64;
+	private static int MaximumTagBytes => HashedString.Size * 64;
 
-	/// <summary>
-	///     How much a candidate reads like a real block, used to choose between copies of one name
-	///     and to tell whether any copy is worth having at all.
-	///     Every point is for something being PRESENT. Scoring a value for falling in a range gives
-	///     the points to a candidate that is all zeros, because zero is in every range: it scored
-	///     five of a possible seven, which is most of the way to looking real. It cost three blocks
-	///     a run, a different three each time, written out with a hardness of zero and an enum
-	///     value that does not exist.
-	///     Hardness and explosion resistance are deliberately not scored. A block is allowed to have
-	///     neither, so their presence proves nothing and their absence disproves nothing.
-	/// </summary>
-	private static int Score(BlockProperties block)
-	{
-		int score = 0;
 
-		// Friction is the strongest single signal: every block has one, the common value is 0.6,
-		// and an empty candidate has zero, which is not a friction any block has.
-		if (block.Friction is > 0f and <= 1f) score += 3;
-
-		// Byte fields that index a table. Out of range means the byte was never a byte of a block.
-		if (!block.LiquidReactionOnTouch.StartsWith(Unknown, StringComparison.Ordinal)) score += 2;
-		if (!block.TintMethod.StartsWith(Unknown, StringComparison.Ordinal)) score += 1;
-
-		// Air is the one block whose legacy id is genuinely zero.
-		if (block.LegacyId is > 0 and < 4096) score += 2;
-		if (block.Tags.Count > 0) score += 1;
-		return score;
-	}
-
-	/// <summary>
-	///     Whether a candidate is a block at all, rather than the best of a bad set.
-	///     A read either found the block or did not, and the second is a fact worth stating: what
-	///     must never happen is a row that failed to read going out looking like one that did.
-	/// </summary>
-	public static bool IsComplete(BlockProperties block)
-	{
-		return Score(block) >= MinimumScore;
-	}
-
-	/// <summary>
-	///     What a real block clears and an empty candidate cannot. An empty one scores nothing at
-	///     all now, so the bar only has to be above zero; it sits here so the two ideas, ranking
-	///     candidates and rejecting them, are not the same number by accident.
-	/// </summary>
-	private const int MinimumScore = 3;
 
 	private const string Unknown = "Unknown";
 

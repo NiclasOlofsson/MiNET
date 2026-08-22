@@ -46,25 +46,16 @@ public static class ObjectLayout
 	///     not cover. Offsets past the name are written as the name plus their own offset, which is
 	///     how <see cref="MemoryLayout" /> states them.
 	/// </summary>
-	private static (int At, int Bytes, string Field)[] Fields() =>
-	[
-		(0, 8, "method table"),
-		(MemoryLayout.SerializationId, 32, "serializationId"),
-		(MemoryLayout.BlockComponents, 24, "components"),
-		(MemoryLayout.BlockComponentIds, 24, "component ids"),
-		(MemoryLayout.NameInsideLegacy + MemoryLayout.BlockTags, 24, "tags"),
-		(MemoryLayout.NameInsideLegacy, HashedString.Size, "name"),
-		(MemoryLayout.CreativeGroup, 32, "creativeGroup"),
-		(MemoryLayout.NameInsideLegacy + MemoryLayout.Thickness, 4, "thickness"),
-		(MemoryLayout.NameInsideLegacy + MemoryLayout.Translucency, 4, "translucency"),
-		(MemoryLayout.NameInsideLegacy + MemoryLayout.UnnamedBytes, MemoryLayout.UnnamedByteCount, "unnamed bytes"),
-		(MemoryLayout.NameInsideLegacy + MemoryLayout.MapColor, 16, "mapColor"),
-		(MemoryLayout.NameInsideLegacy + MemoryLayout.TintMethod, 1, "tintMethod"),
-		(MemoryLayout.NameInsideLegacy + MemoryLayout.LegacyId, 2, "legacyId"),
-		(MemoryLayout.BlockProperties, 24, "properties"),
-		(MemoryLayout.BlockStates, 24, "states"),
-		(MemoryLayout.NameInsideLegacy + MemoryLayout.DefaultStatePointer, 8, "defaultState")
-	];
+	private static (int At, int Bytes, string Field)[] Fields()
+	{
+		// Every member of the class, where this build keeps it, plus the method table the object
+		// opens with. A hole is whatever that does not cover.
+		return BlockLayout.Members
+			.Where(m => m.Name != "nameInfo")
+			.Select(m => (BlockLayout.At(m.Name), m.Bytes, m.Name))
+			.Append((0, 8, "method table"))
+			.ToArray();
+	}
 
 	/// <summary>
 	///     Far enough to clear the largest BlockLegacy seen, which is a derived class carrying its
@@ -73,16 +64,21 @@ public static class ObjectLayout
 	private const int SearchLimit = 4096;
 
 	/// <summary>
-	///     The object's size, from the allocator's block header. Zero says the header was not
-	///     found, which is reported as unmeasured rather than guessed at.
+	///     How many bytes the object at that address is, from its own class.
+	///     <para>
+	///         A polymorphic class writes its size into its deleting destructor, which the method
+	///         table's first slot points at, so the number is the one the compiler wrote and not a
+	///         guess. It is looked up once per class and answers for every object of it.
+	///     </para>
+	///     <para>
+	///         Zero means the class states no size, which is a read that failed rather than an object
+	///         of length zero, and callers say so instead of reading a length they made up.
+	///     </para>
 	/// </summary>
 	public static int Measure(BedrockProcess process, ulong address, byte[] word)
 	{
-		for (int offset = 8; offset < SearchLimit; offset += 8)
-		{
-			if (process.ReadUInt64(address + (ulong) offset, word) >> 56 is 0x88 or 0x90) return offset;
-		}
-		return 0;
+		ulong vtable = process.ReadUInt64(address, word);
+		return vtable < 0x10000 ? 0 : ItemRegistry.ClassSize(process, vtable);
 	}
 
 	/// <summary>

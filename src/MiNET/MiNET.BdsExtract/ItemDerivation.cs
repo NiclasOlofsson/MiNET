@@ -203,7 +203,7 @@ public static class ItemDerivation
 	/// <summary>Every item the reference knows, by name, with each value as the file writes it.</summary>
 	private static Dictionary<string, Dictionary<string, string>> Load()
 	{
-		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference-items.json");
+		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference", "items-runtime.json");
 		var known = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
 		if (!File.Exists(path))
 		{

@@ -231,20 +231,6 @@ public static class BlockDocument
 		return text.Append("\t]\n}\n").ToString();
 	}
 
-	/// <summary>One whole byte out of the eight, for the two that hold a value rather than flags.</summary>
-	private static string Byte(BlockProperties block, int index)
-	{
-		return index < block.UnnamedBytes.Count
-			? block.UnnamedBytes[index].ToString(CultureInfo.InvariantCulture)
-			: "null";
-	}
-
-	/// <summary>One bit out of the flag bytes, for the flags that have been identified.</summary>
-	private static bool Flag(BlockProperties block, int index, int bit)
-	{
-		return index < block.UnnamedBytes.Count && (block.UnnamedBytes[index] >> bit & 1) != 0;
-	}
-
 	/// <summary>The value of one component the block carries, or null when it has none.</summary>
 	private static string Component(IReadOnlyList<BlockComponent> carried, string name)
 	{

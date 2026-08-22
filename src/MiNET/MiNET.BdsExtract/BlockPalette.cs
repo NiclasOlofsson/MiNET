@@ -55,6 +55,9 @@ public sealed class PaletteEntry
 /// </summary>
 public static class BlockPalette
 {
+	/// <summary>How much of an object is held while reading it. Nothing is read past what it is.</summary>
+	private const int ObjectWindow = 2048;
+
 	/// <summary>A candidate std::vector, and how many entries it holds.</summary>
 	public readonly record struct VectorHeader(ulong Begin, ulong End, ulong Capacity, int Count);
 
@@ -63,69 +66,115 @@ public static class BlockPalette
 	private const int SpanSamples = 32;
 
 	/// <summary>
-	///     Every block-state object in the process. Each points back at the block it is a state of,
-	///     and they are laid out identically, so the one shape they share identifies them.
+	///     The palette, found from the blocks rather than searched for.
+	///     <para>
+	///         Every block points at its default state, so after reading the blocks their default
+	///         states are known exactly: 1,355 addresses that are certainly states. The palette is
+	///         the container holding every state there is, so it is the only run of pointers that
+	///         contains all of them. Chunk storage holds states too, but never all of them.
+	///     </para>
+	///     <para>
+	///         So: take one of those states, find the words in the process whose value is its
+	///         address, and each hit is a slot in some container. Walk out from the slot to the ends
+	///         of the run of pointers it sits in, and that run is a candidate. The candidate that
+	///         contains every default state is the palette, and nothing else can be.
+	///     </para>
+	///     <para>
+	///         Nothing here samples, bounds the size, or picks the largest of several. This replaced
+	///         a scan of every eight byte position in the process for anything vector shaped, whose
+	///         contents were then sampled against a set of states that had itself come from a vote.
+	///     </para>
 	/// </summary>
-	public static HashSet<ulong> FindStateObjects(BedrockProcess process, IEnumerable<BlockProperties> blocks)
+	public static VectorHeader? FindPalette(BedrockProcess process, IReadOnlyList<BlockProperties> blocks)
 	{
-		var owners = blocks.Select(b => b.Address).ToHashSet();
-		var pointers = FindPointersTo(process, owners);
-
-		// Objects of one class share a first field, the pointer to their method table. Take the
-		// value that most candidates agree on and keep only those, which drops coincidences.
 		var word = new byte[8];
-		var tally = new Dictionary<ulong, int>();
-		foreach (ulong site in pointers)
+		var defaults = new HashSet<ulong>();
+		foreach (BlockProperties block in blocks)
 		{
-			ulong start = site - (ulong) MemoryLayout.BlockLegacyPointer;
-			ulong table = process.ReadUInt64(start, word);
-			if (table > 0x10000) tally[table] = tally.GetValueOrDefault(table) + 1;
+			ulong state = process.ReadUInt64(
+				block.Address + (ulong) (MemoryLayout.NameInsideLegacy + MemoryLayout.DefaultStatePointer), word);
+			if (state >= 0x10000) defaults.Add(state);
 		}
-		var accepted = tally.Where(t => t.Value >= 8).Select(t => t.Key).ToHashSet();
 
-		var states = new HashSet<ulong>();
-		foreach (ulong site in pointers)
+		if (defaults.Count == 0) return null;
+		ulong seed = defaults.First();
+		Console.WriteLine($"  {defaults.Count:N0} default states known, looking for the container holding all of them");
+
+		foreach (ulong site in FindPointersTo(process, [seed]))
 		{
-			ulong start = site - (ulong) MemoryLayout.BlockLegacyPointer;
-			if (accepted.Contains(process.ReadUInt64(start, word))) states.Add(start);
+			VectorHeader? run = Surrounding(process, site, defaults, word);
+			if (run is not null) return run;
 		}
-		return states;
+
+		return null;
 	}
 
-	/// <summary>Vectors whose whole contents are block-state objects. The palette is the largest.</summary>
-	public static List<VectorHeader> FindVectors(BedrockProcess process, HashSet<ulong> states)
+	/// <summary>
+	///     The run of pointers a slot sits in, walked out to both ends, when that run holds every
+	///     state it has to. Returns null when it does not, which is a container that is not the
+	///     palette rather than a failure.
+	/// </summary>
+	private static VectorHeader? Surrounding(BedrockProcess process, ulong site, HashSet<ulong> wanted, byte[] word)
 	{
-		var headers = new List<VectorHeader>();
-		var window = new byte[8 * 1024 * 1024];
-		var word = new byte[8];
+		// Out to both ends: a slot is a state pointer, and the run stops at the first word that is
+		// not one. Bounded only by the palette not being able to exceed the states that exist.
+		ulong begin = site;
+		while (begin >= 8 && IsState(process, process.ReadUInt64(begin - 8, word), word)) begin -= 8;
 
-		foreach (var region in process.Regions)
+		ulong end = site + 8;
+		while (IsState(process, process.ReadUInt64(end, word), word)) end += 8;
+
+		long count = (long) ((end - begin) / 8);
+		if (count < wanted.Count) return null;
+
+		var held = new HashSet<ulong>();
+		for (ulong slot = begin; slot < end; slot += 8) held.Add(process.ReadUInt64(slot, word));
+		if (!wanted.All(held.Contains)) return null;
+
+		// Walking by content finds the run but not its ends: the word before it can point at
+		// something that reads like a state, and one slot of drift puts every state at the wrong
+		// index. The vector states its own ends, so they are read from it: somewhere there is a
+		// begin field holding an address in this run, followed by an end field holding another.
+		return Header(process, begin, end, word);
+	}
+
+	/// <summary>
+	///     The vector's own begin and end, found by looking for the three words that describe it.
+	///     <para>
+	///         Walking by content is approximate at both ends: the words in front of the vector can
+	///         read like states, and how many do is a property of whatever was allocated before it.
+	///         So the walked start is not assumed to be the real one. Every slot near the front of
+	///         the run is offered, and the header is whichever of them a real begin field names.
+	///     </para>
+	/// </summary>
+	private static VectorHeader? Header(BedrockProcess process, ulong walked, ulong walkedEnd, byte[] word)
+	{
+		var fronts = new HashSet<ulong>();
+		for (ulong slot = walked; slot < walkedEnd && fronts.Count < 64; slot += 8) fronts.Add(slot);
+
+		foreach (ulong site in FindPointersTo(process, fronts))
 		{
-			for (ulong at = region.Base; at < region.End; at += (ulong) window.Length - 24)
-			{
-				int length = (int) Math.Min((ulong) window.Length, region.End - at);
-				if (length < 24 || !process.TryRead(at, window, length)) continue;
-
-				for (int i = 0; i + 24 <= length; i += 8)
-				{
-					ulong begin = BitConverter.ToUInt64(window, i);
-					ulong end = BitConverter.ToUInt64(window, i + 8);
-					ulong capacity = BitConverter.ToUInt64(window, i + 16);
-
-					if (begin < 0x10000 || end <= begin || capacity < end) continue;
-					if ((end - begin) % 8 != 0) continue;
-					long count = (long) ((end - begin) / 8);
-					if (count < MinimumPaletteSize || count > MaximumPaletteSize) continue;
-					if (!process.IsMapped(begin) || !process.IsMapped(end - 8)) continue;
-
-					if (SpanIsAllStates(process, begin, count, states, word))
-					{
-						headers.Add(new VectorHeader(begin, end, capacity, (int) count));
-					}
-				}
-			}
+			ulong begin = process.ReadUInt64(site, word);
+			ulong end = process.ReadUInt64(site + 8, word);
+			ulong capacity = process.ReadUInt64(site + 16, word);
+			if (!fronts.Contains(begin) || end <= begin || end > walkedEnd || capacity < end) continue;
+			if ((end - begin) % 8 != 0) continue;
+			return new VectorHeader(begin, end, capacity, (int) ((end - begin) / 8));
 		}
-		return headers;
+
+		return null;
+	}
+
+	/// <summary>
+	///     Whether that address is a state: it is mapped, and the block it names names it back
+	///     through its own states. A pointer to anything else fails on the first read.
+	/// </summary>
+	private static bool IsState(BedrockProcess process, ulong address, byte[] word)
+	{
+		if (address < 0x10000 || !process.IsMapped(address)) return false;
+		ulong owner = process.ReadUInt64(address + (ulong) MemoryLayout.BlockLegacyPointer, word);
+		return owner >= 0x10000 && process.IsMapped(owner)
+			&& process.ReadUInt64(owner, word) >= 0x10000;
 	}
 
 	/// <summary>
@@ -229,7 +278,7 @@ public static class BlockPalette
 
 		var word = new byte[8];
 		var heap = new byte[256];
-		var legacy = new byte[MemoryLayout.NameInsideLegacy + MemoryLayout.LegacyReach];
+		var legacy = new byte[ObjectWindow];
 		var reader = new BlockStateReader(process, Addresses(slots, header.Count));
 		Dictionary<string, (int Emission, int Dampening)> known = StateSentinels.Known;
 
@@ -260,8 +309,8 @@ public static class BlockPalette
 		var slots = new byte[header.Count * 8];
 		if (!process.TryRead(header.Begin, slots, slots.Length)) return [];
 
-		var state = new byte[MemoryLayout.BlockNetworkId + 4];
-		var legacy = new byte[MemoryLayout.NameInsideLegacy + MemoryLayout.LegacyReach];
+		var state = new byte[ObjectWindow];
+		var legacy = new byte[ObjectWindow];
 		var heap = new byte[256];
 		var entries = new List<PaletteEntry>(header.Count);
 
@@ -280,20 +329,20 @@ public static class BlockPalette
 			int version = 0;
 			IReadOnlyList<StateProperty> properties = [];
 
-			if (process.IsMapped(address) && process.TryRead(address, state, state.Length))
+			if (process.IsMapped(address) && process.ReadClipped(address, state, state.Length) > MemoryLayout.BlockNetworkId + 4)
 			{
 				network = BitConverter.ToUInt32(state, MemoryLayout.BlockNetworkId);
 				emission = state[MemoryLayout.StateLightEmission];
 				dampening = state[MemoryLayout.StateLightDampening];
 				properties = reader.Read(address, out version);
 				ulong owner = BitConverter.ToUInt64(state, MemoryLayout.BlockLegacyPointer);
-				if (process.IsMapped(owner) && process.TryRead(owner, legacy, legacy.Length))
+				if (process.IsMapped(owner) && process.ReadClipped(owner, legacy, legacy.Length) > BlockLayout.At("id") + 2)
 				{
 					// Read the name through this entry's own block, never through a shared table,
 					// so one unreadable block cannot cost unrelated entries their names.
 					name = HashedString.ReadVerified(process, legacy, MemoryLayout.NameInsideLegacy, heap);
 					hash = BitConverter.ToUInt64(legacy, MemoryLayout.NameInsideLegacy);
-					legacyId = BitConverter.ToUInt16(legacy, MemoryLayout.NameInsideLegacy + MemoryLayout.LegacyId);
+					legacyId = BitConverter.ToUInt16(legacy, BlockLayout.At("id"));
 				}
 			}
 

@@ -79,39 +79,6 @@ public static class RegistryDiscovery
 	/// </summary>
 	private const ulong MaximumLead = 1024;
 
-	public static int Run(string[] args)
-	{
-		string pathFilter = null;
-		string output = Path.Combine(Program.DefaultOutputDirectory(), "registry-discovery.json");
-		for (int i = 0; i < args.Length; i++)
-		{
-			if (args[i] == "--server" && i + 1 < args.Length) pathFilter = args[++i];
-			else if (args[i] == "--out" && i + 1 < args.Length) output = args[++i];
-		}
-
-		using var process = BedrockProcess.Attach(pathFilter);
-		Console.WriteLine($"reading pid {process.Id}");
-		Console.WriteLine($"  {process.ExecutablePath}");
-		Console.WriteLine();
-
-		List<ItemRegistry.Item> swept = ItemRegistry.Read(process);
-		Console.WriteLine($"objects with a verified name: {swept.Count:N0}");
-
-		var report = new StringBuilder("{\n");
-		report.Append($"\t\"server\": \"{process.ExecutablePath.Replace("\\", "\\\\")}\",\n");
-		report.Append($"\t\"objectsSwept\": {swept.Count},\n");
-
-		int found = FindItemRegistry(process, swept, report);
-		found += FindBlockRegistry(process, report);
-		found += FindUpgradeContext(process, report);
-
-		report.Append("\t\"end\": true\n}\n");
-		if (Path.GetDirectoryName(output) is { Length: > 0 } directory) Directory.CreateDirectory(directory);
-		File.WriteAllText(output, report.ToString(), new UTF8Encoding(false));
-		Console.WriteLine($"written {output}");
-		return found;
-	}
-
 	/// <summary>
 	///     The item registry, from the items outward: every counter that points at a swept object,
 	///     the run of counter pointers that is the registry's own vector, the three words that head
@@ -358,248 +325,55 @@ public static class RegistryDiscovery
 	}
 
 	/// <summary>
-	///     The block registry, which is a map from name to block rather than a list, so it is found
-	///     by its entries rather than by a run of pointers.
+	///     Where a block keeps its name, its default state and the state's way back, measured from
+	///     the objects rather than searched for in a window.
 	///     <para>
-	///         An entry is worth more than a slot in an array: it holds the block's name as well as
-	///         the pointer to it, so a candidate entry can be asked whether the name it is filed
-	///         under is the name the block itself carries. Two structures, written for different
-	///         purposes, agreeing on the text for a thousand blocks is not something a wrong offset
-	///         produces. That check settles the distance from a block's name to its start at the
-	///         same time, which is the number the sweep elsewhere has to be told.
+	///         A name is found the way every name is found, by hashing to its own text. From there
+	///         the object start is walked back to: the first word behind the name that is a method
+	///         table whose class is big enough to contain the name at that distance. That word is
+	///         the start, the class states the size, and both are facts rather than candidates.
 	///     </para>
-	/// </summary>
-	private static int FindBlockRegistry(BedrockProcess process, StringBuilder report)
-	{
-		Console.WriteLine();
-		List<(ulong At, string Name)> names = NamedThings(process);
-		Console.WriteLine($"namespaced names that hash to their own text: {names.Count:N0}");
-
-		(ulong blockLead, int stateAt, int backAt, int roundTrips) = DeriveBlockLayout(process, names);
-		if (roundTrips > 0)
-		{
-			Console.WriteLine($"a block and its state point at each other on {roundTrips:N0} of the names tried:");
-			Console.WriteLine($"  the name sits {blockLead} bytes into a block, the state pointer is at name+{stateAt}, "
-							+ $"and the state points back from its own +{backAt}");
-			report.Append($"\t\"blockNameInside\": {blockLead},\n");
-			report.Append($"\t\"blockStatePointerAt\": {stateAt},\n");
-			report.Append($"\t\"blockStateBackPointerAt\": {backAt},\n");
-			report.Append($"\t\"blockLayoutAgreed\": {roundTrips},\n");
-		}
-		else
-		{
-			Console.WriteLine("no block and state point at each other, so this build's block layout is not readable");
-			report.Append("\t\"blockNameInside\": null,\n");
-		}
-		if (names.Count == 0)
-		{
-			report.Append("\t\"blockRegistry\": null,\n");
-			return 1;
-		}
-
-		// Every address a named thing could start at, as with items: the distance is what is being
-		// worked out, so all of them are offered and the entries decide.
-		// A candidate start can be produced by more than one name, since names lie close together
-		// in memory, so every name that could account for it is kept. Keeping only the first made
-		// almost every entry fail a check it should have passed.
-		var leads = new Dictionary<ulong, List<(ulong Name, string Text)>>();
-		foreach ((ulong at, string name) in names)
-		{
-			for (ulong lead = 0; lead <= MaximumLead; lead += 8)
-			{
-				if (at <= lead) continue;
-				if (!leads.TryGetValue(at - lead, out List<(ulong, string)> here)) leads[at - lead] = here = [];
-				here.Add((at, name));
-			}
-		}
-
-		Console.WriteLine("scanning for counters holding a named object");
-		var word = new byte[16];
-		var counters = new Dictionary<ulong, ulong>();   // counter -> the object it holds
-		foreach ((ulong start, List<ulong> places) in Locate(process, leads.Keys, 32))
-		{
-			foreach (ulong place in places)
-			{
-				if (!process.TryRead(place, word, word.Length)) continue;
-				int share = BitConverter.ToInt32(word, CounterShare);
-				int weak = BitConverter.ToInt32(word, CounterWeak);
-				if (share is < 1 or > CountCeiling || weak is < 0 or > CountCeiling) continue;
-				counters[place] = start;
-			}
-		}
-		Console.WriteLine($"counters: {counters.Count:N0} over {counters.Values.Distinct().Count():N0} objects");
-
-		// What distances the counters vote for, before any map is looked at. If a kind of object is
-		// not held by a counter at all it cannot be found this way, and this is where that shows.
-		var votes = new Dictionary<ulong, int>();
-		foreach ((ulong _, ulong start) in counters)
-		{
-			foreach ((ulong nameAt, string _) in leads[start]) votes[nameAt - start] = votes.GetValueOrDefault(nameAt - start) + 1;
-		}
-		Console.WriteLine($"distances the counters vote for: {string.Join(", ", votes.OrderByDescending(v => v.Value).Take(8)
-			.Select(v => $"{v.Key} by {v.Value:N0}"))}");
-
-		if (counters.Count == 0)
-		{
-			report.Append("\t\"blockRegistry\": null,\n");
-			return 1;
-		}
-
-		// Where those counters are held. A holder inside a map entry sits a fixed way past the
-		// entry's start, and the entry's key is a name: the pairing that matters is that the key
-		// reads as the same text the object itself carries.
-		Console.WriteLine("scanning for map entries holding those counters");
-		Dictionary<ulong, List<ulong>> held = Locate(process, counters.Keys, 8);
-
-		var node = new byte[80];
-		var heap = new byte[256];
-		// Two node shapes are possible and which one a registry uses is not knowable in advance: a
-		// sorted map keeps its links, a colour and a marker before the key, a hashed one keeps two
-		// links and then the key. Both are tried and the entries say which is in use.
-		int[] keyPlaces = [16, 32];
-		var agreement = new Dictionary<(ulong Lead, int Key, int Value), int>();
-		var examples = new Dictionary<(ulong Lead, int Key, int Value), ulong>();
-
-		// What actually holds a block's counter, shown rather than assumed. The distance the
-		// counters agree on next after the items' is taken as the blocks', and a couple of their
-		// holders are described word by word so the shape of whatever keeps them can be read off.
-		if (Environment.GetEnvironmentVariable("BDSEXTRACT_SHOW_HOLDERS") is not null)
-		{
-			// Driven from blocks the sweep already proves on this build, so the question is about
-			// what holds them rather than about which distance the blocks are at.
-			List<BlockProperties> proven = BlockRegistry.Read(process);
-			var known = new HashSet<ulong>(proven.Select(b => b.Address));
-			int withCounter = counters.Values.Distinct().Count(known.Contains);
-			Console.WriteLine($"blocks the sweep proves: {proven.Count:N0}, of which {withCounter:N0} are held by a counter");
-			var around = new byte[192];
-			var probe = new byte[256];
-			int shown = 0;
-			foreach ((ulong counter, ulong start) in counters)
-			{
-				if (!known.Contains(start) || counter == start) continue;
-				if (!held.TryGetValue(counter, out List<ulong> where) || where.Count == 0) continue;
-				foreach (ulong place in where.Take(2))
-				{
-					Console.WriteLine($"  a block at 0x{start:X}, counter 0x{counter:X}, held at 0x{place:X}");
-					if (place < 96 || !process.TryRead(place - 96, around, around.Length)) continue;
-					for (int offset = 0; offset + 8 <= around.Length; offset += 8)
-					{
-						ulong value = BitConverter.ToUInt64(around, offset);
-						string tag = value == counter ? "   <- the counter" : "";
-						string text = offset + HashedString.Size <= around.Length
-									&& HashedString.ReadVerified(process, around, offset, probe) is { } n
-							? $"   a name, \"{n}\"" : "";
-						if (value == 0 && text.Length == 0 && tag.Length == 0) continue;
-						Console.WriteLine($"     {offset - 96,+4}: 0x{value:X}{tag}{text}");
-					}
-				}
-				if (++shown >= 2) break;
-			}
-		}
-		foreach ((ulong counter, List<ulong> places) in held)
-		{
-			ulong start = counters[counter];
-			foreach (ulong place in places)
-			{
-				// The entry begins some way in front of where its value sits. Every distance is
-				// tried, and the key has to be a name this very object carries for one to count.
-				for (int value = 40; value <= 104; value += 8)
-				{
-					if (place < (ulong) value) continue;
-					ulong entry = place - (ulong) value;
-					if (!process.TryRead(entry, node, node.Length)) continue;
-
-					foreach (int keyPlace in keyPlaces)
-					{
-						if (keyPlace + HashedString.Size > value) continue;
-						if (HashedString.ReadVerified(process, node, keyPlace, heap) is not { } key) continue;
-
-						foreach ((ulong nameAt, string text) in leads[start])
-						{
-							if (text != key) continue;
-							ulong lead = nameAt - start;
-							agreement[(lead, keyPlace, value)] = agreement.GetValueOrDefault((lead, keyPlace, value)) + 1;
-							examples.TryAdd((lead, keyPlace, value), entry);
-						}
-					}
-				}
-			}
-		}
-
-		if (agreement.Count == 0)
-		{
-			Console.Error.WriteLine("no map entry files a named object under its own name");
-			report.Append("\t\"blockRegistry\": null,\n");
-			return 1;
-		}
-
-		List<KeyValuePair<(ulong Lead, int Key, int Value), int>> ranked = agreement.OrderByDescending(a => a.Value).ToList();
-		Console.WriteLine("entries filing an object under its own name:");
-		foreach (KeyValuePair<(ulong Lead, int Key, int Value), int> row in ranked.Take(6))
-		{
-			Console.WriteLine($"    {row.Value,6} entries: name at object+{row.Key.Lead}, key at entry+{row.Key.Key}, pointer at entry+{row.Key.Value}");
-		}
-
-		((ulong settled, int keyAt, int pointerAt), int agreed) = (ranked[0].Key, ranked[0].Value);
-		Console.WriteLine($"a block's name sits {settled} bytes into it, and its entry keeps the pointer at +{pointerAt}, agreed by {agreed:N0} entries");
-
-		// The whole map, walked from one entry: up to the head the tree hangs from, then down over
-		// every node. What the map holds is the registry's membership, which is the answer a sweep
-		// can only approximate.
-		List<(string Name, ulong Block)> members = WalkTree(process, examples[(settled, keyAt, pointerAt)], keyAt, pointerAt);
-		Console.WriteLine($"the registry holds {members.Count:N0} blocks");
-
-		report.Append("\t\"blockRegistry\": {\n");
-		report.Append($"\t\t\"nameInsideBlock\": {settled},\n");
-		report.Append($"\t\t\"pointerInsideEntry\": {pointerAt},\n");
-		report.Append($"\t\t\"entriesAgreeing\": {agreed},\n");
-		report.Append($"\t\t\"blocks\": {members.Count},\n");
-		report.Append($"\t\t\"names\": [{string.Join(", ", members.Take(4096).Select(m => $"\"{m.Name}\""))}]\n");
-		report.Append("\t},\n");
-		return members.Count > 0 ? 0 : 1;
-	}
-
-	/// <summary>Where a map entry keeps its key, past the links and the colour.</summary>
-	private const int MapEntryKey = 32;
-
-	/// <summary>
-	///     The three numbers the block sweep has to be told, measured instead of assumed: how far a
-	///     block's name sits inside it, where the block keeps the pointer to its default state, and
-	///     where that state keeps the pointer back.
 	///     <para>
-	///         Nothing is searched for blindly. A block and its default state point at each other,
-	///         and a loop that closes is not something arbitrary bytes do: follow a pointer out of a
-	///         verified name, follow one back, and see whether it lands just in front of that same
-	///         name. Every combination of the two offsets is tried on a sample of names, and the one
-	///         that closes the loop for hundreds of them is the build's own layout.
+	///         The state pointer is then looked for across the whole object, because the class said
+	///         how long it is. This used to read a fixed 512 bytes past the name and vote on
+	///         triples, which is two invented numbers deciding every offset downstream.
 	///     </para>
 	/// </summary>
 	public static (ulong Lead, int StateAt, int BackAt, int Agreed) DeriveBlockLayout(
 		BedrockProcess process, List<(ulong At, string Name)> names, int sample = 400)
 	{
-		var ahead = new byte[512];
-		var state = new byte[320];
+		var word = new byte[8];
 		var counts = new Dictionary<(ulong, int, int), int>();
 
 		// Spread across the whole set rather than taken from the front: names lie in memory grouped
-		// by what made them, so the first few hundred are all one kind of thing and say nothing
-		// about the rest.
+		// by what made them, so the first few hundred are all one kind of thing.
 		int step = Math.Max(1, names.Count / sample);
 		for (int index = 0; index < names.Count; index += step)
 		{
-			ulong at = names[index].At;
-			if (process.ReadClipped(at, ahead, ahead.Length) < ahead.Length) continue;
-			for (int stateAt = 0; stateAt + 8 <= ahead.Length; stateAt += 8)
-			{
-				ulong stateAddress = BitConverter.ToUInt64(ahead, stateAt);
-				if (stateAddress < 0x10000 || !process.IsMapped(stateAddress)) continue;
-				if (process.ReadClipped(stateAddress, state, state.Length) < state.Length) continue;
+			ulong name = names[index].At;
+			(ulong start, int size) = ObjectAround(process, name, word);
+			if (size == 0) continue;
 
-				for (int backAt = 0; backAt + 8 <= state.Length; backAt += 8)
+			var whole = new byte[size];
+			if (process.ReadClipped(start, whole, size) < size) continue;
+
+			ulong lead = name - start;
+			for (int stateAt = 0; stateAt + 8 <= size; stateAt += 8)
+			{
+				ulong state = BitConverter.ToUInt64(whole, stateAt);
+				if (state < 0x10000 || !process.IsMapped(state)) continue;
+
+				(ulong stateStart, int stateSize) = (state, ObjectLayout.Measure(process, state, word));
+				if (stateSize == 0) continue;
+
+				var inner = new byte[stateSize];
+				if (process.ReadClipped(stateStart, inner, stateSize) < stateSize) continue;
+
+				for (int backAt = 0; backAt + 8 <= stateSize; backAt += 8)
 				{
-					ulong back = BitConverter.ToUInt64(state, backAt);
-					if (back >= at || at - back > MaximumLead) continue;
-					counts[(at - back, stateAt, backAt)] = counts.GetValueOrDefault((at - back, stateAt, backAt)) + 1;
+					if (BitConverter.ToUInt64(inner, backAt) != start) continue;
+					counts[(lead, stateAt - (int) lead, backAt)] =
+						counts.GetValueOrDefault((lead, stateAt - (int) lead, backAt)) + 1;
 				}
 			}
 		}
@@ -615,6 +389,28 @@ public static class RegistryDiscovery
 
 		KeyValuePair<(ulong Lead, int StateAt, int BackAt), int> best = ranked[0];
 		return (best.Key.Lead, best.Key.StateAt, best.Key.BackAt, best.Value);
+	}
+
+	/// <summary>
+	///     The object a name sits inside: its start and its size.
+	///     <para>
+	///         Walked back word by word to the first method table whose class states a size large
+	///         enough to reach the name. A polymorphic object opens with that pointer and the size
+	///         is the one the compiler wrote into the destructor, so neither is a guess. Zero size
+	///         means no object was found behind the name, which is a name that is not in one.
+	///     </para>
+	/// </summary>
+	private static (ulong Start, int Size) ObjectAround(BedrockProcess process, ulong name, byte[] word)
+	{
+		for (ulong back = 0; back <= MaximumLead; back += 8)
+		{
+			if (back > name) break;
+			ulong start = name - back;
+			int size = ObjectLayout.Measure(process, start, word);
+			if (size > 0 && size >= (int) back + HashedString.Size) return (start, size);
+		}
+
+		return (0, 0);
 	}
 
 	/// <summary>

@@ -397,28 +397,16 @@ public static class ItemRegistry
 	///     Reads every item out of a running server and writes the data, the structure it was read
 	///     from, and the evidence beside it.
 	/// </summary>
-	public static int Run(string[] args)
+	/// <summary>
+	///     The item half of the one run, on the process the block half already attached to and
+	///     checked. It takes no arguments of its own: two halves of one extraction reading two
+	///     different servers, or one of them writing somewhere else, is not a thing that should be
+	///     expressible.
+	/// </summary>
+	public static int Run(BedrockProcess process)
 	{
-		// The Data folder beside this project's source, the same place the block extraction lands,
-		// so a run updates the copy that is committed instead of dropping files wherever it was
-		// started from. --out still overrides.
-		string pathFilter = null, output = Path.Combine(Program.DefaultOutputDirectory(), "items-runtime.json");
-		bool anyWorld = args.Contains("--any-world");
-		for (int i = 0; i < args.Length; i++)
-		{
-			if (args[i] == "--server" && i + 1 < args.Length) pathFilter = args[++i];
-			else if (args[i] == "--out" && i + 1 < args.Length) output = args[++i];
-		}
-
-		using var process = BedrockProcess.Attach(pathFilter);
-		Console.WriteLine($"reading pid {process.Id}");
-
-		// Before anything is read, not after. An extraction from a server whose world has its
-		// experiments off comes out short and misnumbered, and neither shows in the file.
+		string output = Path.Combine(Program.DefaultOutputDirectory(), "items-runtime.json");
 		WorldConfig.Config config = WorldConfig.Read(process.ExecutablePath);
-		if (!WorldConfig.Check(config, !anyWorld)) return 1;
-		Console.WriteLine();
-
 		List<Item> all = Read(process);
 		Console.WriteLine($"objects with a verified name and a translation key: {all.Count:N0}");
 		Dictionary<string, Item> chosen = ChooseCopies(process, all);

@@ -129,9 +129,6 @@ public static class Program
 		using var server = BedrockProcess.Attach(pathFilter);
 		Console.WriteLine($"reading pid {server.Id}");
 
-		// The class declaration is this build's own layout on the build it was published for, and
-		// nothing at all on any other, where every member has to be measured before it can be read.
-		BlockLayout.PublishedFor(server.BuildVersion);
 		Console.WriteLine(server.BuildVersion is null
 			? "  build      not stated by the executable and not named by its folder"
 			: $"  build      {server.BuildVersion}");
@@ -232,14 +229,17 @@ public static class Program
 			return 1;
 		}
 
-		// On any build but the one the class layout is published for, every member is looked for
-		// against that build rather than assumed to sit where it did.
-		if (!BlockLayout.IsReferenceBuild(server.BuildVersion))
+		// Every value is looked for on this server, on every build without exception. Nothing is
+		// published and nothing is taken from the reference but the values themselves.
+		if (!Report("block members", BlockMemberDerivation.CheckBlocks(server, blocks, LargestBlock(server, blocks))))
 		{
-			Report("block members",
-				BlockMemberDerivation.MeasureBlocks(server, blocks, LargestBlock(server, blocks)));
+			return 2;
 		}
 
+		// Only now can a block's own values be read, because only now is there anywhere to read
+		// them from. The sweep answers what a block is and where it is; what it holds comes after
+		// the layout has been measured against it.
+		BlockRegistry.ReadValues(server, blocks);
 
 		BlockPalette.VectorHeader? found = BlockPalette.FindPalette(server, blocks);
 		if (found is null)
@@ -289,20 +289,17 @@ public static class Program
 		var palette = BlockPalette.Read(server, header);
 		Console.WriteLine($"palette read from 0x{header.Begin:X}");
 
-		// The state class gets the same treatment as the block class, and for the same reason: its
-		// members are only stated for the one build the declaration is published for.
-		if (!BlockLayout.IsReferenceBuild(server.BuildVersion))
+		// The state class gets the same treatment as the block class, and on the same terms: every
+		// value looked for on this server, none of them taken from anywhere else.
+		int stateSize = StateClassSize(server, palette);
+		if (stateSize == 0)
 		{
-			int stateSize = StateClassSize(server, palette);
-			if (stateSize == 0)
-			{
-				Console.Error.WriteLine("the state class does not record its own size, so no state member can be measured");
-				return 1;
-			}
-
-			Console.WriteLine($"  the state class records itself as {stateSize} bytes");
-			Report("state members", BlockMemberDerivation.MeasureStates(server, palette, stateSize));
+			Console.Error.WriteLine("the state class does not record its own size, so no state value can be measured");
+			return 1;
 		}
+
+		Console.WriteLine($"  the state class records itself as {stateSize} bytes");
+		if (!Report("state members", BlockMemberDerivation.CheckStates(server, palette, stateSize))) return 2;
 
 		// The palette decides what a block is. The memory sweep also turns up features, biomes and
 		// other named things that are not blocks, and there is no need to guess which: anything the
@@ -400,16 +397,47 @@ public static class Program
 	///     How far the member search looks, which is as far as the largest block object goes. The
 	///     classes state their own sizes, so this is measured rather than chosen.
 	/// </summary>
-	/// <summary>What one class's search found, member by member, settled or not.</summary>
-	private static void Report(string what, IReadOnlyList<BlockMemberDerivation.Found> located)
+	/// <summary>
+	///     Whether the layout the reference states still reads this server, member by member. A
+	///     member that has slipped is said out loud and the run goes on; one that is broken is not
+	///     the field any more, so there is no point reading anything past it.
+	/// </summary>
+	internal static bool Report(string what, IReadOnlyList<BlockMemberDerivation.Found> checks)
 	{
-		Console.WriteLine($"{what}: {located.Count(f => f.Settled)} of {located.Count} located against {BlockMembers.Build}");
-		foreach (BlockMemberDerivation.Found f in located)
+		int holds = checks.Count(f => f.Verdict == BlockMemberDerivation.Verdict.Holds);
+		int slipped = checks.Count(f => f.Verdict == BlockMemberDerivation.Verdict.Slipped);
+		int broken = checks.Count(f => f.Verdict == BlockMemberDerivation.Verdict.Broken);
+		int unchecked_ = checks.Count(f => f.Verdict == BlockMemberDerivation.Verdict.Unchecked);
+		Console.WriteLine($"{what} against {BlockMembers.Build}: {holds} hold, {slipped} slipped, "
+						+ $"{broken} broken, {unchecked_} with nothing to check them against");
+
+		foreach (BlockMemberDerivation.Found f in checks)
 		{
-			Console.WriteLine(f.Settled
-				? $"  {f.Name,-52} at +{f.At}, on {f.Held:N0} of {f.Of:N0}"
-				: $"  {f.Name,-52} NOT LOCATED, best {f.Held:N0} of {f.Of:N0}, placed nowhere");
+			switch (f.Verdict)
+			{
+				case BlockMemberDerivation.Verdict.Holds:
+					break;
+				case BlockMemberDerivation.Verdict.Unchecked:
+					Console.WriteLine($"  {f.Name,-52} at +{f.At}, the reference states no value");
+					break;
+				case BlockMemberDerivation.Verdict.Slipped:
+					Console.WriteLine($"  {f.Name,-52} at +{f.At}, SLIPPED to {f.Share:P1}, "
+									+ $"{f.Held:N0} of {f.Of:N0}");
+					break;
+				default:
+					Console.Error.WriteLine($"  {f.Name,-52} at +{f.At}, BROKEN at {f.Share:P1}, "
+									+ $"{f.Held:N0} of {f.Of:N0}");
+					break;
+			}
 		}
+
+		if (broken == 0) return true;
+
+		Console.Error.WriteLine();
+		Console.Error.WriteLine($"{broken} member(s) of the {what.Split(' ')[0]} class read something else on this");
+		Console.Error.WriteLine("build. Correct their offsets in the reference and run again. Nothing past");
+		Console.Error.WriteLine("this point would be worth reading.");
+		return false;
 	}
 
 	/// <summary>
@@ -452,88 +480,6 @@ public static class Program
 			largest = Math.Max(largest, ObjectLayout.Measure(process, block.Address, word));
 		}
 		return largest;
-	}
-
-	private static string WriteLayout(BedrockProcess process, IReadOnlyList<BlockProperties> blocks)
-	{
-		var placed = BlockLayout.Members
-			.Where(m => m.Name != "nameInfo" && BlockLayout.Has(m.Name))
-			.Select(m => (At: BlockLayout.At(m.Name), m.Bytes, m.Kind, m.Name))
-			.OrderBy(m => m.At).ThenBy(m => m.Bytes).ToList();
-
-		var sizes = blocks.Select(b => b.ObjectSize).Where(s => s > 0).OrderBy(s => s).ToList();
-		var text = new StringBuilder("{\n");
-		text.Append("\t\"object\": \"BlockType\",\n");
-		text.Append($"\t\"build\": \"{(process.BuildVersion is null ? "unknown" : process.BuildVersion.ToString())}\",\n");
-		text.Append($"\t\"layoutPublishedFor\": \"{BlockMembers.Build}\",\n");
-		text.Append($"\t\"classSize\": {BlockMembers.Block.Size},\n");
-		text.Append($"\t\"objectSize\": {{ \"smallest\": {(sizes.Count > 0 ? sizes[0] : 0)}, "
-				+ $"\"median\": {(sizes.Count > 0 ? sizes[sizes.Count / 2] : 0)}, "
-				+ $"\"largest\": {(sizes.Count > 0 ? sizes[^1] : 0)}, "
-				+ $"\"unmeasured\": {blocks.Count - sizes.Count} }},\n");
-		text.Append("\t\"layout\": [\n");
-
-		var rows = new List<string>();
-		int end = 0;
-		foreach (var m in placed)
-		{
-			if (m.At > end)
-			{
-				rows.Add($"\t\t{{ \"at\": {end}, \"bytes\": {m.At - end}, \"kind\": \"padding\", \"name\": null, \"from\": null }}");
-			}
-			rows.Add($"\t\t{{ \"at\": {m.At}, \"bytes\": {m.Bytes}, \"kind\": \"{m.Kind}\", "
-					+ $"\"name\": \"{m.Name}\", \"from\": \"{BlockLayout.Provenance(m.Name)}\" }}");
-			end = Math.Max(end, m.At + m.Bytes);
-		}
-
-		if (BlockMembers.Block.Size > end)
-		{
-			rows.Add($"\t\t{{ \"at\": {end}, \"bytes\": {BlockMembers.Block.Size - end}, \"kind\": \"padding\", \"name\": null, \"from\": null }}");
-		}
-
-		// Past the class is whatever the derived block class adds. Nothing here states its layout,
-		// so it is one row saying how far it runs rather than an absence.
-		if (sizes.Count > 0 && sizes[^1] > BlockMembers.Block.Size)
-		{
-			int median = Math.Max(0, sizes[sizes.Count / 2] - BlockMembers.Block.Size);
-			rows.Add($"\t\t{{ \"at\": {BlockMembers.Block.Size}, \"bytes\": null, \"kind\": \"derived class tail\", "
-					+ $"\"name\": null, \"from\": null, \"medianBytes\": {median}, \"largestBytes\": {sizes[^1] - BlockMembers.Block.Size} }}");
-		}
-
-		text.Append(string.Join(",\n", rows)).Append('\n');
-		return text.Append("\t]\n}\n").ToString();
-	}
-
-	private static string WriteComponents(string versionHeader, IReadOnlyList<ComponentName> components)
-	{
-		var text = new StringBuilder("{\n");
-		text.Append(versionHeader);
-		var owners = components.GroupBy(c => c.Owner).OrderBy(g => g.Key, StringComparer.Ordinal).ToList();
-		for (int o = 0; o < owners.Count; o++)
-		{
-			var rows = owners[o].ToList();
-			text.Append($"\t\"{Escape(owners[o].Key)}\": [\n");
-			for (int i = 0; i < rows.Count; i++)
-			{
-				text.Append($"\t\t{{ \"name\": \"{Escape(rows[i].Name)}\", ");
-				text.Append($"\"field\": \"{Escape(rows[i].Alias)}\" }}");
-				text.Append(i == rows.Count - 1 ? "\n" : ",\n");
-			}
-			text.Append("\t]");
-			text.Append(o == owners.Count - 1 ? "\n" : ",\n");
-		}
-		return text.Append("}\n").ToString();
-	}
-
-	private static string RangeValue(object value)
-	{
-		return value switch
-		{
-			bool b => b ? "true" : "false",
-			int i => i.ToString(CultureInfo.InvariantCulture),
-			string s => $"\"{Escape(s)}\"",
-			_ => "null"
-		};
 	}
 
 	private static string WriteUpgrades(string versionHeader, IReadOnlyList<UpgradeSchema> schemas,
@@ -619,31 +565,6 @@ public static class Program
 			text.Append(i == steps.Count - 1 ? "\n" : ",\n");
 		}
 		return text.Append("\t]\n}\n").ToString();
-	}
-
-	/// <summary>
-	///     A rule without its revision, so a nested rule and the rule holding it print the same.
-	///     "produces" says what the block becomes, and where that was read: a flattening captures
-	///     it beside the rule, a rename has it only in the code the rule points at, and calling
-	///     both the same thing would hide that one of them came out of an instruction.
-	/// </summary>
-	private static string Body(UpgradeSchema rule)
-	{
-		var text = new StringBuilder();
-		// A rule that selects its block by pattern says so, because most of those patterns spell
-		// a whole block id and would otherwise read as one that was named.
-		text.Append(rule.Subject is null ? ""
-			: rule.SubjectIsPattern ? $"\"blockPattern\": \"{Escape(rule.Subject)}\", "
-			: $"\"block\": \"{Escape(rule.Subject)}\", ");
-		text.Append($"\"address\": \"0x{rule.Address:X}\", ");
-		text.Append($"\"old\": {Side(rule, 0)}, ");
-		text.Append($"\"new\": {Side(rule, 1)}");
-		if (rule.Produces is not null)
-		{
-			text.Append($", \"produces\": \"{Escape(rule.Produces)}\"");
-			text.Append($", \"producesFrom\": \"{(rule.ProducesFromCode ? "code" : "data")}\"");
-		}
-		return text.ToString();
 	}
 
 	/// <summary>

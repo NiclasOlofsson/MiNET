@@ -87,6 +87,13 @@ public static class ComponentReader
 	/// <summary>Geometry states its name one field further in than every other string component.</summary>
 	private const int GeometryText = 16;
 
+	/// <summary>
+	///     What each component id is, worked out from every instance carrying it. A registration
+	///     number is per instance and two runs of one build disagree on every one of them, so the
+	///     number is never published: the name it stands for is.
+	/// </summary>
+	public static IReadOnlyDictionary<int, string> Names { get; private set; } = new Dictionary<int, string>();
+
 	public static Dictionary<string, List<BlockComponent>> Read(BedrockProcess process,
 		IReadOnlyList<BlockProperties> blocks)
 	{
@@ -96,7 +103,7 @@ public static class ComponentReader
 
 		foreach (var block in blocks)
 		{
-			var held = Instances(process, block.Address, word);
+			var held = Instances(process, block.Address + (ulong) BlockLayout.At("components"), word);
 			byBlock[block.Name] = held;
 			foreach (var (id, at) in held)
 			{
@@ -115,6 +122,10 @@ public static class ComponentReader
 			sized[id] = Size(process, instances[0].At, word);
 			named[id] = Identify(process, instances, blocks, word);
 		}
+
+		// The same ids answer on a state, because both come out of one registry, so the names
+		// worked out here are what lets a state say what it carries rather than a bare number.
+		Names = named;
 
 		var result = new Dictionary<string, List<BlockComponent>>(StringComparer.Ordinal);
 		foreach (var block in blocks)
@@ -145,17 +156,20 @@ public static class ComponentReader
 	///     to be the same length, which is what says they are the same list, and a block where they
 	///     disagree is skipped rather than paired up by position and hoped for.
 	/// </summary>
-	internal static List<(int Id, ulong At)> Instances(BedrockProcess process, ulong legacy, byte[] word)
+	internal static List<(int Id, ulong At)> Instances(BedrockProcess process, ulong storage, byte[] word)
 	{
 		var held = new List<(int, ulong)>();
-		if (!BlockLayout.Has("components")) return held;
-		ulong begin = process.ReadUInt64(legacy + (ulong) BlockLayout.At("components"), word);
-		ulong end = process.ReadUInt64(legacy + (ulong) (BlockLayout.At("components") + 8), word);
+
+		// The keys are first and the values second, which is what the flat_map declares. The ids
+		// are two bytes each and the pointers eight, and requiring both counts to agree is what
+		// says the two vectors are the same list.
+		ulong idBegin = process.ReadUInt64(storage, word);
+		ulong idEnd = process.ReadUInt64(storage + 8, word);
+		ulong begin = process.ReadUInt64(storage + 24, word);
+		ulong end = process.ReadUInt64(storage + 32, word);
 		if (begin < 0x10000 || end <= begin || (end - begin) % 8 != 0) return held;
 		if (end - begin > VectorReach || !process.IsMapped(begin)) return held;
 
-		ulong idBegin = process.ReadUInt64(legacy + (ulong) (BlockLayout.At("components") + 24), word);
-		ulong idEnd = process.ReadUInt64(legacy + (ulong) (BlockLayout.At("components") + 32), word);
 		int count = (int) ((end - begin) / 8);
 		if (idBegin < 0x10000 || idEnd - idBegin != (ulong) (count * 2)) return held;
 		if (!process.IsMapped(idBegin)) return held;

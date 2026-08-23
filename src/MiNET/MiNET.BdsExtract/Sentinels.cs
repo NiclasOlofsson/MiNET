@@ -44,6 +44,13 @@ public static class Sentinels
 	public const double Floor = 0.95;
 
 	/// <summary>
+	///     How far a member can fall before there is no point continuing. Between this and the floor
+	///     the value is still recognisably the same field and the run says so; below it the offset is
+	///     reading something else, and everything downstream of it is nonsense dressed as data.
+	/// </summary>
+	public const double Abort = 0.50;
+
+	/// <summary>
 	///     The decimals the game states a field to, so a float is written as the value Minecraft has
 	///     rather than the binary that carries it. Three for friction, because blue ice is 0.989; two
 	///     everywhere else, terracotta hardness 1.25 and barrier's blast resistance 3600000.75 being

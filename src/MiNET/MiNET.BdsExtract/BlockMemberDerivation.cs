@@ -28,67 +28,57 @@ namespace MiNET.BdsExtract;
 using System.Text.Json;
 
 /// <summary>
-///     Finds where each member of a class sits on a build the class layout is not published for, by
-///     scoring every position in the object against the build it is published for.
+///     Says whether the layout the reference states still reads the server in front of it.
 ///     <para>
-///         The reference is an extraction of 1.26.20.5 read at the offsets its own class declaration
-///         states. An object is matched between the two builds by what it is: a block by its full
-///         name, a state by its block's name and its property values. A position holds a member when
-///         it gives that member's reference value for at least the floor of the objects both builds
-///         have.
+///         Every member is read where the reference puts it, and counted against the value the
+///         reference states for that object. An object is matched between the two by what it is: a
+///         block by its full name, a state by its block's name and its property values.
 ///     </para>
 ///     <para>
-///         A member the game changed on a few objects still locates, because the floor is not one. A
-///         member nothing settles is placed nowhere and reported unsettled, rather than quietly read
-///         from a position nothing confirmed.
+///         At or above the floor the offset still reads the field and the run goes on. Below the
+///         floor it is said out loud. Below half the offset is reading something else, and the run
+///         stops rather than write an output that looks right.
 ///     </para>
 ///     <para>
-///         The block class and the state class run the same search. What separates them is the
-///         member list, the reference file, what an object is keyed by, and where a settled position
-///         is recorded, all of which the caller states.
+///         Nothing here searches and nothing here moves. When a member breaks, its offset is
+///         corrected in the reference by hand and the run is repeated until the new layout reads.
 ///     </para>
 /// </summary>
 public static class BlockMemberDerivation
 {
-	/// <summary>What one member's search found. A member nothing settled sits at -1, which is nowhere.</summary>
-	public readonly record struct Found(string Name, int At, int Held, int Of, bool Settled);
-
-	/// <summary>One object to score: what it is, and where it is.</summary>
-	public readonly record struct Subject(string Key, ulong Address);
-
-	/// <summary>One value inside a member: what to call it, where it sits, and how it reads.</summary>
-	private readonly record struct Leaf(string Path, int At, BlockMember Member);
-
-	/// <summary>
-	///     Every value a member holds, by the path the reference states it under. A member that is
-	///     another object contributes everything inside it, at the offsets that object's own class
-	///     declares. That is the whole point of doing it this way: the members of one object have a
-	///     single degree of freedom between them, so they are searched for together, once, and the
-	///     search cannot put two of them in places that are not the distance apart they must be.
-	/// </summary>
-	private static List<Leaf> Leaves(BlockMember member, bool state, string path = null, int at = 0)
+	/// <summary>How a member came out of the check.</summary>
+	public enum Verdict
 	{
-		path = path is null ? member.Name : $"{path}.{member.Name}";
-		if (member.Kind != MemberKind.Container) return [new Leaf(path, at, member)];
-		if (member.Holds is null) return [];
+		/// <summary>Right for at least the floor of the objects, so the offset still reads it.</summary>
+		Holds,
 
-		var leaves = new List<Leaf>();
-		foreach (BlockMember inner in BlockMembers.Held(member.Holds, state).Members)
-		{
-			leaves.AddRange(Leaves(inner, state, path, at + inner.At));
-		}
+		/// <summary>Right for most but not the floor. The offset is probably still the field.</summary>
+		Slipped,
 
-		return leaves;
+		/// <summary>Right for less than half. The offset is reading something else.</summary>
+		Broken,
+
+		/// <summary>The reference states no value for it, so there is nothing to check it against.</summary>
+		Unchecked
 	}
 
-	/// <summary>Every block, keyed by its full name, which is what a block is.</summary>
-	public static List<Found> MeasureBlocks(BedrockProcess process, IReadOnlyList<BlockProperties> blocks, int reach)
+	/// <summary>What the check found for one member.</summary>
+	public readonly record struct Found(string Name, int At, int Held, int Of, Verdict Verdict)
 	{
-		return Measure(process, BlockLayout.Members, false,
+		public double Share => Of == 0 ? 0 : (double) Held / Of;
+	}
+
+	/// <summary>One object to check against: what it is, and where it is.</summary>
+	public readonly record struct Subject(string Key, ulong Address);
+
+	/// <summary>Every block, keyed by its full name, which is what a block is.</summary>
+	public static List<Found> CheckBlocks(BedrockProcess process, IReadOnlyList<BlockProperties> blocks, int reach)
+	{
+		return Check(process, BlockLayout.Blocks,
 			blocks.Select(b => new Subject(b.Name, b.Address)).ToList(),
-			Load("blocks.json", "blocks", b => b.TryGetProperty("name", out JsonElement name)
+			Load("blocks.json", "blocks", BlockLayout.Blocks, b => b.TryGetProperty("name", out JsonElement name)
 				&& name.ValueKind == JsonValueKind.String ? name.GetString() : null),
-			reach, BlockLayout.Measured);
+			reach);
 	}
 
 	/// <summary>
@@ -96,158 +86,111 @@ public static class BlockMemberDerivation
 	///     palette: the order is the server's own and two builds do not have to agree on it, so an
 	///     index would compare one build's state against another build's neighbour.
 	/// </summary>
-	public static List<Found> MeasureStates(BedrockProcess process, IReadOnlyList<PaletteEntry> palette, int reach)
+	public static List<Found> CheckStates(BedrockProcess process, IReadOnlyList<PaletteEntry> palette, int reach)
 	{
-		return Measure(process, BlockLayout.StateMembers, true,
+		return Check(process, BlockLayout.States,
 			palette.Select(e => new Subject(StateSentinels.Key(e.Name, e.States), e.Address)).ToList(),
-			Load("block_states.json", "states", StateSentinels.KeyOf),
-			reach, BlockLayout.StateMeasured);
+			Load("block_states.json", "states", BlockLayout.States, StateSentinels.KeyOf),
+			reach);
 	}
 
-	private static List<Found> Measure(BedrockProcess process, IReadOnlyList<BlockMember> members, bool state,
-		IReadOnlyList<Subject> subjects, Dictionary<string, Dictionary<string, string>> known,
-		int reach, Action<string, int> place)
+	/// <summary>
+	///     Every item, keyed by its full name. An item's window starts before its name rather than at
+	///     the object, so the window it is read through is handed over already read.
+	/// </summary>
+	public static List<Found> CheckItems(BedrockProcess process, IReadOnlyCollection<ItemRegistry.Item> items)
 	{
-		var results = new List<Found>();
-		if (known.Count == 0) return results;
+		ClassTree tree = ItemLayout.Items;
+		Dictionary<string, Dictionary<int, string>> known =
+			Load("items-runtime.json", "items", tree, i => i.TryGetProperty("name", out JsonElement name)
+				&& name.ValueKind == JsonValueKind.String ? name.GetString() : null);
 
-		// Every object both builds have, read once. The search runs over these windows rather than
-		// over the process, so a member costs one pass instead of one read a position.
-		var windows = new List<(byte[] Window, ulong Address, Dictionary<string, string> Wanted)>();
+		var windows = new List<(byte[] Window, ulong Address, Dictionary<int, string> Wanted)>();
+		foreach (ItemRegistry.Item item in items)
+		{
+			if (!item.IsItem) continue;
+			if (!known.TryGetValue(item.Name, out Dictionary<int, string> wanted)) continue;
+			windows.Add((item.Window, item.Address, wanted));
+		}
+
+		return Score(process, tree, windows, ItemRegistry.NameInsideItem - ItemRegistry.Before);
+	}
+
+	/// <summary>
+	///     Reads every member where the reference says it is and counts how many objects still hold
+	///     what the reference says they hold. Nothing is searched for and nothing is moved: the
+	///     reference states the layout, and this says whether that layout still reads this server.
+	/// </summary>
+	private static List<Found> Check(BedrockProcess process, ClassTree tree,
+		IReadOnlyList<Subject> subjects, Dictionary<string, Dictionary<int, string>> known, int reach)
+	{
+		if (known.Count == 0) return [];
+
+		// Every object both the reference and this server have, read once.
+		var windows = new List<(byte[] Window, ulong Address, Dictionary<int, string> Wanted)>();
 		foreach (Subject subject in subjects)
 		{
-			if (!known.TryGetValue(subject.Key, out Dictionary<string, string> wanted)) continue;
+			if (!known.TryGetValue(subject.Key, out Dictionary<int, string> wanted)) continue;
 			var window = new byte[reach];
 			if (process.ReadClipped(subject.Address, window, reach) < reach) continue;
 			windows.Add((window, subject.Address, wanted));
 		}
 
+		return Score(process, tree, windows, 0);
+	}
+
+	/// <summary>
+	///     The count, member by member. The lead is how far into each window the object starts, which
+	///     is nothing when the window is the object and something when it begins before it.
+	/// </summary>
+	private static List<Found> Score(BedrockProcess process, ClassTree tree,
+		List<(byte[] Window, ulong Address, Dictionary<int, string> Wanted)> windows, int lead)
+	{
+		var results = new List<Found>();
 		var scratch = new byte[256];
-
-		// Two passes. The first keeps only what is right for every block at exactly one position:
-		// a name, a colour, a version, values distinctive enough that nothing else in the object
-		// reads the same. Those are reserved, byte for byte.
-		// The second looks for everything else and will not consider a position inside a reserved
-		// one, because a bool carries a single bit and matches half the object by luck. Without the
-		// reservation, solid, isOpaqueFullBlock and lightBlock all settled on the same byte, and one
-		// byte is not three members.
-		var reserved = new List<(int From, int To, string Name)>();
-		var pending = new List<BlockMember>();
-
-		foreach (BlockMember member in members)
+		foreach (MemberNode leaf in tree.Leaves)
 		{
-			List<Leaf> leaves = Leaves(member, state);
-			if (leaves.Count == 0)
+			// A member holding something with no class of its own has no value to read, so there is
+			// nothing to check whatever the file states beside its name.
+			if (leaf.Member.Kind == MemberKind.Container)
 			{
-				results.Add(new Found(member.Name, -1, 0, 0, false));
+				results.Add(new Found(leaf.Path, leaf.At, 0, 0, Verdict.Unchecked));
 				continue;
 			}
 
-			var wanted = windows.Where(w => leaves.Any(l => w.Wanted.ContainsKey(l.Path))).ToList();
-			if (wanted.Count == 0)
+			int position = leaf.At - lead;
+			int held = 0, of = 0;
+			foreach ((byte[] window, ulong address, Dictionary<int, string> values) in windows)
 			{
-				results.Add(new Found(member.Name, -1, 0, 0, false));
-				continue;
+				if (!values.TryGetValue(leaf.Index, out string stated)) continue;
+				of++;
+				if (position < 0 || position + leaf.Member.Bytes > window.Length) continue;
+				if (BlockMemberReader.Text(process, address, window, scratch, position, leaf.Member) == stated) held++;
 			}
 
-			(int Best, int Most, int Of, int Ties) score = Score(process, wanted, member, leaves, scratch, reach, null);
-			if (score.Most == score.Of && score.Ties == 1)
-			{
-				place(member.Name, score.Best);
-				reserved.Add((score.Best, score.Best + member.Bytes, member.Name));
-				results.Add(new Found(member.Name, score.Best, score.Most, score.Of, true));
-			}
-			else
-			{
-				pending.Add(member);
-			}
-		}
-
-		foreach (BlockMember member in pending)
-		{
-			List<Leaf> leaves = Leaves(member, state);
-			var wanted = windows.Where(w => leaves.Any(l => w.Wanted.ContainsKey(l.Path))).ToList();
-			(int Best, int Most, int Of, int Ties) score = Score(process, wanted, member, leaves, scratch, reach, reserved);
-			bool settled = score.Best >= 0 && score.Most >= Sentinels.Floor * score.Of && score.Ties == 1;
-			if (settled)
-			{
-				place(member.Name, score.Best);
-				reserved.Add((score.Best, score.Best + member.Bytes, member.Name));
-			}
-			results.Add(new Found(member.Name, settled ? score.Best : -1, score.Most, score.Of, settled));
+			Verdict verdict = of == 0
+				? Verdict.Unchecked
+				: held >= Sentinels.Floor * of
+					? Verdict.Holds
+					: held >= Sentinels.Abort * of
+						? Verdict.Slipped
+						: Verdict.Broken;
+			results.Add(new Found(leaf.Path, leaf.At, held, of, verdict));
 		}
 
 		return results;
 	}
 
 	/// <summary>
-	///     The position that holds the member for the most objects, how many that is, and how many
-	///     positions tie with it. Positions inside an already reserved member are not considered.
-	/// </summary>
-	private static (int Best, int Most, int Of, int Ties) Score(BedrockProcess process,
-		List<(byte[] Window, ulong Address, Dictionary<string, string> Wanted)> wanted,
-		BlockMember member, List<Leaf> leaves, byte[] scratch, int reach,
-		List<(int From, int To, string Name)> reserved)
-	{
-		// How many values are being asked for in total: one object's worth is every value inside
-		// the member that the reference states for that object. A member holding one value is the
-		// same arithmetic with a count of one.
-		int of = 0;
-		foreach ((byte[] _, ulong _, Dictionary<string, string> values) in wanted)
-		{
-			of += leaves.Count(l => values.ContainsKey(l.Path));
-		}
-
-		int width = Width(member.Kind);
-		int best = -1, most = 0, ties = 0;
-		for (int at = 0; at + member.Bytes <= reach; at += width)
-		{
-			if (reserved is not null && reserved.Any(r => at < r.To && at + member.Bytes > r.From)) continue;
-
-			int held = 0;
-			foreach ((byte[] window, ulong address, Dictionary<string, string> values) in wanted)
-			{
-				foreach (Leaf leaf in leaves)
-				{
-					if (!values.TryGetValue(leaf.Path, out string stated)) continue;
-					if (BlockMemberReader.Text(process, address, window, scratch, at + leaf.At, leaf.Member) == stated) held++;
-				}
-			}
-
-			if (held > most)
-			{
-				most = held;
-				best = at;
-				ties = 1;
-			}
-			else if (held == most && held > 0)
-			{
-				ties++;
-			}
-		}
-
-		return (best, most, of, ties);
-	}
-
-	/// <summary>The step a member of that kind is searched on, which is its own alignment.</summary>
-	private static int Width(MemberKind kind) => kind switch
-	{
-		MemberKind.Bool or MemberKind.Enum8 => 1,
-		MemberKind.UInt16 => 2,
-		MemberKind.Enum32 or MemberKind.Int32 or MemberKind.Float or MemberKind.Colour or MemberKind.Box => 4,
-		_ => 8
-	};
-
-	/// <summary>
 	///     Every object the reference knows, by what it is, with each member's value written exactly
 	///     as the file writes it. An object two keys cannot separate is used by neither, because a
 	///     value that could have come from either proves nothing about where it was read.
 	/// </summary>
-	private static Dictionary<string, Dictionary<string, string>> Load(string file, string array,
-		Func<JsonElement, string> keyOf)
+	private static Dictionary<string, Dictionary<int, string>> Load(string file, string array,
+		ClassTree tree, Func<JsonElement, string> keyOf)
 	{
 		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference", file);
-		var known = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+		var known = new Dictionary<string, Dictionary<int, string>>(StringComparer.Ordinal);
 		if (!File.Exists(path))
 		{
 			Console.Error.WriteLine($"no reference at {path}; no member position can be measured");
@@ -268,8 +211,8 @@ public static class BlockMemberDerivation
 				continue;
 			}
 
-			var values = new Dictionary<string, string>(StringComparer.Ordinal);
-			Flatten(held, null, values);
+			var values = new Dictionary<int, string>();
+			Gather(tree.Roots, held, values);
 			if (values.Count > 0) known[key] = values;
 		}
 
@@ -277,18 +220,32 @@ public static class BlockMemberDerivation
 	}
 
 	/// <summary>
-	///     Every value the reference states for one object, under the path it sits at. An object
-	///     inside an object contributes its own values under its own name, which is the same path
-	///     the search builds when it walks the class, so the two meet without either being told
-	///     about the other.
+	///     What the reference states for one object, walked the same way the class is: a member is
+	///     looked for by its own name inside whatever holds it, and a member that holds a class is
+	///     descended into. The reference is not flattened and no path is built. A member the file
+	///     states nothing for is simply absent, and the search then has nothing to match it on.
 	/// </summary>
-	private static void Flatten(JsonElement held, string path, Dictionary<string, string> values)
+	private static void Gather(IReadOnlyList<MemberNode> nodes, JsonElement held, Dictionary<int, string> values)
 	{
-		foreach (JsonProperty member in held.EnumerateObject())
+		if (held.ValueKind != JsonValueKind.Object) return;
+		foreach (MemberNode node in nodes)
 		{
-			string name = path is null ? member.Name : $"{path}.{member.Name}";
-			if (member.Value.ValueKind == JsonValueKind.Object) Flatten(member.Value, name, values);
-			else if (member.Value.ValueKind != JsonValueKind.Null) values[name] = member.Value.GetRawText();
+			if (!held.TryGetProperty(node.Member.Name, out JsonElement stated)) continue;
+			if (stated.ValueKind == JsonValueKind.Null) continue;
+			if (!node.IsLeaf)
+			{
+				Gather(node.Holds, stated, values);
+				continue;
+			}
+
+			// A leaf holds one value. A file stating an object or a list under its name is stating
+			// something else, and comparing a number against it would count every object as wrong
+			// rather than as unstated. The exceptions are the leaves that ARE written as one: a
+			// version, a range, a box.
+			if (stated.ValueKind == JsonValueKind.Object
+				&& node.Member.Kind is not (MemberKind.Version or MemberKind.Range)) continue;
+			if (stated.ValueKind == JsonValueKind.Array && node.Member.Kind != MemberKind.Box) continue;
+			values[node.Index] = stated.GetRawText();
 		}
 	}
 }

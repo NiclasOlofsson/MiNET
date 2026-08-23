@@ -1,4 +1,4 @@
-﻿#region LICENSE
+#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -26,94 +26,65 @@
 namespace MiNET.BdsExtract;
 
 /// <summary>
-///     Where an item keeps each of its values, stated from its name because that is the one place in
-///     the object this tool can find without being told: the name verifies against its own hash.
-///     Everything else is measured from it.
+///     Where an item keeps each of its values, from the reference, on the same terms as the block
+///     and state classes: every offset is stated from the object's start.
 ///     <para>
-///         The numbers here are what the last checked build had. Every one of them that the item
-///         file states a value for is measured again on each run against
-///         Assets/reference-items.json, and what is measured replaces what is written here, so a
-///         build that moved a field is read correctly rather than read at the old place.
+///         What the item side reads from is the name, because the name is the one place in an item
+///         this tool can find without being told: it verifies against its own hash. So the offsets
+///         come back out of here stated from the name instead, which is the class's own offset less
+///         how far into the object the name was measured to sit.
 ///     </para>
 /// </summary>
 public static class ItemLayout
 {
+	/// <summary>The item class, as the tree it is.</summary>
+	public static ClassTree Items => BlockMembers.Tree(BlockMembers.Source.Items);
+
+	/// <summary>The class, as the reference states it.</summary>
+	public static int Size => BlockMembers.Root(BlockMembers.Source.Items).Size;
+
 	/// <summary>The object's own start, which is where its method table sits.</summary>
 	public static int MethodTable => -ItemRegistry.NameInsideItem;
 
-	public static int ParseVersion { get; private set; } = -280;
-	public static int TextureAtlas { get; private set; } = -272;
-	public static int IconFrameCount { get; private set; } = -240;
-	public static int AnimatesInToolbar { get; private set; } = -236;
-	public static int MirroredArt { get; private set; } = -235;
-	public static int UseAnimation { get; private set; } = -234;
-	public static int HoverTextColour { get; private set; } = -232;
-	public static int Icon { get; private set; } = -184;
-	public static int SecondIcon { get; private set; } = -152;
-	public static int MaxStackSize { get; private set; } = -120;
-	public static int Id { get; private set; } = -118;
-	public static int TranslationKey { get; private set; } = -112;
-	public static int BareName { get; private set; } = -80;
-	public static int Namespace { get; private set; } = -32;
-	public static int MaxDurability { get; private set; } = 48;
-	public static int Flags { get; private set; } = 50;
-	public static int UseDuration { get; private set; } = 52;
-	public static int MinimumVersion { get; private set; } = 56;
-	public static int Block { get; private set; } = 88;
-	public static int CreativeCategory { get; private set; } = 96;
-	public static int CreativeGroup { get; private set; } = 112;
-	public static int FurnaceFuel { get; private set; } = 144;
-	public static int SmeltingExperience { get; private set; } = 148;
-	public static int HiddenInCommands { get; private set; } = 152;
-	public static int Rarity { get; private set; } = 156;
-	public static int MineBlockType { get; private set; } = 160;
-	public static int FoodComponent { get; private set; } = 168;
-	public static int SeedComponent { get; private set; } = 176;
-	public static int CameraComponent { get; private set; } = 184;
+	/// <summary>Where a member sits, stated from the name.</summary>
+	public static int At(string name) => Member(name).At - ItemRegistry.NameInsideItem;
 
-	/// <summary>The item left in the grid after crafting with this one. Null on every vanilla item.</summary>
-	public static int CraftingRemainingItem { get; private set; } = 104;
+	/// <summary>One member of the item class, by name.</summary>
+	public static MemberNode Member(string name) =>
+		Items.Roots.FirstOrDefault(n => n.Member.Name == name)
+		?? throw new InvalidOperationException($"the item class has no member called {name}");
 
-	/// <summary>The second byte of the flag bitfield: ignoresPermissions in bit 0, seven bits of padding after it.</summary>
-	public static int SecondFlags { get; private set; } = 51;
-	/// <summary>
-	///     The callbacks the item runs when its block AI is reset. Named "seed vector" here until
-	///     Item's own declaration showed the seed component is the pointer at +176 and this is
-	///     vector&lt;function&lt;void()&gt;&gt; mOnResetBAICallbacks.
-	/// </summary>
-	public static int ResetCallbacks { get; private set; } = 192;
-	public static int TagVector { get; private set; } = 216;
-
-	/// <summary>
-	///     Takes a value's position as measured on this server. The name is the one the item file
-	///     writes the value under, so what was measured and what is applied cannot drift apart.
-	/// </summary>
-	public static bool UseMeasured(string field, int at)
-	{
-		switch (field)
-		{
-			case "version": ParseVersion = at; return true;
-			case "textureAtlas": TextureAtlas = at; return true;
-			case "iconFrameCount": IconFrameCount = at; return true;
-			case "animatesInToolbar": AnimatesInToolbar = at; return true;
-			case "mirroredArt": MirroredArt = at; return true;
-			case "useAnimation": UseAnimation = at; return true;
-			case "icon": Icon = at; return true;
-			case "icon2": SecondIcon = at; return true;
-			case "maxStackSize": MaxStackSize = at; return true;
-			case "id": Id = at; return true;
-			case "translationKey": TranslationKey = at; return true;
-			case "maxDurability": MaxDurability = at; return true;
-			case "flags": Flags = at; return true;
-			case "useDuration": UseDuration = at; return true;
-			case "creativeCategory": CreativeCategory = at; return true;
-			case "creativeGroup": CreativeGroup = at; return true;
-			case "furnaceFuel": FurnaceFuel = at; return true;
-			case "smeltingExperience": SmeltingExperience = at; return true;
-			case "hiddenInCommands": HiddenInCommands = at; return true;
-			case "rarity": Rarity = at; return true;
-			case "mineBlockType": MineBlockType = at; return true;
-			default: return false;
-		}
-	}
+	public static int ParseVersion => At("version");
+	public static int TextureAtlas => At("textureAtlas");
+	public static int IconFrameCount => At("iconFrameCount");
+	public static int AnimatesInToolbar => At("animatesInToolbar");
+	public static int MirroredArt => At("mirroredArt");
+	public static int UseAnimation => At("useAnimation");
+	public static int HoverTextColour => At("hoverTextColour");
+	public static int Icon => At("icon");
+	public static int SecondIcon => At("icon2");
+	public static int MaxStackSize => At("maxStackSize");
+	public static int Id => At("id");
+	public static int TranslationKey => At("translationKey");
+	public static int BareName => At("bareName");
+	public static int Namespace => At("namespace");
+	public static int MaxDurability => At("maxDurability");
+	public static int Flags => At("flags");
+	public static int SecondFlags => At("secondFlags");
+	public static int UseDuration => At("useDuration");
+	public static int MinimumVersion => At("minimumVersion");
+	public static int Block => At("block");
+	public static int CreativeCategory => At("creativeCategory");
+	public static int CraftingRemainingItem => At("craftingRemainingItem");
+	public static int CreativeGroup => At("creativeGroup");
+	public static int FurnaceFuel => At("furnaceFuel");
+	public static int SmeltingExperience => At("smeltingExperience");
+	public static int HiddenInCommands => At("hiddenInCommands");
+	public static int Rarity => At("rarity");
+	public static int MineBlockType => At("mineBlockType");
+	public static int FoodComponent => At("foodComponent");
+	public static int SeedComponent => At("seedComponent");
+	public static int CameraComponent => At("cameraComponent");
+	public static int ResetCallbacks => At("resetCallbacks");
+	public static int TagVector => At("tagVector");
 }

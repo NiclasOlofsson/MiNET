@@ -69,7 +69,7 @@ public static class BlockDocument
 		var text = new StringBuilder("{\n");
 		text.Append(versionHeader);
 		text.Append($"\t\"layoutPublishedFor\": \"{BlockMembers.Build}\",\n");
-		text.Append(Classes(BlockMembers.Block, false, BlockLayout.Has, BlockLayout.At));
+		text.Append(Classes(BlockMembers.Root(BlockMembers.Source.Blocks), BlockMembers.Source.Blocks));
 		text.Append($"\t\"count\": {blocks.Count},\n");
 		text.Append("\t\"blocks\": [\n");
 		for (int i = 0; i < blocks.Count; i++)
@@ -90,27 +90,28 @@ public static class BlockDocument
 			text.Append("\t\t{\n");
 			text.Append($"\t\t\t\"name\": \"{Escape(block.Name)}\",\n");
 
-			// Every member of the class, under the class's own name, read from where this build
-			// keeps it. Not a selection: a member holding a container is a row with a null value,
-			// so what nothing reads is counted rather than absent.
-			foreach (BlockMemberReader.Value value in BlockMemberReader.Read(process, block.Address, window, scratch))
+			// Every member of the class, under the class's own name, shaped the way the class is:
+			// a member holding another object is an object. Not a selection: a member nothing read
+			// is a row with a null, so what nothing reads is counted rather than absent.
+			// The tags member is the vector this tool reads, so its own row carries them rather
+			// than a null beside a second list under the same name. Two entries under one key is a
+			// value lost: a reader keeps the last and never sees the first.
+			List<BlockMemberReader.Value> read = BlockMemberReader.Read(process, block.Address, window, scratch);
+			for (int v = 0; v < read.Count; v++)
 			{
-				if (value.Name == "tags")
+				if (read[v].Name != "tags") continue;
+				var tags = new StringBuilder("[");
+				for (int t = 0; t < block.Tags.Count; t++)
 				{
-					// The tags member is the vector this tool reads, so its own row carries them
-					// rather than a null beside a second list under the same name. Two entries under
-					// one key is a value lost: a reader keeps the last and never sees the first.
-					text.Append("			\"tags\": [");
-					for (int t = 0; t < block.Tags.Count; t++)
-					{
-						text.Append(t == 0 ? "" : ", ");
-						text.Append($"\"{Escape(block.Tags[t])}\"");
-					}
-					text.Append("],\n");
-					continue;
+					tags.Append(t == 0 ? "" : ", ").Append($"\"{Escape(block.Tags[t])}\"");
 				}
-				text.Append($"\t\t\t\"{value.Name}\": {value.Json ?? "null"},\n");
+
+				read[v] = read[v] with { Json = tags.Append(']').ToString() };
 			}
+
+			Rows(text, read, 3);
+			text.Length -= 1;
+			text.Append(",\n");
 
 			text.Append($"\t\t\t\"class\": \"{Escape(classNames.GetValueOrDefault(block.Vtable, "block"))}\",\n");
 			text.Append($"\t\t\t\"geometry\": {Text(geometry)},\n");
@@ -192,6 +193,7 @@ public static class BlockDocument
 		// hash or a repeat of the index, and both look equally reasonable.
 		var stateWindow = new byte[BlockLayout.StateReach];
 		var scratch = new byte[256];
+		var word = new byte[8];
 		var text = new StringBuilder("{\n");
 		text.Append($"\t\"networkIdsAreHashes\": {Boolean(report.NetworkIdsAreHashes)},\n");
 
@@ -200,7 +202,7 @@ public static class BlockDocument
 		// The states file states its own class table, the same way the block file does, so its own
 		// output can be the next reference without a layout living anywhere else.
 		text.Append($"\t\"layoutPublishedFor\": \"{BlockMembers.Build}\",\n");
-		text.Append(Classes(BlockMembers.State, true, BlockLayout.StateHas, BlockLayout.StateAt));
+		text.Append(Classes(BlockMembers.Root(BlockMembers.Source.States), BlockMembers.Source.States));
 		text.Append($"\t\"count\": {palette.Count},\n");
 		text.Append("\t\"states\": [\n");
 		for (int i = 0; i < palette.Count; i++)
@@ -215,11 +217,28 @@ public static class BlockDocument
 			// build keeps it. networkId is one of them, so it is not written twice, and neither is
 			// the light: the palette's own reading of it locates the field and the class member is
 			// what the file states.
-			foreach (BlockMemberReader.Value value in
-				BlockMemberReader.ReadState(process, entry.Address, stateWindow, scratch))
-			{
-				text.Append($"\"{value.Name}\": {value.Json ?? "null"}, ");
-			}
+			// A state holds its own components and its own tags, in the same two classes a block
+			// holds them in, so the same two readers answer for them. The members carrying them
+			// take the value rather than sitting null beside a second list under another name.
+			List<BlockMemberReader.Value> read = BlockMemberReader.ReadState(process, entry.Address, stateWindow, scratch);
+			ulong tagsAt = entry.Address + (ulong) BlockLayout.States.Roots.First(n => n.Member.Name == "tags").At;
+			List<string> tags = BlockRegistry.Tags(process,
+				process.ReadUInt64(tagsAt, word), process.ReadUInt64(tagsAt + 8, word));
+			Replace(read, "tags", "[" + string.Join(", ", tags.Select(t => $"\"{Escape(t)}\"")) + "]");
+
+			// Under the names the block side worked out for the ids, never the ids: a registration
+			// number is per instance and two runs of one build disagree on every one. A component
+			// nothing named is still counted, as the number it is, so the hole stays visible.
+			ulong storage = entry.Address + (ulong) BlockLayout.States.Roots.First(n => n.Member.Name == "components").At;
+			List<string> carried = ComponentReader.Instances(process, storage, word)
+				.Select(c => ComponentReader.Names.GetValueOrDefault(c.Id) is { } named
+					? $"\"{Escape(named)}\""
+					: $"{{ \"unnamed\": {c.Id.ToString(CultureInfo.InvariantCulture)} }}")
+				.ToList();
+			Replace(read, "components", "[" + string.Join(", ", carried) + "]");
+
+			text.Append(Inline(read));
+			text.Append(", ");
 			text.Append("\"states\": {");
 			for (int s = 0; s < entry.States.Count; s++)
 			{
@@ -235,16 +254,14 @@ public static class BlockDocument
 	}
 
 	/// <summary>
-	///     Which class the file's objects are, and every class reachable from it: each one's size
-	///     and its members, at the offsets that class declares. The root's members carry where this
-	///     server keeps them, because those are the only ones that can move; everything reachable
-	///     from them states its own offsets, which is the whole reason a class is written down once
-	///     rather than spelled into whatever holds it.
+	///     Which class the file's objects are, and every class reachable from it: each one's size and
+	///     its members, with each member's offset inside the class that declares it. This is the
+	///     layout the run read with, written back out, so this file is the next run's reference.
 	/// </summary>
-	private static string Classes(ClassLayout root, bool state, Func<string, bool> has, Func<string, int> at)
+	private static string Classes(ClassLayout root, BlockMembers.Source source)
 	{
 		var written = new List<ClassLayout>();
-		Reach(root, state, written);
+		Reach(root, source, written);
 
 		var text = new StringBuilder($"\t\"class\": \"{root.Name}\",\n\t\"classes\": {{\n");
 		for (int c = 0; c < written.Count; c++)
@@ -254,8 +271,7 @@ public static class BlockDocument
 			for (int m = 0; m < held.Members.Count; m++)
 			{
 				BlockMember member = held.Members[m];
-				int position = held == root ? has(member.Name) ? at(member.Name) : -1 : member.At;
-				text.Append($"\t\t\t{{ \"name\": \"{member.Name}\", \"at\": {position}, "
+				text.Append($"\t\t\t{{ \"name\": \"{member.Name}\", \"at\": {member.At}, "
 						+ $"\"bytes\": {member.Bytes}, \"kind\": \"{member.Kind}\"");
 				if (member.Holds is not null) text.Append($", \"holds\": \"{member.Holds}\"");
 				text.Append(m == held.Members.Count - 1 ? " }\n" : " },\n");
@@ -268,14 +284,69 @@ public static class BlockDocument
 	}
 
 	/// <summary>Every class the root holds, and every class those hold, each written once.</summary>
-	private static void Reach(ClassLayout held, bool state, List<ClassLayout> written)
+	private static void Reach(ClassLayout held, BlockMembers.Source source, List<ClassLayout> written)
 	{
 		if (held is null || written.Contains(held)) return;
 		written.Add(held);
 		foreach (BlockMember member in held.Members)
 		{
-			if (member.Holds is not null) Reach(BlockMembers.Held(member.Holds, state), state, written);
+			if (member.Holds is not null) Reach(BlockMembers.Held(member.Holds, source), source, written);
 		}
+	}
+
+	/// <summary>
+	///     One member as a row, and a member holding another object as an object with its own rows
+	///     inside it. The file is shaped like the class, because that is what the class is.
+	/// </summary>
+	private static void Rows(StringBuilder text, IReadOnlyList<BlockMemberReader.Value> values, int depth)
+	{
+		string pad = new string('\t', depth);
+		for (int v = 0; v < values.Count; v++)
+		{
+			BlockMemberReader.Value value = values[v];
+			text.Append(pad).Append($"\"{value.Name}\": ");
+			if (value.Holds.Count == 0)
+			{
+				text.Append(value.Json ?? "null");
+			}
+			else
+			{
+				text.Append("{\n");
+				Rows(text, value.Holds, depth + 1);
+				text.Append(pad).Append('}');
+			}
+
+			text.Append(v == values.Count - 1 ? "\n" : ",\n");
+		}
+	}
+
+	/// <summary>
+	///     Puts a value the tool resolved into the member's own place rather than beside it. The
+	///     class holds a container; what the container holds is what a reader wants, and two entries
+	///     under one key is a value lost.
+	/// </summary>
+	private static void Replace(IList<BlockMemberReader.Value> values, string name, string json)
+	{
+		for (int v = 0; v < values.Count; v++)
+		{
+			if (values[v].Name == name) values[v] = values[v] with { Json = json };
+		}
+	}
+
+	/// <summary>The same tree on one line, for a file that keeps one object to a row.</summary>
+	private static string Inline(IReadOnlyList<BlockMemberReader.Value> values)
+	{
+		var text = new StringBuilder();
+		for (int v = 0; v < values.Count; v++)
+		{
+			BlockMemberReader.Value value = values[v];
+			text.Append(v == 0 ? "" : ", ").Append($"\"{value.Name}\": ");
+			text.Append(value.Holds.Count == 0
+				? value.Json ?? "null"
+				: "{ " + Inline(value.Holds) + " }");
+		}
+
+		return text.ToString();
 	}
 
 	/// <summary>The value of one component the block carries, or null when it has none.</summary>

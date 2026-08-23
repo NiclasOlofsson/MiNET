@@ -372,16 +372,6 @@ public static class BlockPalette
 		for (int i = 0; i < count; i++) yield return BitConverter.ToUInt64(slots, i * 8);
 	}
 
-	private static bool SpanIsAllStates(BedrockProcess process, ulong begin, long count, HashSet<ulong> states, byte[] word)
-	{
-		long step = Math.Max(1, count / SpanSamples);
-		for (long k = 0; k < count; k += step)
-		{
-			if (!states.Contains(process.ReadUInt64(begin + (ulong) (k * 8), word))) return false;
-		}
-		return true;
-	}
-
 	private static List<ulong> FindPointersTo(BedrockProcess process, HashSet<ulong> targets)
 	{
 		var sites = new List<ulong>();

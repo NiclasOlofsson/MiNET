@@ -28,88 +28,61 @@ namespace MiNET.BdsExtract;
 using System.Globalization;
 
 /// <summary>
-///     Reads every member of a block object and writes each one as the value it holds.
+///     Reads an object as the class it is, and hands back what each member holds.
 ///     <para>
-///         Where the members are comes from <see cref="BlockLayout" />, which is the published class
-///         layout on the build it was published for and a measured position on every other. What is
-///         read here is only how a value of that kind is written, which does not change between
-///         builds.
+///         Where a member sits comes from <see cref="BlockLayout" />. What is decided here is only
+///         how a value of that kind is written, which is the same on every build.
 ///     </para>
 ///     <para>
-///         A member holding a container is not read, and says so with its offset and size. A member
-///         whose read fails says that too. Neither is dropped, because a row that is absent reads as
-///         a row that does not exist.
+///         A member holding something with no class of its own comes back with no value, and so does
+///         one whose read failed. Neither is dropped, because a row that is absent reads as a row
+///         that does not exist.
 ///     </para>
 /// </summary>
 public static class BlockMemberReader
 {
-	/// <summary>One member's value, or why there is not one.</summary>
-	public readonly record struct Value(string Name, int At, int Bytes, MemberKind Kind, string Json);
+	/// <summary>
+	///     One member as it was read: its own name, and either the value it holds or, when it holds
+	///     another object, that object's members. It comes out shaped the way the class is, because
+	///     that is what the data is.
+	/// </summary>
+	public sealed record Value(string Name, string Json, IReadOnlyList<Value> Holds);
 
-	/// <summary>Every member of one block, in the order the class declares them.</summary>
+	/// <summary>Every member of a block, read from where each was measured on this server.</summary>
 	public static List<Value> Read(BedrockProcess process, ulong address, byte[] window, byte[] scratch)
 	{
 		int read = process.ReadClipped(address, window, Math.Min(window.Length, BlockLayout.Reach));
-		return Read(process, address, window, scratch, read, false, BlockLayout.Has, BlockLayout.At);
+		return Read(process, address, window, scratch, read, BlockLayout.Blocks.Roots);
 	}
 
-	/// <summary>Every member of one state, in the order the class declares them.</summary>
+	/// <summary>Every member of a state, on the same terms.</summary>
 	public static List<Value> ReadState(BedrockProcess process, ulong address, byte[] window, byte[] scratch)
 	{
 		int read = process.ReadClipped(address, window, Math.Min(window.Length, BlockLayout.StateReach));
-		return Read(process, address, window, scratch, read, true, BlockLayout.StateHas, BlockLayout.StateAt);
+		return Read(process, address, window, scratch, read, BlockLayout.States.Roots);
 	}
 
 	private static List<Value> Read(BedrockProcess process, ulong address, byte[] window, byte[] scratch,
-		int read, bool state, Func<string, bool> has, Func<string, int> at)
+		int read, IReadOnlyList<MemberNode> nodes)
 	{
-		IReadOnlyList<BlockMember> members = state ? BlockLayout.StateMembers : BlockLayout.Members;
-		var values = new List<Value>(members.Count);
-		foreach (BlockMember member in members)
+		var values = new List<Value>(nodes.Count);
+		foreach (MemberNode node in nodes)
 		{
-			// A member nothing placed on this build sits nowhere, and says so with a position of
-			// -1 and no value. Reading it from where it sat on another build is the one mistake
-			// the output cannot show.
-			if (!has(member.Name))
+			if (!node.IsLeaf)
 			{
-				values.Add(new Value(member.Name, -1, member.Bytes, member.Kind, null));
+				values.Add(new Value(node.Member.Name, null,
+					Read(process, address, window, scratch, read, node.Holds)));
 				continue;
 			}
 
-			int position = at(member.Name);
-			string json = position + member.Bytes > read
-				? null
-				: Held(process, address, window, scratch, position, member, state);
-			values.Add(new Value(member.Name, position, member.Bytes, member.Kind, json));
+			string json = node.At + node.Member.Bytes <= read
+				? Text(process, address, window, scratch, node.At, node.Member)
+				: null;
+
+			values.Add(new Value(node.Member.Name, json, []));
 		}
 
 		return values;
-	}
-
-	/// <summary>
-	///     What a member holds. A member that is another object is read as that object, from its own
-	///     class, and comes out as one: its members are inside it, not spelled into its parent's
-	///     names. Nothing inside is placed by searching, because nothing inside can move on its own.
-	/// </summary>
-	private static string Held(BedrockProcess process, ulong address, byte[] window, byte[] scratch,
-		int at, BlockMember member, bool state)
-	{
-		if (member.Kind != MemberKind.Container || member.Holds is null)
-		{
-			return Text(process, address, window, scratch, at, member);
-		}
-
-		ClassLayout held = BlockMembers.Held(member.Holds, state);
-		var text = new System.Text.StringBuilder("{ ");
-		for (int m = 0; m < held.Members.Count; m++)
-		{
-			BlockMember inner = held.Members[m];
-			text.Append(m == 0 ? "" : ", ");
-			text.Append($"\"{inner.Name}\": ");
-			text.Append(Held(process, address, window, scratch, at + inner.At, inner, state) ?? "null");
-		}
-
-		return text.Append(" }").ToString();
 	}
 
 	/// <summary>What one position holds, written the way that kind of value is written.</summary>
@@ -124,6 +97,8 @@ public static class BlockMemberReader
 				return window[at].ToString(CultureInfo.InvariantCulture);
 			case MemberKind.UInt16:
 				return BitConverter.ToUInt16(window, at).ToString(CultureInfo.InvariantCulture);
+			case MemberKind.Int16:
+				return BitConverter.ToInt16(window, at).ToString(CultureInfo.InvariantCulture);
 			case MemberKind.Enum32:
 			case MemberKind.Int32:
 				return BitConverter.ToInt32(window, at).ToString(CultureInfo.InvariantCulture);

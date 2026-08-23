@@ -84,7 +84,7 @@ public static class ItemRegistry
 	}
 
 	/// <summary>How much of the object travels out as bytes, measured from the name.</summary>
-	private const int Before = 448;
+	internal const int Before = 448;
 	/// <summary>
 	///     How far past the name to read. Sized to the largest object rather than to a round number:
 	///     at 384 the description stopped at +368 and 171 items had a tail beyond it that nothing
@@ -382,6 +382,32 @@ public static class ItemRegistry
 		return new Sentinel {Name = "component containers", Guards = "the class tail slots, derived", Held = held, Detail = detail};
 	}
 
+	/// <summary>
+	///     The item class as the run read it, written back out, so this file is the next run's
+	///     reference. Offsets are stated from the name, which is where the item side measures
+	///     everything from.
+	/// </summary>
+	private static string ItemClassJson()
+	{
+		IReadOnlyList<MemberNode> members = ItemLayout.Items.Roots;
+		var text = new System.Text.StringBuilder();
+		text.Append("  \"class\": \"Item\",").Append(Environment.NewLine);
+		text.Append("  \"classes\": {").Append(Environment.NewLine);
+		text.Append($"    \"Item\": {{ \"size\": {ItemLayout.Size}, \"members\": [").Append(Environment.NewLine);
+		for (int m = 0; m < members.Count; m++)
+		{
+			BlockMember member = members[m].Member;
+			text.Append($"      {{ \"name\": \"{member.Name}\", \"at\": {member.At}, "
+					+ $"\"bytes\": {member.Bytes}, \"kind\": \"{member.Kind}\"");
+			if (member.Holds is not null) text.Append($", \"holds\": \"{member.Holds}\"");
+			text.Append(m == members.Count - 1 ? " }" : " },").Append(Environment.NewLine);
+		}
+
+		text.Append("    ] }").Append(Environment.NewLine);
+		text.Append("  },").Append(Environment.NewLine);
+		return text.ToString();
+	}
+
 	private static Sentinel Verdict(string name, string guards, int agreed, int attempted, string detail)
 	{
 		return new Sentinel
@@ -413,9 +439,10 @@ public static class ItemRegistry
 		Console.WriteLine($"distinct items: {chosen.Count:N0}");
 		MeasureSizes(process, chosen.Values);
 
-		// Where each value sits on this build, measured against the reference before anything is
-		// checked or written, so the guards below prove the positions this run will actually read.
-		ItemDerivation.Measure(process, chosen.Values);
+		// Whether the layout the reference states still reads this build, before anything is
+		// checked or written. A member reading something else stops the run: everything past it
+		// would be nonsense that looks like data.
+		if (!Program.Report("item members", BlockMemberDerivation.CheckItems(process, chosen.Values))) return 2;
 
 		// The offsets are proven against this server before anything is written, so a version that
 		// moved a field is a loud failure rather than a file full of plausible numbers.
@@ -1436,26 +1463,6 @@ public static class ItemRegistry
 	}
 
 	/// <summary>
-	///     Food read off a component object rather than off the item. The object leads with its
-	///     method tables and then the payload, and the data-driven ones carry two tables where the
-	///     hardcoded ones carry one, so the payload starts eight bytes further in. Which it is comes
-	///     from the object, not from a guess: the word after the first table is the item that owns
-	///     the component, so the payload begins wherever that owner pointer stops.
-	/// </summary>
-	private static string FoodAt(BedrockProcess process, ulong component, ulong owner, byte[] scratch)
-	{
-		// 32 is the furthest byte decoded (payload at 24 plus two ints); reading past what is
-		// used can straddle out of a small allocation and fail whole.
-		if (component < 0x10000 || !process.TryRead(component, scratch, 32)) return null;
-		int payload = BitConverter.ToUInt64(scratch, 8) == owner ? 24 : 16;
-		if (IsVtable(process, BitConverter.ToUInt64(scratch, 16)) && payload == 16) payload = 24;
-		int nutrition = BitConverter.ToInt32(scratch, payload);
-		float saturation = BitConverter.ToSingle(scratch, payload + 4);
-		if (nutrition is < 0 or > 64 || !(saturation >= 0 && saturation <= 16)) return null;
-		return $"{{ \"nutrition\": {nutrition}, \"saturationModifier\": {Num(saturation)} }}";
-	}
-
-	/// <summary>
 	///     The block a pointer leads to, whether it points at the block or at a holder that does.
 	///     Both forms occur: the camera holds a holder at +88 and the brewing stand one at +328, and
 	///     the name verifies against its own hash either way, so a wrong hop yields nothing.
@@ -1708,6 +1715,7 @@ public static class ItemRegistry
 		// in a file beside it. Nothing is dropped; the rejected keep their reasons.
 		File.WriteAllText(path, "{" + Environment.NewLine
 			+ $"  \"source\": {SourceJson}," + Environment.NewLine
+			+ ItemClassJson()
 			+ "  \"items\": [" + Environment.NewLine + string.Join("," + Environment.NewLine, rows) + Environment.NewLine
 			+ "  ]" + Environment.NewLine + "}" + Environment.NewLine);
 
@@ -1995,51 +2003,46 @@ public static class ItemRegistry
 		return "  { " + string.Join(", ", parts) + " }";
 	}
 
+	/// <summary>
+	///     Puts the value the tool resolved into the member's own row rather than beside it. A
+	///     pointer the class holds is a pointer; what it points at is what a reader wants, and two
+	///     entries under one key is a value lost.
+	/// </summary>
+	private static void Replace(List<string> parts, string name, string value)
+	{
+		string key = Json(name) + ": ";
+		for (int p = 0; p < parts.Count; p++)
+		{
+			if (parts[p].StartsWith(key, StringComparison.Ordinal)) parts[p] = key + value;
+		}
+	}
+
 	private static string Row(BedrockProcess process, Item item, Dictionary<ulong, string> classNames)
 	{
 		var scratch = new byte[256];
 		var heap = new byte[256];
 		var text = new byte[256];
-		var parts = new List<string>
+
+		// Every member of the class, under the class's own name, read from where the reference says
+		// it sits. A member holding something with no class of its own comes out null, so what
+		// nothing reads is counted rather than absent.
+		var parts = new List<string>();
+		foreach (MemberNode node in ItemLayout.Items.Roots)
 		{
-			$"\"name\": {Json(item.Name)}",
-			$"\"id\": {item.I16(ItemLayout.Id)}",
-			$"\"translationKey\": {Json(item.Key)}",
-			$"\"maxStackSize\": {item.Byte(ItemLayout.MaxStackSize)}",
-			// The two fields the item registry packet needs beside the name and the id. The version
-			// is the byte at -280, which agrees with the registry on all 1,968 items that can be
-			// compared; component-based is not a flag anywhere in the object but the presence of the
-			// declared-component set, which matches the same registry on all 73 it lists and adds the
-			// two experimental items its own source could not see.
-			$"\"version\": {item.Byte(ItemLayout.ParseVersion)}",
-			// How many frames the item's icon has. One for almost everything; the three compasses
-			// hold 32, the clock 64 and the fishing rod 2, which is exactly how many states each of
-			// those icons has. Bow and crossbow hold 0 and draw their pull states another way.
-			$"\"iconFrameCount\": {item.Byte(ItemLayout.IconFrameCount)}",
-			// Whether the icon cycles through those frames in the toolbar, and whether its art is drawn
-			// flipped. Six items animate; the camera, the fishing rod and the two mob on a stick items
-			// are the mirrored ones.
-			$"\"animatesInToolbar\": {(item.Byte(ItemLayout.AnimatesInToolbar) != 0 ? "true" : "false")}",
-			$"\"mirroredArt\": {(item.Byte(ItemLayout.MirroredArt) != 0 ? "true" : "false")}",
-			// How the item animates while used. Every food answers 1, every drinkable answers 2,
-			// the bow 4 and the brush 12, and nothing else answers anything but 0.
-			$"\"useAnimation\": {{ \"value\": {item.Byte(ItemLayout.UseAnimation)}, \"name\": "
-				+ (NameOf(UseAnimationNames, item.Byte(ItemLayout.UseAnimation)) is { } an ? Json(an) : "null") + " }",
-			// Rarity. The 75 that answer 1 are the pottery sherds, armour trims and chainmail; the 14
-			// that answer 2 are the beacon, nether star, banner patterns and music discs; the 5 that
-			// answer 3 are dragon egg, elytra, heavy core, mace and the silence trim. That is the
-			// uncommon, rare and epic set, which is what makes this rarity rather than a number.
-			$"\"rarity\": {{ \"value\": {item.Byte(ItemLayout.Rarity)}, \"name\": "
-				+ (NameOf(RarityNames, item.Byte(ItemLayout.Rarity)) is { } rn ? Json(rn) : "null") + " }",
-			// What mining a block costs this item. The 28 axes, hoes, pickaxes and shovels answer
-			// digger_item, shears answers shears_item on its own, the component items answer
-			// component_item, and armour, bows, the shield, the fishing rod and the sticks answer
-			// do_nothing, which is exactly the set that takes no durability from mining.
-			$"\"mineBlockType\": {{ \"value\": {item.Byte(ItemLayout.MineBlockType)}, \"name\": "
-				+ (NameOf(MineBlockTypeNames, item.Byte(ItemLayout.MineBlockType)) is { } mb ? Json(mb) : "null") + " }",
-			$"\"maxDurability\": {item.U16(ItemLayout.MaxDurability)}",
-			$"\"useDuration\": {item.U32(ItemLayout.UseDuration)}"
-		};
+			int at = item.At(node.At - NameInsideItem);
+			string value = at >= 0 && at + node.Member.Bytes <= item.Window.Length
+				? BlockMemberReader.Text(process, item.Address, item.Window, scratch, at, node.Member)
+				: null;
+			parts.Add($"{Json(node.Member.Name)}: {value ?? "null"}");
+		}
+
+		// What the numbers above mean, where this tool knows: the names behind the enums and the
+		// bits behind the flag byte. Derived, so it sits beside the class rather than inside it.
+		var decoded = new List<string>();
+		if (NameOf(UseAnimationNames, item.Byte(ItemLayout.UseAnimation)) is { } an) decoded.Add($"{Json("useAnimation")}: {Json(an)}");
+		if (NameOf(RarityNames, item.Byte(ItemLayout.Rarity)) is { } rn) decoded.Add($"{Json("rarity")}: {Json(rn)}");
+		if (NameOf(MineBlockTypeNames, item.Byte(ItemLayout.MineBlockType)) is { } mb) decoded.Add($"{Json("mineBlockType")}: {Json(mb)}");
+		if (NameOf(CreativeCategoryNames, item.Byte(ItemLayout.CreativeCategory)) is { } cn) decoded.Add($"{Json("creativeCategory")}: {Json(cn)}");
 
 		// All eight bits, named. The order is the one Item declares them in, packed low bit first,
 		// and six of the eight already matched names pinned here against item behaviour, which is
@@ -2048,10 +2051,6 @@ public static class ItemRegistry
 		// items that need that permission. explodable is set on every item but nether_star, which
 		// is the one item immune to all explosions, and that same item reads shouldDespawn clear,
 		// which is the name we already had confirming itself on the one item that breaks the run.
-		// Item declares a ninth flag, ignoresPermissions, which is not in this byte and is not read
-		// anywhere. It is not in the byte after it either: that one is 0 on 1,846 of 2,076 items,
-		// scattered over 111, 240, 233 and 255 on the rest, and differs between two runs of the same
-		// build on 155 items, which is slack rather than data.
 		var flags = new List<string>();
 		byte f = item.Byte(ItemLayout.Flags);
 		if ((f & 0x01) != 0) flags.Add("glint");
@@ -2062,19 +2061,8 @@ public static class ItemRegistry
 		if ((f & 0x20) != 0) flags.Add("fireResistant");
 		if ((f & 0x40) != 0) flags.Add("shouldDespawn");
 		if ((f & 0x80) != 0) flags.Add("allowOffHand");
-		// Only the byte at +50. The one after it was published here as a second flag byte until the
-		// two process test showed it differs on 155 items, which makes it uninitialised memory rather
-		// than data, and publishing slack as a field is worse than leaving a hole.
-		parts.Add($"\"flags\": {{ \"raw\": \"0x{item.Byte(ItemLayout.Flags):X2}\""
-			+ (flags.Count > 0 ? $", \"set\": [{string.Join(", ", flags.Select(Json))}]" : "") + " }");
-
-		// Three sixteen bit numbers reading 1, minor, patch, which is the version a pack has to
-		// declare before the server will hand this item out. Nothing carries it below 1.14.
-		if (item.U16(ItemLayout.MinimumVersion) != 0)
-		{
-			parts.Add($"\"minRequiredVersion\": \"{item.U16(ItemLayout.MinimumVersion)}.{item.U16(ItemLayout.MinimumVersion + 2)}.{item.U16(ItemLayout.MinimumVersion + 4)}\"");
-
-		}
+		if (flags.Count > 0) decoded.Add($"{Json("flags")}: [{string.Join(", ", flags.Select(Json))}]");
+		if (decoded.Count > 0) parts.Add($"{Json("decoded")}: {{ {string.Join(", ", decoded)} }}");
 
 		// The block an item places is held either directly or through a small holder that points at
 		// it. Reading only the direct form left the camera, the brewing stand, the cake and the
@@ -2088,33 +2076,15 @@ public static class ItemRegistry
 				if (slot + 8 > item.Window.Length - Before) break;
 				string blockName = BlockNameAt(process, item.Ptr(slot));
 				if (blockName is null) continue;
-				parts.Add($"\"block\": {Json(blockName)}");
+				Replace(parts, "block", Json(blockName));
 				break;
 			}
 		}
-
-		string creativeGroupName = StdString(process, item.Window, item.At(ItemLayout.CreativeGroup), text);
-		parts.Add($"\"creative\": {{ \"category\": {item.Byte(ItemLayout.CreativeCategory)}, \"categoryName\": "
-			+ (NameOf(CreativeCategoryNames, item.Byte(ItemLayout.CreativeCategory)) is { } cn ? Json(cn) : "null")
-			+ (string.IsNullOrEmpty(creativeGroupName) ? "" : $", \"group\": {Json(creativeGroupName)}") + " }");
 
 
 		// Furnace behaviour, both halves: how many items this one burns for, and the experience
 		// smelting it gives. Fitted against lava bucket at a hundred, boats at six and sticks at a
 		// half, and against gold at one, iron at seven tenths and nuggets at a tenth.
-		if (item.F32(ItemLayout.FurnaceFuel) != 0 || item.F32(ItemLayout.SmeltingExperience) != 0)
-		{
-			parts.Add($"\"furnace\": {{ \"fuelDuration\": {Num(item.F32(ItemLayout.FurnaceFuel))}, "
-				+ $"\"smeltingExperience\": {Num(item.F32(ItemLayout.SmeltingExperience))} }}");
-		}
-
-		string icon = StdString(process, item.Window, item.At(ItemLayout.Icon), text);
-		if (!string.IsNullOrEmpty(icon)) parts.Add($"\"icon\": {Json(icon)}");
-		string icon2 = StdString(process, item.Window, item.At(ItemLayout.SecondIcon), text);
-		if (!string.IsNullOrEmpty(icon2)) parts.Add($"\"icon2\": {Json(icon2)}");
-		string atlas = StdString(process, item.Window, item.At(ItemLayout.TextureAtlas), text);
-		if (!string.IsNullOrEmpty(atlas)) parts.Add($"\"textureAtlas\": {Json(atlas)}");
-
 		List<string> tags = Tags(process, item, scratch, heap);
 		if (tags.Count > 0) parts.Add($"\"tags\": [{string.Join(", ", tags.Select(Json))}]");
 
@@ -2213,7 +2183,6 @@ public static class ItemRegistry
 		// Named from the code that writes them: the item parser holds the key's text and stores the
 		// value it read into the object, so the store offset beside the literal is the field. Checked
 		// against two offsets already known, creative_category at name+96 and frame_count at name-240.
-		parts.Add($"\"hiddenInCommands\": {item.Byte(ItemLayout.HiddenInCommands)}");
 		// These three sit past +240, which is class specific, so they only mean anything on the class
 		// the parser writes them into: the data-driven items. Gated on the object being big enough
 		// they were read off every class, and a diamond pickaxe reported a mining speed taken from

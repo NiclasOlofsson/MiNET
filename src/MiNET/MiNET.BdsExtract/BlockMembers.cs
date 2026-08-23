@@ -34,6 +34,7 @@ public enum MemberKind
 	Enum8,
 	Enum32,
 	UInt16,
+	Int16,
 	Int32,
 	UInt64,
 	Bits64,
@@ -48,9 +49,9 @@ public enum MemberKind
 }
 
 /// <summary>
-///     One member of a class: where it starts inside that class, how wide it is, and what it is
-///     called. A member holding another object names the class it holds, and its own position is
-///     the only thing that can move: what is inside it is that class's business.
+///     One member of a class: where it starts inside that class, how wide the value is, what it is
+///     called, and, when it holds another object, which class that is. The offset is stated by the
+///     reference and is relative to the class that declares it, never to whatever holds that class.
 /// </summary>
 public readonly record struct BlockMember(int At, int Bytes, MemberKind Kind, string Name, string Holds = null);
 
@@ -58,94 +59,156 @@ public readonly record struct BlockMember(int At, int Bytes, MemberKind Kind, st
 public sealed record ClassLayout(string Name, int Size, IReadOnlyList<BlockMember> Members);
 
 /// <summary>
-///     Every member of the block class, read out of the reference in Assets rather than written
-///     here.
+///     One member as it actually occurs: the member itself, what it holds if it holds a class, and
+///     where it sits in the object that holds all of it.
 ///     <para>
-///         The reference is an extraction of one build read at the offsets that build's own class
-///         declaration states, and it carries the member list it was read with: each member's name,
-///         position, width and kind, the class size, and which build it is for. Holding a second
-///         copy of that in source would be a number this tool asserts, and the first thing to go
-///         stale.
+///         The number is how the check pairs an occurrence with the value the reference states for
+///         it. The path is for a person reading a report. Neither is what the data is: the data is
+///         this tree.
+///     </para>
+/// </summary>
+public sealed class MemberNode
+{
+	public int Index { get; init; }
+	public BlockMember Member { get; init; }
+	public string Path { get; init; }
+
+	/// <summary>
+	///     Where this occurrence starts in the object, which is its own class's offset added to the
+	///     offset of everything holding it. Stated by the reference, not measured.
+	/// </summary>
+	public int At { get; init; }
+
+	public IReadOnlyList<MemberNode> Holds { get; init; } = [];
+	public bool IsLeaf => Holds.Count == 0;
+}
+
+/// <summary>A class as a tree of its members, with every occurrence numbered once.</summary>
+public sealed class ClassTree
+{
+	/// <summary>The class's own members, each holding whatever it holds.</summary>
+	public IReadOnlyList<MemberNode> Roots { get; init; } = [];
+
+	/// <summary>Every value in the tree, for a caller that wants them all without walking.</summary>
+	public IReadOnlyList<MemberNode> Leaves { get; init; } = [];
+}
+
+/// <summary>
+///     Every class the reference states, read out of it rather than written here.
+///     <para>
+///         Each class carries its size and its members, and each member its name, its offset inside
+///         that class, its width and its kind. A member holding another class names it, and that
+///         class states its own members at its own offsets, so a class that moves takes what is
+///         inside it along without a single number changing.
 ///     </para>
 ///     <para>
 ///         The names are the class's own with the m dropped, so nothing here is a name this tool
-///         invented. Members holding a container are listed too, with their position and size and no
-///         value, so the part of the object nothing reads stays countable rather than disappearing.
+///         invented. Members holding something with no class of their own are listed too, with their
+///         offset and size and no value, so the part of the object nothing reads stays countable.
 ///     </para>
 /// </summary>
 public static class BlockMembers
 {
-	/// <summary>Every class the block file states, by name, and which of them a block is.</summary>
-	private static Dictionary<string, ClassLayout> _blockClasses;
-	private static string _blockRoot;
+	/// <summary>Which extraction a class came out of, because each states its own.</summary>
+	public enum Source
+	{
+		Blocks,
+		States,
+		Items
+	}
+
+	private static readonly string[] Files = ["blocks.json", "block_states.json", "items-runtime.json"];
+	private static readonly Dictionary<string, ClassLayout>[] Classes = new Dictionary<string, ClassLayout>[3];
+	private static readonly string[] Roots = new string[3];
+	private static readonly ClassTree[] Trees = new ClassTree[3];
 	private static Version _build;
 
-	/// <summary>Every class the state file states, by name, and which of them a state is.</summary>
-	private static Dictionary<string, ClassLayout> _stateClasses;
-	private static string _stateRoot;
-
-	/// <summary>The class a block is.</summary>
-	public static ClassLayout Block
-	{
-		get
-		{
-			LoadBlocks();
-			return Class(_blockClasses, _blockRoot);
-		}
-	}
-
-	/// <summary>The class a state is.</summary>
-	public static ClassLayout State
-	{
-		get
-		{
-			LoadStates();
-			return Class(_stateClasses, _stateRoot);
-		}
-	}
-
-	/// <summary>The build the reference was read on, and the only one its positions are stated for.</summary>
+	/// <summary>The build the reference was read on.</summary>
 	public static Version Build
 	{
 		get
 		{
-			LoadBlocks();
+			Load(Source.Blocks);
 			return _build;
 		}
 	}
 
-	/// <summary>The class a member holds, from the same file that member came from.</summary>
-	public static ClassLayout Held(string name, bool state)
+	/// <summary>The class an object of that kind is, as the tree it is. Built once.</summary>
+	public static ClassTree Tree(Source source)
 	{
-		if (state) LoadStates();
-		else LoadBlocks();
-		return Class(state ? _stateClasses : _blockClasses, name);
+		Load(source);
+		return Trees[(int) source] ??= Grow(Root(source), source);
 	}
 
-	private static ClassLayout Class(Dictionary<string, ClassLayout> classes, string name)
+	/// <summary>The class an object of that kind is.</summary>
+	public static ClassLayout Root(Source source)
 	{
+		Load(source);
+		return Class(source, Roots[(int) source]);
+	}
+
+	/// <summary>The class a member holds, from the same file that member came from.</summary>
+	public static ClassLayout Held(string name, Source source) => Class(source, name);
+
+	private static ClassLayout Class(Source source, string name)
+	{
+		Load(source);
 		if (name is null) return null;
-		return classes.TryGetValue(name, out ClassLayout held)
+		return Classes[(int) source].TryGetValue(name, out ClassLayout held)
 			? held
 			: throw new InvalidOperationException($"the reference names a class {name} and then does not state it");
 	}
 
-	private static void LoadStates()
-	{
-		if (_stateClasses is not null) return;
-		(_stateClasses, _stateRoot, _) = LoadClasses("block_states.json");
-	}
-
-	private static void LoadBlocks()
-	{
-		if (_blockClasses is not null) return;
-		(_blockClasses, _blockRoot, _build) = LoadClasses("blocks.json");
-	}
-
 	/// <summary>
-	///     The class table a reference states: every class it knows with its size and its members,
-	///     and which of them the file's objects are.
+	///     A class as the tree it is: every member in the order it is declared, and inside a member
+	///     that holds another class, that class's members. Nothing is flattened. The leaf list beside
+	///     it is the same nodes, for a caller that wants to visit every value without walking.
 	/// </summary>
+	private static ClassTree Grow(ClassLayout held, Source source)
+	{
+		var all = new List<MemberNode>();
+		IReadOnlyList<MemberNode> roots = Branch(held, source, null, 0, all);
+		return new ClassTree { Roots = roots, Leaves = all.Where(n => n.IsLeaf).ToList() };
+	}
+
+	private static IReadOnlyList<MemberNode> Branch(ClassLayout held, Source source, string path, int at,
+		List<MemberNode> all)
+	{
+		var nodes = new List<MemberNode>(held.Members.Count);
+		foreach (BlockMember member in held.Members)
+		{
+			string name = path is null ? member.Name : $"{path}.{member.Name}";
+
+			// The slot is taken before the members inside are built, so a member is numbered
+			// before whatever it holds and the flat list reads in declaration order.
+			int index = all.Count;
+			all.Add(null);
+			var node = new MemberNode
+			{
+				Index = index,
+				Member = member,
+				Path = name,
+				At = at + member.At,
+				Holds = member.Holds is null
+					? []
+					: Branch(Held(member.Holds, source), source, name, at + member.At, all)
+			};
+
+			all[index] = node;
+			nodes.Add(node);
+		}
+
+		return nodes;
+	}
+
+	private static void Load(Source source)
+	{
+		int which = (int) source;
+		if (Classes[which] is not null) return;
+		(Classes[which], Roots[which], Version build) = LoadClasses(Files[which]);
+		_build ??= build;
+	}
+
 	private static (Dictionary<string, ClassLayout>, string, Version) LoadClasses(string file)
 	{
 		var classes = new Dictionary<string, ClassLayout>(StringComparer.Ordinal);

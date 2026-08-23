@@ -34,27 +34,27 @@ public sealed class BlockProperties
 	public ulong NameHash { get; init; }
 
 	/// <summary>The pre-flattening numeric id, and the tint, both read from where the class keeps them.</summary>
-	public int LegacyId { get; init; }
+	public int LegacyId { get; set; }
 
-	public string TintMethod { get; init; }
+	public string TintMethod { get; set; }
 
 	/// <summary>
 	///     The block's tags, in the server's order. These say what the block IS to the rest of the
 	///     game: which tool destroys it, which family it belongs to. They are held on the block, not
 	///     on its states, so every state of a block carries this same list.
 	/// </summary>
-	public IReadOnlyList<string> Tags { get; init; } = [];
+	public IReadOnlyList<string> Tags { get; set; } = [];
 
 	/// <summary>
 	///     The name this block had before the flattening, tile.acacia_button. Every block has one
 	///     and nothing else publishes the mapping from it to the modern id.
 	/// </summary>
-	public string SerializationId { get; init; }
+	public string SerializationId { get; set; }
 
 	/// <summary>
 	///     The creative tab the block appears under, or null for the ones a player cannot reach.
 	/// </summary>
-	public string CreativeGroup { get; init; }
+	public string CreativeGroup { get; set; }
 
 	/// <summary>
 	///     The shape the block declares, as the server names it rather than as a box: unit_cube for
@@ -65,7 +65,7 @@ public sealed class BlockProperties
 	///     (1, 0.0625, 1). Checked against a published table: all 24 box geometries and all 454 unit
 	///     cubes agree with it exactly.
 	/// </summary>
-	public string Geometry { get; init; }
+	public string Geometry { get; set; }
 
 	/// <summary>
 	///     The method table of the C++ class implementing this block, which is the only type
@@ -256,26 +256,36 @@ public static class BlockRegistry
 		{
 			Name = name,
 			NameHash = BitConverter.ToUInt64(window, nameAt),
-			LegacyId = BlockLayout.Has("id")
-				? (int) (process.ReadUInt64(legacy + (ulong) BlockLayout.At("id"), word) & 0xFFFF)
-				: -1,
-			TintMethod = BlockLayout.Has("tintMethod")
-				? MemoryLayout.Describe(MemoryLayout.TintMethods,
-					(byte) (process.ReadUInt64(legacy + (ulong) BlockLayout.At("tintMethod"), word) & 0xFF))
-				: null,
-			SerializationId = BlockLayout.Has("descriptionId")
-				? StdString(process, legacy + (ulong) BlockLayout.At("descriptionId"))
-				: null,
-			CreativeGroup = BlockLayout.Has("creativeGroup")
-				? StdString(process, legacy + (ulong) BlockLayout.At("creativeGroup"))
-				: null,
-			Tags = ReadTags(process, window, nameAt, word),
-			Geometry = ReadGeometry(process, legacy, word),
+			LegacyId = -1,
 			Vtable = process.ReadUInt64(legacy, word),
 			Address = legacy,
 			ObjectSize = size,
 			Unread = ObjectLayout.Holes(size),
 		};
+	}
+
+	/// <summary>
+	///     The values that live at a measured position, filled in once the layout has been measured
+	///     on this server. Discovery cannot read them: it runs before anything has been measured,
+	///     and a position taken from anywhere else is a position nothing confirmed.
+	/// </summary>
+	public static void ReadValues(BedrockProcess process, IReadOnlyList<BlockProperties> blocks)
+	{
+		var word = new byte[8];
+		var window = new byte[MemoryLayout.NameInsideLegacy + 512];
+		foreach (BlockProperties block in blocks)
+		{
+			ulong legacy = block.Address;
+			block.LegacyId = (int) (process.ReadUInt64(legacy + (ulong) BlockLayout.At("id"), word) & 0xFFFF);
+			block.TintMethod = MemoryLayout.Describe(MemoryLayout.TintMethods,
+				(byte) (process.ReadUInt64(legacy + (ulong) BlockLayout.At("tintMethod"), word) & 0xFF));
+			block.SerializationId = StdString(process, legacy + (ulong) BlockLayout.At("descriptionId"));
+			block.CreativeGroup = StdString(process, legacy + (ulong) BlockLayout.At("creativeGroup"));
+
+			process.ReadClipped(legacy, window, window.Length);
+			block.Tags = ReadTags(process, window, MemoryLayout.NameInsideLegacy, word);
+			block.Geometry = ReadGeometry(process, legacy, word);
+		}
 	}
 
 	/// <summary>
@@ -285,9 +295,10 @@ public static class BlockRegistry
 	/// </summary>
 	private static string ReadGeometry(BedrockProcess process, ulong legacy, byte[] word)
 	{
-		if (!BlockLayout.Has("components")) return null;
-		ulong begin = process.ReadUInt64(legacy + (ulong) BlockLayout.At("components"), word);
-		ulong end = process.ReadUInt64(legacy + (ulong) (BlockLayout.At("components") + 8), word);
+		// The values vector, which is the second one: the first holds the two-byte ids.
+		ulong storage = legacy + (ulong) BlockLayout.At("components");
+		ulong begin = process.ReadUInt64(storage + 24, word);
+		ulong end = process.ReadUInt64(storage + 32, word);
 		if (begin < 0x10000 || end <= begin || (end - begin) % 8 != 0) return null;
 		if (end - begin > MaximumComponentBytes || !process.IsMapped(begin)) return null;
 
@@ -313,14 +324,20 @@ public static class BlockRegistry
 	/// </summary>
 	private static List<string> ReadTags(BedrockProcess process, byte[] window, int at, byte[] word)
 	{
-		var tags = new List<string>();
 		// The tag vector is a member of the class like any other, so it is read from where the
 		// member map puts it rather than from a second offset measured later in the run.
-		if (!BlockLayout.Has("tags")) return tags;
 		int tagsAt = at - MemoryLayout.NameInsideLegacy + BlockLayout.At("tags");
-		if (tagsAt < 0 || tagsAt + 16 > window.Length) return tags;
-		ulong begin = BitConverter.ToUInt64(window, tagsAt);
-		ulong end = BitConverter.ToUInt64(window, tagsAt + 8);
+		if (tagsAt < 0 || tagsAt + 16 > window.Length) return [];
+		return Tags(process, BitConverter.ToUInt64(window, tagsAt), BitConverter.ToUInt64(window, tagsAt + 8));
+	}
+
+	/// <summary>
+	///     The tags a vector of HashedString holds, wherever that vector is. A block keeps one and
+	///     so does each of its states, and they are the same class, so they are the same read.
+	/// </summary>
+	internal static List<string> Tags(BedrockProcess process, ulong begin, ulong end)
+	{
+		var tags = new List<string>();
 		if (begin < 0x10000 || end <= begin) return tags;
 
 		ulong span = end - begin;
@@ -346,9 +363,4 @@ public static class BlockRegistry
 
 	private const string Unknown = "Unknown";
 
-	private static string ToHex(float[] rgba)
-	{
-		static int Channel(float value) => Math.Clamp((int) Math.Round(value * 255f), 0, 255);
-		return $"#{Channel(rgba[0]):X2}{Channel(rgba[1]):X2}{Channel(rgba[2]):X2}{Channel(rgba[3]):X2}";
-	}
 }

@@ -50,9 +50,8 @@ public static class ObjectLayout
 	{
 		// Every member of the class, where this build keeps it, plus the method table the object
 		// opens with. A hole is whatever that does not cover.
-		return BlockLayout.Members
-			.Where(m => m.Name != "nameInfo" && BlockLayout.Has(m.Name))
-			.Select(m => (BlockLayout.At(m.Name), m.Bytes, m.Name))
+		return BlockLayout.Blocks.Leaves
+			.Select(n => (n.At, n.Member.Bytes, n.Path))
 			.Append((0, 8, "method table"))
 			.ToArray();
 	}

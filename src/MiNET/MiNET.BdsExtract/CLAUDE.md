@@ -39,29 +39,33 @@ nothing alone. What makes them usable is agreement: six of the item flag bits al
 pinned from behaviour before the header was read, and thirteen block offsets landed exactly on a
 member. Two independent confirmations, not one list.
 
-## Nothing is a fixed offset
+## The reference states the layout, the run checks it
 
-An offset compiled into this tool is a number the tool asserts about a build it has not read. Every
-position is measured on the server being read, or it is not available at all: `MemoryLayout` throws
-rather than answer with a value nothing confirmed.
+Offsets live in the reference and the tool reads them. Nothing searches for a position, nothing
+moves one, and no offset is compiled into the source.
 
-The one exception is the reference build, where the positions come from the class declaration and
-are stated rather than searched.
+Every offset in the reference is relative to the class that declares it. A class holding another
+class states its own offset and nothing about what is inside it, so a member's place in the object
+is its own offset added up through whatever holds it. That is why `nameInfo` shrinking from 176 to
+160 bytes on 1.26.50.26 moves everything after it and nothing inside it.
 
-The measurement is the same shape everywhere:
+The run then checks that layout against the server in front of it. Every member is read where the
+reference puts it and counted against the value the reference states for that same object, matched
+by what the object is: a block by its full name, a state by its block's name and its property
+values.
 
-1. A member is located by scoring every position in the object against the reference, block by block
-   or item by item, matched by name.
-2. A position holds a member when it gives the right value for at least the floor of the population.
-   The floor is 0.95, one number for every caller, and it is Niclas's. Do not add a second one, do
-   not put it on the command line, do not pass it as a parameter.
-3. What settles perfectly at exactly one position is reserved, byte for byte, before anything else
-   is looked for. Distinctive values settle first: names, colours, versions, floats.
-4. Everything else is then placed around the reserved ranges. Without that step a bool matches half
-   the object by luck, and `solid`, `isOpaqueFullBlock` and `lightBlock` all settle on one byte.
+- At or above 0.95, the offset still reads the field. The run goes on and says nothing.
+- Below 0.95, it has slipped. The run says so and goes on.
+- Below 0.50, the offset is reading something else. The run stops before writing anything.
 
-A member nothing settles keeps no position and is reported unsettled. It is never quietly read from
-where it used to be.
+Both numbers are Niclas's. Do not add a third, do not put either on the command line.
+
+When a member breaks, its offset is corrected in the reference by hand and the run is repeated until
+the new layout reads. That is the working loop for a new build.
+
+A round trip is not evidence of a layout. The run reads the file's own offsets, reads memory at
+them, and writes them back, so identical bytes come out whether the offsets are right or wrong. What
+the check reports is the evidence.
 
 ## The reference
 

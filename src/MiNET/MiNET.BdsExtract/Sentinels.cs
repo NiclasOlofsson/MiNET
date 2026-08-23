@@ -27,6 +27,7 @@ namespace MiNET.BdsExtract;
 
 using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 /// <summary>
 ///     How a value is stated, for the two things every reader of this tool needs to agree on: how
@@ -63,12 +64,14 @@ public static class Sentinels
 	private static int Decimals(string field) => field[(field.LastIndexOf('.') + 1)..] == "friction" ? 3 : 2;
 
 	/// <summary>A float as the value the game states, rounded to that field's decimals.</summary>
-	public static string Number(string field, float value)
+	public static JsonNode Number(string field, float value)
 	{
 		// Rounded as a double, because a float's own formatting caps at seven significant digits
-		// and turns barrier's 3600000.75 into 3600001.
+		// and turns barrier's 3600000.75 into 3600001. The rounding is part of the value the game
+		// states, not a way of printing it, so it happens here and the serializer writes whatever
+		// number the model ends up holding.
 		return float.IsFinite(value)
-			? Math.Round((double) value, Decimals(field)).ToString("R", CultureInfo.InvariantCulture)
-			: "null";
+			? JsonValue.Create(Math.Round((double) value, Decimals(field)))
+			: null;
 	}
 }

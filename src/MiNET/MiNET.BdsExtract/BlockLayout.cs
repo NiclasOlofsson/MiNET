@@ -53,4 +53,13 @@ public static class BlockLayout
 		?? throw new InvalidOperationException($"the block class has no member called {name}");
 
 	public static int At(string name) => Member(name).At;
+
+	/// <summary>
+	///     A value in the state, by the path it sits at: the member's own name under the names of
+	///     whatever holds it, so <c>directData.destroySpeed</c> is the destroy speed inside the
+	///     direct data. The position is the reference's, added up through the containers.
+	/// </summary>
+	public static int StateAt(string path) =>
+		States.Leaves.FirstOrDefault(n => n.Path == path)?.At
+		?? throw new InvalidOperationException($"the state class has no value at {path}");
 }

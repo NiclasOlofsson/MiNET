@@ -26,6 +26,7 @@
 namespace MiNET.BdsExtract;
 
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 /// <summary>
 ///     Says whether the layout the reference states still reads the server in front of it.
@@ -101,15 +102,15 @@ public static class BlockMemberDerivation
 	public static List<Found> CheckItems(BedrockProcess process, IReadOnlyCollection<ItemRegistry.Item> items)
 	{
 		ClassTree tree = ItemLayout.Items;
-		Dictionary<string, Dictionary<int, string>> known =
+		Dictionary<string, Dictionary<int, JsonNode>> known =
 			Load("items-runtime.json", "items", tree, i => i.TryGetProperty("name", out JsonElement name)
 				&& name.ValueKind == JsonValueKind.String ? name.GetString() : null);
 
-		var windows = new List<(byte[] Window, ulong Address, Dictionary<int, string> Wanted)>();
+		var windows = new List<(byte[] Window, ulong Address, Dictionary<int, JsonNode> Wanted)>();
 		foreach (ItemRegistry.Item item in items)
 		{
 			if (!item.IsItem) continue;
-			if (!known.TryGetValue(item.Name, out Dictionary<int, string> wanted)) continue;
+			if (!known.TryGetValue(item.Name, out Dictionary<int, JsonNode> wanted)) continue;
 			windows.Add((item.Window, item.Address, wanted));
 		}
 
@@ -122,15 +123,15 @@ public static class BlockMemberDerivation
 	///     reference states the layout, and this says whether that layout still reads this server.
 	/// </summary>
 	private static List<Found> Check(BedrockProcess process, ClassTree tree,
-		IReadOnlyList<Subject> subjects, Dictionary<string, Dictionary<int, string>> known, int reach)
+		IReadOnlyList<Subject> subjects, Dictionary<string, Dictionary<int, JsonNode>> known, int reach)
 	{
 		if (known.Count == 0) return [];
 
 		// Every object both the reference and this server have, read once.
-		var windows = new List<(byte[] Window, ulong Address, Dictionary<int, string> Wanted)>();
+		var windows = new List<(byte[] Window, ulong Address, Dictionary<int, JsonNode> Wanted)>();
 		foreach (Subject subject in subjects)
 		{
-			if (!known.TryGetValue(subject.Key, out Dictionary<int, string> wanted)) continue;
+			if (!known.TryGetValue(subject.Key, out Dictionary<int, JsonNode> wanted)) continue;
 			var window = new byte[reach];
 			if (process.ReadClipped(subject.Address, window, reach) < reach) continue;
 			windows.Add((window, subject.Address, wanted));
@@ -144,15 +145,19 @@ public static class BlockMemberDerivation
 	///     is nothing when the window is the object and something when it begins before it.
 	/// </summary>
 	private static List<Found> Score(BedrockProcess process, ClassTree tree,
-		List<(byte[] Window, ulong Address, Dictionary<int, string> Wanted)> windows, int lead)
+		List<(byte[] Window, ulong Address, Dictionary<int, JsonNode> Wanted)> windows, int lead)
 	{
 		var results = new List<Found>();
 		var scratch = new byte[256];
 		foreach (MemberNode leaf in tree.Leaves)
 		{
 			// A member holding something with no class of its own has no value to read, so there is
-			// nothing to check whatever the file states beside its name.
-			if (leaf.Member.Kind == MemberKind.Container)
+			// nothing to check whatever the file states beside its name. Nor has a member whose
+			// value is a fact about the build rather than about the object: a state's place in the
+			// palette is a different number on every release by construction, and what has to be
+			// true of it, that it is unique and that the sequence is contiguous, is checked where
+			// the palette itself is checked.
+			if (leaf.Member.Kind == MemberKind.Container || !leaf.Member.Comparable)
 			{
 				results.Add(new Found(leaf.Path, leaf.At, 0, 0, Verdict.Unchecked));
 				continue;
@@ -160,12 +165,12 @@ public static class BlockMemberDerivation
 
 			int position = leaf.At - lead;
 			int held = 0, of = 0;
-			foreach ((byte[] window, ulong address, Dictionary<int, string> values) in windows)
+			foreach ((byte[] window, ulong address, Dictionary<int, JsonNode> values) in windows)
 			{
-				if (!values.TryGetValue(leaf.Index, out string stated)) continue;
+				if (!values.TryGetValue(leaf.Index, out JsonNode stated)) continue;
 				of++;
 				if (position < 0 || position + leaf.Member.Bytes > window.Length) continue;
-				if (BlockMemberReader.Text(process, address, window, scratch, position, leaf.Member) == stated) held++;
+				if (JsonNode.DeepEquals(BlockMemberReader.Node(process, address, window, scratch, position, leaf.Member), stated)) held++;
 			}
 
 			Verdict verdict = of == 0
@@ -186,11 +191,11 @@ public static class BlockMemberDerivation
 	///     as the file writes it. An object two keys cannot separate is used by neither, because a
 	///     value that could have come from either proves nothing about where it was read.
 	/// </summary>
-	private static Dictionary<string, Dictionary<int, string>> Load(string file, string array,
+	private static Dictionary<string, Dictionary<int, JsonNode>> Load(string file, string array,
 		ClassTree tree, Func<JsonElement, string> keyOf)
 	{
 		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference", file);
-		var known = new Dictionary<string, Dictionary<int, string>>(StringComparer.Ordinal);
+		var known = new Dictionary<string, Dictionary<int, JsonNode>>(StringComparer.Ordinal);
 		if (!File.Exists(path))
 		{
 			Console.Error.WriteLine($"no reference at {path}; no member position can be measured");
@@ -211,7 +216,7 @@ public static class BlockMemberDerivation
 				continue;
 			}
 
-			var values = new Dictionary<int, string>();
+			var values = new Dictionary<int, JsonNode>();
 			Gather(tree.Roots, held, values);
 			if (values.Count > 0) known[key] = values;
 		}
@@ -225,7 +230,7 @@ public static class BlockMemberDerivation
 	///     descended into. The reference is not flattened and no path is built. A member the file
 	///     states nothing for is simply absent, and the search then has nothing to match it on.
 	/// </summary>
-	private static void Gather(IReadOnlyList<MemberNode> nodes, JsonElement held, Dictionary<int, string> values)
+	private static void Gather(IReadOnlyList<MemberNode> nodes, JsonElement held, Dictionary<int, JsonNode> values)
 	{
 		if (held.ValueKind != JsonValueKind.Object) return;
 		foreach (MemberNode node in nodes)
@@ -244,8 +249,9 @@ public static class BlockMemberDerivation
 			// version, a range, a box.
 			if (stated.ValueKind == JsonValueKind.Object
 				&& node.Member.Kind is not (MemberKind.Version or MemberKind.Range)) continue;
-			if (stated.ValueKind == JsonValueKind.Array && node.Member.Kind != MemberKind.Box) continue;
-			values[node.Index] = stated.GetRawText();
+			if (stated.ValueKind == JsonValueKind.Array
+				&& node.Member.Kind is not (MemberKind.Box or MemberKind.Bits64)) continue;
+			values[node.Index] = JsonNode.Parse(stated.GetRawText());
 		}
 	}
 }

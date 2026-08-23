@@ -42,7 +42,14 @@ public static class HashedString
 	public const int TextOffset = 8;
 	public const int LengthOffset = 24;
 	public const int CapacityOffset = 32;
-	public const int Size = 40;
+
+	/// <summary>
+	///     Forty eight, which is what the class is: the hash and the string account for forty and
+	///     the rest is the class's own tail. Forty was the content, not the size, and a vector of
+	///     these divides by the size. Every block's tags were being discarded on that: a 96 byte
+	///     vector holding two records does not divide by forty, so 929 blocks read as untagged.
+	/// </summary>
+	public const int Size = 48;
 
 	/// <summary>The shortest name worth considering, "minecraft:" plus one character.</summary>
 	private const int MinimumNameLength = 11;

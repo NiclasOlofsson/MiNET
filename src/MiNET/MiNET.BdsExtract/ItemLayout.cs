@@ -1,4 +1,4 @@
-#region LICENSE
+﻿#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -56,21 +56,19 @@ public static class ItemLayout
 
 	public static int ParseVersion => At("version");
 	public static int TextureAtlas => At("textureAtlas");
-	public static int IconFrameCount => At("iconFrameCount");
+	public static int FrameCount => At("frameCount");
 	public static int AnimatesInToolbar => At("animatesInToolbar");
 	public static int MirroredArt => At("mirroredArt");
 	public static int UseAnimation => At("useAnimation");
-	public static int HoverTextColour => At("hoverTextColour");
-	public static int Icon => At("icon");
-	public static int SecondIcon => At("icon2");
+	public static int HoverTextColorFormat => At("hoverTextColorFormat");
+	public static int IconName => At("iconName");
+	public static int AtlasName => At("atlasName");
 	public static int MaxStackSize => At("maxStackSize");
 	public static int Id => At("id");
 	public static int TranslationKey => At("translationKey");
 	public static int BareName => At("bareName");
 	public static int Namespace => At("namespace");
 	public static int MaxDurability => At("maxDurability");
-	public static int Flags => At("flags");
-	public static int SecondFlags => At("secondFlags");
 	public static int UseDuration => At("useDuration");
 	public static int MinimumVersion => At("minimumVersion");
 	public static int Block => At("block");
@@ -86,5 +84,5 @@ public static class ItemLayout
 	public static int SeedComponent => At("seedComponent");
 	public static int CameraComponent => At("cameraComponent");
 	public static int ResetCallbacks => At("resetCallbacks");
-	public static int TagVector => At("tagVector");
+	public static int TagVector => At("tags");
 }

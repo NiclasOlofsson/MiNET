@@ -23,10 +23,11 @@
 
 #endregion
 
-using System.Globalization;
-using System.Text;
-
 namespace MiNET.BdsExtract;
+
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 /// <summary>
 ///     The extraction as two files, because the server has two things: blocks, and their states.
@@ -37,26 +38,52 @@ namespace MiNET.BdsExtract;
 ///     carry each, which answers nothing anybody asked.
 ///     Everything a state is goes on the state: its runtime id, which block it belongs to, what it
 ///     is, and the light it gives off and takes away.
+///     Both are built as the model and handed to the serializer. Nothing here writes JSON text: a
+///     file that is printed rather than serialized can say something the model does not, and every
+///     way of getting that wrong (a key written twice, a value rendered one way and compared
+///     another, a shape that drifts from the reference) was reachable while it did.
 /// </summary>
 public static class BlockDocument
 {
+	/// <summary>How every file this tool writes is written: the model, indented with tabs.</summary>
+	private static readonly JsonSerializerOptions Format = new()
+	{
+		WriteIndented = true,
+		IndentCharacter = '\t',
+		IndentSize = 1,
+		Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+	};
+
+	/// <summary>The model as the file it becomes.</summary>
+	public static string Serialize(JsonNode document)
+	{
+		return document.ToJsonString(Format) + "\n";
+	}
+
 	/// <summary>
-	///     The header lines every output leads with: the block state schema version and, spelled out
+	///     The header every output leads with: the block state schema version and, spelled out
 	///     beside it, the release it encodes (the number is four bytes, major.minor.patch.revision).
 	///     Every state carries the same stamp (frozen at 1.21.60.33 for years); if a build ever
 	///     splits it, the split is written as the list it is instead of one value hiding the other.
 	/// </summary>
-	public static string VersionHeader(IReadOnlyList<PaletteEntry> palette)
+	public static void Version(JsonObject document, IReadOnlyList<PaletteEntry> palette)
 	{
 		int[] versions = palette.Select(p => p.Version).Distinct().OrderBy(v => v).ToArray();
 		static string Release(int v) => $"{v >> 24 & 0xff}.{v >> 16 & 0xff}.{v >> 8 & 0xff}.{v & 0xff}";
-		return versions.Length == 1
-			? $"\t\"blockStateVersion\": {versions[0]},\n\t\"blockStateRelease\": \"{Release(versions[0])}\",\n"
-			: $"\t\"blockStateVersions\": [{string.Join(", ", versions)}],\n\t\"blockStateReleases\": [{string.Join(", ", versions.Select(v => $"\"{Release(v)}\""))}],\n";
+
+		if (versions.Length == 1)
+		{
+			document["blockStateVersion"] = versions[0];
+			document["blockStateRelease"] = Release(versions[0]);
+			return;
+		}
+
+		document["blockStateVersions"] = new JsonArray(versions.Select(v => (JsonNode) v).ToArray());
+		document["blockStateReleases"] = new JsonArray(versions.Select(v => (JsonNode) Release(v)).ToArray());
 	}
 
 	/// <summary>One row per block, with everything the extraction knows about it.</summary>
-	public static string WriteBlocks(BedrockProcess process, string versionHeader,
+	public static JsonObject Blocks(BedrockProcess process, IReadOnlyList<PaletteEntry> palette,
 		IReadOnlyList<BlockProperties> blocks,
 		IReadOnlyDictionary<ulong, string> classNames,
 		IReadOnlyDictionary<string, BlockStateRange> ranges,
@@ -66,16 +93,64 @@ public static class BlockDocument
 	{
 		var window = new byte[BlockLayout.Reach];
 		var scratch = new byte[256];
-		var text = new StringBuilder("{\n");
-		text.Append(versionHeader);
-		text.Append($"\t\"layoutPublishedFor\": \"{BlockMembers.Build}\",\n");
-		text.Append(Classes(BlockMembers.Root(BlockMembers.Source.Blocks), BlockMembers.Source.Blocks));
-		text.Append($"\t\"count\": {blocks.Count},\n");
-		text.Append("\t\"blocks\": [\n");
-		for (int i = 0; i < blocks.Count; i++)
-		{
-			var block = blocks[i];
 
+		// What every address a block holds actually is. A pointer to something this extraction
+		// already knows is written as that thing rather than as an address, because an address is
+		// true for one run of one server and names nothing a reader can look up.
+		// The value, not a node: a node belongs to one parent, and 534 blocks share one material.
+		var known = new Dictionary<ulong, object>();
+		var materials = new Dictionary<ulong, byte>();
+
+		// Its states, by the index the state file publishes them under.
+		foreach (PaletteEntry state in palette) known.TryAdd(state.Address, state.Index);
+
+		// Its class. The method table keeps its address, because that is what was read, and carries
+		// the name the class table gives it where there is one.
+		var vtables = new Dictionary<ulong, string>(classNames);
+
+		// Its material, by the type the entry states. The materials are a registry: 25 entries of
+		// 16 bytes sharing one array, each leading with its own type, and those types run 0 to 24
+		// with no repeats, which is what says the byte is the entry's identity rather than its
+		// position. 1,356 blocks point into those 25.
+		int materialAt = BlockLayout.At("material");
+		var word = new byte[8];
+		foreach (BlockProperties block in blocks)
+		{
+			ulong entry = process.ReadUInt64(block.Address + (ulong) materialAt, word);
+			if (entry < 0x10000 || known.ContainsKey(entry)) continue;
+			// Both halves: the value is what was read, the name is what it means. A name alone
+			// throws the byte away, and a byte alone says nothing.
+			if (process.TryRead(entry, word, 1)) materials[entry] = word[0];
+		}
+
+		BlockMemberReader.Identify identify = a =>
+		{
+			if (vtables.TryGetValue(a, out string named))
+			{
+				return new JsonObject { ["pointer"] = $"0x{a:X}", ["class"] = named };
+			}
+
+			if (materials.TryGetValue(a, out byte type))
+			{
+				return new JsonObject
+				{
+					["value"] = (int) type,
+					["name"] = type < Materials.Length ? Materials[type] : null
+				};
+			}
+
+			return Scalar(known.GetValueOrDefault(a));
+		};
+
+		var document = new JsonObject();
+		Version(document, palette);
+		document["layoutPublishedFor"] = BlockMembers.Build.ToString();
+		Classes(document, BlockMembers.Root(BlockMembers.Source.Blocks), BlockMembers.Source.Blocks);
+		document["count"] = blocks.Count;
+
+		var rows = new JsonArray();
+		foreach (BlockProperties block in blocks)
+		{
 			// Geometry comes from the component the id names, because the field read picked the
 			// wrong component on 5 blocks: the visual component also carries a namespaced string
 			// and sorts ahead of the geometry one. That is correcting a misread, not choosing
@@ -85,133 +160,133 @@ public static class BlockDocument
 			// one with the other would be this file deciding which is true rather than saying what
 			// each holds.
 			var carried = components.GetValueOrDefault(block.Name) ?? [];
-			string geometry = Component(carried, "minecraft:geometry") ?? block.Geometry;
+			string geometry = carried.FirstOrDefault(c => c.Name == "minecraft:geometry")?.Holds?
+				["identifier"]?.GetValue<string>() ?? block.Geometry;
 
-			text.Append("\t\t{\n");
-			text.Append($"\t\t\t\"name\": \"{Escape(block.Name)}\",\n");
+			// The row is the object: every member of the class, in the class's own order, and
+			// nothing put in front of them. What this tool works out about the block follows after,
+			// so a reader can tell what was read from what was derived by where it sits.
+			var row = new JsonObject();
 
 			// Every member of the class, under the class's own name, shaped the way the class is:
 			// a member holding another object is an object. Not a selection: a member nothing read
-			// is a row with a null, so what nothing reads is counted rather than absent.
-			// The tags member is the vector this tool reads, so its own row carries them rather
-			// than a null beside a second list under the same name. Two entries under one key is a
-			// value lost: a reader keeps the last and never sees the first.
-			List<BlockMemberReader.Value> read = BlockMemberReader.Read(process, block.Address, window, scratch);
-			for (int v = 0; v < read.Count; v++)
-			{
-				if (read[v].Name != "tags") continue;
-				var tags = new StringBuilder("[");
-				for (int t = 0; t < block.Tags.Count; t++)
-				{
-					tags.Append(t == 0 ? "" : ", ").Append($"\"{Escape(block.Tags[t])}\"");
-				}
+			// is a member holding null, so what nothing reads is counted rather than absent.
+			// The tags member is the vector this tool reads, so its own member carries them rather
+			// than sitting null beside a second list under the same name.
+			JsonObject members = BlockMemberReader.Read(process, block.Address, window, scratch, identify);
+			members["tags"] = new JsonArray(block.Tags.Select(t => (JsonNode) t).ToArray());
 
-				read[v] = read[v] with { Json = tags.Append(']').ToString() };
-			}
+			// The components the block holds, in the member that holds them. The id is not published
+			// on its own: it is a per-instance registration number and two runs of one build disagree
+			// on every one, so a component this run could name travels under that name and one it
+			// could not travels as its bytes, which is a value read and kept rather than a number
+			// that means nothing tomorrow.
+			members["components"] = new JsonArray(carried.Select(c => (JsonNode) Carried(c)).ToArray());
 
-			Rows(text, read, 3);
-			text.Length -= 1;
-			text.Append(",\n");
+			// The properties the block declares, from the map the member holds. Not the same fact as
+			// the stateProperties below it: this is what the block says it has, and that is what its
+			// states turned out to be, and on some blocks the declaration is the wider of the two.
+			members["states"] = BlockStateDefinitions.Read(process, block.Address + (ulong) BlockLayout.At("states"));
+			members["stateNameMap"] = BlockStateDefinitions.Names(process,
+				block.Address + (ulong) BlockLayout.At("stateNameMap"));
 
-			text.Append($"\t\t\t\"class\": \"{Escape(classNames.GetValueOrDefault(block.Vtable, "block"))}\",\n");
-			text.Append($"\t\t\t\"geometry\": {Text(geometry)},\n");
+			Fold(members, row);
+
+			row["name"] = block.Name;
+			row["geometry"] = geometry;
 
 			// Where the row was read. Not a fact about the block and only good while that server
 			// lives, but it is what lets a follow up probe go straight to the object instead of
 			// finding the name again and hoping it landed on a BlockLegacy.
-			text.Append($"\t\t\t\"address\": \"0x{block.Address:X}\",\n");
+			row["address"] = $"0x{block.Address:X}";
 
 			// What of the object these values represent. The size is the allocator's, not the
-			// furthest field read, and the holes are the bytes inside the object that no field
+			// furthest field read, and the holes are the bytes inside the object that no member
 			// above accounts for. They are stated rather than dropped so the gap is countable: a
 			// row listing twenty values out of an object three times that size reads as complete
-			// unless it says otherwise. Null holes mean the size could not be measured at all.
-			text.Append($"\t\t\t\"objectSize\": {(block.ObjectSize > 0 ? block.ObjectSize.ToString() : "null")},\n");
-			text.Append("\t\t\t\"unread\": ");
-			if (block.Unread is null)
-			{
-				text.Append("null,\n");
-			}
-			else
-			{
-				text.Append('[');
-				for (int h = 0; h < block.Unread.Count; h++)
-				{
-					text.Append(h == 0 ? "" : ", ");
-					text.Append($"{{ \"at\": {block.Unread[h].At}, \"bytes\": {block.Unread[h].Bytes} }}");
-				}
-				text.Append("],\n");
-			}
+			// unless it says otherwise. A null hole list means the size could not be measured.
+			row["objectSize"] = block.ObjectSize > 0 ? block.ObjectSize : null;
+			row["unread"] = block.Unread is null
+				? null
+				: new JsonArray(block.Unread
+					.Select(hole => (JsonNode) new JsonObject { ["at"] = hole.At, ["bytes"] = hole.Bytes })
+					.ToArray());
 
 			// The carried components are not published. Their ids are per-instance registration
 			// numbers, so two runs of the same build disagree on every block, and rows that change
 			// with the heap are noise dressed as data. They are still read, because the geometry
-			// field above is resolved through them; they are just not rows in this file.
-
+			// above is resolved through them; they are just not part of this file.
 
 			// The properties and their values, which is what a state of this block can be.
-			var range = ranges.GetValueOrDefault(block.Name);
-			text.Append($"\t\t\t\"stateCount\": {range?.States ?? 0},\n");
-			text.Append("\t\t\t\"stateProperties\": {");
-			if (range is not null)
+			BlockStateRange range = ranges.GetValueOrDefault(block.Name);
+			row["stateCount"] = range?.States ?? 0;
+
+			var properties = new JsonObject();
+			foreach (var property in range?.Properties ?? [])
 			{
-				for (int p = 0; p < range.Properties.Count; p++)
-				{
-					var property = range.Properties[p];
-					text.Append(p == 0 ? "\n" : ",\n");
-					text.Append($"\t\t\t\t\"{Escape(property.Name)}\": {{ ");
-					if (propertyIds.TryGetValue(property.Name, out int id)) text.Append($"\"id\": {id}, ");
-					text.Append($"\"type\": \"{property.Type}\", \"values\": [");
-					for (int v = 0; v < property.Values.Count; v++)
-					{
-						text.Append(v == 0 ? "" : ", ");
-						text.Append(Value(property.Values[v]));
-					}
-					text.Append("] }");
-				}
-				if (range.Properties.Count > 0) text.Append("\n\t\t\t");
+				var stated = new JsonObject();
+				if (propertyIds.TryGetValue(property.Name, out int id)) stated["id"] = id;
+				stated["type"] = property.Type.ToString();
+				stated["values"] = new JsonArray(property.Values.Select(Scalar).ToArray());
+				properties[property.Name] = stated;
 			}
-			text.Append("},\n");
+
+			row["stateProperties"] = properties;
 
 			// What each pre-flattening data value means, as network ids into the state file. Null
 			// is a data value the server has no state for.
-			var table = legacy.GetValueOrDefault(block.Name);
-			text.Append("\t\t\t\"byData\": [");
-			text.Append(table is null ? "" : string.Join(", ", table.ByData.Select(v => v?.ToString() ?? "null")));
-			text.Append("]\n");
+			LegacyStateTable table = legacy.GetValueOrDefault(block.Name);
+			row["byData"] = new JsonArray((table?.ByData ?? [])
+				.Select(v => v is null ? null : (JsonNode) v.Value).ToArray());
 
-			text.Append("\t\t}");
-			text.Append(i == blocks.Count - 1 ? "\n" : ",\n");
+			rows.Add(row);
 		}
-		return text.Append("\t]\n}\n").ToString();
+
+		document["blocks"] = rows;
+		return document;
 	}
 
 	/// <summary>One row per state, in the server's own order, which is the runtime id order.</summary>
-	public static string WriteStates(BedrockProcess process, IReadOnlyList<PaletteEntry> palette, ExtractionReport report)
+	public static JsonObject States(BedrockProcess process, IReadOnlyList<PaletteEntry> palette,
+		IReadOnlyList<BlockProperties> blocks, ExtractionReport report)
 	{
-		// Say the id scheme in the file. Without it a reader cannot tell whether networkId is a
-		// hash or a repeat of the index, and both look equally reasonable.
 		var stateWindow = new byte[BlockLayout.StateReach];
 		var scratch = new byte[256];
 		var word = new byte[8];
-		var text = new StringBuilder("{\n");
-		text.Append($"\t\"networkIdsAreHashes\": {Boolean(report.NetworkIdsAreHashes)},\n");
 
-		text.Append(VersionHeader(palette));
+		// A state points back at the block it belongs to, which the block file publishes under its
+		// name, so that is what the pointer is written as.
+		var known = new Dictionary<ulong, object>();
+		foreach (BlockProperties block in blocks) known.TryAdd(block.Address, block.Name);
+
+		// Every state is one class, so its method table is one address. Named the same way a block
+		// names its own, from the class the reference states rather than from anything invented.
+		var word2 = new byte[8];
+		string root = BlockMembers.Root(BlockMembers.Source.States).Name;
+		ulong stateTable = palette.Count > 0 ? process.ReadUInt64(palette[0].Address, word2) : 0;
+
+		BlockMemberReader.Identify owner = a => a == stateTable && stateTable != 0
+			? new JsonObject { ["pointer"] = $"0x{a:X}", ["class"] = root }
+			: Scalar(known.GetValueOrDefault(a));
+
+		// Say the id scheme in the file. Without it a reader cannot tell whether networkId is a
+		// hash or a repeat of the index, and both look equally reasonable.
+		var document = new JsonObject { ["networkIdsAreHashes"] = report.NetworkIdsAreHashes };
+		Version(document, palette);
 
 		// The states file states its own class table, the same way the block file does, so its own
 		// output can be the next reference without a layout living anywhere else.
-		text.Append($"\t\"layoutPublishedFor\": \"{BlockMembers.Build}\",\n");
-		text.Append(Classes(BlockMembers.Root(BlockMembers.Source.States), BlockMembers.Source.States));
-		text.Append($"\t\"count\": {palette.Count},\n");
-		text.Append("\t\"states\": [\n");
-		for (int i = 0; i < palette.Count; i++)
+		document["layoutPublishedFor"] = BlockMembers.Build.ToString();
+		Classes(document, BlockMembers.Root(BlockMembers.Source.States), BlockMembers.Source.States);
+		document["count"] = palette.Count;
+
+		int tagsAt = BlockLayout.States.Roots.First(n => n.Member.Name == "tags").At;
+		int componentsAt = BlockLayout.States.Roots.First(n => n.Member.Name == "components").At;
+
+		var rows = new JsonArray();
+		foreach (PaletteEntry entry in palette)
 		{
-			var entry = palette[i];
-			text.Append("\t\t{ ");
-			text.Append($"\"index\": {entry.Index}, ");
-			text.Append($"\"name\": \"{Escape(entry.Name)}\", ");
-			text.Append($"\"version\": {entry.Version}, ");
+			var row = new JsonObject();
 
 			// Every member of the state class, under the class's own name, read from where this
 			// build keeps it. networkId is one of them, so it is not written twice, and neither is
@@ -220,37 +295,47 @@ public static class BlockDocument
 			// A state holds its own components and its own tags, in the same two classes a block
 			// holds them in, so the same two readers answer for them. The members carrying them
 			// take the value rather than sitting null beside a second list under another name.
-			List<BlockMemberReader.Value> read = BlockMemberReader.ReadState(process, entry.Address, stateWindow, scratch);
-			ulong tagsAt = entry.Address + (ulong) BlockLayout.States.Roots.First(n => n.Member.Name == "tags").At;
-			List<string> tags = BlockRegistry.Tags(process,
-				process.ReadUInt64(tagsAt, word), process.ReadUInt64(tagsAt + 8, word));
-			Replace(read, "tags", "[" + string.Join(", ", tags.Select(t => $"\"{Escape(t)}\"")) + "]");
+			JsonObject members = BlockMemberReader.ReadState(process, entry.Address, stateWindow, scratch, owner);
+
+			ulong tags = entry.Address + (ulong) tagsAt;
+			members["tags"] = new JsonArray(BlockRegistry
+				.Tags(process, process.ReadUInt64(tags, word), process.ReadUInt64(tags + 8, word))
+				.Select(t => (JsonNode) t).ToArray());
 
 			// Under the names the block side worked out for the ids, never the ids: a registration
 			// number is per instance and two runs of one build disagree on every one. A component
 			// nothing named is still counted, as the number it is, so the hole stays visible.
-			ulong storage = entry.Address + (ulong) BlockLayout.States.Roots.First(n => n.Member.Name == "components").At;
-			List<string> carried = ComponentReader.Instances(process, storage, word)
-				.Select(c => ComponentReader.Names.GetValueOrDefault(c.Id) is { } named
-					? $"\"{Escape(named)}\""
-					: $"{{ \"unnamed\": {c.Id.ToString(CultureInfo.InvariantCulture)} }}")
-				.ToList();
-			Replace(read, "components", "[" + string.Join(", ", carried) + "]");
+			members["components"] = new JsonArray(ComponentReader
+				.Carried(process, entry.Address + (ulong) componentsAt, word)
+				.Select(c => (JsonNode) Carried(c)).ToArray());
 
-			text.Append(Inline(read));
-			text.Append(", ");
-			text.Append("\"states\": {");
-			for (int s = 0; s < entry.States.Count; s++)
+			// The compound the network id is a hash of: a name, its state properties and a version,
+			// which is the three entries the tag's own count states. It is what this row's name,
+			// version and states were read from, so the member that holds it carries it.
+			var serialized = new JsonObject();
+			foreach (StateProperty property in entry.States) serialized[property.Name] = property.ToNode();
+			members["serializationId"] = new JsonObject
 			{
-				var property = entry.States[s];
-				text.Append(s == 0 ? " " : ", ");
-				text.Append($"\"{Escape(property.Name)}\": {property.ToJson()}");
-			}
-			text.Append(entry.States.Count == 0 ? "}" : " }");
-			text.Append(" }");
-			text.Append(i == palette.Count - 1 ? "\n" : ",\n");
+				["name"] = entry.Name,
+				["states"] = serialized,
+				["version"] = entry.Version
+			};
+
+			Fold(members, row);
+
+			row["index"] = entry.Index;
+			row["name"] = entry.Name;
+			row["version"] = entry.Version;
+
+			var states = new JsonObject();
+			foreach (StateProperty property in entry.States) states[property.Name] = property.ToNode();
+			row["states"] = states;
+
+			rows.Add(row);
 		}
-		return text.Append("\t]\n}\n").ToString();
+
+		document["states"] = rows;
+		return document;
 	}
 
 	/// <summary>
@@ -258,29 +343,35 @@ public static class BlockDocument
 	///     its members, with each member's offset inside the class that declares it. This is the
 	///     layout the run read with, written back out, so this file is the next run's reference.
 	/// </summary>
-	private static string Classes(ClassLayout root, BlockMembers.Source source)
+	internal static void Classes(JsonObject document, ClassLayout root, BlockMembers.Source source)
 	{
 		var written = new List<ClassLayout>();
 		Reach(root, source, written);
 
-		var text = new StringBuilder($"\t\"class\": \"{root.Name}\",\n\t\"classes\": {{\n");
-		for (int c = 0; c < written.Count; c++)
+		var classes = new JsonObject();
+		foreach (ClassLayout held in written)
 		{
-			ClassLayout held = written[c];
-			text.Append($"\t\t\"{held.Name}\": {{ \"size\": {held.Size}, \"members\": [\n");
-			for (int m = 0; m < held.Members.Count; m++)
+			var members = new JsonArray();
+			foreach (BlockMember member in held.Members)
 			{
-				BlockMember member = held.Members[m];
-				text.Append($"\t\t\t{{ \"name\": \"{member.Name}\", \"at\": {member.At}, "
-						+ $"\"bytes\": {member.Bytes}, \"kind\": \"{member.Kind}\"");
-				if (member.Holds is not null) text.Append($", \"holds\": \"{member.Holds}\"");
-				text.Append(m == held.Members.Count - 1 ? " }\n" : " },\n");
+				var stated = new JsonObject
+				{
+					["name"] = member.Name,
+					["at"] = member.At,
+					["bytes"] = member.Bytes,
+					["kind"] = member.Kind.ToString()
+				};
+				if (member.Kind == MemberKind.Bit) stated["bit"] = member.Bit;
+				if (!member.Comparable) stated["comparable"] = false;
+				if (member.Holds is not null) stated["holds"] = member.Holds;
+				members.Add(stated);
 			}
 
-			text.Append(c == written.Count - 1 ? "\t\t] }\n" : "\t\t] },\n");
+			classes[held.Name] = new JsonObject { ["size"] = held.Size, ["members"] = members };
 		}
 
-		return text.Append("\t},\n").ToString();
+		document["class"] = root.Name;
+		document["classes"] = classes;
 	}
 
 	/// <summary>Every class the root holds, and every class those hold, each written once.</summary>
@@ -295,89 +386,69 @@ public static class BlockDocument
 	}
 
 	/// <summary>
-	///     One member as a row, and a member holding another object as an object with its own rows
-	///     inside it. The file is shaped like the class, because that is what the class is.
+	///     Moves one object's members into another, keeping the order they were read in. A node
+	///     belongs to one parent, so the members are detached as they go rather than copied: a copy
+	///     would be a second reading of the same thing, and only one of two can be right.
 	/// </summary>
-	private static void Rows(StringBuilder text, IReadOnlyList<BlockMemberReader.Value> values, int depth)
+	private static void Fold(JsonObject from, JsonObject into)
 	{
-		string pad = new string('\t', depth);
-		for (int v = 0; v < values.Count; v++)
+		foreach (string name in from.Select(member => member.Key).ToArray())
 		{
-			BlockMemberReader.Value value = values[v];
-			text.Append(pad).Append($"\"{value.Name}\": ");
-			if (value.Holds.Count == 0)
-			{
-				text.Append(value.Json ?? "null");
-			}
-			else
-			{
-				text.Append("{\n");
-				Rows(text, value.Holds, depth + 1);
-				text.Append(pad).Append('}');
-			}
-
-			text.Append(v == values.Count - 1 ? "\n" : ",\n");
+			JsonNode value = from[name];
+			from.Remove(name);
+			into[name] = value;
 		}
 	}
 
 	/// <summary>
-	///     Puts a value the tool resolved into the member's own place rather than beside it. The
-	///     class holds a container; what the container holds is what a reader wants, and two entries
-	///     under one key is a value lost.
+	///     One component a block carries: everything read about it. The id is the server's own
+	///     registration number, which differs between runs of one build, so it is a fact about this
+	///     heap rather than about the game; it goes out anyway, because deciding which of the things
+	///     that were read a reader is allowed to see is not this tool's call.
 	/// </summary>
-	private static void Replace(IList<BlockMemberReader.Value> values, string name, string json)
+	private static JsonObject Carried(BlockComponent component)
 	{
-		for (int v = 0; v < values.Count; v++)
+		var stated = new JsonObject
 		{
-			if (values[v].Name == name) values[v] = values[v] with { Json = json };
-		}
-	}
+			["id"] = component.Id,
+			["name"] = component.Name
+		};
 
-	/// <summary>The same tree on one line, for a file that keeps one object to a row.</summary>
-	private static string Inline(IReadOnlyList<BlockMemberReader.Value> values)
-	{
-		var text = new StringBuilder();
-		for (int v = 0; v < values.Count; v++)
+		// A component with no data says so, rather than reading as one whose object failed to read.
+		if (component.Stateless)
 		{
-			BlockMemberReader.Value value = values[v];
-			text.Append(v == 0 ? "" : ", ").Append($"\"{value.Name}\": ");
-			text.Append(value.Holds.Count == 0
-				? value.Json ?? "null"
-				: "{ " + Inline(value.Holds) + " }");
+			stated["stateless"] = true;
+			return stated;
 		}
 
-		return text.ToString();
+		Fold(component.Holds, stated);
+		return stated;
 	}
 
-	/// <summary>The value of one component the block carries, or null when it has none.</summary>
-	private static string Component(IReadOnlyList<BlockComponent> carried, string name)
-	{
-		return carried.FirstOrDefault(c => c.Name == name)?.Value;
-	}
+	/// <summary>
+	///     What each material is, by the name the class gives it. From the generated MaterialType,
+	///     whose values run 0 to 24 with Any and Size as sentinels past them, which is exactly the
+	///     25 entries the registry holds. A type this table has no name for travels as its number.
+	/// </summary>
+	private static readonly string[] Materials =
+	[
+		"Air", "Dirt", "Wood", "Metal", "Grate", "Water", "Lava", "Leaves", "Plant", "SolidPlant",
+		"Fire", "Glass", "Explosive", "Ice", "PowderSnow", "Cactus", "Portal", "StoneDecoration",
+		"Bubble", "Barrier", "DecorationSolid", "ClientRequestPlaceholder", "StructureVoid", "Solid",
+		"NonSolid"
+	];
 
-	private static string Value(object value)
+	/// <summary>A value the server holds as one of a few kinds, as the kind it is.</summary>
+	internal static JsonNode Scalar(object value)
 	{
 		return value switch
 		{
-			bool b => b ? "true" : "false",
-			int i => i.ToString(CultureInfo.InvariantCulture),
-			string s => $"\"{Escape(s)}\"",
-			_ => "null"
+			bool b => JsonValue.Create(b),
+			byte b => JsonValue.Create((long) b),
+			int i => JsonValue.Create((long) i),
+			long l => JsonValue.Create(l),
+			string s => JsonValue.Create(s),
+			_ => null
 		};
-	}
-
-	private static string Boolean(bool value)
-	{
-		return value ? "true" : "false";
-	}
-
-	private static string Text(string value)
-	{
-		return value is null ? "null" : $"\"{Escape(value)}\"";
-	}
-
-	private static string Escape(string value)
-	{
-		return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
 	}
 }

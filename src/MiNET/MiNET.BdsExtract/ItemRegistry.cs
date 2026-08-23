@@ -1,4 +1,6 @@
-﻿namespace MiNET.BdsExtract;
+﻿using System.Text.Json.Nodes;
+
+namespace MiNET.BdsExtract;
 
 using System.Globalization;
 using System.Text;
@@ -387,25 +389,15 @@ public static class ItemRegistry
 	///     reference. Offsets are stated from the name, which is where the item side measures
 	///     everything from.
 	/// </summary>
-	private static string ItemClassJson()
+	/// <summary>
+	///     The class the file's objects are, written by the same writer the block files use. Its own
+	///     copy of this dropped every bit index, so a reference refreshed from a run came back with
+	///     nine flags all reading bit zero, and the check called them broken on the very data they
+	///     had just been written from.
+	/// </summary>
+	private static void ItemClasses(JsonObject document)
 	{
-		IReadOnlyList<MemberNode> members = ItemLayout.Items.Roots;
-		var text = new System.Text.StringBuilder();
-		text.Append("  \"class\": \"Item\",").Append(Environment.NewLine);
-		text.Append("  \"classes\": {").Append(Environment.NewLine);
-		text.Append($"    \"Item\": {{ \"size\": {ItemLayout.Size}, \"members\": [").Append(Environment.NewLine);
-		for (int m = 0; m < members.Count; m++)
-		{
-			BlockMember member = members[m].Member;
-			text.Append($"      {{ \"name\": \"{member.Name}\", \"at\": {member.At}, "
-					+ $"\"bytes\": {member.Bytes}, \"kind\": \"{member.Kind}\"");
-			if (member.Holds is not null) text.Append($", \"holds\": \"{member.Holds}\"");
-			text.Append(m == members.Count - 1 ? " }" : " },").Append(Environment.NewLine);
-		}
-
-		text.Append("    ] }").Append(Environment.NewLine);
-		text.Append("  },").Append(Environment.NewLine);
-		return text.ToString();
+		BlockDocument.Classes(document, BlockMembers.Root(BlockMembers.Source.Items), BlockMembers.Source.Items);
 	}
 
 	private static Sentinel Verdict(string name, string guards, int agreed, int attempted, string detail)
@@ -464,13 +456,20 @@ public static class ItemRegistry
 		}
 		Console.WriteLine();
 
-		string experiments = string.Join(", ", config.Experiments.Select(e => $"\"{e}\""));
-		string checks = string.Join(", ", sentinels.Select(x =>
-			"{ " + $"\"check\": {Json(x.Name)}, \"guards\": {Json(x.Guards)}, "
-			+ $"\"held\": {(x.Held ? "true" : "false")}, \"detail\": {Json(x.Detail)}" + " }"));
-		SourceJson = "{ " + $"\"server\": \"{config.ServerPath.Replace("\\", "\\\\")}\", "
-			+ $"\"world\": \"{config.World}\", \"experiments\": [{experiments}], "
-			+ $"\"layoutSound\": {(sound ? "true" : "false")}, \"layoutChecks\": [{checks}]" + " }";
+		Source = new JsonObject
+		{
+			["server"] = config.ServerPath,
+			["world"] = config.World,
+			["experiments"] = Names(config.Experiments),
+			["layoutSound"] = sound,
+			["layoutChecks"] = new JsonArray(sentinels.Select(x => (JsonNode) new JsonObject
+			{
+				["check"] = x.Name,
+				["guards"] = x.Guards,
+				["held"] = x.Held,
+				["detail"] = x.Detail
+			}).ToArray())
+		};
 		Write(process, chosen.Values, output);
 		return sound ? 0 : 1;
 	}
@@ -789,18 +788,18 @@ public static class ItemRegistry
 		(ItemLayout.ParseVersion, 4, "i32", "item parse version"),
 		(-276, 4, "slack", "uninitialised"),
 		(ItemLayout.TextureAtlas, 32, "string", "texture atlas"),
-		(ItemLayout.IconFrameCount, 4, "i32", "icon frame count"),
+		(ItemLayout.FrameCount, 4, "i32", "frame count"),
 		(ItemLayout.AnimatesInToolbar, 1, "bool", "animates in toolbar"),
 		(ItemLayout.MirroredArt, 1, "bool", "mirrored art"),
 		(ItemLayout.UseAnimation, 1, "u8", "use animation"),
 		(-233, 1, "slack", "uninitialised"),
-		(ItemLayout.HoverTextColour, 32, "string", "hover text colour format"),
+		(ItemLayout.HoverTextColorFormat, 32, "string", "hover text colour format"),
 		(-200, 4, "slack", "icon frame, which a server never sets"),
 		(-196, 4, "slack", "atlas frame, which a server never sets"),
 		(-192, 4, "u32", "atlas total frames"),
 		(-188, 4, "slack", "uninitialised"),
-		(ItemLayout.Icon, 32, "string", "icon name"),
-		(ItemLayout.SecondIcon, 32, "string", "atlas name"),
+		(ItemLayout.IconName, 32, "string", "icon name"),
+		(ItemLayout.AtlasName, 32, "string", "atlas name"),
 		(ItemLayout.MaxStackSize, 1, "u8", "max stack size"),
 		(-119, 1, "slack", "uninitialised"),
 		(ItemLayout.Id, 2, "i16", "id"),
@@ -810,8 +809,6 @@ public static class ItemRegistry
 		(ItemLayout.Namespace, 32, "string", "namespace"),
 		(0, 48, "hashed string", "full name"),
 		(ItemLayout.MaxDurability, 2, "u16", "max durability"),
-		(ItemLayout.Flags, 1, "u8", "flags: glint 0x01, hand equipped 0x02, stacked by data 0x04, requires world builder 0x08, explodable 0x10, fire resistant 0x20, should despawn 0x40, allow off hand 0x80"),
-		(ItemLayout.SecondFlags, 1, "u8", "flags, second byte: ignores permissions 0x01, then seven bits of padding"),
 		(ItemLayout.UseDuration, 4, "u32", "use duration"),
 		// The 32 bytes of the minimum base game version, which is one field: a semantic version of
 		// three numbers, two flags and two strings, and a flag of its own after it. Written out
@@ -992,12 +989,12 @@ public static class ItemRegistry
 	///     plant_at_any_solid_surface and plant_at_face. The object is 56 bytes: the crop it grows
 	///     into, a vector of the blocks it may be planted on, and two bytes of settings.
 	/// </summary>
-	private static string Seed(BedrockProcess process, ulong address)
+	private static JsonObject Seed(BedrockProcess process, ulong address)
 	{
+		var seed = new JsonObject();
 		var body = new byte[56];
-		if (!process.TryRead(address, body, body.Length)) return $"{Json("minecraft:seed")}: {{ }}";
+		if (!process.TryRead(address, body, body.Length)) return seed;
 
-		var parts = new List<string>();
 		var probe = new byte[HashedString.Size];
 		var heap = new byte[256];
 
@@ -1016,7 +1013,7 @@ public static class ItemRegistry
 		{
 			ulong block = process.ReadUInt64(descriptor + 104, scratch);
 			string cropName = block > 0x10000 ? HashedAt(process, block + (ulong) MemoryLayout.NameInsideLegacy) : null;
-			if (cropName is not null) parts.Add($"\"cropResult\": {Json(cropName)}");
+			if (cropName is not null) seed["cropResult"] = cropName;
 		}
 
 		ulong begin = BitConverter.ToUInt64(body, 16), end = BitConverter.ToUInt64(body, 24);
@@ -1039,11 +1036,24 @@ public static class ItemRegistry
 				if (plantAt.Count > 0) break;
 			}
 		}
-		if (plantAt.Count > 0) parts.Add($"\"plantAt\": [{string.Join(", ", plantAt.Select(Json))}]");
+		if (plantAt.Count > 0) seed["plantAt"] = new JsonArray(plantAt.Select(n => (JsonNode) n).ToArray());
 
-		parts.Add($"\"plantAtAnySolidSurface\": {(body[40] != 0 ? "true" : "false")}");
-		parts.Add($"\"plantAtFace\": {body[42]}");
-		return $"{Json("minecraft:seed")}: {{ {string.Join(", ", parts)} }}";
+		// Both verified against the game: plantAtAnySolidSurface is set on glow_berries alone, and
+		// the face is Up on every seed except glow_berries, which is Down, the one seed that plants
+		// on the underside of a block. The byte at 41 and the bytes from 43 are slack.
+		seed["plantAtAnySolidSurface"] = body[40] != 0;
+		seed["plantAtFace"] = new JsonObject
+		{
+			["value"] = (int) body[42],
+			["name"] = BlockMembers.Value("FacingName", body[42])
+		};
+
+		// A field, not padding: it holds 7 on beetroot, melon, nether wart and pumpkin, 3 on wheat,
+		// 4 on glow berries, 1 on four more and 0 on carrot, and it does not track the plant-at
+		// list, which is one block on every one of them. Nothing names it, so it goes out as what
+		// was read at the offset it was read from.
+		seed["unnamedAt48"] = (long) BitConverter.ToUInt64(body, 48);
+		return seed;
 	}
 
 	/// <summary>
@@ -1194,19 +1204,22 @@ public static class ItemRegistry
 	///     spears carry their tier's enchantment value, their durability and their damage, and those
 	///     are what fitted these offsets.
 	/// </summary>
-	private static string Component(BedrockProcess process, string name, ulong address, ulong owner, byte[] scratch)
+	private static JsonObject Component(BedrockProcess process, string name, ulong address, ulong owner, byte[] scratch)
 	{
-		var parts = new List<string>();
+		var fields = new JsonObject();
+
 		// Clipped, because the object's length is not known before reading it: a fixed 96 failed
 		// whole when the allocation sat against an uncommitted page, dropping the component by
 		// heap lottery. The clip still holds every byte the object really has.
 		int have = address < 0x10000 ? 0 : process.ReadClipped(address, scratch, 256);
-		if (have < 24) return $"{Json(name)}: {{ }}";
+		if (have < 24) return fields;
 
 		int at = BitConverter.ToUInt64(scratch, 8) == owner && IsVtable(process, BitConverter.ToUInt64(scratch, 16)) ? 24 : 16;
 		int I32(int offset) => BitConverter.ToInt32(scratch, at + offset);
 		float F32(int offset) => BitConverter.ToSingle(scratch, at + offset);
 		ushort U16(int offset) => BitConverter.ToUInt16(scratch, at + offset);
+
+		JsonArray Pair(int a, int b) => new(Real(F32(a)), Real(F32(b)));
 
 		// How far past the field base each kind's decode reaches. Checked against what was read
 		// before anything decodes: a kind whose fields do not fit in the bytes the object really
@@ -1233,7 +1246,20 @@ public static class ItemRegistry
 			"minecraft:kinetic_weapon" => 80,
 			_ => 0
 		};
-		if (at + extent > have) return $"{Json(name)}: {{ \"clipped\": {have - at} }}";
+		if (at + extent > have)
+		{
+			fields["clipped"] = have - at;
+			return fields;
+		}
+
+		// Where the reference declares the component's class, it is read as that class. The members
+		// come from the server's own header, so a field this file never named is not lost and a
+		// width it got wrong is not repeated: max_stack_size is one byte there, and reading two gave
+		// the black bundle a stack of 8193.
+		if (BlockMembers.Component(name) is { } declared)
+		{
+			return BlockMemberReader.Held(process, address, scratch, declared, at, new byte[256]);
+		}
 
 		switch (name)
 		{
@@ -1243,62 +1269,62 @@ public static class ItemRegistry
 			// values checked independently: durability 190 on a copper spear, the tier enchantment
 			// values, the per tier cooldowns, apple's nutrition and saturation.
 			case "minecraft:food":
-				parts.Add($"\"nutrition\": {I32(0)}");
-				parts.Add($"\"saturationModifier\": {Num(F32(4))}");
+				fields["nutrition"] = I32(0);
+				fields["saturationModifier"] = Real(F32(4));
 				break;
 			case "minecraft:durability":
-				parts.Add($"\"maxDurability\": {I32(0)}");
+				fields["maxDurability"] = I32(0);
 				// An IntRange, and it reads (0, 100) on every one of them: a percentage. Taking it
 				// from the schema's declaration order put it at +8 and gave [100, 440], where 440 is
 				// the next allocation showing through a 32 byte object.
-				parts.Add($"\"damageChance\": [{I32(4)}, {I32(8)}]");
+				fields["damageChance"] = new JsonArray(I32(4), I32(8));
 				break;
 			case "minecraft:enchantable":
 				// One byte. Read as sixteen bits the netherite spear came out 51,727, which is 0xCA0F
 				// with the true value in the low byte and slack above it; every other spear happened
 				// to have a zero there and looked right.
-				parts.Add($"\"value\": {scratch[at]}");
-				parts.Add($"\"slot\": {Json(StdString(process, scratch, at + 8, new byte[256]) ?? "")}");
+				fields["value"] = (int) scratch[at];
+				fields["slot"] = StdString(process, scratch, at + 8, new byte[256]) ?? "";
 				break;
 			case "minecraft:cooldown":
-				parts.Add($"\"duration\": {Num(F32(0))}");
+				fields["duration"] = Real(F32(0));
 				// use is 0 and attack is 1, per the server's ItemCooldownType. The spears answer 1 and
 				// the wind charge 0, which is what places this at +4 rather than where the schema
 				// lists it.
-				parts.Add($"\"type\": {Json(I32(4) == 0 ? "use" : "attack")}");
-				parts.Add($"\"category\": {Json(StdString(process, scratch, at + 16, new byte[256]) ?? "")}");
+				fields["type"] = I32(4) == 0 ? "use" : "attack";
+				fields["category"] = StdString(process, scratch, at + 16, new byte[256]) ?? "";
 				break;
 			case "minecraft:piercing_weapon":
-				parts.Add($"\"reach\": [{Num(F32(0))}, {Num(F32(4))}]");
-				parts.Add($"\"creativeReach\": [{Num(F32(8))}, {Num(F32(12))}]");
-				parts.Add($"\"hitboxMargin\": {Num(F32(20))}");
+				fields["reach"] = Pair(0, 4);
+				fields["creativeReach"] = Pair(8, 12);
+				fields["hitboxMargin"] = Real(F32(20));
 				break;
 			case "minecraft:fuel":
-				parts.Add($"\"duration\": {Num(F32(0))}");
+				fields["duration"] = Real(F32(0));
 				break;
 			case "minecraft:swing_duration":
-				parts.Add($"\"value\": {Num(F32(0))}");
+				fields["value"] = Real(F32(0));
 				break;
 			case "minecraft:bundle_interaction":
-				parts.Add($"\"numViewableSlots\": {I32(0)}");
+				fields["numViewableSlots"] = I32(0);
 				break;
 			case "minecraft:compostable":
-				parts.Add($"\"compostingChance\": {I32(0)}");
+				fields["compostingChance"] = I32(0);
 				break;
 			case "minecraft:storage_weight_limit":
-				parts.Add($"\"maxWeightLimit\": {I32(0)}");
+				fields["maxWeightLimit"] = I32(0);
 				break;
 			case "minecraft:storage_weight_modifier":
-				parts.Add($"\"weightInStorageItem\": {I32(0)}");
+				fields["weightInStorageItem"] = I32(0);
 				break;
 			case "minecraft:storage_item":
 			{
-				parts.Add($"\"maxSlots\": {I32(0)}");
-				parts.Add($"\"allowNestedStorageItems\": {(scratch[at + 4] != 0 ? "true" : "false")}");
+				fields["maxSlots"] = I32(0);
+				fields["allowNestedStorageItems"] = scratch[at + 4] != 0;
 				List<string> banned = DescriptorNames(process, BitConverter.ToUInt64(scratch, at + 8), BitConverter.ToUInt64(scratch, at + 16));
 				List<string> allowed = DescriptorNames(process, BitConverter.ToUInt64(scratch, at + 32), BitConverter.ToUInt64(scratch, at + 40));
-				if (banned.Count > 0) parts.Add($"\"bannedItems\": [{string.Join(", ", banned.Select(Json))}]");
-				if (allowed.Count > 0) parts.Add($"\"allowedItems\": [{string.Join(", ", allowed.Select(Json))}]");
+				if (banned.Count > 0) fields["bannedItems"] = Names(banned);
+				if (allowed.Count > 0) fields["allowedItems"] = Names(allowed);
 				break;
 			}
 			// Both members are declared short in the server's own class layout
@@ -1306,24 +1332,34 @@ public static class ItemRegistry
 			// sixteen bits is the width, not a choice. Reading thirty two published allocator
 			// slack: on 1.26.3.1 the copper spear's damage read -285540350, the true 2 in the low
 			// half with slack above it. The same lesson as enchantable below.
+			// DamageItemComponent.mDamage is a short, so sixteen bits is its width.
 			case "minecraft:damage":
+				fields["value"] = (int) BitConverter.ToInt16(scratch, at);
+				break;
+
+			// MaxStackSizeItemComponent.mMaxStackSize is one byte, not two. Reading it as a short
+			// swallowed the byte beside it and gave the black bundle a stack of 8193, which is
+			// 0x2001: the true 1 with an earlier occupant's byte above it. Every other bundle read
+			// 1 because that neighbour happened to be zero.
 			case "minecraft:max_stack_size":
-				parts.Add($"\"value\": {BitConverter.ToInt16(scratch, at)}");
+				fields["value"] = (int) scratch[at];
 				break;
 			case "minecraft:hand_equipped":
 			case "minecraft:fire_resistant":
-				parts.Add($"\"value\": {I32(0)}");
+				fields["value"] = I32(0);
 				break;
 			case "minecraft:use_animation":
-				parts.Add($"\"value\": {(NameOf(UseAnimationNames, (byte) I32(0)) is { } ua ? Json(ua) : I32(0).ToString(CultureInfo.InvariantCulture))}");
+				fields["value"] = NameOf(UseAnimationNames, (byte) I32(0)) is { } ua
+					? JsonValue.Create(ua)
+					: JsonValue.Create(I32(0));
 				break;
 			case "minecraft:use_modifiers":
-				parts.Add($"\"useDuration\": {Num(F32(0))}");
+				fields["useDuration"] = Real(F32(0));
 				break;
 			case "minecraft:display_name":
 				// Named "value" because that is what the wire calls it. Where a component field has a
 				// name on the wire, using a different one here just makes a translation table.
-				parts.Add($"\"value\": {Json(StdString(process, scratch, at, new byte[256]) ?? "")}");
+				fields["value"] = StdString(process, scratch, at, new byte[256]) ?? "";
 				break;
 			case "minecraft:block_placer":
 			{
@@ -1332,7 +1368,7 @@ public static class ItemRegistry
 				if (block > 0x10000 && process.TryRead(block + (ulong) MemoryLayout.NameInsideLegacy, probe, HashedString.Size))
 				{
 					string placed = HashedString.ReadVerified(process, probe, 0, new byte[256]);
-					if (placed is not null) parts.Add($"\"block\": {Json(placed)}");
+					if (placed is not null) fields["block"] = placed;
 				}
 				break;
 			}
@@ -1340,44 +1376,47 @@ public static class ItemRegistry
 				// reach and creative_reach read the same pair the piercing weapon component holds for
 				// the same spears, which is what places them; hitbox_margin follows them. The three
 				// condition blocks sit 16 bytes apart and each leads with its max_duration.
-				parts.Add($"\"reach\": [{Num(F32(48))}, {Num(F32(52))}]");
-				parts.Add($"\"creativeReach\": [{Num(F32(56))}, {Num(F32(60))}]");
-				parts.Add($"\"hitboxMargin\": {Num(F32(68))}");
-				parts.Add($"\"delay\": {I32(0)}");
-				parts.Add($"\"damageMultiplier\": {Num(F32(76))}");
+				fields["reach"] = Pair(48, 52);
+				fields["creativeReach"] = Pair(56, 60);
+				fields["hitboxMargin"] = Real(F32(68));
+				fields["delay"] = I32(0);
+				fields["damageMultiplier"] = Real(F32(76));
 				// Each condition block leads with a sixteen bit max duration, and the two bytes after
 				// it are slack: zero on five spears and 0x61 and 0x31 on copper and stone. Reading
 				// the field as a thirty two bit int swallowed that slack and gave those two
 				// 6,357,242 where the rest gave a clean progression.
-				parts.Add($"\"damageConditionMaxDuration\": {U16(8)}");
-				parts.Add($"\"damageConditionMinSpeed\": {Num(F32(16))}");
-				parts.Add($"\"knockbackConditionMaxDuration\": {U16(24)}");
-				parts.Add($"\"knockbackConditionMinSpeed\": {Num(F32(32))}");
-				parts.Add($"\"dismountConditionMaxDuration\": {U16(40)}");
+				fields["damageConditionMaxDuration"] = (int) U16(8);
+				fields["damageConditionMinSpeed"] = Real(F32(16));
+				fields["knockbackConditionMaxDuration"] = (int) U16(24);
+				fields["knockbackConditionMinSpeed"] = Real(F32(32));
+				fields["dismountConditionMaxDuration"] = (int) U16(40);
 				break;
 			case "minecraft:throwable":
-				parts.Add($"\"doSwingAnimation\": {(scratch[at] != 0 ? "true" : "false")}");
-				parts.Add($"\"minDrawDuration\": {Num(F32(4))}");
-				parts.Add($"\"maxDrawDuration\": {Num(F32(8))}");
-				parts.Add($"\"launchPowerScale\": {Num(F32(12))}");
-				parts.Add($"\"maxLaunchPower\": {Num(F32(16))}");
-				parts.Add($"\"scalePowerByDrawDuration\": {(scratch[at + 20] != 0 ? "true" : "false")}");
+				fields["doSwingAnimation"] = scratch[at] != 0;
+				fields["minDrawDuration"] = Real(F32(4));
+				fields["maxDrawDuration"] = Real(F32(8));
+				fields["launchPowerScale"] = Real(F32(12));
+				fields["maxLaunchPower"] = Real(F32(16));
+				fields["scalePowerByDrawDuration"] = scratch[at + 20] != 0;
 				break;
 			case "minecraft:projectile":
 			{
-				parts.Add($"\"minimumCriticalPower\": {Num(F32(0))}");
+				fields["minimumCriticalPower"] = Real(F32(0));
 				// The entity is an actor identifier: its namespace inline at +24 and its name at +56,
 				// which is where the strings actually verify rather than where the joined form sits.
 				string space = StdString(process, scratch, at + 8, new byte[256]);
 				string entity = StdString(process, scratch, at + 40, new byte[256]);
-				if (entity is { Length: > 0 }) parts.Add($"\"projectileEntity\": {Json((space is { Length: > 0 } ? space + ":" : "") + entity)}");
+				if (entity is { Length: > 0 })
+				{
+					fields["projectileEntity"] = (space is { Length: > 0 } ? space + ":" : "") + entity;
+				}
 				break;
 			}
 			case "minecraft:swing_sounds":
 				// Two of the three the schema lists are present and vary per tier; the third is not
 				// set on any of these seven, so it is not named rather than guessed at.
-				parts.Add($"\"attackMiss\": {I32(0)}");
-				parts.Add($"\"attackHit\": {I32(48)}");
+				fields["attackMiss"] = I32(0);
+				fields["attackHit"] = I32(48);
 				break;
 			case "minecraft:repairable":
 			{
@@ -1399,8 +1438,9 @@ public static class ItemRegistry
 						repair.AddRange(DescriptorNames(process, BitConverter.ToUInt64(entry, 0), BitConverter.ToUInt64(entry, 8)));
 					}
 				}
-				if (repair.Count > 0) parts.Add($"\"repairItems\": [{string.Join(", ", repair.Select(Json))}]");
-				else if (end > begin && end - begin <= 4096) parts.Add($"\"repairItemsBytes\": {end - begin}");
+
+				if (repair.Count > 0) fields["repairItems"] = Names(repair);
+				else if (end > begin && end - begin <= 4096) fields["repairItemsBytes"] = end - begin;
 				break;
 			}
 			case "minecraft:icon":
@@ -1413,7 +1453,7 @@ public static class ItemRegistry
 				var probe = new byte[80];
 				var text = new byte[256];
 				ulong head = BitConverter.ToUInt64(scratch, at + 8);
-				var textures = new List<string>();
+				var textures = new JsonObject();
 				ulong node = head > 0x10000 && process.TryRead(head, probe, 16) ? BitConverter.ToUInt64(probe, 0) : 0;
 				var walked = new HashSet<ulong>();
 				while (node > 0x10000 && node != head && walked.Add(node) && textures.Count < 32)
@@ -1421,16 +1461,17 @@ public static class ItemRegistry
 					if (!process.TryRead(node, probe, probe.Length)) break;
 					string key = StdString(process, probe, 16, text);
 					string value = StdString(process, probe, 48, text);
-					if (key is { Length: > 0 } && value is { Length: > 0 }) textures.Add($"{Json(key)}: {Json(value)}");
+					if (key is { Length: > 0 } && value is { Length: > 0 }) textures[key] = value;
 					node = BitConverter.ToUInt64(probe, 0);
 				}
-				if (textures.Count > 0) parts.Add($"\"textures\": {{ {string.Join(", ", textures)} }}");
+
+				if (textures.Count > 0) fields["textures"] = textures;
 				break;
 			}
 			case "minecraft:tags":
 			{
 				List<string> tagList = StringVector(process, BitConverter.ToUInt64(scratch, at), BitConverter.ToUInt64(scratch, at + 8));
-				if (tagList.Count > 0) parts.Add($"\"tags\": [{string.Join(", ", tagList.Select(Json))}]");
+				if (tagList.Count > 0) fields["tags"] = Names(tagList);
 				break;
 			}
 
@@ -1445,21 +1486,22 @@ public static class ItemRegistry
 				break;
 		}
 
-		// What was read, always, plus what was not. A component is a heap object of unknown length,
-		// and every field of it that holds a pointer leads to data nothing here follows. Both are
-		// stated: a hole that is counted can be closed, and one that is silent looks like a
-		// complete reading. Bounded by the bytes actually read, never by the buffer: scanning past
-		// them reads whatever the buffer held before, which is not this object.
-		int size = ClassSize(process, BitConverter.ToUInt64(scratch, 0));
-		int limit = Math.Min(size > 0 ? Math.Min(size, scratch.Length) : 96, have);
-		var unfollowed = new List<string>();
-		for (int off = at; off + 8 <= limit; off += 8)
-		{
-			ulong value = BitConverter.ToUInt64(scratch, off);
-			if (value is > 0x10000 and < 0x7FF000000000 && process.IsMapped(value)) unfollowed.Add(off.ToString(CultureInfo.InvariantCulture));
-		}
+		return fields;
+	}
 
-		return $"{Json(name)}: {{ {string.Join(", ", parts)} }}";
+	/// <summary>
+	///     A float as the number it is, rounded where the game states it and never turned into text.
+	///     A value that is not finite is null rather than the word NaN, which is not JSON at all.
+	/// </summary>
+	private static JsonNode Real(float value)
+	{
+		return float.IsFinite(value) ? JsonValue.Create(Math.Round((double) value, 5)) : null;
+	}
+
+	/// <summary>A list of names as the list it is.</summary>
+	private static JsonArray Names(IEnumerable<string> names)
+	{
+		return new JsonArray(names.Select(n => (JsonNode) n).ToArray());
 	}
 
 	/// <summary>
@@ -1487,7 +1529,7 @@ public static class ItemRegistry
 	///     toughness 2 and enchantability 10; iron is 15 with 2, 6, 5 and 2; leather is 5 with 1, 3,
 	///     2 and 1 and enchantability 15.
 	/// </summary>
-	private static string ArmorMaterial(BedrockProcess process, ulong pointer, int maxDurability)
+	private static JsonObject ArmorMaterial(BedrockProcess process, ulong pointer, int maxDurability)
 	{
 		if (!IsModule(pointer)) return null;
 		var body = new byte[32];
@@ -1499,9 +1541,20 @@ public static class ItemRegistry
 		// stray module pointer whose target happens to read plausibly still cannot know this item's
 		// durability.
 		if (maxDurability % Field(0) != 0 || maxDurability / Field(0) is not (11 or 13 or 15 or 16)) return null;
-		return "{ " + $"\"durabilityMultiplier\": {Field(0)}, \"protection\": {{ \"boots\": {Field(4)}, "
-			+ $"\"chestplate\": {Field(8)}, \"leggings\": {Field(12)}, \"helmet\": {Field(16)} }}, "
-			+ $"\"toughness\": {Field(20)}, \"enchantability\": {Field(24)}" + " }";
+
+		return new JsonObject
+		{
+			["durabilityMultiplier"] = Field(0),
+			["protection"] = new JsonObject
+			{
+				["boots"] = Field(4),
+				["chestplate"] = Field(8),
+				["leggings"] = Field(12),
+				["helmet"] = Field(16)
+			},
+			["toughness"] = Field(20),
+			["enchantability"] = Field(24)
+		};
 	}
 
 	/// <summary>
@@ -1511,7 +1564,7 @@ public static class ItemRegistry
 	///     one. Wood, stone, iron, gold, diamond and netherite each have exactly one of these and
 	///     every tool of that material points at the same one.
 	/// </summary>
-	private static string Tier(BedrockProcess process, ulong pointer, byte[] scratch, int? mustMatchUses)
+	private static JsonObject Tier(BedrockProcess process, ulong pointer, byte[] scratch, int? mustMatchUses)
 	{
 		if (!IsModule(pointer) || !process.TryRead(pointer, scratch, 20)) return null;
 		int level = BitConverter.ToInt32(scratch, 0);
@@ -1526,8 +1579,14 @@ public static class ItemRegistry
 		if (mustMatchUses is not null && uses != mustMatchUses) return null;
 		if (level is < 0 or > 8 || uses is < 1 or > 10000) return null;
 		if (!(speed > 0 && speed < 100) || damage is < 0 or > 32 || enchantment is < 0 or > 64) return null;
-		return $"{{ \"level\": {level}, \"uses\": {uses}, \"speed\": {Num(speed)}, "
-			+ $"\"damageBonus\": {damage}, \"enchantmentValue\": {enchantment} }}";
+		return new JsonObject
+		{
+			["level"] = level,
+			["uses"] = uses,
+			["speed"] = Real(speed),
+			["damageBonus"] = damage,
+			["enchantmentValue"] = enchantment
+		};
 	}
 
 	/// <summary>How many places in the process hold a pointer to each of these addresses.</summary>
@@ -1590,7 +1649,7 @@ public static class ItemRegistry
 	}
 
 	/// <summary>What produced the file, written into it rather than beside it.</summary>
-	public static string SourceJson = "{ }";
+	public static JsonObject Source = new();
 
 	/// <summary>
 	///     The keys of a tree container keyed by integers rather than strings, or null when it does
@@ -1689,20 +1748,26 @@ public static class ItemRegistry
 		WriteComponentLayouts(process, ordered, Path.ChangeExtension(path, null) + "-components.json");
 
 		string layoutPath = Path.ChangeExtension(path, null) + "-layout.json";
-		var layout = new List<string>();
+		var layout = new JsonArray();
 		foreach ((int offset, int length, string kind, string name) in Layout.Concat(TailLayout()).OrderBy(l => l.Offset))
 		{
-			layout.Add($"  {{ \"offset\": {offset}, \"size\": {length}, \"kind\": {Json(kind)}, \"name\": {Json(name)} }}");
+			layout.Add(new JsonObject
+			{
+				["offset"] = offset,
+				["size"] = length,
+				["kind"] = kind,
+				["name"] = name
+			});
 		}
-		File.WriteAllText(layoutPath, "[" + Environment.NewLine + string.Join("," + Environment.NewLine, layout)
-			+ Environment.NewLine + "]" + Environment.NewLine);
+
+		File.WriteAllText(layoutPath, BlockDocument.Serialize(layout));
 		Console.WriteLine($"wrote the object layout to {layoutPath}");
 
-		var rows = new List<string>();
+		var rows = new JsonArray();
 		var rejected = new List<string>();
 		foreach (Item item in ordered)
 		{
-			string row = Row(process, item, classNames);
+			JsonObject row = Row(process, item, classNames);
 			// Only items reach the data file. What was seen and rejected is not lost, it is in the
 			// forensics beside it with the same names and the reasons kept, which is where a reader
 			// checking whether a check has gone too strict would look anyway.
@@ -1713,15 +1778,13 @@ public static class ItemRegistry
 		// A document, not a bare array: the items are one list, the things that share a name with an
 		// item but are not one are another, and what produced them is stated at the top rather than
 		// in a file beside it. Nothing is dropped; the rejected keep their reasons.
-		File.WriteAllText(path, "{" + Environment.NewLine
-			+ $"  \"source\": {SourceJson}," + Environment.NewLine
-			+ ItemClassJson()
-			+ "  \"items\": [" + Environment.NewLine + string.Join("," + Environment.NewLine, rows) + Environment.NewLine
-			+ "  ]" + Environment.NewLine + "}" + Environment.NewLine);
+		var document = new JsonObject { ["source"] = Source };
+		ItemClasses(document);
+		document["items"] = rows;
+		File.WriteAllText(path, BlockDocument.Serialize(document));
 
 		string forensicPath = Path.ChangeExtension(path, null) + "-forensics.json";
-		File.WriteAllText(forensicPath, "[" + Environment.NewLine
-			+ string.Join("," + Environment.NewLine, Forensics.Values) + Environment.NewLine + "]" + Environment.NewLine);
+		File.WriteAllText(forensicPath, BlockDocument.Serialize(new JsonArray(Forensics.Values.ToArray<JsonNode>())));
 		Console.WriteLine($"wrote the bytes and the holes to {forensicPath}");
 
 		Console.WriteLine($"wrote {rows.Count:N0} items to {path}");
@@ -1742,12 +1805,12 @@ public static class ItemRegistry
 			.GroupBy(i => i.Ptr(ItemLayout.MethodTable))
 			.OrderByDescending(g => g.Count());
 
-		var rows = new List<string>();
+		var rows = new JsonArray();
 		foreach (IGrouping<ulong, Item> group in byClass)
 		{
 			List<Item> members = group.ToList();
 			int size = members[0].ObjectSize;
-			var slots = new List<string>();
+			var slots = new JsonArray();
 			// Bounded by the window as well as by the object: a class larger than the window has a
 			// tail this cannot see, and saying nothing about those slots is better than reading past
 			// the bytes that were actually fetched.
@@ -1768,8 +1831,8 @@ public static class ItemRegistry
 					// pass hid a string that 169 of them read back perfectly.
 					IEnumerable<string> shown = strings.Where(t => t is { Length: > 0 }).Distinct().Take(3);
 					string joined = string.Join(", ", shown);
-					slots.Add($"      {{ \"offset\": {off}, \"size\": 32, \"reading\": "
-						+ Json($"string, reads on {parsed} of {members.Count}{(joined.Length > 0 ? ", e.g. " + joined : ", empty on all")}") + " }");
+					slots.Add(Slot(off, 32,
+						$"string, reads on {parsed} of {members.Count}{(joined.Length > 0 ? ", e.g. " + joined : ", empty on all")}"));
 					off += 24;
 					continue;
 				}
@@ -1802,17 +1865,22 @@ public static class ItemRegistry
 						: Numbers(values) is { } numbers ? numbers
 						: values.Count == 1 ? $"constant {values.Single()}" : $"{values.Count} distinct values";
 				}
-				slots.Add($"      {{ \"offset\": {off}, \"size\": 8, \"reading\": {Json(what)} }}");
+				slots.Add(Slot(off, 8, what));
 			}
 
-			rows.Add($"  {{ \"class\": {Json(classNames.GetValueOrDefault(group.Key, "unknown"))}, "
-				+ $"\"classPointer\": \"0x{group.Key:X}\", \"objectSize\": {size}, \"members\": {members.Count}, "
-				+ $"\"example\": {Json(members[0].Name)}, \"tailDescribedTo\": {reach}," + Environment.NewLine
-				+ "    \"tail\": [" + Environment.NewLine + string.Join("," + Environment.NewLine, slots)
-				+ Environment.NewLine + "    ] }");
+			rows.Add(new JsonObject
+			{
+				["class"] = classNames.GetValueOrDefault(group.Key, "unknown"),
+				["classPointer"] = $"0x{group.Key:X}",
+				["objectSize"] = size,
+				["members"] = members.Count,
+				["example"] = members[0].Name,
+				["tailDescribedTo"] = reach,
+				["tail"] = slots
+			});
 		}
-		File.WriteAllText(path, "[" + Environment.NewLine + string.Join("," + Environment.NewLine, rows)
-			+ Environment.NewLine + "]" + Environment.NewLine);
+
+		File.WriteAllText(path, BlockDocument.Serialize(rows));
 		Console.WriteLine($"wrote {rows.Count} class tail layouts to {path}");
 	}
 
@@ -1868,7 +1936,7 @@ public static class ItemRegistry
 		}
 
 		var text = new byte[256];
-		var rows = new List<string>();
+		var rows = new JsonArray();
 		foreach ((string kind, List<(ulong Address, ulong Owner)> list) in instances.OrderByDescending(i => i.Value.Count))
 		{
 			// Clipped reads, kept when the bytes actually read cover the decode reach. A fixed-size
@@ -1887,7 +1955,7 @@ public static class ItemRegistry
 			int reach = size > 0 ? Math.Min(size, 224) : 96;
 			List<byte[]> bytes = candidates.Where(c => c.Have >= reach).Select(c => c.Bytes).ToList();
 			if (bytes.Count == 0) continue;
-			var slots = new List<string>();
+			var slots = new JsonArray();
 			int accounted = 16;   // the method table and the owner pointer
 			for (int off = 16; off + 8 <= reach; off += 8)
 			{
@@ -1935,41 +2003,49 @@ public static class ItemRegistry
 				slots.Add(Slot(off, 8, what));
 			}
 
-			rows.Add($"  {{ \"component\": {Json(kind)}, \"instances\": {list.Count}, "
-				+ $"\"objectSize\": {(size > 0 ? size.ToString(CultureInfo.InvariantCulture) : "null")}, "
-				+ $"\"describedTo\": {reach}, \"unaccountedBytes\": {Math.Max(0, size - Math.Max(accounted, reach))}," + Environment.NewLine
-				+ "    \"fields\": [" + Environment.NewLine + string.Join("," + Environment.NewLine, slots)
-				+ Environment.NewLine + "    ] }");
+			rows.Add(new JsonObject
+			{
+				["component"] = kind,
+
+				// Where the first instance was read. Only good while that server lives, but it is
+				// what lets a follow up probe go straight to the object instead of finding it again.
+				["address"] = $"0x{list[0].Address:X}",
+				["instances"] = list.Count,
+				["objectSize"] = size > 0 ? size : null,
+				["describedTo"] = reach,
+				["unaccountedBytes"] = Math.Max(0, size - Math.Max(accounted, reach)),
+				["fields"] = slots
+			});
 		}
-		File.WriteAllText(path, "[" + Environment.NewLine + string.Join("," + Environment.NewLine, rows)
-			+ Environment.NewLine + "]" + Environment.NewLine);
+
+		File.WriteAllText(path, BlockDocument.Serialize(rows));
 		Console.WriteLine($"wrote {rows.Count} component layouts to {path}");
 	}
 
-	private static string Slot(int offset, int size, string reading) =>
-		$"      {{ \"offset\": {offset}, \"size\": {size}, \"reading\": {Json(reading)} }}";
+	private static JsonObject Slot(int offset, int size, string reading) =>
+		new() { ["offset"] = offset, ["size"] = size, ["reading"] = reading };
 
 	/// <summary>Where the row came from and what of it is still unexplained, kept beside the data.</summary>
-	private static readonly SortedDictionary<string, string> Forensics = new(StringComparer.Ordinal);
+	private static readonly SortedDictionary<string, JsonObject> Forensics = new(StringComparer.Ordinal);
 
-	private static string Forensic(BedrockProcess process, Item item, Dictionary<ulong, string> classNames,
+	private static JsonObject Forensic(BedrockProcess process, Item item, Dictionary<ulong, string> classNames,
 		List<(string Name, ulong Address)> declared, List<(string Name, ulong Address)> built)
 	{
-		var parts = new List<string>
+		var row = new JsonObject
 		{
-			$"\"name\": {Json(item.Name)}",
-			$"\"isItem\": {(item.IsItem ? "true" : "false")}",
-			$"\"address\": \"0x{item.Address:X}\"",
-			$"\"classPointer\": \"0x{item.Ptr(ItemLayout.MethodTable):X}\"",
-			$"\"class\": {Json(classNames.GetValueOrDefault(item.Ptr(ItemLayout.MethodTable), "unknown_class"))}",
-			$"\"classSlots\": {Json(Slots(item))}"
+			["name"] = item.Name,
+			["isItem"] = item.IsItem,
+			["address"] = $"0x{item.Address:X}",
+			["classPointer"] = $"0x{item.Ptr(ItemLayout.MethodTable):X}",
+			["class"] = classNames.GetValueOrDefault(item.Ptr(ItemLayout.MethodTable), "unknown_class"),
+			["classSlots"] = Slots(item)
 		};
-		if (item.ObjectSize > 0) parts.Add($"\"objectSize\": {item.ObjectSize}");
-		else parts.Add("\"objectExtentUnknown\": true");
+		if (item.ObjectSize > 0) row["objectSize"] = item.ObjectSize;
+		else row["objectExtentUnknown"] = true;
 		// Why a row was not taken as an item. Removing this from the data row took it from here too,
 		// and 60 rejections went out with no reason attached, which is the one thing a rejection has
 		// to carry.
-		if (item.Doubts.Count > 0) parts.Add($"\"doubts\": [{string.Join(", ", item.Doubts.Select(Json))}]");
+		if (item.Doubts.Count > 0) row["doubts"] = Names(item.Doubts);
 
 		if (item.ObjectSize > 0)
 		{
@@ -1983,41 +2059,29 @@ public static class ItemRegistry
 			int described = Math.Min(item.ObjectSize - NameInsideItem, item.Window.Length - Before - 16);
 			if (described > 240) cover.Claim(240, described - 240);
 			List<(int From, int Length)> holes = cover.Holes();
-			parts.Add($"\"tailDescribedTo\": {described}");
-			parts.Add($"\"unaccountedBytes\": {holes.Sum(h => h.Length)}");
-			parts.Add($"\"unaccounted\": [{string.Join(", ", holes.Select(h => $"[{h.From}, {h.Length}]"))}]");
-			parts.Add($"\"slackBytes\": {Slack.Sum(r => r.Length)}");
-			parts.Add($"\"paddingBytes\": {ZeroPadding.Sum(r => r.Length)}");
+			row["tailDescribedTo"] = described;
+			row["unaccountedBytes"] = holes.Sum(h => h.Length);
+			row["unaccounted"] = new JsonArray(holes
+				.Select(h => (JsonNode) new JsonArray(h.From, h.Length)).ToArray());
+			row["slackBytes"] = Slack.Sum(r => r.Length);
+			row["paddingBytes"] = ZeroPadding.Sum(r => r.Length);
 
 			var whole = new byte[item.ObjectSize];
-			parts.Add($"\"bytesFrom\": {-NameInsideItem}");
-			parts.Add(process.TryRead(item.Address, whole, whole.Length)
-				? $"\"bytes\": \"{Convert.ToHexString(whole)}\""
-				: $"\"bytes\": \"{Convert.ToHexString(item.Window, Before - NameInsideItem, After + NameInsideItem)}\"");
+			row["bytesFrom"] = -NameInsideItem;
+			row["bytes"] = process.TryRead(item.Address, whole, whole.Length)
+				? Convert.ToHexString(whole)
+				: Convert.ToHexString(item.Window, Before - NameInsideItem, After + NameInsideItem);
 		}
 		else
 		{
-			parts.Add($"\"bytesFrom\": {-NameInsideItem}");
-			parts.Add($"\"bytes\": \"{Convert.ToHexString(item.Window, Before - NameInsideItem, After + NameInsideItem)}\"");
+			row["bytesFrom"] = -NameInsideItem;
+			row["bytes"] = Convert.ToHexString(item.Window, Before - NameInsideItem, After + NameInsideItem);
 		}
-		return "  { " + string.Join(", ", parts) + " }";
+
+		return row;
 	}
 
-	/// <summary>
-	///     Puts the value the tool resolved into the member's own row rather than beside it. A
-	///     pointer the class holds is a pointer; what it points at is what a reader wants, and two
-	///     entries under one key is a value lost.
-	/// </summary>
-	private static void Replace(List<string> parts, string name, string value)
-	{
-		string key = Json(name) + ": ";
-		for (int p = 0; p < parts.Count; p++)
-		{
-			if (parts[p].StartsWith(key, StringComparison.Ordinal)) parts[p] = key + value;
-		}
-	}
-
-	private static string Row(BedrockProcess process, Item item, Dictionary<ulong, string> classNames)
+	private static JsonObject Row(BedrockProcess process, Item item, Dictionary<ulong, string> classNames)
 	{
 		var scratch = new byte[256];
 		var heap = new byte[256];
@@ -2026,43 +2090,32 @@ public static class ItemRegistry
 		// Every member of the class, under the class's own name, read from where the reference says
 		// it sits. A member holding something with no class of its own comes out null, so what
 		// nothing reads is counted rather than absent.
-		var parts = new List<string>();
+		var row = new JsonObject();
 		foreach (MemberNode node in ItemLayout.Items.Roots)
 		{
+			// The class states its gaps once, with offsets and lengths. Repeating the same zero
+			// padding on every one of 1,933 items adds nothing.
+			if (node.Member.Kind == MemberKind.Unknown) continue;
+
 			int at = item.At(node.At - NameInsideItem);
-			string value = at >= 0 && at + node.Member.Bytes <= item.Window.Length
-				? BlockMemberReader.Text(process, item.Address, item.Window, scratch, at, node.Member)
+			row[node.Member.Name] = at >= 0 && at + node.Member.Bytes <= item.Window.Length
+				? BlockMemberReader.Node(process, item.Address, item.Window, scratch, at, node.Member)
 				: null;
-			parts.Add($"{Json(node.Member.Name)}: {value ?? "null"}");
 		}
 
 		// What the numbers above mean, where this tool knows: the names behind the enums and the
 		// bits behind the flag byte. Derived, so it sits beside the class rather than inside it.
-		var decoded = new List<string>();
-		if (NameOf(UseAnimationNames, item.Byte(ItemLayout.UseAnimation)) is { } an) decoded.Add($"{Json("useAnimation")}: {Json(an)}");
-		if (NameOf(RarityNames, item.Byte(ItemLayout.Rarity)) is { } rn) decoded.Add($"{Json("rarity")}: {Json(rn)}");
-		if (NameOf(MineBlockTypeNames, item.Byte(ItemLayout.MineBlockType)) is { } mb) decoded.Add($"{Json("mineBlockType")}: {Json(mb)}");
-		if (NameOf(CreativeCategoryNames, item.Byte(ItemLayout.CreativeCategory)) is { } cn) decoded.Add($"{Json("creativeCategory")}: {Json(cn)}");
+		var decoded = new JsonObject();
+		if (NameOf(UseAnimationNames, item.Byte(ItemLayout.UseAnimation)) is { } an) decoded["useAnimation"] = an;
+		if (NameOf(RarityNames, item.Byte(ItemLayout.Rarity)) is { } rn) decoded["rarity"] = rn;
+		if (NameOf(MineBlockTypeNames, item.Byte(ItemLayout.MineBlockType)) is { } mb) decoded["mineBlockType"] = mb;
+		if (NameOf(CreativeCategoryNames, item.Byte(ItemLayout.CreativeCategory)) is { } cn) decoded["creativeCategory"] = cn;
 
-		// All eight bits, named. The order is the one Item declares them in, packed low bit first,
-		// and six of the eight already matched names pinned here against item behaviour, which is
-		// what makes the other two the same fact rather than a reading of a list.
-		// requiresWorldBuilder is set on exactly allow, deny, border_block and chalkboard, the four
-		// items that need that permission. explodable is set on every item but nether_star, which
-		// is the one item immune to all explosions, and that same item reads shouldDespawn clear,
-		// which is the name we already had confirming itself on the one item that breaks the run.
-		var flags = new List<string>();
-		byte f = item.Byte(ItemLayout.Flags);
-		if ((f & 0x01) != 0) flags.Add("glint");
-		if ((f & 0x02) != 0) flags.Add("handEquipped");
-		if ((f & 0x04) != 0) flags.Add("stackedByData");
-		if ((f & 0x08) != 0) flags.Add("requiresWorldBuilder");
-		if ((f & 0x10) != 0) flags.Add("explodable");
-		if ((f & 0x20) != 0) flags.Add("fireResistant");
-		if ((f & 0x40) != 0) flags.Add("shouldDespawn");
-		if ((f & 0x80) != 0) flags.Add("allowOffHand");
-		if (flags.Count > 0) decoded.Add($"{Json("flags")}: [{string.Join(", ", flags.Select(Json))}]");
-		if (decoded.Count > 0) parts.Add($"{Json("decoded")}: {{ {string.Join(", ", decoded)} }}");
+		// The nine flag bits are members of the class now, each under the name the class gives it,
+		// so they are not also listed here. Two entries for one fact is a value lost, and the bit
+		// the byte could not hold, ignoresPermissions, is the ninth: it sits in the byte after, and
+		// reading that byte as a whole value is why it never agreed with the reference.
+		if (decoded.Count > 0) row["decoded"] = decoded;
 
 		// The block an item places is held either directly or through a small holder that points at
 		// it. Reading only the direct form left the camera, the brewing stand, the cake and the
@@ -2076,7 +2129,7 @@ public static class ItemRegistry
 				if (slot + 8 > item.Window.Length - Before) break;
 				string blockName = BlockNameAt(process, item.Ptr(slot));
 				if (blockName is null) continue;
-				Replace(parts, "block", Json(blockName));
+				row["block"] = blockName;
 				break;
 			}
 		}
@@ -2085,8 +2138,9 @@ public static class ItemRegistry
 		// Furnace behaviour, both halves: how many items this one burns for, and the experience
 		// smelting it gives. Fitted against lava bucket at a hundred, boats at six and sticks at a
 		// half, and against gold at one, iron at seven tenths and nuggets at a tenth.
-		List<string> tags = Tags(process, item, scratch, heap);
-		if (tags.Count > 0) parts.Add($"\"tags\": [{string.Join(", ", tags.Select(Json))}]");
+		// Into the member that holds them, not beside it. The vector at that offset is what these
+		// were read from, so a second list under another name would be the same fact twice.
+		row["tags"] = Names(Tags(process, item, scratch, heap));
 
 		// Every component reaches the reader the same way, whatever the server does internally. The
 		// older items keep a typed pointer per kind at a fixed offset, the newer ones keep a map, and
@@ -2094,30 +2148,25 @@ public static class ItemRegistry
 		// names, so food is food wherever the server put it.
 		List<(string Name, ulong Address)> declared = _tail is null ? [] : Components(process, item, _tail.Declared, true);
 		List<(string Name, ulong Address)> built = _tail is null ? [] : Components(process, item, _tail.Built, false);
-		parts.Add($"\"componentBased\": {(declared.Count > 0 ? "true" : "false")}");
-		if (declared.Count > 0) parts.Add($"\"declaredComponents\": [{string.Join(", ", declared.Select(c => Json(c.Name)))}]");
+		row["componentBased"] = declared.Count > 0;
+		if (declared.Count > 0) row["declaredComponents"] = Names(declared.Select(c => c.Name));
 
-		var componentJson = built
-			.Select(c => Component(process, c.Name, c.Address, item.Address, scratch))
-			.ToList();
-
-		ulong food = item.IsItem ? item.Ptr(ItemLayout.FoodComponent) : 0;
-		if (food > 0x10000 && built.All(c => c.Name != "minecraft:food") && process.TryRead(food, scratch, 24))
+		var components = new JsonObject();
+		foreach (var (kind, address) in built)
 		{
-			componentJson.Add($"{Json("minecraft:food")}: {{ \"nutrition\": {BitConverter.ToInt32(scratch, 16)}, "
-				+ $"\"saturationModifier\": {Num(BitConverter.ToSingle(scratch, 20))} }}");
+			// Ruled out by Niclas, not by this tool: legacy_events is 184 bytes holding a table of
+			// sixteen event handler lists, and on the one item that carries it, the apple, every
+			// one of those lists is an empty sentinel that points at itself. It describes nothing.
+			// Its shape stays in items-runtime-components.json, where the bytes are still counted.
+			if (kind == "minecraft:legacy_events") continue;
+			components[kind] = Component(process, kind, address, item.Address, scratch);
 		}
-		ulong camera = item.IsItem ? item.Ptr(ItemLayout.CameraComponent) : 0;
-		if (camera > 0x10000 && process.TryRead(camera, scratch, 32))
-		{
-			var values = new List<string>();
-			for (int k = 8; k < 32; k += 4) values.Add(Num(BitConverter.ToSingle(scratch, k)));
-			componentJson.Add($"{Json("minecraft:camera")}: {{ \"values\": [{string.Join(", ", values)}] }}");
-		}
-		ulong seed = item.IsItem ? item.Ptr(ItemLayout.SeedComponent) : 0;
-		if (seed > 0x10000) componentJson.Add(Seed(process, seed));
 
-		if (componentJson.Count > 0) parts.Add($"\"components\": {{ {string.Join(", ", componentJson)} }}");
+		// The legacy food, seed and camera components are not listed here. They are reached through
+		// the pointers the item holds for them, so those members carry them: hoisting them into the
+		// component map would state them under a name the object does not use.
+
+		if (components.Count > 0) row["components"] = components;
 
 		// The class tail's own fields sit at no fixed place: which slot holds what depends on the
 		// class, and the whole tail moves when a version grows the object, so every slot in the tail
@@ -2133,10 +2182,10 @@ public static class ItemRegistry
 		{
 			for (int slot = 240; slot <= tailEnd; slot += 8)
 			{
-				string tier = item.U16(ItemLayout.MaxDurability) > 0 ? Tier(process, item.Ptr(slot), scratch, item.U16(ItemLayout.MaxDurability)) : null;
+				JsonObject tier = item.U16(ItemLayout.MaxDurability) > 0 ? Tier(process, item.Ptr(slot), scratch, item.U16(ItemLayout.MaxDurability)) : null;
 				if (tier is null && _tierStructs.Contains(item.Ptr(slot))) tier = Tier(process, item.Ptr(slot), scratch, null);
 				if (tier is null) continue;
-				parts.Add($"\"tier\": {tier}");
+				row["tier"] = tier;
 				break;
 			}
 		}
@@ -2147,7 +2196,7 @@ public static class ItemRegistry
 		for (int slot = 240; slot <= tailEnd; slot += 8)
 		{
 			if (HashedAt(process, item.Ptr(slot)) is not { } tag || !tag.Contains("destructible", StringComparison.Ordinal)) continue;
-			parts.Add($"\"destroysBlocksTagged\": {Json(tag)}");
+			row["destroysBlocksTagged"] = tag;
 			break;
 		}
 
@@ -2159,7 +2208,7 @@ public static class ItemRegistry
 			for (int slot = 240; slot <= tailEnd; slot += 8)
 			{
 				if (ArmorMaterial(process, item.Ptr(slot), item.U16(ItemLayout.MaxDurability)) is not { } material) continue;
-				parts.Add($"\"armorMaterial\": {material}");
+				row["armorMaterial"] = material;
 				break;
 			}
 		}
@@ -2192,16 +2241,16 @@ public static class ItemRegistry
 		if (declared.Count > 0)
 		{
 			int dd = _tail.DataDriven;
-			parts.Add($"\"miningSpeed\": {Num(BitConverter.ToSingle(item.Window, item.At(dd + 4)))}");
-			parts.Add($"\"liquidClipped\": {((item.Byte(dd) & 0x08) != 0 ? "true" : "false")}");
-			parts.Add($"\"canDestroyInCreative\": {((item.Byte(dd) & 0x02) != 0 ? "true" : "false")}");
-			parts.Add($"\"enchantableValue\": {BitConverter.ToInt32(item.Window, item.At(dd + 16))}");
+			row["miningSpeed"] = Real(BitConverter.ToSingle(item.Window, item.At(dd + 4)));
+			row["liquidClipped"] = (item.Byte(dd) & 0x08) != 0;
+			row["canDestroyInCreative"] = (item.Byte(dd) & 0x02) != 0;
+			row["enchantableValue"] = BitConverter.ToInt32(item.Window, item.At(dd + 16));
 			// Located the same way as the rest: the parser holds the key's text and stores the value
 			// beside it. Damage verifies against the damage component on all seven spears, and the
 			// slot is a bitmask rather than an index, reading 0x00800000 for melee_spear and 0 for
 			// none, so the number goes out rather than a name invented for a bit.
-			parts.Add($"\"damage\": {BitConverter.ToInt32(item.Window, item.At(dd + 8))}");
-			parts.Add($"\"enchantableSlot\": \"0x{BitConverter.ToInt32(item.Window, item.At(dd + 12)):X}\"");
+			row["damage"] = BitConverter.ToInt32(item.Window, item.At(dd + 8));
+			row["enchantableSlot"] = $"0x{BitConverter.ToInt32(item.Window, item.At(dd + 12)):X}";
 		}
 
 		// The forensic half of the row goes to its own file: the bytes it was read from, the holes,
@@ -2209,7 +2258,7 @@ public static class ItemRegistry
 		// a kilobyte of hex to reach it, and a reader checking the extraction should not have to
 		// parse the data to reach the evidence. Same rows, same names, two files.
 		Forensics[item.Name] = Forensic(process, item, classNames, declared, built);
-		return "    { " + string.Join(", ", parts) + " }";
+		return row;
 	}
 
 	/// <summary>
@@ -2296,7 +2345,6 @@ public static class ItemRegistry
 
 	private static string Num(float value) => value.ToString("0.#####", CultureInfo.InvariantCulture);
 
-	private static string Json(string text) => "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
 
 	public static string ReadStdString(BedrockProcess process, byte[] window, int at, byte[] scratch) =>
 		StdString(process, window, at, scratch);

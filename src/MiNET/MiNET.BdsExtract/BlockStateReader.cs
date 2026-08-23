@@ -24,13 +24,26 @@
 #endregion
 
 using System.Text;
+using System.Text.Json.Nodes;
 
 namespace MiNET.BdsExtract;
 
 /// <summary>One state property and its value, as the server holds it.</summary>
 public readonly record struct StateProperty(string Name, object Value)
 {
-	/// <summary>The value written the way a block state expects it: bools as bools, the rest as they are.</summary>
+	/// <summary>The value as the kind it is: a byte is the bool the server means by it.</summary>
+	public JsonNode ToNode()
+	{
+		return Value switch
+		{
+			byte b => JsonValue.Create(b != 0),
+			int i => JsonValue.Create((long) i),
+			string s => JsonValue.Create(s),
+			_ => null
+		};
+	}
+
+	/// <summary>The same value as the text a state key is built from.</summary>
 	public string ToJson()
 	{
 		return Value switch
@@ -233,5 +246,117 @@ public sealed class BlockStateReader
 		ulong pointer = BitConverter.ToUInt64(header, 0);
 		if (pointer < 0x10000 || !_process.TryRead(pointer, _text, (int) length)) return null;
 		return Encoding.ASCII.GetString(_text, 0, (int) length);
+	}
+}
+
+/// <summary>
+///     The state properties a block declares, read from the map the block holds rather than worked
+///     out from the states that exist. BlockType keeps them as
+///     <c>std::map&lt;uint64, BlockStateInstance&gt;</c>: two words, the head node and the count.
+///     A node is the tree's three links and its colour, then the pair, so the property id sits at
+///     +32 and the instance at +40.
+///     The instance's numbers were placed by the only thing that can settle them, which is that
+///     they have to agree with each other: acacia_button reads 1 bit ending at bit 3 with mask 8,
+///     and facing_direction 3 bits ending at bit 2 with mask 7, and in both the mask is exactly the
+///     bits the width and the end bit describe. The declaration order in the published header does
+///     not match, and memory wins over a header.
+///     The instance points at the BlockState, which carries the property's own id and name. That
+///     name is a HashedString, so it hashes to its own text or it is not read at all.
+/// </summary>
+public static class BlockStateDefinitions
+{
+	private const int Key = 32;
+	private const int Instance = 40;
+	private const int NodeSize = 72;
+
+	// Inside the instance.
+	private const int VariationCount = 0;
+	private const int NumBits = 4;
+	private const int EndBit = 8;
+	private const int Mask = 12;
+	private const int State = 16;
+
+	// Inside the BlockState the instance points at.
+	private const int StateId = 8;
+	private const int StateVariations = 16;
+	private const int StateName = 24;
+
+	/// <summary>
+	///     The block's property name to id index, read from the unordered_map it holds. That map is
+	///     a load factor, then the list its entries actually live in, then the bucket vector, so
+	///     only the list is walked: buckets are an index into it and hold nothing of their own.
+	///     A node is next, previous, then the pair, so the name sits at +16 as a HashedString and
+	///     the id at +64. The name verifies against its own hash or it is not read.
+	/// </summary>
+	public static JsonObject Names(BedrockProcess process, ulong at)
+	{
+		var word = new byte[8];
+		var index = new JsonObject();
+		ulong head = process.ReadUInt64(at + ListHead, word);
+		long count = (long) process.ReadUInt64(at + ListHead + 8, word);
+		if (head < 0x10000 || count <= 0 || count > 64) return index;
+
+		var node = new byte[72];
+		var scratch = new byte[256];
+		ulong walk = process.ReadUInt64(head, word);
+		for (long i = 0; i < count && walk >= 0x10000 && walk != head; i++)
+		{
+			if (!process.TryRead(walk, node, node.Length)) break;
+			string name = HashedString.ReadVerified(process, node, EntryName, scratch);
+			if (name is not null) index[name] = (long) BitConverter.ToUInt64(node, EntryId);
+			walk = BitConverter.ToUInt64(node, 0);
+		}
+
+		return index;
+	}
+
+	/// <summary>Where the entries live inside the map, and where each node keeps its pair.</summary>
+	private const int ListHead = 8;
+	private const int EntryName = 16;
+	private const int EntryId = 64;
+
+	public static JsonObject Read(BedrockProcess process, ulong at)
+	{
+		var word = new byte[8];
+		var declared = new JsonObject();
+		ulong head = process.ReadUInt64(at, word);
+		long count = (long) process.ReadUInt64(at + 8, word);
+		if (head < 0x10000 || count <= 0 || count > 64) return declared;
+
+		Walk(process, process.ReadUInt64(head + 8, word), declared, 0);
+		return declared;
+	}
+
+	private static void Walk(BedrockProcess process, ulong node, JsonObject declared, int depth)
+	{
+		if (node < 0x10000 || depth > 32) return;
+
+		var body = new byte[NodeSize];
+		if (!process.TryRead(node, body, body.Length)) return;
+
+		// The sentinel marks itself, which is what stops the walk running off the top of the tree.
+		if (body[25] != 0) return;
+
+		Walk(process, BitConverter.ToUInt64(body, 0), declared, depth + 1);
+
+		var scratch = new byte[256];
+		ulong state = BitConverter.ToUInt64(body, Instance + State);
+		var head = new byte[64];
+		string name = state >= 0x10000 && process.TryRead(state, head, head.Length)
+			? HashedString.ReadVerified(process, head, StateName, scratch)
+			: null;
+
+		var stated = new JsonObject
+		{
+			["id"] = (long) BitConverter.ToUInt64(body, Key),
+			["values"] = BitConverter.ToUInt32(body, Instance + VariationCount),
+			["bits"] = BitConverter.ToUInt32(body, Instance + NumBits),
+			["endBit"] = BitConverter.ToUInt32(body, Instance + EndBit),
+			["mask"] = BitConverter.ToUInt32(body, Instance + Mask)
+		};
+
+		declared[name ?? $"unnamed{BitConverter.ToUInt64(body, Key)}"] = stated;
+
+		Walk(process, BitConverter.ToUInt64(body, 16), declared, depth + 1);
 	}
 }

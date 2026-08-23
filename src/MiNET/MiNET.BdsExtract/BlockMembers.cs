@@ -31,11 +31,18 @@ using System.Text.Json;
 public enum MemberKind
 {
 	Bool,
+
+	/// <summary>One bit of a packed byte. The member states which bit.</summary>
+	Bit,
+
 	Enum8,
 	Enum32,
 	UInt16,
 	Int16,
 	Int32,
+
+	/// <summary>Thirty two bits unsigned. A hash with its top bit set is not a negative number.</summary>
+	UInt32,
 	UInt64,
 	Bits64,
 	Float,
@@ -45,7 +52,27 @@ public enum MemberKind
 	Range,
 	Version,
 	Box,
-	Container
+
+	/// <summary>Three floats: a position or an offset, not a box.</summary>
+	Vector3,
+
+	Container,
+
+	/// <summary>
+	///     A pointer to a component. The object it names is a ComponentInstance, a method table and
+	///     then the component, so the class this states is read eight bytes past the pointer.
+	/// </summary>
+	Component,
+
+	/// <summary>A byte of flags over an enum: the members it names are the bits that are set.</summary>
+	Flags8,
+
+	/// <summary>
+	///     Bytes of the class that no member accounts for. Not a value and never decoded: it exists
+	///     so the member list tiles the class exactly, and a reader can walk the members top to
+	///     bottom and have their offsets and sizes add up to the class size.
+	/// </summary>
+	Unknown
 }
 
 /// <summary>
@@ -53,7 +80,9 @@ public enum MemberKind
 ///     called, and, when it holds another object, which class that is. The offset is stated by the
 ///     reference and is relative to the class that declares it, never to whatever holds that class.
 /// </summary>
-public readonly record struct BlockMember(int At, int Bytes, MemberKind Kind, string Name, string Holds = null);
+public readonly record struct BlockMember(int At, int Bytes, MemberKind Kind, string Name, string Holds = null,
+	int Bit = 0, bool Comparable = true, string Enum = null, string Elements = null,
+	string Entries = null);
 
 /// <summary>One class: how big it is and what it holds, in the order it declares them.</summary>
 public sealed record ClassLayout(string Name, int Size, IReadOnlyList<BlockMember> Members);
@@ -150,6 +179,33 @@ public static class BlockMembers
 	/// <summary>The class a member holds, from the same file that member came from.</summary>
 	public static ClassLayout Held(string name, Source source) => Class(source, name);
 
+	/// <summary>
+	///     The class a component of this name is, or null where none is declared. A component is an
+	///     object like any other: the reference states its members and the run reads them, instead
+	///     of a decode written per name in the source.
+	/// </summary>
+	/// <summary>A class by name, from whichever file declares it, or null if none does.</summary>
+	public static ClassLayout Any(string name)
+	{
+		if (name is null) return null;
+		foreach (Source source in new[] { Source.Blocks, Source.States, Source.Items })
+		{
+			Load(source);
+			if (Classes[(int) source].TryGetValue(name, out ClassLayout held)) return held;
+		}
+
+		return null;
+	}
+
+	public static ClassLayout Component(string name)
+	{
+		if (name is null) return null;
+		foreach (Source source in new[] { Source.Blocks, Source.States, Source.Items }) Load(source);
+		return _componentClasses.TryGetValue(name, out string held) ? Any(held) : null;
+	}
+
+	private static readonly Dictionary<string, string> _componentClasses = new(StringComparer.Ordinal);
+
 	private static ClassLayout Class(Source source, string name)
 	{
 		Load(source);
@@ -189,7 +245,10 @@ public static class BlockMembers
 				Member = member,
 				Path = name,
 				At = at + member.At,
-				Holds = member.Holds is null
+				// A component names the class behind a pointer, not one sitting inside the object, so
+				// it stays a leaf and the reader follows the pointer. Nesting it here would read the
+				// class at the pointer's own offset, which is the pointer itself.
+				Holds = member.Holds is null || member.Kind == MemberKind.Component
 					? []
 					: Branch(Held(member.Holds, source), source, name, at + member.At, all)
 			};
@@ -208,6 +267,20 @@ public static class BlockMembers
 		(Classes[which], Roots[which], Version build) = LoadClasses(Files[which]);
 		_build ??= build;
 	}
+
+	/// <summary>
+	///     What the values of one enum are called, where the reference states them. A number that
+	///     names something is written with the name beside it, because the number is what was read
+	///     and the name is what it means, and dropping either one loses half the fact.
+	/// </summary>
+	public static string Value(string enumeration, long value)
+	{
+		Load(Source.Blocks);
+		return _enums.TryGetValue(enumeration ?? "", out var named)
+			&& named.TryGetValue(value, out string name) ? name : null;
+	}
+
+	private static readonly Dictionary<string, Dictionary<long, string>> _enums = new(StringComparer.Ordinal);
 
 	private static (Dictionary<string, ClassLayout>, string, Version) LoadClasses(string file)
 	{
@@ -229,6 +302,30 @@ public static class BlockMembers
 			build = parsed;
 		}
 
+		if (root.TryGetProperty("enums", out JsonElement enums))
+		{
+			foreach (JsonProperty held in enums.EnumerateObject())
+			{
+				var values = new Dictionary<long, string>();
+				foreach (JsonProperty entry in held.Value.EnumerateObject())
+				{
+					if (long.TryParse(entry.Name, out long number)) values[number] = entry.Value.GetString();
+				}
+
+				_enums[held.Name] = values;
+			}
+		}
+
+		// Which class each component is, where the reference says. Only the block file carries this;
+		// the others have no components of their own to name.
+		if (root.TryGetProperty("componentClasses", out JsonElement components))
+		{
+			foreach (JsonProperty held in components.EnumerateObject())
+			{
+				_componentClasses[held.Name] = held.Value.GetString();
+			}
+		}
+
 		string name = root.TryGetProperty("class", out JsonElement which) ? which.GetString() : null;
 		if (!root.TryGetProperty("classes", out JsonElement stateClasses)) return (classes, name, build);
 
@@ -246,14 +343,57 @@ public static class BlockMembers
 					if (!member.TryGetProperty("kind", out JsonElement kind)) continue;
 					if (!Enum.TryParse(kind.GetString(), out MemberKind parsedKind)) continue;
 					string holds = member.TryGetProperty("holds", out JsonElement inner) ? inner.GetString() : null;
+					int bit = member.TryGetProperty("bit", out JsonElement index) ? index.GetInt32() : 0;
+			string enumeration = member.TryGetProperty("enum", out JsonElement named) ? named.GetString() : null;
+			string elements = member.TryGetProperty("elements", out JsonElement each) ? each.GetString() : null;
+			string entries = member.TryGetProperty("entries", out JsonElement pair) ? pair.GetString() : null;
+					bool comparable = !member.TryGetProperty("comparable", out JsonElement across)
+						|| across.ValueKind != JsonValueKind.False;
 					members.Add(new BlockMember(at.GetInt32(), memberBytes.GetInt32(), parsedKind,
-						memberName.GetString(), holds));
+						memberName.GetString(), holds, bit, comparable, enumeration, elements, entries));
 				}
 			}
 
-			classes[held.Name] = new ClassLayout(held.Name, size, members);
+			classes[held.Name] = new ClassLayout(held.Name, size, Tile(members, size));
 		}
 
 		return (classes, name, build);
+	}
+
+	/// <summary>
+	///     The members in order with every gap between them named and sized, so the list accounts
+	///     for the whole class. A class whose members are read top to bottom must add up to its own
+	///     size; bytes that nothing declares are the ones that quietly stop adding up, so they are
+	///     declared as what they are: unknown, this long, here.
+	///     Bits are why this counts coverage rather than summing sizes. Several of them share one
+	///     byte by design, so the same byte is claimed more than once and a sum would say the class
+	///     is bigger than it is.
+	/// </summary>
+	private static List<BlockMember> Tile(List<BlockMember> members, int size)
+	{
+		if (members.Count == 0) return members;
+
+		var covered = new bool[Math.Max(size, members.Max(m => m.At + m.Bytes))];
+		foreach (BlockMember member in members)
+		{
+			for (int i = member.At; i < member.At + member.Bytes && i < covered.Length; i++) covered[i] = true;
+		}
+
+		var gaps = new List<BlockMember>();
+		int unknown = 0;
+		for (int at = 0; at < size; at++)
+		{
+			if (covered[at]) continue;
+			int end = at;
+			while (end < size && !covered[end]) end++;
+			gaps.Add(new BlockMember(at, end - at, MemberKind.Unknown,
+				$"unknown{++unknown}", null, 0, false));
+			at = end;
+		}
+
+		if (gaps.Count == 0) return members;
+
+		// In order, because the point is that the list walks the object.
+		return members.Concat(gaps).OrderBy(m => m.At).ThenBy(m => m.Bit).ToList();
 	}
 }

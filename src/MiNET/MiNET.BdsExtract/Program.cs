@@ -25,6 +25,7 @@
 
 using System.Globalization;
 using System.Text;
+using System.Text.Json.Nodes;
 
 namespace MiNET.BdsExtract;
 
@@ -357,7 +358,7 @@ public static class Program
 		// Nothing about the components themselves is reported or published: their ids are
 		// per-instance registration numbers that differ between runs of the same build, so a count
 		// of how many were "identified" describes this heap rather than the game.
-		var held = ComponentReader.Read(server, blocks);
+		var held = ComponentReader.Read(server, blocks, palette);
 
 		var ranges = BlockStateRanges.Read(palette);
 		int dependent = ranges.Count(r => !r.Independent);
@@ -370,18 +371,15 @@ public static class Program
 		string statePath = Path.Combine(outputDirectory, "block_states.json");
 		string upgradePath = Path.Combine(outputDirectory, "block_upgrade_rules.json");
 
-		string versionHeader = BlockDocument.VersionHeader(palette);
-
 		// Every member of the block class, each under the class's own name, read from where the
 		// published layout says it is. This is the whole object rather than the values this tool
-		// happened to name, so what nothing reads is a row saying so instead of an absence.
-
-		File.WriteAllText(blockPath, BlockDocument.WriteBlocks(server, versionHeader, blocks, classNames,
+		// happened to name, so what nothing reads is a member saying so instead of an absence.
+		File.WriteAllText(blockPath, BlockDocument.Serialize(BlockDocument.Blocks(server, palette, blocks, classNames,
 			ranges.ToDictionary(r => r.Name, StringComparer.Ordinal),
 			stateProperties.ToDictionary(p => p.Name, p => p.Id, StringComparer.Ordinal),
-			legacyStates.ToDictionary(t => t.Name, StringComparer.Ordinal), held), new UTF8Encoding(false));
-		File.WriteAllText(statePath, BlockDocument.WriteStates(server, palette, report), new UTF8Encoding(false));
-		File.WriteAllText(upgradePath, WriteUpgrades(versionHeader, rules, renamedIds), new UTF8Encoding(false));
+			legacyStates.ToDictionary(t => t.Name, StringComparer.Ordinal), held)), new UTF8Encoding(false));
+		File.WriteAllText(statePath, BlockDocument.Serialize(BlockDocument.States(server, palette, blocks, report)), new UTF8Encoding(false));
+		File.WriteAllText(upgradePath, BlockDocument.Serialize(Upgrades(palette, rules, renamedIds)), new UTF8Encoding(false));
 		Console.WriteLine($"written {blockPath}");
 		Console.WriteLine($"written {statePath}");
 		Console.WriteLine($"written {upgradePath}");
@@ -482,7 +480,11 @@ public static class Program
 		return largest;
 	}
 
-	private static string WriteUpgrades(string versionHeader, IReadOnlyList<UpgradeSchema> schemas,
+	/// <summary>
+	///     The upgrade rules as the steps they are, in the order the server runs them.
+	/// </summary>
+	private static JsonObject Upgrades(IReadOnlyList<PaletteEntry> palette,
+		IReadOnlyList<UpgradeSchema> schemas,
 		IReadOnlyList<KeyValuePair<string, string>> renamedIds)
 	{
 		// A block state carries a version stamp and the server runs every rule stamped above it in
@@ -495,76 +497,70 @@ public static class Program
 			foreach (var child in rule.Nested) steps.Add((rule.Version, child, rule));
 		}
 
-		var text = new StringBuilder("{\n");
-		text.Append(versionHeader);
-		text.Append($"\t\"steps\": {steps.Count},\n");
-		text.Append("\t\"renameIds\": {");
-		for (int i = 0; i < renamedIds.Count; i++)
-		{
-			text.Append(i == 0 ? "\n" : ",\n");
-			text.Append($"\t\t\"{Escape(renamedIds[i].Key)}\": \"{Escape(renamedIds[i].Value)}\"");
-		}
-		text.Append(renamedIds.Count == 0 ? "},\n" : "\n\t},\n");
+		var document = new JsonObject();
+		BlockDocument.Version(document, palette);
+		document["steps"] = steps.Count;
 
-		text.Append("\t\"upgrade\": [\n");
-		for (int i = 0; i < steps.Count; i++)
+		var renames = new JsonObject();
+		foreach (var rename in renamedIds) renames[rename.Key] = rename.Value;
+		document["renameIds"] = renames;
+
+		var upgrade = new JsonArray();
+		foreach (var (version, rule, parent) in steps)
 		{
-			var (version, rule, parent) = steps[i];
-			text.Append("\t\t{ ");
-			text.Append($"\"version\": \"{(version >> 24) & 0xFF}.{(version >> 16) & 0xFF}."
-						+ $"{(version >> 8) & 0xFF}.{version & 0xFF}\", ");
+			var step = new JsonObject
+			{
+				["version"] = $"{(version >> 24) & 0xFF}.{(version >> 16) & 0xFF}."
+							+ $"{(version >> 8) & 0xFF}.{version & 0xFF}"
+			};
 
 			// A child names the block its parent names, so the step stands on its own.
 			string subject = rule.Subject ?? parent?.Subject;
 			bool pattern = rule.Subject is not null ? rule.SubjectIsPattern : parent?.SubjectIsPattern ?? false;
-			text.Append(subject is null ? ""
-				: pattern ? $"\"blockPattern\": \"{Escape(subject)}\", "
-				: $"\"block\": \"{Escape(subject)}\", ");
+			if (subject is not null) step[pattern ? "blockPattern" : "block"] = subject;
 
-			text.Append($"\"match\": {Side(rule, 0)}, ");
-			text.Append($"\"result\": {Side(rule, 1)}");
+			step["match"] = Side(rule, 0);
+			step["result"] = Side(rule, 1);
 
 			// The bare property names, written once when both sides list the same ones, which is
 			// almost always: a rule names the properties it touches, not two different sets.
-			string matchFields = Fields(rule, 0);
-			string resultFields = Fields(rule, 1);
-			if (matchFields == resultFields)
+			JsonArray matchFields = Fields(rule, 0);
+			JsonArray resultFields = Fields(rule, 1);
+			if (JsonNode.DeepEquals(matchFields, resultFields))
 			{
-				if (matchFields != "[]") text.Append($", \"fields\": {matchFields}");
+				if (matchFields.Count > 0) step["fields"] = matchFields;
 			}
 			else
 			{
-				if (matchFields != "[]") text.Append($", \"matchFields\": {matchFields}");
-				if (resultFields != "[]") text.Append($", \"resultFields\": {resultFields}");
-			}
-			if (rule.Produces is not null)
-			{
-				text.Append($", \"produces\": \"{Escape(rule.Produces)}\"");
-				text.Append($", \"producesFrom\": \"{(rule.ProducesFromCode ? "code" : "data")}\"");
+				if (matchFields.Count > 0) step["matchFields"] = matchFields;
+				if (resultFields.Count > 0) step["resultFields"] = resultFields;
 			}
 
-			// The old value is the subscript, so the array is written as one and position says
-			// which old value each entry is for.
+			if (rule.Produces is not null)
+			{
+				step["produces"] = rule.Produces;
+				step["producesFrom"] = rule.ProducesFromCode ? "code" : "data";
+			}
+
+			// The old value is the subscript, so the list is written as one and position says which
+			// old value each entry is for.
 			if (rule.RemapValues.Count > 0)
 			{
-				text.Append(", \"remaps\": [");
-				for (int k = 0; k < rule.RemapValues.Count; k++)
-				{
-					text.Append(k == 0 ? "" : ", ");
-					text.Append($"[{string.Join(", ",
-						rule.RemapValues[k].Select(v => $"\"{Escape(v)}\""))}]");
-				}
-				text.Append("]");
+				step["remaps"] = new JsonArray(rule.RemapValues
+					.Select(row => (JsonNode) new JsonArray(row.Select(v => (JsonNode) v).ToArray()))
+					.ToArray());
 			}
+
 			// A nested rule says whose it is. Flattening the list to read top down otherwise loses
 			// the one thing the nesting carried: that these sixteen steps are one flattening of one
 			// block rather than sixteen unrelated ones.
-			if (parent is not null) text.Append($", \"of\": \"0x{parent.Address:X}\"");
-			text.Append($", \"address\": \"0x{rule.Address:X}\"");
-			text.Append(" }");
-			text.Append(i == steps.Count - 1 ? "\n" : ",\n");
+			if (parent is not null) step["of"] = $"0x{parent.Address:X}";
+			step["address"] = $"0x{rule.Address:X}";
+			upgrade.Add(step);
 		}
-		return text.Append("\t]\n}\n").ToString();
+
+		document["upgrade"] = upgrade;
+		return document;
 	}
 
 	/// <summary>
@@ -574,78 +570,74 @@ public static class Program
 	///     the last of a repeated key, so the bare one silently overwrote the real one and every
 	///     rule that constrained a property lost exactly the thing it constrained. They are two
 	///     facts and they are written as two now.
-	///     The nesting under "states" is gone with it. It was presentation, and in a file meant to
-	///     be read top down a step that is one line beats a step that has to be descended into.
 	/// </summary>
-	private static string Side(UpgradeSchema rule, int which)
+	private static JsonObject Side(UpgradeSchema rule, int which)
 	{
-		if (rule.Tables.Count <= which) return "{}";
+		var side = new JsonObject();
+		if (rule.Tables.Count <= which) return side;
 
-		var text = new StringBuilder("{");
-		bool first = true;
 		foreach (var entry in rule.Tables[which])
 		{
 			if (entry.Key is null || entry.Kind is UpgradeValueKind.None) continue;
-			text.Append(first ? " " : ", ");
-			text.Append($"\"{Escape(entry.Key)}\": {Value(entry)}");
-			first = false;
+			side[entry.Key] = Value(entry);
 		}
-		return text.Append(first ? "}" : " }").ToString();
+
+		return side;
 	}
 
 	/// <summary>
 	///     The entries of one side that name a property without constraining it, in the server's
 	///     order. "states" is dropped: it is the compound the others sit in, not a property.
 	/// </summary>
-	private static string Fields(UpgradeSchema rule, int which)
+	private static JsonArray Fields(UpgradeSchema rule, int which)
 	{
-		if (rule.Tables.Count <= which) return "[]";
-
 		var names = new List<string>();
-		foreach (var entry in rule.Tables[which])
+		if (rule.Tables.Count > which)
 		{
-			if (entry.Key is null or "states" || entry.Kind is not UpgradeValueKind.None) continue;
-			if (!names.Contains(entry.Key)) names.Add(entry.Key);
+			foreach (var entry in rule.Tables[which])
+			{
+				if (entry.Key is null or "states" || entry.Kind is not UpgradeValueKind.None) continue;
+				if (!names.Contains(entry.Key)) names.Add(entry.Key);
+			}
 		}
-		return names.Count == 0 ? "[]" : $"[{string.Join(", ", names.Select(n => $"\"{Escape(n)}\""))}]";
+
+		return new JsonArray(names.Select(n => (JsonNode) n).ToArray());
 	}
+
 	/// <summary>
-	///     One entry's value, written as the shape the server holds rather than as a string or a
-	///     null. A number stays a number, a pattern says it is one, and an entry with no value at
-	///     all is null, which now means what it says: the rule names the property and constrains
-	///     nothing about its value.
+	///     One entry's value, as the shape the server holds rather than as a string or a null. A
+	///     number stays a number, a pattern says it is one, and an entry with no value at all is
+	///     null, which means what it says: the rule names the property and constrains nothing about
+	///     its value.
 	/// </summary>
-	private static string Value(UpgradeEntry entry)
+	private static JsonNode Value(UpgradeEntry entry)
 	{
 		switch (entry.Kind)
 		{
 			case UpgradeValueKind.Number:
-				return entry.Number.ToString(CultureInfo.InvariantCulture);
+				return JsonValue.Create(entry.Number);
 
 			case UpgradeValueKind.Text:
-				return $"\"{Escape(entry.Text)}\"";
+				return entry.Text;
 
 			case UpgradeValueKind.Pattern:
-				return entry.Text is null
-					? "{ \"pattern\": null }"
-					: $"{{ \"pattern\": \"{Escape(entry.Text)}\" }}";
+				return new JsonObject { ["pattern"] = entry.Text };
 
 			case UpgradeValueKind.Table:
-				var text = new StringBuilder("{");
+				var table = new JsonObject();
 				foreach (var row in entry.Table)
 				{
-					text.Append(text.Length == 1 ? " " : ", ");
-					text.Append($"\"{row.Key}\": \"{Escape(row.Value)}\"");
+					table[row.Key.ToString(CultureInfo.InvariantCulture)] = row.Value;
 				}
-				return text.Append(" }").ToString();
+				return table;
 
 			// A size with no shape behind it. Said out loud, because an entry nobody can read is
 			// not the same fact as an entry holding nothing, and the two read alike as null.
 			case UpgradeValueKind.Unknown:
-				return $"{{ \"unread\": {entry.Size} }}";
+				return new JsonObject { ["unread"] = entry.Size };
 
 			default:
-				return "null";
+				return null;
 		}
 	}
 

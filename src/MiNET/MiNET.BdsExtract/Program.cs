@@ -551,11 +551,12 @@ public static class Program
 					.ToArray());
 			}
 
-			// A nested rule says whose it is. Flattening the list to read top down otherwise loses
-			// the one thing the nesting carried: that these sixteen steps are one flattening of one
-			// block rather than sixteen unrelated ones.
-			if (parent is not null) step["of"] = $"0x{parent.Address:X}";
-			step["address"] = $"0x{rule.Address:X}";
+			// A nested rule says whose it is, by that rule's place in this list rather than by its
+			// address. Flattening otherwise loses the one thing the nesting carried: that these
+			// sixteen steps are one flattening of one block rather than sixteen unrelated ones.
+			// The address itself is not written: it is different on every run of the same server,
+			// so a file that carries it differs every time even when nothing about the game did.
+			if (parent is not null) step["of"] = steps.FindIndex(s => ReferenceEquals(s.Rule, parent));
 			upgrade.Add(step);
 		}
 

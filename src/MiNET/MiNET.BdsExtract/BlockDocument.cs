@@ -25,6 +25,7 @@
 
 namespace MiNET.BdsExtract;
 
+using System.Globalization;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -195,11 +196,6 @@ public static class BlockDocument
 			row["name"] = block.Name;
 			row["geometry"] = geometry;
 
-			// Where the row was read. Not a fact about the block and only good while that server
-			// lives, but it is what lets a follow up probe go straight to the object instead of
-			// finding the name again and hoping it landed on a BlockLegacy.
-			row["address"] = $"0x{block.Address:X}";
-
 			// What of the object these values represent. The size is the allocator's, not the
 			// furthest field read, and the holes are the bytes inside the object that no member
 			// above accounts for. They are stated rather than dropped so the gap is countable: a
@@ -348,6 +344,13 @@ public static class BlockDocument
 		var written = new List<ClassLayout>();
 		Reach(root, source, written);
 
+		// A component's class is reached through the component map rather than through a member, so
+		// walking the members alone leaves it out and the file cannot be the next reference.
+		foreach ((string _, string held) in BlockMembers.ComponentClasses)
+		{
+			Reach(BlockMembers.Declared(held, source), source, written);
+		}
+
 		var classes = new JsonObject();
 		foreach (ClassLayout held in written)
 		{
@@ -361,9 +364,16 @@ public static class BlockDocument
 					["bytes"] = member.Bytes,
 					["kind"] = member.Kind.ToString()
 				};
+				// Everything the member states, or the file cannot be the next reference. Dropping
+				// "bit" gave nine flags all reading bit zero; dropping "enum" turned every trait
+				// name back into a number. Both got past the check, because the check compares the
+				// file to itself and both sides were written by the same lossy writer.
 				if (member.Kind == MemberKind.Bit) stated["bit"] = member.Bit;
 				if (!member.Comparable) stated["comparable"] = false;
 				if (member.Holds is not null) stated["holds"] = member.Holds;
+				if (member.Enum is not null) stated["enum"] = member.Enum;
+				if (member.Elements is not null) stated["elements"] = member.Elements;
+				if (member.Entries is not null) stated["entries"] = member.Entries;
 				members.Add(stated);
 			}
 
@@ -372,6 +382,26 @@ public static class BlockDocument
 
 		document["class"] = root.Name;
 		document["classes"] = classes;
+
+		// Everything else the reference states, so this file can become the next one. A refreshed
+		// reference that dropped these came back with every enum unnamed and no component classes.
+		var named = new JsonObject();
+		foreach ((string name, Dictionary<long, string> values) in BlockMembers.Enums)
+		{
+			var entries = new JsonObject();
+			foreach ((long value, string text) in values) entries[value.ToString(CultureInfo.InvariantCulture)] = text;
+			named[name] = entries;
+		}
+
+		if (named.Count > 0) document["enums"] = named;
+
+		var components = new JsonObject();
+		foreach ((string component, string held) in BlockMembers.ComponentClasses)
+		{
+			if (classes.ContainsKey(held)) components[component] = held;
+		}
+
+		if (components.Count > 0) document["componentClasses"] = components;
 	}
 
 	/// <summary>Every class the root holds, and every class those hold, each written once.</summary>

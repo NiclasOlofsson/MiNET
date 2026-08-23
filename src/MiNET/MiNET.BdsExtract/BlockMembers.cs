@@ -68,9 +68,15 @@ public enum MemberKind
 	Flags8,
 
 	/// <summary>
-	///     Bytes of the class that no member accounts for. Not a value and never decoded: it exists
-	///     so the member list tiles the class exactly, and a reader can walk the members top to
-	///     bottom and have their offsets and sizes add up to the class size.
+	///     Bytes the compiler inserted so the next member lands on its own alignment. Not data and
+	///     not undecoded: a gap smaller than the following member's alignment, ending where that
+	///     member has to start, can be nothing else.
+	/// </summary>
+	Padding,
+
+	/// <summary>
+	///     Bytes of the class that no member accounts for and alignment does not explain. These are
+	///     the countable holes: something is there and nothing declares it.
 	/// </summary>
 	Unknown
 }
@@ -179,6 +185,14 @@ public static class BlockMembers
 	/// <summary>The class a member holds, from the same file that member came from.</summary>
 	public static ClassLayout Held(string name, Source source) => Class(source, name);
 
+	/// <summary>The class if this file declares it, and null if it does not. No exception either way.</summary>
+	public static ClassLayout Declared(string name, Source source)
+	{
+		if (name is null) return null;
+		Load(source);
+		return Classes[(int) source].GetValueOrDefault(name);
+	}
+
 	/// <summary>
 	///     The class a component of this name is, or null where none is declared. A component is an
 	///     object like any other: the reference states its members and the run reads them, instead
@@ -282,6 +296,30 @@ public static class BlockMembers
 
 	private static readonly Dictionary<string, Dictionary<long, string>> _enums = new(StringComparer.Ordinal);
 
+	/// <summary>
+	///     What the reference carries besides its classes: the names behind each enum, and which
+	///     class each component is. A run writes these back out, because a file that cannot become
+	///     the next reference is not the reference format, and losing them silently is how nine flag
+	///     bits and every enum name went missing from a refreshed reference.
+	/// </summary>
+	public static IReadOnlyDictionary<string, Dictionary<long, string>> Enums
+	{
+		get
+		{
+			foreach (Source source in new[] { Source.Blocks, Source.States, Source.Items }) Load(source);
+			return _enums;
+		}
+	}
+
+	public static IReadOnlyDictionary<string, string> ComponentClasses
+	{
+		get
+		{
+			foreach (Source source in new[] { Source.Blocks, Source.States, Source.Items }) Load(source);
+			return _componentClasses;
+		}
+	}
+
 	private static (Dictionary<string, ClassLayout>, string, Version) LoadClasses(string file)
 	{
 		var classes = new Dictionary<string, ClassLayout>(StringComparer.Ordinal);
@@ -342,6 +380,11 @@ public static class BlockMembers
 					if (!member.TryGetProperty("bytes", out JsonElement memberBytes)) continue;
 					if (!member.TryGetProperty("kind", out JsonElement kind)) continue;
 					if (!Enum.TryParse(kind.GetString(), out MemberKind parsedKind)) continue;
+
+					// A gap is worked out from the members around it, so it is never read back as one
+					// of them. Taking it from the file freezes it: version widened from one byte to
+					// four and the gap that used to follow it stayed where it was, overlapping it.
+					if (parsedKind is MemberKind.Unknown or MemberKind.Padding) continue;
 					string holds = member.TryGetProperty("holds", out JsonElement inner) ? inner.GetString() : null;
 					int bit = member.TryGetProperty("bit", out JsonElement index) ? index.GetInt32() : 0;
 			string enumeration = member.TryGetProperty("enum", out JsonElement named) ? named.GetString() : null;
@@ -369,6 +412,37 @@ public static class BlockMembers
 	///     byte by design, so the same byte is claimed more than once and a sum would say the class
 	///     is bigger than it is.
 	/// </summary>
+	/// <summary>
+	///     What a member has to sit on. Taken from the kind, because that is what the size and the
+	///     type give: a byte anywhere, a short on two, a float or an int on four, and anything built
+	///     from pointers on eight.
+	/// </summary>
+	private static int Alignment(BlockMember member)
+	{
+		switch (member.Kind)
+		{
+			case MemberKind.Bool:
+			case MemberKind.Bit:
+			case MemberKind.Enum8: return 1;
+			case MemberKind.UInt16:
+			case MemberKind.Int16: return 2;
+			case MemberKind.Int32:
+			case MemberKind.UInt32:
+			case MemberKind.Enum32:
+			case MemberKind.Float:
+			case MemberKind.Colour:
+			case MemberKind.Range:
+			case MemberKind.Box:
+			case MemberKind.Vector3: return 4;
+			default: return 8;
+		}
+	}
+
+	private static int Alignment(IEnumerable<BlockMember> members)
+	{
+		return members.Select(Alignment).DefaultIfEmpty(1).Max();
+	}
+
 	private static List<BlockMember> Tile(List<BlockMember> members, int size)
 	{
 		if (members.Count == 0) return members;
@@ -380,14 +454,22 @@ public static class BlockMembers
 		}
 
 		var gaps = new List<BlockMember>();
-		int unknown = 0;
+		int unknown = 0, padding = 0;
 		for (int at = 0; at < size; at++)
 		{
 			if (covered[at]) continue;
 			int end = at;
 			while (end < size && !covered[end]) end++;
-			gaps.Add(new BlockMember(at, end - at, MemberKind.Unknown,
-				$"unknown{++unknown}", null, 0, false));
+			// Alignment or a hole, decided by the rule rather than by eye: the gap is padding when
+			// it is narrower than the alignment of the member that follows it and that member sits
+			// on that alignment. A trailing gap is padding when the class's own size is rounded to
+			// its widest member's alignment.
+			BlockMember next = members.Where(m => m.At >= end).OrderBy(m => m.At).FirstOrDefault();
+			int need = next.Name is null ? Alignment(members) : Alignment(next);
+			bool fits = end - at < need && (next.Name is null ? size % need == 0 : next.At % need == 0);
+			gaps.Add(fits
+				? new BlockMember(at, end - at, MemberKind.Padding, $"padding{++padding}", null, 0, false)
+				: new BlockMember(at, end - at, MemberKind.Unknown, $"unknown{++unknown}", null, 0, false));
 			at = end;
 		}
 

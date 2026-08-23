@@ -78,7 +78,7 @@ public static class BlockMemberReader
 			// The class table states every gap, with its offset and its length, so the object still
 			// adds up there. A row repeating the same zero padding on every one of two thousand
 			// objects says nothing the class has not already said.
-			if (node.Member.Kind == MemberKind.Unknown) continue;
+			if (node.Member.Kind is MemberKind.Unknown or MemberKind.Padding) continue;
 
 			members[node.Member.Name] = node.IsLeaf
 				? node.At + node.Member.Bytes <= read
@@ -143,7 +143,7 @@ public static class BlockMemberReader
 				for (int b = 0; b < 64; b++)
 				{
 					if ((bits >> b & 1) == 0) continue;
-					set.Add(b < Traits.Length && Traits[b] is { } named ? named : (JsonNode) b);
+					set.Add(BlockMembers.Value(member.Enum, b) ?? (JsonNode) b);
 				}
 
 				return set;
@@ -399,26 +399,6 @@ public static class BlockMemberReader
 		return stated;
 	}
 
-	/// <summary>
-	///     The block traits a flag word carries, by the names the class gives them. From
-	///     LeviLamina's generated BlockProperty, and every name agrees with the blocks that actually
-	///     hold the bit: Stair on the 64 stairs, Button on the 14 buttons, OperatorBlock on the four
-	///     command and structure blocks, Slime on slime. That agreement is what makes them names
-	///     rather than a guess. A bit this table has no name for travels as its own index, so a
-	///     trait nobody has named is still stated.
-	/// </summary>
-	private static readonly string[] Traits =
-	[
-		"Stair", "HalfSlab", "Hopper", "TopSnow", "FenceGate", "Leaves", null, "Connects2D",
-		"Carpet", "Button", "Door", "Portal", "CanFall", "Snow", "Trap", "Sign",
-		"Walkable", "PressurePlate", null, "TopSolidBlocking", null, "CubeShaped", "PowerNo",
-		"PowerBlockDown", null, null, "Piston", "InfiniBurn", "RequiresWorldBuilder", "CausesDamage",
-		"BreaksWhenFallenOnByFallingBlock", null, "Liquid", null, null, "Scaffolding",
-		"CanSupportCenterHangingBlock", "BreaksWhenHitByArrowDeprecated", "Unwalkable", null,
-		"Hollow", "OperatorBlock", null, "PreventsJumping", "ContainsHoney", "Slime",
-		"SculkReplaceableDeprecated", "Climbable", "CanHaltWhenClimbing", "CanDamperVibrations",
-		"CanOccludeVibrations"
-	];
 
 	/// <summary>
 	///     An enum value with the name the class gives it beside it. Both, because the number is

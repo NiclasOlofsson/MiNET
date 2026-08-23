@@ -38,8 +38,7 @@
 				"states": {
 					"unread": 104
 				}
-			},
-			"address": "0x18F678B6B90"
+			}
 		},
 		{
 			"version": "1.10.0.0",
@@ -61,8 +60,7 @@
 					"andesite",
 					"andesite_smooth"
 				]
-			],
-			"address": "0x18F678B6DD0"
+			]
 		},
 		{
 			"version": "1.10.0.1",
@@ -73,8 +71,7 @@
 			"result": {},
 			"fields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B6C50"
+			]
 		},
 		{
 			"version": "1.10.0.2",
@@ -91,8 +88,7 @@
 					"normal",
 					"coarse"
 				]
-			],
-			"address": "0x18F678B6290"
+			]
 		},
 		{
 			"version": "1.10.0.3",
@@ -113,8 +109,7 @@
 					"acacia",
 					"dark_oak"
 				]
-			],
-			"address": "0x18F678B6230"
+			]
 		},
 		{
 			"version": "1.10.0.4",
@@ -131,8 +126,7 @@
 					"normal",
 					"red"
 				]
-			],
-			"address": "0x18F678B62F0"
+			]
 		},
 		{
 			"version": "1.10.0.5",
@@ -151,8 +145,7 @@
 					"birch",
 					"jungle"
 				]
-			],
-			"address": "0x18F678B6830"
+			]
 		},
 		{
 			"version": "1.10.0.6",
@@ -169,8 +162,7 @@
 					"acacia",
 					"dark_oak"
 				]
-			],
-			"address": "0x18F678B68F0"
+			]
 		},
 		{
 			"version": "1.10.0.7",
@@ -189,8 +181,7 @@
 					"birch",
 					"jungle"
 				]
-			],
-			"address": "0x18F678B5E70"
+			]
 		},
 		{
 			"version": "1.10.0.8",
@@ -207,8 +198,7 @@
 					"acacia",
 					"dark_oak"
 				]
-			],
-			"address": "0x18F678B5ED0"
+			]
 		},
 		{
 			"version": "1.10.0.9",
@@ -225,8 +215,7 @@
 					"dry",
 					"wet"
 				]
-			],
-			"address": "0x18F678B5C90"
+			]
 		},
 		{
 			"version": "1.10.0.10",
@@ -245,8 +234,7 @@
 					"cut",
 					"smooth"
 				]
-			],
-			"address": "0x18F678B6470"
+			]
 		},
 		{
 			"version": "1.10.0.11",
@@ -265,8 +253,7 @@
 					"cut",
 					"smooth"
 				]
-			],
-			"address": "0x18F678B6950"
+			]
 		},
 		{
 			"version": "1.10.0.12",
@@ -285,8 +272,7 @@
 					"fern",
 					"snow"
 				]
-			],
-			"address": "0x18F678B6410"
+			]
 		},
 		{
 			"version": "1.10.0.13",
@@ -297,8 +283,7 @@
 			"result": {},
 			"fields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B6AD0"
+			]
 		},
 		{
 			"version": "1.10.0.14",
@@ -324,8 +309,7 @@
 					"cornflower",
 					"lily_of_the_valley"
 				]
-			],
-			"address": "0x18F678B69B0"
+			]
 		},
 		{
 			"version": "1.10.0.15",
@@ -348,8 +332,7 @@
 					"quartz",
 					"nether_brick"
 				]
-			],
-			"address": "0x18F678B5DB0"
+			]
 		},
 		{
 			"version": "1.10.0.16",
@@ -372,8 +355,7 @@
 					"quartz",
 					"nether_brick"
 				]
-			],
-			"address": "0x18F678B6350"
+			]
 		},
 		{
 			"version": "1.10.0.17",
@@ -396,8 +378,7 @@
 					"smooth_sandstone",
 					"red_nether_brick"
 				]
-			],
-			"address": "0x18F678B6CB0"
+			]
 		},
 		{
 			"version": "1.10.0.18",
@@ -420,8 +401,7 @@
 					"smooth_sandstone",
 					"red_nether_brick"
 				]
-			],
-			"address": "0x18F678B6590"
+			]
 		},
 		{
 			"version": "1.10.0.19",
@@ -444,8 +424,7 @@
 					"granite",
 					"polished_granite"
 				]
-			],
-			"address": "0x18F678B6D10"
+			]
 		},
 		{
 			"version": "1.10.0.20",
@@ -468,8 +447,7 @@
 					"granite",
 					"polished_granite"
 				]
-			],
-			"address": "0x18F678B6170"
+			]
 		},
 		{
 			"version": "1.10.0.21",
@@ -489,8 +467,7 @@
 					"cut_sandstone",
 					"cut_red_sandstone"
 				]
-			],
-			"address": "0x18F678B6770"
+			]
 		},
 		{
 			"version": "1.10.0.22",
@@ -510,8 +487,7 @@
 					"cut_sandstone",
 					"cut_red_sandstone"
 				]
-			],
-			"address": "0x18F678B6EF0"
+			]
 		},
 		{
 			"version": "1.10.0.23",
@@ -532,8 +508,7 @@
 					"acacia",
 					"dark_oak"
 				]
-			],
-			"address": "0x18F678B5BD0"
+			]
 		},
 		{
 			"version": "1.10.0.24",
@@ -546,8 +521,7 @@
 			},
 			"matchFields": [
 				"axis"
-			],
-			"address": "0x18F678B63B0"
+			]
 		},
 		{
 			"version": "1.10.0.25",
@@ -568,8 +542,7 @@
 					"cracked_stone_brick",
 					"chiseled_stone_brick"
 				]
-			],
-			"address": "0x18F678B6A10"
+			]
 		},
 		{
 			"version": "1.10.0.26",
@@ -589,8 +562,7 @@
 					"chiseled",
 					"smooth"
 				]
-			],
-			"address": "0x18F678B64D0"
+			]
 		},
 		{
 			"version": "1.10.0.27",
@@ -603,8 +575,7 @@
 			},
 			"matchFields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B6F50"
+			]
 		},
 		{
 			"version": "1.10.0.28",
@@ -617,8 +588,7 @@
 			},
 			"matchFields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B59F0"
+			]
 		},
 		{
 			"version": "1.10.0.29",
@@ -629,8 +599,7 @@
 			"result": {},
 			"fields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B6A70"
+			]
 		},
 		{
 			"version": "1.10.0.30",
@@ -659,8 +628,7 @@
 					"red_sandstone",
 					"red_nether_brick"
 				]
-			],
-			"address": "0x18F678B6D70"
+			]
 		},
 		{
 			"version": "1.10.0.31",
@@ -679,8 +647,7 @@
 					"lines",
 					"smooth"
 				]
-			],
-			"address": "0x18F678B65F0"
+			]
 		},
 		{
 			"version": "1.10.0.32",
@@ -701,8 +668,7 @@
 					"acacia",
 					"dark_oak"
 				]
-			],
-			"address": "0x18F678B6650"
+			]
 		},
 		{
 			"version": "1.10.0.33",
@@ -723,8 +689,7 @@
 					"acacia",
 					"dark_oak"
 				]
-			],
-			"address": "0x18F678B6530"
+			]
 		},
 		{
 			"version": "1.10.0.34",
@@ -742,8 +707,7 @@
 					"dark",
 					"bricks"
 				]
-			],
-			"address": "0x18F678B6E90"
+			]
 		},
 		{
 			"version": "1.10.0.35",
@@ -756,8 +720,7 @@
 			},
 			"matchFields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B66B0"
+			]
 		},
 		{
 			"version": "1.10.0.36",
@@ -778,8 +741,7 @@
 					"rose",
 					"paeonia"
 				]
-			],
-			"address": "0x18F678B5E10"
+			]
 		},
 		{
 			"version": "1.10.0.37",
@@ -798,8 +760,7 @@
 					"lines",
 					"smooth"
 				]
-			],
-			"address": "0x18F678B6710"
+			]
 		},
 		{
 			"version": "1.10.0.38",
@@ -812,8 +773,7 @@
 			},
 			"matchFields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B5930"
+			]
 		},
 		{
 			"version": "1.10.0.39",
@@ -834,8 +794,7 @@
 					"invalid",
 					"export"
 				]
-			],
-			"address": "0x18F678B5990"
+			]
 		},
 		{
 			"version": "1.10.0.40",
@@ -854,8 +813,7 @@
 					"element_constructor",
 					"lab_table"
 				]
-			],
-			"address": "0x18F678B5A50"
+			]
 		},
 		{
 			"version": "1.10.0.41",
@@ -868,8 +826,7 @@
 			"result": {},
 			"fields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B5AB0"
+			]
 		},
 		{
 			"version": "1.10.0.42",
@@ -889,8 +846,7 @@
 					"red",
 					"yellow"
 				]
-			],
-			"address": "0x18F678B5C30"
+			]
 		},
 		{
 			"version": "1.10.0.43",
@@ -910,8 +866,7 @@
 					"red",
 					"yellow"
 				]
-			],
-			"address": "0x18F678B5CF0"
+			]
 		},
 		{
 			"version": "1.10.0.44",
@@ -931,8 +886,7 @@
 					"red",
 					"yellow"
 				]
-			],
-			"address": "0x18F678B5F30"
+			]
 		},
 		{
 			"version": "1.10.0.45",
@@ -940,12 +894,8 @@
 			"match": {
 				"name": "minecraft:coral_fan_dead"
 			},
-			"result": {
-				"mapped_type": {
-					"unread": 0
-				}
-			},
-			"matchFields": [
+			"result": {},
+			"fields": [
 				"mapped_type"
 			],
 			"remaps": [
@@ -956,8 +906,7 @@
 					"red",
 					"yellow"
 				]
-			],
-			"address": "0x18F678B5F90"
+			]
 		},
 		{
 			"version": "1.10.0.46",
@@ -968,8 +917,7 @@
 			"result": {},
 			"fields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B5FF0"
+			]
 		},
 		{
 			"version": "1.10.0.47",
@@ -980,8 +928,7 @@
 			"result": {},
 			"fields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B56F0"
+			]
 		},
 		{
 			"version": "1.10.0.48",
@@ -992,8 +939,7 @@
 			"result": {},
 			"fields": [
 				"mapped_type"
-			],
-			"address": "0x18F678B5450"
+			]
 		},
 		{
 			"version": "1.10.0.49",
@@ -1011,8 +957,7 @@
 					"double_top",
 					"double_bot"
 				]
-			],
-			"address": "0x18F678B4130"
+			]
 		},
 		{
 			"version": "1.12.0.0",
@@ -1025,8 +970,7 @@
 			},
 			"matchFields": [
 				"direction"
-			],
-			"address": "0x18F67DE5770"
+			]
 		},
 		{
 			"version": "1.12.0.1",
@@ -1039,8 +983,7 @@
 			},
 			"matchFields": [
 				"direction"
-			],
-			"address": "0x18F67DE65B0"
+			]
 		},
 		{
 			"version": "1.13.0.0",
@@ -1063,8 +1006,7 @@
 					"up_east_west",
 					"down_north_south"
 				]
-			],
-			"address": "0x18F67DE67F0"
+			]
 		},
 		{
 			"version": "1.13.0.1",
@@ -1100,8 +1042,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE6730"
+			]
 		},
 		{
 			"version": "1.13.0.2",
@@ -1130,8 +1071,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE5530"
+			]
 		},
 		{
 			"version": "1.13.0.3",
@@ -1149,8 +1089,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE60D0"
+			]
 		},
 		{
 			"version": "1.13.0.4",
@@ -1168,8 +1107,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE5890"
+			]
 		},
 		{
 			"version": "1.13.0.5",
@@ -1187,8 +1125,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE56B0"
+			]
 		},
 		{
 			"version": "1.13.0.6",
@@ -1206,8 +1143,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE5CB0"
+			]
 		},
 		{
 			"version": "1.13.0.7",
@@ -1225,8 +1161,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE5710"
+			]
 		},
 		{
 			"version": "1.13.0.8",
@@ -1244,8 +1179,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE55F0"
+			]
 		},
 		{
 			"version": "1.13.0.9",
@@ -1263,8 +1197,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE5B30"
+			]
 		},
 		{
 			"version": "1.13.0.10",
@@ -1282,8 +1215,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE5A70"
+			]
 		},
 		{
 			"version": "1.13.0.11",
@@ -1301,8 +1233,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE5B90"
+			]
 		},
 		{
 			"version": "1.13.0.12",
@@ -1320,8 +1251,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE57D0"
+			]
 		},
 		{
 			"version": "1.13.0.13",
@@ -1339,8 +1269,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE5830"
+			]
 		},
 		{
 			"version": "1.13.0.14",
@@ -1358,8 +1287,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE6190"
+			]
 		},
 		{
 			"version": "1.13.0.15",
@@ -1377,8 +1305,7 @@
 					"x",
 					"z"
 				]
-			],
-			"address": "0x18F67DE5230"
+			]
 		},
 		{
 			"version": "1.13.0.16",
@@ -1397,8 +1324,7 @@
 				"name"
 			],
 			"produces": "minecraft:light_block",
-			"producesFrom": "code",
-			"address": "0x18F67DE6610"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.13.0.17",
@@ -1411,8 +1337,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DE64F0"
+			]
 		},
 		{
 			"version": "1.13.0.18",
@@ -1425,8 +1350,7 @@
 			"result": {},
 			"fields": [
 				"fill_level"
-			],
-			"address": "0x18F67DE5A10"
+			]
 		},
 		{
 			"version": "1.14.0.0",
@@ -1439,8 +1363,7 @@
 			},
 			"fields": [
 				"weirdo_direction"
-			],
-			"address": "0x18F67DE5950"
+			]
 		},
 		{
 			"version": "1.14.0.1",
@@ -1451,8 +1374,7 @@
 			"result": {},
 			"fields": [
 				"rail_direction"
-			],
-			"address": "0x18F67DE6490"
+			]
 		},
 		{
 			"version": "1.14.0.2",
@@ -1463,8 +1385,7 @@
 			"result": {},
 			"fields": [
 				"rail_direction"
-			],
-			"address": "0x18F67DE63D0"
+			]
 		},
 		{
 			"version": "1.14.0.3",
@@ -1475,8 +1396,7 @@
 			"result": {},
 			"fields": [
 				"rail_direction"
-			],
-			"address": "0x18F67DE66D0"
+			]
 		},
 		{
 			"version": "1.15.0.0",
@@ -1487,8 +1407,7 @@
 			"result": {},
 			"fields": [
 				"age"
-			],
-			"address": "0x18F67DE6550"
+			]
 		},
 		{
 			"version": "1.16.0.0",
@@ -1501,8 +1420,7 @@
 			},
 			"matchFields": [
 				"rotation"
-			],
-			"address": "0x18F67DE5D10"
+			]
 		},
 		{
 			"version": "1.16.0.1",
@@ -1515,8 +1433,7 @@
 				"name"
 			],
 			"produces": "minecraft:soul_fire",
-			"producesFrom": "code",
-			"address": "0x18F67DE6790"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.16.0.2",
@@ -1529,8 +1446,7 @@
 				"name"
 			],
 			"produces": "minecraft:warped_wart_block",
-			"producesFrom": "code",
-			"address": "0x18F67DE5BF0"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.16.0.3",
@@ -1543,8 +1459,7 @@
 				"name"
 			],
 			"produces": "minecraft:shroomlight",
-			"producesFrom": "code",
-			"address": "0x18F67DE5E30"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.16.0.4",
@@ -1557,8 +1472,7 @@
 				"name"
 			],
 			"produces": "minecraft:weeping_vines",
-			"producesFrom": "code",
-			"address": "0x18F67DE54D0"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.16.0.5",
@@ -1571,8 +1485,7 @@
 				"name"
 			],
 			"produces": "minecraft:basalt",
-			"producesFrom": "code",
-			"address": "0x18F67DE5C50"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.16.0.6",
@@ -1585,8 +1498,7 @@
 				"name"
 			],
 			"produces": "minecraft:polished_basalt",
-			"producesFrom": "code",
-			"address": "0x18F67DE5590"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.16.0.7",
@@ -1599,8 +1511,7 @@
 				"name"
 			],
 			"produces": "minecraft:soul_soil",
-			"producesFrom": "code",
-			"address": "0x18F67DE5E90"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.16.0.8",
@@ -1611,8 +1522,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"address": "0x18F67DE5EF0"
+			]
 		},
 		{
 			"version": "1.16.0.9",
@@ -1625,8 +1535,7 @@
 				"name"
 			],
 			"produces": "minecraft:crimson_trapdoor",
-			"producesFrom": "code",
-			"address": "0x18F67DE5F50"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.16.0.10",
@@ -1639,8 +1548,7 @@
 				"name"
 			],
 			"produces": "minecraft:lodestone",
-			"producesFrom": "code",
-			"address": "0x18F67DE6070"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.16.0.11",
@@ -1653,8 +1561,7 @@
 				"name"
 			],
 			"produces": "minecraft:twisting_vines",
-			"producesFrom": "code",
-			"address": "0x18F67DE5FB0"
+			"producesFrom": "code"
 		},
 		{
 			"version": "1.16.0.12",
@@ -1665,8 +1572,7 @@
 			"result": {},
 			"fields": [
 				"wall_block_type"
-			],
-			"address": "0x18F67DE6130"
+			]
 		},
 		{
 			"version": "1.16.0.13",
@@ -1677,8 +1583,7 @@
 			"result": {},
 			"fields": [
 				"wall_block_type"
-			],
-			"address": "0x18F67DE52F0"
+			]
 		},
 		{
 			"version": "1.16.0.14",
@@ -1689,8 +1594,7 @@
 			"result": {},
 			"fields": [
 				"wall_block_type"
-			],
-			"address": "0x18F67DE61F0"
+			]
 		},
 		{
 			"version": "1.16.0.15",
@@ -1703,8 +1607,7 @@
 			},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DE6250"
+			]
 		},
 		{
 			"version": "1.16.0.16",
@@ -1717,8 +1620,7 @@
 			},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DE62B0"
+			]
 		},
 		{
 			"version": "1.16.210.0",
@@ -1729,8 +1631,7 @@
 			"result": {},
 			"fields": [
 				"deprecated"
-			],
-			"address": "0x18F67DE6310"
+			]
 		},
 		{
 			"version": "1.16.210.1",
@@ -1741,8 +1642,7 @@
 			"result": {},
 			"fields": [
 				"deprecated"
-			],
-			"address": "0x18F67DE6370"
+			]
 		},
 		{
 			"version": "1.16.210.2",
@@ -1753,8 +1653,7 @@
 			"result": {},
 			"fields": [
 				"deprecated"
-			],
-			"address": "0x18F67DE6430"
+			]
 		},
 		{
 			"version": "1.16.210.3",
@@ -1765,8 +1664,7 @@
 			"result": {},
 			"fields": [
 				"deprecated"
-			],
-			"address": "0x18F67DE6670"
+			]
 		},
 		{
 			"version": "1.18.0.0",
@@ -1779,8 +1677,7 @@
 			"result": {},
 			"fields": [
 				"multi_face_direction_bits"
-			],
-			"address": "0x18F67DE6850"
+			]
 		},
 		{
 			"version": "1.18.0.1",
@@ -1793,8 +1690,7 @@
 			"result": {},
 			"fields": [
 				"multi_face_direction_bits"
-			],
-			"address": "0x18F67DE5110"
+			]
 		},
 		{
 			"version": "1.18.0.2",
@@ -1807,8 +1703,7 @@
 			"result": {},
 			"fields": [
 				"multi_face_direction_bits"
-			],
-			"address": "0x18F67DE51D0"
+			]
 		},
 		{
 			"version": "1.18.10.0",
@@ -1821,8 +1716,7 @@
 			"result": {},
 			"fields": [
 				"no_drop_bit"
-			],
-			"address": "0x18F67DE5350"
+			]
 		},
 		{
 			"version": "1.18.10.1",
@@ -1835,8 +1729,7 @@
 			"result": {},
 			"fields": [
 				"no_drop_bit"
-			],
-			"address": "0x18F67DE5410"
+			]
 		},
 		{
 			"version": "1.19.70.0",
@@ -1844,8 +1737,7 @@
 			"match": {
 				"name": "minecraft:wool"
 			},
-			"result": {},
-			"address": "0x18F67DE7A50"
+			"result": {}
 		},
 		{
 			"version": "1.19.70.0",
@@ -1860,8 +1752,7 @@
 			],
 			"produces": "minecraft:white_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC8D90"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -1876,8 +1767,7 @@
 			],
 			"produces": "minecraft:orange_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC8250"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -1892,8 +1782,7 @@
 			],
 			"produces": "minecraft:magenta_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC8160"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -1908,8 +1797,7 @@
 			],
 			"produces": "minecraft:light_blue_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC90B0"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -1924,8 +1812,7 @@
 			],
 			"produces": "minecraft:yellow_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC8200"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -1940,8 +1827,7 @@
 			],
 			"produces": "minecraft:lime_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC8340"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -1956,8 +1842,7 @@
 			],
 			"produces": "minecraft:pink_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC81B0"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -1972,8 +1857,7 @@
 			],
 			"produces": "minecraft:gray_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC9DD0"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -1988,8 +1872,7 @@
 			],
 			"produces": "minecraft:light_gray_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DCA050"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -2004,8 +1887,7 @@
 			],
 			"produces": "minecraft:cyan_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC96A0"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -2020,8 +1902,7 @@
 			],
 			"produces": "minecraft:purple_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC85C0"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -2036,8 +1917,7 @@
 			],
 			"produces": "minecraft:blue_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC9B50"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -2052,8 +1932,7 @@
 			],
 			"produces": "minecraft:brown_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DCA410"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -2068,8 +1947,7 @@
 			],
 			"produces": "minecraft:green_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DCA5F0"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -2084,8 +1962,7 @@
 			],
 			"produces": "minecraft:red_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC9B00"
+			"of": 103
 		},
 		{
 			"version": "1.19.70.0",
@@ -2100,8 +1977,7 @@
 			],
 			"produces": "minecraft:black_wool",
 			"producesFrom": "data",
-			"of": "0x18F67DE7A50",
-			"address": "0x18F67DC97E0"
+			"of": 103
 		},
 		{
 			"version": "1.19.80.0",
@@ -2109,8 +1985,7 @@
 			"match": {
 				"name": "minecraft:log"
 			},
-			"result": {},
-			"address": "0x18F67DE7AB0"
+			"result": {}
 		},
 		{
 			"version": "1.19.80.0",
@@ -2125,8 +2000,7 @@
 			],
 			"produces": "minecraft:oak_log",
 			"producesFrom": "data",
-			"of": "0x18F67DE7AB0",
-			"address": "0x18F67DCA0F0"
+			"of": 120
 		},
 		{
 			"version": "1.19.80.0",
@@ -2141,8 +2015,7 @@
 			],
 			"produces": "minecraft:spruce_log",
 			"producesFrom": "data",
-			"of": "0x18F67DE7AB0",
-			"address": "0x18F67DC9BF0"
+			"of": 120
 		},
 		{
 			"version": "1.19.80.0",
@@ -2157,8 +2030,7 @@
 			],
 			"produces": "minecraft:birch_log",
 			"producesFrom": "data",
-			"of": "0x18F67DE7AB0",
-			"address": "0x18F67DC9970"
+			"of": 120
 		},
 		{
 			"version": "1.19.80.0",
@@ -2173,8 +2045,7 @@
 			],
 			"produces": "minecraft:jungle_log",
 			"producesFrom": "data",
-			"of": "0x18F67DE7AB0",
-			"address": "0x18F67DC99C0"
+			"of": 120
 		},
 		{
 			"version": "1.19.80.1",
@@ -2182,8 +2053,7 @@
 			"match": {
 				"name": "minecraft:log2"
 			},
-			"result": {},
-			"address": "0x18F67DE7DB0"
+			"result": {}
 		},
 		{
 			"version": "1.19.80.1",
@@ -2198,8 +2068,7 @@
 			],
 			"produces": "minecraft:acacia_log",
 			"producesFrom": "data",
-			"of": "0x18F67DE7DB0",
-			"address": "0x18F67DC9F10"
+			"of": 125
 		},
 		{
 			"version": "1.19.80.1",
@@ -2214,8 +2083,7 @@
 			],
 			"produces": "minecraft:dark_oak_log",
 			"producesFrom": "data",
-			"of": "0x18F67DE7DB0",
-			"address": "0x18F67DCA820"
+			"of": 125
 		},
 		{
 			"version": "1.19.80.2",
@@ -2223,8 +2091,7 @@
 			"match": {
 				"name": "minecraft:fence"
 			},
-			"result": {},
-			"address": "0x18F67DE76F0"
+			"result": {}
 		},
 		{
 			"version": "1.19.80.2",
@@ -2239,8 +2106,7 @@
 			],
 			"produces": "minecraft:oak_fence",
 			"producesFrom": "data",
-			"of": "0x18F67DE76F0",
-			"address": "0x18F67DCA140"
+			"of": 128
 		},
 		{
 			"version": "1.19.80.2",
@@ -2255,8 +2121,7 @@
 			],
 			"produces": "minecraft:spruce_fence",
 			"producesFrom": "data",
-			"of": "0x18F67DE76F0",
-			"address": "0x18F67DCA000"
+			"of": 128
 		},
 		{
 			"version": "1.19.80.2",
@@ -2271,8 +2136,7 @@
 			],
 			"produces": "minecraft:birch_fence",
 			"producesFrom": "data",
-			"of": "0x18F67DE76F0",
-			"address": "0x18F67DCA500"
+			"of": 128
 		},
 		{
 			"version": "1.19.80.2",
@@ -2287,8 +2151,7 @@
 			],
 			"produces": "minecraft:jungle_fence",
 			"producesFrom": "data",
-			"of": "0x18F67DE76F0",
-			"address": "0x18F67DCA6E0"
+			"of": 128
 		},
 		{
 			"version": "1.19.80.2",
@@ -2303,8 +2166,7 @@
 			],
 			"produces": "minecraft:acacia_fence",
 			"producesFrom": "data",
-			"of": "0x18F67DE76F0",
-			"address": "0x18F67DCA730"
+			"of": 128
 		},
 		{
 			"version": "1.19.80.2",
@@ -2319,8 +2181,7 @@
 			],
 			"produces": "minecraft:dark_oak_fence",
 			"producesFrom": "data",
-			"of": "0x18F67DE76F0",
-			"address": "0x18F67DC9E20"
+			"of": 128
 		},
 		{
 			"version": "1.20.0.0",
@@ -2328,8 +2189,7 @@
 			"match": {
 				"name": "minecraft:coral"
 			},
-			"result": {},
-			"address": "0x18F67DE7B10"
+			"result": {}
 		},
 		{
 			"version": "1.20.0.0",
@@ -2346,8 +2206,7 @@
 			],
 			"produces": "minecraft:tube_coral",
 			"producesFrom": "data",
-			"of": "0x18F67DE7B10",
-			"address": "0x18F67DC9830"
+			"of": 135
 		},
 		{
 			"version": "1.20.0.0",
@@ -2364,8 +2223,7 @@
 			],
 			"produces": "minecraft:brain_coral",
 			"producesFrom": "data",
-			"of": "0x18F67DE7B10",
-			"address": "0x18F67DCA8C0"
+			"of": 135
 		},
 		{
 			"version": "1.20.0.0",
@@ -2382,8 +2240,7 @@
 			],
 			"produces": "minecraft:bubble_coral",
 			"producesFrom": "data",
-			"of": "0x18F67DE7B10",
-			"address": "0x18F67DC9C90"
+			"of": 135
 		},
 		{
 			"version": "1.20.0.0",
@@ -2400,8 +2257,7 @@
 			],
 			"produces": "minecraft:fire_coral",
 			"producesFrom": "data",
-			"of": "0x18F67DE7B10",
-			"address": "0x18F67DCA910"
+			"of": 135
 		},
 		{
 			"version": "1.20.0.0",
@@ -2418,8 +2274,7 @@
 			],
 			"produces": "minecraft:horn_coral",
 			"producesFrom": "data",
-			"of": "0x18F67DE7B10",
-			"address": "0x18F67DC9A60"
+			"of": 135
 		},
 		{
 			"version": "1.20.0.0",
@@ -2436,8 +2291,7 @@
 			],
 			"produces": "minecraft:dead_tube_coral",
 			"producesFrom": "data",
-			"of": "0x18F67DE7B10",
-			"address": "0x18F67DC9880"
+			"of": 135
 		},
 		{
 			"version": "1.20.0.0",
@@ -2454,8 +2308,7 @@
 			],
 			"produces": "minecraft:dead_brain_coral",
 			"producesFrom": "data",
-			"of": "0x18F67DE7B10",
-			"address": "0x18F67DC96F0"
+			"of": 135
 		},
 		{
 			"version": "1.20.0.0",
@@ -2472,8 +2325,7 @@
 			],
 			"produces": "minecraft:dead_bubble_coral",
 			"producesFrom": "data",
-			"of": "0x18F67DE7B10",
-			"address": "0x18F67DCB4A0"
+			"of": 135
 		},
 		{
 			"version": "1.20.0.0",
@@ -2490,8 +2342,7 @@
 			],
 			"produces": "minecraft:dead_fire_coral",
 			"producesFrom": "data",
-			"of": "0x18F67DE7B10",
-			"address": "0x18F67DCAA50"
+			"of": 135
 		},
 		{
 			"version": "1.20.0.0",
@@ -2508,8 +2359,7 @@
 			],
 			"produces": "minecraft:dead_horn_coral",
 			"producesFrom": "data",
-			"of": "0x18F67DE7B10",
-			"address": "0x18F67DCB7C0"
+			"of": 135
 		},
 		{
 			"version": "1.20.0.1",
@@ -2520,8 +2370,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"address": "0x18F67DE7870"
+			]
 		},
 		{
 			"version": "1.20.0.2",
@@ -2536,8 +2385,7 @@
 			},
 			"matchFields": [
 				"direction"
-			],
-			"address": "0x18F67DE73F0"
+			]
 		},
 		{
 			"version": "1.20.0.3",
@@ -2552,8 +2400,7 @@
 			},
 			"matchFields": [
 				"direction"
-			],
-			"address": "0x18F67DE7090"
+			]
 		},
 		{
 			"version": "1.20.0.4",
@@ -2568,8 +2415,7 @@
 			},
 			"matchFields": [
 				"direction"
-			],
-			"address": "0x18F67DE8050"
+			]
 		},
 		{
 			"version": "1.20.0.5",
@@ -2577,8 +2423,7 @@
 			"match": {
 				"name": "minecraft:carpet"
 			},
-			"result": {},
-			"address": "0x18F67DE7F90"
+			"result": {}
 		},
 		{
 			"version": "1.20.0.5",
@@ -2593,8 +2438,7 @@
 			],
 			"produces": "minecraft:white_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCB180"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2609,8 +2453,7 @@
 			],
 			"produces": "minecraft:orange_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCAF00"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2625,8 +2468,7 @@
 			],
 			"produces": "minecraft:magenta_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCAFF0"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2641,8 +2483,7 @@
 			],
 			"produces": "minecraft:light_blue_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCB4F0"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2657,8 +2498,7 @@
 			],
 			"produces": "minecraft:yellow_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCBB80"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2673,8 +2513,7 @@
 			],
 			"produces": "minecraft:lime_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCB6D0"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2689,8 +2528,7 @@
 			],
 			"produces": "minecraft:pink_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCB1D0"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2705,8 +2543,7 @@
 			],
 			"produces": "minecraft:gray_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCAAF0"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2721,8 +2558,7 @@
 			],
 			"produces": "minecraft:light_gray_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCAC80"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2737,8 +2573,7 @@
 			],
 			"produces": "minecraft:cyan_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCB310"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2753,8 +2588,7 @@
 			],
 			"produces": "minecraft:purple_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCAB40"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2769,8 +2603,7 @@
 			],
 			"produces": "minecraft:blue_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCAEB0"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2785,8 +2618,7 @@
 			],
 			"produces": "minecraft:brown_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCA9B0"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2801,8 +2633,7 @@
 			],
 			"produces": "minecraft:green_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCB720"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2817,8 +2648,7 @@
 			],
 			"produces": "minecraft:red_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCAD70"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.5",
@@ -2833,8 +2663,7 @@
 			],
 			"produces": "minecraft:black_carpet",
 			"producesFrom": "data",
-			"of": "0x18F67DE7F90",
-			"address": "0x18F67DCB220"
+			"of": 150
 		},
 		{
 			"version": "1.20.0.6",
@@ -2847,8 +2676,7 @@
 			"result": {},
 			"fields": [
 				"powered_bit"
-			],
-			"address": "0x18F67DE7C90"
+			]
 		},
 		{
 			"version": "1.20.0.7",
@@ -2861,8 +2689,7 @@
 			"result": {},
 			"fields": [
 				"minecraft:cardinal_direction"
-			],
-			"address": "0x18F67DE7E10"
+			]
 		},
 		{
 			"version": "1.20.0.8",
@@ -2875,8 +2702,7 @@
 			"result": {},
 			"fields": [
 				"minecraft:cardinal_direction"
-			],
-			"address": "0x18F67DE78D0"
+			]
 		},
 		{
 			"version": "1.20.0.9",
@@ -2889,8 +2715,7 @@
 			"result": {},
 			"fields": [
 				"minecraft:cardinal_direction"
-			],
-			"address": "0x18F67DE6BB0"
+			]
 		},
 		{
 			"version": "1.20.10.0",
@@ -2898,8 +2723,7 @@
 			"match": {
 				"name": "minecraft:shulker_box"
 			},
-			"result": {},
-			"address": "0x18F67DE6C10"
+			"result": {}
 		},
 		{
 			"version": "1.20.10.0",
@@ -2914,8 +2738,7 @@
 			],
 			"produces": "minecraft:white_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCAE10"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -2930,8 +2753,7 @@
 			],
 			"produces": "minecraft:orange_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCB0E0"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -2946,8 +2768,7 @@
 			],
 			"produces": "minecraft:magenta_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCAA00"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -2962,8 +2783,7 @@
 			],
 			"produces": "minecraft:light_blue_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCB400"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -2978,8 +2798,7 @@
 			],
 			"produces": "minecraft:yellow_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCB770"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -2994,8 +2813,7 @@
 			],
 			"produces": "minecraft:lime_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCBC20"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -3010,8 +2828,7 @@
 			],
 			"produces": "minecraft:pink_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCB8B0"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -3026,8 +2843,7 @@
 			],
 			"produces": "minecraft:gray_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCBC70"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -3042,8 +2858,7 @@
 			],
 			"produces": "minecraft:light_gray_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCC4E0"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -3058,8 +2873,7 @@
 			],
 			"produces": "minecraft:cyan_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCD0C0"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -3074,8 +2888,7 @@
 			],
 			"produces": "minecraft:purple_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCB9A0"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -3090,8 +2903,7 @@
 			],
 			"produces": "minecraft:blue_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCCB20"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -3106,8 +2918,7 @@
 			],
 			"produces": "minecraft:brown_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCCB70"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -3122,8 +2933,7 @@
 			],
 			"produces": "minecraft:green_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCBFE0"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -3138,8 +2948,7 @@
 			],
 			"produces": "minecraft:red_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCD070"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.0",
@@ -3154,8 +2963,7 @@
 			],
 			"produces": "minecraft:black_shulker_box",
 			"producesFrom": "data",
-			"of": "0x18F67DE6C10",
-			"address": "0x18F67DCCFD0"
+			"of": 171
 		},
 		{
 			"version": "1.20.10.1",
@@ -3163,8 +2971,7 @@
 			"match": {
 				"name": "minecraft:concrete"
 			},
-			"result": {},
-			"address": "0x18F67DE79F0"
+			"result": {}
 		},
 		{
 			"version": "1.20.10.1",
@@ -3179,8 +2986,7 @@
 			],
 			"produces": "minecraft:white_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCC670"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3195,8 +3001,7 @@
 			],
 			"produces": "minecraft:orange_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCC080"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3211,8 +3016,7 @@
 			],
 			"produces": "minecraft:magenta_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCC3A0"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3227,8 +3031,7 @@
 			],
 			"produces": "minecraft:light_blue_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCCCB0"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3243,8 +3046,7 @@
 			],
 			"produces": "minecraft:yellow_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCD110"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3259,8 +3061,7 @@
 			],
 			"produces": "minecraft:lime_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCC030"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3275,8 +3076,7 @@
 			],
 			"produces": "minecraft:pink_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCCC60"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3291,8 +3091,7 @@
 			],
 			"produces": "minecraft:gray_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCC300"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3307,8 +3106,7 @@
 			],
 			"produces": "minecraft:light_gray_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCBDB0"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3323,8 +3121,7 @@
 			],
 			"produces": "minecraft:cyan_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCC800"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3339,8 +3136,7 @@
 			],
 			"produces": "minecraft:purple_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCC1C0"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3355,8 +3151,7 @@
 			],
 			"produces": "minecraft:blue_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCC170"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3371,8 +3166,7 @@
 			],
 			"produces": "minecraft:brown_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCC350"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3387,8 +3181,7 @@
 			],
 			"produces": "minecraft:green_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCCD00"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3403,8 +3196,7 @@
 			],
 			"produces": "minecraft:red_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCCDA0"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.1",
@@ -3419,8 +3211,7 @@
 			],
 			"produces": "minecraft:black_concrete",
 			"producesFrom": "data",
-			"of": "0x18F67DE79F0",
-			"address": "0x18F67DCC490"
+			"of": 188
 		},
 		{
 			"version": "1.20.10.2",
@@ -3433,8 +3224,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DE7D50"
+			]
 		},
 		{
 			"version": "1.20.20.0",
@@ -3453,8 +3243,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE7270"
+			]
 		},
 		{
 			"version": "1.20.20.1",
@@ -3473,8 +3262,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE7F30"
+			]
 		},
 		{
 			"version": "1.20.20.2",
@@ -3493,8 +3281,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE6C70"
+			]
 		},
 		{
 			"version": "1.20.20.3",
@@ -3513,8 +3300,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE6D30"
+			]
 		},
 		{
 			"version": "1.20.20.4",
@@ -3533,8 +3319,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE70F0"
+			]
 		},
 		{
 			"version": "1.20.20.5",
@@ -3553,8 +3338,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE6D90"
+			]
 		},
 		{
 			"version": "1.20.20.6",
@@ -3573,8 +3357,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE6AF0"
+			]
 		},
 		{
 			"version": "1.20.20.7",
@@ -3593,8 +3376,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE6910"
+			]
 		},
 		{
 			"version": "1.20.20.8",
@@ -3613,8 +3395,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE7150"
+			]
 		},
 		{
 			"version": "1.20.20.9",
@@ -3633,8 +3414,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE7B70"
+			]
 		},
 		{
 			"version": "1.20.20.10",
@@ -3653,8 +3433,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE6970"
+			]
 		},
 		{
 			"version": "1.20.20.11",
@@ -3673,8 +3452,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE72D0"
+			]
 		},
 		{
 			"version": "1.20.20.12",
@@ -3693,8 +3471,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE69D0"
+			]
 		},
 		{
 			"version": "1.20.20.13",
@@ -3713,8 +3490,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE7BD0"
+			]
 		},
 		{
 			"version": "1.20.20.14",
@@ -3733,8 +3509,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE6B50"
+			]
 		},
 		{
 			"version": "1.20.20.15",
@@ -3753,8 +3528,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE77B0"
+			]
 		},
 		{
 			"version": "1.20.20.16",
@@ -3773,8 +3547,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE6FD0"
+			]
 		},
 		{
 			"version": "1.20.20.17",
@@ -3793,8 +3566,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE7450"
+			]
 		},
 		{
 			"version": "1.20.20.18",
@@ -3813,8 +3585,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE75D0"
+			]
 		},
 		{
 			"version": "1.20.20.19",
@@ -3833,8 +3604,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8AD0"
+			]
 		},
 		{
 			"version": "1.20.20.20",
@@ -3853,8 +3623,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE83B0"
+			]
 		},
 		{
 			"version": "1.20.20.21",
@@ -3873,8 +3642,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE9730"
+			]
 		},
 		{
 			"version": "1.20.20.22",
@@ -3893,8 +3661,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE93D0"
+			]
 		},
 		{
 			"version": "1.20.20.23",
@@ -3913,8 +3680,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8A70"
+			]
 		},
 		{
 			"version": "1.20.20.24",
@@ -3933,8 +3699,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8DD0"
+			]
 		},
 		{
 			"version": "1.20.20.25",
@@ -3953,8 +3718,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE97F0"
+			]
 		},
 		{
 			"version": "1.20.20.26",
@@ -3973,8 +3737,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8530"
+			]
 		},
 		{
 			"version": "1.20.20.27",
@@ -3993,8 +3756,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE9130"
+			]
 		},
 		{
 			"version": "1.20.20.28",
@@ -4013,8 +3775,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8A10"
+			]
 		},
 		{
 			"version": "1.20.20.29",
@@ -4033,8 +3794,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8590"
+			]
 		},
 		{
 			"version": "1.20.20.30",
@@ -4053,8 +3813,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8EF0"
+			]
 		},
 		{
 			"version": "1.20.20.31",
@@ -4073,8 +3832,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE85F0"
+			]
 		},
 		{
 			"version": "1.20.20.32",
@@ -4093,8 +3851,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8230"
+			]
 		},
 		{
 			"version": "1.20.20.33",
@@ -4113,8 +3870,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE9430"
+			]
 		},
 		{
 			"version": "1.20.20.34",
@@ -4133,8 +3889,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8410"
+			]
 		},
 		{
 			"version": "1.20.20.35",
@@ -4153,8 +3908,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8650"
+			]
 		},
 		{
 			"version": "1.20.20.36",
@@ -4173,8 +3927,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8B30"
+			]
 		},
 		{
 			"version": "1.20.20.37",
@@ -4193,8 +3946,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8FB0"
+			]
 		},
 		{
 			"version": "1.20.20.38",
@@ -4213,8 +3965,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8B90"
+			]
 		},
 		{
 			"version": "1.20.20.39",
@@ -4233,8 +3984,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8BF0"
+			]
 		},
 		{
 			"version": "1.20.20.40",
@@ -4253,8 +4003,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE92B0"
+			]
 		},
 		{
 			"version": "1.20.20.41",
@@ -4273,8 +4022,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE96D0"
+			]
 		},
 		{
 			"version": "1.20.20.42",
@@ -4293,8 +4041,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE9070"
+			]
 		},
 		{
 			"version": "1.20.20.43",
@@ -4313,8 +4060,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE90D0"
+			]
 		},
 		{
 			"version": "1.20.20.44",
@@ -4333,8 +4079,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE9310"
+			]
 		},
 		{
 			"version": "1.20.20.45",
@@ -4353,8 +4098,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE9190"
+			]
 		},
 		{
 			"version": "1.20.20.46",
@@ -4362,9 +4106,6 @@
 			"match": {
 				"name": {
 					"pattern": "minecraft:mangrove_slab"
-				},
-				"states": {
-					"unread": 0
 				}
 			},
 			"result": {},
@@ -4376,8 +4117,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8770"
+			]
 		},
 		{
 			"version": "1.20.20.47",
@@ -4396,8 +4136,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE9550"
+			]
 		},
 		{
 			"version": "1.20.20.48",
@@ -4416,8 +4155,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE9610"
+			]
 		},
 		{
 			"version": "1.20.20.49",
@@ -4436,8 +4174,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE81D0"
+			]
 		},
 		{
 			"version": "1.20.20.50",
@@ -4456,8 +4193,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE8290"
+			]
 		},
 		{
 			"version": "1.20.20.51",
@@ -4476,8 +4212,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DEAAB0"
+			]
 		},
 		{
 			"version": "1.20.20.52",
@@ -4496,8 +4231,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DEA8D0"
+			]
 		},
 		{
 			"version": "1.20.20.53",
@@ -4516,8 +4250,7 @@
 					"bottom",
 					"top"
 				]
-			],
-			"address": "0x18F67DE9CD0"
+			]
 		},
 		{
 			"version": "1.20.20.54",
@@ -4530,8 +4263,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DEA810"
+			]
 		},
 		{
 			"version": "1.20.20.55",
@@ -4544,8 +4276,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DEACF0"
+			]
 		},
 		{
 			"version": "1.20.20.56",
@@ -4558,8 +4289,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DEA210"
+			]
 		},
 		{
 			"version": "1.20.20.57",
@@ -4572,8 +4302,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DE9D30"
+			]
 		},
 		{
 			"version": "1.20.20.58",
@@ -4581,8 +4310,7 @@
 			"match": {
 				"name": "minecraft:stained_glass"
 			},
-			"result": {},
-			"address": "0x18F67DEA870"
+			"result": {}
 		},
 		{
 			"version": "1.20.20.58",
@@ -4597,8 +4325,7 @@
 			],
 			"produces": "minecraft:white_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCC850"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4613,8 +4340,7 @@
 			],
 			"produces": "minecraft:orange_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCCD50"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4629,8 +4355,7 @@
 			],
 			"produces": "minecraft:magenta_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCC8A0"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4645,8 +4370,7 @@
 			],
 			"produces": "minecraft:light_blue_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCCE90"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4661,8 +4385,7 @@
 			],
 			"produces": "minecraft:yellow_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCC9E0"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4677,8 +4400,7 @@
 			],
 			"produces": "minecraft:lime_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCCF80"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4693,8 +4415,7 @@
 			],
 			"produces": "minecraft:pink_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCDF70"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4709,8 +4430,7 @@
 			],
 			"produces": "minecraft:gray_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCDDE0"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4725,8 +4445,7 @@
 			],
 			"produces": "minecraft:light_gray_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCD7F0"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4741,8 +4460,7 @@
 			],
 			"produces": "minecraft:cyan_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCD7A0"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4757,8 +4475,7 @@
 			],
 			"produces": "minecraft:purple_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCDC50"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4773,8 +4490,7 @@
 			],
 			"produces": "minecraft:blue_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCD9D0"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4789,8 +4505,7 @@
 			],
 			"produces": "minecraft:brown_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCDCA0"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4805,8 +4520,7 @@
 			],
 			"produces": "minecraft:green_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCD2A0"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4821,8 +4535,7 @@
 			],
 			"produces": "minecraft:red_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCDD90"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.58",
@@ -4837,8 +4550,7 @@
 			],
 			"produces": "minecraft:black_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEA870",
-			"address": "0x18F67DCD750"
+			"of": 264
 		},
 		{
 			"version": "1.20.20.59",
@@ -4846,8 +4558,7 @@
 			"match": {
 				"name": "minecraft:stained_glass_pane"
 			},
-			"result": {},
-			"address": "0x18F67DEA4B0"
+			"result": {}
 		},
 		{
 			"version": "1.20.20.59",
@@ -4862,8 +4573,7 @@
 			],
 			"produces": "minecraft:white_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCE420"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -4878,8 +4588,7 @@
 			],
 			"produces": "minecraft:orange_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCE3D0"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -4894,8 +4603,7 @@
 			],
 			"produces": "minecraft:magenta_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCD1B0"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -4910,8 +4618,7 @@
 			],
 			"produces": "minecraft:light_blue_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCD2F0"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -4926,8 +4633,7 @@
 			],
 			"produces": "minecraft:yellow_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCD200"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -4942,8 +4648,7 @@
 			],
 			"produces": "minecraft:lime_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCE2E0"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -4958,8 +4663,7 @@
 			],
 			"produces": "minecraft:pink_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCDA20"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -4974,8 +4678,7 @@
 			],
 			"produces": "minecraft:gray_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCD480"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -4990,8 +4693,7 @@
 			],
 			"produces": "minecraft:light_gray_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCD840"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -5006,8 +4708,7 @@
 			],
 			"produces": "minecraft:cyan_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCD340"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -5022,8 +4723,7 @@
 			],
 			"produces": "minecraft:purple_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCDA70"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -5038,8 +4738,7 @@
 			],
 			"produces": "minecraft:blue_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCE150"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -5054,8 +4753,7 @@
 			],
 			"produces": "minecraft:brown_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCE060"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -5070,8 +4768,7 @@
 			],
 			"produces": "minecraft:green_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCE1F0"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -5086,8 +4783,7 @@
 			],
 			"produces": "minecraft:red_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCE240"
+			"of": 281
 		},
 		{
 			"version": "1.20.20.59",
@@ -5102,8 +4798,7 @@
 			],
 			"produces": "minecraft:black_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEA4B0",
-			"address": "0x18F67DCE330"
+			"of": 281
 		},
 		{
 			"version": "1.20.30.0",
@@ -5116,8 +4811,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEA1B0"
+			]
 		},
 		{
 			"version": "1.20.30.1",
@@ -5130,8 +4824,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEA150"
+			]
 		},
 		{
 			"version": "1.20.30.2",
@@ -5144,8 +4837,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DE99D0"
+			]
 		},
 		{
 			"version": "1.20.30.3",
@@ -5158,8 +4850,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEAB10"
+			]
 		},
 		{
 			"version": "1.20.30.4",
@@ -5172,8 +4863,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEB050"
+			]
 		},
 		{
 			"version": "1.20.30.5",
@@ -5186,8 +4876,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEA330"
+			]
 		},
 		{
 			"version": "1.20.30.6",
@@ -5200,8 +4889,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DE9DF0"
+			]
 		},
 		{
 			"version": "1.20.30.7",
@@ -5214,8 +4902,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEADB0"
+			]
 		},
 		{
 			"version": "1.20.30.8",
@@ -5228,8 +4915,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEAB70"
+			]
 		},
 		{
 			"version": "1.20.30.9",
@@ -5242,8 +4928,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DE9E50"
+			]
 		},
 		{
 			"version": "1.20.30.10",
@@ -5256,8 +4941,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEA450"
+			]
 		},
 		{
 			"version": "1.20.30.11",
@@ -5270,8 +4954,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DE9EB0"
+			]
 		},
 		{
 			"version": "1.20.30.12",
@@ -5284,8 +4967,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEABD0"
+			]
 		},
 		{
 			"version": "1.20.30.13",
@@ -5298,8 +4980,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DE9AF0"
+			]
 		},
 		{
 			"version": "1.20.30.14",
@@ -5312,8 +4993,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DE9F10"
+			]
 		},
 		{
 			"version": "1.20.30.15",
@@ -5326,8 +5006,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DE9BB0"
+			]
 		},
 		{
 			"version": "1.20.30.16",
@@ -5340,8 +5019,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DEA690"
+			]
 		},
 		{
 			"version": "1.20.30.17",
@@ -5354,8 +5032,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DEA750"
+			]
 		},
 		{
 			"version": "1.20.30.18",
@@ -5368,8 +5045,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DEAD50"
+			]
 		},
 		{
 			"version": "1.20.30.19",
@@ -5377,8 +5053,7 @@
 			"match": {
 				"name": "minecraft:concrete_powder"
 			},
-			"result": {},
-			"address": "0x18F67DEAED0"
+			"result": {}
 		},
 		{
 			"version": "1.20.30.19",
@@ -5393,8 +5068,7 @@
 			],
 			"produces": "minecraft:white_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCD3E0"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5409,8 +5083,7 @@
 			],
 			"produces": "minecraft:orange_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCD430"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5425,8 +5098,7 @@
 			],
 			"produces": "minecraft:magenta_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCD4D0"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5441,8 +5113,7 @@
 			],
 			"produces": "minecraft:light_blue_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCD610"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5457,8 +5128,7 @@
 			],
 			"produces": "minecraft:yellow_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCEC90"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5473,8 +5143,7 @@
 			],
 			"produces": "minecraft:lime_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCE970"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5489,8 +5158,7 @@
 			],
 			"produces": "minecraft:pink_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCEB50"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5505,8 +5173,7 @@
 			],
 			"produces": "minecraft:gray_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCF5A0"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5521,8 +5188,7 @@
 			],
 			"produces": "minecraft:light_gray_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCE6F0"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5537,8 +5203,7 @@
 			],
 			"produces": "minecraft:cyan_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCED30"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5553,8 +5218,7 @@
 			],
 			"produces": "minecraft:purple_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCF500"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5569,8 +5233,7 @@
 			],
 			"produces": "minecraft:blue_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCEC40"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5585,8 +5248,7 @@
 			],
 			"produces": "minecraft:brown_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCE740"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5601,8 +5263,7 @@
 			],
 			"produces": "minecraft:green_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCEF10"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5617,8 +5278,7 @@
 			],
 			"produces": "minecraft:red_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCE920"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.19",
@@ -5633,8 +5293,7 @@
 			],
 			"produces": "minecraft:black_concrete_powder",
 			"producesFrom": "data",
-			"of": "0x18F67DEAED0",
-			"address": "0x18F67DCF910"
+			"of": 317
 		},
 		{
 			"version": "1.20.30.20",
@@ -5642,8 +5301,7 @@
 			"match": {
 				"name": "minecraft:stained_hardened_clay"
 			},
-			"result": {},
-			"address": "0x18F67DEB0B0"
+			"result": {}
 		},
 		{
 			"version": "1.20.30.20",
@@ -5658,8 +5316,7 @@
 			],
 			"produces": "minecraft:white_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCF5F0"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5674,8 +5331,7 @@
 			],
 			"produces": "minecraft:orange_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCF370"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5690,8 +5346,7 @@
 			],
 			"produces": "minecraft:magenta_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCE9C0"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5706,8 +5361,7 @@
 			],
 			"produces": "minecraft:light_blue_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCF690"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5722,8 +5376,7 @@
 			],
 			"produces": "minecraft:yellow_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCF000"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5738,8 +5391,7 @@
 			],
 			"produces": "minecraft:lime_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCEBF0"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5754,8 +5406,7 @@
 			],
 			"produces": "minecraft:pink_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCF6E0"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5770,8 +5421,7 @@
 			],
 			"produces": "minecraft:gray_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCF280"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5786,8 +5436,7 @@
 			],
 			"produces": "minecraft:light_gray_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCF230"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5802,8 +5451,7 @@
 			],
 			"produces": "minecraft:cyan_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCE830"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5818,8 +5466,7 @@
 			],
 			"produces": "minecraft:purple_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCF870"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5834,8 +5481,7 @@
 			],
 			"produces": "minecraft:blue_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCF0A0"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5850,8 +5496,7 @@
 			],
 			"produces": "minecraft:brown_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCEE20"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5866,8 +5511,7 @@
 			],
 			"produces": "minecraft:green_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCEB00"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5882,8 +5526,7 @@
 			],
 			"produces": "minecraft:red_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCEEC0"
+			"of": 334
 		},
 		{
 			"version": "1.20.30.20",
@@ -5898,8 +5541,7 @@
 			],
 			"produces": "minecraft:black_terracotta",
 			"producesFrom": "data",
-			"of": "0x18F67DEB0B0",
-			"address": "0x18F67DCF0F0"
+			"of": 334
 		},
 		{
 			"version": "1.20.40.0",
@@ -5912,8 +5554,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DEAE70"
+			]
 		},
 		{
 			"version": "1.20.40.1",
@@ -5926,8 +5567,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DEAF90"
+			]
 		},
 		{
 			"version": "1.20.40.2",
@@ -5940,8 +5580,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DE9970"
+			]
 		},
 		{
 			"version": "1.20.40.3",
@@ -5954,8 +5593,7 @@
 			"result": {},
 			"fields": [
 				"facing_direction"
-			],
-			"address": "0x18F67DE9C10"
+			]
 		},
 		{
 			"version": "1.20.50.0",
@@ -5963,8 +5601,7 @@
 			"match": {
 				"name": "minecraft:stone"
 			},
-			"result": {},
-			"address": "0x18F67DEC790"
+			"result": {}
 		},
 		{
 			"version": "1.20.50.0",
@@ -5979,8 +5616,7 @@
 			],
 			"produces": "minecraft:stone",
 			"producesFrom": "data",
-			"of": "0x18F67DEC790",
-			"address": "0x18F67DCF460"
+			"of": 355
 		},
 		{
 			"version": "1.20.50.0",
@@ -5995,8 +5631,7 @@
 			],
 			"produces": "minecraft:granite",
 			"producesFrom": "data",
-			"of": "0x18F67DEC790",
-			"address": "0x18F67DD03B0"
+			"of": 355
 		},
 		{
 			"version": "1.20.50.0",
@@ -6011,8 +5646,7 @@
 			],
 			"produces": "minecraft:polished_granite",
 			"producesFrom": "data",
-			"of": "0x18F67DEC790",
-			"address": "0x18F67DD0310"
+			"of": 355
 		},
 		{
 			"version": "1.20.50.0",
@@ -6027,8 +5661,7 @@
 			],
 			"produces": "minecraft:diorite",
 			"producesFrom": "data",
-			"of": "0x18F67DEC790",
-			"address": "0x18F67DCFAF0"
+			"of": 355
 		},
 		{
 			"version": "1.20.50.0",
@@ -6043,8 +5676,7 @@
 			],
 			"produces": "minecraft:polished_diorite",
 			"producesFrom": "data",
-			"of": "0x18F67DEC790",
-			"address": "0x18F67DD0400"
+			"of": 355
 		},
 		{
 			"version": "1.20.50.0",
@@ -6059,8 +5691,7 @@
 			],
 			"produces": "minecraft:andesite",
 			"producesFrom": "data",
-			"of": "0x18F67DEC790",
-			"address": "0x18F67DCFD20"
+			"of": 355
 		},
 		{
 			"version": "1.20.50.0",
@@ -6075,8 +5706,7 @@
 			],
 			"produces": "minecraft:polished_andesite",
 			"producesFrom": "data",
-			"of": "0x18F67DEC790",
-			"address": "0x18F67DD0C70"
+			"of": 355
 		},
 		{
 			"version": "1.20.50.1",
@@ -6084,8 +5714,7 @@
 			"match": {
 				"name": "minecraft:planks"
 			},
-			"result": {},
-			"address": "0x18F67DEC070"
+			"result": {}
 		},
 		{
 			"version": "1.20.50.1",
@@ -6100,8 +5729,7 @@
 			],
 			"produces": "minecraft:oak_planks",
 			"producesFrom": "data",
-			"of": "0x18F67DEC070",
-			"address": "0x18F67DCFFF0"
+			"of": 363
 		},
 		{
 			"version": "1.20.50.1",
@@ -6116,8 +5744,7 @@
 			],
 			"produces": "minecraft:spruce_planks",
 			"producesFrom": "data",
-			"of": "0x18F67DEC070",
-			"address": "0x18F67DCFC80"
+			"of": 363
 		},
 		{
 			"version": "1.20.50.1",
@@ -6132,8 +5759,7 @@
 			],
 			"produces": "minecraft:birch_planks",
 			"producesFrom": "data",
-			"of": "0x18F67DEC070",
-			"address": "0x18F67DD00E0"
+			"of": 363
 		},
 		{
 			"version": "1.20.50.1",
@@ -6148,8 +5774,7 @@
 			],
 			"produces": "minecraft:jungle_planks",
 			"producesFrom": "data",
-			"of": "0x18F67DEC070",
-			"address": "0x18F67DCFDC0"
+			"of": 363
 		},
 		{
 			"version": "1.20.50.1",
@@ -6164,8 +5789,7 @@
 			],
 			"produces": "minecraft:acacia_planks",
 			"producesFrom": "data",
-			"of": "0x18F67DEC070",
-			"address": "0x18F67DD0770"
+			"of": 363
 		},
 		{
 			"version": "1.20.50.1",
@@ -6180,8 +5804,7 @@
 			],
 			"produces": "minecraft:dark_oak_planks",
 			"producesFrom": "data",
-			"of": "0x18F67DEC070",
-			"address": "0x18F67DD09A0"
+			"of": 363
 		},
 		{
 			"version": "1.20.60.0",
@@ -6189,8 +5812,7 @@
 			"match": {
 				"name": "minecraft:hard_stained_glass"
 			},
-			"result": {},
-			"address": "0x18F67DEBA70"
+			"result": {}
 		},
 		{
 			"version": "1.20.60.0",
@@ -6205,8 +5827,7 @@
 			],
 			"produces": "minecraft:hard_white_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DCFF50"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6221,8 +5842,7 @@
 			],
 			"produces": "minecraft:hard_orange_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD0810"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6237,8 +5857,7 @@
 			],
 			"produces": "minecraft:hard_magenta_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DCF960"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6253,8 +5872,7 @@
 			],
 			"produces": "minecraft:hard_light_blue_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD0680"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6269,8 +5887,7 @@
 			],
 			"produces": "minecraft:hard_yellow_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD09F0"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6285,8 +5902,7 @@
 			],
 			"produces": "minecraft:hard_lime_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD0220"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6301,8 +5917,7 @@
 			],
 			"produces": "minecraft:hard_pink_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD0270"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6317,8 +5932,7 @@
 			],
 			"produces": "minecraft:hard_gray_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DCF9B0"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6333,8 +5947,7 @@
 			],
 			"produces": "minecraft:hard_light_gray_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD0360"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6349,8 +5962,7 @@
 			],
 			"produces": "minecraft:hard_cyan_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD06D0"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6365,8 +5977,7 @@
 			],
 			"produces": "minecraft:hard_purple_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD0450"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6381,8 +5992,7 @@
 			],
 			"produces": "minecraft:hard_blue_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD04F0"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6397,8 +6007,7 @@
 			],
 			"produces": "minecraft:hard_brown_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD0A40"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6413,8 +6022,7 @@
 			],
 			"produces": "minecraft:hard_green_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD0720"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6429,8 +6037,7 @@
 			],
 			"produces": "minecraft:hard_red_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD08B0"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.0",
@@ -6445,8 +6052,7 @@
 			],
 			"produces": "minecraft:hard_black_stained_glass",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA70",
-			"address": "0x18F67DD0A90"
+			"of": 370
 		},
 		{
 			"version": "1.20.60.1",
@@ -6454,8 +6060,7 @@
 			"match": {
 				"name": "minecraft:hard_stained_glass_pane"
 			},
-			"result": {},
-			"address": "0x18F67DEB290"
+			"result": {}
 		},
 		{
 			"version": "1.20.60.1",
@@ -6470,8 +6075,7 @@
 			],
 			"produces": "minecraft:hard_white_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD1850"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6486,8 +6090,7 @@
 			],
 			"produces": "minecraft:hard_orange_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD14E0"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6502,8 +6105,7 @@
 			],
 			"produces": "minecraft:hard_magenta_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD17B0"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6518,8 +6120,7 @@
 			],
 			"produces": "minecraft:hard_light_blue_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD1A80"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6534,8 +6135,7 @@
 			],
 			"produces": "minecraft:hard_yellow_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD1B20"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6550,8 +6150,7 @@
 			],
 			"produces": "minecraft:hard_lime_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD1AD0"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6566,8 +6165,7 @@
 			],
 			"produces": "minecraft:hard_pink_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD1C60"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6582,8 +6180,7 @@
 			],
 			"produces": "minecraft:hard_gray_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD1120"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6598,8 +6195,7 @@
 			],
 			"produces": "minecraft:hard_light_gray_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD13A0"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6614,8 +6210,7 @@
 			],
 			"produces": "minecraft:hard_cyan_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD0D60"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6630,8 +6225,7 @@
 			],
 			"produces": "minecraft:hard_purple_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD2110"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6646,8 +6240,7 @@
 			],
 			"produces": "minecraft:hard_blue_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD18F0"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6662,8 +6255,7 @@
 			],
 			"produces": "minecraft:hard_brown_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD1530"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6678,8 +6270,7 @@
 			],
 			"produces": "minecraft:hard_green_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD1080"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6694,8 +6285,7 @@
 			],
 			"produces": "minecraft:hard_red_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD1760"
+			"of": 387
 		},
 		{
 			"version": "1.20.60.1",
@@ -6710,8 +6300,7 @@
 			],
 			"produces": "minecraft:hard_black_stained_glass_pane",
 			"producesFrom": "data",
-			"of": "0x18F67DEB290",
-			"address": "0x18F67DD1210"
+			"of": 387
 		},
 		{
 			"version": "1.20.70.0",
@@ -6719,8 +6308,7 @@
 			"match": {
 				"name": "minecraft:wooden_slab"
 			},
-			"result": {},
-			"address": "0x18F67DEB830"
+			"result": {}
 		},
 		{
 			"version": "1.20.70.0",
@@ -6735,8 +6323,7 @@
 			],
 			"produces": "minecraft:oak_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB830",
-			"address": "0x18F67DD1BC0"
+			"of": 404
 		},
 		{
 			"version": "1.20.70.0",
@@ -6751,8 +6338,7 @@
 			],
 			"produces": "minecraft:spruce_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB830",
-			"address": "0x18F67DD1DF0"
+			"of": 404
 		},
 		{
 			"version": "1.20.70.0",
@@ -6767,8 +6353,7 @@
 			],
 			"produces": "minecraft:birch_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB830",
-			"address": "0x18F67DD15D0"
+			"of": 404
 		},
 		{
 			"version": "1.20.70.0",
@@ -6783,8 +6368,7 @@
 			],
 			"produces": "minecraft:jungle_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB830",
-			"address": "0x18F67DD12B0"
+			"of": 404
 		},
 		{
 			"version": "1.20.70.0",
@@ -6799,8 +6383,7 @@
 			],
 			"produces": "minecraft:acacia_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB830",
-			"address": "0x18F67DD2070"
+			"of": 404
 		},
 		{
 			"version": "1.20.70.0",
@@ -6815,8 +6398,7 @@
 			],
 			"produces": "minecraft:dark_oak_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB830",
-			"address": "0x18F67DD1300"
+			"of": 404
 		},
 		{
 			"version": "1.20.70.1",
@@ -6824,8 +6406,7 @@
 			"match": {
 				"name": "minecraft:double_wooden_slab"
 			},
-			"result": {},
-			"address": "0x18F67DEB590"
+			"result": {}
 		},
 		{
 			"version": "1.20.70.1",
@@ -6840,8 +6421,7 @@
 			],
 			"produces": "minecraft:oak_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB590",
-			"address": "0x18F67DD16C0"
+			"of": 411
 		},
 		{
 			"version": "1.20.70.1",
@@ -6856,8 +6436,7 @@
 			],
 			"produces": "minecraft:spruce_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB590",
-			"address": "0x18F67DD13F0"
+			"of": 411
 		},
 		{
 			"version": "1.20.70.1",
@@ -6872,8 +6451,7 @@
 			],
 			"produces": "minecraft:birch_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB590",
-			"address": "0x18F67DD19E0"
+			"of": 411
 		},
 		{
 			"version": "1.20.70.1",
@@ -6888,8 +6466,7 @@
 			],
 			"produces": "minecraft:jungle_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB590",
-			"address": "0x18F67DD0EA0"
+			"of": 411
 		},
 		{
 			"version": "1.20.70.1",
@@ -6904,8 +6481,7 @@
 			],
 			"produces": "minecraft:acacia_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB590",
-			"address": "0x18F67DD1F30"
+			"of": 411
 		},
 		{
 			"version": "1.20.70.1",
@@ -6920,8 +6496,7 @@
 			],
 			"produces": "minecraft:dark_oak_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB590",
-			"address": "0x18F67DD1A30"
+			"of": 411
 		},
 		{
 			"version": "1.20.70.2",
@@ -6929,8 +6504,7 @@
 			"match": {
 				"name": "minecraft:leaves"
 			},
-			"result": {},
-			"address": "0x18F67DEC310"
+			"result": {}
 		},
 		{
 			"version": "1.20.70.2",
@@ -6945,8 +6519,7 @@
 			],
 			"produces": "minecraft:oak_leaves",
 			"producesFrom": "data",
-			"of": "0x18F67DEC310",
-			"address": "0x18F67DD0EF0"
+			"of": 418
 		},
 		{
 			"version": "1.20.70.2",
@@ -6961,8 +6534,7 @@
 			],
 			"produces": "minecraft:spruce_leaves",
 			"producesFrom": "data",
-			"of": "0x18F67DEC310",
-			"address": "0x18F67DD33D0"
+			"of": 418
 		},
 		{
 			"version": "1.20.70.2",
@@ -6977,8 +6549,7 @@
 			],
 			"produces": "minecraft:birch_leaves",
 			"producesFrom": "data",
-			"of": "0x18F67DEC310",
-			"address": "0x18F67DD2A70"
+			"of": 418
 		},
 		{
 			"version": "1.20.70.2",
@@ -6993,8 +6564,7 @@
 			],
 			"produces": "minecraft:jungle_leaves",
 			"producesFrom": "data",
-			"of": "0x18F67DEC310",
-			"address": "0x18F67DD2390"
+			"of": 418
 		},
 		{
 			"version": "1.20.70.3",
@@ -7002,8 +6572,7 @@
 			"match": {
 				"name": "minecraft:leaves2"
 			},
-			"result": {},
-			"address": "0x18F67DEB8F0"
+			"result": {}
 		},
 		{
 			"version": "1.20.70.3",
@@ -7018,8 +6587,7 @@
 			],
 			"produces": "minecraft:acacia_leaves",
 			"producesFrom": "data",
-			"of": "0x18F67DEB8F0",
-			"address": "0x18F67DD28E0"
+			"of": 423
 		},
 		{
 			"version": "1.20.70.3",
@@ -7034,8 +6602,7 @@
 			],
 			"produces": "minecraft:dark_oak_leaves",
 			"producesFrom": "data",
-			"of": "0x18F67DEB8F0",
-			"address": "0x18F67DD2BB0"
+			"of": 423
 		},
 		{
 			"version": "1.20.70.4",
@@ -7043,8 +6610,7 @@
 			"match": {
 				"name": "minecraft:wood"
 			},
-			"result": {},
-			"address": "0x18F67DEC2B0"
+			"result": {}
 		},
 		{
 			"version": "1.20.70.4",
@@ -7061,8 +6627,7 @@
 			],
 			"produces": "minecraft:oak_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD3330"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7079,8 +6644,7 @@
 			],
 			"produces": "minecraft:stripped_oak_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD2660"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7097,8 +6661,7 @@
 			],
 			"produces": "minecraft:spruce_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD2980"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7115,8 +6678,7 @@
 			],
 			"produces": "minecraft:stripped_spruce_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD3150"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7133,8 +6695,7 @@
 			],
 			"produces": "minecraft:birch_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD2340"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7151,8 +6712,7 @@
 			],
 			"produces": "minecraft:stripped_birch_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD2520"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7169,8 +6729,7 @@
 			],
 			"produces": "minecraft:jungle_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD32E0"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7187,8 +6746,7 @@
 			],
 			"produces": "minecraft:stripped_jungle_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD23E0"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7205,8 +6763,7 @@
 			],
 			"produces": "minecraft:acacia_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD3420"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7223,8 +6780,7 @@
 			],
 			"produces": "minecraft:stripped_acacia_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD2250"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7241,8 +6797,7 @@
 			],
 			"produces": "minecraft:dark_oak_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD2CA0"
+			"of": 426
 		},
 		{
 			"version": "1.20.70.4",
@@ -7259,8 +6814,7 @@
 			],
 			"produces": "minecraft:stripped_dark_oak_wood",
 			"producesFrom": "data",
-			"of": "0x18F67DEC2B0",
-			"address": "0x18F67DD2DE0"
+			"of": 426
 		},
 		{
 			"version": "1.20.80.0",
@@ -7268,8 +6822,7 @@
 			"match": {
 				"name": "minecraft:sapling"
 			},
-			"result": {},
-			"address": "0x18F67DEB770"
+			"result": {}
 		},
 		{
 			"version": "1.20.80.0",
@@ -7284,8 +6837,7 @@
 			],
 			"produces": "minecraft:oak_sapling",
 			"producesFrom": "data",
-			"of": "0x18F67DEB770",
-			"address": "0x18F67DD2840"
+			"of": 439
 		},
 		{
 			"version": "1.20.80.0",
@@ -7300,8 +6852,7 @@
 			],
 			"produces": "minecraft:spruce_sapling",
 			"producesFrom": "data",
-			"of": "0x18F67DEB770",
-			"address": "0x18F67DD2E30"
+			"of": 439
 		},
 		{
 			"version": "1.20.80.0",
@@ -7316,8 +6867,7 @@
 			],
 			"produces": "minecraft:birch_sapling",
 			"producesFrom": "data",
-			"of": "0x18F67DEB770",
-			"address": "0x18F67DD2E80"
+			"of": 439
 		},
 		{
 			"version": "1.20.80.0",
@@ -7325,19 +6875,14 @@
 			"match": {
 				"sapling_type": "jungle"
 			},
-			"result": {
-				"states": {
-					"unread": 0
-				}
-			},
+			"result": {},
 			"fields": [
 				"sapling_type",
 				"name"
 			],
 			"produces": "minecraft:jungle_sapling",
 			"producesFrom": "data",
-			"of": "0x18F67DEB770",
-			"address": "0x18F67DD2ED0"
+			"of": 439
 		},
 		{
 			"version": "1.20.80.0",
@@ -7352,8 +6897,7 @@
 			],
 			"produces": "minecraft:acacia_sapling",
 			"producesFrom": "data",
-			"of": "0x18F67DEB770",
-			"address": "0x18F67DD3510"
+			"of": 439
 		},
 		{
 			"version": "1.20.80.0",
@@ -7368,8 +6912,7 @@
 			],
 			"produces": "minecraft:dark_oak_sapling",
 			"producesFrom": "data",
-			"of": "0x18F67DEB770",
-			"address": "0x18F67DD2FC0"
+			"of": 439
 		},
 		{
 			"version": "1.20.80.1",
@@ -7377,8 +6920,7 @@
 			"match": {
 				"name": "minecraft:coral_fan"
 			},
-			"result": {},
-			"address": "0x18F67DEBC50"
+			"result": {}
 		},
 		{
 			"version": "1.20.80.1",
@@ -7393,8 +6935,7 @@
 			],
 			"produces": "minecraft:tube_coral_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEBC50",
-			"address": "0x18F67DD3100"
+			"of": 446
 		},
 		{
 			"version": "1.20.80.1",
@@ -7409,8 +6950,7 @@
 			],
 			"produces": "minecraft:brain_coral_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEBC50",
-			"address": "0x18F67DD27F0"
+			"of": 446
 		},
 		{
 			"version": "1.20.80.1",
@@ -7425,8 +6965,7 @@
 			],
 			"produces": "minecraft:bubble_coral_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEBC50",
-			"address": "0x18F67DD2480"
+			"of": 446
 		},
 		{
 			"version": "1.20.80.1",
@@ -7441,8 +6980,7 @@
 			],
 			"produces": "minecraft:fire_coral_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEBC50",
-			"address": "0x18F67DD2160"
+			"of": 446
 		},
 		{
 			"version": "1.20.80.1",
@@ -7457,8 +6995,7 @@
 			],
 			"produces": "minecraft:horn_coral_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEBC50",
-			"address": "0x18F67DD24D0"
+			"of": 446
 		},
 		{
 			"version": "1.20.80.2",
@@ -7466,8 +7003,7 @@
 			"match": {
 				"name": "minecraft:coral_fan_dead"
 			},
-			"result": {},
-			"address": "0x18F67DEB890"
+			"result": {}
 		},
 		{
 			"version": "1.20.80.2",
@@ -7482,8 +7018,7 @@
 			],
 			"produces": "minecraft:dead_tube_coral_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB890",
-			"address": "0x18F67DD3DD0"
+			"of": 452
 		},
 		{
 			"version": "1.20.80.2",
@@ -7498,8 +7033,7 @@
 			],
 			"produces": "minecraft:dead_brain_coral_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB890",
-			"address": "0x18F67DD3E70"
+			"of": 452
 		},
 		{
 			"version": "1.20.80.2",
@@ -7514,8 +7048,7 @@
 			],
 			"produces": "minecraft:dead_bubble_coral_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB890",
-			"address": "0x18F67DD3E20"
+			"of": 452
 		},
 		{
 			"version": "1.20.80.2",
@@ -7530,8 +7063,7 @@
 			],
 			"produces": "minecraft:dead_fire_coral_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB890",
-			"address": "0x18F67DD3880"
+			"of": 452
 		},
 		{
 			"version": "1.20.80.2",
@@ -7546,8 +7078,7 @@
 			],
 			"produces": "minecraft:dead_horn_coral_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB890",
-			"address": "0x18F67DD38D0"
+			"of": 452
 		},
 		{
 			"version": "1.20.80.3",
@@ -7555,8 +7086,7 @@
 			"match": {
 				"name": "minecraft:red_flower"
 			},
-			"result": {},
-			"address": "0x18F67DEC250"
+			"result": {}
 		},
 		{
 			"version": "1.20.80.3",
@@ -7571,8 +7101,7 @@
 			],
 			"produces": "minecraft:poppy",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD3B50"
+			"of": 458
 		},
 		{
 			"version": "1.20.80.3",
@@ -7587,8 +7116,7 @@
 			],
 			"produces": "minecraft:blue_orchid",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD3F10"
+			"of": 458
 		},
 		{
 			"version": "1.20.80.3",
@@ -7603,8 +7131,7 @@
 			],
 			"produces": "minecraft:allium",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD3F60"
+			"of": 458
 		},
 		{
 			"version": "1.20.80.3",
@@ -7619,8 +7146,7 @@
 			],
 			"produces": "minecraft:azure_bluet",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD39C0"
+			"of": 458
 		},
 		{
 			"version": "1.20.80.3",
@@ -7635,8 +7161,7 @@
 			],
 			"produces": "minecraft:red_tulip",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD3BF0"
+			"of": 458
 		},
 		{
 			"version": "1.20.80.3",
@@ -7651,8 +7176,7 @@
 			],
 			"produces": "minecraft:orange_tulip",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD3C90"
+			"of": 458
 		},
 		{
 			"version": "1.20.80.3",
@@ -7667,8 +7191,7 @@
 			],
 			"produces": "minecraft:white_tulip",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD3740"
+			"of": 458
 		},
 		{
 			"version": "1.20.80.3",
@@ -7683,8 +7206,7 @@
 			],
 			"produces": "minecraft:pink_tulip",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD4780"
+			"of": 458
 		},
 		{
 			"version": "1.20.80.3",
@@ -7699,8 +7221,7 @@
 			],
 			"produces": "minecraft:oxeye_daisy",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD3CE0"
+			"of": 458
 		},
 		{
 			"version": "1.20.80.3",
@@ -7715,8 +7236,7 @@
 			],
 			"produces": "minecraft:cornflower",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD40F0"
+			"of": 458
 		},
 		{
 			"version": "1.20.80.3",
@@ -7731,8 +7251,7 @@
 			],
 			"produces": "minecraft:lily_of_the_valley",
 			"producesFrom": "data",
-			"of": "0x18F67DEC250",
-			"address": "0x18F67DD3600"
+			"of": 458
 		},
 		{
 			"version": "1.21.0.0",
@@ -7740,8 +7259,7 @@
 			"match": {
 				"name": "minecraft:tallgrass"
 			},
-			"result": {},
-			"address": "0x18F67DEC3D0"
+			"result": {}
 		},
 		{
 			"version": "1.21.0.0",
@@ -7756,8 +7274,7 @@
 			],
 			"produces": "minecraft:short_grass",
 			"producesFrom": "data",
-			"of": "0x18F67DEC3D0",
-			"address": "0x18F67DD4410"
+			"of": 470
 		},
 		{
 			"version": "1.21.0.0",
@@ -7772,8 +7289,7 @@
 			],
 			"produces": "minecraft:short_grass",
 			"producesFrom": "data",
-			"of": "0x18F67DEC3D0",
-			"address": "0x18F67DD4370"
+			"of": 470
 		},
 		{
 			"version": "1.21.0.0",
@@ -7788,8 +7304,7 @@
 			],
 			"produces": "minecraft:fern",
 			"producesFrom": "data",
-			"of": "0x18F67DEC3D0",
-			"address": "0x18F67DD4500"
+			"of": 470
 		},
 		{
 			"version": "1.21.0.0",
@@ -7804,8 +7319,7 @@
 			],
 			"produces": "minecraft:fern",
 			"producesFrom": "data",
-			"of": "0x18F67DEC3D0",
-			"address": "0x18F67DD4910"
+			"of": 470
 		},
 		{
 			"version": "1.21.0.1",
@@ -7813,8 +7327,7 @@
 			"match": {
 				"name": "minecraft:coral_block"
 			},
-			"result": {},
-			"address": "0x18F67DEBAD0"
+			"result": {}
 		},
 		{
 			"version": "1.21.0.1",
@@ -7831,8 +7344,7 @@
 			],
 			"produces": "minecraft:tube_coral_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEBAD0",
-			"address": "0x18F67DD41E0"
+			"of": 475
 		},
 		{
 			"version": "1.21.0.1",
@@ -7849,8 +7361,7 @@
 			],
 			"produces": "minecraft:brain_coral_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEBAD0",
-			"address": "0x18F67DD45F0"
+			"of": 475
 		},
 		{
 			"version": "1.21.0.1",
@@ -7867,8 +7378,7 @@
 			],
 			"produces": "minecraft:bubble_coral_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEBAD0",
-			"address": "0x18F67DD4640"
+			"of": 475
 		},
 		{
 			"version": "1.21.0.1",
@@ -7885,8 +7395,7 @@
 			],
 			"produces": "minecraft:fire_coral_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEBAD0",
-			"address": "0x18F67DD4280"
+			"of": 475
 		},
 		{
 			"version": "1.21.0.1",
@@ -7903,8 +7412,7 @@
 			],
 			"produces": "minecraft:horn_coral_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEBAD0",
-			"address": "0x18F67DD43C0"
+			"of": 475
 		},
 		{
 			"version": "1.21.0.1",
@@ -7921,8 +7429,7 @@
 			],
 			"produces": "minecraft:dead_tube_coral_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEBAD0",
-			"address": "0x18F67DD46E0"
+			"of": 475
 		},
 		{
 			"version": "1.21.0.1",
@@ -7939,8 +7446,7 @@
 			],
 			"produces": "minecraft:dead_brain_coral_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEBAD0",
-			"address": "0x18F67DD35B0"
+			"of": 475
 		},
 		{
 			"version": "1.21.0.1",
@@ -7957,8 +7463,7 @@
 			],
 			"produces": "minecraft:dead_bubble_coral_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEBAD0",
-			"address": "0x18F67DD51D0"
+			"of": 475
 		},
 		{
 			"version": "1.21.0.1",
@@ -7975,8 +7480,7 @@
 			],
 			"produces": "minecraft:dead_fire_coral_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEBAD0",
-			"address": "0x18F67DD4DC0"
+			"of": 475
 		},
 		{
 			"version": "1.21.0.1",
@@ -7993,8 +7497,7 @@
 			],
 			"produces": "minecraft:dead_horn_coral_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEBAD0",
-			"address": "0x18F67DD5C70"
+			"of": 475
 		},
 		{
 			"version": "1.21.0.2",
@@ -8002,8 +7505,7 @@
 			"match": {
 				"name": "minecraft:double_plant"
 			},
-			"result": {},
-			"address": "0x18F67DEC0D0"
+			"result": {}
 		},
 		{
 			"version": "1.21.0.2",
@@ -8018,8 +7520,7 @@
 			],
 			"produces": "minecraft:sunflower",
 			"producesFrom": "data",
-			"of": "0x18F67DEC0D0",
-			"address": "0x18F67DD5360"
+			"of": 486
 		},
 		{
 			"version": "1.21.0.2",
@@ -8034,8 +7535,7 @@
 			],
 			"produces": "minecraft:lilac",
 			"producesFrom": "data",
-			"of": "0x18F67DEC0D0",
-			"address": "0x18F67DD4E60"
+			"of": 486
 		},
 		{
 			"version": "1.21.0.2",
@@ -8050,8 +7550,7 @@
 			],
 			"produces": "minecraft:tall_grass",
 			"producesFrom": "data",
-			"of": "0x18F67DEC0D0",
-			"address": "0x18F67DD5220"
+			"of": 486
 		},
 		{
 			"version": "1.21.0.2",
@@ -8066,8 +7565,7 @@
 			],
 			"produces": "minecraft:large_fern",
 			"producesFrom": "data",
-			"of": "0x18F67DEC0D0",
-			"address": "0x18F67DD5090"
+			"of": 486
 		},
 		{
 			"version": "1.21.0.2",
@@ -8082,8 +7580,7 @@
 			],
 			"produces": "minecraft:rose_bush",
 			"producesFrom": "data",
-			"of": "0x18F67DEC0D0",
-			"address": "0x18F67DD5A90"
+			"of": 486
 		},
 		{
 			"version": "1.21.0.2",
@@ -8098,8 +7595,7 @@
 			],
 			"produces": "minecraft:peony",
 			"producesFrom": "data",
-			"of": "0x18F67DEC0D0",
-			"address": "0x18F67DD59A0"
+			"of": 486
 		},
 		{
 			"version": "1.21.0.3",
@@ -8107,8 +7603,7 @@
 			"match": {
 				"name": "minecraft:stone_block_slab"
 			},
-			"result": {},
-			"address": "0x18F67DEB650"
+			"result": {}
 		},
 		{
 			"version": "1.21.0.3",
@@ -8123,8 +7618,7 @@
 			],
 			"produces": "minecraft:smooth_stone_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB650",
-			"address": "0x18F67DD4D20"
+			"of": 493
 		},
 		{
 			"version": "1.21.0.3",
@@ -8139,8 +7633,7 @@
 			],
 			"produces": "minecraft:sandstone_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB650",
-			"address": "0x18F67DD5720"
+			"of": 493
 		},
 		{
 			"version": "1.21.0.3",
@@ -8155,8 +7648,7 @@
 			],
 			"produces": "minecraft:petrified_oak_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB650",
-			"address": "0x18F67DD4E10"
+			"of": 493
 		},
 		{
 			"version": "1.21.0.3",
@@ -8171,8 +7663,7 @@
 			],
 			"produces": "minecraft:cobblestone_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB650",
-			"address": "0x18F67DD5540"
+			"of": 493
 		},
 		{
 			"version": "1.21.0.3",
@@ -8187,8 +7678,7 @@
 			],
 			"produces": "minecraft:brick_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB650",
-			"address": "0x18F67DD55E0"
+			"of": 493
 		},
 		{
 			"version": "1.21.0.3",
@@ -8203,8 +7693,7 @@
 			],
 			"produces": "minecraft:stone_brick_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB650",
-			"address": "0x18F67DD5770"
+			"of": 493
 		},
 		{
 			"version": "1.21.0.3",
@@ -8219,8 +7708,7 @@
 			],
 			"produces": "minecraft:quartz_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB650",
-			"address": "0x18F67DD4AA0"
+			"of": 493
 		},
 		{
 			"version": "1.21.0.3",
@@ -8235,8 +7723,7 @@
 			],
 			"produces": "minecraft:nether_brick_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB650",
-			"address": "0x18F67DD4A50"
+			"of": 493
 		},
 		{
 			"version": "1.21.10.0",
@@ -8244,8 +7731,7 @@
 			"match": {
 				"name": "minecraft:double_stone_block_slab"
 			},
-			"result": {},
-			"address": "0x18F67DEB710"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.0",
@@ -8260,8 +7746,7 @@
 			],
 			"produces": "minecraft:smooth_stone_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB710",
-			"address": "0x18F67DD5590"
+			"of": 502
 		},
 		{
 			"version": "1.21.10.0",
@@ -8276,8 +7761,7 @@
 			],
 			"produces": "minecraft:sandstone_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB710",
-			"address": "0x18F67DD57C0"
+			"of": 502
 		},
 		{
 			"version": "1.21.10.0",
@@ -8292,8 +7776,7 @@
 			],
 			"produces": "minecraft:petrified_oak_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB710",
-			"address": "0x18F67DD5D10"
+			"of": 502
 		},
 		{
 			"version": "1.21.10.0",
@@ -8308,8 +7791,7 @@
 			],
 			"produces": "minecraft:cobblestone_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB710",
-			"address": "0x18F67DD5900"
+			"of": 502
 		},
 		{
 			"version": "1.21.10.0",
@@ -8324,8 +7806,7 @@
 			],
 			"produces": "minecraft:brick_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB710",
-			"address": "0x18F67DD4F50"
+			"of": 502
 		},
 		{
 			"version": "1.21.10.0",
@@ -8340,8 +7821,7 @@
 			],
 			"produces": "minecraft:stone_brick_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB710",
-			"address": "0x18F67DD4FA0"
+			"of": 502
 		},
 		{
 			"version": "1.21.10.0",
@@ -8356,8 +7836,7 @@
 			],
 			"produces": "minecraft:quartz_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB710",
-			"address": "0x18F67DD5950"
+			"of": 502
 		},
 		{
 			"version": "1.21.10.0",
@@ -8372,8 +7851,7 @@
 			],
 			"produces": "minecraft:nether_brick_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB710",
-			"address": "0x18F67DD5B80"
+			"of": 502
 		},
 		{
 			"version": "1.21.10.1",
@@ -8381,8 +7859,7 @@
 			"match": {
 				"name": "minecraft:monster_egg"
 			},
-			"result": {},
-			"address": "0x18F67DEB5F0"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.1",
@@ -8397,8 +7874,7 @@
 			],
 			"produces": "minecraft:infested_cobblestone",
 			"producesFrom": "data",
-			"of": "0x18F67DEB5F0",
-			"address": "0x18F67DD54F0"
+			"of": 511
 		},
 		{
 			"version": "1.21.10.1",
@@ -8413,8 +7889,7 @@
 			],
 			"produces": "minecraft:infested_stone_bricks",
 			"producesFrom": "data",
-			"of": "0x18F67DEB5F0",
-			"address": "0x18F67DD4960"
+			"of": 511
 		},
 		{
 			"version": "1.21.10.1",
@@ -8429,8 +7904,7 @@
 			],
 			"produces": "minecraft:infested_mossy_stone_bricks",
 			"producesFrom": "data",
-			"of": "0x18F67DEB5F0",
-			"address": "0x18F67DD5DB0"
+			"of": 511
 		},
 		{
 			"version": "1.21.10.1",
@@ -8445,8 +7919,7 @@
 			],
 			"produces": "minecraft:infested_cracked_stone_bricks",
 			"producesFrom": "data",
-			"of": "0x18F67DEB5F0",
-			"address": "0x18F67DD7110"
+			"of": 511
 		},
 		{
 			"version": "1.21.10.1",
@@ -8461,8 +7934,7 @@
 			],
 			"produces": "minecraft:infested_chiseled_stone_bricks",
 			"producesFrom": "data",
-			"of": "0x18F67DEB5F0",
-			"address": "0x18F67DD63A0"
+			"of": 511
 		},
 		{
 			"version": "1.21.10.1",
@@ -8477,8 +7949,7 @@
 			],
 			"produces": "minecraft:infested_stone",
 			"producesFrom": "data",
-			"of": "0x18F67DEB5F0",
-			"address": "0x18F67DD67B0"
+			"of": 511
 		},
 		{
 			"version": "1.21.10.2",
@@ -8486,8 +7957,7 @@
 			"match": {
 				"name": "minecraft:stone_block_slab2"
 			},
-			"result": {},
-			"address": "0x18F67DEC730"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.2",
@@ -8502,8 +7972,7 @@
 			],
 			"produces": "minecraft:red_sandstone_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC730",
-			"address": "0x18F67DD6E90"
+			"of": 518
 		},
 		{
 			"version": "1.21.10.2",
@@ -8518,8 +7987,7 @@
 			],
 			"produces": "minecraft:purpur_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC730",
-			"address": "0x18F67DD6120"
+			"of": 518
 		},
 		{
 			"version": "1.21.10.2",
@@ -8534,8 +8002,7 @@
 			],
 			"produces": "minecraft:prismarine_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC730",
-			"address": "0x18F67DD6300"
+			"of": 518
 		},
 		{
 			"version": "1.21.10.2",
@@ -8550,8 +8017,7 @@
 			],
 			"produces": "minecraft:dark_prismarine_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC730",
-			"address": "0x18F67DD5F90"
+			"of": 518
 		},
 		{
 			"version": "1.21.10.2",
@@ -8566,8 +8032,7 @@
 			],
 			"produces": "minecraft:prismarine_brick_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC730",
-			"address": "0x18F67DD6620"
+			"of": 518
 		},
 		{
 			"version": "1.21.10.2",
@@ -8582,8 +8047,7 @@
 			],
 			"produces": "minecraft:mossy_cobblestone_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC730",
-			"address": "0x18F67DD6D50"
+			"of": 518
 		},
 		{
 			"version": "1.21.10.2",
@@ -8598,8 +8062,7 @@
 			],
 			"produces": "minecraft:smooth_sandstone_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC730",
-			"address": "0x18F67DD6850"
+			"of": 518
 		},
 		{
 			"version": "1.21.10.2",
@@ -8614,8 +8077,7 @@
 			],
 			"produces": "minecraft:red_nether_brick_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC730",
-			"address": "0x18F67DD6BC0"
+			"of": 518
 		},
 		{
 			"version": "1.21.10.3",
@@ -8623,8 +8085,7 @@
 			"match": {
 				"name": "minecraft:stone_block_slab3"
 			},
-			"result": {},
-			"address": "0x18F67DEB6B0"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.3",
@@ -8639,8 +8100,7 @@
 			],
 			"produces": "minecraft:end_stone_brick_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB6B0",
-			"address": "0x18F67DD5D60"
+			"of": 527
 		},
 		{
 			"version": "1.21.10.3",
@@ -8655,8 +8115,7 @@
 			],
 			"produces": "minecraft:smooth_red_sandstone_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB6B0",
-			"address": "0x18F67DD5FE0"
+			"of": 527
 		},
 		{
 			"version": "1.21.10.3",
@@ -8671,8 +8130,7 @@
 			],
 			"produces": "minecraft:polished_andesite_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB6B0",
-			"address": "0x18F67DD6210"
+			"of": 527
 		},
 		{
 			"version": "1.21.10.3",
@@ -8687,8 +8145,7 @@
 			],
 			"produces": "minecraft:andesite_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB6B0",
-			"address": "0x18F67DD5E00"
+			"of": 527
 		},
 		{
 			"version": "1.21.10.3",
@@ -8696,15 +8153,21 @@
 			"match": {
 				"stone_slab_type_3": "diorite"
 			},
-			"result": {},
-			"fields": [
+			"result": {
+				"stone_slab_type_3": {
+					"unread": 0
+				}
+			},
+			"matchFields": [
 				"stone_slab_type_3",
+				"name"
+			],
+			"resultFields": [
 				"name"
 			],
 			"produces": "minecraft:diorite_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB6B0",
-			"address": "0x18F67DD66C0"
+			"of": 527
 		},
 		{
 			"version": "1.21.10.3",
@@ -8719,8 +8182,7 @@
 			],
 			"produces": "minecraft:polished_diorite_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB6B0",
-			"address": "0x18F67DD64E0"
+			"of": 527
 		},
 		{
 			"version": "1.21.10.3",
@@ -8735,8 +8197,7 @@
 			],
 			"produces": "minecraft:granite_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB6B0",
-			"address": "0x18F67DD62B0"
+			"of": 527
 		},
 		{
 			"version": "1.21.10.3",
@@ -8751,8 +8212,7 @@
 			],
 			"produces": "minecraft:polished_granite_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB6B0",
-			"address": "0x18F67DD6AD0"
+			"of": 527
 		},
 		{
 			"version": "1.21.10.4",
@@ -8760,8 +8220,7 @@
 			"match": {
 				"name": "minecraft:stonebrick"
 			},
-			"result": {},
-			"address": "0x18F67DEBA10"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.4",
@@ -8776,8 +8235,7 @@
 			],
 			"produces": "minecraft:stone_bricks",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA10",
-			"address": "0x18F67DD6E40"
+			"of": 536
 		},
 		{
 			"version": "1.21.10.4",
@@ -8792,8 +8250,7 @@
 			],
 			"produces": "minecraft:mossy_stone_bricks",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA10",
-			"address": "0x18F67DD6EE0"
+			"of": 536
 		},
 		{
 			"version": "1.21.10.4",
@@ -8808,8 +8265,7 @@
 			],
 			"produces": "minecraft:cracked_stone_bricks",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA10",
-			"address": "0x18F67DD6440"
+			"of": 536
 		},
 		{
 			"version": "1.21.10.4",
@@ -8824,8 +8280,7 @@
 			],
 			"produces": "minecraft:chiseled_stone_bricks",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA10",
-			"address": "0x18F67DD68A0"
+			"of": 536
 		},
 		{
 			"version": "1.21.10.4",
@@ -8840,8 +8295,7 @@
 			],
 			"produces": "minecraft:stone_bricks",
 			"producesFrom": "data",
-			"of": "0x18F67DEBA10",
-			"address": "0x18F67DD6710"
+			"of": 536
 		},
 		{
 			"version": "1.21.10.5",
@@ -8849,8 +8303,7 @@
 			"match": {
 				"name": "minecraft:stone_block_slab4"
 			},
-			"result": {},
-			"address": "0x18F67DEBD70"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.5",
@@ -8865,8 +8318,7 @@
 			],
 			"produces": "minecraft:mossy_stone_brick_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD70",
-			"address": "0x18F67DD6990"
+			"of": 542
 		},
 		{
 			"version": "1.21.10.5",
@@ -8881,8 +8333,7 @@
 			],
 			"produces": "minecraft:smooth_quartz_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD70",
-			"address": "0x18F67DD7930"
+			"of": 542
 		},
 		{
 			"version": "1.21.10.5",
@@ -8897,8 +8348,7 @@
 			],
 			"produces": "minecraft:normal_stone_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD70",
-			"address": "0x18F67DD7FC0"
+			"of": 542
 		},
 		{
 			"version": "1.21.10.5",
@@ -8913,8 +8363,7 @@
 			],
 			"produces": "minecraft:cut_sandstone_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD70",
-			"address": "0x18F67DD7C50"
+			"of": 542
 		},
 		{
 			"version": "1.21.10.5",
@@ -8929,8 +8378,7 @@
 			],
 			"produces": "minecraft:cut_red_sandstone_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD70",
-			"address": "0x18F67DD7A70"
+			"of": 542
 		},
 		{
 			"version": "1.21.10.6",
@@ -8938,8 +8386,7 @@
 			"match": {
 				"name": "minecraft:coral_fan_hang"
 			},
-			"result": {},
-			"address": "0x18F67DEB9B0"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.6",
@@ -8956,8 +8403,7 @@
 			],
 			"produces": "minecraft:tube_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB9B0",
-			"address": "0x18F67DD7660"
+			"of": 548
 		},
 		{
 			"version": "1.21.10.6",
@@ -8974,8 +8420,7 @@
 			],
 			"produces": "minecraft:brain_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB9B0",
-			"address": "0x18F67DD7520"
+			"of": 548
 		},
 		{
 			"version": "1.21.10.6",
@@ -8992,8 +8437,7 @@
 			],
 			"produces": "minecraft:dead_tube_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB9B0",
-			"address": "0x18F67DD7C00"
+			"of": 548
 		},
 		{
 			"version": "1.21.10.6",
@@ -9010,8 +8454,7 @@
 			],
 			"produces": "minecraft:dead_brain_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB9B0",
-			"address": "0x18F67DD75C0"
+			"of": 548
 		},
 		{
 			"version": "1.21.10.7",
@@ -9019,8 +8462,7 @@
 			"match": {
 				"name": "minecraft:coral_fan_hang2"
 			},
-			"result": {},
-			"address": "0x18F67DEB950"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.7",
@@ -9037,8 +8479,7 @@
 			],
 			"produces": "minecraft:bubble_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB950",
-			"address": "0x18F67DD8470"
+			"of": 553
 		},
 		{
 			"version": "1.21.10.7",
@@ -9055,8 +8496,7 @@
 			],
 			"produces": "minecraft:fire_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB950",
-			"address": "0x18F67DD79D0"
+			"of": 553
 		},
 		{
 			"version": "1.21.10.7",
@@ -9073,8 +8513,7 @@
 			],
 			"produces": "minecraft:dead_bubble_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB950",
-			"address": "0x18F67DD80B0"
+			"of": 553
 		},
 		{
 			"version": "1.21.10.7",
@@ -9091,8 +8530,7 @@
 			],
 			"produces": "minecraft:dead_fire_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEB950",
-			"address": "0x18F67DD7430"
+			"of": 553
 		},
 		{
 			"version": "1.21.10.8",
@@ -9100,8 +8538,7 @@
 			"match": {
 				"name": "minecraft:coral_fan_hang3"
 			},
-			"result": {},
-			"address": "0x18F67DEBE30"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.8",
@@ -9118,8 +8555,7 @@
 			],
 			"produces": "minecraft:horn_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEBE30",
-			"address": "0x18F67DD7F70"
+			"of": 558
 		},
 		{
 			"version": "1.21.10.8",
@@ -9136,8 +8572,7 @@
 			],
 			"produces": "minecraft:horn_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEBE30",
-			"address": "0x18F67DD7A20"
+			"of": 558
 		},
 		{
 			"version": "1.21.10.8",
@@ -9154,8 +8589,7 @@
 			],
 			"produces": "minecraft:dead_horn_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEBE30",
-			"address": "0x18F67DD78E0"
+			"of": 558
 		},
 		{
 			"version": "1.21.10.8",
@@ -9172,8 +8606,7 @@
 			],
 			"produces": "minecraft:dead_horn_coral_wall_fan",
 			"producesFrom": "data",
-			"of": "0x18F67DEBE30",
-			"address": "0x18F67DD74D0"
+			"of": 558
 		},
 		{
 			"version": "1.21.10.9",
@@ -9181,8 +8614,7 @@
 			"match": {
 				"name": "minecraft:double_stone_block_slab2"
 			},
-			"result": {},
-			"address": "0x18F67DEBD10"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.9",
@@ -9197,8 +8629,7 @@
 			],
 			"produces": "minecraft:red_sandstone_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD10",
-			"address": "0x18F67DD7750"
+			"of": 563
 		},
 		{
 			"version": "1.21.10.9",
@@ -9213,8 +8644,7 @@
 			],
 			"produces": "minecraft:purpur_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD10",
-			"address": "0x18F67DD7DE0"
+			"of": 563
 		},
 		{
 			"version": "1.21.10.9",
@@ -9229,8 +8659,7 @@
 			],
 			"produces": "minecraft:prismarine_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD10",
-			"address": "0x18F67DD7CA0"
+			"of": 563
 		},
 		{
 			"version": "1.21.10.9",
@@ -9245,8 +8674,7 @@
 			],
 			"produces": "minecraft:dark_prismarine_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD10",
-			"address": "0x18F67DD76B0"
+			"of": 563
 		},
 		{
 			"version": "1.21.10.9",
@@ -9261,8 +8689,7 @@
 			],
 			"produces": "minecraft:prismarine_brick_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD10",
-			"address": "0x18F67DD8380"
+			"of": 563
 		},
 		{
 			"version": "1.21.10.9",
@@ -9277,8 +8704,7 @@
 			],
 			"produces": "minecraft:mossy_cobblestone_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD10",
-			"address": "0x18F67DD7B60"
+			"of": 563
 		},
 		{
 			"version": "1.21.10.9",
@@ -9293,8 +8719,7 @@
 			],
 			"produces": "minecraft:smooth_sandstone_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD10",
-			"address": "0x18F67DD7AC0"
+			"of": 563
 		},
 		{
 			"version": "1.21.10.9",
@@ -9309,8 +8734,7 @@
 			],
 			"produces": "minecraft:red_nether_brick_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEBD10",
-			"address": "0x18F67DD7CF0"
+			"of": 563
 		},
 		{
 			"version": "1.21.10.10",
@@ -9318,8 +8742,7 @@
 			"match": {
 				"name": "minecraft:double_stone_block_slab3"
 			},
-			"result": {},
-			"address": "0x18F67DEC7F0"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.10",
@@ -9334,8 +8757,7 @@
 			],
 			"produces": "minecraft:end_stone_brick_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC7F0",
-			"address": "0x18F67DD7890"
+			"of": 572
 		},
 		{
 			"version": "1.21.10.10",
@@ -9350,8 +8772,7 @@
 			],
 			"produces": "minecraft:smooth_red_sandstone_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC7F0",
-			"address": "0x18F67DD71B0"
+			"of": 572
 		},
 		{
 			"version": "1.21.10.10",
@@ -9366,8 +8787,7 @@
 			],
 			"produces": "minecraft:polished_andesite_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC7F0",
-			"address": "0x18F67DD7D40"
+			"of": 572
 		},
 		{
 			"version": "1.21.10.10",
@@ -9382,8 +8802,7 @@
 			],
 			"produces": "minecraft:andesite_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC7F0",
-			"address": "0x18F67DD81F0"
+			"of": 572
 		},
 		{
 			"version": "1.21.10.10",
@@ -9398,8 +8817,7 @@
 			],
 			"produces": "minecraft:diorite_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC7F0",
-			"address": "0x18F67DD7ED0"
+			"of": 572
 		},
 		{
 			"version": "1.21.10.10",
@@ -9414,8 +8832,7 @@
 			],
 			"produces": "minecraft:polished_diorite_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC7F0",
-			"address": "0x18F67DD8330"
+			"of": 572
 		},
 		{
 			"version": "1.21.10.10",
@@ -9430,8 +8847,7 @@
 			],
 			"produces": "minecraft:granite_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC7F0",
-			"address": "0x18F67DD8420"
+			"of": 572
 		},
 		{
 			"version": "1.21.10.10",
@@ -9446,8 +8862,7 @@
 			],
 			"produces": "minecraft:polished_granite_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEC7F0",
-			"address": "0x18F67DD8C90"
+			"of": 572
 		},
 		{
 			"version": "1.21.10.11",
@@ -9455,8 +8870,7 @@
 			"match": {
 				"name": "minecraft:double_stone_block_slab4"
 			},
-			"result": {},
-			"address": "0x18F67DEB7D0"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.11",
@@ -9471,8 +8885,7 @@
 			],
 			"produces": "minecraft:mossy_stone_brick_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB7D0",
-			"address": "0x18F67DD9780"
+			"of": 581
 		},
 		{
 			"version": "1.21.10.11",
@@ -9487,8 +8900,7 @@
 			],
 			"produces": "minecraft:smooth_quartz_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB7D0",
-			"address": "0x18F67DD95F0"
+			"of": 581
 		},
 		{
 			"version": "1.21.10.11",
@@ -9503,8 +8915,7 @@
 			],
 			"produces": "minecraft:normal_stone_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB7D0",
-			"address": "0x18F67DD8790"
+			"of": 581
 		},
 		{
 			"version": "1.21.10.11",
@@ -9519,8 +8930,7 @@
 			],
 			"produces": "minecraft:cut_sandstone_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB7D0",
-			"address": "0x18F67DD8970"
+			"of": 581
 		},
 		{
 			"version": "1.21.10.11",
@@ -9535,8 +8945,7 @@
 			],
 			"produces": "minecraft:cut_red_sandstone_double_slab",
 			"producesFrom": "data",
-			"of": "0x18F67DEB7D0",
-			"address": "0x18F67DD87E0"
+			"of": 581
 		},
 		{
 			"version": "1.21.10.12",
@@ -9544,8 +8953,7 @@
 			"match": {
 				"name": "minecraft:prismarine"
 			},
-			"result": {},
-			"address": "0x18F67DEBB30"
+			"result": {}
 		},
 		{
 			"version": "1.21.10.12",
@@ -9560,8 +8968,7 @@
 			],
 			"produces": "minecraft:prismarine",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB30",
-			"address": "0x18F67DD8F60"
+			"of": 587
 		},
 		{
 			"version": "1.21.10.12",
@@ -9576,8 +8983,7 @@
 			],
 			"produces": "minecraft:dark_prismarine",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB30",
-			"address": "0x18F67DD8C40"
+			"of": 587
 		},
 		{
 			"version": "1.21.10.12",
@@ -9592,8 +8998,7 @@
 			],
 			"produces": "minecraft:prismarine_bricks",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB30",
-			"address": "0x18F67DD8E20"
+			"of": 587
 		},
 		{
 			"version": "1.21.20.0",
@@ -9601,8 +9006,7 @@
 			"match": {
 				"name": "minecraft:light_block"
 			},
-			"result": {},
-			"address": "0x18F67DEBB90"
+			"result": {}
 		},
 		{
 			"version": "1.21.20.0",
@@ -9617,8 +9021,7 @@
 			],
 			"produces": "minecraft:light_block_0",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD8880"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9633,8 +9036,7 @@
 			],
 			"produces": "minecraft:light_block_1",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD9230"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9649,8 +9051,7 @@
 			],
 			"produces": "minecraft:light_block_2",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD8D30"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9665,8 +9066,7 @@
 			],
 			"produces": "minecraft:light_block_3",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD88D0"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9681,8 +9081,7 @@
 			],
 			"produces": "minecraft:light_block_4",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD86F0"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9697,8 +9096,7 @@
 			],
 			"produces": "minecraft:light_block_5",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD9870"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9713,8 +9111,7 @@
 			],
 			"produces": "minecraft:light_block_6",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD9690"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9729,8 +9126,7 @@
 			],
 			"produces": "minecraft:light_block_7",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD9460"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9745,8 +9141,7 @@
 			],
 			"produces": "minecraft:light_block_8",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD8FB0"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9761,8 +9156,7 @@
 			],
 			"produces": "minecraft:light_block_9",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD97D0"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9777,8 +9171,7 @@
 			],
 			"produces": "minecraft:light_block_10",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD8B50"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9793,8 +9186,7 @@
 			],
 			"produces": "minecraft:light_block_11",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD9820"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9809,8 +9201,7 @@
 			],
 			"produces": "minecraft:light_block_12",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD9410"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9825,8 +9216,7 @@
 			],
 			"produces": "minecraft:light_block_13",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD85B0"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9841,8 +9231,7 @@
 			],
 			"produces": "minecraft:light_block_14",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD8920"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.0",
@@ -9857,8 +9246,7 @@
 			],
 			"produces": "minecraft:light_block_15",
 			"producesFrom": "data",
-			"of": "0x18F67DEBB90",
-			"address": "0x18F67DD8F10"
+			"of": 591
 		},
 		{
 			"version": "1.21.20.1",
@@ -9866,8 +9254,7 @@
 			"match": {
 				"name": "minecraft:sandstone"
 			},
-			"result": {},
-			"address": "0x18F67DEB4D0"
+			"result": {}
 		},
 		{
 			"version": "1.21.20.1",
@@ -9882,8 +9269,7 @@
 			],
 			"produces": "minecraft:sandstone",
 			"producesFrom": "data",
-			"of": "0x18F67DEB4D0",
-			"address": "0x18F67DD9050"
+			"of": 608
 		},
 		{
 			"version": "1.21.20.1",
@@ -9898,8 +9284,7 @@
 			],
 			"produces": "minecraft:chiseled_sandstone",
 			"producesFrom": "data",
-			"of": "0x18F67DEB4D0",
-			"address": "0x18F67DD8AB0"
+			"of": 608
 		},
 		{
 			"version": "1.21.20.1",
@@ -9914,8 +9299,7 @@
 			],
 			"produces": "minecraft:cut_sandstone",
 			"producesFrom": "data",
-			"of": "0x18F67DEB4D0",
-			"address": "0x18F67DD9910"
+			"of": 608
 		},
 		{
 			"version": "1.21.20.1",
@@ -9930,8 +9314,7 @@
 			],
 			"produces": "minecraft:smooth_sandstone",
 			"producesFrom": "data",
-			"of": "0x18F67DEB4D0",
-			"address": "0x18F67DD90A0"
+			"of": 608
 		},
 		{
 			"version": "1.21.20.2",
@@ -9939,8 +9322,7 @@
 			"match": {
 				"name": "minecraft:red_sandstone"
 			},
-			"result": {},
-			"address": "0x18F67DEBDD0"
+			"result": {}
 		},
 		{
 			"version": "1.21.20.2",
@@ -9955,8 +9337,7 @@
 			],
 			"produces": "minecraft:red_sandstone",
 			"producesFrom": "data",
-			"of": "0x18F67DEBDD0",
-			"address": "0x18F67DD9280"
+			"of": 613
 		},
 		{
 			"version": "1.21.20.2",
@@ -9971,8 +9352,7 @@
 			],
 			"produces": "minecraft:chiseled_red_sandstone",
 			"producesFrom": "data",
-			"of": "0x18F67DEBDD0",
-			"address": "0x18F67DD8600"
+			"of": 613
 		},
 		{
 			"version": "1.21.20.2",
@@ -9987,8 +9367,7 @@
 			],
 			"produces": "minecraft:cut_red_sandstone",
 			"producesFrom": "data",
-			"of": "0x18F67DEBDD0",
-			"address": "0x18F67DD92D0"
+			"of": 613
 		},
 		{
 			"version": "1.21.20.2",
@@ -10003,8 +9382,7 @@
 			],
 			"produces": "minecraft:smooth_red_sandstone",
 			"producesFrom": "data",
-			"of": "0x18F67DEBDD0",
-			"address": "0x18F67DD9370"
+			"of": 613
 		},
 		{
 			"version": "1.21.20.3",
@@ -10012,8 +9390,7 @@
 			"match": {
 				"name": "minecraft:quartz_block"
 			},
-			"result": {},
-			"address": "0x18F67DEB3B0"
+			"result": {}
 		},
 		{
 			"version": "1.21.20.3",
@@ -10028,8 +9405,7 @@
 			],
 			"produces": "minecraft:quartz_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEB3B0",
-			"address": "0x18F67DD96E0"
+			"of": 618
 		},
 		{
 			"version": "1.21.20.3",
@@ -10044,8 +9420,7 @@
 			],
 			"produces": "minecraft:chiseled_quartz_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEB3B0",
-			"address": "0x18F67DD9730"
+			"of": 618
 		},
 		{
 			"version": "1.21.20.3",
@@ -10060,8 +9435,7 @@
 			],
 			"produces": "minecraft:quartz_pillar",
 			"producesFrom": "data",
-			"of": "0x18F67DEB3B0",
-			"address": "0x18F67DDA950"
+			"of": 618
 		},
 		{
 			"version": "1.21.20.3",
@@ -10076,8 +9450,7 @@
 			],
 			"produces": "minecraft:smooth_quartz",
 			"producesFrom": "data",
-			"of": "0x18F67DEB3B0",
-			"address": "0x18F67DDA900"
+			"of": 618
 		},
 		{
 			"version": "1.21.20.4",
@@ -10085,8 +9458,7 @@
 			"match": {
 				"name": "minecraft:sand"
 			},
-			"result": {},
-			"address": "0x18F67DEBCB0"
+			"result": {}
 		},
 		{
 			"version": "1.21.20.4",
@@ -10101,8 +9473,7 @@
 			],
 			"produces": "minecraft:sand",
 			"producesFrom": "data",
-			"of": "0x18F67DEBCB0",
-			"address": "0x18F67DDAC70"
+			"of": 623
 		},
 		{
 			"version": "1.21.20.4",
@@ -10117,8 +9488,7 @@
 			],
 			"produces": "minecraft:red_sand",
 			"producesFrom": "data",
-			"of": "0x18F67DEBCB0",
-			"address": "0x18F67DDAA90"
+			"of": 623
 		},
 		{
 			"version": "1.21.20.5",
@@ -10126,8 +9496,7 @@
 			"match": {
 				"name": "minecraft:dirt"
 			},
-			"result": {},
-			"address": "0x18F67DEB530"
+			"result": {}
 		},
 		{
 			"version": "1.21.20.5",
@@ -10142,8 +9511,7 @@
 			],
 			"produces": "minecraft:dirt",
 			"producesFrom": "data",
-			"of": "0x18F67DEB530",
-			"address": "0x18F67DDA6D0"
+			"of": 626
 		},
 		{
 			"version": "1.21.20.5",
@@ -10158,8 +9526,7 @@
 			],
 			"produces": "minecraft:coarse_dirt",
 			"producesFrom": "data",
-			"of": "0x18F67DEB530",
-			"address": "0x18F67DDA8B0"
+			"of": 626
 		},
 		{
 			"version": "1.21.20.6",
@@ -10167,8 +9534,7 @@
 			"match": {
 				"name": "minecraft:anvil"
 			},
-			"result": {},
-			"address": "0x18F67DEBBF0"
+			"result": {}
 		},
 		{
 			"version": "1.21.20.6",
@@ -10183,8 +9549,7 @@
 			],
 			"produces": "minecraft:anvil",
 			"producesFrom": "data",
-			"of": "0x18F67DEBBF0",
-			"address": "0x18F67DD9D70"
+			"of": 629
 		},
 		{
 			"version": "1.21.20.6",
@@ -10199,8 +9564,7 @@
 			],
 			"produces": "minecraft:chipped_anvil",
 			"producesFrom": "data",
-			"of": "0x18F67DEBBF0",
-			"address": "0x18F67DD9EB0"
+			"of": 629
 		},
 		{
 			"version": "1.21.20.6",
@@ -10215,8 +9579,7 @@
 			],
 			"produces": "minecraft:damaged_anvil",
 			"producesFrom": "data",
-			"of": "0x18F67DEBBF0",
-			"address": "0x18F67DDA360"
+			"of": 629
 		},
 		{
 			"version": "1.21.20.6",
@@ -10231,8 +9594,7 @@
 			],
 			"produces": "minecraft:deprecated_anvil",
 			"producesFrom": "data",
-			"of": "0x18F67DEBBF0",
-			"address": "0x18F67DD9DC0"
+			"of": 629
 		},
 		{
 			"version": "1.21.30.0",
@@ -10240,8 +9602,7 @@
 			"match": {
 				"name": "minecraft:structure_void"
 			},
-			"result": {},
-			"address": "0x18F67DEC430"
+			"result": {}
 		},
 		{
 			"version": "1.21.30.0",
@@ -10256,8 +9617,7 @@
 			],
 			"produces": "minecraft:structure_void",
 			"producesFrom": "data",
-			"of": "0x18F67DEC430",
-			"address": "0x18F67DD9CD0"
+			"of": 634
 		},
 		{
 			"version": "1.21.30.0",
@@ -10272,8 +9632,7 @@
 			],
 			"produces": "minecraft:structure_void",
 			"producesFrom": "data",
-			"of": "0x18F67DEC430",
-			"address": "0x18F67DDA450"
+			"of": 634
 		},
 		{
 			"version": "1.21.30.1",
@@ -10281,8 +9640,7 @@
 			"match": {
 				"name": "minecraft:purpur_block"
 			},
-			"result": {},
-			"address": "0x18F67DEC850"
+			"result": {}
 		},
 		{
 			"version": "1.21.30.1",
@@ -10297,8 +9655,7 @@
 			],
 			"produces": "minecraft:purpur_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC850",
-			"address": "0x18F67DDAAE0"
+			"of": 637
 		},
 		{
 			"version": "1.21.30.1",
@@ -10313,8 +9670,7 @@
 			],
 			"produces": "minecraft:deprecated_purpur_block_1",
 			"producesFrom": "data",
-			"of": "0x18F67DEC850",
-			"address": "0x18F67DDA9A0"
+			"of": 637
 		},
 		{
 			"version": "1.21.30.1",
@@ -10329,8 +9685,7 @@
 			],
 			"produces": "minecraft:purpur_pillar",
 			"producesFrom": "data",
-			"of": "0x18F67DEC850",
-			"address": "0x18F67DDA220"
+			"of": 637
 		},
 		{
 			"version": "1.21.30.1",
@@ -10345,8 +9700,7 @@
 			],
 			"produces": "minecraft:deprecated_purpur_block_2",
 			"producesFrom": "data",
-			"of": "0x18F67DEC850",
-			"address": "0x18F67DDA680"
+			"of": 637
 		},
 		{
 			"version": "1.21.30.2",
@@ -10354,8 +9708,7 @@
 			"match": {
 				"name": "minecraft:cobblestone_wall"
 			},
-			"result": {},
-			"address": "0x18F67DEB470"
+			"result": {}
 		},
 		{
 			"version": "1.21.30.2",
@@ -10370,8 +9723,7 @@
 			],
 			"produces": "minecraft:cobblestone_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDA590"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10386,8 +9738,7 @@
 			],
 			"produces": "minecraft:mossy_cobblestone_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDA720"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10402,8 +9753,7 @@
 			],
 			"produces": "minecraft:granite_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDA2C0"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10418,8 +9768,7 @@
 			],
 			"produces": "minecraft:diorite_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDAB30"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10427,22 +9776,14 @@
 			"match": {
 				"wall_block_type": "andesite"
 			},
-			"result": {
-				"name": {
-					"unread": 0
-				}
-			},
-			"matchFields": [
+			"result": {},
+			"fields": [
 				"wall_block_type",
 				"name"
 			],
-			"resultFields": [
-				"wall_block_type"
-			],
 			"produces": "minecraft:andesite_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDABD0"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10457,8 +9798,7 @@
 			],
 			"produces": "minecraft:sandstone_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDAC20"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10473,8 +9813,7 @@
 			],
 			"produces": "minecraft:brick_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DD9FF0"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10489,8 +9828,7 @@
 			],
 			"produces": "minecraft:stone_brick_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DD9AF0"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10505,8 +9843,7 @@
 			],
 			"produces": "minecraft:mossy_stone_brick_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDA090"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10521,8 +9858,7 @@
 			],
 			"produces": "minecraft:nether_brick_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDB710"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10537,8 +9873,7 @@
 			],
 			"produces": "minecraft:end_stone_brick_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDA180"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10553,8 +9888,7 @@
 			],
 			"produces": "minecraft:prismarine_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDB620"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10569,8 +9903,7 @@
 			],
 			"produces": "minecraft:red_sandstone_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDB490"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.2",
@@ -10585,8 +9918,7 @@
 			],
 			"produces": "minecraft:red_nether_brick_wall",
 			"producesFrom": "data",
-			"of": "0x18F67DEB470",
-			"address": "0x18F67DDB580"
+			"of": 642
 		},
 		{
 			"version": "1.21.30.3",
@@ -10594,8 +9926,7 @@
 			"match": {
 				"name": "minecraft:sponge"
 			},
-			"result": {},
-			"address": "0x18F67DEBEF0"
+			"result": {}
 		},
 		{
 			"version": "1.21.30.3",
@@ -10610,8 +9941,7 @@
 			],
 			"produces": "minecraft:sponge",
 			"producesFrom": "data",
-			"of": "0x18F67DEBEF0",
-			"address": "0x18F67DDB3F0"
+			"of": 657
 		},
 		{
 			"version": "1.21.30.3",
@@ -10626,8 +9956,7 @@
 			],
 			"produces": "minecraft:wet_sponge",
 			"producesFrom": "data",
-			"of": "0x18F67DEBEF0",
-			"address": "0x18F67DDBD00"
+			"of": 657
 		},
 		{
 			"version": "1.21.30.4",
@@ -10635,8 +9964,7 @@
 			"match": {
 				"name": "minecraft:colored_torch_rg"
 			},
-			"result": {},
-			"address": "0x18F67DEC8B0"
+			"result": {}
 		},
 		{
 			"version": "1.21.30.4",
@@ -10651,8 +9979,7 @@
 			],
 			"produces": "minecraft:colored_torch_red",
 			"producesFrom": "data",
-			"of": "0x18F67DEC8B0",
-			"address": "0x18F67DDBC10"
+			"of": 660
 		},
 		{
 			"version": "1.21.30.4",
@@ -10667,8 +9994,7 @@
 			],
 			"produces": "minecraft:colored_torch_green",
 			"producesFrom": "data",
-			"of": "0x18F67DEC8B0",
-			"address": "0x18F67DDB210"
+			"of": 660
 		},
 		{
 			"version": "1.21.30.5",
@@ -10676,8 +10002,7 @@
 			"match": {
 				"name": "minecraft:colored_torch_bp"
 			},
-			"result": {},
-			"address": "0x18F67DEBE90"
+			"result": {}
 		},
 		{
 			"version": "1.21.30.5",
@@ -10692,8 +10017,7 @@
 			],
 			"produces": "minecraft:colored_torch_blue",
 			"producesFrom": "data",
-			"of": "0x18F67DEBE90",
-			"address": "0x18F67DDBDA0"
+			"of": 663
 		},
 		{
 			"version": "1.21.30.5",
@@ -10708,8 +10032,7 @@
 			],
 			"produces": "minecraft:colored_torch_purple",
 			"producesFrom": "data",
-			"of": "0x18F67DEBE90",
-			"address": "0x18F67DDB670"
+			"of": 663
 		},
 		{
 			"version": "1.21.30.6",
@@ -10717,8 +10040,7 @@
 			"match": {
 				"name": "minecraft:chemistry_table"
 			},
-			"result": {},
-			"address": "0x18F67DEBFB0"
+			"result": {}
 		},
 		{
 			"version": "1.21.30.6",
@@ -10733,8 +10055,7 @@
 			],
 			"produces": "minecraft:compound_creator",
 			"producesFrom": "data",
-			"of": "0x18F67DEBFB0",
-			"address": "0x18F67DDC070"
+			"of": 666
 		},
 		{
 			"version": "1.21.30.6",
@@ -10749,8 +10070,7 @@
 			],
 			"produces": "minecraft:material_reducer",
 			"producesFrom": "data",
-			"of": "0x18F67DEBFB0",
-			"address": "0x18F67DDB760"
+			"of": 666
 		},
 		{
 			"version": "1.21.30.6",
@@ -10765,8 +10085,7 @@
 			],
 			"produces": "minecraft:element_constructor",
 			"producesFrom": "data",
-			"of": "0x18F67DEBFB0",
-			"address": "0x18F67DDAD60"
+			"of": 666
 		},
 		{
 			"version": "1.21.30.6",
@@ -10781,8 +10100,7 @@
 			],
 			"produces": "minecraft:lab_table",
 			"producesFrom": "data",
-			"of": "0x18F67DEBFB0",
-			"address": "0x18F67DDBB20"
+			"of": 666
 		},
 		{
 			"version": "1.21.30.7",
@@ -10790,8 +10108,7 @@
 			"match": {
 				"name": "minecraft:tnt"
 			},
-			"result": {},
-			"address": "0x18F67DEBF50"
+			"result": {}
 		},
 		{
 			"version": "1.21.30.7",
@@ -10806,8 +10123,7 @@
 			],
 			"produces": "minecraft:tnt",
 			"producesFrom": "data",
-			"of": "0x18F67DEBF50",
-			"address": "0x18F67DDB8F0"
+			"of": 671
 		},
 		{
 			"version": "1.21.30.7",
@@ -10822,8 +10138,7 @@
 			],
 			"produces": "minecraft:underwater_tnt",
 			"producesFrom": "data",
-			"of": "0x18F67DEBF50",
-			"address": "0x18F67DDBA30"
+			"of": 671
 		},
 		{
 			"version": "1.21.40.0",
@@ -10831,8 +10146,7 @@
 			"match": {
 				"name": "minecraft:brown_mushroom_block"
 			},
-			"result": {},
-			"address": "0x18F67DEC010"
+			"result": {}
 		},
 		{
 			"version": "1.21.40.0",
@@ -10846,8 +10160,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB7B0"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -10861,8 +10174,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB0D0"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -10876,8 +10188,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDBA80"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -10891,8 +10202,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDBEE0"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -10906,8 +10216,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB850"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -10921,8 +10230,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB080"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -10936,8 +10244,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDAEF0"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -10951,8 +10258,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB8A0"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -10966,8 +10272,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB3A0"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -10981,8 +10286,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB2B0"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -10996,8 +10300,7 @@
 			],
 			"produces": "minecraft:mushroom_stem",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB1C0"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -11011,8 +10314,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDBB70"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -11026,8 +10328,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB940"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -11041,8 +10342,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB990"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -11056,8 +10356,7 @@
 			],
 			"produces": "minecraft:brown_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDB9E0"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.0",
@@ -11071,8 +10370,7 @@
 			],
 			"produces": "minecraft:mushroom_stem",
 			"producesFrom": "data",
-			"of": "0x18F67DEC010",
-			"address": "0x18F67DDBBC0"
+			"of": 674
 		},
 		{
 			"version": "1.21.40.1",
@@ -11080,8 +10378,7 @@
 			"match": {
 				"name": "minecraft:red_mushroom_block"
 			},
-			"result": {},
-			"address": "0x18F67DEC130"
+			"result": {}
 		},
 		{
 			"version": "1.21.40.1",
@@ -11095,8 +10392,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDBF30"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11110,8 +10406,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDBF80"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11125,8 +10420,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDBFD0"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11140,8 +10434,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDC020"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11155,8 +10448,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDD290"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11170,8 +10462,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDCF70"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11185,8 +10476,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDC340"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11200,8 +10490,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDC480"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11215,8 +10504,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDC200"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11230,8 +10518,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDC390"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11245,8 +10532,7 @@
 			],
 			"produces": "minecraft:mushroom_stem",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDCB60"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11260,8 +10546,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDC750"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11275,8 +10560,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDD3D0"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11290,8 +10574,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDC250"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11305,8 +10588,7 @@
 			],
 			"produces": "minecraft:red_mushroom_block",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDC7A0"
+			"of": 691
 		},
 		{
 			"version": "1.21.40.1",
@@ -11320,8 +10602,7 @@
 			],
 			"produces": "minecraft:mushroom_stem",
 			"producesFrom": "data",
-			"of": "0x18F67DEC130",
-			"address": "0x18F67DDD1F0"
+			"of": 691
 		},
 		{
 			"version": "1.21.60.0",
@@ -11334,8 +10615,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEC190"
+			]
 		},
 		{
 			"version": "1.21.60.1",
@@ -11348,8 +10628,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEB170"
+			]
 		},
 		{
 			"version": "1.21.60.2",
@@ -11362,8 +10641,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEC370"
+			]
 		},
 		{
 			"version": "1.21.60.3",
@@ -11376,8 +10654,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEC670"
+			]
 		},
 		{
 			"version": "1.21.60.4",
@@ -11390,8 +10667,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEC550"
+			]
 		},
 		{
 			"version": "1.21.60.5",
@@ -11404,8 +10680,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEC5B0"
+			]
 		},
 		{
 			"version": "1.21.60.6",
@@ -11418,8 +10693,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEB1D0"
+			]
 		},
 		{
 			"version": "1.21.60.7",
@@ -11432,8 +10706,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEB2F0"
+			]
 		},
 		{
 			"version": "1.21.60.8",
@@ -11446,8 +10719,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEB410"
+			]
 		},
 		{
 			"version": "1.21.60.9",
@@ -11460,8 +10732,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DECC70"
+			]
 		},
 		{
 			"version": "1.21.60.10",
@@ -11474,8 +10745,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED510"
+			]
 		},
 		{
 			"version": "1.21.60.11",
@@ -11488,8 +10758,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEC970"
+			]
 		},
 		{
 			"version": "1.21.60.12",
@@ -11502,8 +10771,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DECD30"
+			]
 		},
 		{
 			"version": "1.21.60.13",
@@ -11513,11 +10781,14 @@
 					"pattern": "minecraft:bamboo_door"
 				}
 			},
-			"result": {},
+			"result": {
+				"states": {
+					"unread": 0
+				}
+			},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DECB50"
+			]
 		},
 		{
 			"version": "1.21.60.14",
@@ -11530,8 +10801,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED5D0"
+			]
 		},
 		{
 			"version": "1.21.60.15",
@@ -11544,8 +10814,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED9F0"
+			]
 		},
 		{
 			"version": "1.21.60.16",
@@ -11558,8 +10827,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED270"
+			]
 		},
 		{
 			"version": "1.21.60.17",
@@ -11572,8 +10840,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DECDF0"
+			]
 		},
 		{
 			"version": "1.21.60.18",
@@ -11586,8 +10853,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED8D0"
+			]
 		},
 		{
 			"version": "1.21.60.19",
@@ -11600,8 +10866,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DECCD0"
+			]
 		},
 		{
 			"version": "1.21.60.20",
@@ -11614,8 +10879,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED810"
+			]
 		},
 		{
 			"version": "1.21.60.21",
@@ -11628,8 +10892,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEDDB0"
+			]
 		},
 		{
 			"version": "1.21.60.22",
@@ -11642,8 +10905,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEDD50"
+			]
 		},
 		{
 			"version": "1.21.60.23",
@@ -11656,8 +10918,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEDB10"
+			]
 		},
 		{
 			"version": "1.21.60.24",
@@ -11670,8 +10931,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DECC10"
+			]
 		},
 		{
 			"version": "1.21.60.25",
@@ -11684,8 +10944,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED930"
+			]
 		},
 		{
 			"version": "1.21.60.26",
@@ -11698,8 +10957,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED330"
+			]
 		},
 		{
 			"version": "1.21.60.27",
@@ -11712,8 +10970,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DEDE10"
+			]
 		},
 		{
 			"version": "1.21.60.28",
@@ -11726,8 +10983,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED390"
+			]
 		},
 		{
 			"version": "1.21.60.29",
@@ -11740,8 +10996,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DECE50"
+			]
 		},
 		{
 			"version": "1.21.60.30",
@@ -11754,8 +11009,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED6F0"
+			]
 		},
 		{
 			"version": "1.21.60.31",
@@ -11768,8 +11022,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DECEB0"
+			]
 		},
 		{
 			"version": "1.21.60.32",
@@ -11782,8 +11035,7 @@
 			"result": {},
 			"fields": [
 				"direction"
-			],
-			"address": "0x18F67DED750"
+			]
 		},
 		{
 			"version": "1.21.60.33",
@@ -11803,8 +11055,7 @@
 					"dormant",
 					"awake"
 				]
-			],
-			"address": "0x18F67DED7B0"
+			]
 		}
 	]
 }

@@ -985,78 +985,6 @@ public static class ItemRegistry
 	}
 
 	/// <summary>
-	///     The seed component, whose fields the wire blob names: crop_result, plant_at,
-	///     plant_at_any_solid_surface and plant_at_face. The object is 56 bytes: the crop it grows
-	///     into, a vector of the blocks it may be planted on, and two bytes of settings.
-	/// </summary>
-	private static JsonObject Seed(BedrockProcess process, ulong address)
-	{
-		var seed = new JsonObject();
-		var body = new byte[56];
-		if (!process.TryRead(address, body, body.Length)) return seed;
-
-		var probe = new byte[HashedString.Size];
-		var heap = new byte[256];
-
-		// The crop is held as the item that places it rather than as the block, so its name sits at
-		// the item distance. The block distance is tried first because a block is what the field
-		// means, and whichever verifies is the answer.
-		// The crop is a block descriptor at +8, and the block itself is the single entry of the
-		// vector inside it. The pointer at +0 is the seed item that owns the component, which is why
-		// reading that gave every seed its own name back.
-		// The crop is the block the descriptor resolved to, and it is the pointer at +104 rather than
-		// the one in the vector at +32. That vector holds minecraft:empty on every seed, which is why
-		// following it produced nothing and looked like an unbound reference.
-		var scratch = new byte[8];
-		ulong descriptor = BitConverter.ToUInt64(body, 8);
-		if (descriptor > 0x10000)
-		{
-			ulong block = process.ReadUInt64(descriptor + 104, scratch);
-			string cropName = block > 0x10000 ? HashedAt(process, block + (ulong) MemoryLayout.NameInsideLegacy) : null;
-			if (cropName is not null) seed["cropResult"] = cropName;
-		}
-
-		ulong begin = BitConverter.ToUInt64(body, 16), end = BitConverter.ToUInt64(body, 24);
-		var plantAt = new List<string>();
-		if (begin > 0x10000 && end > begin && end - begin <= 4096)
-		{
-			// Each entry is a block descriptor of 176 bytes with its name eight bytes in. Glow
-			// berries name two blocks and its vector is exactly twice as long, which is what settles
-			// the stride rather than trying sizes until one divides.
-			foreach (int stride in (int[]) [176])
-			{
-				if ((end - begin) % (ulong) stride != 0) continue;
-				plantAt.Clear();
-				for (ulong at = begin; at < end; at += (ulong) stride)
-				{
-					string one = HashedAt(process, at + 8);
-					if (one is null) { plantAt.Clear(); break; }
-					plantAt.Add(one);
-				}
-				if (plantAt.Count > 0) break;
-			}
-		}
-		if (plantAt.Count > 0) seed["plantAt"] = new JsonArray(plantAt.Select(n => (JsonNode) n).ToArray());
-
-		// Both verified against the game: plantAtAnySolidSurface is set on glow_berries alone, and
-		// the face is Up on every seed except glow_berries, which is Down, the one seed that plants
-		// on the underside of a block. The byte at 41 and the bytes from 43 are slack.
-		seed["plantAtAnySolidSurface"] = body[40] != 0;
-		seed["plantAtFace"] = new JsonObject
-		{
-			["value"] = (int) body[42],
-			["name"] = BlockMembers.Value("FacingName", body[42])
-		};
-
-		// A field, not padding: it holds 7 on beetroot, melon, nether wart and pumpkin, 3 on wheat,
-		// 4 on glow berries, 1 on four more and 0 on carrot, and it does not track the plant-at
-		// list, which is one block on every one of them. Nothing names it, so it goes out as what
-		// was read at the offset it was read from.
-		seed["unnamedAt48"] = (long) BitConverter.ToUInt64(body, 48);
-		return seed;
-	}
-
-	/// <summary>
 	///     The names in an item descriptor vector. A descriptor holds a pointer to an object that
 	///     holds the name as a plain string, so the name is two hops away rather than inline. The
 	///     stride comes from the range dividing and every element resolving, so a wrong one yields
@@ -2095,7 +2023,7 @@ public static class ItemRegistry
 		{
 			// The class states its gaps once, with offsets and lengths. Repeating the same zero
 			// padding on every one of 1,933 items adds nothing.
-			if (node.Member.Kind == MemberKind.Unknown) continue;
+			if (node.Member.Kind is MemberKind.Unknown or MemberKind.Padding) continue;
 
 			int at = item.At(node.At - NameInsideItem);
 			row[node.Member.Name] = at >= 0 && at + node.Member.Bytes <= item.Window.Length

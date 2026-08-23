@@ -562,7 +562,7 @@ public static class ComponentReader
 			// The class tiler names every gap so a hole in an object nobody has fully described
 			// stays countable. A component is fully described, so its gaps are the compiler's
 			// alignment and nothing else, and emitting them is noise.
-			if (member.Kind == MemberKind.Unknown) continue;
+			if (member.Kind is MemberKind.Unknown or MemberKind.Padding) continue;
 			if (at + member.Bytes > read) { fields[member.Name] = null; continue; }
 
 			if (member.Holds is not null)

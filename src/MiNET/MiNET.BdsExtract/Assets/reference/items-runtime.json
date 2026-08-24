@@ -1337,19 +1337,14 @@
 		"minecraft:food": "FoodItemComponent",
 		"minecraft:fuel": "FuelItemComponent",
 		"minecraft:hand_equipped": "HandEquippedItemComponent",
-		"minecraft:kinetic_weapon": "KineticWeaponItemComponent",
 		"minecraft:max_stack_size": "MaxStackSizeItemComponent",
-		"minecraft:piercing_weapon": "PiercingWeaponItemComponent",
-		"minecraft:projectile": "ProjectileItemComponent",
-		"minecraft:storage_item": "StorageItemComponent",
 		"minecraft:storage_weight_limit": "StorageWeightLimitItemComponent",
 		"minecraft:storage_weight_modifier": "StorageWeightModifierItemComponent",
 		"minecraft:swing_duration": "SwingDurationItemComponent",
 		"minecraft:throwable": "ThrowableItemComponent",
 		"minecraft:use_animation": "UseAnimationItemComponent",
 		"minecraft:use_modifiers": "UseModifiersItemComponent",
-		"minecraft:repairable": "RepairableItemComponent",
-		"minecraft:icon": "IconItemComponent"
+		"minecraft:repairable": "RepairableItemComponent"
 	},
 	"items": [
 		{

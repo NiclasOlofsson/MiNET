@@ -941,17 +941,6 @@
 				}
 			]
 		},
-		"KineticWeaponItemComponent": {
-			"size": 84,
-			"members": [
-				{
-					"name": "settings",
-					"at": 0,
-					"bytes": 84,
-					"kind": "Container"
-				}
-			]
-		},
 		"MaxStackSizeItemComponent": {
 			"size": 1,
 			"members": [
@@ -960,90 +949,6 @@
 					"at": 0,
 					"bytes": 1,
 					"kind": "Enum8"
-				}
-			]
-		},
-		"PiercingWeaponItemComponent": {
-			"size": 32,
-			"members": [
-				{
-					"name": "reach",
-					"at": 0,
-					"bytes": 8,
-					"kind": "Container"
-				},
-				{
-					"name": "hitboxMargin",
-					"at": 8,
-					"bytes": 4,
-					"kind": "Float"
-				},
-				{
-					"name": "padding1",
-					"at": 12,
-					"bytes": 4,
-					"kind": "Padding",
-					"comparable": false
-				},
-				{
-					"name": "onUseAsAttackSubscription",
-					"at": 16,
-					"bytes": 16,
-					"kind": "Container"
-				}
-			]
-		},
-		"ProjectileItemComponent": {
-			"size": 184,
-			"members": [
-				{
-					"name": "minCriticalPower",
-					"at": 0,
-					"bytes": 4,
-					"kind": "Float"
-				},
-				{
-					"name": "padding1",
-					"at": 4,
-					"bytes": 4,
-					"kind": "Padding",
-					"comparable": false
-				},
-				{
-					"name": "actorIdentifier",
-					"at": 8,
-					"bytes": 176,
-					"kind": "Container"
-				}
-			]
-		},
-		"StorageItemComponent": {
-			"size": 24,
-			"members": [
-				{
-					"name": "numSlots",
-					"at": 0,
-					"bytes": 4,
-					"kind": "Int32"
-				},
-				{
-					"name": "allowNestedStorageItem",
-					"at": 4,
-					"bytes": 1,
-					"kind": "Bool"
-				},
-				{
-					"name": "padding1",
-					"at": 5,
-					"bytes": 3,
-					"kind": "Padding",
-					"comparable": false
-				},
-				{
-					"name": "onUseSubscription",
-					"at": 8,
-					"bytes": 16,
-					"kind": "Container"
 				}
 			]
 		},
@@ -1250,18 +1155,6 @@
 					"bytes": 24,
 					"kind": "Container",
 					"elements": "RepairItemEntry"
-				}
-			]
-		},
-		"IconItemComponent": {
-			"size": 64,
-			"members": [
-				{
-					"name": "textures",
-					"at": 0,
-					"bytes": 64,
-					"kind": "Container",
-					"entries": "IconEntry"
 				}
 			]
 		}
@@ -1944,19 +1837,14 @@
 		"minecraft:food": "FoodItemComponent",
 		"minecraft:fuel": "FuelItemComponent",
 		"minecraft:hand_equipped": "HandEquippedItemComponent",
-		"minecraft:kinetic_weapon": "KineticWeaponItemComponent",
 		"minecraft:max_stack_size": "MaxStackSizeItemComponent",
-		"minecraft:piercing_weapon": "PiercingWeaponItemComponent",
-		"minecraft:projectile": "ProjectileItemComponent",
-		"minecraft:storage_item": "StorageItemComponent",
 		"minecraft:storage_weight_limit": "StorageWeightLimitItemComponent",
 		"minecraft:storage_weight_modifier": "StorageWeightModifierItemComponent",
 		"minecraft:swing_duration": "SwingDurationItemComponent",
 		"minecraft:throwable": "ThrowableItemComponent",
 		"minecraft:use_animation": "UseAnimationItemComponent",
 		"minecraft:use_modifiers": "UseModifiersItemComponent",
-		"minecraft:repairable": "RepairableItemComponent",
-		"minecraft:icon": "IconItemComponent"
+		"minecraft:repairable": "RepairableItemComponent"
 	},
 	"items": [
 		{
@@ -4991,7 +4879,7 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F0000000050FD4E018F0200000100000000000000309205018F020000B09205018F020000B09205018F02000007000000000000000800000000000000"
+						"default": "apple"
 					}
 				},
 				"minecraft:tags": {
@@ -9180,16 +9068,10 @@
 				"owner": {
 					"pointer": "0x28F7A3D9770"
 				},
-				"result": {
-					"pointer": "0x28F7F6221B0"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F00CE6A10",
-						"end": "0x28F00CE6AC0",
-						"bytes": 176
-					}
-				},
+				"result": "minecraft:beetroot",
+				"targetLandBlocks": [
+					"minecraft:farmland"
+				],
 				"plantAtAnyVisibleSolidSurface": false,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -11186,19 +11068,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F020000309C4E018F0200000300000000000000F0E905018F02000070EA05018F02000070EA05018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_black_open_back",
+						"bundle_open_front": "bundle_black_open_front",
+						"default": "bundle_black"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC3F90"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -13690,19 +13574,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F63726166708F4E018F0200000300000000000000400C06018F020000C00C06018F020000C00C06018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_blue_open_back",
+						"bundle_open_front": "bundle_blue_open_front",
+						"default": "bundle_blue"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC4470"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -16983,7 +16869,7 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F0000000010EC4E018F0200000100000000000000D01608018F020000501708018F020000501708018F02000007000000000000000800000000000000"
+						"default": "breeze_rod"
 					}
 				}
 			},
@@ -17793,19 +17679,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F020000F0964E018F0200000300000000000000301906018F020000B01906018F020000B01906018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_brown_open_back",
+						"bundle_open_front": "bundle_brown_open_front",
+						"default": "bundle_brown"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC4950"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -20297,19 +20185,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F63726166D0B64E018F0200000300000000000000104E06018F020000904E06018F020000904E06018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_open_back",
+						"bundle_open_front": "bundle_open_front",
+						"default": "bundle"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC51C0"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -21533,16 +21423,10 @@
 				"owner": {
 					"pointer": "0x28F7A3D8AB0"
 				},
-				"result": {
-					"pointer": "0x28F7FA2AE90"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F00CE5150",
-						"end": "0x28F00CE5200",
-						"bytes": 176
-					}
-				},
+				"result": "minecraft:carrots",
+				"targetLandBlocks": [
+					"minecraft:farmland"
+				],
 				"plantAtAnyVisibleSolidSurface": false,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -25049,13 +24933,16 @@
 				"cooldownDuration": 0,
 				"canAlwaysEat": false,
 				"padding1": null,
-				"effects": {
-					"vector": {
-						"begin": "0x28F014F0290",
-						"end": "0x28F014F02E8",
-						"bytes": 88
+				"effects": [
+					{
+						"id": 17,
+						"name": "hunger",
+						"descriptionId": "potion.hunger",
+						"duration": 600,
+						"amplifier": 0,
+						"chance": 0.3
 					}
-				},
+				],
 				"removeEffects": []
 			},
 			"seedComponent": null,
@@ -33283,26 +33170,45 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F02000070474E018F020000010000000000000050C005018F020000D0C005018F020000D0C005018F02000007000000000000000800000000000000"
+						"default": "copper_spear"
 					}
 				},
 				"minecraft:kinetic_weapon": {
-					"settings": {
-						"raw": "0000000033339340FA00676F0179223A3333A34000000000A50075720174696F0000404100000000500074790165223A0000004000009040000000400000F040010000000000803E0000000085EB513F0D000000"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25,
+					"damageModifier": 0,
+					"damageMultiplier": 0.82,
+					"delay": 13,
+					"damageConditionMinSpeed": 0,
+					"damageConditionMinRelativeSpeed": 4.6,
+					"damageConditionMaxDuration": 250,
+					"knockbackConditionMinSpeed": 5.1,
+					"knockbackConditionMinRelativeSpeed": 0,
+					"knockbackConditionMaxDuration": 165,
+					"dismountConditionMinSpeed": 12,
+					"dismountConditionMinRelativeSpeed": 0,
+					"dismountConditionMaxDuration": 80
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:piercing_weapon": {
-					"reach": {
-						"pointer": "0x4090000040000000"
-					},
-					"hitboxMargin": 2,
-					"padding1": null,
-					"onUseAsAttackSubscription": {
-						"pointer": "0x3E80000000000001"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
 					"repairItems": {
@@ -37454,19 +37360,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F0000000070A74E018F0200000300000000000000307C06018F020000B07C06018F020000B07C06018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_cyan_open_back",
+						"bundle_open_front": "bundle_cyan_open_front",
+						"default": "bundle_cyan"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC5C40"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -46112,26 +46020,45 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F0000000010684E018F0200000100000000000000F0E005018F02000070E105018F02000070E105018F02000007000000000000000800000000000000"
+						"default": "diamond_spear"
 					}
 				},
 				"minecraft:kinetic_weapon": {
-					"settings": {
-						"raw": "0000000033339340C8000000010000003333A34000000000820000000100000000002041000000003C000000010000000000004000009040000000400000F040010000000000803E000000009A99893F0A000000"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25,
+					"damageModifier": 0,
+					"damageMultiplier": 1.075,
+					"delay": 10,
+					"damageConditionMinSpeed": 0,
+					"damageConditionMinRelativeSpeed": 4.6,
+					"damageConditionMaxDuration": 200,
+					"knockbackConditionMinSpeed": 5.1,
+					"knockbackConditionMinRelativeSpeed": 0,
+					"knockbackConditionMaxDuration": 130,
+					"dismountConditionMinSpeed": 10,
+					"dismountConditionMinRelativeSpeed": 0,
+					"dismountConditionMaxDuration": 60
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:piercing_weapon": {
-					"reach": {
-						"pointer": "0x4090000040000000"
-					},
-					"hitboxMargin": 2,
-					"padding1": null,
-					"onUseAsAttackSubscription": {
-						"pointer": "0x3E80000000000001"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
 					"repairItems": {
@@ -58347,13 +58274,40 @@
 				"cooldownDuration": 0,
 				"canAlwaysEat": true,
 				"padding1": null,
-				"effects": {
-					"vector": {
-						"begin": "0x28F7A391A30",
-						"end": "0x28F7A391B90",
-						"bytes": 352
+				"effects": [
+					{
+						"id": 10,
+						"name": "regeneration",
+						"descriptionId": "potion.regeneration",
+						"duration": 600,
+						"amplifier": 1,
+						"chance": 1
+					},
+					{
+						"id": 22,
+						"name": "absorption",
+						"descriptionId": "potion.absorption",
+						"duration": 2400,
+						"amplifier": 3,
+						"chance": 1
+					},
+					{
+						"id": 11,
+						"name": "resistance",
+						"descriptionId": "potion.resistance",
+						"duration": 6000,
+						"amplifier": 0,
+						"chance": 1
+					},
+					{
+						"id": 12,
+						"name": "fire_resistance",
+						"descriptionId": "potion.fireResistance",
+						"duration": 6000,
+						"amplifier": 0,
+						"chance": 1
 					}
-				},
+				],
 				"removeEffects": []
 			},
 			"seedComponent": null,
@@ -64792,16 +64746,11 @@
 				"owner": {
 					"pointer": "0x28F01D6F200"
 				},
-				"result": {
-					"pointer": "0x28F7F32F650"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F7A392720",
-						"end": "0x28F7A392880",
-						"bytes": 352
-					}
-				},
+				"result": "minecraft:cave_vines",
+				"targetLandBlocks": [
+					"cave_vines",
+					"cave_vines_head_with_berries"
+				],
 				"plantAtAnyVisibleSolidSurface": true,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -66006,13 +65955,24 @@
 				"cooldownDuration": 0,
 				"canAlwaysEat": true,
 				"padding1": null,
-				"effects": {
-					"vector": {
-						"begin": "0x28F00CE5390",
-						"end": "0x28F00CE5440",
-						"bytes": 176
+				"effects": [
+					{
+						"id": 10,
+						"name": "regeneration",
+						"descriptionId": "potion.regeneration",
+						"duration": 100,
+						"amplifier": 1,
+						"chance": 1
+					},
+					{
+						"id": 22,
+						"name": "absorption",
+						"descriptionId": "potion.absorption",
+						"duration": 2400,
+						"amplifier": 0,
+						"chance": 1
 					}
-				},
+				],
 				"removeEffects": []
 			},
 			"seedComponent": null,
@@ -67294,26 +67254,45 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F00000000106E4E018F020000010000000000000060FB05018F020000E0FB05018F020000E0FB05018F02000007000000000000000800000000000000"
+						"default": "gold_spear"
 					}
 				},
 				"minecraft:kinetic_weapon": {
-					"settings": {
-						"raw": "000000003333934013010000010000003333A34000000000AA00000001000000000050410000000046000000010000000000004000009040000000400000F040010000000000803E000000003333333F0E000000"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25,
+					"damageModifier": 0,
+					"damageMultiplier": 0.7,
+					"delay": 14,
+					"damageConditionMinSpeed": 0,
+					"damageConditionMinRelativeSpeed": 4.6,
+					"damageConditionMaxDuration": 275,
+					"knockbackConditionMinSpeed": 5.1,
+					"knockbackConditionMinRelativeSpeed": 0,
+					"knockbackConditionMaxDuration": 170,
+					"dismountConditionMinSpeed": 13,
+					"dismountConditionMinRelativeSpeed": 0,
+					"dismountConditionMaxDuration": 70
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:piercing_weapon": {
-					"reach": {
-						"pointer": "0x4090000040000000"
-					},
-					"hitboxMargin": 2,
-					"padding1": null,
-					"onUseAsAttackSubscription": {
-						"pointer": "0x3E80000000000001"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
 					"repairItems": {
@@ -68154,19 +68133,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F020000B0B24E018F0200000300000000000000007F06018F020000807F06018F020000807F06018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_gray_open_back",
+						"bundle_open_front": "bundle_gray_open_front",
+						"default": "bundle_gray"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC59A0"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -69814,19 +69795,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F02000090BA4E018F020000030000000000000040AE06018F020000C0AE06018F020000C0AE06018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_green_open_back",
+						"bundle_open_front": "bundle_green_open_front",
+						"default": "bundle_green"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC6870"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -75429,13 +75412,9 @@
 				"canAlwaysEat": true,
 				"padding1": null,
 				"effects": [],
-				"removeEffects": {
-					"vector": {
-						"begin": "0x28F01651760",
-						"end": "0x28F01651764",
-						"bytes": 4
-					}
-				}
+				"removeEffects": [
+					19
+				]
 			},
 			"seedComponent": null,
 			"cameraComponent": null,
@@ -79015,26 +78994,45 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F02000070654E018F0200000100000000000000702D06018F020000F02D06018F020000F02D06018F02000007000000000000000800000000000000"
+						"default": "iron_spear"
 					}
 				},
 				"minecraft:kinetic_weapon": {
-					"settings": {
-						"raw": "0000000033339340E1000000010000003333A340000000008700000001000000000030410000000032000000010000000000004000009040000000400000F040010000000000803E000000003333733F0C000000"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25,
+					"damageModifier": 0,
+					"damageMultiplier": 0.95,
+					"delay": 12,
+					"damageConditionMinSpeed": 0,
+					"damageConditionMinRelativeSpeed": 4.6,
+					"damageConditionMaxDuration": 225,
+					"knockbackConditionMinSpeed": 5.1,
+					"knockbackConditionMinRelativeSpeed": 0,
+					"knockbackConditionMaxDuration": 135,
+					"dismountConditionMinSpeed": 11,
+					"dismountConditionMinRelativeSpeed": 0,
+					"dismountConditionMaxDuration": 50
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:piercing_weapon": {
-					"reach": {
-						"pointer": "0x4090000040000000"
-					},
-					"hitboxMargin": 2,
-					"padding1": null,
-					"onUseAsAttackSubscription": {
-						"pointer": "0x3E80000000000001"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
 					"repairItems": {
@@ -85607,19 +85605,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F020000F0CC4E018F020000030000000000000080DD06018F02000000DE06018F02000000DE06018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_light_blue_open_back",
+						"bundle_open_front": "bundle_light_blue_open_front",
+						"default": "bundle_light_blue"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC6750"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -87267,19 +87267,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F02000070D14E018F0200000300000000000000800107018F020000000207018F020000000207018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_light_gray_open_back",
+						"bundle_open_front": "bundle_light_gray_open_front",
+						"default": "bundle_light_gray"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC6F90"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -89153,19 +89155,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F6372616650BE4E018F0200000300000000000000C01E07018F020000401F07018F020000401F07018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_lime_open_back",
+						"bundle_open_front": "bundle_lime_open_front",
+						"default": "bundle_lime"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC6DE0"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -91968,19 +91972,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F6372616650CD4E018F0200000300000000000000D05007018F020000505107018F020000505107018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_magenta_open_back",
+						"bundle_open_front": "bundle_magenta_open_front",
+						"default": "bundle_magenta"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC7FB0"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -95837,16 +95843,10 @@
 				"owner": {
 					"pointer": "0x28F7A3DB970"
 				},
-				"result": {
-					"pointer": "0x28F7F4B6B30"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F00CE4D90",
-						"end": "0x28F00CE4E40",
-						"bytes": 176
-					}
-				},
+				"result": "minecraft:melon_stem",
+				"targetLandBlocks": [
+					"minecraft:farmland"
+				],
 				"plantAtAnyVisibleSolidSurface": false,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -101660,16 +101660,10 @@
 				"owner": {
 					"pointer": "0x28F7A3D9550"
 				},
-				"result": {
-					"pointer": "0x28F006DB560"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F00CE73D0",
-						"end": "0x28F00CE7480",
-						"bytes": 176
-					}
-				},
+				"result": "minecraft:nether_wart",
+				"targetLandBlocks": [
+					"soul_sand"
+				],
 				"plantAtAnyVisibleSolidSurface": false,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -103100,26 +103094,45 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F020000B0764E018F0200000100000000000000A05706018F020000205806018F020000205806018F02000007000000000000000800000000000000"
+						"default": "netherite_spear"
 					}
 				},
 				"minecraft:kinetic_weapon": {
-					"settings": {
-						"raw": "0000000033339340AF00676F0179223A3333A340000000006E0075720174696F0000104100000000320074790165223A0000004000009040000000400000F040010000000000803E000000009A99993F08000000"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25,
+					"damageModifier": 0,
+					"damageMultiplier": 1.2,
+					"delay": 8,
+					"damageConditionMinSpeed": 0,
+					"damageConditionMinRelativeSpeed": 4.6,
+					"damageConditionMaxDuration": 175,
+					"knockbackConditionMinSpeed": 5.1,
+					"knockbackConditionMinRelativeSpeed": 0,
+					"knockbackConditionMaxDuration": 110,
+					"dismountConditionMinSpeed": 9,
+					"dismountConditionMinRelativeSpeed": 0,
+					"dismountConditionMaxDuration": 50
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:piercing_weapon": {
-					"reach": {
-						"pointer": "0x4090000040000000"
-					},
-					"hitboxMargin": 2,
-					"padding1": null,
-					"onUseAsAttackSubscription": {
-						"pointer": "0x3E80000000000001"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
 					"repairItems": {
@@ -105431,7 +105444,7 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F63726166F0FC4E018F0200000100000000000000000B08018F020000800B08018F020000800B08018F02000007000000000000000800000000000000"
+						"default": "ominous_trial_key"
 					}
 				}
 			},
@@ -105607,19 +105620,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F0000000030BD4E018F0200000300000000000000606307018F020000E06307018F020000E06307018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_orange_open_back",
+						"bundle_open_front": "bundle_orange_open_front",
+						"default": "bundle_orange"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC84F0"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -112117,19 +112132,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F00000000F0DE4E018F0200000300000000000000709507018F020000F09507018F020000F09507018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_pink_open_back",
+						"bundle_open_front": "bundle_pink_open_front",
+						"default": "bundle_pink"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC8610"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -114204,16 +114221,10 @@
 				"owner": {
 					"pointer": "0x28F7A3D9BB0"
 				},
-				"result": {
-					"pointer": "0x28F7E6EA4C0"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F00CE7610",
-						"end": "0x28F00CE76C0",
-						"bytes": 176
-					}
-				},
+				"result": "minecraft:pitcher_crop",
+				"targetLandBlocks": [
+					"minecraft:farmland"
+				],
 				"plantAtAnyVisibleSolidSurface": false,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -114706,13 +114717,16 @@
 				"cooldownDuration": 0,
 				"canAlwaysEat": false,
 				"padding1": null,
-				"effects": {
-					"vector": {
-						"begin": "0x28F014EFBD0",
-						"end": "0x28F014EFC28",
-						"bytes": 88
+				"effects": [
+					{
+						"id": 19,
+						"name": "poison",
+						"descriptionId": "potion.poison",
+						"duration": 100,
+						"amplifier": 0,
+						"chance": 0.6
 					}
-				},
+				],
 				"removeEffects": []
 			},
 			"seedComponent": null,
@@ -120288,16 +120302,10 @@
 				"owner": {
 					"pointer": "0x28F7A3DC630"
 				},
-				"result": {
-					"pointer": "0x28F7E761B70"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F00CE6D10",
-						"end": "0x28F00CE6DC0",
-						"bytes": 176
-					}
-				},
+				"result": "minecraft:potatoes",
+				"targetLandBlocks": [
+					"minecraft:farmland"
+				],
 				"plantAtAnyVisibleSolidSurface": false,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -121858,13 +121866,32 @@
 				"cooldownDuration": 0,
 				"canAlwaysEat": false,
 				"padding1": null,
-				"effects": {
-					"vector": {
-						"begin": "0x28F00B93280",
-						"end": "0x28F00B93388",
-						"bytes": 264
+				"effects": [
+					{
+						"id": 19,
+						"name": "poison",
+						"descriptionId": "potion.poison",
+						"duration": 1200,
+						"amplifier": 1,
+						"chance": 1
+					},
+					{
+						"id": 9,
+						"name": "nausea",
+						"descriptionId": "potion.confusion",
+						"duration": 300,
+						"amplifier": 0,
+						"chance": 1
+					},
+					{
+						"id": 17,
+						"name": "hunger",
+						"descriptionId": "potion.hunger",
+						"duration": 300,
+						"amplifier": 2,
+						"chance": 1
 					}
-				},
+				],
 				"removeEffects": []
 			},
 			"seedComponent": null,
@@ -122282,16 +122309,10 @@
 				"owner": {
 					"pointer": "0x28F7A3DBB90"
 				},
-				"result": {
-					"pointer": "0x28F0005BF40"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F00CE7790",
-						"end": "0x28F00CE7840",
-						"bytes": 176
-					}
-				},
+				"result": "minecraft:pumpkin_stem",
+				"targetLandBlocks": [
+					"minecraft:farmland"
+				],
 				"plantAtAnyVisibleSolidSurface": false,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -122490,19 +122511,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F02000010E94E018F020000030000000000000040A107018F020000C0A107018F020000C0A107018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_purple_open_back",
+						"bundle_open_front": "bundle_purple_open_front",
+						"default": "bundle_purple"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC87F0"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -126431,19 +126454,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F00000000F0D54E018F020000030000000000000040CE07018F020000C0CE07018F020000C0CE07018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_red_open_back",
+						"bundle_open_front": "bundle_red_open_front",
+						"default": "bundle_red"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC8730"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -128617,7 +128642,11 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"block": "minecraft:red_shrub"
+					"block": "minecraft:red_shrub",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": true,
+					"alignedPlacement": false
 				},
 				"minecraft:compostable": {
 					"compostingChance": 30
@@ -128627,7 +128656,7 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F00000000D0534E018F0200000100000000000000309B05018F020000B09B05018F020000B09B05018F02000007000000000000000800000000000000"
+						"default": "red_shrub"
 					}
 				},
 				"minecraft:publisher_on_use_on": {
@@ -131036,13 +131065,16 @@
 				"cooldownDuration": 0,
 				"canAlwaysEat": false,
 				"padding1": null,
-				"effects": {
-					"vector": {
-						"begin": "0x28F014F02F0",
-						"end": "0x28F014F0348",
-						"bytes": 88
+				"effects": [
+					{
+						"id": 17,
+						"name": "hunger",
+						"descriptionId": "potion.hunger",
+						"duration": 600,
+						"amplifier": 0,
+						"chance": 0.8
 					}
-				},
+				],
 				"removeEffects": []
 			},
 			"seedComponent": null,
@@ -133175,7 +133207,11 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"block": "minecraft:shelf_mushroom"
+					"block": "minecraft:shelf_mushroom",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": true,
+					"alignedPlacement": false
 				},
 				"minecraft:compostable": {
 					"compostingChance": 65
@@ -137618,13 +137654,16 @@
 				"cooldownDuration": 0,
 				"canAlwaysEat": false,
 				"padding1": null,
-				"effects": {
-					"vector": {
-						"begin": "0x28F014EF690",
-						"end": "0x28F014EF6E8",
-						"bytes": 88
+				"effects": [
+					{
+						"id": 19,
+						"name": "poison",
+						"descriptionId": "potion.poison",
+						"duration": 100,
+						"amplifier": 0,
+						"chance": 1
 					}
-				},
+				],
 				"removeEffects": []
 			},
 			"seedComponent": null,
@@ -141820,26 +141859,45 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F020000307E4E018F0200000100000000000000707506018F020000F07506018F020000F07506018F02000007000000000000000800000000000000"
+						"default": "stone_spear"
 					}
 				},
 				"minecraft:kinetic_weapon": {
-					"settings": {
-						"raw": "000000003333934013010000010000003333A34000000000B40000000100000000005041000000005A000000010000000000004000009040000000400000F040010000000000803E0000000085EB513F0E000000"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25,
+					"damageModifier": 0,
+					"damageMultiplier": 0.82,
+					"delay": 14,
+					"damageConditionMinSpeed": 0,
+					"damageConditionMinRelativeSpeed": 4.6,
+					"damageConditionMaxDuration": 275,
+					"knockbackConditionMinSpeed": 5.1,
+					"knockbackConditionMinRelativeSpeed": 0,
+					"knockbackConditionMaxDuration": 180,
+					"dismountConditionMinSpeed": 13,
+					"dismountConditionMinRelativeSpeed": 0,
+					"dismountConditionMaxDuration": 90
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:piercing_weapon": {
-					"reach": {
-						"pointer": "0x4090000040000000"
-					},
-					"hitboxMargin": 2,
-					"padding1": null,
-					"onUseAsAttackSubscription": {
-						"pointer": "0x3E80000000000001"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
 					"repairItems": {
@@ -146335,16 +146393,19 @@
 				"owner": {
 					"pointer": "0x28F7A3DA430"
 				},
-				"result": {
-					"pointer": "0x28F7FB65110"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F01593250",
-						"end": "0x28F01593930",
-						"bytes": 1760
-					}
-				},
+				"result": "minecraft:sweet_berry_bush",
+				"targetLandBlocks": [
+					"farmland",
+					"grass",
+					"dirt",
+					"coarse_dirt",
+					"podzol",
+					"moss_block",
+					"mycelium",
+					"mud",
+					"muddy_mangrove_roots",
+					"dirt_with_roots"
+				],
 				"plantAtAnyVisibleSolidSurface": false,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -147512,16 +147573,10 @@
 				"owner": {
 					"pointer": "0x28F7A3D9990"
 				},
-				"result": {
-					"pointer": "0x28F7FB69850"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F00CE4F10",
-						"end": "0x28F00CE4FC0",
-						"bytes": 176
-					}
-				},
+				"result": "minecraft:torchflower_crop",
+				"targetLandBlocks": [
+					"minecraft:farmland"
+				],
 				"plantAtAnyVisibleSolidSurface": false,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -147945,7 +148000,7 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F0000000070FE4E018F0200000100000000000000401F08018F020000C01F08018F020000C01F08018F02000007000000000000000800000000000000"
+						"default": "trial_key"
 					}
 				}
 			},
@@ -159959,16 +160014,10 @@
 				"owner": {
 					"pointer": "0x28F7A3DB750"
 				},
-				"result": {
-					"pointer": "0x28F00468C90"
-				},
-				"targetLandBlocks": {
-					"vector": {
-						"begin": "0x28F00CE5F90",
-						"end": "0x28F00CE6040",
-						"bytes": 176
-					}
-				},
+				"result": "minecraft:wheat",
+				"targetLandBlocks": [
+					"minecraft:farmland"
+				],
 				"plantAtAnyVisibleSolidSurface": false,
 				"isPlanting": false,
 				"faceToPlantAt": {
@@ -160091,19 +160140,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F02000070E64E018F020000030000000000000060F307018F020000E0F307018F020000E0F307018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_white_open_back",
+						"bundle_open_front": "bundle_white_open_front",
+						"default": "bundle_white"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC95A0"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64
@@ -161988,15 +162039,12 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F8F02000090F04E018F0200000100000000000000501B08018F020000D01B08018F020000D01B08018F02000007000000000000000800000000000000"
+						"default": "wind_charge"
 					}
 				},
 				"minecraft:projectile": {
-					"minCriticalPower": 0,
-					"padding1": null,
-					"actorIdentifier": {
-						"raw": "6D696E6563726166740000000000000009000000000000000F0000000000000030B4DC018F020000000000000000000016000000000000001F000000000000000000000000000000000000000000000000000000000000000F00000000000000F033CB018F020000000000000000000022000000000000002F00000000000000554C96A9D2ACBD6DB038CB018F020000000000000000000020000000000000002F000000000000000000000000000000"
-					}
+					"minimumCriticalPower": 0,
+					"projectileEntity": "minecraft:wind_charge_projectile<>"
 				},
 				"minecraft:throwable": {
 					"doSwing": true,
@@ -163459,26 +163507,45 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F00000000B0944E018F0200000100000000000000E0C005018F02000060C105018F02000060C105018F02000007000000000000000800000000000000"
+						"default": "wood_spear"
 					}
 				},
 				"minecraft:kinetic_weapon": {
-					"settings": {
-						"raw": "00000000333393402C01676F0179223A3333A34000000000C80075720174696F0000604100000000640074790165223A0000004000009040000000400000F040010000000000803E000000003333333F0F000000"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25,
+					"damageModifier": 0,
+					"damageMultiplier": 0.7,
+					"delay": 15,
+					"damageConditionMinSpeed": 0,
+					"damageConditionMinRelativeSpeed": 4.6,
+					"damageConditionMaxDuration": 300,
+					"knockbackConditionMinSpeed": 5.1,
+					"knockbackConditionMinRelativeSpeed": 0,
+					"knockbackConditionMaxDuration": 200,
+					"dismountConditionMinSpeed": 14,
+					"dismountConditionMinRelativeSpeed": 0,
+					"dismountConditionMaxDuration": 100
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:piercing_weapon": {
-					"reach": {
-						"pointer": "0x4090000040000000"
-					},
-					"hitboxMargin": 2,
-					"padding1": null,
-					"onUseAsAttackSubscription": {
-						"pointer": "0x3E80000000000001"
-					}
+					"reach": [
+						2,
+						4.5
+					],
+					"creativeReach": [
+						2,
+						7.5
+					],
+					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
 					"repairItems": {
@@ -163941,19 +164008,21 @@
 				},
 				"minecraft:icon": {
 					"textures": {
-						"raw": "0000803F65645F6910E04E018F0200000300000000000000601708018F020000E01708018F020000E01708018F02000007000000000000000800000000000000"
+						"bundle_open_back": "bundle_yellow_open_back",
+						"bundle_open_front": "bundle_yellow_open_front",
+						"default": "bundle_yellow"
 					}
 				},
 				"minecraft:max_stack_size": {
 					"maxStackSize": 1
 				},
 				"minecraft:storage_item": {
-					"numSlots": 64,
-					"allowNestedStorageItem": true,
-					"padding1": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01DC9D20"
-					}
+					"maxSlots": 64,
+					"allowNestedStorageItems": true,
+					"bannedItems": [
+						"minecraft:shulker_box",
+						"minecraft:undyed_shulker_box"
+					]
 				},
 				"minecraft:storage_weight_limit": {
 					"weightLimit": 64

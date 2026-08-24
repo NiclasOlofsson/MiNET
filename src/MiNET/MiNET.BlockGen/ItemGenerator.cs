@@ -57,24 +57,9 @@ public static class ItemGenerator
 	/// </summary>
 	private static readonly (string Path, string Reason)[] Gaps =
 	{
-		("minecraft:kinetic_weapon", "settings is one raw blob; the component class has no layout"),
-		("minecraft:piercing_weapon", "reach and creative_reach are read as pointers, hitbox_margin disagrees with them"),
-		("minecraft:repairable/repair_items", "repairItems is a vector the walk does not follow"),
+		("minecraft:repairable/repair_items", "repair_amount is a compiled Molang expression; RepairItemEntry.mRepairAmount's pointer leads to a polymorphic AST object with no source text found nearby on a release server, so the list stays capture-sourced rather than shipping item names without the amount they belong with"),
 		("minecraft:use_modifiers/start_using", "no member holds it, and the schema default (if_first) is not what the frame carries"),
-		("minecraft:storage_item/allowed_items", "the component holds no member for it"),
-		("minecraft:storage_item/banned_items", "the component holds no member for it"),
-		("minecraft:projectile/projectile_entity", "actorIdentifier is raw bytes"),
-		("minecraft:block_placer/alignedPlacement", "the component reads only its block"),
-		("minecraft:block_placer/canUseBlockAsIcon", "the component reads only its block"),
-		("minecraft:block_placer/replaceBlockItem", "the component reads only its block"),
-		("minecraft:block_placer/use_on", "the component reads only its block"),
-		("minecraft:publisher_on_use_on", "declared, no address; the built map does not carry it"),
-		("minecraft:food/effects", "effects is a vector the walk does not follow"),
-		("minecraft:food/remove_effects", "removeEffects is a vector the walk does not follow"),
-		("minecraft:seed/crop_result", "result is a pointer to the crop item"),
-		("minecraft:seed/plant_at", "targetLandBlocks is a vector the walk does not follow"),
-		("item_properties/minecraft:icon/textures/bundle_open_back", "the icon component's texture map is one raw blob"),
-		("item_properties/minecraft:icon/textures/bundle_open_front", "the icon component's texture map is one raw blob")
+		("minecraft:publisher_on_use_on/autoSucceedOnClient", "the component is declared with no address on every one of the 16 items that carry it, the same hole every declared-only component falls into, so the flag beside the empty compound stays capture-sourced while the compound's own presence is read from the declared set")
 	};
 
 	/// <summary>
@@ -217,6 +202,15 @@ public static class ItemGenerator
 				NbtTag tag = Component(kind, value, row);
 				if (tag != null) components.Add(tag);
 			}
+
+			// minecraft:publisher_on_use_on is an empty compound on the wire: presence is the whole
+			// fact. Its own component value never resolves an address (the extraction reads it as
+			// {"unread": ...}, so Readable() drops it), but the declared set names every item that
+			// carries it regardless of whether its address was found.
+			if ((row["declaredComponents"] as JArray)?.Any(n => (string) n == "minecraft:publisher_on_use_on") == true)
+			{
+				components.Add(new NbtCompound("minecraft:publisher_on_use_on"));
+			}
 		}
 		else
 		{
@@ -292,12 +286,28 @@ public static class ItemGenerator
 			new NbtInt("use_duration", (int) row["useDuration"])
 		};
 
-		// The icon is a texture map keyed by role; the row names the default one, and an item
-		// whose icon name is empty carries no icon at all.
-		string icon = (string) row["iconName"];
-		if (!string.IsNullOrEmpty(icon))
+		// The icon is a texture map keyed by role. minecraft:icon walks its own node tree rather
+		// than reading a single name, so a bundle's textures compound carries bundle_open_back and
+		// bundle_open_front beside default; every other item so far carries default alone. Falls
+		// back to the row's own icon name where the component itself did not read (an item whose
+		// icon name is empty carries no icon at all either way).
+		JObject iconTextures = row["components"]?["minecraft:icon"]?["textures"] as JObject;
+		if (iconTextures is { Count: > 0 })
 		{
-			properties.Add(new NbtCompound("minecraft:icon") {new NbtCompound("textures") {new NbtString("default", icon)}});
+			var textures = new NbtCompound("textures");
+			foreach (JProperty texture in iconTextures.Properties().OrderBy(p => p.Name, StringComparer.Ordinal))
+			{
+				textures.Add(new NbtString(texture.Name, (string) texture.Value));
+			}
+			properties.Add(new NbtCompound("minecraft:icon") {textures});
+		}
+		else
+		{
+			string icon = (string) row["iconName"];
+			if (!string.IsNullOrEmpty(icon))
+			{
+				properties.Add(new NbtCompound("minecraft:icon") {new NbtCompound("textures") {new NbtString("default", icon)}});
+			}
 		}
 
 		return properties;
@@ -309,7 +319,14 @@ public static class ItemGenerator
 		switch (kind)
 		{
 			case "minecraft:block_placer":
-				return new NbtCompound(kind) {new NbtString("block", (string) value["block"])};
+				return new NbtCompound(kind)
+				{
+					new NbtByte("alignedPlacement", Bit(value["alignedPlacement"])),
+					new NbtString("block", (string) value["block"]),
+					new NbtByte("canUseBlockAsIcon", Bit(value["canUseBlockAsIcon"])),
+					new NbtByte("replaceBlockItem", Bit(value["replaceBlockItem"])),
+					BlockDescriptorList("use_on", value["useOn"] as JArray)
+				};
 			case "minecraft:bundle_interaction":
 				return new NbtCompound(kind) {new NbtInt("num_viewable_slots", (int) value["numViewableSlots"])};
 			case "minecraft:compostable":
@@ -357,22 +374,65 @@ public static class ItemGenerator
 			case "minecraft:hand_equipped":
 				return new NbtCompound(kind) {new NbtByte("value", Bit(value["handEquipped"]))};
 			case "minecraft:kinetic_weapon":
-				return new NbtCompound(kind);
+				// Doubly nested on the wire: the outer compound named minecraft:kinetic_weapon holds
+				// exactly one child, also named minecraft:kinetic_weapon, carrying the nine fields.
+				return new NbtCompound(kind)
+				{
+					new NbtCompound(kind)
+					{
+						MinMax("creative_reach", value["creativeReach"] as JArray),
+						new NbtCompound("damage_conditions")
+						{
+							new NbtShort("max_duration", (short) (int) value["damageConditionMaxDuration"]),
+							new NbtFloat("min_relative_speed", (float) value["damageConditionMinRelativeSpeed"]),
+							new NbtFloat("min_speed", (float) value["damageConditionMinSpeed"])
+						},
+						new NbtFloat("damage_modifier", (float) value["damageModifier"]),
+						new NbtFloat("damage_multiplier", (float) value["damageMultiplier"]),
+						new NbtShort("delay", (short) (int) value["delay"]),
+						new NbtCompound("dismount_conditions")
+						{
+							new NbtShort("max_duration", (short) (int) value["dismountConditionMaxDuration"]),
+							new NbtFloat("min_relative_speed", (float) value["dismountConditionMinRelativeSpeed"]),
+							new NbtFloat("min_speed", (float) value["dismountConditionMinSpeed"])
+						},
+						new NbtFloat("hitbox_margin", (float) value["hitboxMargin"]),
+						new NbtCompound("knockback_conditions")
+						{
+							new NbtShort("max_duration", (short) (int) value["knockbackConditionMaxDuration"]),
+							new NbtFloat("min_relative_speed", (float) value["knockbackConditionMinRelativeSpeed"]),
+							new NbtFloat("min_speed", (float) value["knockbackConditionMinSpeed"])
+						},
+						MinMax("reach", value["reach"] as JArray)
+					}
+				};
 			case "minecraft:max_stack_size":
 				return new NbtCompound(kind) {new NbtByte("value", (byte) (int) value["maxStackSize"])};
 			case "minecraft:piercing_weapon":
-				return new NbtCompound(kind);
+				return new NbtCompound(kind)
+				{
+					MinMax("creative_reach", value["creativeReach"] as JArray),
+					new NbtFloat("hitbox_margin", (float) value["hitboxMargin"]),
+					MinMax("reach", value["reach"] as JArray)
+				};
 			case "minecraft:projectile":
-				return new NbtCompound(kind) {new NbtFloat("minimum_critical_power", (float) value["minCriticalPower"])};
-			case "minecraft:publisher_on_use_on":
-				return new NbtCompound(kind);
+			{
+				var projectile = new NbtCompound(kind) {new NbtFloat("minimum_critical_power", (float) value["minimumCriticalPower"])};
+				if (value["projectileEntity"] is { Type: JTokenType.String } entity)
+				{
+					projectile.Add(new NbtString("projectile_entity", (string) entity));
+				}
+				return projectile;
+			}
 			case "minecraft:repairable":
 				return new NbtCompound(kind);
 			case "minecraft:storage_item":
 				return new NbtCompound(kind)
 				{
-					new NbtByte("allow_nested_storage_items", Bit(value["allowNestedStorageItem"])),
-					new NbtInt("max_slots", (int) value["numSlots"])
+					new NbtByte("allow_nested_storage_items", Bit(value["allowNestedStorageItems"])),
+					ItemDescriptorList("allowed_items", value["allowedItems"] as JArray),
+					ItemDescriptorList("banned_items", value["bannedItems"] as JArray),
+					new NbtInt("max_slots", (int) value["maxSlots"])
 				};
 			case "minecraft:storage_weight_limit":
 				return new NbtCompound(kind) {new NbtInt("max_weight_limit", (int) value["weightLimit"])};
@@ -422,7 +482,7 @@ public static class ItemGenerator
 	/// <summary>The legacy food pointer component, the shape the hardcoded food items still send.</summary>
 	private static NbtCompound LegacyFood(JObject food)
 	{
-		return new NbtCompound("minecraft:food")
+		var tag = new NbtCompound("minecraft:food")
 		{
 			new NbtByte("can_always_eat", Bit(food["canAlwaysEat"])),
 			new NbtInt("cooldown_time", (int) food["cooldownDuration"]),
@@ -438,15 +498,55 @@ public static class ItemGenerator
 			new NbtFloat("saturation_modifier", (float) food["saturationModifier"]),
 			new NbtString("using_converts_to", (string) food["usingConvertsTo"] ?? "")
 		};
+
+		// mEffects, the on-eat status effects the legacy component still carries directly: only
+		// golden apple, enchanted golden apple, poisonous potato and pufferfish read a non-empty
+		// vector here, everything else reads the empty vector LegacyFoodEffects hands back.
+		if (food["effects"] is JArray {Count: > 0} effects)
+		{
+			var list = new NbtList("effects", NbtTagType.Compound);
+			foreach (JObject effect in effects.Cast<JObject>())
+			{
+				list.Add(new NbtCompound
+				{
+					new NbtInt("amplifier", (int) effect["amplifier"]),
+					new NbtFloat("chance", (float) effect["chance"]),
+					new NbtString("descriptionId", (string) effect["descriptionId"]),
+					// The struct's own field is ticks (enchanted golden apple's regeneration reads
+					// 600 there), the wire carries seconds: every value seen divides by 20 exactly.
+					new NbtInt("duration", (int) effect["duration"] / 20),
+					new NbtInt("id", (int) effect["id"]),
+					new NbtString("name", (string) effect["name"])
+				});
+			}
+			tag.Add(list);
+		}
+
+		// mRemoveEffects, a plain list of effect ids to clear on eating.
+		if (food["removeEffects"] is JArray {Count: > 0} removeEffects)
+		{
+			var list = new NbtList("remove_effects", NbtTagType.Int);
+			foreach (JToken id in removeEffects) list.Add(new NbtInt((int) id));
+			tag.Add(list);
+		}
+
+		return tag;
 	}
 
 	private static NbtCompound Seed(JObject seed)
 	{
-		return new NbtCompound("minecraft:seed")
+		var tag = new NbtCompound("minecraft:seed")
 		{
 			new NbtByte("plant_at_any_solid_surface", Bit(seed["plantAtAnyVisibleSolidSurface"])),
 			new NbtString("plant_at_face", ((string) seed["faceToPlantAt"]["name"]).ToLowerInvariant())
 		};
+
+		// The crop block and the land it can be planted on, both resolved by the extraction from
+		// the pointer and the vector the generic component reader otherwise leaves as an address
+		// and an unwalked range.
+		if (seed["result"] is { Type: JTokenType.String } cropResult) tag.Add(new NbtString("crop_result", (string) cropResult));
+		if (seed["targetLandBlocks"] is JArray plantAt) tag.Add(Tags("plant_at", plantAt));
+		return tag;
 	}
 
 	private static NbtCompound Camera(JObject camera)
@@ -469,6 +569,44 @@ public static class ItemGenerator
 		var list = new NbtList(name, NbtTagType.String);
 		foreach (JToken tag in tags) list.Add(new NbtString((string) tag));
 		return list;
+	}
+
+	/// <summary>
+	///     A list of item names as the wire's storage_item allowed_items and banned_items carry them:
+	///     one compound per item holding a single "name" string, the shape DescriptorNames' two hops
+	///     already resolves down to a bare name.
+	/// </summary>
+	private static NbtList ItemDescriptorList(string name, JArray names)
+	{
+		if (names == null || names.Count == 0) return new NbtList(name, NbtTagType.End);
+
+		var list = new NbtList(name, NbtTagType.Compound);
+		foreach (JToken one in names) list.Add(new NbtCompound {new NbtString("name", (string) one)});
+		return list;
+	}
+
+	/// <summary>
+	///     A list of block names, for block_placer's use_on. Every item carrying this component seen
+	///     so far reads it empty, so only the empty shape is checked against the wire; a non-empty
+	///     list is written the same way storage_item's item lists are, which is unverified.
+	/// </summary>
+	private static NbtList BlockDescriptorList(string name, JArray names)
+	{
+		if (names == null || names.Count == 0) return new NbtList(name, NbtTagType.End);
+
+		var list = new NbtList(name, NbtTagType.Compound);
+		foreach (JToken one in names) list.Add(new NbtCompound {new NbtString("name", (string) one)});
+		return list;
+	}
+
+	/// <summary>A {min, max} compound from the extraction's [min, max] pair array.</summary>
+	private static NbtCompound MinMax(string name, JArray pair)
+	{
+		return new NbtCompound(name)
+		{
+			new NbtFloat("max", (float) pair[1]),
+			new NbtFloat("min", (float) pair[0])
+		};
 	}
 
 	/// <summary>The cooldown kind is a one byte enum; the extraction publishes its own name table.</summary>

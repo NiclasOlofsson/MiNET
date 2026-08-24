@@ -998,7 +998,11 @@ public static class ItemRegistry
 		var node = new byte[32];
 		var inner = new byte[64];
 		var text = new byte[256];
-		foreach (int stride in (int[]) [32, 80, 16, 24])
+		// Smallest first: a coarser stride that merely happens to divide the range can still find
+		// every element it steps to valid, silently reading half as many entries as are really
+		// there. Black bundle's banned list is the proof, two shulker box descriptors sixteen bytes
+		// apart that a thirty two byte stride reads as one.
+		foreach (int stride in (int[]) [16, 24, 32, 80])
 		{
 			if ((end - begin) % (ulong) stride != 0) continue;
 			found.Clear();
@@ -1013,6 +1017,49 @@ public static class ItemRegistry
 			}
 			if (found.Count > 0) return found;
 		}
+		return found;
+	}
+
+	/// <summary>
+	///     The block names in a vector&lt;BlockDescriptor&gt;, such as a seed's targetLandBlocks or a
+	///     block placer's use_on. Unlike an ItemDescriptor, a BlockDescriptor carries its own
+	///     HashedString inline eight bytes in, so there is no second hop. The element size is not
+	///     assumed: wheat_seeds' single-entry vector could not tell 176 bytes apart from two 88 byte
+	///     elements, and nether_wart proved it wrong, holding two entries in that same 176 bytes. The
+	///     smallest stride that divides the range and verifies on every element wins, the same
+	///     self-proving shape <see cref="DescriptorNames" /> and <see cref="StringVector" /> use. An
+	///     empty vector, which every block placer seen so far carries, is not a failure to resolve: it
+	///     returns an empty list because there is nothing to walk.
+	/// </summary>
+	private static List<string> BlockDescriptorNames(BedrockProcess process, ulong begin, ulong end)
+	{
+		var found = new List<string>();
+		if (begin < 0x10000 || end < begin || end - begin > 1 << 16) return found;
+		if (end == begin) return found;
+		const int nameAt = 8;
+		var node = new byte[HashedString.Size];
+		for (int stride = 24; stride <= (int) (end - begin); stride += 8)
+		{
+			if ((end - begin) % (ulong) stride != 0) continue;
+			found.Clear();
+			bool every = true;
+			for (ulong at = begin; at < end && every; at += (ulong) stride)
+			{
+				// The default minimum of eleven is tuned for a namespaced "minecraft:" name and
+				// wrongly rejects a BlockDescriptor holding the bare form: nether_wart's target land
+				// block stores "soul_sand", nine characters, no namespace, and the wire sends it bare
+				// too; wheat_seeds' stores and sends the full "minecraft:farmland". The wire reflects
+				// whichever form is actually stored rather than a normalised one, so the name travels
+				// out exactly as read.
+				string name = process.TryRead(at + nameAt, node, node.Length)
+					? HashedString.ReadVerified(process, node, 0, new byte[256], 1, 96)
+					: null;
+				if (name is null) every = false;
+				else found.Add(name);
+			}
+			if (every && found.Count > 0) return found;
+		}
+		found.Clear();
 		return found;
 	}
 
@@ -1162,16 +1209,17 @@ public static class ItemRegistry
 				or "minecraft:storage_weight_modifier" or "minecraft:hand_equipped"
 				or "minecraft:fire_resistant" or "minecraft:use_animation"
 				or "minecraft:use_modifiers" => 4,
-			"minecraft:food" or "minecraft:block_placer" => 8,
+			"minecraft:food" => 8,
 			"minecraft:durability" => 12,
 			"minecraft:icon" or "minecraft:tags" or "minecraft:repairable" => 16,
 			"minecraft:throwable" or "minecraft:piercing_weapon" => 24,
 			"minecraft:display_name" => 32,
 			"minecraft:enchantable" => 40,
 			"minecraft:cooldown" or "minecraft:storage_item" => 48,
+			"minecraft:block_placer" => 51,
 			"minecraft:swing_sounds" => 52,
-			"minecraft:projectile" => 72,
-			"minecraft:kinetic_weapon" => 80,
+			"minecraft:projectile" => 136,
+			"minecraft:kinetic_weapon" => 84,
 			_ => 0
 		};
 		if (at + extent > have)
@@ -1298,25 +1346,48 @@ public static class ItemRegistry
 					string placed = HashedString.ReadVerified(process, probe, 0, new byte[256]);
 					if (placed is not null) fields["block"] = placed;
 				}
+
+				// use_on is a vector<BlockDescriptor> right after the block pointer; empty on both
+				// items observed (red_shrub, shelf_mushroom), which is what a zero begin/end/capacity
+				// vector reads as. The same 176-byte, name-at-+8 element shape as the seed component's
+				// targetLandBlocks resolves it when it is not empty.
+				fields["useOn"] = Names(BlockDescriptorNames(process, BitConverter.ToUInt64(scratch, at + 8), BitConverter.ToUInt64(scratch, at + 16)));
+
+				// canUseBlockAsIcon and replaceBlockItem read as a matching pair of bytes right after
+				// the (empty, on these two items) use_on vector, both true on red_shrub and
+				// shelf_mushroom, which is what the wire states. alignedPlacement is false on both
+				// known items too, and nothing distinguishes its exact byte from the padding beside it
+				// by value alone; +50 is where it sits structurally, immediately after the confirmed
+				// pair, and it has not been proven against a spear or item where it reads true.
+				fields["canUseBlockAsIcon"] = scratch[at + 48] != 0;
+				fields["replaceBlockItem"] = scratch[at + 49] != 0;
+				fields["alignedPlacement"] = scratch[at + 50] != 0;
 				break;
 			}
 			case "minecraft:kinetic_weapon":
-				// reach and creative_reach read the same pair the piercing weapon component holds for
-				// the same spears, which is what places them; hitbox_margin follows them. The three
-				// condition blocks sit 16 bytes apart and each leads with its max_duration.
+				// Every offset below was found by correlation against the seven spears' known wire
+				// values (protocol 2192, MiNET.BlockGen/Captures/item_registry-1.26.50.26.bin), not by
+				// the header: KineticDamageSettings's own fields are all anonymous Unk storage. Each of
+				// the three condition structs is sixteen bytes: min_speed, then min_relative_speed,
+				// then a sixteen bit max_duration, then four bytes of slack this does not read. delay
+				// is a short, not the int the old reading here took it for.
 				fields["reach"] = Pair(48, 52);
 				fields["creativeReach"] = Pair(56, 60);
 				fields["hitboxMargin"] = Real(F32(68));
-				fields["delay"] = I32(0);
+				// damage_modifier reads zero on all seven spears, same as damage_multiplier's own low
+				// half; its offset is inferred from sitting directly before the multiplier it is named
+				// beside, not independently confirmed by a nonzero value.
+				fields["damageModifier"] = Real(F32(72));
 				fields["damageMultiplier"] = Real(F32(76));
-				// Each condition block leads with a sixteen bit max duration, and the two bytes after
-				// it are slack: zero on five spears and 0x61 and 0x31 on copper and stone. Reading
-				// the field as a thirty two bit int swallowed that slack and gave those two
-				// 6,357,242 where the rest gave a clean progression.
+				fields["delay"] = (int) U16(80);
+				fields["damageConditionMinSpeed"] = Real(F32(0));
+				fields["damageConditionMinRelativeSpeed"] = Real(F32(4));
 				fields["damageConditionMaxDuration"] = (int) U16(8);
-				fields["damageConditionMinSpeed"] = Real(F32(16));
+				fields["knockbackConditionMinSpeed"] = Real(F32(16));
+				fields["knockbackConditionMinRelativeSpeed"] = Real(F32(20));
 				fields["knockbackConditionMaxDuration"] = (int) U16(24);
-				fields["knockbackConditionMinSpeed"] = Real(F32(32));
+				fields["dismountConditionMinSpeed"] = Real(F32(32));
+				fields["dismountConditionMinRelativeSpeed"] = Real(F32(36));
 				fields["dismountConditionMaxDuration"] = (int) U16(40);
 				break;
 			case "minecraft:throwable":
@@ -1330,8 +1401,18 @@ public static class ItemRegistry
 			case "minecraft:projectile":
 			{
 				fields["minimumCriticalPower"] = Real(F32(0));
-				// The entity is an actor identifier: its namespace inline at +24 and its name at +56,
-				// which is where the strings actually verify rather than where the joined form sits.
+				// The entity is an ActorDefinitionIdentifier: mNamespace inline at +8, mIdentifier at
+				// +40, mInitEvent at +72, mFullName at +104, which is where the strings actually
+				// verify rather than where the header's own field order would put them. mFullName is
+				// what the wire sends: wind_charge's mIdentifier alone reads "wind_charge_projectile",
+				// missing the "<>" empty-additional-identifier suffix the wire's projectile_entity
+				// carries, and mFullName carries it whole.
+				string full = StdString(process, scratch, at + 104, new byte[256]);
+				if (full is { Length: > 0 })
+				{
+					fields["projectileEntity"] = full;
+					break;
+				}
 				string space = StdString(process, scratch, at + 8, new byte[256]);
 				string entity = StdString(process, scratch, at + 40, new byte[256]);
 				if (entity is { Length: > 0 })
@@ -1418,6 +1499,85 @@ public static class ItemRegistry
 	}
 
 	/// <summary>
+	///     What effect id names what effect, proven across the whole run rather than within one
+	///     item: the same id has to name the same effect everywhere it is seen, so a stride that
+	///     merely divides evenly on one short vector still fails the moment a second item disagrees
+	///     with the first.
+	/// </summary>
+	private static readonly Dictionary<int, string> _effectNames = new();
+
+	/// <summary>
+	///     The legacy food component's mEffects, a vector of FoodItemComponentLegacy::Effect. The
+	///     stride is the struct's own alignment sum: id (int, 4) pads to the string's 8 byte
+	///     alignment, two 32 byte std::strings, then duration, amplifier and chance packed at 4
+	///     each, 84 bytes rounded up to the struct's own 8 byte alignment, 88. Trusted only once
+	///     every element in the vector resolves: both strings have to read back as real
+	///     std::strings, and the id has to name the same effect everywhere this run has seen it.
+	/// </summary>
+	private static JsonArray LegacyFoodEffects(BedrockProcess process, byte[] food, byte[] scratch)
+	{
+		const int stride = 88;
+		ulong begin = BitConverter.ToUInt64(food, 128);
+		ulong end = BitConverter.ToUInt64(food, 136);
+		ulong capacity = BitConverter.ToUInt64(food, 144);
+		if (begin == end && capacity >= end) return [];
+		if (end <= begin || capacity < end || (end - begin) % stride != 0) return null;
+
+		long count = (long) (end - begin) / stride;
+		if (count is < 1 or > 64) return null;
+
+		var elements = new byte[end - begin];
+		if (!process.TryRead(begin, elements, elements.Length)) return null;
+
+		var list = new JsonArray();
+		for (int e = 0; e + stride <= elements.Length; e += stride)
+		{
+			int id = BitConverter.ToInt32(elements, e);
+			string name = StdString(process, elements, e + 8, scratch);
+			string descriptionId = StdString(process, elements, e + 40, scratch);
+			if (name is null || descriptionId is null) return null;
+			if (_effectNames.TryGetValue(id, out string known)) { if (known != name) return null; }
+			else _effectNames[id] = name;
+
+			list.Add(new JsonObject
+			{
+				["id"] = id,
+				["name"] = name,
+				["descriptionId"] = descriptionId,
+				["duration"] = BitConverter.ToInt32(elements, e + 72),
+				["amplifier"] = BitConverter.ToInt32(elements, e + 76),
+				["chance"] = Real(BitConverter.ToSingle(elements, e + 80))
+			});
+		}
+
+		return list;
+	}
+
+	/// <summary>
+	///     The legacy food component's mRemoveEffects, a plain vector of uint effect ids: no struct
+	///     behind it to name a stride, so the well-formed vector shape (begin, end and capacity in
+	///     order, four byte stride) is the only proof there is.
+	/// </summary>
+	private static JsonArray LegacyFoodRemoveEffects(BedrockProcess process, byte[] food)
+	{
+		ulong begin = BitConverter.ToUInt64(food, 152);
+		ulong end = BitConverter.ToUInt64(food, 160);
+		ulong capacity = BitConverter.ToUInt64(food, 168);
+		if (begin == end && capacity >= end) return [];
+		if (end <= begin || capacity < end || (end - begin) % 4 != 0) return null;
+
+		long count = (long) (end - begin) / 4;
+		if (count is < 1 or > 64) return null;
+
+		var elements = new byte[end - begin];
+		if (!process.TryRead(begin, elements, elements.Length)) return null;
+
+		var list = new JsonArray();
+		for (int e = 0; e + 4 <= elements.Length; e += 4) list.Add((long) BitConverter.ToUInt32(elements, e));
+		return list;
+	}
+
+	/// <summary>
 	///     A float as the number it is, rounded where the game states it and never turned into text.
 	///     A value that is not finite is null rather than the word NaN, which is not JSON at all.
 	/// </summary>
@@ -1446,6 +1606,25 @@ public static class ItemRegistry
 		ulong held = process.ReadUInt64(pointer, word);
 		return held > 0x10000 && process.IsMapped(held)
 			? HashedAt(process, held + (ulong) MemoryLayout.NameInsideLegacy)
+			: null;
+	}
+
+	/// <summary>
+	///     The block a pointer to a STATE leads to, such as the seed component's crop result: a Block
+	///     (one per palette entry) rather than a BlockLegacy (one per block name), so its name is not
+	///     inline the way <see cref="BlockNameAt" /> reads. A state carries a pointer back to its
+	///     BlockLegacy at its own state+<see cref="MemoryLayout.BlockLegacyPointer" />, which is the
+	///     same back pointer <see cref="BlockPalette" /> follows, and the BlockLegacy's own name sits
+	///     at its usual place from there. Verified against wheat_seeds (minecraft:wheat) and
+	///     nether_wart (minecraft:nether_wart).
+	/// </summary>
+	private static string BlockNameAtState(BedrockProcess process, ulong statePointer)
+	{
+		if (statePointer < 0x10000 || !process.IsMapped(statePointer)) return null;
+		var word = new byte[8];
+		ulong legacy = process.ReadUInt64(statePointer + (ulong) MemoryLayout.BlockLegacyPointer, word);
+		return legacy > 0x10000 && process.IsMapped(legacy)
+			? HashedAt(process, legacy + (ulong) MemoryLayout.NameInsideLegacy)
 			: null;
 	}
 
@@ -1649,6 +1828,7 @@ public static class ItemRegistry
 		var byClass = new Dictionary<ulong, List<string>>();
 		List<Item> ordered = items.OrderBy(i => i.Name, StringComparer.Ordinal).ToList();
 		CollectTierStructs(process, ordered);
+		_effectNames.Clear();
 		foreach (Item item in ordered)
 		{
 			ulong vtable = item.Ptr(ItemLayout.MethodTable);
@@ -2029,6 +2209,39 @@ public static class ItemRegistry
 			row[node.Member.Name] = at >= 0 && at + node.Member.Bytes <= item.Window.Length
 				? BlockMemberReader.Node(process, item.Address, item.Window, scratch, at, node.Member)
 				: null;
+		}
+
+		// The seed component's declared layout reads "result" as a bare pointer and
+		// "targetLandBlocks" as an unresolved vector, because neither is a class this reader has: the
+		// crop is a live Block (a palette state), not the BlockLegacy the generic Component reader
+		// resolves, and a target land block is a BlockDescriptor holding its own name inline rather
+		// than a two-hop ItemDescriptor. Both are fixed up here, over the object the generic pass
+		// already read the pointer and the vector bounds out of.
+		if (row["seedComponent"] is JsonObject seedComponent)
+		{
+			ulong seedAddress = item.Ptr(ItemLayout.SeedComponent);
+			if (seedAddress >= 0x10000 && process.TryRead(seedAddress, scratch, 32))
+			{
+				string cropResult = BlockNameAtState(process, BitConverter.ToUInt64(scratch, 8));
+				if (cropResult is not null) seedComponent["result"] = cropResult;
+
+				List<string> plantAt = BlockDescriptorNames(process, BitConverter.ToUInt64(scratch, 16), BitConverter.ToUInt64(scratch, 24));
+				if (plantAt.Count > 0) seedComponent["targetLandBlocks"] = Names(plantAt);
+			}
+		}
+
+		// The legacy food component's two vectors, mEffects and mRemoveEffects. Neither has a class
+		// of its own in the generic member table, so both are read here over the object the generic
+		// pass already located and sized: the food component's own address, read whole.
+		if (row["foodComponent"] is JsonObject foodComponent)
+		{
+			ulong foodAddress = item.Ptr(ItemLayout.FoodComponent);
+			var food = new byte[176];
+			if (foodAddress >= 0x10000 && process.TryRead(foodAddress, food, food.Length))
+			{
+				if (LegacyFoodEffects(process, food, scratch) is { } effects) foodComponent["effects"] = effects;
+				if (LegacyFoodRemoveEffects(process, food) is { } removeEffects) foodComponent["removeEffects"] = removeEffects;
+			}
 		}
 
 		// What the numbers above mean, where this tool knows: the names behind the enums and the

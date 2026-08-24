@@ -123,11 +123,8 @@ dotnet run --project src/MiNET/MiNET.BdsExtract -- --prepare temp_auto/bds/serve
 # start it from its own folder
 (cd temp_auto/bds/server-1.26.20.5 && ./bedrock_server.exe > ../../bds.log 2>&1 &)
 
-# blocks and states
+# one run: blocks and states, items, the creative inventory, and the sound event table
 dotnet run --project src/MiNET/MiNET.BdsExtract -- --server server-1.26.20.5
-
-# items
-dotnet run --project src/MiNET/MiNET.BdsExtract -- --items --server server-1.26.20.5
 
 # every build, both extractions, every guard
 bash src/MiNET/MiNET.BdsExtract/conformance.sh

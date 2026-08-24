@@ -150,6 +150,11 @@ public static class Program
 		if (!WorldConfig.Check(WorldConfig.Read(server.ExecutablePath), true)) return 1;
 		Console.WriteLine();
 
+		// The sound event names, before anything is written, because every output states the enums
+		// it was read against and they all have to state the same ones.
+		SoundEvents(server);
+		Console.WriteLine();
+
 		// The block layout is measured from this server before anything is swept. A block and its
 		// default state point at each other, and where those two pointers sit moves between builds:
 		// 224/352/104 on the versions we target, 200/448/96 on 1.26.3.1. Reading with the wrong
@@ -402,7 +407,7 @@ public static class Program
 		// items, and a stack names the item and the block state it holds. Both of those are read
 		// through positions the two extractions above measured on this server.
 		Console.WriteLine();
-		int creative = CreativeItems.Run(server);
+		int creative = CreativeItems.Run(server, palette);
 		return report.Passed && items == 0 && creative == 0 ? 0 : 1;
 	}
 
@@ -482,6 +487,31 @@ public static class Program
 		Console.WriteLine($"  the state destructor hands out {string.Join(", ", sizes)}; "
 						+ $"a state is read as far as +{measured}, so the class is {size}");
 		return size;
+	}
+
+	/// <summary>
+	///     The LevelSoundEvent names, from the server rather than from the documentation it writes:
+	///     the docs stop before the newest values and a member declared over the enum would name
+	///     nothing for them. A table that fails to turn up leaves the enum unnamed and the numbers
+	///     stand on their own, which is what they did before.
+	/// </summary>
+	private static void SoundEvents(BedrockProcess server)
+	{
+		(Dictionary<long, string> table, int rings, List<string> differences) = RegistryDiscovery.SoundEvents(server);
+		if (table is null)
+		{
+			Console.WriteLine("sound events: no ring holds every known name and id, so the enum is not named");
+			return;
+		}
+
+		Console.WriteLine($"sound events: {table.Count:N0} named, ids {table.Keys.Min()} to {table.Keys.Max()}, "
+						+ $"from {rings} tables holding every known pair, {differences.Count} differences between them");
+		foreach (string difference in differences) Console.WriteLine($"  {difference}");
+
+		if (!BlockMembers.Discovered("LevelSoundEvent", table))
+		{
+			Console.WriteLine("  the reference already states LevelSoundEvent, so what the server holds is not applied");
+		}
 	}
 
 	private static int LargestBlock(BedrockProcess process, IReadOnlyList<BlockProperties> blocks)

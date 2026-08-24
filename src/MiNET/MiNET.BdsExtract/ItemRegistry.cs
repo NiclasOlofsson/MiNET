@@ -2079,15 +2079,27 @@ public static class ItemRegistry
 		row["componentBased"] = declared.Count > 0;
 		if (declared.Count > 0) row["declaredComponents"] = Names(declared.Select(c => c.Name));
 
+		// Walked from both containers, not gated on componentBased: the declared set names 75 items'
+		// components and the built map only resolves 31 of them, so a kind that sits in the declared
+		// set alone (arrow's minecraft:projectile among them) used to come out with a name and nothing
+		// behind it. Built is tried first, because it is the address the spears' damage, cooldown and
+		// durability were fitted against and it is proven to hold real component objects. The declared
+		// set's own value slot reads zero on every one of the 311 entries measured across all 75
+		// componentBased items, on this build: it names a component without holding its address, so a
+		// kind found only there cannot be read and is recorded as such rather than as an empty object,
+		// which would say the component was read and turned out to hold nothing.
 		var components = new JsonObject();
-		foreach (var (kind, address) in built)
+		foreach (var (kind, address) in built.Concat(declared))
 		{
 			// Ruled out by Niclas, not by this tool: legacy_events is 184 bytes holding a table of
 			// sixteen event handler lists, and on the one item that carries it, the apple, every
 			// one of those lists is an empty sentinel that points at itself. It describes nothing.
 			// Its shape stays in items-runtime-components.json, where the bytes are still counted.
 			if (kind == "minecraft:legacy_events") continue;
-			components[kind] = Component(process, kind, address, item.Address, scratch);
+			if (components.ContainsKey(kind)) continue;
+			components[kind] = address >= 0x10000
+				? Component(process, kind, address, item.Address, scratch)
+				: new JsonObject {["unread"] = "declared, no address; the built map does not carry it"};
 		}
 
 		// The legacy food, seed and camera components are not listed here. They are reached through

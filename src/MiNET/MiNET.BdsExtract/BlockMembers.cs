@@ -68,6 +68,13 @@ public enum MemberKind
 	/// </summary>
 	Component,
 
+	/// <summary>
+	///     An ItemDescriptor: its own bytes at offset 8 hold a pointer to an object whose
+	///     std::string name sits at that object's own offset 8. Read as the name, or null when the
+	///     pointer is unset (no item named) or nothing at the far end reads back as a string.
+	/// </summary>
+	Descriptor,
+
 	/// <summary>A byte of flags over an enum: the members it names are the bits that are set.</summary>
 	Flags8,
 
@@ -301,6 +308,24 @@ public static class BlockMembers
 	}
 
 	private static readonly Dictionary<string, Dictionary<long, string>> _enums = new(StringComparer.Ordinal);
+
+	/// <summary>
+	///     An enum whose names the server holds as data rather than the reference: read from the
+	///     process by the run and then stated like any other, so a member declared over it names its
+	///     numbers and the output file carries the table.
+	///     <para>
+	///         Refused when the reference already states that enum, because two sources for one fact
+	///         is how one of them silently wins. The caller says which happened.
+	///     </para>
+	/// </summary>
+	public static bool Discovered(string enumeration, IReadOnlyDictionary<long, string> values)
+	{
+		foreach (Source source in new[] { Source.Blocks, Source.States, Source.Items }) Load(source);
+		if (_enums.ContainsKey(enumeration)) return false;
+
+		_enums[enumeration] = new Dictionary<long, string>(values);
+		return true;
+	}
 
 	/// <summary>
 	///     What the reference carries besides its classes: the names behind each enum, and which

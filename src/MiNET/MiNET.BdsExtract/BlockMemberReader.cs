@@ -251,6 +251,19 @@ public static class BlockMemberReader
 			case MemberKind.Container:
 				return Container(process, window, at, member, identify);
 
+			// An ItemDescriptor. Its own pointer sits eight bytes in, following the same shape
+			// DescriptorNames already walks for a vector of these: the pointer names an object
+			// whose std::string sits eight bytes into it.
+			case MemberKind.Descriptor:
+			{
+				ulong pointer = BitConverter.ToUInt64(window, at + 8);
+				if (pointer < 0x10000) return null;
+				var target = new byte[64];
+				if (!process.TryRead(pointer, target, target.Length)) return null;
+				string name = ItemRegistry.StdString(process, target, 8, scratch);
+				return name is null ? null : JsonValue.Create(name);
+			}
+
 			// Bytes nothing declares. They travel out as themselves so the member list adds up to
 			// the class and the hole is countable rather than absent.
 			case MemberKind.Unknown:

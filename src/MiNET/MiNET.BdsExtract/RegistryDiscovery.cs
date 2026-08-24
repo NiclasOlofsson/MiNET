@@ -342,6 +342,194 @@ public static class RegistryDiscovery
 		return (best.Key, best.Value);
 	}
 
+	/// <summary>
+	///     Seven LevelSoundEvent numbers whose name the wire states, which is what accepts a
+	///     candidate table. The item registry packet carries the sound of a spear's use by name and
+	///     the item's own component carries the same sound as a number, so the pair is stated by the
+	///     server twice in two forms. They are the test and not the data: a table mapping all seven
+	///     exactly is the table, and its contents are then whatever it holds.
+	/// </summary>
+	private static readonly (long Id, string Name)[] KnownSoundEvents =
+	[
+		(577, "item.wooden_spear.use"),
+		(591, "item.stone_spear.use"),
+		(592, "item.iron_spear.use"),
+		(593, "item.copper_spear.use"),
+		(594, "item.golden_spear.use"),
+		(595, "item.diamond_spear.use"),
+		(596, "item.netherite_spear.use")
+	];
+
+	/// <summary>
+	///     What each LevelSoundEvent is called, read from the tables the server resolves the enum
+	///     through. The docs a build writes stop short of the newest values, and the server holds the
+	///     whole thing as data because it serializes the enum by name.
+	///     <para>
+	///         The walk starts from the text and goes backwards through structure. One name is found
+	///         in memory as bytes; the words holding that address are the std::string headers naming
+	///         it; a header sits inside a list node of an unordered_map, either keyed by the id with
+	///         the name as its value or keyed by the name with the id as its value. Both shapes are
+	///         tried, the node's own circular list is walked whole, and a ring is accepted only when
+	///         every one of the seven known pairs is in it. Nothing is taken from a neighbour.
+	///     </para>
+	///     <para>
+	///         Both directions of the map exist, so two rings are expected to answer and they have to
+	///         agree entry for entry. Every disagreement is returned rather than resolved.
+	///     </para>
+	/// </summary>
+	public static (Dictionary<long, string> Table, int Rings, List<string> Differences) SoundEvents(
+		BedrockProcess process)
+	{
+		var differences = new List<string>();
+		byte[] needle = Encoding.ASCII.GetBytes(KnownSoundEvents[0].Name);
+
+		var buffers = new HashSet<ulong>(Occurrences(process, needle));
+		if (buffers.Count == 0) return (null, 0, differences);
+
+		// A word holding one of those addresses is the string that names it, checked as one: the
+		// length has to be the name's own and the capacity has to hold it.
+		var headers = new List<ulong>();
+		var scratch = new byte[256];
+		foreach (ulong at in Words(process, buffers))
+		{
+			var header = new byte[32];
+			if (!process.TryRead(at, header, header.Length)) continue;
+			if (BitConverter.ToUInt64(header, 16) != (ulong) needle.Length) continue;
+			if (BitConverter.ToUInt64(header, 24) < (ulong) needle.Length) continue;
+			headers.Add(at);
+		}
+
+		// The two node shapes, as MSVC lays them out: two links, then the pair. Keyed by the id, the
+		// int sits at the pair's start and the string eight bytes past it; keyed by the name, the
+		// string is the pair's start and the int follows the whole of it.
+		(int IdAt, int NameAt)[] shapes = [(NodeValue, NodeValue + 8), (NodeValue + 32, NodeValue)];
+
+		var walked = new HashSet<ulong>();
+		var accepted = new List<(ulong Node, Dictionary<long, string> Table)>();
+		foreach (ulong header in headers)
+		{
+			foreach ((int idAt, int nameAt) in shapes)
+			{
+				if (header < (ulong) nameAt) continue;
+				ulong node = header - (ulong) nameAt;
+				if (walked.Contains(node)) continue;
+
+				Dictionary<long, string> table = Ring(process, node, idAt, nameAt, walked, scratch);
+				if (table is null) continue;
+				if (KnownSoundEvents.Any(k => !table.TryGetValue(k.Id, out string name) || name != k.Name)) continue;
+				accepted.Add((node, table));
+			}
+		}
+
+		if (accepted.Count == 0) return (null, 0, differences);
+
+		// Every ring against the first, in full. A table that disagrees is not averaged with it and
+		// not dropped: the ids it differs on are named and the caller decides.
+		Dictionary<long, string> first = accepted[0].Table;
+		foreach ((ulong node, Dictionary<long, string> table) in accepted.Skip(1))
+		{
+			foreach (long id in first.Keys.Union(table.Keys).OrderBy(k => k))
+			{
+				string mine = first.GetValueOrDefault(id);
+				string theirs = table.GetValueOrDefault(id);
+				if (mine == theirs) continue;
+				differences.Add($"0x{accepted[0].Node:X} states {id} as {mine ?? "nothing"} "
+								+ $"and 0x{node:X} states it as {theirs ?? "nothing"}");
+			}
+		}
+
+		return (first, accepted.Count, differences);
+	}
+
+	/// <summary>
+	///     One list node's whole circular list, as the id to name table it holds. Null when the ring
+	///     does not close on itself, because a walk that ran into something else is not a table.
+	///     The sentinel the list turns on holds no pair, so it reads as no name and is passed over.
+	/// </summary>
+	private static Dictionary<long, string> Ring(BedrockProcess process, ulong node, int idAt, int nameAt,
+		HashSet<ulong> walked, byte[] scratch)
+	{
+		var table = new Dictionary<long, string>();
+		var visited = new List<ulong>();
+		var body = new byte[Math.Max(idAt + 4, nameAt + 32)];
+
+		ulong at = node;
+		for (int guard = 0; guard < 1 << 20; guard++)
+		{
+			if (at < 0x10000 || !process.TryRead(at, body, body.Length)) return null;
+			visited.Add(at);
+
+			string name = StdString(process, at + (ulong) nameAt, scratch);
+			if (name is not null) table[BitConverter.ToInt32(body, idAt)] = name;
+
+			at = BitConverter.ToUInt64(body, 0);
+			if (at != node) continue;
+
+			foreach (ulong seen in visited) walked.Add(seen);
+			return table;
+		}
+
+		return null;
+	}
+
+	/// <summary>Every place in the process where a run of bytes occurs.</summary>
+	private static List<ulong> Occurrences(BedrockProcess process, byte[] needle)
+	{
+		var found = new List<ulong>();
+		var scan = new byte[8 * 1024 * 1024];
+		var span = needle.AsSpan();
+
+		foreach (BedrockProcess.Region region in process.Regions)
+		{
+			for (ulong at = region.Base; at < region.End;)
+			{
+				int length = (int) Math.Min((ulong) scan.Length, region.End - at);
+				if (length >= needle.Length && process.TryRead(at, scan, length))
+				{
+					for (int i = 0; i >= 0 && i + needle.Length <= length;)
+					{
+						int next = scan.AsSpan(i, length - i).IndexOf(span);
+						if (next < 0) break;
+						found.Add(at + (ulong) (i + next));
+						i += next + 1;
+					}
+				}
+
+				// The overlap keeps a match that straddles two reads from being missed.
+				at += (ulong) Math.Max(1, length - needle.Length);
+				if (length < scan.Length) break;
+			}
+		}
+
+		return found;
+	}
+
+	/// <summary>Every aligned word in the process holding one of a set of addresses.</summary>
+	private static List<ulong> Words(BedrockProcess process, HashSet<ulong> wanted)
+	{
+		var found = new List<ulong>();
+		var scan = new byte[8 * 1024 * 1024];
+
+		foreach (BedrockProcess.Region region in process.Regions)
+		{
+			for (ulong at = region.Base; at < region.End;)
+			{
+				int length = (int) Math.Min((ulong) scan.Length, region.End - at);
+				if (length >= 8 && process.TryRead(at, scan, length))
+				{
+					for (int i = 0; i + 8 <= length; i += 8)
+					{
+						if (wanted.Contains(BitConverter.ToUInt64(scan, i))) found.Add(at + (ulong) i);
+					}
+				}
+
+				at += (ulong) length;
+			}
+		}
+
+		return found;
+	}
+
 	/// <summary>An MSVC std::string at an address: sixteen bytes of union, then length and capacity.</summary>
 	private static string StdString(BedrockProcess process, ulong at, byte[] scratch)
 	{

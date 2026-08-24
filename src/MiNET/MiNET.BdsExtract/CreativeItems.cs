@@ -81,8 +81,10 @@ public static class CreativeItems
 	///     The creative registry, the groups and every stack in it, written beside the other
 	///     extractions. Returns zero when every check held.
 	/// </summary>
-	public static int Run(BedrockProcess process)
+	public static int Run(BedrockProcess process, IReadOnlyList<PaletteEntry> palette)
 	{
+		var states = new Palette(palette);
+
 		string output = Path.Combine(Program.DefaultOutputDirectory(), "creative_items.json");
 		Console.WriteLine("creative inventory:");
 
@@ -137,7 +139,7 @@ public static class CreativeItems
 		{
 			for (int i = 0; i < held.Count; i++)
 			{
-				groups.Add(ReadGroup(process, held.Begin + (ulong) (i * groupSize), nbt, word));
+				groups.Add(ReadGroup(process, held.Begin + (ulong) (i * groupSize), nbt, word, states));
 			}
 		}
 
@@ -146,7 +148,7 @@ public static class CreativeItems
 		var entries = new List<Entry>(registry.Count);
 		for (int i = 0; i < registry.Count; i++)
 		{
-			entries.Add(ReadEntry(process, registry.Begin + (ulong) (i * entrySize), i, groups, nbt, word));
+			entries.Add(ReadEntry(process, registry.Begin + (ulong) (i * entrySize), i, groups, nbt, word, states));
 		}
 
 		int named = entries.Count(e => e.Item is not null);
@@ -156,6 +158,11 @@ public static class CreativeItems
 		Console.WriteLine($"  tags read: {nbt.Entries:N0}, {nbt.Disagreed:N0} whose class and type number disagree, "
 						+ $"{nbt.UntypedElements:N0} list elements of a class no variant named, "
 						+ $"{nbt.Miscounted:N0} compounds whose node count is not the count they state");
+
+		Console.WriteLine($"  block states: {states.Named:N0} stacks naming one, {states.Verified:N0} whose network id "
+						+ $"indexes the palette row they were read from, {states.Unnamed:N0} at an address the palette "
+						+ $"does not hold");
+		foreach (string failure in states.Failures) Console.WriteLine($"    {failure}");
 
 		var document = new JsonObject
 		{
@@ -176,7 +183,11 @@ public static class CreativeItems
 				["compoundsMiscounted"] = nbt.Miscounted,
 				["tagClassesNamed"] = new JsonArray(nbt.Tables.Keys.OrderBy(k => k)
 					.Select(k => (JsonNode) k).ToArray()),
-				["entriesWhosePickupTimeIsSet"] = pickupTimes
+				["entriesWhosePickupTimeIsSet"] = pickupTimes,
+				["stacksNamingABlockState"] = states.Named,
+				["blockStatesIndexingTheirOwnPaletteRow"] = states.Verified,
+				["blockStatesAtNoPaletteAddress"] = states.Unnamed,
+				["blockStateFailures"] = new JsonArray(states.Failures.Select(f => (JsonNode) f).ToArray())
 			}
 		};
 
@@ -193,7 +204,8 @@ public static class CreativeItems
 		File.WriteAllText(output, BlockDocument.Serialize(document), new UTF8Encoding(false));
 		Console.WriteLine($"written {output}");
 
-		bool sound = nbt.Disagreed == 0 && nbt.Miscounted == 0 && named == entries.Count;
+		bool sound = nbt.Disagreed == 0 && nbt.Miscounted == 0 && named == entries.Count
+					&& states.Unnamed == 0 && states.Verified == states.Named;
 		if (!sound)
 		{
 			Console.WriteLine("  a check did not hold. The file is written, marked with the counts, and this exits non zero.");
@@ -224,6 +236,98 @@ public static class CreativeItems
 		public uint Index;
 		public string Name;
 		public JsonObject Stated;
+	}
+
+	/// <summary>
+	///     The block palette this run read, by the address each state sits at.
+	///     <para>
+	///         A stack holds a Block, and a Block is one state of a block, not the block. The palette
+	///         is that same object read once, so a stack's pointer is answered by the entry at its
+	///         address rather than by a second reading of the state.
+	///     </para>
+	///     <para>
+	///         The network id read there is checked against the palette it came from: the row it
+	///         indexes has to be the row the pointer named, name and every state property. An id that
+	///         indexes a different state is the reading being wrong, and it is counted and said.
+	///     </para>
+	/// </summary>
+	private sealed class Palette
+	{
+		private readonly IReadOnlyList<PaletteEntry> _rows;
+		private readonly Dictionary<ulong, PaletteEntry> _byAddress;
+
+		public Palette(IReadOnlyList<PaletteEntry> rows)
+		{
+			_rows = rows;
+			_byAddress = new Dictionary<ulong, PaletteEntry>();
+			foreach (PaletteEntry row in rows) _byAddress.TryAdd(row.Address, row);
+		}
+
+		/// <summary>Stacks holding a block, so a state was named.</summary>
+		public int Named { get; private set; }
+
+		/// <summary>Of those, the ones whose network id indexes the row they were read from.</summary>
+		public int Verified { get; private set; }
+
+		/// <summary>Stacks holding a block the palette has no entry for, so nothing was read.</summary>
+		public int Unnamed { get; private set; }
+
+		public List<string> Failures { get; } = [];
+
+		public JsonNode State(ulong block)
+		{
+			if (block < 0x10000) return null;
+			if (!_byAddress.TryGetValue(block, out PaletteEntry entry))
+			{
+				Unnamed++;
+				Failures.Add($"0x{block:X} is a block the palette holds no state for, so no state was read");
+				return new JsonObject
+				{
+					["pointer"] = $"0x{block:X}",
+					["unread"] = "the palette holds no state at this address"
+				};
+			}
+
+			Named++;
+			var states = new JsonObject();
+			foreach (StateProperty property in entry.States) states[property.Name] = property.ToNode();
+
+			// The id has to index the state it was read from, checked against the palette rather than
+			// believed. Anything else and the number on the wire names a different block.
+			PaletteEntry indexed = entry.NetworkId < (uint) _rows.Count ? _rows[(int) entry.NetworkId] : null;
+			if (indexed is not null && indexed.Name == entry.Name && Same(indexed.States, entry.States))
+			{
+				Verified++;
+			}
+			else
+			{
+				Failures.Add($"{entry.Name} at 0x{block:X} states network id {entry.NetworkId}, which is "
+							+ (indexed is null
+								? $"past the {_rows.Count} rows of the palette"
+								: $"{indexed.Name} {Describe(indexed.States)} and not {entry.Name} {Describe(entry.States)}"));
+			}
+
+			return new JsonObject
+			{
+				["name"] = entry.Name,
+				["states"] = states,
+				["networkId"] = entry.NetworkId
+			};
+		}
+
+		private static bool Same(IReadOnlyList<StateProperty> left, IReadOnlyList<StateProperty> right)
+		{
+			if (left.Count != right.Count) return false;
+			for (int i = 0; i < left.Count; i++)
+			{
+				if (left[i].Name != right[i].Name || left[i].ToJson() != right[i].ToJson()) return false;
+			}
+
+			return true;
+		}
+
+		private static string Describe(IReadOnlyList<StateProperty> states) =>
+			"[" + string.Join(", ", states.Select(s => $"{s.Name}={s.ToJson()}")) + "]";
 	}
 
 	private sealed class Entry
@@ -335,7 +439,8 @@ public static class CreativeItems
 	}
 
 	/// <summary>One creative group: which tab it is under, what it is called, and the stack it shows.</summary>
-	private static Group ReadGroup(BedrockProcess process, ulong at, CompoundTagReader nbt, byte[] word)
+	private static Group ReadGroup(BedrockProcess process, ulong at, CompoundTagReader nbt, byte[] word,
+		Palette palette)
 	{
 		var body = new byte[Size("CreativeGroupInfo")];
 		var scratch = new byte[256];
@@ -368,7 +473,7 @@ public static class CreativeItems
 			["name"] = name,
 			["category"] = BlockMembers.Value("CreativeItemCategory", category) ?? category.ToString(),
 			["categoryValue"] = category,
-			["icon"] = Instance(process, at + (ulong) At("CreativeGroupInfo", "icon"), nbt, word),
+			["icon"] = Instance(process, at + (ulong) At("CreativeGroupInfo", "icon"), nbt, word, palette),
 			["items"] = indexes
 		};
 
@@ -377,7 +482,7 @@ public static class CreativeItems
 
 	/// <summary>One entry of the creative list: the stack, its place, and the group it sits in.</summary>
 	private static Entry ReadEntry(BedrockProcess process, ulong at, int position, List<Group> groups,
-		CompoundTagReader nbt, byte[] word)
+		CompoundTagReader nbt, byte[] word, Palette palette)
 	{
 		var body = new byte[Size("CreativeItemEntry")];
 		if (!process.TryRead(at, body, body.Length))
@@ -387,7 +492,8 @@ public static class CreativeItems
 
 		uint groupIndex = BitConverter.ToUInt32(body, At("CreativeItemEntry", "groupIndex"));
 		uint netId = BitConverter.ToUInt32(body, At("CreativeItemEntry", "creativeNetId"));
-		JsonObject instance = Instance(process, at + (ulong) At("CreativeItemEntry", "itemInstance"), nbt, word);
+		JsonObject instance = Instance(process, at + (ulong) At("CreativeItemEntry", "itemInstance"), nbt, word,
+			palette);
 
 		var stated = new JsonObject
 		{
@@ -417,8 +523,15 @@ public static class CreativeItems
 	///     One ItemInstance, every member of it. The item is a weak pointer, which is the counter
 	///     rather than the item, so the object is one hop past it and its name verifies against its
 	///     own hash there or is not read at all.
+	///     <para>
+	///         The block is a Block, which is one state of a block rather than the block, so it is
+	///         written as that state: the name, what the state is, and the network id the wire carries
+	///         for it. A stack can hold a state that is not its block's default, and a name alone
+	///         throws that away.
+	///     </para>
 	/// </summary>
-	private static JsonObject Instance(BedrockProcess process, ulong at, CompoundTagReader nbt, byte[] word)
+	private static JsonObject Instance(BedrockProcess process, ulong at, CompoundTagReader nbt, byte[] word,
+		Palette palette)
 	{
 		var body = new byte[Size("ItemInstance")];
 		var scratch = new byte[256];
@@ -435,7 +548,7 @@ public static class CreativeItems
 			["item"] = ItemName(process, item, scratch),
 			["count"] = body[At("ItemInstance", "count")],
 			["auxValue"] = BitConverter.ToInt16(body, At("ItemInstance", "auxValue")),
-			["block"] = BlockName(process, block, scratch),
+			["block"] = palette.State(block),
 			["valid"] = body[At("ItemInstance", "valid")] != 0,
 			["showPickUp"] = body[At("ItemInstance", "showPickUp")] != 0,
 			["wasPickedUp"] = body[At("ItemInstance", "wasPickedUp")] != 0,
@@ -445,7 +558,7 @@ public static class CreativeItems
 			["canDestroy"] = Blocks(process, at + (ulong) At("ItemInstance", "canDestroy"), word, scratch),
 			["canDestroyHash"] = BitConverter.ToUInt64(body, At("ItemInstance", "canDestroyHash")),
 			["userData"] = userData >= 0x10000 ? nbt.Read(userData) : null,
-			["chargedItem"] = charged >= 0x10000 ? Instance(process, charged, nbt, word) : null
+			["chargedItem"] = charged >= 0x10000 ? Instance(process, charged, nbt, word, palette) : null
 		};
 
 		return stated;
@@ -471,17 +584,6 @@ public static class CreativeItems
 	/// <summary>The item an object is, by the name it carries where the item sweep measured one.</summary>
 	private static string ItemName(BedrockProcess process, ulong item, byte[] scratch) =>
 		item < 0x10000 ? null : Hashed(process, item + (ulong) ItemRegistry.NameInsideItem, scratch);
-
-	/// <summary>
-	///     The block a state belongs to. The stack holds a Block, which is one state of a block, and
-	///     the name lives on the BlockLegacy that state points back at.
-	/// </summary>
-	private static string BlockName(BedrockProcess process, ulong state, byte[] scratch)
-	{
-		if (state < 0x10000 || !process.IsMapped(state)) return null;
-		ulong legacy = process.ReadUInt64(state + (ulong) MemoryLayout.BlockLegacyPointer, scratch);
-		return Hashed(process, legacy + (ulong) MemoryLayout.NameInsideLegacy, scratch);
-	}
 
 	private static string Hashed(BedrockProcess process, ulong at, byte[] scratch)
 	{

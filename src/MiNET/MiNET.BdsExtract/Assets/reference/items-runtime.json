@@ -890,7 +890,7 @@
 					"name": "usingConvertsTo",
 					"at": 8,
 					"bytes": 16,
-					"kind": "Container"
+					"kind": "Descriptor"
 				},
 				{
 					"name": "canAlwaysEat",
@@ -1159,7 +1159,7 @@
 			]
 		},
 		"UseModifiersItemComponent": {
-			"size": 24,
+			"size": 104,
 			"members": [
 				{
 					"name": "useDuration",
@@ -1174,15 +1174,33 @@
 					"kind": "Bool"
 				},
 				{
-					"name": "padding1",
-					"at": 5,
-					"bytes": 3,
-					"kind": "Padding",
-					"comparable": false
+					"name": "startSound",
+					"at": 8,
+					"bytes": 4,
+					"kind": "Enum32",
+					"enum": "LevelSoundEvent"
+				},
+				{
+					"name": "startSoundHasValue",
+					"at": 40,
+					"bytes": 1,
+					"kind": "Bool"
+				},
+				{
+					"name": "movementModifier",
+					"at": 56,
+					"bytes": 4,
+					"kind": "Float"
+				},
+				{
+					"name": "movementModifierHasValue",
+					"at": 60,
+					"bytes": 1,
+					"kind": "Bool"
 				},
 				{
 					"name": "onUseSubscription",
-					"at": 8,
+					"at": 72,
 					"bytes": 16,
 					"kind": "Container"
 				}

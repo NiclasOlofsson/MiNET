@@ -77,7 +77,9 @@ public static class BlockMemberReader
 		{
 			// The class table states every gap, with its offset and its length, so the object still
 			// adds up there. A row repeating the same zero padding on every one of two thousand
-			// objects says nothing the class has not already said.
+			// objects says nothing the class has not already said. Alignment padding that holds
+			// something holds what an overwritten pointer left behind, which is the allocator's
+			// business and not the block's.
 			if (node.Member.Kind is MemberKind.Unknown or MemberKind.Padding) continue;
 
 			members[node.Member.Name] = node.IsLeaf

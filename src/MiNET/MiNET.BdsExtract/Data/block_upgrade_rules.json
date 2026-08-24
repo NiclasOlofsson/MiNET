@@ -36,7 +36,9 @@
 			},
 			"result": {
 				"states": {
-					"unread": 104
+					"3": "tile.cobblestone_wall.diorite",
+					"2813203578884": "tile.cobblestone_wall.andesite",
+					"2813203578885": "tile.cobblestone_wall.sandstone"
 				}
 			}
 		},
@@ -1050,7 +1052,7 @@
 			"match": {
 				"name": "minecraft:log2",
 				"direction": {
-					"pattern": "[3]"
+					"pattern": null
 				}
 			},
 			"result": {
@@ -1322,9 +1324,7 @@
 			"fields": [
 				"facing_direction",
 				"name"
-			],
-			"produces": "minecraft:light_block",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.13.0.17",
@@ -1431,9 +1431,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"produces": "minecraft:soul_fire",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.16.0.2",
@@ -1444,9 +1442,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"produces": "minecraft:warped_wart_block",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.16.0.3",
@@ -1457,9 +1453,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"produces": "minecraft:shroomlight",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.16.0.4",
@@ -1470,9 +1464,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"produces": "minecraft:weeping_vines",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.16.0.5",
@@ -1483,9 +1475,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"produces": "minecraft:basalt",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.16.0.6",
@@ -1496,9 +1486,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"produces": "minecraft:polished_basalt",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.16.0.7",
@@ -1509,9 +1497,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"produces": "minecraft:soul_soil",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.16.0.8",
@@ -1533,9 +1519,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"produces": "minecraft:crimson_trapdoor",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.16.0.10",
@@ -1546,9 +1530,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"produces": "minecraft:lodestone",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.16.0.11",
@@ -1559,9 +1541,7 @@
 			"result": {},
 			"fields": [
 				"name"
-			],
-			"produces": "minecraft:twisting_vines",
-			"producesFrom": "code"
+			]
 		},
 		{
 			"version": "1.16.0.12",
@@ -5795,6 +5775,9 @@
 			"version": "1.20.50.1",
 			"block": "minecraft:planks",
 			"match": {
+				"states": {
+					"unread": 0
+				},
 				"wood_type": "dark_oak"
 			},
 			"result": {},
@@ -8153,16 +8136,9 @@
 			"match": {
 				"stone_slab_type_3": "diorite"
 			},
-			"result": {
-				"stone_slab_type_3": {
-					"unread": 0
-				}
-			},
-			"matchFields": [
+			"result": {},
+			"fields": [
 				"stone_slab_type_3",
-				"name"
-			],
-			"resultFields": [
 				"name"
 			],
 			"produces": "minecraft:diorite_slab",
@@ -8561,11 +8537,17 @@
 			"version": "1.21.10.8",
 			"block": "minecraft:coral_fan_hang3",
 			"match": {
-				"coral_hang_type_bit": 1,
+				"coral_hang_type_bit": {
+					"unread": 0
+				},
 				"dead_bit": 0
 			},
 			"result": {},
-			"fields": [
+			"matchFields": [
+				"dead_bit",
+				"name"
+			],
+			"resultFields": [
 				"coral_hang_type_bit",
 				"dead_bit",
 				"name"
@@ -9744,7 +9726,9 @@
 			"version": "1.21.30.2",
 			"block": "minecraft:cobblestone_wall",
 			"match": {
-				"wall_block_type": "granite"
+				"wall_block_type": {
+					"unread": 0
+				}
 			},
 			"result": {},
 			"fields": [
@@ -10781,11 +10765,7 @@
 					"pattern": "minecraft:bamboo_door"
 				}
 			},
-			"result": {
-				"states": {
-					"unread": 0
-				}
-			},
+			"result": {},
 			"fields": [
 				"direction"
 			]

@@ -57,9 +57,7 @@ public static class ItemGenerator
 	/// </summary>
 	private static readonly (string Path, string Reason)[] Gaps =
 	{
-		("minecraft:repairable/repair_items", "repair_amount is a compiled Molang expression; RepairItemEntry.mRepairAmount's pointer leads to a polymorphic AST object with no source text found nearby on a release server, so the list stays capture-sourced rather than shipping item names without the amount they belong with"),
-		("minecraft:use_modifiers/start_using", "no member holds it, and the schema default (if_first) is not what the frame carries"),
-		("minecraft:publisher_on_use_on/autoSucceedOnClient", "the component is declared with no address on every one of the 16 items that carry it, the same hole every declared-only component falls into, so the flag beside the empty compound stays capture-sourced while the compound's own presence is read from the declared set")
+		("minecraft:publisher_on_use_on/autoSucceedOnClient", "the flag is a byte at offset 0x40 of the OnUseOnItemComponent, which the component's own buildNetworkTag reads and writes under this very name, and the seventeen objects are in memory; what the extraction cannot reach yet is the ADDRESS, because the declared container's value is read eight bytes short of where it sits, so every declared-only component comes back without one")
 	};
 
 	/// <summary>
@@ -425,7 +423,31 @@ public static class ItemGenerator
 				return projectile;
 			}
 			case "minecraft:repairable":
-				return new NbtCompound(kind);
+			{
+				var entries = new NbtList("repair_items", NbtTagType.Compound);
+				foreach (JToken entry in (JArray) value["repairItems"] ?? [])
+				{
+					var items = new NbtList("items", NbtTagType.Compound);
+					foreach (JToken descriptor in (JArray) entry["items"] ?? [])
+					{
+						// Which key the descriptor carries is what it IS: one names an item and one
+						// names a tag through the Molang query that selects it, and the wire says
+						// which the same way the extraction does.
+						JObject impl = (JObject) descriptor["impl"];
+						items.Add(impl["name"] is { } named
+							? new NbtCompound {new NbtString("name", (string) named)}
+							: new NbtCompound {new NbtString("tags", (string) impl["tags"])});
+					}
+
+					entries.Add(new NbtCompound
+					{
+						items,
+						new NbtString("repair_amount", (string) entry["repairAmount"])
+					});
+				}
+
+				return new NbtCompound(kind) {entries};
+			}
 			case "minecraft:storage_item":
 				return new NbtCompound(kind)
 				{
@@ -466,6 +488,7 @@ public static class ItemGenerator
 				{
 					new NbtByte("emit_vibrations", Bit(value["emitVibrations"])),
 					new NbtFloat("movement_modifier", (float) value["movementModifier"]),
+					new NbtString("start_using", (string) value["startUsing"]["name"]),
 					new NbtFloat("use_duration", (float) value["useDuration"])
 				};
 

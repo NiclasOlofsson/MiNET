@@ -1199,6 +1199,13 @@
 					"kind": "Bool"
 				},
 				{
+					"name": "startUsing",
+					"at": 64,
+					"bytes": 1,
+					"kind": "Enum8",
+					"enum": "StartUsing"
+				},
+				{
 					"name": "onUseSubscription",
 					"at": 72,
 					"bytes": 16,
@@ -1215,6 +1222,35 @@
 					"bytes": 24,
 					"kind": "Container",
 					"elements": "RepairItemEntry"
+				}
+			]
+		},
+		"RepairItemEntry": {
+			"size": 40,
+			"members": [
+				{
+					"name": "items",
+					"at": 0,
+					"bytes": 24,
+					"kind": "Container",
+					"elements": "ItemDescriptor"
+				},
+				{
+					"name": "repairAmount",
+					"at": 24,
+					"bytes": 16,
+					"kind": "Expression"
+				}
+			]
+		},
+		"ItemDescriptor": {
+			"size": 16,
+			"members": [
+				{
+					"name": "impl",
+					"at": 0,
+					"bytes": 16,
+					"kind": "Descriptor"
 				}
 			]
 		},
@@ -1324,6 +1360,10 @@
 		"ItemCooldownType": {
 			"0": "Use",
 			"1": "Attack"
+		},
+		"StartUsing": {
+			"0": "if_first",
+			"1": "always"
 		}
 	},
 	"componentClasses": {

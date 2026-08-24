@@ -252,16 +252,43 @@ public static class BlockMemberReader
 				return Container(process, window, at, member, identify);
 
 			// An ItemDescriptor. Its own pointer sits eight bytes in, following the same shape
-			// DescriptorNames already walks for a vector of these: the pointer names an object
-			// whose std::string sits eight bytes into it.
+			// DescriptorNames already walks for a vector of these: the pointer names the descriptor
+			// object, and which kind of descriptor it is decides where the text sits. One names an
+			// item and keeps a std::string eight bytes in; one names a tag and keeps a Molang
+			// expression there instead, through a shared pointer, whose source text is the query
+			// the wire sends. The item name is tried first and only a verified string is taken, so
+			// a tag descriptor cannot come out as an item with a nonsense name.
 			case MemberKind.Descriptor:
 			{
 				ulong pointer = BitConverter.ToUInt64(window, at + 8);
 				if (pointer < 0x10000) return null;
 				var target = new byte[64];
 				if (!process.TryRead(pointer, target, target.Length)) return null;
+
 				string name = ItemRegistry.StdString(process, target, 8, scratch);
-				return name is null ? null : JsonValue.Create(name);
+				if (name is { Length: > 0 }) return new JsonObject { ["name"] = name };
+
+				ulong held = BitConverter.ToUInt64(target, 8);
+				ulong expression = held >= 0x10000 ? process.ReadUInt64(held, scratch) : 0;
+				string query = MolangSource(process, expression, scratch);
+				return query is null ? null : new JsonObject { ["tags"] = query };
+			}
+
+			// A Molang ExpressionNode: the variant's payload first and which alternative it holds
+			// behind it. Nought is the compiled expression, and the text it was parsed from is what
+			// the wire carries. One is a constant the parser folded, which is a number and travels
+			// out as one.
+			case MemberKind.Expression:
+			{
+				ulong payload = BitConverter.ToUInt64(window, at);
+				long which = BitConverter.ToInt64(window, at + 8);
+				if (which == 1) return Sentinels.Number(member.Name, BitConverter.ToSingle(window, at));
+				if (which != 0 || payload < 0x10000) return null;
+
+				string source = MolangSource(process, payload, scratch);
+				return source is null
+					? new JsonObject { ["pointer"] = $"0x{payload:X}", ["unread"] = "the expression states no source text" }
+					: JsonValue.Create(source);
 			}
 
 			// Bytes nothing declares. They travel out as themselves so the member list adds up to
@@ -416,6 +443,51 @@ public static class BlockMemberReader
 		return stated;
 	}
 
+	/// <summary>Where a compiled Molang expression keeps the text it was parsed from.</summary>
+	private const int MolangSourceInExpression = 0x18;
+
+	/// <summary>
+	///     The source text a compiled Molang expression holds, read the way the server's own
+	///     getExpressionString reads it. The value at that position is a pointer with the length
+	///     packed into the two bytes above it: bit fifty five says the text is long enough to carry
+	///     a size of its own, which sits in the eight bytes before the characters, and below that
+	///     the length is the seven bits under that flag.
+	///     The read proves itself. The characters have to be printable and end in a nul exactly
+	///     where the stated length puts it, which arbitrary bytes do not.
+	/// </summary>
+	private static string MolangSource(BedrockProcess process, ulong expression, byte[] scratch)
+	{
+		if (expression < 0x10000) return null;
+
+		var word = new byte[8];
+		if (!process.TryRead(expression + MolangSourceInExpression, word, word.Length)) return null;
+
+		ulong packed = BitConverter.ToUInt64(word, 0);
+		ulong text = packed & 0x0000FFFFFFFFFFFFul;
+		if (text < 0x10000) return null;
+
+		ulong length;
+		if ((packed & (1ul << 55)) != 0)
+		{
+			if (!process.TryRead(text - 8, word, word.Length)) return null;
+			length = BitConverter.ToUInt64(word, 0);
+		}
+		else
+		{
+			length = (packed >> 48) & 0x7f;
+		}
+
+		if (length == 0 || length + 1 > (ulong) scratch.Length) return null;
+		if (process.ReadClipped(text, scratch, (int) length + 1) != (int) length + 1) return null;
+		if (scratch[length] != 0) return null;
+
+		for (var i = 0; i < (int) length; i++)
+		{
+			if (scratch[i] is < 0x20 or > 0x7e) return null;
+		}
+
+		return System.Text.Encoding.ASCII.GetString(scratch, 0, (int) length);
+	}
 
 	/// <summary>
 	///     An enum value with the name the class gives it beside it. Both, because the number is

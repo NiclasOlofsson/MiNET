@@ -971,6 +971,10 @@
 			"0": "Use",
 			"1": "Attack"
 		},
+		"StartUsing": {
+			"0": "if_first",
+			"1": "always"
+		},
 		"LevelSoundEvent": {
 			"577": "item.wooden_spear.use",
 			"496": "mob.armadillo.scute_drop",

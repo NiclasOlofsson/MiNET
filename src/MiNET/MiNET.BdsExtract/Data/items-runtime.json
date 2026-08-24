@@ -1127,8 +1127,22 @@
 				{
 					"name": "unknown3",
 					"at": 61,
-					"bytes": 11,
+					"bytes": 3,
 					"kind": "Unknown",
+					"comparable": false
+				},
+				{
+					"name": "startUsing",
+					"at": 64,
+					"bytes": 1,
+					"kind": "Enum8",
+					"enum": "StartUsing"
+				},
+				{
+					"name": "padding2",
+					"at": 65,
+					"bytes": 7,
+					"kind": "Padding",
 					"comparable": false
 				},
 				{
@@ -1252,6 +1266,10 @@
 		"ItemCooldownType": {
 			"0": "Use",
 			"1": "Attack"
+		},
+		"StartUsing": {
+			"0": "if_first",
+			"1": "always"
 		},
 		"LevelSoundEvent": {
 			"577": "item.wooden_spear.use",
@@ -4903,6 +4921,11 @@
 					"startSoundHasValue": false,
 					"movementModifier": 0.35,
 					"movementModifierHasValue": true,
+					"startUsing": {
+						"value": 1,
+						"name": "always"
+					},
+					"padding2": null,
 					"onUseSubscription": {
 						"pointer": "0x28F01042370"
 					}
@@ -33211,13 +33234,28 @@
 					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
-					"repairItems": {
-						"vector": {
-							"begin": "0x28F014E6AB0",
-							"end": "0x28F014E6B00",
-							"bytes": 80
+					"repairItems": [
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:copper_spear"
+									}
+								}
+							],
+							"repairAmount": "context.other->query.remaining_durability"
+						},
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:copper_ingot"
+									}
+								}
+							],
+							"repairAmount": "query.max_durability * 0.25"
 						}
-					}
+					]
 				},
 				"minecraft:swing_duration": {
 					"valueInSeconds": 0.85
@@ -33243,6 +33281,11 @@
 					"startSoundHasValue": true,
 					"movementModifier": 1,
 					"movementModifierHasValue": true,
+					"startUsing": {
+						"value": 1,
+						"name": "always"
+					},
+					"padding2": null,
 					"onUseSubscription": {
 						"pointer": "0x28F0103FC10"
 					}
@@ -46061,13 +46104,28 @@
 					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
-					"repairItems": {
-						"vector": {
-							"begin": "0x28F014E6030",
-							"end": "0x28F014E6080",
-							"bytes": 80
+					"repairItems": [
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:diamond_spear"
+									}
+								}
+							],
+							"repairAmount": "context.other->query.remaining_durability"
+						},
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:diamond"
+									}
+								}
+							],
+							"repairAmount": "query.max_durability * 0.25"
 						}
-					}
+					]
 				},
 				"minecraft:swing_duration": {
 					"valueInSeconds": 1.05
@@ -46094,6 +46152,11 @@
 					"startSoundHasValue": true,
 					"movementModifier": 1,
 					"movementModifierHasValue": true,
+					"startUsing": {
+						"value": 1,
+						"name": "always"
+					},
+					"padding2": null,
 					"onUseSubscription": {
 						"pointer": "0x28F01041150"
 					}
@@ -67295,13 +67358,28 @@
 					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
-					"repairItems": {
-						"vector": {
-							"begin": "0x28F014E64B0",
-							"end": "0x28F014E6500",
-							"bytes": 80
+					"repairItems": [
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:golden_spear"
+									}
+								}
+							],
+							"repairAmount": "context.other->query.remaining_durability"
+						},
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:gold_ingot"
+									}
+								}
+							],
+							"repairAmount": "query.max_durability * 0.25"
 						}
-					}
+					]
 				},
 				"minecraft:swing_duration": {
 					"valueInSeconds": 0.95
@@ -67327,6 +67405,11 @@
 					"startSoundHasValue": true,
 					"movementModifier": 1,
 					"movementModifierHasValue": true,
+					"startUsing": {
+						"value": 1,
+						"name": "always"
+					},
+					"padding2": null,
 					"onUseSubscription": {
 						"pointer": "0x28F010407F0"
 					}
@@ -79035,13 +79118,28 @@
 					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
-					"repairItems": {
-						"vector": {
-							"begin": "0x28F014E7470",
-							"end": "0x28F014E74C0",
-							"bytes": 80
+					"repairItems": [
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:iron_spear"
+									}
+								}
+							],
+							"repairAmount": "context.other->query.remaining_durability"
+						},
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:iron_ingot"
+									}
+								}
+							],
+							"repairAmount": "query.max_durability * 0.25"
 						}
-					}
+					]
 				},
 				"minecraft:swing_duration": {
 					"valueInSeconds": 0.95
@@ -79067,6 +79165,11 @@
 					"startSoundHasValue": true,
 					"movementModifier": 1,
 					"movementModifierHasValue": true,
+					"startUsing": {
+						"value": 1,
+						"name": "always"
+					},
+					"padding2": null,
 					"onUseSubscription": {
 						"pointer": "0x28F0103F490"
 					}
@@ -103135,13 +103238,28 @@
 					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
-					"repairItems": {
-						"vector": {
-							"begin": "0x28F014E80D0",
-							"end": "0x28F014E8120",
-							"bytes": 80
+					"repairItems": [
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:netherite_spear"
+									}
+								}
+							],
+							"repairAmount": "context.other->query.remaining_durability"
+						},
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:netherite_ingot"
+									}
+								}
+							],
+							"repairAmount": "query.max_durability * 0.25"
 						}
-					}
+					]
 				},
 				"minecraft:swing_duration": {
 					"valueInSeconds": 1.15
@@ -103167,6 +103285,11 @@
 					"startSoundHasValue": true,
 					"movementModifier": 1,
 					"movementModifierHasValue": true,
+					"startUsing": {
+						"value": 1,
+						"name": "always"
+					},
+					"padding2": null,
 					"onUseSubscription": {
 						"pointer": "0x28F0103FCB0"
 					}
@@ -141900,13 +142023,28 @@
 					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
-					"repairItems": {
-						"vector": {
-							"begin": "0x28F014E81F0",
-							"end": "0x28F014E8240",
-							"bytes": 80
+					"repairItems": [
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:stone_spear"
+									}
+								}
+							],
+							"repairAmount": "context.other->query.remaining_durability"
+						},
+						{
+							"items": [
+								{
+									"impl": {
+										"tags": "q.all_tags('minecraft:stone_tool_materials')"
+									}
+								}
+							],
+							"repairAmount": "query.max_durability * 0.25"
 						}
-					}
+					]
 				},
 				"minecraft:swing_duration": {
 					"valueInSeconds": 0.75
@@ -141932,6 +142070,11 @@
 					"startSoundHasValue": true,
 					"movementModifier": 1,
 					"movementModifierHasValue": true,
+					"startUsing": {
+						"value": 1,
+						"name": "always"
+					},
+					"padding2": null,
 					"onUseSubscription": {
 						"pointer": "0x28F0103FAD0"
 					}
@@ -163548,13 +163691,28 @@
 					"hitboxMargin": 0.25
 				},
 				"minecraft:repairable": {
-					"repairItems": {
-						"vector": {
-							"begin": "0x28F014E9570",
-							"end": "0x28F014E95C0",
-							"bytes": 80
+					"repairItems": [
+						{
+							"items": [
+								{
+									"impl": {
+										"name": "minecraft:wooden_spear"
+									}
+								}
+							],
+							"repairAmount": "context.other->query.remaining_durability"
+						},
+						{
+							"items": [
+								{
+									"impl": {
+										"tags": "q.all_tags('minecraft:planks')"
+									}
+								}
+							],
+							"repairAmount": "query.max_durability * 0.25"
 						}
-					}
+					]
 				},
 				"minecraft:swing_duration": {
 					"valueInSeconds": 0.65
@@ -163580,6 +163738,11 @@
 					"startSoundHasValue": true,
 					"movementModifier": 1,
 					"movementModifierHasValue": true,
+					"startUsing": {
+						"value": 1,
+						"name": "always"
+					},
+					"padding2": null,
 					"onUseSubscription": {
 						"pointer": "0x28F01041650"
 					}

@@ -69,11 +69,20 @@ public enum MemberKind
 	Component,
 
 	/// <summary>
-	///     An ItemDescriptor: its own bytes at offset 8 hold a pointer to an object whose
-	///     std::string name sits at that object's own offset 8. Read as the name, or null when the
-	///     pointer is unset (no item named) or nothing at the far end reads back as a string.
+	///     An ItemDescriptor: its own bytes at offset 8 hold a pointer to the descriptor a member
+	///     of ItemDescriptor::BaseDescriptor is. Two forms exist and the object says which: one
+	///     names an item, with its std::string at the descriptor's own offset 8, and one names a
+	///     tag, holding the Molang query that selects it. Read as an object carrying whichever the
+	///     descriptor is, or null when the pointer is unset and no item is named at all.
 	/// </summary>
 	Descriptor,
+
+	/// <summary>
+	///     A Molang ExpressionNode: a variant of a pointer to the compiled expression and a bare
+	///     float. The compiled expression keeps the source text it was parsed from, which is what
+	///     the wire carries, so this reads back the text and not the tree.
+	/// </summary>
+	Expression,
 
 	/// <summary>A byte of flags over an enum: the members it names are the bits that are set.</summary>
 	Flags8,

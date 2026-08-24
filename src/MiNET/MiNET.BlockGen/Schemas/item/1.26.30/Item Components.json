@@ -1,0 +1,142 @@
+{
+    "title": "Item Components",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/Item%20Components.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "minecraft:allow_off_hand": {
+            "$ref": "../1.20.50/minecraft_allow_off_hand.json"
+        },
+        "minecraft:block_placer": {
+            "$ref": "./minecraft_block_placer.json"
+        },
+        "minecraft:bundle_interaction": {
+            "$ref": "./minecraft_bundle_interaction.json"
+        },
+        "minecraft:can_destroy_in_creative": {
+            "$ref": "../1.20.50/minecraft_can_destroy_in_creative.json"
+        },
+        "minecraft:compostable": {
+            "$ref": "./minecraft_compostable.json"
+        },
+        "minecraft:cooldown": {
+            "$ref": "../1.20.50/minecraft_cooldown.json"
+        },
+        "minecraft:damage": {
+            "$ref": "./minecraft_damage.json"
+        },
+        "minecraft:damage_absorption": {
+            "$ref": "./minecraft_damage_absorption.json"
+        },
+        "minecraft:digger": {
+            "$ref": "../1.20.50/minecraft_digger.json"
+        },
+        "minecraft:display_name": {
+            "$ref": "../1.20.50/minecraft_display_name.json"
+        },
+        "minecraft:durability": {
+            "$ref": "../1.20.50/minecraft_durability.json"
+        },
+        "minecraft:durability_sensor": {
+            "$ref": "./minecraft_durability_sensor.json"
+        },
+        "minecraft:dyeable": {
+            "$ref": "./minecraft_dyeable.json"
+        },
+        "minecraft:enchantable": {
+            "$ref": "../1.20.50/minecraft_enchantable.json"
+        },
+        "minecraft:entity_placer": {
+            "$ref": "../1.20.50/minecraft_entity_placer.json"
+        },
+        "minecraft:fire_resistant": {
+            "$ref": "./minecraft_fire_resistant.json"
+        },
+        "minecraft:food": {
+            "$ref": "../1.20.50/minecraft_food.json"
+        },
+        "minecraft:fuel": {
+            "$ref": "../1.20.50/minecraft_fuel.json"
+        },
+        "minecraft:glint": {
+            "$ref": "../1.20.50/minecraft_glint.json"
+        },
+        "minecraft:hand_equipped": {
+            "$ref": "../1.20.50/minecraft_hand_equipped.json"
+        },
+        "minecraft:hover_text_color": {
+            "$ref": "../1.20.50/minecraft_hover_text_color.json"
+        },
+        "minecraft:icon": {
+            "$ref": "./minecraft_icon%20v1.21.80.json"
+        },
+        "minecraft:interact_button": {
+            "$ref": "../1.20.50/minecraft_interact_button.json"
+        },
+        "minecraft:kinetic_weapon": {
+            "$ref": "./minecraft_kinetic_weapon.json"
+        },
+        "minecraft:liquid_clipped": {
+            "$ref": "../1.20.50/minecraft_liquid_clipped.json"
+        },
+        "minecraft:max_stack_size": {
+            "$ref": "../1.20.50/minecraft_max_stack_size.json"
+        },
+        "minecraft:piercing_weapon": {
+            "$ref": "./minecraft_piercing_weapon.json"
+        },
+        "minecraft:projectile": {
+            "$ref": "../1.20.50/minecraft_projectile.json"
+        },
+        "minecraft:rarity": {
+            "$ref": "./minecraft_rarity.json"
+        },
+        "minecraft:record": {
+            "$ref": "../1.20.50/minecraft_record.json"
+        },
+        "minecraft:repairable": {
+            "$ref": "../1.20.50/minecraft_repairable.json"
+        },
+        "minecraft:shooter": {
+            "$ref": "../1.20.50/minecraft_shooter.json"
+        },
+        "minecraft:should_despawn": {
+            "$ref": "../1.20.50/minecraft_should_despawn.json"
+        },
+        "minecraft:stacked_by_data": {
+            "$ref": "../1.20.50/minecraft_stacked_by_data.json"
+        },
+        "minecraft:storage_item": {
+            "$ref": "./minecraft_storage_item.json"
+        },
+        "minecraft:storage_weight_limit": {
+            "$ref": "./minecraft_storage_weight_limit.json"
+        },
+        "minecraft:storage_weight_modifier": {
+            "$ref": "./minecraft_storage_weight_modifier.json"
+        },
+        "minecraft:swing_duration": {
+            "$ref": "./minecraft_swing_duration.json"
+        },
+        "minecraft:swing_sounds": {
+            "$ref": "./minecraft_swing_sounds.json"
+        },
+        "minecraft:tags": {
+            "$ref": "../1.20.50/minecraft_tags.json"
+        },
+        "minecraft:throwable": {
+            "$ref": "../1.20.50/minecraft_throwable.json"
+        },
+        "minecraft:use_animation": {
+            "$ref": "../1.20.50/minecraft_use_animation.json"
+        },
+        "minecraft:use_modifiers": {
+            "$ref": "./minecraft_use_modifiers.json"
+        },
+        "minecraft:wearable": {
+            "$ref": "./minecraft_wearable.json"
+        }
+    }
+}

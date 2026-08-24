@@ -29,6 +29,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using fNbt;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MiNET.BlockGen;
 
@@ -51,7 +52,10 @@ public static class Program
 		string blocksDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET", "Blocks");
 		string itemsDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET", "Items");
 		string dataDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET.BlockGen", "Data");
-		string palettePath = Path.Combine(dataDir, "block_palette.nbt");
+		string extractDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET.BdsExtract", "Data");
+		string blockStatesPath = Path.Combine(extractDir, "block_states.json");
+		string blockTypesPath = Path.Combine(extractDir, "blocks.json");
+		string blockCreativePath = Path.Combine(extractDir, "creative_items.json");
 		string itemStatesPath = Path.Combine(dataDir, "runtime_item_states.json");
 		string itemComponentsPath = Path.Combine(dataDir, "item_components.nbt");
 
@@ -61,7 +65,7 @@ public static class Program
 			return 1;
 		}
 
-		foreach (string required in new[] {palettePath, itemStatesPath, itemComponentsPath})
+		foreach (string required in new[] {itemStatesPath, itemComponentsPath})
 		{
 			if (File.Exists(required)) continue;
 			Console.Error.WriteLine($"data file not found: {required}");
@@ -69,10 +73,24 @@ public static class Program
 			return 1;
 		}
 
-		Console.WriteLine($"source: {dataDir}");
-		Console.WriteLine($"        {DescribeSource(dataDir)}");
+		foreach (string required in new[] {blockStatesPath, blockTypesPath, blockCreativePath})
+		{
+			if (File.Exists(required)) continue;
+			Console.Error.WriteLine($"block data file not found: {required}");
+			Console.Error.WriteLine("It is committed with MiNET.BdsExtract. Run that extraction to rebuild it.");
+			return 1;
+		}
 
-		List<BlockState> palette = ReadPalette(palettePath);
+		Console.WriteLine($"item source: {dataDir}");
+		Console.WriteLine($"             {DescribeSource(dataDir)}");
+
+		BlockExtract extract = ReadBlockExtract(blockStatesPath, blockTypesPath);
+		Console.WriteLine($"block source: {extractDir}");
+		Console.WriteLine($"              BDS {extract.PublishedFor}, block state release {extract.BlockStateRelease}, network ids are hashes: {extract.NetworkIdsAreHashes}");
+
+		if (!VerifyNetworkHashes(extract)) return 1;
+
+		List<BlockState> palette = extract.Palette;
 		Console.WriteLine($"palette: {palette.Count} states, {palette.Select(p => p.Name).Distinct().Count()} blocks");
 
 		HashSet<string> handWritten = ReadHandWrittenClasses(blocksDir);
@@ -84,7 +102,7 @@ public static class Program
 		Dictionary<string, int> baseIndex = VerifyPaletteLayout(palette, byName);
 		if (baseIndex == null) return 1;
 
-		Dictionary<string, string> familyBases = ReadFamilyBases(dataDir, blocksDir, handWritten);
+		Dictionary<string, string> familyBases = ReadFamilyBases(blockCreativePath, blocksDir, handWritten);
 		Console.WriteLine($"family bases: {familyBases.Values.Distinct().Count()} bases covering {familyBases.Count} blocks");
 
 		int classes = WriteBlockDataClasses(Path.Combine(blocksDir, "BlockData.generated.cs"), byName, handWritten, familyBases);
@@ -104,7 +122,7 @@ public static class Program
 
 		Console.WriteLine($"state owners: {stateOwners.Values.Distinct().Count()} bases covering {stateOwners.Count} blocks");
 
-		int partials = WritePartialBlocks(Path.Combine(blocksDir, "PartialBlocks.cs"), byName, handImplemented, baseIndex, stateOwners);
+		int partials = WritePartialBlocks(Path.Combine(blocksDir, "PartialBlocks.cs"), byName, handImplemented, baseIndex, stateOwners, extract.Properties);
 		Console.WriteLine($"PartialBlocks.cs: {partials} partials");
 
 		int entries = WriteBlockPalette(Path.Combine(blocksDir, "BlockPaletteData.generated.cs"), palette);
@@ -528,7 +546,7 @@ public static class Program
 		int parts = (palette.Count + PerPart - 1) / PerPart;
 
 		var sb = new StringBuilder();
-		WriteHeader(sb, "CloudburstMC/Data block_palette.nbt");
+		WriteHeader(sb, "MiNET.BdsExtract/Data block_states.json + blocks.json");
 		sb.AppendLine("using System.Collections.Generic;");
 		sb.AppendLine("using MiNET.Utils;");
 		sb.AppendLine();
@@ -619,52 +637,231 @@ public static class Program
 		}
 	}
 
+	// Everything the block half of the generator reads: the palette in canonical order, the
+	// per state physical properties keyed by block name, and the network hash each state carries,
+	// which is what proves the palette was read the way Bedrock writes it.
+	private sealed record BlockExtract(
+		List<BlockState> Palette,
+		Dictionary<string, List<BlockProperties>> Properties,
+		List<uint> NetworkHashes,
+		int BlockStateVersion,
+		string BlockStateRelease,
+		string PublishedFor,
+		bool NetworkIdsAreHashes);
+
 	/// <summary>
-	///     Reads CloudburstMC/Data block_palette.nbt: gzipped, big endian, a root compound holding
-	///     a "blocks" list. List order is the canonical palette order, and each entry also carries
-	///     block_id, network_id and name_hash.
-	///     The submodule is pinned to the commit matching the protocol we target. Their master runs
-	///     ahead, and a newer palette has extra states that shift every index after them, which
-	///     looks exactly like an ordering bug.
+	///     Reads the BDS memory extraction: block_states.json is the palette, one row per state in
+	///     canonical order, and blocks.json is one row per block type. Between them they carry
+	///     everything the palette NBT and the properties dump used to hold, read out of the running
+	///     server rather than republished by a third party.
+	///     The row's own networkId is its list index, which is asserted rather than assumed: the
+	///     index is the runtime id every generated GetRuntimeId returns.
+	///     Three values live on the block type instead of the state: the legacy numeric id, the
+	///     translucency and whether the block requires the correct tool to drop anything.
 	/// </summary>
-	private static List<BlockState> ReadPalette(string nbtPath)
+	private static BlockExtract ReadBlockExtract(string statesPath, string typesPath)
 	{
-		var file = new NbtFile {BigEndian = true, UseVarInt = false};
-		file.LoadFromFile(nbtPath, NbtCompression.AutoDetect, null);
-		var root = (NbtCompound) file.RootTag;
+		var statesFile = JsonConvert.DeserializeObject<BlockStatesJson>(File.ReadAllText(statesPath));
+		var typesFile = JsonConvert.DeserializeObject<BlockTypesJson>(File.ReadAllText(typesPath));
 
-		if (root["blocks"] is not NbtList blocks)
-		{
-			throw new InvalidDataException($"no 'blocks' list in {nbtPath}; root tags: {string.Join(",", root.Names)}");
-		}
+		var types = typesFile.Blocks.ToDictionary(b => b.NameInfo.FullName, StringComparer.Ordinal);
 
-		var result = new List<BlockState>(blocks.Count);
-		foreach (NbtTag tag in blocks)
+		var palette = new List<BlockState>(statesFile.States.Count);
+		var properties = new Dictionary<string, List<BlockProperties>>(StringComparer.Ordinal);
+		var hashes = new List<uint>(statesFile.States.Count);
+
+		for (int i = 0; i < statesFile.States.Count; i++)
 		{
-			var entry = (NbtCompound) tag;
+			BlockStateJson row = statesFile.States[i];
+			BlockSerializationIdJson id = row.SerializationId;
+
+			if (row.NetworkId != i) throw new InvalidDataException($"{row.Name} at index {i} carries networkId {row.NetworkId}");
+			if (id.Version != statesFile.BlockStateVersion) throw new InvalidDataException($"{row.Name} at index {i} carries version {id.Version}, not {statesFile.BlockStateVersion}");
+			if (!types.TryGetValue(id.Name, out BlockTypeJson type)) throw new InvalidDataException($"{id.Name} at index {i} has no block type in {Path.GetFileName(typesPath)}");
+
 			var states = new List<(string, object)>();
-			if (entry["states"] is NbtCompound stateTag)
+			foreach (KeyValuePair<string, JToken> state in id.States)
 			{
-				foreach (NbtTag state in stateTag)
+				// The three state kinds Bedrock serializes: a bit as an NBT byte, a number as an
+				// NBT int, an enum as a string. The kind decides the tag, and the tag decides the
+				// hash, so a wrong reading here cannot survive VerifyNetworkHashes.
+				object value = state.Value.Type switch
 				{
-					object value = state.TagType switch
-					{
-						NbtTagType.Byte => state.ByteValue,
-						NbtTagType.Int => state.IntValue,
-						NbtTagType.String => state.StringValue,
-						_ => null
-					};
-					if (value != null) states.Add((state.Name, value));
-				}
+					JTokenType.Boolean => (byte) (state.Value.Value<bool>() ? 1 : 0),
+					JTokenType.Integer => state.Value.Value<int>(),
+					JTokenType.String => state.Value.Value<string>(),
+					_ => throw new InvalidDataException($"{id.Name}.{state.Key} holds {state.Value.Type}, which is not a block state kind")
+				};
+				states.Add((state.Key, value));
 			}
 
-			// block_id is the legacy numeric id, or absent for a block that never had one.
-			// version is the block state schema stamp, the same on every entry.
-			result.Add(new BlockState(entry["name"].StringValue, entry["block_id"]?.IntValue ?? 0,
-				entry["version"]?.IntValue ?? 0, states));
+			palette.Add(new BlockState(id.Name, type.Id, id.Version, states));
+			hashes.Add(row.NetworkHash);
+
+			if (!properties.TryGetValue(id.Name, out List<BlockProperties> rows)) properties[id.Name] = rows = new List<BlockProperties>();
+			BlockDirectDataJson direct = row.DirectData;
+			rows.Add(new BlockProperties
+			{
+				Name = id.Name,
+				IsSolid = row.CachedComponentData.IsSolid,
+				Hardness = direct.DestroySpeed,
+				ExplosionResistance = direct.ExplosionResistance,
+				Friction = direct.Friction,
+				Translucency = type.Translucency,
+				LightEmission = direct.LightEmission,
+				LightDampening = direct.Light,
+				BurnOdds = direct.BurnOdds,
+				FlameOdds = direct.FlameOdds,
+				RequiresCorrectToolForDrops = type.RequiresCorrectToolForDrops,
+				CanContainLiquidSource = direct.WaterDetectionRule.CanContainLiquid
+			});
 		}
 
-		return result;
+		return new BlockExtract(palette, properties, hashes, statesFile.BlockStateVersion, statesFile.BlockStateRelease,
+			statesFile.LayoutPublishedFor, statesFile.NetworkIdsAreHashes);
+	}
+
+	/// <summary>
+	///     Re-serializes every palette entry the way Bedrock hashes it and requires the result to
+	///     equal the hash the extraction read out of the block itself.
+	///     This is the whole proof that the palette was read correctly. The hash covers the name,
+	///     every state name, every state value and the NBT tag each value was written as, so a
+	///     dropped state, a reordered pair or a bit read as a number all fail it. A recipe that
+	///     agrees on every row is proven; one that agrees on some is not, so a single mismatch
+	///     stops the run before anything is written.
+	/// </summary>
+	private static bool VerifyNetworkHashes(BlockExtract extract)
+	{
+		var failures = new List<string>();
+		for (int i = 0; i < extract.Palette.Count; i++)
+		{
+			BlockState state = extract.Palette[i];
+			uint computed = ComputeNetworkHash(state);
+			if (computed == extract.NetworkHashes[i]) continue;
+			failures.Add($"  index {i} {state.Name}: computed {computed}, extraction read {extract.NetworkHashes[i]}");
+		}
+
+		if (failures.Count > 0)
+		{
+			Console.Error.WriteLine($"network hash proof failed on {failures.Count} of {extract.Palette.Count} states:");
+			foreach (string f in failures.Take(20)) Console.Error.WriteLine(f);
+			return false;
+		}
+
+		Console.WriteLine($"network hash proof: {extract.Palette.Count}/{extract.Palette.Count} states re-serialize to their own serializationIdHashForNetwork");
+		return true;
+	}
+
+	/// <summary>
+	///     FNV-1a 32 over the little-endian, non-varint NBT of {name, states}, states sorted
+	///     alphabetically. The same recipe as MiNET.Blocks.BlockFactory.ComputeNetworkHash, written
+	///     out again here because the generator does not reference the code it emits.
+	/// </summary>
+	private static uint ComputeNetworkHash(BlockState state)
+	{
+		var states = new NbtCompound("states");
+		foreach ((string name, object value) in state.States.OrderBy(s => s.Name, StringComparer.Ordinal))
+		{
+			switch (value)
+			{
+				case byte b:
+					states.Add(new NbtByte(name, b));
+					break;
+				case int n:
+					states.Add(new NbtInt(name, n));
+					break;
+				case string s:
+					states.Add(new NbtString(name, s));
+					break;
+			}
+		}
+
+		var root = new NbtCompound("")
+		{
+			new NbtString("name", state.Name),
+			states
+		};
+
+		byte[] bytes = new NbtFile(root) {BigEndian = false, UseVarInt = false}.SaveToBuffer(NbtCompression.None);
+
+		uint hash = 0x811c9dc5;
+		foreach (byte b in bytes)
+		{
+			hash ^= b;
+			hash *= 0x01000193;
+		}
+
+		return hash;
+	}
+
+	private sealed class BlockStatesJson
+	{
+		[JsonProperty("networkIdsAreHashes")] public bool NetworkIdsAreHashes { get; set; }
+		[JsonProperty("blockStateVersion")] public int BlockStateVersion { get; set; }
+		[JsonProperty("blockStateRelease")] public string BlockStateRelease { get; set; }
+		[JsonProperty("layoutPublishedFor")] public string LayoutPublishedFor { get; set; }
+		[JsonProperty("states")] public List<BlockStateJson> States { get; set; }
+	}
+
+	private sealed class BlockStateJson
+	{
+		[JsonProperty("name")] public string Name { get; set; }
+		[JsonProperty("networkId")] public int NetworkId { get; set; }
+		[JsonProperty("serializationId")] public BlockSerializationIdJson SerializationId { get; set; }
+		[JsonProperty("serializationIdHashForNetwork")] public uint NetworkHash { get; set; }
+		[JsonProperty("cachedComponentData")] public BlockCachedComponentDataJson CachedComponentData { get; set; }
+		[JsonProperty("directData")] public BlockDirectDataJson DirectData { get; set; }
+	}
+
+	private sealed class BlockSerializationIdJson
+	{
+		[JsonProperty("name")] public string Name { get; set; }
+		[JsonProperty("version")] public int Version { get; set; }
+
+		// A JObject, because the states keep the order they are written in and each value carries
+		// its own kind. A dictionary would keep neither.
+		[JsonProperty("states")] public JObject States { get; set; }
+	}
+
+	private sealed class BlockCachedComponentDataJson
+	{
+		[JsonProperty("isSolid")] public bool IsSolid { get; set; }
+	}
+
+	private sealed class BlockDirectDataJson
+	{
+		[JsonProperty("destroySpeed")] public float DestroySpeed { get; set; }
+		[JsonProperty("explosionResistance")] public float ExplosionResistance { get; set; }
+		[JsonProperty("friction")] public float Friction { get; set; }
+		[JsonProperty("lightEmission")] public int LightEmission { get; set; }
+		[JsonProperty("light")] public int Light { get; set; }
+		[JsonProperty("burnOdds")] public int BurnOdds { get; set; }
+		[JsonProperty("flameOdds")] public int FlameOdds { get; set; }
+		[JsonProperty("waterDetectionRule")] public BlockWaterDetectionJson WaterDetectionRule { get; set; }
+	}
+
+	private sealed class BlockWaterDetectionJson
+	{
+		[JsonProperty("canContainLiquid")] public bool CanContainLiquid { get; set; }
+	}
+
+	private sealed class BlockTypesJson
+	{
+		[JsonProperty("blocks")] public List<BlockTypeJson> Blocks { get; set; }
+	}
+
+	private sealed class BlockTypeJson
+	{
+		[JsonProperty("nameInfo")] public BlockNameInfoJson NameInfo { get; set; }
+		[JsonProperty("id")] public int Id { get; set; }
+		[JsonProperty("creativeGroup")] public string CreativeGroup { get; set; }
+		[JsonProperty("translucency")] public float Translucency { get; set; }
+		[JsonProperty("requiresCorrectToolForDrops")] public bool RequiresCorrectToolForDrops { get; set; }
+	}
+
+	private sealed class BlockNameInfoJson
+	{
+		[JsonProperty("fullName")] public string FullName { get; set; }
 	}
 
 	/// <summary>
@@ -684,17 +881,15 @@ public static class Program
 	///         is one new file and no wiring, and a family with nothing to share stays on Block.
 	///     </para>
 	/// </summary>
-	private static Dictionary<string, string> ReadFamilyBases(string dataDir, string blocksDir, HashSet<string> handWritten)
+	private static Dictionary<string, string> ReadFamilyBases(string creativePath, string blocksDir, HashSet<string> handWritten)
 	{
-		var creative = JsonConvert.DeserializeObject<CreativeFamiliesJson>(File.ReadAllText(Path.Combine(dataDir, "creative_items.json")));
+		var creative = JsonConvert.DeserializeObject<CreativeFamiliesJson>(File.ReadAllText(creativePath));
 		var bases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 		var usable = new Dictionary<string, bool>();
 
 		foreach (CreativeFamilyItemJson item in creative.Items)
 		{
-			if (item.GroupId < 0 || item.GroupId >= creative.Groups.Count) continue;
-
-			string group = creative.Groups[item.GroupId].Name;
+			string group = item.Group;
 			if (string.IsNullOrEmpty(group) || !group.StartsWith("itemGroup.name.")) continue;
 
 			string baseName = CodeName(group.Substring("itemGroup.name.".Length)) + "Base";
@@ -720,7 +915,7 @@ public static class Program
 
 			if (!ok) continue;
 
-			bases[item.Id] = baseName;
+			bases[item.Item] = baseName;
 		}
 
 		return bases;
@@ -728,19 +923,13 @@ public static class Program
 
 	private sealed class CreativeFamiliesJson
 	{
-		[JsonProperty("groups")] public List<CreativeFamilyGroupJson> Groups { get; set; }
 		[JsonProperty("items")] public List<CreativeFamilyItemJson> Items { get; set; }
-	}
-
-	private sealed class CreativeFamilyGroupJson
-	{
-		[JsonProperty("name")] public string Name { get; set; }
 	}
 
 	private sealed class CreativeFamilyItemJson
 	{
-		[JsonProperty("id")] public string Id { get; set; }
-		[JsonProperty("groupId")] public int GroupId { get; set; }
+		[JsonProperty("item")] public string Item { get; set; }
+		[JsonProperty("group")] public string Group { get; set; }
 	}
 
 	private static HashSet<string> ReadHandWrittenClasses(string blocksDir, params string[] generatedFiles)
@@ -822,7 +1011,7 @@ public static class Program
 	private static int WriteBlockDataClasses(string path, List<IGrouping<string, BlockState>> byName, HashSet<string> handWritten, Dictionary<string, string> familyBases)
 	{
 		var sb = new StringBuilder();
-		WriteHeader(sb, "CloudburstMC/Data block_palette.nbt");
+		WriteHeader(sb, "MiNET.BdsExtract/Data block_states.json + blocks.json");
 		sb.AppendLine("namespace MiNET.Blocks");
 		sb.AppendLine("{");
 
@@ -1011,49 +1200,32 @@ public static class Program
 	}
 
 	/// <summary>
-	///     Reads block_properties.json, keeping every row a block has rather than only its first.
-	///     The file is per block STATE and in palette order, so a block's rows line up positionally
-	///     with its palette permutations, which is what lets a per-state value be generated as a
-	///     switch. Only lightEmission (51 blocks, the candles) and lightDampening (cauldron) differ
-	///     between a block's own states; the rest are constant and collapse back to one value.
+	///     The physical properties of one block state, as the extraction reads them off the block:
+	///     the ones on the block itself from its directData and cachedComponentData, the two that
+	///     live on the block type from there. A block's rows are in palette order, so they pair
+	///     positionally with its permutations, which is what lets a per-state value be generated as
+	///     a switch. Only lightEmission (51 blocks, the candles) and lightDampening (cauldron)
+	///     differ between a block's own states; the rest are constant and collapse back to one
+	///     value.
 	/// </summary>
-	private static Dictionary<string, List<BlockProperties>> ReadBlockProperties(string path)
-	{
-		if (!File.Exists(path))
-		{
-			Console.Error.WriteLine($"block properties not found: {path}");
-			return new Dictionary<string, List<BlockProperties>>();
-		}
-
-		var all = JsonConvert.DeserializeObject<List<BlockProperties>>(File.ReadAllText(path));
-
-		var result = new Dictionary<string, List<BlockProperties>>(StringComparer.Ordinal);
-		foreach (BlockProperties p in all)
-		{
-			if (!result.TryGetValue(p.Name, out List<BlockProperties> rows)) result[p.Name] = rows = new List<BlockProperties>();
-			rows.Add(p);
-		}
-		return result;
-	}
-
 	private class BlockProperties
 	{
-		[JsonProperty("name")] public string Name { get; set; }
-		[JsonProperty("isSolid")] public bool IsSolid { get; set; }
-		[JsonProperty("hardness")] public float Hardness { get; set; }
-		[JsonProperty("explosionResistance")] public float ExplosionResistance { get; set; }
-		[JsonProperty("friction")] public float Friction { get; set; }
-		[JsonProperty("translucency")] public float Translucency { get; set; }
-		[JsonProperty("lightEmission")] public int LightEmission { get; set; }
-		[JsonProperty("lightDampening")] public int LightDampening { get; set; }
-		[JsonProperty("burnOdds")] public int BurnOdds { get; set; }
-		[JsonProperty("flameOdds")] public int FlameOdds { get; set; }
-		[JsonProperty("requiresCorrectToolForDrops")] public bool RequiresCorrectToolForDrops { get; set; }
-		[JsonProperty("canContainLiquidSource")] public bool CanContainLiquidSource { get; set; }
+		public string Name { get; set; }
+		public bool IsSolid { get; set; }
+		public float Hardness { get; set; }
+		public float ExplosionResistance { get; set; }
+		public float Friction { get; set; }
+		public float Translucency { get; set; }
+		public int LightEmission { get; set; }
+		public int LightDampening { get; set; }
+		public int BurnOdds { get; set; }
+		public int FlameOdds { get; set; }
+		public bool RequiresCorrectToolForDrops { get; set; }
+		public bool CanContainLiquidSource { get; set; }
 	}
 
 	private static int WritePartialBlocks(string path, List<IGrouping<string, BlockState>> byName, HashSet<string> handImplemented, Dictionary<string, int> baseIndex,
-		Dictionary<string, string> familyBases)
+		Dictionary<string, string> familyBases, Dictionary<string, List<BlockProperties>> properties)
 	{
 		// State declarations for each family base, collected once and written at the end.
 		var baseStates = new Dictionary<string, StringBuilder>();
@@ -1071,12 +1243,10 @@ public static class Program
 			else sharedStateNames[owner] = names;
 		}
 
-		Dictionary<string, List<BlockProperties>> properties = ReadBlockProperties(
-			Path.Combine(Path.GetDirectoryName(path)!, "..", "..", "MiNET.BlockGen", "Data", "block_properties.json"));
 		Console.WriteLine($"block properties: {properties.Count} blocks");
 
 		var sb = new StringBuilder();
-		WriteHeader(sb, "CloudburstMC/Data block_palette.nbt");
+		WriteHeader(sb, "MiNET.BdsExtract/Data block_states.json + blocks.json");
 		sb.AppendLine("using System;");
 		sb.AppendLine("using System.Collections.Generic;");
 		sb.AppendLine("using MiNET.Utils;");
@@ -1235,7 +1405,7 @@ public static class Program
 	private static void WriteHeader(StringBuilder sb, string source)
 	{
 		sb.AppendLine($"// GENERATED by MiNET.BlockGen from {source}.");
-		sb.AppendLine("// Do not hand-edit. Run the tool again after updating the pinned data submodule.");
+		sb.AppendLine("// Do not hand-edit. Run the tool again after updating the source data.");
 		sb.AppendLine();
 	}
 

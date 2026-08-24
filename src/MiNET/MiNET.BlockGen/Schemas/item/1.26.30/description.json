@@ -1,0 +1,26 @@
+{
+    "title": "description",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/description.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "identifier": {
+            "$ref": "../../../client_server/common/legacy/Identifier%2010.json",
+            "x-ordinal-index": 0
+        },
+        "menu_category": {
+            "default": {
+                "category": "none",
+                "group": null,
+                "is_hidden_in_commands": null
+            },
+            "$ref": "./menu_category.json",
+            "x-ordinal-index": 1
+        }
+    },
+    "required": [
+        "identifier"
+    ]
+}

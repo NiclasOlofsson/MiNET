@@ -1,0 +1,130 @@
+{
+    "title": "components",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.20.50/Component.json",
+    "x-format-version": "1.20.50",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "minecraft:allow_off_hand": {
+            "$ref": "./minecraft_allow_off_hand.json",
+            "x-ordinal-index": 0
+        },
+        "minecraft:block_placer": {
+            "$ref": "./minecraft_block_placer.json",
+            "x-ordinal-index": 18
+        },
+        "minecraft:can_destroy_in_creative": {
+            "$ref": "./minecraft_can_destroy_in_creative.json",
+            "x-ordinal-index": 1
+        },
+        "minecraft:cooldown": {
+            "$ref": "./minecraft_cooldown.json",
+            "x-ordinal-index": 2
+        },
+        "minecraft:damage": {
+            "$ref": "./minecraft_damage.json",
+            "x-ordinal-index": 3
+        },
+        "minecraft:digger": {
+            "$ref": "./minecraft_digger.json",
+            "x-ordinal-index": 4
+        },
+        "minecraft:display_name": {
+            "$ref": "./minecraft_display_name.json",
+            "x-ordinal-index": 5
+        },
+        "minecraft:durability": {
+            "$ref": "./minecraft_durability.json",
+            "x-ordinal-index": 6
+        },
+        "minecraft:enchantable": {
+            "$ref": "./minecraft_enchantable.json",
+            "x-ordinal-index": 7
+        },
+        "minecraft:entity_placer": {
+            "$ref": "./minecraft_entity_placer.json",
+            "x-ordinal-index": 8
+        },
+        "minecraft:food": {
+            "$ref": "./minecraft_food.json",
+            "x-ordinal-index": 9
+        },
+        "minecraft:fuel": {
+            "$ref": "./minecraft_fuel.json",
+            "x-ordinal-index": 10
+        },
+        "minecraft:glint": {
+            "$ref": "./minecraft_glint.json",
+            "x-ordinal-index": 11
+        },
+        "minecraft:hand_equipped": {
+            "$ref": "./minecraft_hand_equipped.json",
+            "x-ordinal-index": 12
+        },
+        "minecraft:hover_text_color": {
+            "$ref": "./minecraft_hover_text_color.json",
+            "x-ordinal-index": 13
+        },
+        "minecraft:icon": {
+            "$ref": "./minecraft_icon.json",
+            "x-ordinal-index": 14
+        },
+        "minecraft:interact_button": {
+            "$ref": "./minecraft_interact_button.json",
+            "x-ordinal-index": 15
+        },
+        "minecraft:liquid_clipped": {
+            "$ref": "./minecraft_liquid_clipped.json",
+            "x-ordinal-index": 16
+        },
+        "minecraft:max_stack_size": {
+            "$ref": "./minecraft_max_stack_size.json",
+            "x-ordinal-index": 17
+        },
+        "minecraft:projectile": {
+            "$ref": "./minecraft_projectile.json",
+            "x-ordinal-index": 19
+        },
+        "minecraft:record": {
+            "$ref": "./minecraft_record.json",
+            "x-ordinal-index": 20
+        },
+        "minecraft:repairable": {
+            "$ref": "./minecraft_repairable.json",
+            "x-ordinal-index": 21
+        },
+        "minecraft:shooter": {
+            "$ref": "./minecraft_shooter.json",
+            "x-ordinal-index": 22
+        },
+        "minecraft:should_despawn": {
+            "$ref": "./minecraft_should_despawn.json",
+            "x-ordinal-index": 23
+        },
+        "minecraft:stacked_by_data": {
+            "$ref": "./minecraft_stacked_by_data.json",
+            "x-ordinal-index": 24
+        },
+        "minecraft:tags": {
+            "$ref": "./minecraft_tags.json",
+            "x-ordinal-index": 25
+        },
+        "minecraft:throwable": {
+            "$ref": "./minecraft_throwable.json",
+            "x-ordinal-index": 26
+        },
+        "minecraft:use_animation": {
+            "$ref": "./minecraft_use_animation.json",
+            "x-ordinal-index": 27
+        },
+        "minecraft:use_modifiers": {
+            "$ref": "./minecraft_use_modifiers.json",
+            "x-ordinal-index": 28
+        },
+        "minecraft:wearable": {
+            "$ref": "./minecraft_wearable.json",
+            "x-ordinal-index": 29
+        }
+    }
+}

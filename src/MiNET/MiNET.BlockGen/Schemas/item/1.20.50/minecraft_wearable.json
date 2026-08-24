@@ -1,0 +1,25 @@
+{
+    "title": "minecraft:wearable",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.20.50/minecraft_wearable.json",
+    "x-format-version": "1.20.50",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "protection": {
+            "type": "integer",
+            "default": 0,
+            "x-underlying-type": "int32",
+            "x-ordinal-index": 1,
+            "minimum": 0.0
+        },
+        "slot": {
+            "$ref": "../../common/1.20.50/EquipmentSlot.json",
+            "x-underlying-type": "int32",
+            "x-ordinal-index": 0
+        }
+    },
+    "required": [
+        "slot"
+    ]
+}

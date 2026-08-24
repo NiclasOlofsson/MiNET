@@ -1,0 +1,39 @@
+{
+    "title": "minecraft:storage_item",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/minecraft_storage_item.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "allow_nested_storage_items": {
+            "type": "boolean",
+            "default": true,
+            "x-underlying-type": "boolean",
+            "x-ordinal-index": 1
+        },
+        "allowed_items": {
+            "type": "array",
+            "default": [],
+            "items": {
+                "$ref": "../../common/1.20.50/Item%20Descriptor.json"
+            },
+            "x-ordinal-index": 3
+        },
+        "banned_items": {
+            "type": "array",
+            "default": [],
+            "items": {
+                "$ref": "../../common/1.20.50/Item%20Descriptor.json"
+            },
+            "x-ordinal-index": 2
+        },
+        "max_slots": {
+            "type": "integer",
+            "default": 64,
+            "x-underlying-type": "int32",
+            "x-ordinal-index": 0,
+            "maximum": 64.0
+        }
+    }
+}

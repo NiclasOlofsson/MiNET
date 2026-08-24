@@ -1,0 +1,28 @@
+{
+    "title": "minecraft:piercing_weapon",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/minecraft_piercing_weapon.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "creative_reach": {
+            "$ref": "../../../client_server/common/legacy/FloatRange.json",
+            "x-ordinal-index": 1
+        },
+        "hitbox_margin": {
+            "type": "number",
+            "default": 0.0,
+            "x-underlying-type": "float",
+            "x-ordinal-index": 2
+        },
+        "reach": {
+            "default": {
+                "min": 0.0,
+                "max": 3.0
+            },
+            "$ref": "../../../client_server/common/legacy/FloatRange.json",
+            "x-ordinal-index": 0
+        }
+    }
+}

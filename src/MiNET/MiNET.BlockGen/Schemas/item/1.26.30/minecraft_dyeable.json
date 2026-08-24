@@ -1,0 +1,19 @@
+{
+    "title": "minecraft:dyeable",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/minecraft_dyeable.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "default_color": {
+            "default": [
+                255,
+                255,
+                255
+            ],
+            "$ref": "../../../client_server/common/legacy/Color255RGB.json",
+            "x-ordinal-index": 0
+        }
+    }
+}

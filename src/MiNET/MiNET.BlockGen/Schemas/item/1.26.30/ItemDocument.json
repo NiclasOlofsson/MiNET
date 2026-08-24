@@ -1,0 +1,27 @@
+{
+    "title": "Item Document",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/ItemDocument.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "components": {
+            "propertyNames": {
+                "type": "string",
+                "pattern": "^(?!()$)"
+            },
+            "$ref": "./Item%20Components.json",
+            "x-ordinal-index": 1,
+            "minProperties": 1
+        },
+        "description": {
+            "$ref": "./description.json",
+            "x-ordinal-index": 0
+        }
+    },
+    "required": [
+        "components",
+        "description"
+    ]
+}

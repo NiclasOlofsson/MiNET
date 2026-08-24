@@ -1,0 +1,39 @@
+{
+    "title": "minecraft:block_placer",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/minecraft_block_placer.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "aligned_placement": {
+            "type": "boolean",
+            "default": false,
+            "x-underlying-type": "boolean",
+            "x-ordinal-index": 3
+        },
+        "block": {
+            "$ref": "../../../client_server/common/legacy/Reference%200.json",
+            "x-ordinal-index": 0
+        },
+        "replace_block_item": {
+            "type": "boolean",
+            "default": false,
+            "x-underlying-type": "boolean",
+            "x-ordinal-index": 2
+        },
+        "use_on": {
+            "type": "array",
+            "default": [],
+            "items": {
+                "$ref": "../../common/1.20.50/Block%20Descriptor.json"
+            },
+            "x-ordinal-index": 1,
+            "maxItems": 256,
+            "x-unique-values": true
+        }
+    },
+    "required": [
+        "block"
+    ]
+}

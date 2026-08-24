@@ -1,0 +1,18 @@
+{
+    "title": "minecraft:repairable",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.20.50/minecraft_repairable.json",
+    "x-format-version": "1.20.50",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "repair_items": {
+            "type": "array",
+            "default": [],
+            "items": {
+                "$ref": "./Repair.json"
+            },
+            "x-ordinal-index": 0
+        }
+    }
+}

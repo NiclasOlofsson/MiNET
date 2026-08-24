@@ -1,0 +1,13 @@
+{
+    "title": "StartUsing",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/StartUsing.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "string",
+    "enum": [
+        "if_first",
+        "always"
+    ],
+    "x-underlying-type": "uint8"
+}

@@ -122,6 +122,8 @@ public static class BlockMemberReader
 
 				return set;
 			}
+			case MemberKind.UInt8:
+				return JsonValue.Create((long) window[at]);
 			case MemberKind.UInt16:
 				return JsonValue.Create((long) BitConverter.ToUInt16(window, at));
 			case MemberKind.Int16:

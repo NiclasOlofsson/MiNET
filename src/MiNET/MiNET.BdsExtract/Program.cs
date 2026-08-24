@@ -53,6 +53,13 @@ public static class Program
 {
 	public static int Main(string[] args)
 	{
+		// Numbers are formatted the same way wherever the tool runs. A thousands separator comes
+		// from the machine's culture, and on this one it is a non-breaking space, which reaches the
+		// files as an escape inside every count a check reports. That makes the output depend on
+		// the locale of whoever ran it, and two boxes then disagree on files holding the same data.
+		CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+		CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+
 		// One job: read the server and write the files. The only thing worth saying on the command
 		// line is which server, because several run at once when every build is being checked, and
 		// the one action that is not a read, bringing a server folder to the canonical config.
@@ -91,7 +98,9 @@ public static class Program
 		}
 		catch (Exception e)
 		{
-			Console.Error.WriteLine($"error: {e.Message}");
+			// The whole exception, not its message. A message alone names what went wrong and not
+			// where, and the where is the only part that says which read to fix.
+			Console.Error.WriteLine($"error: {e}");
 			return 1;
 		}
 	}
@@ -388,7 +397,13 @@ public static class Program
 		// the run fails if either half does.
 		Console.WriteLine();
 		int items = ItemRegistry.Run(server);
-		return report.Passed && items == 0 ? 0 : 1;
+
+		// The creative inventory last, because it is the only output that is item STACKS rather than
+		// items, and a stack names the item and the block state it holds. Both of those are read
+		// through positions the two extractions above measured on this server.
+		Console.WriteLine();
+		int creative = CreativeItems.Run(server);
+		return report.Passed && items == 0 && creative == 0 ? 0 : 1;
 	}
 
 	/// <summary>

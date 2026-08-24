@@ -37,6 +37,10 @@ public enum MemberKind
 
 	Enum8,
 	Enum32,
+
+	/// <summary>Eight bits unsigned, held as a number rather than as a name or a set of flags.</summary>
+	UInt8,
+
 	UInt16,
 	Int16,
 	Int32,
@@ -149,13 +153,15 @@ public static class BlockMembers
 	{
 		Blocks,
 		States,
-		Items
+		Items,
+		Creative
 	}
 
-	private static readonly string[] Files = ["blocks.json", "block_states.json", "items-runtime.json"];
-	private static readonly Dictionary<string, ClassLayout>[] Classes = new Dictionary<string, ClassLayout>[3];
-	private static readonly string[] Roots = new string[3];
-	private static readonly ClassTree[] Trees = new ClassTree[3];
+	private static readonly string[] Files =
+		["blocks.json", "block_states.json", "items-runtime.json", "creative_items.json"];
+	private static readonly Dictionary<string, ClassLayout>[] Classes = new Dictionary<string, ClassLayout>[4];
+	private static readonly string[] Roots = new string[4];
+	private static readonly ClassTree[] Trees = new ClassTree[4];
 	private static Version _build;
 
 	/// <summary>The build the reference was read on.</summary>

@@ -1,0 +1,178 @@
+{
+  "class": "CreativeItemRegistry",
+  "classes": {
+    "CreativeItemRegistry": {
+      "size": 200,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "controlBlock", "at": 8, "bytes": 16, "kind": "Container" },
+        { "name": "creativeItems", "at": 24, "bytes": 24, "kind": "Container", "elements": "CreativeItemEntry" },
+        { "name": "creativeGroups", "at": 48, "bytes": 24, "kind": "Container", "elements": "CreativeGroupInfo" },
+        { "name": "creativeGroupCategories", "at": 72, "bytes": 64, "kind": "Container" },
+        { "name": "creativeNetIdIndex", "at": 136, "bytes": 64, "kind": "Container" }
+      ]
+    },
+    "CreativeItemEntry": {
+      "size": 176,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "controlBlock", "at": 8, "bytes": 16, "kind": "Container" },
+        { "name": "registry", "at": 24, "bytes": 8, "kind": "Container" },
+        { "name": "groupIndex", "at": 32, "bytes": 4, "kind": "UInt32" },
+        { "name": "creativeNetId", "at": 36, "bytes": 4, "kind": "UInt32" },
+        { "name": "itemInstance", "at": 40, "bytes": 128, "kind": "Container", "holds": "ItemInstance" },
+        { "name": "index", "at": 168, "bytes": 4, "kind": "UInt32" }
+      ]
+    },
+    "CreativeGroupInfo": {
+      "size": 248,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "controlBlock", "at": 8, "bytes": 16, "kind": "Container" },
+        { "name": "category", "at": 24, "bytes": 1, "kind": "Enum8", "enum": "CreativeItemCategory" },
+        { "name": "registry", "at": 32, "bytes": 8, "kind": "Container" },
+        { "name": "name", "at": 40, "bytes": 48, "kind": "Hashed" },
+        { "name": "icon", "at": 88, "bytes": 128, "kind": "Container", "holds": "ItemInstance" },
+        { "name": "index", "at": 216, "bytes": 4, "kind": "UInt32" },
+        { "name": "itemIndexes", "at": 224, "bytes": 24, "kind": "Container" }
+      ]
+    },
+    "ItemInstance": {
+      "size": 128,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "item", "at": 8, "bytes": 8, "kind": "Container" },
+        { "name": "userData", "at": 16, "bytes": 8, "kind": "Container", "holds": "CompoundTag" },
+        { "name": "block", "at": 24, "bytes": 8, "kind": "Container" },
+        { "name": "auxValue", "at": 32, "bytes": 2, "kind": "Int16" },
+        { "name": "count", "at": 34, "bytes": 1, "kind": "UInt8" },
+        { "name": "valid", "at": 35, "bytes": 1, "kind": "Bool" },
+        { "name": "showPickUp", "at": 36, "bytes": 1, "kind": "Bool" },
+        { "name": "wasPickedUp", "at": 37, "bytes": 1, "kind": "Bool" },
+        { "name": "pickupTime", "at": 40, "bytes": 8, "kind": "UInt64" },
+        { "name": "canPlaceOn", "at": 48, "bytes": 24, "kind": "Container" },
+        { "name": "canPlaceOnHash", "at": 72, "bytes": 8, "kind": "UInt64" },
+        { "name": "canDestroy", "at": 80, "bytes": 24, "kind": "Container" },
+        { "name": "canDestroyHash", "at": 104, "bytes": 8, "kind": "UInt64" },
+        { "name": "blockingTick", "at": 112, "bytes": 8, "kind": "UInt64" },
+        { "name": "chargedItem", "at": 120, "bytes": 8, "kind": "Container" }
+      ]
+    },
+    "CompoundTag": {
+      "size": 24,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "tags", "at": 8, "bytes": 16, "kind": "Container", "entries": "CompoundTagVariant" }
+      ]
+    },
+    "CompoundTagVariant": {
+      "size": 48,
+      "members": [
+        { "name": "value", "at": 0, "bytes": 40, "kind": "Container" },
+        { "name": "which", "at": 40, "bytes": 1, "kind": "UInt8", "enum": "TagType" }
+      ]
+    },
+    "EndTag": {
+      "size": 8,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" }
+      ]
+    },
+    "ByteTag": {
+      "size": 16,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "data", "at": 8, "bytes": 1, "kind": "UInt8" }
+      ]
+    },
+    "ShortTag": {
+      "size": 16,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "data", "at": 8, "bytes": 2, "kind": "Int16" }
+      ]
+    },
+    "IntTag": {
+      "size": 16,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "data", "at": 8, "bytes": 4, "kind": "Int32" }
+      ]
+    },
+    "Int64Tag": {
+      "size": 16,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "data", "at": 8, "bytes": 8, "kind": "UInt64" }
+      ]
+    },
+    "FloatTag": {
+      "size": 16,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "data", "at": 8, "bytes": 4, "kind": "Float" }
+      ]
+    },
+    "DoubleTag": {
+      "size": 16,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "data", "at": 8, "bytes": 8, "kind": "UInt64" }
+      ]
+    },
+    "ByteArrayTag": {
+      "size": 32,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "data", "at": 8, "bytes": 24, "kind": "Container" }
+      ]
+    },
+    "StringTag": {
+      "size": 40,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "data", "at": 8, "bytes": 32, "kind": "Text" }
+      ]
+    },
+    "ListTag": {
+      "size": 32,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "data", "at": 8, "bytes": 24, "kind": "Container" }
+      ]
+    },
+    "IntArrayTag": {
+      "size": 32,
+      "members": [
+        { "name": "methodTable", "at": 0, "bytes": 8, "kind": "Container" },
+        { "name": "data", "at": 8, "bytes": 24, "kind": "Container" }
+      ]
+    }
+  },
+  "enums": {
+    "CreativeItemCategory": {
+      "0": "All",
+      "1": "Construction",
+      "2": "Nature",
+      "3": "Equipment",
+      "4": "Items",
+      "5": "ItemCommandOnly",
+      "6": "Undefined",
+      "7": "NumCategories"
+    },
+    "TagType": {
+      "0": "End",
+      "1": "Byte",
+      "2": "Short",
+      "3": "Int",
+      "4": "Int64",
+      "5": "Float",
+      "6": "Double",
+      "7": "ByteArray",
+      "8": "String",
+      "9": "List",
+      "10": "Compound",
+      "11": "IntArray"
+    }
+  }
+}

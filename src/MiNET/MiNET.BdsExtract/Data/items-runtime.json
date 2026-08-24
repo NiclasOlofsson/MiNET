@@ -17,31 +17,31 @@
 				"check": "texture atlas",
 				"guards": "-272",
 				"held": true,
-				"detail": "2\u00A0076 of 2\u00A0076 items read atlas.items there"
+				"detail": "2,076 of 2,076 items read atlas.items there"
 			},
 			{
 				"check": "name triple agrees",
 				"guards": "-80, -32, 0",
 				"held": true,
-				"detail": "2\u00A0076 of 2\u00A0076 items whose full name is their namespace and bare name joined"
+				"detail": "2,076 of 2,076 items whose full name is their namespace and bare name joined"
 			},
 			{
 				"check": "translation key",
 				"guards": "-112",
 				"held": true,
-				"detail": "2\u00A0076 of 2\u00A0076 items carry an item. or tile. key"
+				"detail": "2,076 of 2,076 items carry an item. or tile. key"
 			},
 			{
 				"check": "stack size",
 				"guards": "-120",
 				"held": true,
-				"detail": "2\u00A0076 of 2\u00A0076 items hold a stack between 1 and 64"
+				"detail": "2,076 of 2,076 items hold a stack between 1 and 64"
 			},
 			{
 				"check": "class states its size",
 				"guards": "the deleting destructor at method table slot 0",
 				"held": true,
-				"detail": "2\u00A0076 of 2\u00A0076 items belong to a class that records its own size"
+				"detail": "2,076 of 2,076 items belong to a class that records its own size"
 			},
 			{
 				"check": "tag vector",
@@ -53,7 +53,7 @@
 				"check": "ids are unique",
 				"guards": "-118",
 				"held": true,
-				"detail": "2\u00A0076 of 2\u00A0076 items hold an id no other item holds"
+				"detail": "2,076 of 2,076 items hold an id no other item holds"
 			},
 			{
 				"check": "component containers",

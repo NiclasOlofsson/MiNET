@@ -360,3 +360,295 @@ public static class BlockStateDefinitions
 		Walk(process, BitConverter.ToUInt64(body, 16), declared, depth + 1);
 	}
 }
+
+/// <summary>
+///     A CompoundTag out of the process, whole, as the tags it holds.
+///     <para>
+///         The map walk is the same one <see cref="BlockStateReader" /> does, because it is the same
+///         container: a head sentinel whose parent is the root, nodes of three links and a colour,
+///         then the key, then the value. What is different is the typing. A block state holds four
+///         kinds of tag under three known keys, so the reader there learns each type from the key it
+///         sits under. An item's user data holds anything, so nothing can be learned from a key.
+///     </para>
+///     <para>
+///         The type comes from the value itself. A map entry holds a CompoundTagVariant, which is a
+///         std::variant over the twelve tag classes, and a variant states which of them it holds in
+///         a byte after the storage. That byte is the type, directly, for every entry.
+///     </para>
+///     <para>
+///         It is also checked rather than believed. Every tag of one class shares one method table,
+///         so the byte and the table have to agree one to one across the whole population: a class
+///         appearing under two type numbers, or a type number appearing with two classes, means the
+///         byte is not the type and the run says so. The same table is then what types the elements
+///         of a list, which hold pointers to tags and no variant of their own.
+///     </para>
+/// </summary>
+public sealed class CompoundTagReader
+{
+	private const int VectorBegin = 0;
+	private const int VectorEnd = 8;
+
+	private readonly BedrockProcess _process;
+	private readonly byte[] _node = new byte[32];
+	private readonly byte[] _word = new byte[8];
+	private readonly byte[] _text = new byte[4096];
+
+	/// <summary>Which type number each method table belongs to, learned from the variants.</summary>
+	private readonly Dictionary<ulong, int> _typeOf = new();
+	private readonly Dictionary<int, ulong> _tableOf = new();
+
+	/// <summary>How the reference names the twelve tag classes, by the type number each is.</summary>
+	private static readonly string[] TagClasses =
+	[
+		"EndTag", "ByteTag", "ShortTag", "IntTag", "Int64Tag", "FloatTag",
+		"DoubleTag", "ByteArrayTag", "StringTag", "ListTag", "CompoundTag", "IntArrayTag"
+	];
+
+	public CompoundTagReader(BedrockProcess process)
+	{
+		_process = process;
+	}
+
+	/// <summary>Entries whose method table and type byte name two different classes.</summary>
+	public int Disagreed { get; private set; }
+
+	/// <summary>Entries read, across every compound this reader has been asked for.</summary>
+	public int Entries { get; private set; }
+
+	/// <summary>List elements whose class no variant has ever named, so their type is unread.</summary>
+	public int UntypedElements { get; private set; }
+
+	/// <summary>Compounds whose walk found a different number of nodes than the map states.</summary>
+	public int Miscounted { get; private set; }
+
+	/// <summary>What each class number was seen as, for the report.</summary>
+	public IReadOnlyDictionary<int, ulong> Tables => _tableOf;
+
+	/// <summary>
+	///     Clears the counts and keeps what has been learned, so a first pass over the whole
+	///     population can name the classes and the pass that writes the file counts only itself.
+	///     Without it the first compound read is judged on a table nothing has filled in yet: every
+	///     enchanted book came out with its list unread, and the class it wanted was named half a
+	///     thousand entries later by an item further down the list.
+	/// </summary>
+	public void Reset()
+	{
+		Disagreed = 0;
+		Entries = 0;
+		UntypedElements = 0;
+		Miscounted = 0;
+	}
+
+	/// <summary>Where a tag class keeps its value, which is past its method table.</summary>
+	private static int Payload(string held) =>
+		BlockMembers.Held(held, BlockMembers.Source.Creative).Members.First(m => m.Name == "data").At;
+
+	/// <summary>Where a compound keeps its map.</summary>
+	private static int TagsAt =>
+		BlockMembers.Held("CompoundTag", BlockMembers.Source.Creative).Members.First(m => m.Name == "tags").At;
+
+	/// <summary>Where a variant states which tag it holds.</summary>
+	private static int WhichAt =>
+		BlockMembers.Held("CompoundTagVariant", BlockMembers.Source.Creative).Members.First(m => m.Name == "which").At;
+
+	/// <summary>
+	///     The compound at an address, as an object of its keys. Null where the address holds no
+	///     readable map; an empty object is a compound that really is empty.
+	/// </summary>
+	public JsonObject Read(ulong compound, int depth = 0)
+	{
+		if (compound < 0x10000 || depth > 16 || !_process.IsMapped(compound)) return null;
+
+		ulong head = _process.ReadUInt64(compound + (ulong) TagsAt, _word);
+		ulong stated = _process.ReadUInt64(compound + (ulong) TagsAt + 8, _word);
+		if (head < 0x10000) return null;
+
+		List<ulong> nodes = Nodes(head);
+		if ((ulong) nodes.Count != stated) Miscounted++;
+
+		var held = new JsonObject();
+		foreach (ulong node in nodes)
+		{
+			string key = StdString(node + MemoryLayout.MapNodeKey) ?? "unreadKey";
+			ulong table = _process.ReadUInt64(node + MemoryLayout.MapNodeVtable, _word);
+			int which = -1;
+			if (_process.TryRead(node + (ulong) (MemoryLayout.MapNodeVtable + WhichAt), _word, 1)) which = _word[0];
+
+			Entries++;
+			if (which is < 0 or >= 12)
+			{
+				held[key] = new JsonObject
+				{
+					["type"] = "unread",
+					["reason"] = "the variant states a class number no tag has",
+					["stated"] = which
+				};
+				continue;
+			}
+
+			Remember(table, which);
+			held[key] = Decode(which, node + MemoryLayout.MapNodeVtable, depth);
+		}
+
+		return held;
+	}
+
+	/// <summary>
+	///     Ties a method table to a class number, and counts it when the two disagree with what was
+	///     already seen. Nothing is corrected: the first pairing stands and the mismatch is reported.
+	/// </summary>
+	private void Remember(ulong table, int which)
+	{
+		if (table < 0x10000) return;
+		if (_typeOf.TryGetValue(table, out int already))
+		{
+			if (already != which) Disagreed++;
+			return;
+		}
+
+		if (_tableOf.TryGetValue(which, out ulong other) && other != table)
+		{
+			Disagreed++;
+			return;
+		}
+
+		_typeOf[table] = which;
+		_tableOf[which] = table;
+	}
+
+	/// <summary>One tag, at the address its own object starts at, as the value it holds.</summary>
+	private JsonNode Decode(int which, ulong tag, int depth)
+	{
+		string held = TagClasses[which];
+
+		// Two of the twelve classes state no member called data: the end tag holds nothing at all,
+		// and a compound holds a map, which is read from its own offset by the walk below. Asking
+		// either of them where its value sits is an error rather than a missing number.
+		ulong payload = which is 0 or 10 ? tag : tag + (ulong) Payload(held);
+
+		JsonNode value = which switch
+		{
+			0 => null,
+			1 => Bytes(payload, 1) is { } b ? JsonValue.Create((long) b[0]) : null,
+			2 => Bytes(payload, 2) is { } s ? JsonValue.Create((long) BitConverter.ToInt16(s, 0)) : null,
+			3 => Bytes(payload, 4) is { } i ? JsonValue.Create((long) BitConverter.ToInt32(i, 0)) : null,
+			4 => Bytes(payload, 8) is { } l ? JsonValue.Create(BitConverter.ToInt64(l, 0)) : null,
+			5 => Bytes(payload, 4) is { } f ? Sentinels.Number("nbt", BitConverter.ToSingle(f, 0)) : null,
+			6 => Bytes(payload, 8) is { } d ? JsonValue.Create(BitConverter.ToDouble(d, 0)) : null,
+			7 => Numbers(payload, 1),
+			8 => StdString(payload) is { } t ? JsonValue.Create(t) : null,
+			9 => Elements(payload, depth),
+			10 => Read(tag, depth + 1),
+			11 => Numbers(payload, 4),
+			_ => null
+		};
+
+		return new JsonObject { ["type"] = held[..^3], ["value"] = value };
+	}
+
+	/// <summary>
+	///     The tags a list holds. A list is a vector of pointers to tags, and a tag carries no type
+	///     of its own, so each element is typed by the method table the variants already named. An
+	///     element of a class no variant has named is emitted saying so, with its table, rather than
+	///     guessed at or dropped.
+	/// </summary>
+	private JsonArray Elements(ulong vector, int depth)
+	{
+		var held = new JsonArray();
+		ulong begin = _process.ReadUInt64(vector + VectorBegin, _word);
+		ulong end = _process.ReadUInt64(vector + VectorEnd, _word);
+		if (begin < 0x10000 || end < begin || end - begin > 1 << 20 || (end - begin) % 8 != 0) return held;
+
+		for (ulong at = begin; at < end; at += 8)
+		{
+			ulong tag = _process.ReadUInt64(at, _word);
+			if (tag < 0x10000) continue;
+
+			ulong table = _process.ReadUInt64(tag, _word);
+			if (!_typeOf.TryGetValue(table, out int which))
+			{
+				UntypedElements++;
+				held.Add(new JsonObject
+				{
+					["type"] = "unread",
+					["reason"] = "no variant has named this class, so what the element is was never read"
+				});
+				continue;
+			}
+
+			held.Add(Decode(which, tag, depth + 1));
+		}
+
+		return held;
+	}
+
+	/// <summary>A vector of fixed width numbers, which is what the two array tags hold.</summary>
+	private JsonArray Numbers(ulong vector, int width)
+	{
+		var held = new JsonArray();
+		ulong begin = _process.ReadUInt64(vector + VectorBegin, _word);
+		ulong end = _process.ReadUInt64(vector + VectorEnd, _word);
+		if (begin < 0x10000 || end < begin || end - begin > 1 << 20 || (end - begin) % (ulong) width != 0) return held;
+
+		var body = new byte[end - begin];
+		if (body.Length == 0) return held;
+		if (!_process.TryRead(begin, body, body.Length)) return held;
+
+		for (int at = 0; at + width <= body.Length; at += width)
+		{
+			held.Add(width == 1 ? body[at] : BitConverter.ToInt32(body, at));
+		}
+
+		return held;
+	}
+
+	private byte[] Bytes(ulong at, int length)
+	{
+		var body = new byte[length];
+		return _process.TryRead(at, body, length) ? body : null;
+	}
+
+	/// <summary>
+	///     Every node of the map. The head sentinel is not a node and marks itself in the byte after
+	///     its colour, which is what stops the walk running off the top of the tree.
+	/// </summary>
+	private List<ulong> Nodes(ulong head)
+	{
+		var found = new List<ulong>();
+		var seen = new HashSet<ulong>();
+		var pending = new Stack<ulong>();
+		pending.Push(_process.ReadUInt64(head + MemoryLayout.MapNodeParent, _word));
+
+		for (int guard = 0; pending.Count > 0 && guard < 8192; guard++)
+		{
+			ulong node = pending.Pop();
+			if (node < 0x10000 || node == head || !seen.Add(node)) continue;
+			if (!_process.TryRead(node, _node, _node.Length)) continue;
+			if (_node[MemoryLayout.MapNodeFlags + 1] == 1) continue;
+
+			found.Add(node);
+			pending.Push(BitConverter.ToUInt64(_node, MemoryLayout.MapNodeLeft));
+			pending.Push(BitConverter.ToUInt64(_node, MemoryLayout.MapNodeRight));
+		}
+
+		return found;
+	}
+
+	/// <summary>An MSVC std::string: sixteen bytes of union, then the length, then the capacity.</summary>
+	public string StdString(ulong at)
+	{
+		var header = new byte[32];
+		if (at < 0x10000 || !_process.TryRead(at, header, header.Length)) return null;
+
+		ulong length = BitConverter.ToUInt64(header, 16);
+		ulong capacity = BitConverter.ToUInt64(header, 24);
+		if (length > capacity || length >= (ulong) _text.Length) return null;
+		if (length == 0) return "";
+
+		if (capacity < 16) return Encoding.ASCII.GetString(header, 0, (int) length);
+
+		ulong pointer = BitConverter.ToUInt64(header, 0);
+		if (pointer < 0x10000 || !_process.TryRead(pointer, _text, (int) length)) return null;
+		return Encoding.ASCII.GetString(_text, 0, (int) length);
+	}
+}

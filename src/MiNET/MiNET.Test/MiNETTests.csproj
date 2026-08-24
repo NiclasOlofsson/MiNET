@@ -24,5 +24,10 @@
     <None Update="Data\chunks\*.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- The BDS frames MiNET.BlockGen generates the item registry and creative catalog against.
+         Linked rather than copied, so the generator and the test measure the same bytes. -->
+    <None Include="..\MiNET.BlockGen\Captures\*.bin" Link="Data\registry\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

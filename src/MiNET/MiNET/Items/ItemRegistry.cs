@@ -26,6 +26,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using fNbt;
 
 namespace MiNET.Items
 {
@@ -42,7 +43,7 @@ namespace MiNET.Items
 
 		/// <summary>
 		///     Whether the item's behaviour is data driven rather than hardcoded in the client. Note
-		///     this is not the same question as "carries components": 73 items set the flag, 76 carry
+		///     this is not the same question as "carries components": 75 items set the flag, 78 carry
 		///     component NBT, and the two sets only partly overlap. BDS reports them independently.
 		/// </summary>
 		public bool ComponentBased { get; }
@@ -73,9 +74,11 @@ namespace MiNET.Items
 	}
 
 	/// <summary>
-	///     The item type dictionary the server declares to the client, in the order the
-	///     item_registry packet sends it. Content comes from <see cref="ItemRegistryData" />, which
-	///     is generated from the pinned Bedrock data submodule.
+	///     The item type dictionary the server declares to the client. Content comes from
+	///     <see cref="ItemRegistryData" />, which MiNET.BlockGen generates from the BDS memory
+	///     extraction (MiNET.BdsExtract/Data items-runtime.json) and checks against a captured BDS
+	///     item_registry frame. Entries are in name order; BDS sends its own map order, which
+	///     nothing here reproduces and the client does not depend on.
 	///     No item has network id 0. The wire uses 0 for "empty stack", so a name that isn't in the
 	///     registry resolves to 0 and degrades to an empty slot rather than to some other item.
 	/// </summary>
@@ -85,10 +88,20 @@ namespace MiNET.Items
 		private readonly Dictionary<string, ItemRegistryEntry> _byName = new Dictionary<string, ItemRegistryEntry>(StringComparer.OrdinalIgnoreCase);
 		private readonly Dictionary<short, ItemRegistryEntry> _byNetworkId = new Dictionary<short, ItemRegistryEntry>();
 
-		/// <summary>Called by the generated registry data. The base64 blob is the network NBT.</summary>
-		public void Add(string name, short networkId, bool componentBased, int version, string componentNbtBase64)
+		/// <summary>
+		///     Called by the generated registry data. The tree is built once, here, and kept as the
+		///     network NBT bytes the item_registry packet writes verbatim.
+		/// </summary>
+		public void Add(string name, short networkId, bool componentBased, int version, NbtCompound components)
 		{
-			byte[] nbt = componentNbtBase64 == null ? null : Convert.FromBase64String(componentNbtBase64);
+			byte[] nbt = null;
+			if (components != null)
+			{
+				// The wire carries an unnamed root holding the "components" compound.
+				var root = new NbtCompound("") {components};
+				nbt = new NbtFile(root) {BigEndian = false, UseVarInt = true}.SaveToBuffer(NbtCompression.None);
+			}
+
 			var entry = new ItemRegistryEntry(name, networkId, componentBased, version, nbt);
 
 			_entries.Add(entry);

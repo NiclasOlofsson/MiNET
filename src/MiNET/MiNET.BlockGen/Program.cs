@@ -56,8 +56,10 @@ public static class Program
 		string blockStatesPath = Path.Combine(extractDir, "block_states.json");
 		string blockTypesPath = Path.Combine(extractDir, "blocks.json");
 		string blockCreativePath = Path.Combine(extractDir, "creative_items.json");
-		string itemStatesPath = Path.Combine(dataDir, "runtime_item_states.json");
-		string itemComponentsPath = Path.Combine(dataDir, "item_components.nbt");
+		string itemRowsPath = Path.Combine(extractDir, "items-runtime.json");
+		string capturesDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET.BlockGen", "Captures");
+		string itemRegistryCapture = Path.Combine(capturesDir, "item_registry-1.26.50.26.bin");
+		string creativeCapture = Path.Combine(capturesDir, "creative_content-1.26.50.26.bin");
 
 		if (!Directory.Exists(blocksDir))
 		{
@@ -65,24 +67,21 @@ public static class Program
 			return 1;
 		}
 
-		foreach (string required in new[] {itemStatesPath, itemComponentsPath})
+		foreach (string required in new[] {blockStatesPath, blockTypesPath, blockCreativePath, itemRowsPath})
 		{
 			if (File.Exists(required)) continue;
-			Console.Error.WriteLine($"data file not found: {required}");
-			Console.Error.WriteLine("The data is a git submodule. Run: git submodule update --init");
-			return 1;
-		}
-
-		foreach (string required in new[] {blockStatesPath, blockTypesPath, blockCreativePath})
-		{
-			if (File.Exists(required)) continue;
-			Console.Error.WriteLine($"block data file not found: {required}");
+			Console.Error.WriteLine($"extraction data file not found: {required}");
 			Console.Error.WriteLine("It is committed with MiNET.BdsExtract. Run that extraction to rebuild it.");
 			return 1;
 		}
 
-		Console.WriteLine($"item source: {dataDir}");
-		Console.WriteLine($"             {DescribeSource(dataDir)}");
+		foreach (string required in new[] {itemRegistryCapture, creativeCapture})
+		{
+			if (File.Exists(required)) continue;
+			Console.Error.WriteLine($"captured frame not found: {required}");
+			Console.Error.WriteLine("It is the check every generated item tree and creative stack is measured against.");
+			return 1;
+		}
 
 		BlockExtract extract = ReadBlockExtract(blockStatesPath, blockTypesPath);
 		Console.WriteLine($"block source: {extractDir}");
@@ -128,201 +127,25 @@ public static class Program
 		int entries = WriteBlockPalette(Path.Combine(blocksDir, "BlockPaletteData.generated.cs"), palette);
 		Console.WriteLine($"BlockPaletteData.generated.cs: {entries} entries");
 
-		List<ItemEntry> items = ReadItemRegistry(itemStatesPath, itemComponentsPath);
-		Console.WriteLine($"item registry: {items.Count} items, {items.Count(i => i.ComponentBased)} component-based, {items.Count(i => i.ComponentNbt != null)} with components");
-
-		int itemEntries = WriteItemRegistry(Path.Combine(itemsDir, "ItemRegistryData.generated.cs"), items);
-		Console.WriteLine($"ItemRegistryData.generated.cs: {itemEntries} entries");
-
 		var blockNames = new HashSet<string>(palette.Select(p => p.Name), StringComparer.OrdinalIgnoreCase);
 		HashSet<string> handWrittenItems = ReadHandWrittenClasses(itemsDir, "ItemData.generated.cs", "ItemRegistryData.generated.cs");
 		Console.WriteLine($"hand-written item classes: {handWrittenItems.Count}");
 
-		int itemClasses = WriteItemDataClasses(Path.Combine(itemsDir, "ItemData.generated.cs"), items, blockNames, handWrittenItems);
-		Console.WriteLine($"ItemData.generated.cs: {itemClasses} classes");
+		List<ItemGenerator.ItemEntry> items = ItemGenerator.Run(extractDir, itemsDir, itemRegistryCapture, blockNames, handWrittenItems);
 
-		// The creative catalog, regenerated from Cloudburst's name-addressed creative_items.json
-		// through the same registry ids, so it can never drift from the item registry the way the
-		// old hand-captured file did. Data, not symbols, like the biome table below.
+		// The creative catalog, regenerated from the extraction's own stacks through the same
+		// registry ids, so it can never drift from the item registry the way the old hand-captured
+		// file did. Data, not symbols, like the biome table below.
 		var networkIdByName = items.ToDictionary(i => i.Name, i => i.NetworkId, StringComparer.OrdinalIgnoreCase);
-		CreativeGenerator.Run(dataDir, Path.Combine(itemsDir, "Data", "creative_groups.json"), networkIdByName);
+		CreativeGenerator.Run(extractDir, Path.Combine(itemsDir, "Data", "creative_groups.json"), creativeCapture, networkIdByName);
 
 		// Not code: this one emits our own data file, because biomes are a table nobody writes
 		// against by symbol. Their file stays here, ours ships.
+		Console.WriteLine($"biome source: {dataDir}");
+		Console.WriteLine($"              {DescribeSource(dataDir)}");
 		BiomeGenerator.Run(dataDir, Path.Combine(repoRoot, "src", "MiNET", "MiNET", "Data", "biome_definitions.json.gz"));
 
 		return 0;
-	}
-
-	/// <summary>
-	///     Writes MiNET/Items/ItemData.generated.cs: a typed <see cref="object" /> subclass for every
-	///     registry identity that doesn't already have one.
-	///     Three things are skipped. Block items, because a block's own generated class covers them.
-	///     Names with a hand-written class in Items/. And names that are only a rename of something
-	///     already written, since ItemFactory resolves the old class under the current name too.
-	///     The class carries the registry string id and nothing else. The network id is not baked in:
-	///     it changes every protocol version, and an identity that carries a stale number is worse
-	///     than one that carries none.
-	/// </summary>
-	private static int WriteItemDataClasses(string path, List<ItemEntry> items, HashSet<string> blockNames, HashSet<string> handWritten)
-	{
-		// A hand-written class is matched on the item's own name and nothing else. There used to be a
-		// rename map here as well, so a class written under an item's old name still suppressed the
-		// class for its current one. The hand-written classes carry current names now, which is what
-		// the map was compensating for.
-		var sb = new StringBuilder();
-		WriteHeader(sb, "CloudburstMC/Data runtime_item_states.json");
-		sb.AppendLine("namespace MiNET.Items");
-		sb.AppendLine("{");
-
-		var seen = new HashSet<string>();
-		int count = 0;
-		foreach (ItemEntry item in items.OrderBy(i => i.Name, StringComparer.Ordinal))
-		{
-			if (blockNames.Contains(BlockNameOf(item.Name))) continue;
-
-			string className = "Item" + CodeName(item.Name.Replace("minecraft:", ""));
-			if (handWritten.Contains(className)) continue;
-			if (!seen.Add(className)) continue;
-
-			string baseClass = BaseClassFor(className);
-			count++;
-			sb.AppendLine();
-			sb.AppendLine($"\tpublic partial class {className} : {baseClass} // {item.Name}");
-			sb.AppendLine("\t{");
-			sb.AppendLine($"\t\tpublic {className}() : base(\"{item.Name}\") {{ }}");
-			sb.AppendLine("\t} // class");
-		}
-
-		sb.AppendLine("}");
-		File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));
-		return count;
-	}
-
-	/// <summary>
-	///     The block an item name refers to. Identical to the item name, except for the 17 surviving
-	///     "minecraft:item.x" twins, whose block simply drops the "item." prefix.
-	/// </summary>
-	private static string BlockNameOf(string itemName)
-	{
-		return itemName.StartsWith("minecraft:item.", StringComparison.Ordinal) ? "minecraft:" + itemName.Substring("minecraft:item.".Length) : itemName;
-	}
-
-	private static string BaseClassFor(string className)
-	{
-		if (className.EndsWith("Axe", StringComparison.Ordinal)) return "ItemAxe";
-		if (className.EndsWith("Shovel", StringComparison.Ordinal)) return "ItemShovel";
-		if (className.EndsWith("Pickaxe", StringComparison.Ordinal)) return "ItemPickaxe";
-		if (className.EndsWith("Hoe", StringComparison.Ordinal)) return "ItemHoe";
-		if (className.EndsWith("Sword", StringComparison.Ordinal)) return "ItemSword";
-		if (className.EndsWith("Helmet", StringComparison.Ordinal)) return "ArmorHelmetBase";
-		if (className.EndsWith("Chestplate", StringComparison.Ordinal)) return "ArmorChestplateBase";
-		if (className.EndsWith("Leggings", StringComparison.Ordinal)) return "ArmorLeggingsBase";
-		if (className.EndsWith("Boots", StringComparison.Ordinal)) return "ArmorBootsBase";
-		return "Item";
-	}
-
-
-	// One item registry identity: the durable string id, this protocol version's network id, and
-	// the component blob for the items that carry one. ComponentNbt is already serialized as
-	// network NBT, which is exactly what the item_registry packet puts on the wire.
-	private sealed record ItemEntry(string Name, short NetworkId, bool ComponentBased, int Version, byte[] ComponentNbt);
-
-	/// <summary>
-	///     Reads CloudburstMC/Data runtime_item_states.json and item_components.nbt into one list.
-	///     Verified against a live BDS 1.26.34 item_registry capture on 2026-08-01: same 1933 names,
-	///     same network ids, same component_based flags, same versions, and the 76 component trees
-	///     re-serialize to byte-identical network NBT.
-	///     Note that "component based" and "has components" are close to independent here. 73 items
-	///     carry the flag, 76 carry components, and the sets only partly overlap (food carries
-	///     components without the flag, music discs carry the flag without components). BDS reports
-	///     it that way, so neither is derived from the other.
-	/// </summary>
-	private static List<ItemEntry> ReadItemRegistry(string statesPath, string componentsPath)
-	{
-		var states = JsonConvert.DeserializeObject<List<ItemStateJson>>(File.ReadAllText(statesPath));
-
-		// Gzipped big-endian NBT, a root compound holding one compound per item name. An item with
-		// no components is present with an empty compound.
-		var file = new NbtFile {BigEndian = true, UseVarInt = false};
-		file.LoadFromFile(componentsPath, NbtCompression.AutoDetect, null);
-		var componentRoot = (NbtCompound) file.RootTag;
-
-		var result = new List<ItemEntry>(states.Count);
-		foreach (ItemStateJson state in states)
-		{
-			byte[] nbt = null;
-			if (componentRoot[state.Name] is NbtCompound components && components.Count > 0)
-			{
-				// The tree is keyed by item name, so its root tag carries that name. The wire root is
-				// unnamed; without this the client reads a name where it expects the payload.
-				var root = (NbtCompound) components.Clone();
-				root.Name = "";
-				nbt = new NbtFile(root) {BigEndian = false, UseVarInt = true}.SaveToBuffer(NbtCompression.None);
-			}
-
-			result.Add(new ItemEntry(state.Name, state.Id, state.ComponentBased, state.Version, nbt));
-		}
-
-		return result;
-	}
-
-	private sealed class ItemStateJson
-	{
-		[JsonProperty("name")] public string Name { get; set; }
-		[JsonProperty("id")] public short Id { get; set; }
-		[JsonProperty("version")] public int Version { get; set; }
-		[JsonProperty("componentBased")] public bool ComponentBased { get; set; }
-	}
-
-	/// <summary>
-	///     Emits the item registry as compiled code, the same way the block palette is emitted.
-	///     An item's identity is its string id; the network id is only what this protocol version
-	///     numbered it, so it is generated data rather than something the server works out.
-	///     Component blobs are stored base64 and handed to the wire verbatim. They are already the
-	///     exact bytes BDS sends, so nothing parses NBT to write the item_registry packet.
-	///     Split into parts for the 64KB IL method body cap, as with the block palette.
-	/// </summary>
-	private static int WriteItemRegistry(string path, List<ItemEntry> items)
-	{
-		const int PerPart = 400;
-		int parts = (items.Count + PerPart - 1) / PerPart;
-
-		var sb = new StringBuilder();
-		WriteHeader(sb, "CloudburstMC/Data runtime_item_states.json + item_components.nbt");
-		sb.AppendLine("namespace MiNET.Items");
-		sb.AppendLine("{");
-		sb.AppendLine("\tpublic static partial class ItemRegistryData");
-		sb.AppendLine("\t{");
-		sb.AppendLine("\t\t/// <summary>Fills the registry. Entry order is the order the item_registry packet sends.</summary>");
-		sb.AppendLine("\t\tpublic static void Create(ItemRegistry registry)");
-		sb.AppendLine("\t\t{");
-		for (int part = 1; part <= parts; part++) sb.AppendLine($"\t\t\tCreateItems_Part{part}(registry);");
-		sb.AppendLine("\t\t}");
-
-		for (int part = 1; part <= parts; part++)
-		{
-			sb.AppendLine();
-			sb.AppendLine($"\t\tprivate static void CreateItems_Part{part}(ItemRegistry registry)");
-			sb.AppendLine("\t\t{");
-
-			int from = (part - 1) * PerPart;
-			int to = Math.Min(from + PerPart, items.Count);
-			for (int i = from; i < to; i++)
-			{
-				ItemEntry item = items[i];
-				string componentBased = item.ComponentBased ? "true" : "false";
-				string nbt = item.ComponentNbt == null ? "null" : $"\"{Convert.ToBase64String(item.ComponentNbt)}\"";
-				sb.AppendLine($"\t\t\tregistry.Add(\"{item.Name}\", {item.NetworkId}, {componentBased}, {item.Version}, {nbt});");
-			}
-
-			sb.AppendLine("\t\t}");
-		}
-
-		sb.AppendLine("\t}");
-		sb.AppendLine("}");
-		File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));
-		return items.Count;
 	}
 
 	// A block's identity in the palette: its name, its legacy id if it still has one, and the

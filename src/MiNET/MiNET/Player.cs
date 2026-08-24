@@ -2364,9 +2364,8 @@ namespace MiNET
 			creativeContent.groups = new List<CreativeGroupInfoPayload>();
 			creativeContent.entries = new List<CreativeItemEntryPayload>();
 
-			// Vanilla tab groups (captured 1.26.34 data): groups with category/name/icon, and each
-			// entry referencing its group by index. Without correct groups the client shows empty
-			// creative tabs.
+			// Vanilla tab groups: groups with category/name/icon, and each entry referencing its
+			// group by index. Without correct groups the client shows empty creative tabs.
 			CreativeGroupData groupData = InventoryUtils.CreativeGroups.Value;
 			foreach (CreativeGroupDef def in groupData.Groups)
 			{
@@ -2379,13 +2378,7 @@ namespace MiNET
 					icon = ItemFactory.GetItemByNetworkId(def.IconNetworkId, def.IconMetadata);
 					icon.NetworkMetadata = def.IconMetadata;
 					icon.RuntimeId = def.IconRuntimeId;
-					if (def.IconNbtB64 != null)
-					{
-						byte[] nbtBytes = Convert.FromBase64String(def.IconNbtB64);
-						var nbtFile = new NbtFile {BigEndian = false, UseVarInt = true};
-						nbtFile.LoadFromBuffer(nbtBytes, 0, nbtBytes.Length, NbtCompression.None);
-						icon.ExtraData = (NbtCompound) nbtFile.RootTag;
-					}
+					if (def.IconNbt != null) icon.ExtraData = TypedNbtJson.ReadCompound(def.IconNbt);
 				}
 
 				creativeContent.groups.Add(new CreativeGroupInfoPayload
@@ -2402,13 +2395,7 @@ namespace MiNET
 				Item item = ItemFactory.GetItemByNetworkId(def.NetworkId, def.Metadata);
 				item.NetworkMetadata = def.Metadata;
 				item.RuntimeId = def.RuntimeId;
-				if (def.NbtB64 != null)
-				{
-					byte[] nbtBytes = Convert.FromBase64String(def.NbtB64);
-					var nbtFile = new NbtFile {BigEndian = false, UseVarInt = true};
-					nbtFile.LoadFromBuffer(nbtBytes, 0, nbtBytes.Length, NbtCompression.None);
-					item.ExtraData = (NbtCompound) nbtFile.RootTag;
-				}
+				if (def.Nbt != null) item.ExtraData = TypedNbtJson.ReadCompound(def.Nbt);
 
 				creativeContent.entries.Add(new CreativeItemEntryPayload
 				{

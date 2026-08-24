@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 //
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2026 Niclas Olofsson.
 // All Rights Reserved.
 
 #endregion
@@ -26,148 +26,170 @@
 using System.Text;
 using fNbt;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MiNET.BlockGen;
 
 /// <summary>
-///     Writes MiNET/Items/Data/creative_groups.json from CloudburstMC/Data creative_items.json.
-///     The creative catalog was long a hand-captured file, so it carried the network ids of
-///     whatever BDS version it was grabbed from and drifted every time the item registry
-///     renumbered. Cloudburst ships the catalog name-addressed, so it can be regenerated in the
-///     same pass as the item registry: each entry's name resolves to the current network id, its
-///     block state carries the runtime hash, and nothing is captured by hand.
-///
-///     The output schema matches MiNET.InventoryUtils.CreativeGroupData exactly (the runtime reads
-///     it at startup, the same way the biome table is a generated data file rather than symbols).
+///     Writes MiNET/Items/Data/creative_groups.json from the BDS memory extraction
+///     (MiNET.BdsExtract/Data creative_items.json).
+///     The catalog is name-addressed at the source, so every network id is resolved through the
+///     item registry generated in the same pass and the two cannot drift apart. Stack user data is
+///     carried as typed JSON NBT in the extraction's own shape rather than base64, so the file says
+///     what each stack holds.
+///     The output schema matches MiNET.CreativeGroupData exactly (the runtime reads it at startup,
+///     the same way the biome table is a generated data file rather than symbols), and nothing is
+///     written until every group and every entry has been measured against the captured BDS
+///     creative_content frame.
 /// </summary>
 public static class CreativeGenerator
 {
-	// CloudburstMC CreativeItemCategory ordinals: ALL, CONSTRUCTION, NATURE, EQUIPMENT, ITEMS, ...
-	private static readonly Dictionary<string, int> Categories = new(StringComparer.OrdinalIgnoreCase)
+	public static void Run(string extractDir, string outputPath, string capturePath, IReadOnlyDictionary<string, short> networkIdByName)
 	{
-		["all"] = 0,
-		["construction"] = 1,
-		["nature"] = 2,
-		["equipment"] = 3,
-		["items"] = 4,
-		["item_command_only"] = 5,
-	};
-
-	public static void Run(string dataDir, string outputPath, IReadOnlyDictionary<string, short> networkIdByName)
-	{
-		string sourcePath = Path.Combine(dataDir, "creative_items.json");
-		var source = JsonConvert.DeserializeObject<CreativeItemsJson>(File.ReadAllText(sourcePath));
+		var source = JObject.Parse(File.ReadAllText(Path.Combine(extractDir, "creative_items.json")));
 
 		short NetworkId(string name)
 		{
+			if (name == null) return 0;
 			if (networkIdByName.TryGetValue(name, out short id)) return id;
-			throw new Exception($"creative item {name} is not in the item registry");
+			throw new InvalidDataException($"creative item {name} is not in the item registry");
 		}
+
+		Captures.FrameCreative frame = Captures.ReadCreativeContent(capturePath, NetworkId("minecraft:shield"));
+		Console.WriteLine($"creative_content frame: {frame.Groups.Count} groups, {frame.Entries.Count} entries");
 
 		var output = new CreativeGroupDataJson();
+		var failures = new List<string>();
+		int blockStacks = 0;
 
-		foreach (CreativeGroupJson group in source.Groups)
+		int RuntimeId(JObject stack)
 		{
-			if (!Categories.TryGetValue(group.Category, out int category))
-				throw new Exception($"unknown creative category '{group.Category}' for group {group.Name}");
+			// The stack holds the block STATE it places, and that state's network id is the answer.
+			// The block's own data table cannot stand in for it: the state a stack places is often
+			// not the one its aux value selects (a chest faces north, a dripstone tip is not a
+			// dripstone base), which is 29 of the 1,065 block stacks here.
+			JToken block = stack["block"];
+			if (block == null || block.Type == JTokenType.Null) return 0;
+			if (block is not JObject state || state["networkId"] == null) throw new InvalidDataException($"creative stack's block {block} carries no state network id");
 
-			var icon = group.Icon;
-			output.Groups.Add(new CreativeGroupDefJson
-			{
-				Category = category,
-				Name = group.Name,
-				Icon = icon?.Id,
-				IconNetworkId = icon?.Id == null ? 0 : NetworkId(icon.Id),
-				IconMetadata = 0,
-				IconRuntimeId = BlockRuntimeId(icon?.BlockStateB64),
-				IconNbtB64 = ReEncodeNbt(icon?.NbtB64),
-			});
+			blockStacks++;
+			return (int) state["networkId"];
 		}
 
-		foreach (CreativeItemJson item in source.Items)
+		var groups = ((JArray) source["groups"]).Cast<JObject>().ToList();
+		for (int i = 0; i < groups.Count; i++)
 		{
-			output.Entries.Add(new CreativeEntryDefJson
+			JObject group = groups[i];
+			var icon = (JObject) group["icon"];
+			string iconName = icon == null ? null : (string) icon["item"];
+
+			var definition = new CreativeGroupDefJson
 			{
-				GroupIndex = item.GroupId,
-				NetworkId = NetworkId(item.Id),
-				Metadata = item.Damage,
-				RuntimeId = BlockRuntimeId(item.BlockStateB64),
-				NbtB64 = ReEncodeNbt(item.NbtB64),
-			});
+				Category = (int) group["categoryValue"],
+				Name = (string) group["name"] ?? "",
+				Icon = iconName,
+				IconNetworkId = NetworkId(iconName),
+				IconMetadata = icon == null ? (short) 0 : (short) (int) icon["auxValue"],
+				IconRuntimeId = icon == null ? 0 : RuntimeId(icon),
+				IconNbt = icon?["userData"] as JObject
+			};
+
+			output.Groups.Add(definition);
+
+			if (i >= frame.Groups.Count)
+			{
+				failures.Add($"group {i} {definition.Name}: the frame has only {frame.Groups.Count} groups");
+				continue;
+			}
+
+			Captures.FrameGroup expected = frame.Groups[i];
+			if (definition.Category != expected.Category) failures.Add($"group {i} {definition.Name}: category {definition.Category}, frame has {expected.Category}");
+			if (definition.Name != expected.Name) failures.Add($"group {i}: name '{definition.Name}', frame has '{expected.Name}'");
+			CheckStack($"group {i} {definition.Name} icon", definition.IconNetworkId, 1, definition.IconMetadata, definition.IconRuntimeId, definition.IconNbt, expected.Icon,
+				failures);
 		}
+
+		// The Editor world the extraction runs in adds editor:map_marker_spawn_egg to the catalog.
+		// A normal world does not send it, so the entry is dropped here and the drop is what makes
+		// the entry list equal the frame.
+		var entries = ((JArray) source["items"]).Cast<JObject>().Where(e => !((string) e["item"]).StartsWith("editor:", StringComparison.Ordinal)).ToList();
+		int dropped = ((JArray) source["items"]).Count - entries.Count;
+
+		for (int i = 0; i < entries.Count; i++)
+		{
+			JObject entry = entries[i];
+			var definition = new CreativeEntryDefJson
+			{
+				GroupIndex = (int) entry["groupIndex"],
+				NetworkId = NetworkId((string) entry["item"]),
+				Metadata = (short) (int) entry["auxValue"],
+				RuntimeId = RuntimeId(entry),
+				Nbt = entry["userData"] as JObject
+			};
+
+			output.Entries.Add(definition);
+
+			if (i >= frame.Entries.Count)
+			{
+				failures.Add($"entry {i} {entry["item"]}: the frame has only {frame.Entries.Count} entries");
+				continue;
+			}
+
+			Captures.FrameEntry expected = frame.Entries[i];
+			if (definition.GroupIndex != expected.GroupIndex) failures.Add($"entry {i} {entry["item"]}: group {definition.GroupIndex}, frame has {expected.GroupIndex}");
+			if (i + 1 != expected.CreativeNetId) failures.Add($"entry {i} {entry["item"]}: creative net id {i + 1}, frame has {expected.CreativeNetId}");
+			CheckStack($"entry {i} {entry["item"]}", definition.NetworkId, (int) entry["count"], definition.Metadata, definition.RuntimeId, definition.Nbt, expected.Stack,
+				failures);
+		}
+
+		if (entries.Count < frame.Entries.Count) failures.Add($"the frame has {frame.Entries.Count - entries.Count} entries the extraction does not");
 
 		// Unused by the runtime but part of the schema; keep it truthful rather than empty.
-		output.EntryGroups = source.Items.Select(i => i.GroupId).ToList();
+		output.EntryGroups = output.Entries.Select(e => e.GroupIndex).ToList();
 
-		string json = JsonConvert.SerializeObject(output, Formatting.Indented, new JsonSerializerSettings
+		Console.WriteLine($"creative stacks: {blockStacks} place a block, each carrying the network id of the state it places");
+		if (dropped > 0) Console.WriteLine($"creative stacks: {dropped} editor: entries dropped, which a normal world does not send");
+
+		if (failures.Count > 0)
 		{
-			NullValueHandling = NullValueHandling.Ignore,
-		});
+			Console.Error.WriteLine($"creative catalog proof failed on {failures.Count} points:");
+			foreach (string failure in failures.Take(60)) Console.Error.WriteLine($"  {failure}");
+			throw new InvalidDataException("the generated creative catalog does not equal the captured frame");
+		}
+
+		Console.WriteLine($"creative catalog proof: {output.Groups.Count} groups and {output.Entries.Count} entries equal the frame");
+
+		string json = JsonConvert.SerializeObject(output, Formatting.Indented, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
 		File.WriteAllText(outputPath, json, new UTF8Encoding(true));
 		Console.WriteLine($"creative_groups.json: {output.Groups.Count} groups, {output.Entries.Count} entries");
 	}
 
-	/// <summary>The block network hash lives inside the state NBT as "network_id"; 0 for a non-block item.</summary>
-	private static int BlockRuntimeId(string blockStateB64)
+	private static void CheckStack(string what, int networkId, int count, short metadata, int runtimeId, JObject nbt, Captures.FrameStack expected, List<string> failures)
 	{
-		if (string.IsNullOrEmpty(blockStateB64)) return 0;
+		if (networkId != expected.NetworkId) failures.Add($"{what}: network id {networkId}, frame has {expected.NetworkId}");
+		if (networkId != 0 && count != expected.Count) failures.Add($"{what}: count {count}, frame has {expected.Count}");
+		if (metadata != expected.Metadata) failures.Add($"{what}: metadata {metadata}, frame has {expected.Metadata}");
+		if (runtimeId != expected.BlockRuntimeId) failures.Add($"{what}: block runtime id {runtimeId}, frame has {expected.BlockRuntimeId}");
 
-		byte[] bytes = Convert.FromBase64String(blockStateB64);
-		var file = new NbtFile {BigEndian = false, UseVarInt = false};
-		file.LoadFromBuffer(bytes, 0, bytes.Length, NbtCompression.None);
-		return ((NbtCompound) file.RootTag)["network_id"]?.IntValue ?? 0;
+		byte[] bytes = nbt == null ? null : SerializeUserData(nbt);
+		if (bytes == null && expected.NbtBytes == null) return;
+		if (bytes == null || expected.NbtBytes == null || !bytes.SequenceEqual(expected.NbtBytes))
+		{
+			failures.Add($"{what}: user data is {bytes?.Length.ToString() ?? "nothing"}, frame has {expected.NbtBytes?.Length.ToString() ?? "nothing"}");
+		}
 	}
 
 	/// <summary>
-	///     Cloudburst stores item extra-data NBT as fixed little-endian; the runtime loads it as
-	///     network little-endian (varint lengths). Re-encode so the base64 the server replays is the
-	///     form the item descriptor writer expects.
+	///     Item extra data is fixed little endian NBT with an unnamed root, which is the form
+	///     Packet.WriteItemExtraData puts on the wire.
 	/// </summary>
-	private static string ReEncodeNbt(string fixedLeB64)
+	private static byte[] SerializeUserData(JObject userData)
 	{
-		if (string.IsNullOrEmpty(fixedLeB64)) return null;
-
-		byte[] bytes = Convert.FromBase64String(fixedLeB64);
-		var read = new NbtFile {BigEndian = false, UseVarInt = false};
-		read.LoadFromBuffer(bytes, 0, bytes.Length, NbtCompression.None);
-
-		var root = (NbtCompound) read.RootTag;
-		root.Name = "";
-		byte[] reEncoded = new NbtFile(root) {BigEndian = false, UseVarInt = true}.SaveToBuffer(NbtCompression.None);
-		return Convert.ToBase64String(reEncoded);
+		var root = TypedNbt.ReadCompound(userData, "");
+		return new NbtFile(root) {BigEndian = false, UseVarInt = false}.SaveToBuffer(NbtCompression.None);
 	}
 
-	// CloudburstMC creative_items.json shape.
-	private sealed class CreativeItemsJson
-	{
-		[JsonProperty("groups")] public List<CreativeGroupJson> Groups { get; set; }
-		[JsonProperty("items")] public List<CreativeItemJson> Items { get; set; }
-	}
-
-	private sealed class CreativeGroupJson
-	{
-		[JsonProperty("name")] public string Name { get; set; }
-		[JsonProperty("category")] public string Category { get; set; }
-		[JsonProperty("icon")] public CreativeIconJson Icon { get; set; }
-	}
-
-	private sealed class CreativeIconJson
-	{
-		[JsonProperty("id")] public string Id { get; set; }
-		[JsonProperty("block_state_b64")] public string BlockStateB64 { get; set; }
-		[JsonProperty("nbt_b64")] public string NbtB64 { get; set; }
-	}
-
-	private sealed class CreativeItemJson
-	{
-		[JsonProperty("id")] public string Id { get; set; }
-		[JsonProperty("groupId")] public int GroupId { get; set; }
-		[JsonProperty("damage")] public short Damage { get; set; }
-		[JsonProperty("block_state_b64")] public string BlockStateB64 { get; set; }
-		[JsonProperty("nbt_b64")] public string NbtB64 { get; set; }
-	}
-
-	// MiNET.InventoryUtils.CreativeGroupData shape (the runtime reader).
+	// MiNET.CreativeGroupData shape (the runtime reader).
 	private sealed class CreativeGroupDataJson
 	{
 		public List<CreativeGroupDefJson> Groups { get; } = new();
@@ -183,7 +205,7 @@ public static class CreativeGenerator
 		public int IconNetworkId { get; set; }
 		public short IconMetadata { get; set; }
 		public int IconRuntimeId { get; set; }
-		public string IconNbtB64 { get; set; }
+		public JObject IconNbt { get; set; }
 	}
 
 	private sealed class CreativeEntryDefJson
@@ -192,6 +214,6 @@ public static class CreativeGenerator
 		public int NetworkId { get; set; }
 		public short Metadata { get; set; }
 		public int RuntimeId { get; set; }
-		public string NbtB64 { get; set; }
+		public JObject Nbt { get; set; }
 	}
 }

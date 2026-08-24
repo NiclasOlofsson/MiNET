@@ -2,7 +2,7 @@
 
 Embedded resources (`MiNET.Blocks.Data.*`), read at runtime through `ResourceUtil.ReadResource<T>(name, typeof(Block), "Data")`. **Nothing in this folder is generated.** Do not "regenerate" it, and do not assume running `MiNET.BlockGen` refreshes it.
 
-The generator writes C# next to this folder, never into it. `MiNET.BlockGen` produces `Blocks/BlockData.generated.cs`, `Blocks/PartialBlocks.cs` and `Blocks/BlockPaletteData.generated.cs` from the CloudburstMC `Data` submodule (`MiNET.BlockGen/Data`, pinned at 619483eb = v2168). The palette lives in those generated .cs files, not here.
+The generator writes C# next to this folder, never into it. `MiNET.BlockGen` produces `Blocks/BlockData.generated.cs`, `Blocks/PartialBlocks.cs` and `Blocks/BlockPaletteData.generated.cs` from the BDS memory extraction committed under `MiNET.BdsExtract/Data` (`block_states.json`, `blocks.json`, `creative_items.json`; build 1.26.50.26), and refuses to write unless every state reproduces its own network hash. The palette lives in those generated .cs files, not here.
 
 | File | Read by | Source |
 |---|---|---|
@@ -13,6 +13,6 @@ The generator writes C# next to this folder, never into it. `MiNET.BlockGen` pro
 
 ## Rules
 
-- Changing block ids or palette content means changing the CloudburstMC submodule pin and rerunning `MiNET.BlockGen`, which rewrites the generated .cs files. It will not touch this folder.
+- Changing block ids or palette content means running `MiNET.BdsExtract` against the target BDS (which rewrites `MiNET.BdsExtract/Data`) and then `MiNET.BlockGen`, which rewrites the generated .cs files. Neither touches this folder.
 - `block_id_map.json` and `r12_to_current_block_map.bin` have no generator, so a protocol bump does not update them. When they go stale they must be sourced by hand, and the failure is silent apart from the legacy-mapping test.
 - Before claiming a file here is generated, or stale, or the cause of a wire difference, check this table. Two of the four files are not read at all.

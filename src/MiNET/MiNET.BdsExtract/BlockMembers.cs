@@ -106,12 +106,29 @@ public enum MemberKind
 ///     called, and, when it holds another object, which class that is. The offset is stated by the
 ///     reference and is relative to the class that declares it, never to whatever holds that class.
 /// </summary>
+/// <param name="Emit">
+///     Whether the value travels out with the row. A member stated as not emitted is still read and
+///     still checked; what it is refused is a place in the file. Every one of them so far is an
+///     address: a method table, a heap node, a subscription. Those change with every run of the same
+///     server, so writing them makes the output differ from itself for no reason a reader can use,
+///     and the fact they carry is proven by a check rather than by being printed.
+/// </param>
 public readonly record struct BlockMember(int At, int Bytes, MemberKind Kind, string Name, string Holds = null,
 	int Bit = 0, bool Comparable = true, string Enum = null, string Elements = null,
-	string Entries = null);
+	string Entries = null, string Class = null, bool Emit = true);
 
-/// <summary>One class: how big it is and what it holds, in the order it declares them.</summary>
-public sealed record ClassLayout(string Name, int Size, IReadOnlyList<BlockMember> Members);
+/// <summary>
+///     One class: how big it is and what it holds, in the order it declares them, and where inside
+///     the object its own first member sits.
+///     <para>
+///         The base is what the class does not declare because something else already did. A
+///         component object leads with the ItemComponent it derives from, a method table and the
+///         item that owns it, so a component class states 16 and its first member is sixteen bytes
+///         in. Food carries a second polymorphic base and states 24. It is a fact about the class
+///         and never about one object: every instance of a class reads at the same offsets.
+///     </para>
+/// </summary>
+public sealed record ClassLayout(string Name, int Size, IReadOnlyList<BlockMember> Members, int Base = 0);
 
 /// <summary>
 ///     One member as it actually occurs: the member itself, what it holds if it holds a class, and
@@ -176,6 +193,7 @@ public static class BlockMembers
 	private static readonly string[] Files =
 		["blocks.json", "block_states.json", "items-runtime.json", "creative_items.json"];
 	private static readonly Dictionary<string, ClassLayout>[] Classes = new Dictionary<string, ClassLayout>[4];
+	private static readonly List<ClassLayout>[] Order = new List<ClassLayout>[4];
 	private static readonly string[] Roots = new string[4];
 	private static readonly ClassTree[] Trees = new ClassTree[4];
 	private static Version _build;
@@ -204,16 +222,21 @@ public static class BlockMembers
 		return Class(source, Roots[(int) source]);
 	}
 
+	/// <summary>
+	///     Every class the reference states for that kind of object, in the order it states them.
+	///     What a run writes back out, because the file has to be the next reference: a class the
+	///     reference declares and nothing walks to is still a class the reference declares, and
+	///     writing only what a walk reaches drops it. Five item component classes went that way,
+	///     decoded by name rather than through a member, so a promoted run came back without them.
+	/// </summary>
+	public static IReadOnlyList<ClassLayout> All(Source source)
+	{
+		Load(source);
+		return Order[(int) source];
+	}
+
 	/// <summary>The class a member holds, from the same file that member came from.</summary>
 	public static ClassLayout Held(string name, Source source) => Class(source, name);
-
-	/// <summary>The class if this file declares it, and null if it does not. No exception either way.</summary>
-	public static ClassLayout Declared(string name, Source source)
-	{
-		if (name is null) return null;
-		Load(source);
-		return Classes[(int) source].GetValueOrDefault(name);
-	}
 
 	/// <summary>
 	///     The class a component of this name is, or null where none is declared. A component is an
@@ -300,7 +323,7 @@ public static class BlockMembers
 	{
 		int which = (int) source;
 		if (Classes[which] is not null) return;
-		(Classes[which], Roots[which], Version build) = LoadClasses(Files[which]);
+		(Classes[which], Order[which], Roots[which], Version build) = LoadClasses(Files[which]);
 		_build ??= build;
 	}
 
@@ -360,14 +383,18 @@ public static class BlockMembers
 		}
 	}
 
-	private static (Dictionary<string, ClassLayout>, string, Version) LoadClasses(string file)
+	private static (Dictionary<string, ClassLayout>, List<ClassLayout>, string, Version) LoadClasses(string file)
 	{
 		var classes = new Dictionary<string, ClassLayout>(StringComparer.Ordinal);
+		// The same classes as a list, because the order the reference states them in is part of the
+		// file. A dictionary answers "which class is this name"; only the list can put them back on
+		// the page the way they came off it.
+		var order = new List<ClassLayout>();
 		string path = Path.Combine(WorldConfig.AssetsDirectory(), "reference", file);
 		if (!File.Exists(path))
 		{
 			Console.Error.WriteLine($"no reference at {path}; there is no class to read anything as");
-			return (classes, null, null);
+			return (classes, order, null, null);
 		}
 
 		using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
@@ -405,7 +432,7 @@ public static class BlockMembers
 		}
 
 		string name = root.TryGetProperty("class", out JsonElement which) ? which.GetString() : null;
-		if (!root.TryGetProperty("classes", out JsonElement stateClasses)) return (classes, name, build);
+		if (!root.TryGetProperty("classes", out JsonElement stateClasses)) return (classes, order, name, build);
 
 		foreach (JsonProperty held in stateClasses.EnumerateObject())
 		{
@@ -432,15 +459,21 @@ public static class BlockMembers
 			string entries = member.TryGetProperty("entries", out JsonElement pair) ? pair.GetString() : null;
 					bool comparable = !member.TryGetProperty("comparable", out JsonElement across)
 						|| across.ValueKind != JsonValueKind.False;
+					bool emit = !member.TryGetProperty("emit", out JsonElement written)
+						|| written.ValueKind != JsonValueKind.False;
 					members.Add(new BlockMember(at.GetInt32(), memberBytes.GetInt32(), parsedKind,
-						memberName.GetString(), holds, bit, comparable, enumeration, elements, entries));
+						memberName.GetString(), holds, bit, comparable, enumeration, elements, entries,
+						held.Name, emit));
 				}
 			}
 
-			classes[held.Name] = new ClassLayout(held.Name, size, Tile(members, size));
+			int classBase = held.Value.TryGetProperty("base", out JsonElement lead) ? lead.GetInt32() : 0;
+			var layout = new ClassLayout(held.Name, size, Tile(members, size, held.Name), classBase);
+			classes[held.Name] = layout;
+			order.Add(layout);
 		}
 
-		return (classes, name, build);
+		return (classes, order, name, build);
 	}
 
 	/// <summary>
@@ -483,7 +516,7 @@ public static class BlockMembers
 		return members.Select(Alignment).DefaultIfEmpty(1).Max();
 	}
 
-	private static List<BlockMember> Tile(List<BlockMember> members, int size)
+	private static List<BlockMember> Tile(List<BlockMember> members, int size, string owner)
 	{
 		if (members.Count == 0) return members;
 
@@ -508,8 +541,10 @@ public static class BlockMembers
 			int need = next.Name is null ? Alignment(members) : Alignment(next);
 			bool fits = end - at < need && (next.Name is null ? size % need == 0 : next.At % need == 0);
 			gaps.Add(fits
-				? new BlockMember(at, end - at, MemberKind.Padding, $"padding{++padding}", null, 0, false)
-				: new BlockMember(at, end - at, MemberKind.Unknown, $"unknown{++unknown}", null, 0, false));
+				? new BlockMember(at, end - at, MemberKind.Padding, $"padding{++padding}", null, 0, false,
+					null, null, null, owner)
+				: new BlockMember(at, end - at, MemberKind.Unknown, $"unknown{++unknown}", null, 0, false,
+					null, null, null, owner));
 			at = end;
 		}
 

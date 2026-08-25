@@ -53,6 +53,91 @@ public static class BlockMemberReader
 	/// </summary>
 	public delegate JsonNode Identify(ulong address);
 
+	/// <summary>
+	///     Whether a padding member's bytes travel out with the rest of the object. The item
+	///     component classes turn it on around their own read and nothing else does, so the block
+	///     rows and the item class's own rows are exactly what they were.
+	/// </summary>
+	internal static bool EmitPadding;
+
+	/// <summary>What every instance of one padding member held, so the claim can be settled.</summary>
+	private sealed class PaddingSpan
+	{
+		public string Class;
+		public string Name;
+		public int At;
+		public int Bytes;
+		public int Zero;
+		public int NotZero;
+
+		/// <summary>The distinct non zero readings, which is what a person needs to rule on it.</summary>
+		public readonly SortedSet<string> Values = new(StringComparer.Ordinal);
+	}
+
+	private static readonly Dictionary<string, PaddingSpan> Paddings = new(StringComparer.Ordinal);
+
+	/// <summary>
+	///     Counts one reading of one padding member. Zero on every instance is what padding looks
+	///     like; anything else is a member nobody has named yet, and only the count can tell them
+	///     apart.
+	/// </summary>
+	private static void Padding(BlockMember member, string raw)
+	{
+		string key = $"{member.Class ?? "?"}.{member.Name}@{member.At}";
+		if (!Paddings.TryGetValue(key, out PaddingSpan span))
+		{
+			Paddings[key] = span = new PaddingSpan
+			{
+				Class = member.Class ?? "?", Name = member.Name, At = member.At, Bytes = member.Bytes
+			};
+		}
+
+		bool zero = true;
+		foreach (char c in raw)
+		{
+			if (c == '0') continue;
+			zero = false;
+			break;
+		}
+
+		if (zero)
+		{
+			span.Zero++;
+			return;
+		}
+
+		span.NotZero++;
+		if (span.Values.Count < 8) span.Values.Add(raw);
+	}
+
+	/// <summary>
+	///     Every padding member of every class, with how many instances held nothing and how many
+	///     held something. A span that is non zero on any instance is not padding: it stays
+	///     declared and its bytes stay in the rows, and the ruling on what it is belongs to a
+	///     person, not to this.
+	/// </summary>
+	public static void ReportPadding()
+	{
+		if (Paddings.Count == 0) return;
+
+		List<PaddingSpan> spans = Paddings.Values
+			.OrderBy(p => p.Class, StringComparer.Ordinal)
+			.ThenBy(p => p.At)
+			.ToList();
+		int carrying = spans.Count(p => p.NotZero > 0);
+		Console.WriteLine($"padding spans: {spans.Count} declared across "
+			+ $"{spans.Select(p => p.Class).Distinct(StringComparer.Ordinal).Count()} classes, "
+			+ $"{spans.Sum(p => p.Zero):N0} readings all zero, {spans.Sum(p => p.NotZero):N0} not, "
+			+ $"{carrying} span(s) carrying something on at least one instance");
+		foreach (PaddingSpan span in spans)
+		{
+			string line = $"  {span.Class}.{span.Name,-10} at +{span.At,-4} {span.Bytes,3} bytes, "
+				+ $"{span.Zero:N0} zero / {span.NotZero:N0} not";
+			if (span.NotZero > 0) line += $"; NOT PADDING, distinct: {string.Join(", ", span.Values)}";
+			Console.WriteLine(line);
+		}
+	}
+
 	/// <summary>Every member of a block, read from where each was measured on this server.</summary>
 	public static JsonObject Read(BedrockProcess process, ulong address, byte[] window, byte[] scratch,
 		Identify identify = null)
@@ -80,7 +165,7 @@ public static class BlockMemberReader
 			// objects says nothing the class has not already said. Alignment padding that holds
 			// something holds what an overwritten pointer left behind, which is the allocator's
 			// business and not the block's.
-			if (node.Member.Kind is MemberKind.Unknown or MemberKind.Padding) continue;
+			if (node.Member.Kind is MemberKind.Unknown or MemberKind.Padding || !node.Member.Emit) continue;
 
 			members[node.Member.Name] = node.IsLeaf
 				? node.At + node.Member.Bytes <= read
@@ -291,6 +376,19 @@ public static class BlockMemberReader
 					: JsonValue.Create(source);
 			}
 
+			// Bytes the compiler inserted so the next member lands on its alignment. Inside an item
+			// component they travel out as themselves and are tallied, because "padding" is a claim
+			// about content and nothing but the content can settle it: a stretch that is non zero on
+			// any instance is carrying something. Everywhere else the class table states the gap
+			// once and the rows stay as they were.
+			case MemberKind.Padding:
+			{
+				if (!EmitPadding) return null;
+				string raw = Convert.ToHexString(window, at, member.Bytes);
+				Padding(member, raw);
+				return new JsonObject { ["raw"] = raw };
+			}
+
 			// Bytes nothing declares. They travel out as themselves so the member list adds up to
 			// the class and the hole is countable rather than absent.
 			case MemberKind.Unknown:
@@ -396,6 +494,26 @@ public static class BlockMemberReader
 			// An empty vector is an empty list. Saying that with three null pointers and a zero
 			// length describes the container rather than what it holds, which is nothing.
 			if (begin == end && capacity >= end) return new JsonArray();
+
+			// A vector of a four byte enum. The member names the enum, so the elements are read as
+			// that enum and not as a byte count: leaving them behind the pointer would have said
+			// eighty eight bytes and nothing about the twenty two values inside them. The count has
+			// to divide exactly, so a member that merely happens to be a vector yields nothing.
+			if (member.Enum is not null && end > begin && capacity >= end
+				&& (end - begin) % 4 == 0 && end - begin <= 4096)
+			{
+				var values = new byte[end - begin];
+				if (process.TryRead(begin, values, values.Length))
+				{
+					var named = new JsonArray();
+					for (int e = 0; e + 4 <= values.Length; e += 4)
+					{
+						named.Add(Enumerated(BitConverter.ToInt32(values, e), member));
+					}
+
+					return named;
+				}
+			}
 
 			// A vector that says what it holds is read as those elements. The count has to divide
 			// exactly, so a wrong element size yields nothing rather than fragments.
@@ -513,6 +631,10 @@ public static class BlockMemberReader
 		{
 			int at = lead + member.At;
 			if (member.Kind == MemberKind.Unknown || at + member.Bytes > window.Length) continue;
+
+			// Read and checked, and refused a place in the file. Every one of these is an address,
+			// which is true for one run of one server and churns the output on every other.
+			if (!member.Emit) continue;
 
 			fields[member.Name] = member.Holds is not null && member.Kind == MemberKind.Container
 				? Held(process, address, window, BlockMembers.Any(member.Holds), at, scratch)

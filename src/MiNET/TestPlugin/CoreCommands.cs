@@ -1012,7 +1012,7 @@ namespace TestPlugin
 
 			byte c = 0;
 			inventory.Slots[c++] = new ItemDiamondHoe();
-			inventory.Slots[c++] = new ItemBucket(8) {Count = 1};
+			inventory.Slots[c++] = new ItemWaterBucket() {Count = 1};
 			inventory.Slots[c++] = new ItemWheatSeeds() {Count = 64};
 			inventory.Slots[c++] = new ItemBeetrootSeeds() {Count = 64};
 			inventory.Slots[c++] = new ItemCarrot() {Count = 64};

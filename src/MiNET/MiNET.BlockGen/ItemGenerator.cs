@@ -55,10 +55,7 @@ public static class ItemGenerator
 	///     supplies it, the run prints it, and the entry is deleted when the extraction lands the
 	///     field. A path with no trailing slash covers the whole subtree beneath it.
 	/// </summary>
-	private static readonly (string Path, string Reason)[] Gaps =
-	{
-		("minecraft:publisher_on_use_on/autoSucceedOnClient", "the flag is a byte at offset 0x40 of the OnUseOnItemComponent, which the component's own buildNetworkTag reads and writes under this very name, and the seventeen objects are in memory; what the extraction cannot reach yet is the ADDRESS, because the declared container's value is read eight bytes short of where it sits, so every declared-only component comes back without one")
-	};
+	private static readonly (string Path, string Reason)[] Gaps = [];
 
 	/// <summary>
 	///     The sound event names by id, as the extraction publishes them. A component that holds a
@@ -180,9 +177,15 @@ public static class ItemGenerator
 
 	/// <summary>
 	///     Which items carry a tree, read off the extraction rather than off the frame: a
-	///     component-based item whose component map holds at least one entry that could be read, or
-	///     a hardcoded item carrying one of the three legacy pointer components. That rule picks the
-	///     same 31 and 47 items the frame does.
+	///     component-based item whose BUILT component map holds something, or a hardcoded item
+	///     carrying one of the three legacy pointer components. That rule picks the same 31 and 47
+	///     items the frame does.
+	///     The two containers decide different things and neither substitutes for the other. The
+	///     built map decides whether there is a tree at all: 75 items declare components and only
+	///     the 31 with a built map carry a tree, while the other 44 send an empty compound even
+	///     though they declare block_placer, record, durability and the rest. The declared set
+	///     decides what is IN the tree, filtered by what the component class itself says about
+	///     networking it.
 	/// </summary>
 	private static NbtCompound BuildTree(JObject row, bool componentBased)
 	{
@@ -190,24 +193,15 @@ public static class ItemGenerator
 
 		if (componentBased)
 		{
-			var readable = Readable(row);
-			if (readable.Count == 0) return null;
+			if ((row["builtComponents"] as JArray)?.Count is not > 0) return null;
 
+			var readable = Readable(row);
 			components.Add(ItemProperties(row, readable));
 			components.Add(Tags("item_tags", row["tags"] as JArray));
 			foreach ((string kind, JObject value) in readable)
 			{
 				NbtTag tag = Component(kind, value, row);
 				if (tag != null) components.Add(tag);
-			}
-
-			// minecraft:publisher_on_use_on is an empty compound on the wire: presence is the whole
-			// fact. Its own component value never resolves an address (the extraction reads it as
-			// {"unread": ...}, so Readable() drops it), but the declared set names every item that
-			// carries it regardless of whether its address was found.
-			if ((row["declaredComponents"] as JArray)?.Any(n => (string) n == "minecraft:publisher_on_use_on") == true)
-			{
-				components.Add(new NbtCompound("minecraft:publisher_on_use_on"));
 			}
 		}
 		else
@@ -233,9 +227,15 @@ public static class ItemGenerator
 	}
 
 	/// <summary>
-	///     The component entries the extraction actually read. An entry that is {"unread": ...} was
-	///     declared but never reached, so it is absent rather than empty. minecraft:icon is dropped
-	///     here because it is not a component on the wire: the icon rides inside item_properties.
+	///     The component entries that belong on the wire and that the extraction actually read.
+	///     Three filters, each on a fact the extraction states. A component whose class answers
+	///     false to isNetworkComponent never leaves the server, which is what keeps the spears' use
+	///     and attack subscriptions off the wire; the extraction reads that answer out of the
+	///     class's own method table slot rather than deciding it here. An entry that is
+	///     {"unread": ...} is a class nothing can read yet, so it is absent rather than empty, which
+	///     is what holds the music discs' record back. minecraft:icon is read and networked and
+	///     still dropped, because it is not a component on the wire: the icon rides inside
+	///     item_properties.
 	/// </summary>
 	private static List<(string Kind, JObject Value)> Readable(JObject row)
 	{
@@ -245,6 +245,7 @@ public static class ItemGenerator
 		foreach (JProperty property in components.Properties())
 		{
 			if (property.Value is not JObject value) continue;
+			if (value["networked"] is not { Type: JTokenType.Boolean } networked || !(bool) networked) continue;
 			if (value["unread"] != null) continue;
 			if (property.Name == "minecraft:icon") continue;
 			result.Add((property.Name, value));
@@ -413,6 +414,8 @@ public static class ItemGenerator
 					new NbtFloat("hitbox_margin", (float) value["hitboxMargin"]),
 					MinMax("reach", value["reach"] as JArray)
 				};
+			case "minecraft:publisher_on_use_on":
+				return new NbtCompound(kind) {new NbtByte("autoSucceedOnClient", Bit(value["autoSucceedOnClient"]))};
 			case "minecraft:projectile":
 			{
 				var projectile = new NbtCompound(kind) {new NbtFloat("minimum_critical_power", (float) value["minimumCriticalPower"])};
@@ -632,15 +635,20 @@ public static class ItemGenerator
 		};
 	}
 
-	/// <summary>The cooldown kind is a one byte enum; the extraction publishes its own name table.</summary>
+	/// <summary>
+	///     The cooldown kind is a one byte enum, and the extraction reads it as one: the value and
+	///     the name its own ItemCooldownType table gives it. The wire spells it in lower case, which
+	///     is what the server's own ItemCooldownType schema states, so the name is mapped rather
+	///     than passed through.
+	/// </summary>
 	private static string CooldownType(JToken type)
 	{
-		string raw = (string) type["raw"];
-		return raw switch
+		string named = (string) type["name"];
+		return named switch
 		{
-			"00" => "use",
-			"01" => "attack",
-			_ => throw new InvalidDataException($"unknown ItemCooldownType {raw}")
+			"Use" => "use",
+			"Attack" => "attack",
+			_ => throw new InvalidDataException($"unknown ItemCooldownType {type}")
 		};
 	}
 

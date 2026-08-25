@@ -66,6 +66,12 @@
 				"guards": "the field group at declared-56",
 				"held": true,
 				"detail": "7 of 7 damage fields equal the damage component beside them"
+			},
+			{
+				"check": "component classes",
+				"guards": "the component class layouts the reference states",
+				"held": true,
+				"detail": "DamageAbsorptionItemComponent.absorbableDamageCauses 1/1, DurabilitySensorItemComponent.durabilityThresholds 1/1, DyeableItemComponent.colour 1/1, OnUseAsAttackItemComponent.subscribers 7/7, OnUseItemComponent.subscribers 29/29, OnUseOnItemComponent.subscribers 17/17, RecordItemComponent.sound 22/22, UseTimeDepletedItemComponent.subscribers 1/1, WearableItemComponent.slot 1/1; subscribers walked: 53 object(s) with 1, 1 object(s) with 2"
 			}
 		]
 	},

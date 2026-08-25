@@ -829,11 +829,6 @@ namespace MiNET.Items
 		public ItemLapisLazuli() : base("minecraft:lapis_lazuli") { }
 	} // class
 
-	public partial class ItemLavaBucket : Item // minecraft:lava_bucket
-	{
-		public ItemLavaBucket() : base("minecraft:lava_bucket") { }
-	} // class
-
 	public partial class ItemLeaves : Item // minecraft:leaves
 	{
 		public ItemLeaves() : base("minecraft:leaves") { }
@@ -1652,11 +1647,6 @@ namespace MiNET.Items
 	public partial class ItemWardenSpawnEgg : Item // minecraft:warden_spawn_egg
 	{
 		public ItemWardenSpawnEgg() : base("minecraft:warden_spawn_egg") { }
-	} // class
-
-	public partial class ItemWaterBucket : Item // minecraft:water_bucket
-	{
-		public ItemWaterBucket() : base("minecraft:water_bucket") { }
 	} // class
 
 	public partial class ItemWayfinderArmorTrimSmithingTemplate : Item // minecraft:wayfinder_armor_trim_smithing_template

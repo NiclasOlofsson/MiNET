@@ -154,8 +154,162 @@ public static class ItemRegistry
 			TagVectorDivides(process, items),
 			IdsAreUnique(items),
 			DeriveClassTail(process, items),
-			DataDrivenFieldsAgree(process, items)
+			DataDrivenFieldsAgree(process, items),
+			ComponentClassesProve(process, items)
 		];
+	}
+
+	/// <summary>
+	///     Every component class this reference newly states, held against something the class did
+	///     not tell us. A layout that merely fits is not evidence; a layout that reproduces a value
+	///     another structure states independently is.
+	///     <para>
+	///         A publisher's subscriber count has to equal the nodes on its own subscription list,
+	///         walked from the sentinel and back to it, with the links agreeing in both directions.
+	///         A record's sound event has to be the sound named after the disc that carries it. A
+	///         wearable's slot has to be a value EquipmentSlot names. Dyeable's default colour has
+	///         to read the same on every instance. The two vectors have to divide exactly by the
+	///         size of the element the class says they hold.
+	///     </para>
+	/// </summary>
+	private static Sentinel ComponentClassesProve(BedrockProcess process, ICollection<Item> items)
+	{
+		var word = new byte[16];
+		var counts = new SortedDictionary<string, (int Agreed, int Of)>(StringComparer.Ordinal);
+		var failed = new List<string>();
+		var colours = new SortedSet<string>(StringComparer.Ordinal);
+		var subscribers = new List<(string Class, long Count)>();
+
+		void Count(string what, bool agreed, string why)
+		{
+			(int a, int of) = counts.GetValueOrDefault(what, (0, 0));
+			counts[what] = (a + (agreed ? 1 : 0), of + 1);
+			if (!agreed && failed.Count < 8) failed.Add(why);
+		}
+
+		foreach (Item item in items)
+		{
+			foreach (HeldComponent component in ComponentObjects(process, item))
+			{
+				if (component.Address < 0x10000) continue;
+				if (BlockMembers.Component(component.Name) is not { } held) continue;
+
+				foreach (BlockMember member in held.Members)
+				{
+					ulong at = component.Address + (ulong) (held.Base + member.At);
+					switch (member.Name)
+					{
+						case "subscriptions" when member.Holds == "ListBaseHook":
+						{
+							BlockMember count = held.Members.First(m => m.Name == "subscriberCount");
+							long stated = (long) (process.ReadUInt64(
+								component.Address + (ulong) (held.Base + count.At), word) & 0xFFFFFFFF);
+							Count($"{held.Name}.subscribers", Walks(process, at, stated, word),
+								$"{item.Name} {component.Name} states {stated} subscribers and its list does not walk to that");
+							subscribers.Add((held.Name, stated));
+							break;
+						}
+						case "soundEvent" when held.Name == "RecordItemComponent":
+						{
+							long sound = (long) (process.ReadUInt64(at, word) & 0xFFFFFFFF);
+							string named = BlockMembers.Value(member.Enum, sound);
+							string disc = item.Name.Replace("minecraft:music_disc_", "");
+							Count("RecordItemComponent.sound", named == $"record.{disc}",
+								$"{item.Name} names sound {sound} ({named ?? "unnamed"}), not record.{disc}");
+							break;
+						}
+						case "equipmentSlot":
+						{
+							long slot = (long) (process.ReadUInt64(at, word) & 0xFFFFFFFF);
+							Count($"{held.Name}.slot", BlockMembers.Value(member.Enum, slot) is not null,
+								$"{item.Name} wears slot {slot}, which {member.Enum} does not name");
+							break;
+						}
+						case "defaultColor":
+						{
+							process.TryRead(at, word, 16);
+							colours.Add(Convert.ToHexString(word, 0, 16));
+							Count($"{held.Name}.colour", colours.Count == 1,
+								$"{item.Name} reads a default colour no other instance reads");
+							break;
+						}
+						// Dividing is not evidence: 192 bytes divide by twelve and by forty eight
+						// alike, and the twelve byte reading produced sound ids in the millions.
+						// What settles the stride is that every element has to name something: an
+						// ActorDamageCause the enum states, or a LevelSoundEvent the server's own
+						// table names. Arbitrary bytes at the wrong stride do not.
+						case "absorbableDamageCauses" or "durabilityThresholds":
+						{
+							bool causes = member.Name == "absorbableDamageCauses";
+							ClassLayout element = causes ? null : BlockMembers.Any(member.Elements);
+							int stride = causes ? 4 : element?.Size ?? 0;
+							ulong begin = process.ReadUInt64(at, word);
+							ulong end = process.ReadUInt64(at + 8, word);
+							bool divides = stride > 0 && end >= begin && (end - begin) % (ulong) stride == 0;
+							bool names = divides;
+							for (ulong e = begin; names && e + (ulong) stride <= end; e += (ulong) stride)
+							{
+								long value = causes
+									? (long) (process.ReadUInt64(e, word) & 0xFFFFFFFF)
+									: (long) (process.ReadUInt64(
+										e + (ulong) element.Members.First(m => m.Name == "soundEvent").At, word)
+										& 0xFFFFFFFF);
+								names = BlockMembers.Value(causes ? member.Enum : "LevelSoundEvent", value) is not null;
+							}
+
+							Count($"{held.Name}.{member.Name}", divides && names,
+								$"{item.Name} holds {end - begin} bytes at a stride of {stride} whose elements do not all name something");
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		return new Sentinel
+		{
+			Name = "component classes",
+			Guards = "the component class layouts the reference states",
+			Held = counts.Count > 0 && counts.Values.All(c => c.Agreed == c.Of),
+			Detail = counts.Count == 0
+				? "no component of a newly stated class was reached; nothing to check"
+				: string.Join(", ", counts.Select(c => $"{c.Key} {c.Value.Agreed}/{c.Value.Of}"))
+				+ (subscribers.Count == 0
+					? ""
+					: "; subscribers walked: " + string.Join(", ", subscribers
+						.GroupBy(s => s.Count)
+						.OrderBy(g => g.Key)
+						.Select(g => $"{g.Count()} object(s) with {g.Key}")))
+				+ (failed.Count == 0 ? "" : $"; failing: {string.Join("; ", failed)}")
+		};
+	}
+
+	/// <summary>
+	///     Whether an intrusive list walks to the count its publisher states. The sixteen bytes at
+	///     the member are the sentinel, next and prev; a node's own next sits at its start. The walk
+	///     goes forward from next until it returns to the sentinel, and every node's prev has to
+	///     name what pointed at it, so a chain that merely happens to close is not enough.
+	/// </summary>
+	private static bool Walks(BedrockProcess process, ulong sentinel, long stated, byte[] word)
+	{
+		ulong next = process.ReadUInt64(sentinel, word);
+		ulong prev = process.ReadUInt64(sentinel + 8, word);
+		if (stated == 0) return next == sentinel && prev == sentinel;
+		if (next < 0x10000 || prev < 0x10000) return false;
+
+		ulong behind = sentinel;
+		ulong walk = next;
+		long seen = 0;
+		while (walk != sentinel && seen <= stated)
+		{
+			if (walk < 0x10000 || !process.IsMapped(walk)) return false;
+			if (process.ReadUInt64(walk + 8, word) != behind) return false;
+			seen++;
+			behind = walk;
+			walk = process.ReadUInt64(walk, word);
+		}
+
+		return walk == sentinel && seen == stated && behind == prev;
 	}
 
 	/// <summary>
@@ -181,7 +335,9 @@ public static class ItemRegistry
 			{
 				if (name != "minecraft:damage") continue;
 				if (address < 0x10000 || !process.TryRead(address, scratch, scratch.Length)) continue;
-				int at = BitConverter.ToUInt64(scratch, 8) == item.Address && IsVtable(process, BitConverter.ToUInt64(scratch, 16)) ? 24 : 16;
+				// The class's own base, the same one the component read uses. DamageItemComponent
+				// states none, so its members start where ItemComponent ends.
+				int at = BlockMembers.Component("minecraft:damage")?.Base ?? ItemComponentBase;
 				attempted++;
 				// The component's damage member is a declared short (see the damage decode); the
 				// item's own field is a full int the parser stores.
@@ -686,14 +842,21 @@ public static class ItemRegistry
 		if (root == 0 || root == head || !process.IsMapped(root)) return found;
 		if (process.ReadUInt64(root + 8, scratch) != head) return found;
 
-		// Exactly the bytes a node is decoded from: links and flags to 32, the key (a 40 byte
-		// HashedString or a 32 byte string) and the value pointer behind it, ending at 80. Reading
-		// more looked harmless and was not: a node allocated just under a page whose neighbour page
-		// is uncommitted fails the whole straddling read, and WHICH node that is is heap lottery,
-		// so one bundle's map walked short on one instance and clean on the next. An allocation
-		// never spans into uncommitted memory, so a read that stays inside the node cannot fail
-		// this way.
-		var node = new byte[80];
+		// Exactly the bytes a node is decoded from: links and flags to 32, then the key and the
+		// value pointer behind it. A HashedString key is HashedString.Size, forty eight, so its
+		// value sits at 80 and the node ends at 88; a plain string key is thirty two and its value
+		// sits at 64. Reading a HashedString node's value at 72 lands on the key's own tail, which
+		// is zero on every entry, and 269 of the 311 declared components came out with no address.
+		// The two containers agree where they overlap, which is the check: 206 kinds are named by
+		// both, and every one of them gives the same object address from either side.
+		// Reading beyond the node looked harmless and was not: a node allocated just under a page
+		// whose neighbour page is uncommitted fails the whole straddling read, and WHICH node that
+		// is is heap lottery, so one bundle's map walked short on one instance and clean on the
+		// next. An allocation never spans into uncommitted memory, so a read that stays inside the
+		// node cannot fail this way.
+		int span = hashedKeys ? 32 + HashedString.Size + 8 : 80;
+		int valueAt = hashedKeys ? 32 + HashedString.Size : 64;
+		var node = new byte[span];
 		var text = new byte[256];
 		var heap = new byte[256];
 		var visited = new HashSet<ulong>();
@@ -712,7 +875,7 @@ public static class ItemRegistry
 				string name = hashedKeys
 					? HashedString.ReadVerified(process, node, 32, heap)
 					: StdString(process, node, 32, text);
-				if (name is { Length: > 0 }) found.Add((name, BitConverter.ToUInt64(node, hashedKeys ? 72 : 64)));
+				if (name is { Length: > 0 }) found.Add((name, BitConverter.ToUInt64(node, valueAt)));
 			}
 			stack.Push(BitConverter.ToUInt64(node, 0));
 			stack.Push(BitConverter.ToUInt64(node, 16));
@@ -724,6 +887,75 @@ public static class ItemRegistry
 		found.Sort((a, b) => string.CompareOrdinal(a.Item1, b.Item1));
 		return found;
 	}
+
+	/// <summary>One component object an item holds, and which of the two containers named it.</summary>
+	private readonly record struct HeldComponent(string Name, ulong Address, bool Declared, bool Built);
+
+	/// <summary>
+	///     Every component object an item holds, from both containers, each object named once.
+	///     The two overlap rather than divide: on this build the declared set names 311 entries
+	///     across 75 items and the built map 236 across 31, 206 kinds are named by both, and every
+	///     one of those gives the same address from either side. So a kind in both is one object,
+	///     not two, and which container named it is a fact about the item rather than about the
+	///     object.
+	/// </summary>
+	private static List<HeldComponent> ComponentObjects(BedrockProcess process, Item item)
+	{
+		if (_tail is null) return [];
+
+		var held = new List<HeldComponent>();
+		foreach ((string name, ulong address) in Components(process, item, _tail.Declared, true))
+		{
+			held.Add(new HeldComponent(name, address, true, false));
+		}
+
+		foreach ((string name, ulong address) in Components(process, item, _tail.Built, false))
+		{
+			int at = held.FindIndex(h => string.CompareOrdinal(h.Name, name) == 0);
+			if (at < 0) held.Add(new HeldComponent(name, address, false, true));
+			else held[at] = held[at] with {Built = true};
+		}
+
+		held.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
+		return held;
+	}
+
+	/// <summary>
+	///     Whether the class networks this component, read out of the class rather than assumed.
+	///     ItemComponent::isNetworkComponent is method table slot 3, and every implementation of it
+	///     is a three byte stub: B0 01 C3 loads one and returns, 31 C0 C3 clears and returns. The
+	///     linker folds the identical bodies, so all 35 component classes seen here point at exactly
+	///     two functions, and reading the bytes at the slot says which. Bytes that are neither stub
+	///     are handed back as bytes, because a body this does not recognise is not evidence either
+	///     way.
+	/// </summary>
+	private static (bool? Networked, string Bytes) Networks(BedrockProcess process, ulong vtable)
+	{
+		if (NetworksByClass.TryGetValue(vtable, out (bool?, string) cached)) return cached;
+
+		(bool? Networked, string Bytes) verdict = (null, null);
+		var word = new byte[8];
+		ulong slot = IsVtable(process, vtable) ? process.ReadUInt64(vtable + 24, word) : 0;
+		if (IsModule(slot))
+		{
+			var code = new byte[3];
+			if (process.TryRead(slot, code, code.Length))
+			{
+				string bytes = Convert.ToHexString(code);
+				verdict = bytes switch
+				{
+					"B001C3" => (true, null),
+					"31C0C3" => (false, null),
+					_ => (null, bytes)
+				};
+			}
+		}
+
+		NetworksByClass[vtable] = verdict;
+		return verdict;
+	}
+
+	private static readonly Dictionary<ulong, (bool? Networked, string Bytes)> NetworksByClass = new();
 
 	/// <summary>
 	///     Creative tab names, from the server's own CreativeItemCategory schema under
@@ -1171,9 +1403,16 @@ public static class ItemRegistry
 	///     One component, as its own bytes plus whatever of it has been fitted against values known
 	///     in advance.
 	///     Every component object is laid out the same way: its method table, the item that owns it,
-	///     and then the fields. Which is which is not assumed, the owner pointer is the landmark, and
-	///     a component that carries a second method table has its fields eight bytes further in,
-	///     which is what food does and nothing else here does.
+	///     and then the fields. That head is ItemComponent, sixteen bytes, and where a class carries
+	///     a second polymorphic base its own members start eight bytes further in, which is what
+	///     FoodItemComponent does and what its "base" states. The base belongs to the class, not to
+	///     one object: every instance of a class reads at the same offsets.
+	///     The owner word is a value, not a landmark. The same class holds the item there on some
+	///     instances and zero on others, 12 of the 29 publisher_on_use objects carrying it and 17
+	///     holding zero, all of them the same 64 byte class, so it is reported beside the fields
+	///     rather than steering where they are read from.
+	///     The read proves itself before anything is decoded: the object has to lead with a method
+	///     table whose first slot holds module code, which arbitrary bytes do not.
 	///     The payload always travels out whole. Only the kinds that reproduce a value known in
 	///     advance are named, and the rest are the same bytes with no claim attached: the seven
 	///     spears carry their tier's enchantment value, their durability and their damage, and those
@@ -1182,14 +1421,46 @@ public static class ItemRegistry
 	private static JsonObject Component(BedrockProcess process, string name, ulong address, ulong owner, byte[] scratch)
 	{
 		var fields = new JsonObject();
+		ComponentTally tally = Tally(name);
+		tally.Entries++;
 
 		// Clipped, because the object's length is not known before reading it: a fixed 96 failed
 		// whole when the allocation sat against an uncommitted page, dropping the component by
 		// heap lottery. The clip still holds every byte the object really has.
 		int have = address < 0x10000 ? 0 : process.ReadClipped(address, scratch, 256);
-		if (have < 24) return fields;
+		if (have < 24)
+		{
+			fields["unread"] = tally.Failed(address < 0x10000
+				? $"the container's value slot holds 0x{address:X}, which is not an address"
+				: $"the object at 0x{address:X} read back {have} bytes, fewer than the method table and one field");
+			return fields;
+		}
 
-		int at = BitConverter.ToUInt64(scratch, 8) == owner && IsVtable(process, BitConverter.ToUInt64(scratch, 16)) ? 24 : 16;
+		ulong methodTable = BitConverter.ToUInt64(scratch, 0);
+		if (!IsVtable(process, methodTable))
+		{
+			fields["unread"] = tally.Failed(
+				$"the object at 0x{address:X} leads with 0x{methodTable:X}, which is not a method table");
+			return fields;
+		}
+
+		// Stated by the class itself, out of the size its deleting destructor hands to delete.
+		int classSize = ClassSize(process, methodTable);
+		(bool? networked, string stub) = Networks(process, methodTable);
+		if (networked is true) tally.Networked++;
+		else if (networked is false) tally.NotNetworked++;
+
+		ulong holds = BitConverter.ToUInt64(scratch, 8);
+		if (holds == owner) tally.OwnerHolds++;
+		else if (holds == 0) tally.OwnerZero++;
+		else tally.OwnerOther++;
+
+		// A second method table where the class does not declare one is a class this reference has
+		// the shape of wrong, so it is counted and said rather than reacted to.
+		ClassLayout declared = BlockMembers.Component(name);
+		if (IsVtable(process, BitConverter.ToUInt64(scratch, 16))) tally.SecondTable++;
+
+		int at = declared?.Base ?? ItemComponentBase;
 		int I32(int offset) => BitConverter.ToInt32(scratch, at + offset);
 		float F32(int offset) => BitConverter.ToSingle(scratch, at + offset);
 		ushort U16(int offset) => BitConverter.ToUInt16(scratch, at + offset);
@@ -1216,15 +1487,20 @@ public static class ItemRegistry
 			"minecraft:display_name" => 32,
 			"minecraft:enchantable" => 40,
 			"minecraft:cooldown" or "minecraft:storage_item" => 48,
+			"minecraft:publisher_on_use_on" => 49,
 			"minecraft:block_placer" => 51,
 			"minecraft:swing_sounds" => 52,
 			"minecraft:projectile" => 136,
 			"minecraft:kinetic_weapon" => 84,
 			_ => 0
 		};
+		// A class states its own extent, so where one is declared the switch below has nothing to
+		// say about how far the decode reaches.
+		if (declared is not null) extent = declared.Size;
 		if (at + extent > have)
 		{
-			fields["clipped"] = have - at;
+			fields["unread"] = tally.Failed(
+				$"the decode reaches +{at + extent} and the object at 0x{address:X} read back {have} bytes");
 			return fields;
 		}
 
@@ -1232,11 +1508,29 @@ public static class ItemRegistry
 		// come from the server's own header, so a field this file never named is not lost and a
 		// width it got wrong is not repeated: max_stack_size is one byte there, and reading two gave
 		// the black bundle a stack of 8193.
-		if (BlockMembers.Component(name) is { } declared)
+		if (declared is not null)
 		{
-			return BlockMemberReader.Held(process, address, scratch, declared, at, new byte[256]);
+			// The component's padding travels with it, and only here. A stretch a class calls
+			// padding is a claim about its content, and the run counts the readings so a span that
+			// is carrying something says so instead of coming out as a null.
+			BlockMemberReader.EmitPadding = true;
+			try
+			{
+				fields = BlockMemberReader.Held(process, address, scratch, declared, at, new byte[256]);
+			}
+			finally
+			{
+				BlockMemberReader.EmitPadding = false;
+			}
+
+			tally.Read++;
+			tally.ByReference++;
+			return Networked(fields, networked, stub);
 		}
 
+		// Whether anything here knows what the class is. The switch's own default answers it, so
+		// there is one list of the kinds this file decodes and it is the switch itself.
+		bool named = true;
 		switch (name)
 		{
 			// Field names and their order come from the server's own component schemas under
@@ -1493,9 +1787,123 @@ public static class ItemRegistry
 			// rather than a guess. Decode it from that record when something needs it.
 			case "minecraft:legacy_events":
 				break;
+
+			// Nothing names this class: the reference states no layout for it and no case above
+			// reads it. What IS known travels, so the object stays countable rather than coming out
+			// as an empty component that would say it was read and held nothing. The stretch from
+			// the field base to the end of the class is the hole, and the bytes go with it.
+			default:
+				named = false;
+				fields["unread"] = new JsonObject
+				{
+					["reason"] = "no class for this component in the reference and no decode by name",
+					["methodTable"] = $"0x{methodTable:X}",
+					["classSize"] = classSize,
+					["from"] = at,
+					["bytes"] = Math.Max(0, Math.Min(classSize > 0 ? classSize : have, have) - at),
+					["hex"] = Convert.ToHexString(scratch, 0, Math.Min(classSize > 0 ? classSize : have, have))
+				};
+				tally.Failed("no class for this component in the reference and no decode by name");
+				break;
 		}
 
+		if (named)
+		{
+			tally.Read++;
+			tally.ByName++;
+		}
+
+		return Networked(fields, networked, stub);
+	}
+
+	/// <summary>
+	///     How far into a component object its own class starts. ItemComponent is a method table and
+	///     the item that owns it, and a class states a different base only where it carries a second
+	///     polymorphic base in front of its members.
+	/// </summary>
+	private const int ItemComponentBase = 16;
+
+	/// <summary>
+	///     The class's own answer to whether this component goes on the wire, written beside the
+	///     fields. An unrecognised stub is the bytes, because a body this cannot read is not
+	///     evidence either way and a guess here would decide what the generator emits.
+	/// </summary>
+	private static JsonObject Networked(JsonObject fields, bool? networked, string stub)
+	{
+		fields["networked"] = networked is { } verdict
+			? JsonValue.Create(verdict)
+			: new JsonObject
+			{
+				["unread"] = "method table slot 3 is neither of the two stubs isNetworkComponent compiles to",
+				["bytes"] = stub
+			};
 		return fields;
+	}
+
+	/// <summary>
+	///     What the run made of the component objects of one kind: how many entries it reached, how
+	///     many it read and through what, where the owner pointer led, what the class says about
+	///     networking them, and every reason a read did not happen with the number of times it did
+	///     not. Printed once, from the same counters the rows were built with.
+	/// </summary>
+	private sealed class ComponentTally
+	{
+		public int Entries;
+		public int Declared;
+		public int Built;
+		public int Read;
+		public int ByReference;
+		public int ByName;
+		public int OwnerHolds;
+		public int OwnerZero;
+		public int OwnerOther;
+		public int SecondTable;
+		public int Networked;
+		public int NotNetworked;
+		public readonly Dictionary<string, int> Unread = new(StringComparer.Ordinal);
+
+		/// <summary>Counts a reason and hands it back, so the count and the emitted text are one act.</summary>
+		public string Failed(string reason)
+		{
+			Unread[reason] = Unread.GetValueOrDefault(reason) + 1;
+			return reason;
+		}
+	}
+
+	private static readonly Dictionary<string, ComponentTally> Tallies = new(StringComparer.Ordinal);
+
+	private static ComponentTally Tally(string kind)
+	{
+		if (!Tallies.TryGetValue(kind, out ComponentTally tally)) Tallies[kind] = tally = new ComponentTally();
+		return tally;
+	}
+
+	/// <summary>
+	///     Every kind, with what became of its objects. Every difference goes out: a kind read one
+	///     way and not another, a reason a read did not happen, an owner word that is not the item.
+	/// </summary>
+	private static void ReportComponents()
+	{
+		if (Tallies.Count == 0) return;
+
+		Console.WriteLine($"component objects: {Tallies.Values.Sum(t => t.Entries):N0} entries across "
+			+ $"{Tallies.Count} kinds, {Tallies.Values.Sum(t => t.Read):N0} read "
+			+ $"({Tallies.Values.Sum(t => t.ByReference):N0} through a class the reference states, "
+			+ $"{Tallies.Values.Sum(t => t.ByName):N0} by name), "
+			+ $"{Tallies.Values.Sum(t => t.Networked):N0} networked, "
+			+ $"{Tallies.Values.Sum(t => t.NotNetworked):N0} not");
+		foreach ((string kind, ComponentTally tally) in Tallies.OrderBy(t => t.Key, StringComparer.Ordinal))
+		{
+			Console.WriteLine($"  {kind,-42} {tally.Entries,4} entries ({tally.Declared} declared, {tally.Built} built)"
+				+ $", {tally.Read} read"
+				+ $", owner {tally.OwnerHolds} back at the item / {tally.OwnerZero} zero / {tally.OwnerOther} elsewhere"
+				+ $", {tally.SecondTable} with a method table at +16"
+				+ $", networked {tally.Networked} / not {tally.NotNetworked}");
+			foreach ((string reason, int count) in tally.Unread.OrderByDescending(u => u.Value))
+			{
+				Console.WriteLine($"      unread x{count}: {reason}");
+			}
+		}
 	}
 
 	/// <summary>
@@ -1720,9 +2128,11 @@ public static class ItemRegistry
 	}
 
 	/// <summary>
-	///     Every built component object, as bytes, grouped by kind. Naming the fields inside a
-	///     component needs the same treatment the item itself got: the same kind read across every
-	///     item that has one, so a field shows itself by lining up with something already known.
+	///     Every component object, as bytes, grouped by kind. Both containers, because both name
+	///     real objects: leaving the declared set out kept 62 objects of nine kinds out of the
+	///     record entirely. Naming the fields inside a component needs the same treatment the item
+	///     itself got: the same kind read across every item that has one, so a field shows itself by
+	///     lining up with something already known.
 	/// </summary>
 	public static void DumpComponents(BedrockProcess process, IEnumerable<Item> items, string path)
 	{
@@ -1730,7 +2140,7 @@ public static class ItemRegistry
 		var lines = new List<string>();
 		foreach (Item item in items.OrderBy(i => i.Name, StringComparer.Ordinal))
 		{
-			foreach ((string name, ulong address) in _tail is null ? [] : Components(process, item, _tail.Built, false))
+			foreach ((string name, ulong address, bool _, bool _) in ComponentObjects(process, item))
 			{
 				int have = address < 0x10000 ? 0 : process.ReadClipped(address, payload, payload.Length);
 				if (have < 16) continue;
@@ -1829,6 +2239,7 @@ public static class ItemRegistry
 		List<Item> ordered = items.OrderBy(i => i.Name, StringComparer.Ordinal).ToList();
 		CollectTierStructs(process, ordered);
 		_effectNames.Clear();
+		Tallies.Clear();
 		foreach (Item item in ordered)
 		{
 			ulong vtable = item.Ptr(ItemLayout.MethodTable);
@@ -1882,6 +2293,8 @@ public static class ItemRegistry
 			if (item.IsItem) rows.Add(row);
 			else rejected.Add(item.Name);
 		}
+
+		ReportComponents();
 
 		// A document, not a bare array: the items are one list, the things that share a name with an
 		// item but are not one are another, and what produced them is stated at the top rather than
@@ -2036,7 +2449,7 @@ public static class ItemRegistry
 		var instances = new Dictionary<string, List<(ulong Address, ulong Owner)>>(StringComparer.Ordinal);
 		foreach (Item item in items.Where(i => i.IsItem))
 		{
-			foreach ((string name, ulong address) in _tail is null ? [] : Components(process, item, _tail.Built, false))
+			foreach ((string name, ulong address, bool _, bool _) in ComponentObjects(process, item))
 			{
 				instances.TryAdd(name, []);
 				instances[name].Add((address, item.Address));
@@ -2137,7 +2550,7 @@ public static class ItemRegistry
 	private static readonly SortedDictionary<string, JsonObject> Forensics = new(StringComparer.Ordinal);
 
 	private static JsonObject Forensic(BedrockProcess process, Item item, Dictionary<ulong, string> classNames,
-		List<(string Name, ulong Address)> declared, List<(string Name, ulong Address)> built)
+		List<HeldComponent> declared, List<HeldComponent> built)
 	{
 		var row = new JsonObject
 		{
@@ -2287,32 +2700,44 @@ public static class ItemRegistry
 		// older items keep a typed pointer per kind at a fixed offset, the newer ones keep a map, and
 		// a consumer should not have to know which: both end up under "components" keyed by the same
 		// names, so food is food wherever the server put it.
-		List<(string Name, ulong Address)> declared = _tail is null ? [] : Components(process, item, _tail.Declared, true);
-		List<(string Name, ulong Address)> built = _tail is null ? [] : Components(process, item, _tail.Built, false);
+		List<HeldComponent> held = ComponentObjects(process, item);
+		List<HeldComponent> declared = held.Where(h => h.Declared).ToList();
+		List<HeldComponent> built = held.Where(h => h.Built).ToList();
 		row["componentBased"] = declared.Count > 0;
-		if (declared.Count > 0) row["declaredComponents"] = Names(declared.Select(c => c.Name));
 
-		// Walked from both containers, not gated on componentBased: the declared set names 75 items'
-		// components and the built map only resolves 31 of them, so a kind that sits in the declared
-		// set alone (arrow's minecraft:projectile among them) used to come out with a name and nothing
-		// behind it. Built is tried first, because it is the address the spears' damage, cooldown and
-		// durability were fitted against and it is proven to hold real component objects. The declared
-		// set's own value slot reads zero on every one of the 311 entries measured across all 75
-		// componentBased items, on this build: it names a component without holding its address, so a
-		// kind found only there cannot be read and is recorded as such rather than as an empty object,
-		// which would say the component was read and turned out to hold nothing.
+		// The two containers are two facts, so they go out as two lists. Which container names a
+		// kind is what decides whether the item carries a component tree on the wire at all: the 31
+		// items whose built map holds something are exactly the 31 the captured frame sends a tree
+		// for, and the 44 that declare components with an empty built map are exactly the ones it
+		// sends an empty compound for.
+		if (declared.Count > 0) row["declaredComponents"] = Names(declared.Select(c => c.Name));
+		if (built.Count > 0) row["builtComponents"] = Names(built.Select(c => c.Name));
+
+		// Walked from both containers, not gated on componentBased: the declared set names the
+		// components of 75 items and the built map those of 31, so a kind that sits in the declared
+		// set alone (arrow's minecraft:projectile among them) used to come out with a name and
+		// nothing behind it. Both containers hold the same object where both name a kind, so this
+		// is one object per kind and the read is the same either way.
 		var components = new JsonObject();
-		foreach (var (kind, address) in built.Concat(declared))
+		foreach (HeldComponent component in held)
 		{
+			ComponentTally tally = Tally(component.Name);
+			tally.Declared += component.Declared ? 1 : 0;
+			tally.Built += component.Built ? 1 : 0;
+
 			// Ruled out by Niclas, not by this tool: legacy_events is 184 bytes holding a table of
 			// sixteen event handler lists, and on the one item that carries it, the apple, every
 			// one of those lists is an empty sentinel that points at itself. It describes nothing.
 			// Its shape stays in items-runtime-components.json, where the bytes are still counted.
-			if (kind == "minecraft:legacy_events") continue;
-			if (components.ContainsKey(kind)) continue;
-			components[kind] = address >= 0x10000
-				? Component(process, kind, address, item.Address, scratch)
-				: new JsonObject {["unread"] = "declared, no address; the built map does not carry it"};
+			// The report carries the ruling, so the one kind this row leaves out says why.
+			if (component.Name == "minecraft:legacy_events")
+			{
+				tally.Entries++;
+				tally.Failed("ruled out by hand: sixteen event handler lists, every one an empty sentinel "
+					+ "that points at itself; its bytes stay in items-runtime-components.json");
+				continue;
+			}
+			components[component.Name] = Component(process, component.Name, component.Address, item.Address, scratch);
 		}
 
 		// The legacy food, seed and camera components are not listed here. They are reached through

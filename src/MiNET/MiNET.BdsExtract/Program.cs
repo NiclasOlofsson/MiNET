@@ -408,6 +408,11 @@ public static class Program
 		// through positions the two extractions above measured on this server.
 		Console.WriteLine();
 		int creative = CreativeItems.Run(server, palette);
+
+		// Last, because it counts what every read above emitted: what the classes call padding, and
+		// whether the bytes agree with the name.
+		Console.WriteLine();
+		BlockMemberReader.ReportPadding();
 		return report.Passed && items == 0 && creative == 0 ? 0 : 1;
 	}
 

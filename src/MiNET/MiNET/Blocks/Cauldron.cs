@@ -44,27 +44,22 @@ namespace MiNET.Blocks
 		{
 			var itemInHand = player.Inventory.GetItemInHand();
 
-			if (itemInHand is ItemBucket)
+			if (itemInHand is ItemWaterBucket)
 			{
-				if (itemInHand.Metadata == 8)
+				if (FillLevel < 8)
 				{
-					if (FillLevel < 8)
-					{
-						FillLevel = 8;
-						world.SetBlock(this, applyPhysics: false);
-						itemInHand.Metadata = 0;
-						player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
-					}
+					FillLevel = 8;
+					world.SetBlock(this, applyPhysics: false);
+					player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, ItemFactory.GetItemByName("minecraft:bucket"));
 				}
-				else if (itemInHand.Metadata == 0)
+			}
+			else if (itemInHand is ItemBucket)
+			{
+				if (FillLevel > 0)
 				{
-					if (FillLevel > 0)
-					{
-						FillLevel = 0;
-						world.SetBlock(this, applyPhysics: false);
-						itemInHand.Metadata = 8;
-						player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
-					}
+					FillLevel = 0;
+					world.SetBlock(this, applyPhysics: false);
+					player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, ItemFactory.GetItemByName("minecraft:water_bucket"));
 				}
 			}
 

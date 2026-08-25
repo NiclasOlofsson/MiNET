@@ -341,15 +341,14 @@ public static class BlockDocument
 	/// </summary>
 	internal static void Classes(JsonObject document, ClassLayout root, BlockMembers.Source source)
 	{
-		var written = new List<ClassLayout>();
-		Reach(root, source, written);
-
-		// A component's class is reached through the component map rather than through a member, so
-		// walking the members alone leaves it out and the file cannot be the next reference.
-		foreach ((string _, string held) in BlockMembers.ComponentClasses)
-		{
-			Reach(BlockMembers.Declared(held, source), source, written);
-		}
+		// Every class the reference declares, in the order it declares them. Not a walk from the
+		// root: what a class table has to contain is what the run read with, and a class is read
+		// with whether or not a member points at it. Five item components are decoded from the
+		// name the server registers them under rather than through a member, so a walk reached
+		// none of them and a run's own output could not become the next reference. Reachability
+		// also decided the order, which is why AABB and BlockAABBComponentData swapped places
+		// against a reference nothing had touched.
+		IReadOnlyList<ClassLayout> written = BlockMembers.All(source);
 
 		var classes = new JsonObject();
 		foreach (ClassLayout held in written)
@@ -370,6 +369,7 @@ public static class BlockDocument
 				// file to itself and both sides were written by the same lossy writer.
 				if (member.Kind == MemberKind.Bit) stated["bit"] = member.Bit;
 				if (!member.Comparable) stated["comparable"] = false;
+				if (!member.Emit) stated["emit"] = false;
 				if (member.Holds is not null) stated["holds"] = member.Holds;
 				if (member.Enum is not null) stated["enum"] = member.Enum;
 				if (member.Elements is not null) stated["elements"] = member.Elements;
@@ -377,7 +377,13 @@ public static class BlockDocument
 				members.Add(stated);
 			}
 
-			classes[held.Name] = new JsonObject { ["size"] = held.Size, ["members"] = members };
+			var stated2 = new JsonObject { ["size"] = held.Size };
+			// Where the class's own first member sits inside the object. Only stated where it is
+			// not nought, so a class that is the whole object says nothing extra, and a component
+			// class carries the sixteen or twenty four bytes of base it does not declare.
+			if (held.Base != 0) stated2["base"] = held.Base;
+			stated2["members"] = members;
+			classes[held.Name] = stated2;
 		}
 
 		document["class"] = root.Name;
@@ -402,17 +408,6 @@ public static class BlockDocument
 		}
 
 		if (components.Count > 0) document["componentClasses"] = components;
-	}
-
-	/// <summary>Every class the root holds, and every class those hold, each written once.</summary>
-	private static void Reach(ClassLayout held, BlockMembers.Source source, List<ClassLayout> written)
-	{
-		if (held is null || written.Contains(held)) return;
-		written.Add(held);
-		foreach (BlockMember member in held.Members)
-		{
-			if (member.Holds is not null) Reach(BlockMembers.Held(member.Holds, source), source, written);
-		}
 	}
 
 	/// <summary>

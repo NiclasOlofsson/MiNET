@@ -66,6 +66,12 @@
 				"guards": "the field group at declared-56",
 				"held": true,
 				"detail": "7 of 7 damage fields equal the damage component beside them"
+			},
+			{
+				"check": "component classes",
+				"guards": "the component class layouts the reference states",
+				"held": true,
+				"detail": "DamageAbsorptionItemComponent.absorbableDamageCauses 1/1, DurabilitySensorItemComponent.durabilityThresholds 1/1, DyeableItemComponent.colour 1/1, OnUseAsAttackItemComponent.subscribers 7/7, OnUseItemComponent.subscribers 29/29, OnUseOnItemComponent.subscribers 17/17, RecordItemComponent.sound 22/22, UseTimeDepletedItemComponent.subscribers 1/1, WearableItemComponent.slot 1/1; subscribers walked: 53 object(s) with 1, 1 object(s) with 2"
 			}
 		]
 	},
@@ -739,6 +745,7 @@
 		},
 		"BundleInteractionItemComponent": {
 			"size": 4,
+			"base": 16,
 			"members": [
 				{
 					"name": "numViewableSlots",
@@ -750,6 +757,7 @@
 		},
 		"CooldownItemComponent": {
 			"size": 56,
+			"base": 16,
 			"members": [
 				{
 					"name": "duration",
@@ -761,7 +769,7 @@
 					"name": "type",
 					"at": 4,
 					"bytes": 1,
-					"kind": "Container",
+					"kind": "Enum8",
 					"enum": "ItemCooldownType"
 				},
 				{
@@ -779,8 +787,35 @@
 				}
 			]
 		},
+		"DamageAbsorptionItemComponent": {
+			"size": 32,
+			"base": 16,
+			"members": [
+				{
+					"name": "absorbableDamageCauses",
+					"at": 0,
+					"bytes": 24,
+					"kind": "Container",
+					"enum": "ActorDamageCause"
+				},
+				{
+					"name": "absorbAllDamageCauses",
+					"at": 24,
+					"bytes": 1,
+					"kind": "Bool"
+				},
+				{
+					"name": "padding1",
+					"at": 25,
+					"bytes": 7,
+					"kind": "Padding",
+					"comparable": false
+				}
+			]
+		},
 		"DamageItemComponent": {
 			"size": 2,
+			"base": 16,
 			"members": [
 				{
 					"name": "damage",
@@ -792,6 +827,7 @@
 		},
 		"DisplayNameItemComponent": {
 			"size": 32,
+			"base": 16,
 			"members": [
 				{
 					"name": "descriptionId",
@@ -803,6 +839,7 @@
 		},
 		"DurabilityItemComponent": {
 			"size": 12,
+			"base": 16,
 			"members": [
 				{
 					"name": "maxDamage",
@@ -836,8 +873,65 @@
 				}
 			]
 		},
+		"DurabilitySensorItemComponent": {
+			"size": 24,
+			"base": 16,
+			"members": [
+				{
+					"name": "durabilityThresholds",
+					"at": 0,
+					"bytes": 24,
+					"kind": "Container",
+					"elements": "DurabilityThreshold"
+				}
+			]
+		},
+		"DurabilityThreshold": {
+			"size": 48,
+			"members": [
+				{
+					"name": "durability",
+					"at": 0,
+					"bytes": 4,
+					"kind": "Int32"
+				},
+				{
+					"name": "particleType",
+					"at": 4,
+					"bytes": 4,
+					"kind": "Enum32"
+				},
+				{
+					"name": "soundEvent",
+					"at": 8,
+					"bytes": 4,
+					"kind": "Enum32",
+					"enum": "LevelSoundEvent"
+				},
+				{
+					"name": "unknown1",
+					"at": 12,
+					"bytes": 36,
+					"kind": "Unknown",
+					"comparable": false
+				}
+			]
+		},
+		"DyeableItemComponent": {
+			"size": 16,
+			"base": 16,
+			"members": [
+				{
+					"name": "defaultColor",
+					"at": 0,
+					"bytes": 16,
+					"kind": "Colour"
+				}
+			]
+		},
 		"EnchantableItemComponent": {
 			"size": 40,
+			"base": 16,
 			"members": [
 				{
 					"name": "enchantValue",
@@ -862,6 +956,7 @@
 		},
 		"FireResistantItemComponent": {
 			"size": 1,
+			"base": 16,
 			"members": [
 				{
 					"name": "value",
@@ -873,6 +968,7 @@
 		},
 		"FoodItemComponent": {
 			"size": 64,
+			"base": 24,
 			"members": [
 				{
 					"name": "nutrition",
@@ -915,12 +1011,14 @@
 					"name": "onUseSubscription",
 					"at": 48,
 					"bytes": 16,
-					"kind": "Container"
+					"kind": "Container",
+					"emit": false
 				}
 			]
 		},
 		"FuelItemComponent": {
 			"size": 4,
+			"base": 16,
 			"members": [
 				{
 					"name": "fuelDuration",
@@ -932,6 +1030,7 @@
 		},
 		"HandEquippedItemComponent": {
 			"size": 1,
+			"base": 16,
 			"members": [
 				{
 					"name": "handEquipped",
@@ -941,8 +1040,20 @@
 				}
 			]
 		},
+		"KineticWeaponItemComponent": {
+			"size": 84,
+			"members": [
+				{
+					"name": "settings",
+					"at": 0,
+					"bytes": 84,
+					"kind": "Container"
+				}
+			]
+		},
 		"MaxStackSizeItemComponent": {
 			"size": 1,
+			"base": 16,
 			"members": [
 				{
 					"name": "maxStackSize",
@@ -952,8 +1063,281 @@
 				}
 			]
 		},
+		"ListBaseHook": {
+			"size": 16,
+			"members": [
+				{
+					"name": "next",
+					"at": 0,
+					"bytes": 8,
+					"kind": "Container"
+				},
+				{
+					"name": "prev",
+					"at": 8,
+					"bytes": 8,
+					"kind": "Container"
+				}
+			]
+		},
+		"OnUseAsAttackItemComponent": {
+			"size": 48,
+			"base": 16,
+			"members": [
+				{
+					"name": "publisherDisconnectorMethodTable",
+					"at": 0,
+					"bytes": 8,
+					"kind": "Container",
+					"emit": false
+				},
+				{
+					"name": "subscriptions",
+					"at": 8,
+					"bytes": 16,
+					"kind": "Container",
+					"emit": false,
+					"holds": "ListBaseHook"
+				},
+				{
+					"name": "subscriberCount",
+					"at": 24,
+					"bytes": 4,
+					"kind": "UInt32",
+					"emit": false
+				},
+				{
+					"name": "unknown1",
+					"at": 28,
+					"bytes": 12,
+					"kind": "Unknown",
+					"comparable": false
+				},
+				{
+					"name": "dispatchingPublisherBaseMethodTable",
+					"at": 40,
+					"bytes": 8,
+					"kind": "Container",
+					"emit": false
+				}
+			]
+		},
+		"OnUseItemComponent": {
+			"size": 48,
+			"base": 16,
+			"members": [
+				{
+					"name": "publisherDisconnectorMethodTable",
+					"at": 0,
+					"bytes": 8,
+					"kind": "Container",
+					"emit": false
+				},
+				{
+					"name": "subscriptions",
+					"at": 8,
+					"bytes": 16,
+					"kind": "Container",
+					"emit": false,
+					"holds": "ListBaseHook"
+				},
+				{
+					"name": "subscriberCount",
+					"at": 24,
+					"bytes": 4,
+					"kind": "UInt32",
+					"emit": false
+				},
+				{
+					"name": "unknown1",
+					"at": 28,
+					"bytes": 12,
+					"kind": "Unknown",
+					"comparable": false
+				},
+				{
+					"name": "dispatchingPublisherBaseMethodTable",
+					"at": 40,
+					"bytes": 8,
+					"kind": "Container",
+					"emit": false
+				}
+			]
+		},
+		"OnUseOnItemComponent": {
+			"size": 56,
+			"base": 16,
+			"members": [
+				{
+					"name": "publisherDisconnectorMethodTable",
+					"at": 0,
+					"bytes": 8,
+					"kind": "Container",
+					"emit": false
+				},
+				{
+					"name": "subscriptions",
+					"at": 8,
+					"bytes": 16,
+					"kind": "Container",
+					"emit": false,
+					"holds": "ListBaseHook"
+				},
+				{
+					"name": "subscriberCount",
+					"at": 24,
+					"bytes": 4,
+					"kind": "UInt32",
+					"emit": false
+				},
+				{
+					"name": "unknown1",
+					"at": 28,
+					"bytes": 12,
+					"kind": "Unknown",
+					"comparable": false
+				},
+				{
+					"name": "dispatchingPublisherBaseMethodTable",
+					"at": 40,
+					"bytes": 8,
+					"kind": "Container",
+					"emit": false
+				},
+				{
+					"name": "autoSucceedOnClient",
+					"at": 48,
+					"bytes": 1,
+					"kind": "Bool"
+				},
+				{
+					"name": "padding1",
+					"at": 49,
+					"bytes": 7,
+					"kind": "Padding",
+					"comparable": false
+				}
+			]
+		},
+		"PiercingWeaponItemComponent": {
+			"size": 32,
+			"members": [
+				{
+					"name": "reach",
+					"at": 0,
+					"bytes": 8,
+					"kind": "Container"
+				},
+				{
+					"name": "hitboxMargin",
+					"at": 8,
+					"bytes": 4,
+					"kind": "Float"
+				},
+				{
+					"name": "padding1",
+					"at": 12,
+					"bytes": 4,
+					"kind": "Padding",
+					"comparable": false
+				},
+				{
+					"name": "onUseAsAttackSubscription",
+					"at": 16,
+					"bytes": 16,
+					"kind": "Container"
+				}
+			]
+		},
+		"ProjectileItemComponent": {
+			"size": 184,
+			"members": [
+				{
+					"name": "minCriticalPower",
+					"at": 0,
+					"bytes": 4,
+					"kind": "Float"
+				},
+				{
+					"name": "padding1",
+					"at": 4,
+					"bytes": 4,
+					"kind": "Padding",
+					"comparable": false
+				},
+				{
+					"name": "actorIdentifier",
+					"at": 8,
+					"bytes": 176,
+					"kind": "Container"
+				}
+			]
+		},
+		"RecordItemComponent": {
+			"size": 48,
+			"base": 16,
+			"members": [
+				{
+					"name": "soundEvent",
+					"at": 0,
+					"bytes": 4,
+					"kind": "Enum32",
+					"enum": "LevelSoundEvent"
+				},
+				{
+					"name": "unknown1",
+					"at": 4,
+					"bytes": 36,
+					"kind": "Unknown",
+					"comparable": false
+				},
+				{
+					"name": "duration",
+					"at": 40,
+					"bytes": 4,
+					"kind": "Float"
+				},
+				{
+					"name": "comparatorSignal",
+					"at": 44,
+					"bytes": 4,
+					"kind": "Int32"
+				}
+			]
+		},
+		"StorageItemComponent": {
+			"size": 24,
+			"members": [
+				{
+					"name": "numSlots",
+					"at": 0,
+					"bytes": 4,
+					"kind": "Int32"
+				},
+				{
+					"name": "allowNestedStorageItem",
+					"at": 4,
+					"bytes": 1,
+					"kind": "Bool"
+				},
+				{
+					"name": "padding1",
+					"at": 5,
+					"bytes": 3,
+					"kind": "Padding",
+					"comparable": false
+				},
+				{
+					"name": "onUseSubscription",
+					"at": 8,
+					"bytes": 16,
+					"kind": "Container"
+				}
+			]
+		},
 		"StorageWeightLimitItemComponent": {
 			"size": 4,
+			"base": 16,
 			"members": [
 				{
 					"name": "weightLimit",
@@ -965,6 +1349,7 @@
 		},
 		"StorageWeightModifierItemComponent": {
 			"size": 4,
+			"base": 16,
 			"members": [
 				{
 					"name": "weightInStorageItem",
@@ -976,6 +1361,7 @@
 		},
 		"SwingDurationItemComponent": {
 			"size": 4,
+			"base": 16,
 			"members": [
 				{
 					"name": "valueInSeconds",
@@ -987,6 +1373,7 @@
 		},
 		"ThrowableItemComponent": {
 			"size": 40,
+			"base": 16,
 			"members": [
 				{
 					"name": "doSwing",
@@ -1048,23 +1435,26 @@
 					"name": "onUseSubscription",
 					"at": 24,
 					"bytes": 16,
-					"kind": "Container"
+					"kind": "Container",
+					"emit": false
 				}
 			]
 		},
 		"UseAnimationItemComponent": {
 			"size": 1,
+			"base": 16,
 			"members": [
 				{
 					"name": "useAnimation",
 					"at": 0,
 					"bytes": 1,
-					"kind": "Container"
+					"kind": "Enum8"
 				}
 			]
 		},
 		"UseModifiersItemComponent": {
 			"size": 104,
+			"base": 16,
 			"members": [
 				{
 					"name": "useDuration",
@@ -1149,7 +1539,8 @@
 					"name": "onUseSubscription",
 					"at": 72,
 					"bytes": 16,
-					"kind": "Container"
+					"kind": "Container",
+					"emit": false
 				},
 				{
 					"name": "unknown4",
@@ -1160,8 +1551,90 @@
 				}
 			]
 		},
+		"UseTimeDepletedItemComponent": {
+			"size": 48,
+			"base": 16,
+			"members": [
+				{
+					"name": "publisherDisconnectorMethodTable",
+					"at": 0,
+					"bytes": 8,
+					"kind": "Container",
+					"emit": false
+				},
+				{
+					"name": "subscriptions",
+					"at": 8,
+					"bytes": 16,
+					"kind": "Container",
+					"emit": false,
+					"holds": "ListBaseHook"
+				},
+				{
+					"name": "subscriberCount",
+					"at": 24,
+					"bytes": 4,
+					"kind": "UInt32",
+					"emit": false
+				},
+				{
+					"name": "unknown1",
+					"at": 28,
+					"bytes": 12,
+					"kind": "Unknown",
+					"comparable": false
+				},
+				{
+					"name": "dispatchingPublisherBaseMethodTable",
+					"at": 40,
+					"bytes": 8,
+					"kind": "Container",
+					"emit": false
+				}
+			]
+		},
+		"WearableItemComponent": {
+			"size": 32,
+			"base": 16,
+			"members": [
+				{
+					"name": "equipmentSlot",
+					"at": 0,
+					"bytes": 4,
+					"kind": "Enum32",
+					"enum": "EquipmentSlot"
+				},
+				{
+					"name": "protection",
+					"at": 4,
+					"bytes": 4,
+					"kind": "Int32"
+				},
+				{
+					"name": "hidesPlayerLocation",
+					"at": 8,
+					"bytes": 1,
+					"kind": "Bool"
+				},
+				{
+					"name": "padding1",
+					"at": 9,
+					"bytes": 7,
+					"kind": "Padding",
+					"comparable": false
+				},
+				{
+					"name": "onUseSubscription",
+					"at": 16,
+					"bytes": 16,
+					"kind": "Container",
+					"emit": false
+				}
+			]
+		},
 		"RepairableItemComponent": {
 			"size": 24,
+			"base": 16,
 			"members": [
 				{
 					"name": "repairItems",
@@ -1169,6 +1642,47 @@
 					"bytes": 24,
 					"kind": "Container",
 					"elements": "RepairItemEntry"
+				}
+			]
+		},
+		"RepairItemEntry": {
+			"size": 40,
+			"members": [
+				{
+					"name": "items",
+					"at": 0,
+					"bytes": 24,
+					"kind": "Container",
+					"elements": "ItemDescriptor"
+				},
+				{
+					"name": "repairAmount",
+					"at": 24,
+					"bytes": 16,
+					"kind": "Expression"
+				}
+			]
+		},
+		"ItemDescriptor": {
+			"size": 16,
+			"members": [
+				{
+					"name": "impl",
+					"at": 0,
+					"bytes": 16,
+					"kind": "Descriptor"
+				}
+			]
+		},
+		"IconItemComponent": {
+			"size": 64,
+			"members": [
+				{
+					"name": "textures",
+					"at": 0,
+					"bytes": 64,
+					"kind": "Container",
+					"entries": "IconEntry"
 				}
 			]
 		}
@@ -1266,6 +1780,63 @@
 		"ItemCooldownType": {
 			"0": "Use",
 			"1": "Attack"
+		},
+		"ActorDamageCause": {
+			"-1": "None",
+			"0": "Override",
+			"1": "Contact",
+			"2": "EntityAttack",
+			"3": "Projectile",
+			"4": "Suffocation",
+			"5": "Fall",
+			"6": "Fire",
+			"7": "FireTick",
+			"8": "Lava",
+			"9": "Drowning",
+			"10": "BlockExplosion",
+			"11": "EntityExplosion",
+			"12": "Void",
+			"13": "SelfDestruct",
+			"14": "Magic",
+			"15": "Wither",
+			"16": "Starve",
+			"17": "Anvil",
+			"18": "Thorns",
+			"19": "FallingBlock",
+			"20": "Piston",
+			"21": "FlyIntoWall",
+			"22": "Magma",
+			"23": "Fireworks",
+			"24": "Lightning",
+			"25": "Charging",
+			"26": "Temperature",
+			"27": "Freezing",
+			"28": "Stalactite",
+			"29": "Stalagmite",
+			"30": "RamAttack",
+			"31": "SonicBoom",
+			"32": "Campfire",
+			"33": "SoulCampfire",
+			"34": "MaceSmash",
+			"35": "All"
+		},
+		"EquipmentSlot": {
+			"-1": "None",
+			"0": "Mainhand",
+			"1": "Offhand",
+			"2": "Head",
+			"3": "Torso",
+			"4": "Legs",
+			"5": "Feet",
+			"6": "Body",
+			"7": "Hotbar",
+			"8": "Inventory",
+			"9": "EnderChest",
+			"10": "Saddle",
+			"11": "EntityArmor",
+			"12": "Chest",
+			"13": "Equippable",
+			"14": "Count"
 		},
 		"StartUsing": {
 			"0": "if_first",
@@ -1848,20 +2419,29 @@
 		"minecraft:bundle_interaction": "BundleInteractionItemComponent",
 		"minecraft:cooldown": "CooldownItemComponent",
 		"minecraft:damage": "DamageItemComponent",
+		"minecraft:damage_absorption": "DamageAbsorptionItemComponent",
 		"minecraft:display_name": "DisplayNameItemComponent",
 		"minecraft:durability": "DurabilityItemComponent",
+		"minecraft:durability_sensor": "DurabilitySensorItemComponent",
+		"minecraft:dyeable": "DyeableItemComponent",
 		"minecraft:enchantable": "EnchantableItemComponent",
 		"minecraft:fire_resistant": "FireResistantItemComponent",
 		"minecraft:food": "FoodItemComponent",
 		"minecraft:fuel": "FuelItemComponent",
 		"minecraft:hand_equipped": "HandEquippedItemComponent",
 		"minecraft:max_stack_size": "MaxStackSizeItemComponent",
+		"minecraft:publisher_on_use": "OnUseItemComponent",
+		"minecraft:publisher_on_use_as_attack": "OnUseAsAttackItemComponent",
+		"minecraft:publisher_on_use_on": "OnUseOnItemComponent",
+		"minecraft:publisher_use_time_depleted": "UseTimeDepletedItemComponent",
+		"minecraft:record": "RecordItemComponent",
 		"minecraft:storage_weight_limit": "StorageWeightLimitItemComponent",
 		"minecraft:storage_weight_modifier": "StorageWeightModifierItemComponent",
 		"minecraft:swing_duration": "SwingDurationItemComponent",
 		"minecraft:throwable": "ThrowableItemComponent",
 		"minecraft:use_animation": "UseAnimationItemComponent",
 		"minecraft:use_modifiers": "UseModifiersItemComponent",
+		"minecraft:wearable": "WearableItemComponent",
 		"minecraft:repairable": "RepairableItemComponent"
 	},
 	"items": [
@@ -4880,40 +5460,59 @@
 				"minecraft:use_animation",
 				"minecraft:use_modifiers"
 			],
+			"builtComponents": [
+				"minecraft:display_name",
+				"minecraft:food",
+				"minecraft:icon",
+				"minecraft:legacy_events",
+				"minecraft:tags",
+				"minecraft:use_animation",
+				"minecraft:use_modifiers"
+			],
 			"components": {
 				"minecraft:display_name": {
-					"descriptionId": "item.apple.name"
+					"descriptionId": "item.apple.name",
+					"networked": true
 				},
 				"minecraft:food": {
 					"nutrition": 4,
 					"saturationModifier": 0.3,
 					"usingConvertsTo": null,
 					"canAlwaysEat": false,
-					"padding1": null,
+					"padding1": {
+						"raw": "73223A31327D2C"
+					},
 					"onUseTimeDepletedSubscription": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01041C80"
-					}
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "apple"
-					}
+					},
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
+				},
+				"minecraft:publisher_use_time_depleted": {
+					"networked": false
 				},
 				"minecraft:tags": {
 					"tags": [
 						"minecraft:is_food"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:use_animation": {
-					"useAnimation": {
-						"raw": "01"
-					}
+					"useAnimation": 1,
+					"networked": true
 				},
 				"minecraft:use_modifiers": {
 					"useDuration": 1.6,
 					"emitVibrations": true,
-					"padding1": null,
+					"padding1": {
+						"raw": "000000"
+					},
 					"startSound": {
 						"value": 0,
 						"name": "item.use.on"
@@ -4925,16 +5524,10 @@
 						"value": 1,
 						"name": "always"
 					},
-					"padding2": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01042370"
-					}
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
-				},
-				"minecraft:publisher_use_time_depleted": {
-					"unread": "declared, no address; the built map does not carry it"
+					"padding2": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -5414,13 +6007,24 @@
 			],
 			"components": {
 				"minecraft:projectile": {
-					"unread": "declared, no address; the built map does not carry it"
+					"minimumCriticalPower": 1,
+					"projectileEntity": "minecraft:arrow<>",
+					"networked": true
 				},
 				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"networked": false
 				},
 				"minecraft:wearable": {
-					"unread": "declared, no address; the built map does not carry it"
+					"equipmentSlot": {
+						"value": 1,
+						"name": "Offhand"
+					},
+					"protection": 0,
+					"hidesPlayerLocation": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -11085,19 +11689,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_black_open_back",
 						"bundle_open_front": "bundle_black_open_front",
 						"default": "bundle_black"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -11105,16 +11723,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -13591,19 +14209,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_blue_open_back",
 						"bundle_open_front": "bundle_blue_open_front",
 						"default": "bundle_blue"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -13611,16 +14243,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -16883,17 +17515,25 @@
 				"minecraft:display_name",
 				"minecraft:hand_equipped"
 			],
+			"builtComponents": [
+				"minecraft:display_name",
+				"minecraft:hand_equipped",
+				"minecraft:icon"
+			],
 			"components": {
 				"minecraft:display_name": {
-					"descriptionId": "item.breeze_rod.name"
+					"descriptionId": "item.breeze_rod.name",
+					"networked": true
 				},
 				"minecraft:hand_equipped": {
-					"handEquipped": true
+					"handEquipped": true,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "breeze_rod"
-					}
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -17140,10 +17780,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:brewing_stand",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -17696,19 +18345,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_brown_open_back",
 						"bundle_open_front": "bundle_brown_open_front",
 						"default": "bundle_brown"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -17716,16 +18379,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -20202,19 +20865,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_open_back",
 						"bundle_open_front": "bundle_open_front",
 						"default": "bundle"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -20222,16 +20899,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -20628,10 +21305,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:cake",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -21123,10 +21809,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:campfire",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -21950,10 +22645,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:cauldron",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -22867,7 +23571,8 @@
 			],
 			"components": {
 				"minecraft:fuel": {
-					"unread": "declared, no address; the built map does not carry it"
+					"fuelDuration": 80,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -27716,7 +28421,8 @@
 			],
 			"components": {
 				"minecraft:fuel": {
-					"unread": "declared, no address; the built map does not carry it"
+					"fuelDuration": 80,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -29828,10 +30534,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:unpowered_comparator",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -33161,40 +33876,69 @@
 				"minecraft:tags",
 				"minecraft:use_modifiers"
 			],
+			"builtComponents": [
+				"minecraft:cooldown",
+				"minecraft:damage",
+				"minecraft:display_name",
+				"minecraft:durability",
+				"minecraft:enchantable",
+				"minecraft:hand_equipped",
+				"minecraft:icon",
+				"minecraft:kinetic_weapon",
+				"minecraft:max_stack_size",
+				"minecraft:piercing_weapon",
+				"minecraft:repairable",
+				"minecraft:swing_duration",
+				"minecraft:swing_sounds",
+				"minecraft:tags",
+				"minecraft:use_modifiers"
+			],
 			"components": {
 				"minecraft:cooldown": {
 					"duration": 0.85,
 					"type": {
-						"raw": "01"
+						"value": 1,
+						"name": "Attack"
 					},
-					"padding1": null,
-					"category": "spear"
+					"padding1": {
+						"raw": "000000"
+					},
+					"category": "spear",
+					"networked": true
 				},
 				"minecraft:damage": {
-					"damage": 2
+					"damage": 2,
+					"networked": true
 				},
 				"minecraft:display_name": {
-					"descriptionId": "item.copper_spear.name"
+					"descriptionId": "item.copper_spear.name",
+					"networked": true
 				},
 				"minecraft:durability": {
 					"maxDamage": 190,
 					"damageChance": {
 						"min": 0,
 						"max": 100
-					}
+					},
+					"networked": true
 				},
 				"minecraft:enchantable": {
 					"enchantValue": 13,
-					"padding1": null,
-					"enchantSlot": "melee_spear"
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"enchantSlot": "melee_spear",
+					"networked": true
 				},
 				"minecraft:hand_equipped": {
-					"handEquipped": true
+					"handEquipped": true,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "copper_spear"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:kinetic_weapon": {
 					"reach": [
@@ -33217,10 +33961,12 @@
 					"knockbackConditionMaxDuration": 165,
 					"dismountConditionMinSpeed": 12,
 					"dismountConditionMinRelativeSpeed": 0,
-					"dismountConditionMaxDuration": 80
+					"dismountConditionMaxDuration": 80,
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
 				},
 				"minecraft:piercing_weapon": {
 					"reach": [
@@ -33231,7 +33977,14 @@
 						2,
 						7.5
 					],
-					"hitboxMargin": 0.25
+					"hitboxMargin": 0.25,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
+				},
+				"minecraft:publisher_on_use_as_attack": {
+					"networked": false
 				},
 				"minecraft:repairable": {
 					"repairItems": [
@@ -33255,25 +34008,31 @@
 							],
 							"repairAmount": "query.max_durability * 0.25"
 						}
-					]
+					],
+					"networked": true
 				},
 				"minecraft:swing_duration": {
-					"valueInSeconds": 0.85
+					"valueInSeconds": 0.85,
+					"networked": true
 				},
 				"minecraft:swing_sounds": {
 					"attackMiss": 587,
-					"attackHit": 581
+					"attackHit": 581,
+					"networked": true
 				},
 				"minecraft:tags": {
 					"tags": [
 						"minecraft:copper_tier",
 						"minecraft:is_spear"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:use_modifiers": {
 					"useDuration": 72000,
 					"emitVibrations": false,
-					"padding1": null,
+					"padding1": {
+						"raw": "020000"
+					},
 					"startSound": {
 						"value": 593,
 						"name": "item.copper_spear.use"
@@ -33285,16 +34044,10 @@
 						"value": 1,
 						"name": "always"
 					},
-					"padding2": null,
-					"onUseSubscription": {
-						"pointer": "0x28F0103FC10"
-					}
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
-				},
-				"minecraft:publisher_on_use_as_attack": {
-					"unread": "declared, no address; the built map does not carry it"
+					"padding2": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -37397,19 +38150,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_cyan_open_back",
 						"bundle_open_front": "bundle_cyan_open_front",
 						"default": "bundle_cyan"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -37417,16 +38184,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -46031,40 +46798,69 @@
 				"minecraft:tags",
 				"minecraft:use_modifiers"
 			],
+			"builtComponents": [
+				"minecraft:cooldown",
+				"minecraft:damage",
+				"minecraft:display_name",
+				"minecraft:durability",
+				"minecraft:enchantable",
+				"minecraft:hand_equipped",
+				"minecraft:icon",
+				"minecraft:kinetic_weapon",
+				"minecraft:max_stack_size",
+				"minecraft:piercing_weapon",
+				"minecraft:repairable",
+				"minecraft:swing_duration",
+				"minecraft:swing_sounds",
+				"minecraft:tags",
+				"minecraft:use_modifiers"
+			],
 			"components": {
 				"minecraft:cooldown": {
 					"duration": 1.05,
 					"type": {
-						"raw": "01"
+						"value": 1,
+						"name": "Attack"
 					},
-					"padding1": null,
-					"category": "spear"
+					"padding1": {
+						"raw": "000000"
+					},
+					"category": "spear",
+					"networked": true
 				},
 				"minecraft:damage": {
-					"damage": 4
+					"damage": 4,
+					"networked": true
 				},
 				"minecraft:display_name": {
-					"descriptionId": "item.diamond_spear.name"
+					"descriptionId": "item.diamond_spear.name",
+					"networked": true
 				},
 				"minecraft:durability": {
 					"maxDamage": 1560,
 					"damageChance": {
 						"min": 0,
 						"max": 100
-					}
+					},
+					"networked": true
 				},
 				"minecraft:enchantable": {
 					"enchantValue": 10,
-					"padding1": null,
-					"enchantSlot": "melee_spear"
+					"padding1": {
+						"raw": "0014001E000100"
+					},
+					"enchantSlot": "melee_spear",
+					"networked": true
 				},
 				"minecraft:hand_equipped": {
-					"handEquipped": true
+					"handEquipped": true,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "diamond_spear"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:kinetic_weapon": {
 					"reach": [
@@ -46087,10 +46883,12 @@
 					"knockbackConditionMaxDuration": 130,
 					"dismountConditionMinSpeed": 10,
 					"dismountConditionMinRelativeSpeed": 0,
-					"dismountConditionMaxDuration": 60
+					"dismountConditionMaxDuration": 60,
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
 				},
 				"minecraft:piercing_weapon": {
 					"reach": [
@@ -46101,7 +46899,14 @@
 						2,
 						7.5
 					],
-					"hitboxMargin": 0.25
+					"hitboxMargin": 0.25,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
+				},
+				"minecraft:publisher_on_use_as_attack": {
+					"networked": false
 				},
 				"minecraft:repairable": {
 					"repairItems": [
@@ -46125,26 +46930,32 @@
 							],
 							"repairAmount": "query.max_durability * 0.25"
 						}
-					]
+					],
+					"networked": true
 				},
 				"minecraft:swing_duration": {
-					"valueInSeconds": 1.05
+					"valueInSeconds": 1.05,
+					"networked": true
 				},
 				"minecraft:swing_sounds": {
 					"attackMiss": 589,
-					"attackHit": 583
+					"attackHit": 583,
+					"networked": true
 				},
 				"minecraft:tags": {
 					"tags": [
 						"minecraft:diamond_tier",
 						"minecraft:transformable_items",
 						"minecraft:is_spear"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:use_modifiers": {
 					"useDuration": 72000,
 					"emitVibrations": false,
-					"padding1": null,
+					"padding1": {
+						"raw": "000000"
+					},
 					"startSound": {
 						"value": 595,
 						"name": "item.diamond_spear.use"
@@ -46156,16 +46967,10 @@
 						"value": 1,
 						"name": "always"
 					},
-					"padding2": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01041150"
-					}
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
-				},
-				"minecraft:publisher_on_use_as_attack": {
-					"unread": "declared, no address; the built map does not carry it"
+					"padding2": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -62685,13 +63490,37 @@
 			],
 			"components": {
 				"minecraft:durability": {
-					"unread": "declared, no address; the built map does not carry it"
+					"maxDamage": 384,
+					"damageChance": {
+						"min": 100,
+						"max": 100
+					},
+					"networked": true
 				},
 				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"networked": false
 				},
 				"minecraft:use_modifiers": {
-					"unread": "declared, no address; the built map does not carry it"
+					"useDuration": 0,
+					"emitVibrations": true,
+					"padding1": {
+						"raw": "000000"
+					},
+					"startSound": {
+						"value": 0,
+						"name": "item.use.on"
+					},
+					"startSoundHasValue": false,
+					"movementModifier": 0,
+					"movementModifierHasValue": false,
+					"startUsing": {
+						"value": 1,
+						"name": "always"
+					},
+					"padding2": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -63318,10 +64147,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:flower_pot",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -63718,10 +64556,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:frame",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -64928,10 +65775,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:glow_frame",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -67285,40 +68141,69 @@
 				"minecraft:tags",
 				"minecraft:use_modifiers"
 			],
+			"builtComponents": [
+				"minecraft:cooldown",
+				"minecraft:damage",
+				"minecraft:display_name",
+				"minecraft:durability",
+				"minecraft:enchantable",
+				"minecraft:hand_equipped",
+				"minecraft:icon",
+				"minecraft:kinetic_weapon",
+				"minecraft:max_stack_size",
+				"minecraft:piercing_weapon",
+				"minecraft:repairable",
+				"minecraft:swing_duration",
+				"minecraft:swing_sounds",
+				"minecraft:tags",
+				"minecraft:use_modifiers"
+			],
 			"components": {
 				"minecraft:cooldown": {
 					"duration": 0.95,
 					"type": {
-						"raw": "01"
+						"value": 1,
+						"name": "Attack"
 					},
-					"padding1": null,
-					"category": "spear"
+					"padding1": {
+						"raw": "000000"
+					},
+					"category": "spear",
+					"networked": true
 				},
 				"minecraft:damage": {
-					"damage": 1
+					"damage": 1,
+					"networked": true
 				},
 				"minecraft:display_name": {
-					"descriptionId": "item.golden_spear.name"
+					"descriptionId": "item.golden_spear.name",
+					"networked": true
 				},
 				"minecraft:durability": {
 					"maxDamage": 30,
 					"damageChance": {
 						"min": 0,
 						"max": 100
-					}
+					},
+					"networked": true
 				},
 				"minecraft:enchantable": {
 					"enchantValue": 22,
-					"padding1": null,
-					"enchantSlot": "melee_spear"
+					"padding1": {
+						"raw": "00150032000100"
+					},
+					"enchantSlot": "melee_spear",
+					"networked": true
 				},
 				"minecraft:hand_equipped": {
-					"handEquipped": true
+					"handEquipped": true,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "gold_spear"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:kinetic_weapon": {
 					"reach": [
@@ -67341,10 +68226,12 @@
 					"knockbackConditionMaxDuration": 170,
 					"dismountConditionMinSpeed": 13,
 					"dismountConditionMinRelativeSpeed": 0,
-					"dismountConditionMaxDuration": 70
+					"dismountConditionMaxDuration": 70,
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
 				},
 				"minecraft:piercing_weapon": {
 					"reach": [
@@ -67355,7 +68242,14 @@
 						2,
 						7.5
 					],
-					"hitboxMargin": 0.25
+					"hitboxMargin": 0.25,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
+				},
+				"minecraft:publisher_on_use_as_attack": {
+					"networked": false
 				},
 				"minecraft:repairable": {
 					"repairItems": [
@@ -67379,25 +68273,31 @@
 							],
 							"repairAmount": "query.max_durability * 0.25"
 						}
-					]
+					],
+					"networked": true
 				},
 				"minecraft:swing_duration": {
-					"valueInSeconds": 0.95
+					"valueInSeconds": 0.95,
+					"networked": true
 				},
 				"minecraft:swing_sounds": {
 					"attackMiss": 588,
-					"attackHit": 582
+					"attackHit": 582,
+					"networked": true
 				},
 				"minecraft:tags": {
 					"tags": [
 						"minecraft:golden_tier",
 						"minecraft:is_spear"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:use_modifiers": {
 					"useDuration": 72000,
 					"emitVibrations": false,
-					"padding1": null,
+					"padding1": {
+						"raw": "000000"
+					},
 					"startSound": {
 						"value": 594,
 						"name": "item.golden_spear.use"
@@ -67409,16 +68309,10 @@
 						"value": 1,
 						"name": "always"
 					},
-					"padding2": null,
-					"onUseSubscription": {
-						"pointer": "0x28F010407F0"
-					}
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
-				},
-				"minecraft:publisher_on_use_as_attack": {
-					"unread": "declared, no address; the built map does not carry it"
+					"padding2": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -68210,19 +69104,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_gray_open_back",
 						"bundle_open_front": "bundle_gray_open_front",
 						"default": "bundle_gray"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -68230,16 +69138,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -69872,19 +70780,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_green_open_back",
 						"bundle_open_front": "bundle_green_open_front",
 						"default": "bundle_green"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -69892,16 +70814,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -75756,10 +76678,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:hopper",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -79045,40 +79976,69 @@
 				"minecraft:tags",
 				"minecraft:use_modifiers"
 			],
+			"builtComponents": [
+				"minecraft:cooldown",
+				"minecraft:damage",
+				"minecraft:display_name",
+				"minecraft:durability",
+				"minecraft:enchantable",
+				"minecraft:hand_equipped",
+				"minecraft:icon",
+				"minecraft:kinetic_weapon",
+				"minecraft:max_stack_size",
+				"minecraft:piercing_weapon",
+				"minecraft:repairable",
+				"minecraft:swing_duration",
+				"minecraft:swing_sounds",
+				"minecraft:tags",
+				"minecraft:use_modifiers"
+			],
 			"components": {
 				"minecraft:cooldown": {
 					"duration": 0.95,
 					"type": {
-						"raw": "01"
+						"value": 1,
+						"name": "Attack"
 					},
-					"padding1": null,
-					"category": "spear"
+					"padding1": {
+						"raw": "000000"
+					},
+					"category": "spear",
+					"networked": true
 				},
 				"minecraft:damage": {
-					"damage": 3
+					"damage": 3,
+					"networked": true
 				},
 				"minecraft:display_name": {
-					"descriptionId": "item.iron_spear.name"
+					"descriptionId": "item.iron_spear.name",
+					"networked": true
 				},
 				"minecraft:durability": {
 					"maxDamage": 250,
 					"damageChance": {
 						"min": 0,
 						"max": 100
-					}
+					},
+					"networked": true
 				},
 				"minecraft:enchantable": {
 					"enchantValue": 14,
-					"padding1": null,
-					"enchantSlot": "melee_spear"
+					"padding1": {
+						"raw": "1CDC018F020000"
+					},
+					"enchantSlot": "melee_spear",
+					"networked": true
 				},
 				"minecraft:hand_equipped": {
-					"handEquipped": true
+					"handEquipped": true,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "iron_spear"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:kinetic_weapon": {
 					"reach": [
@@ -79101,10 +80061,12 @@
 					"knockbackConditionMaxDuration": 135,
 					"dismountConditionMinSpeed": 11,
 					"dismountConditionMinRelativeSpeed": 0,
-					"dismountConditionMaxDuration": 50
+					"dismountConditionMaxDuration": 50,
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
 				},
 				"minecraft:piercing_weapon": {
 					"reach": [
@@ -79115,7 +80077,14 @@
 						2,
 						7.5
 					],
-					"hitboxMargin": 0.25
+					"hitboxMargin": 0.25,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
+				},
+				"minecraft:publisher_on_use_as_attack": {
+					"networked": false
 				},
 				"minecraft:repairable": {
 					"repairItems": [
@@ -79139,25 +80108,31 @@
 							],
 							"repairAmount": "query.max_durability * 0.25"
 						}
-					]
+					],
+					"networked": true
 				},
 				"minecraft:swing_duration": {
-					"valueInSeconds": 0.95
+					"valueInSeconds": 0.95,
+					"networked": true
 				},
 				"minecraft:swing_sounds": {
 					"attackMiss": 586,
-					"attackHit": 580
+					"attackHit": 580,
+					"networked": true
 				},
 				"minecraft:tags": {
 					"tags": [
 						"minecraft:iron_tier",
 						"minecraft:is_spear"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:use_modifiers": {
 					"useDuration": 72000,
 					"emitVibrations": false,
-					"padding1": null,
+					"padding1": {
+						"raw": "000000"
+					},
 					"startSound": {
 						"value": 592,
 						"name": "item.iron_spear.use"
@@ -79169,16 +80144,10 @@
 						"value": 1,
 						"name": "always"
 					},
-					"padding2": null,
-					"onUseSubscription": {
-						"pointer": "0x28F0103F490"
-					}
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
-				},
-				"minecraft:publisher_on_use_as_attack": {
-					"unread": "declared, no address; the built map does not carry it"
+					"padding2": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -82574,10 +83543,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:kelp",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -85702,19 +86680,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_light_blue_open_back",
 						"bundle_open_front": "bundle_light_blue_open_front",
 						"default": "bundle_light_blue"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -85722,16 +86714,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -87364,19 +88356,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_light_gray_open_back",
 						"bundle_open_front": "bundle_light_gray_open_front",
 						"default": "bundle_light_gray"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -87384,16 +88390,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -89252,19 +90258,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_lime_open_back",
 						"bundle_open_front": "bundle_lime_open_front",
 						"default": "bundle_lime"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -89272,16 +90292,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -92069,19 +93089,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_magenta_open_back",
 						"bundle_open_front": "bundle_magenta_open_front",
 						"default": "bundle_magenta"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -92089,16 +93123,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -98646,7 +99680,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 111,
+						"name": "record.11"
+					},
+					"duration": 71,
+					"comparatorSignal": 11,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -98738,7 +99778,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 101,
+						"name": "record.13"
+					},
+					"duration": 178,
+					"comparatorSignal": 1,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -98830,7 +99876,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 439,
+						"name": "record.5"
+					},
+					"duration": 178,
+					"comparatorSignal": 15,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -98922,7 +99974,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 103,
+						"name": "record.blocks"
+					},
+					"duration": 345,
+					"comparatorSignal": 3,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99014,7 +100072,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 606,
+						"name": "record.bounce"
+					},
+					"duration": 234,
+					"comparatorSignal": 8,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99106,7 +100170,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 102,
+						"name": "record.cat"
+					},
+					"duration": 185,
+					"comparatorSignal": 2,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99198,7 +100268,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 104,
+						"name": "record.chirp"
+					},
+					"duration": 185,
+					"comparatorSignal": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99290,7 +100366,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 527,
+						"name": "record.creator"
+					},
+					"duration": 176,
+					"comparatorSignal": 12,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99382,7 +100464,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 528,
+						"name": "record.creator_music_box"
+					},
+					"duration": 73,
+					"comparatorSignal": 11,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99474,7 +100562,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 105,
+						"name": "record.far"
+					},
+					"duration": 174,
+					"comparatorSignal": 5,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99566,7 +100660,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 562,
+						"name": "record.lava_chicken"
+					},
+					"duration": 134,
+					"comparatorSignal": 9,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99658,7 +100758,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 106,
+						"name": "record.mall"
+					},
+					"duration": 197,
+					"comparatorSignal": 6,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99750,7 +100856,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 107,
+						"name": "record.mellohi"
+					},
+					"duration": 96,
+					"comparatorSignal": 7,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99842,7 +100954,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 371,
+						"name": "record.otherside"
+					},
+					"duration": 195,
+					"comparatorSignal": 14,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -99934,7 +101052,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 314,
+						"name": "record.pigstep"
+					},
+					"duration": 149,
+					"comparatorSignal": 13,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -100026,7 +101150,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 529,
+						"name": "record.precipice"
+					},
+					"duration": 299,
+					"comparatorSignal": 13,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -100118,7 +101248,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 469,
+						"name": "record.relic"
+					},
+					"duration": 218,
+					"comparatorSignal": 14,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -100210,7 +101346,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 108,
+						"name": "record.stal"
+					},
+					"duration": 150,
+					"comparatorSignal": 8,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -100302,7 +101444,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 109,
+						"name": "record.strad"
+					},
+					"duration": 188,
+					"comparatorSignal": 9,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -100394,7 +101542,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 555,
+						"name": "record.tears"
+					},
+					"duration": 175,
+					"comparatorSignal": 10,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -100486,7 +101640,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 112,
+						"name": "record.wait"
+					},
+					"duration": 238,
+					"comparatorSignal": 12,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -100578,7 +101738,13 @@
 			],
 			"components": {
 				"minecraft:record": {
-					"unread": "declared, no address; the built map does not carry it"
+					"soundEvent": {
+						"value": 110,
+						"name": "record.ward"
+					},
+					"duration": 251,
+					"comparatorSignal": 10,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -101614,10 +102780,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:nether_sprouts",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -103162,43 +104337,74 @@
 				"minecraft:tags",
 				"minecraft:use_modifiers"
 			],
+			"builtComponents": [
+				"minecraft:cooldown",
+				"minecraft:damage",
+				"minecraft:display_name",
+				"minecraft:durability",
+				"minecraft:enchantable",
+				"minecraft:fire_resistant",
+				"minecraft:hand_equipped",
+				"minecraft:icon",
+				"minecraft:kinetic_weapon",
+				"minecraft:max_stack_size",
+				"minecraft:piercing_weapon",
+				"minecraft:repairable",
+				"minecraft:swing_duration",
+				"minecraft:swing_sounds",
+				"minecraft:tags",
+				"minecraft:use_modifiers"
+			],
 			"components": {
 				"minecraft:cooldown": {
 					"duration": 1.15,
 					"type": {
-						"raw": "01"
+						"value": 1,
+						"name": "Attack"
 					},
-					"padding1": null,
-					"category": "spear"
+					"padding1": {
+						"raw": "696420"
+					},
+					"category": "spear",
+					"networked": true
 				},
 				"minecraft:damage": {
-					"damage": 5
+					"damage": 5,
+					"networked": true
 				},
 				"minecraft:display_name": {
-					"descriptionId": "item.netherite_spear.name"
+					"descriptionId": "item.netherite_spear.name",
+					"networked": true
 				},
 				"minecraft:durability": {
 					"maxDamage": 2030,
 					"damageChance": {
 						"min": 0,
 						"max": 100
-					}
+					},
+					"networked": true
 				},
 				"minecraft:enchantable": {
 					"enchantValue": 15,
-					"padding1": null,
-					"enchantSlot": "melee_spear"
+					"padding1": {
+						"raw": "0015005A000100"
+					},
+					"enchantSlot": "melee_spear",
+					"networked": true
 				},
 				"minecraft:fire_resistant": {
-					"value": true
+					"value": true,
+					"networked": true
 				},
 				"minecraft:hand_equipped": {
-					"handEquipped": true
+					"handEquipped": true,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "netherite_spear"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:kinetic_weapon": {
 					"reach": [
@@ -103221,10 +104427,12 @@
 					"knockbackConditionMaxDuration": 110,
 					"dismountConditionMinSpeed": 9,
 					"dismountConditionMinRelativeSpeed": 0,
-					"dismountConditionMaxDuration": 50
+					"dismountConditionMaxDuration": 50,
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
 				},
 				"minecraft:piercing_weapon": {
 					"reach": [
@@ -103235,7 +104443,14 @@
 						2,
 						7.5
 					],
-					"hitboxMargin": 0.25
+					"hitboxMargin": 0.25,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
+				},
+				"minecraft:publisher_on_use_as_attack": {
+					"networked": false
 				},
 				"minecraft:repairable": {
 					"repairItems": [
@@ -103259,25 +104474,31 @@
 							],
 							"repairAmount": "query.max_durability * 0.25"
 						}
-					]
+					],
+					"networked": true
 				},
 				"minecraft:swing_duration": {
-					"valueInSeconds": 1.15
+					"valueInSeconds": 1.15,
+					"networked": true
 				},
 				"minecraft:swing_sounds": {
 					"attackMiss": 590,
-					"attackHit": 584
+					"attackHit": 584,
+					"networked": true
 				},
 				"minecraft:tags": {
 					"tags": [
 						"minecraft:netherite_tier",
 						"minecraft:is_spear"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:use_modifiers": {
 					"useDuration": 72000,
 					"emitVibrations": false,
-					"padding1": null,
+					"padding1": {
+						"raw": "000000"
+					},
 					"startSound": {
 						"value": 596,
 						"name": "item.netherite_spear.use"
@@ -103289,16 +104510,10 @@
 						"value": 1,
 						"name": "always"
 					},
-					"padding2": null,
-					"onUseSubscription": {
-						"pointer": "0x28F0103FCB0"
-					}
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
-				},
-				"minecraft:publisher_on_use_as_attack": {
-					"unread": "declared, no address; the built map does not carry it"
+					"padding2": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -105561,14 +106776,20 @@
 			"declaredComponents": [
 				"minecraft:display_name"
 			],
+			"builtComponents": [
+				"minecraft:display_name",
+				"minecraft:icon"
+			],
 			"components": {
 				"minecraft:display_name": {
-					"descriptionId": "item.ominous_trial_key.name"
+					"descriptionId": "item.ominous_trial_key.name",
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "ominous_trial_key"
-					}
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -105737,19 +106958,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_orange_open_back",
 						"bundle_open_front": "bundle_orange_open_front",
 						"default": "bundle_orange"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -105757,16 +106992,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -112249,19 +113484,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_pink_open_back",
 						"bundle_open_front": "bundle_pink_open_front",
 						"default": "bundle_pink"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -112269,16 +113518,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -122628,19 +123877,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_purple_open_back",
 						"bundle_open_front": "bundle_purple_open_front",
 						"default": "bundle_purple"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -122648,16 +123911,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -126571,19 +127834,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_red_open_back",
 						"bundle_open_front": "bundle_red_open_front",
 						"default": "bundle_red"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -126591,16 +127868,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -128763,27 +130040,41 @@
 				"minecraft:display_name",
 				"minecraft:publisher_on_use_on"
 			],
+			"builtComponents": [
+				"minecraft:block_placer",
+				"minecraft:compostable",
+				"minecraft:display_name",
+				"minecraft:icon"
+			],
 			"components": {
 				"minecraft:block_placer": {
 					"block": "minecraft:red_shrub",
 					"useOn": [],
 					"canUseBlockAsIcon": true,
 					"replaceBlockItem": true,
-					"alignedPlacement": false
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:compostable": {
-					"compostingChance": 30
+					"compostingChance": 30,
+					"networked": true
 				},
 				"minecraft:display_name": {
-					"descriptionId": "tile.red_shrub.name"
+					"descriptionId": "tile.red_shrub.name",
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "red_shrub"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -130104,10 +131395,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:unpowered_repeater",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -133328,27 +134628,41 @@
 				"minecraft:publisher_on_use_on",
 				"minecraft:tags"
 			],
+			"builtComponents": [
+				"minecraft:block_placer",
+				"minecraft:compostable",
+				"minecraft:display_name",
+				"minecraft:tags"
+			],
 			"components": {
 				"minecraft:block_placer": {
 					"block": "minecraft:shelf_mushroom",
 					"useOn": [],
 					"canUseBlockAsIcon": true,
 					"replaceBlockItem": true,
-					"alignedPlacement": false
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:compostable": {
-					"compostingChance": 65
+					"compostingChance": 65,
+					"networked": true
 				},
 				"minecraft:display_name": {
-					"descriptionId": "tile.shelf_mushroom.name"
+					"descriptionId": "tile.shelf_mushroom.name",
+					"networked": true
+				},
+				"minecraft:publisher_on_use_on": {
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				},
 				"minecraft:tags": {
 					"tags": [
 						"minecraft:mushrooms_for_stew"
-					]
-				},
-				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					],
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -137052,13 +138366,28 @@
 			],
 			"components": {
 				"minecraft:projectile": {
-					"unread": "declared, no address; the built map does not carry it"
+					"minimumCriticalPower": -1,
+					"projectileEntity": "minecraft:snowball<>",
+					"networked": true
 				},
 				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"networked": false
 				},
 				"minecraft:throwable": {
-					"unread": "declared, no address; the built map does not carry it"
+					"doSwing": true,
+					"padding1": {
+						"raw": "000000"
+					},
+					"minDrawDuration": 0,
+					"drawDuration": 0,
+					"launchPowerScale": 1,
+					"maxLaunchPower": 1,
+					"scalePowerByDrawDuration": false,
+					"triggerActorUseItemEvent": true,
+					"padding2": {
+						"raw": "0000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -137149,10 +138478,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:soul_campfire",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -141950,40 +143288,69 @@
 				"minecraft:tags",
 				"minecraft:use_modifiers"
 			],
+			"builtComponents": [
+				"minecraft:cooldown",
+				"minecraft:damage",
+				"minecraft:display_name",
+				"minecraft:durability",
+				"minecraft:enchantable",
+				"minecraft:hand_equipped",
+				"minecraft:icon",
+				"minecraft:kinetic_weapon",
+				"minecraft:max_stack_size",
+				"minecraft:piercing_weapon",
+				"minecraft:repairable",
+				"minecraft:swing_duration",
+				"minecraft:swing_sounds",
+				"minecraft:tags",
+				"minecraft:use_modifiers"
+			],
 			"components": {
 				"minecraft:cooldown": {
 					"duration": 0.75,
 					"type": {
-						"raw": "01"
+						"value": 1,
+						"name": "Attack"
 					},
-					"padding1": null,
-					"category": "spear"
+					"padding1": {
+						"raw": "000000"
+					},
+					"category": "spear",
+					"networked": true
 				},
 				"minecraft:damage": {
-					"damage": 2
+					"damage": 2,
+					"networked": true
 				},
 				"minecraft:display_name": {
-					"descriptionId": "item.stone_spear.name"
+					"descriptionId": "item.stone_spear.name",
+					"networked": true
 				},
 				"minecraft:durability": {
 					"maxDamage": 130,
 					"damageChance": {
 						"min": 0,
 						"max": 100
-					}
+					},
+					"networked": true
 				},
 				"minecraft:enchantable": {
 					"enchantValue": 5,
-					"padding1": null,
-					"enchantSlot": "melee_spear"
+					"padding1": {
+						"raw": "00140032000100"
+					},
+					"enchantSlot": "melee_spear",
+					"networked": true
 				},
 				"minecraft:hand_equipped": {
-					"handEquipped": true
+					"handEquipped": true,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "stone_spear"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:kinetic_weapon": {
 					"reach": [
@@ -142006,10 +143373,12 @@
 					"knockbackConditionMaxDuration": 180,
 					"dismountConditionMinSpeed": 13,
 					"dismountConditionMinRelativeSpeed": 0,
-					"dismountConditionMaxDuration": 90
+					"dismountConditionMaxDuration": 90,
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
 				},
 				"minecraft:piercing_weapon": {
 					"reach": [
@@ -142020,7 +143389,14 @@
 						2,
 						7.5
 					],
-					"hitboxMargin": 0.25
+					"hitboxMargin": 0.25,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
+				},
+				"minecraft:publisher_on_use_as_attack": {
+					"networked": false
 				},
 				"minecraft:repairable": {
 					"repairItems": [
@@ -142044,25 +143420,31 @@
 							],
 							"repairAmount": "query.max_durability * 0.25"
 						}
-					]
+					],
+					"networked": true
 				},
 				"minecraft:swing_duration": {
-					"valueInSeconds": 0.75
+					"valueInSeconds": 0.75,
+					"networked": true
 				},
 				"minecraft:swing_sounds": {
 					"attackMiss": 585,
-					"attackHit": 579
+					"attackHit": 579,
+					"networked": true
 				},
 				"minecraft:tags": {
 					"tags": [
 						"minecraft:stone_tier",
 						"minecraft:is_spear"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:use_modifiers": {
 					"useDuration": 72000,
 					"emitVibrations": false,
-					"padding1": null,
+					"padding1": {
+						"raw": "000000"
+					},
 					"startSound": {
 						"value": 591,
 						"name": "item.stone_spear.use"
@@ -142074,16 +143456,10 @@
 						"value": 1,
 						"name": "always"
 					},
-					"padding2": null,
-					"onUseSubscription": {
-						"pointer": "0x28F0103FAD0"
-					}
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
-				},
-				"minecraft:publisher_on_use_as_attack": {
-					"unread": "declared, no address; the built map does not carry it"
+					"padding2": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -142797,10 +144173,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:trip_wire",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -145119,10 +146504,19 @@
 			],
 			"components": {
 				"minecraft:block_placer": {
-					"unread": "declared, no address; the built map does not carry it"
+					"block": "minecraft:reeds",
+					"useOn": [],
+					"canUseBlockAsIcon": true,
+					"replaceBlockItem": false,
+					"alignedPlacement": false,
+					"networked": true
 				},
 				"minecraft:publisher_on_use_on": {
-					"unread": "declared, no address; the built map does not carry it"
+					"autoSucceedOnClient": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -148137,14 +149531,20 @@
 			"declaredComponents": [
 				"minecraft:display_name"
 			],
+			"builtComponents": [
+				"minecraft:display_name",
+				"minecraft:icon"
+			],
 			"components": {
 				"minecraft:display_name": {
-					"descriptionId": "item.trial_key.name"
+					"descriptionId": "item.trial_key.name",
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "trial_key"
-					}
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -152180,10 +153580,16 @@
 			],
 			"components": {
 				"minecraft:display_name": {
-					"unread": "declared, no address; the built map does not carry it"
+					"descriptionId": "item.warped_fungus_on_a_stick.name",
+					"networked": true
 				},
 				"minecraft:durability": {
-					"unread": "declared, no address; the built map does not carry it"
+					"maxDamage": 100,
+					"damageChance": {
+						"min": 100,
+						"max": 100
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -160277,19 +161683,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_white_open_back",
 						"bundle_open_front": "bundle_white_open_front",
 						"default": "bundle_white"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -160297,16 +161717,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -162168,43 +163588,59 @@
 				"minecraft:publisher_on_use",
 				"minecraft:throwable"
 			],
+			"builtComponents": [
+				"minecraft:cooldown",
+				"minecraft:display_name",
+				"minecraft:icon",
+				"minecraft:projectile",
+				"minecraft:throwable"
+			],
 			"components": {
 				"minecraft:cooldown": {
 					"duration": 0.5,
 					"type": {
-						"raw": "00"
+						"value": 0,
+						"name": "Use"
 					},
-					"padding1": null,
-					"category": "wind_charge"
+					"padding1": {
+						"raw": "000000"
+					},
+					"category": "wind_charge",
+					"networked": true
 				},
 				"minecraft:display_name": {
-					"descriptionId": "item.wind_charge.name"
+					"descriptionId": "item.wind_charge.name",
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "wind_charge"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:projectile": {
 					"minimumCriticalPower": 0,
-					"projectileEntity": "minecraft:wind_charge_projectile<>"
+					"projectileEntity": "minecraft:wind_charge_projectile<>",
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:throwable": {
 					"doSwing": true,
-					"padding1": null,
+					"padding1": {
+						"raw": "000000"
+					},
 					"minDrawDuration": 0,
 					"drawDuration": 0,
 					"launchPowerScale": 1.5,
 					"maxLaunchPower": 1.5,
 					"scalePowerByDrawDuration": false,
 					"triggerActorUseItemEvent": true,
-					"padding2": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01041A10"
-					}
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"padding2": {
+						"raw": "0000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -162683,16 +164119,150 @@
 			],
 			"components": {
 				"minecraft:damage_absorption": {
-					"unread": "declared, no address; the built map does not carry it"
+					"absorbableDamageCauses": [
+						{
+							"value": 17,
+							"name": "Anvil"
+						},
+						{
+							"value": 10,
+							"name": "BlockExplosion"
+						},
+						{
+							"value": 32,
+							"name": "Campfire"
+						},
+						{
+							"value": 25,
+							"name": "Charging"
+						},
+						{
+							"value": 1,
+							"name": "Contact"
+						},
+						{
+							"value": 2,
+							"name": "EntityAttack"
+						},
+						{
+							"value": 11,
+							"name": "EntityExplosion"
+						},
+						{
+							"value": 5,
+							"name": "Fall"
+						},
+						{
+							"value": 19,
+							"name": "FallingBlock"
+						},
+						{
+							"value": 6,
+							"name": "Fire"
+						},
+						{
+							"value": 7,
+							"name": "FireTick"
+						},
+						{
+							"value": 23,
+							"name": "Fireworks"
+						},
+						{
+							"value": 21,
+							"name": "FlyIntoWall"
+						},
+						{
+							"value": 8,
+							"name": "Lava"
+						},
+						{
+							"value": 24,
+							"name": "Lightning"
+						},
+						{
+							"value": 22,
+							"name": "Magma"
+						},
+						{
+							"value": 3,
+							"name": "Projectile"
+						},
+						{
+							"value": 30,
+							"name": "RamAttack"
+						},
+						{
+							"value": 31,
+							"name": "SonicBoom"
+						},
+						{
+							"value": 33,
+							"name": "SoulCampfire"
+						},
+						{
+							"value": 28,
+							"name": "Stalactite"
+						},
+						{
+							"value": 29,
+							"name": "Stalagmite"
+						}
+					],
+					"absorbAllDamageCauses": false,
+					"padding1": {
+						"raw": "00000000000000"
+					},
+					"networked": false
 				},
 				"minecraft:durability": {
-					"unread": "declared, no address; the built map does not carry it"
+					"maxDamage": 64,
+					"damageChance": {
+						"min": 100,
+						"max": 100
+					},
+					"networked": true
 				},
 				"minecraft:durability_sensor": {
-					"unread": "declared, no address; the built map does not carry it"
+					"durabilityThresholds": [
+						{
+							"durability": -1,
+							"particleType": 92,
+							"soundEvent": {
+								"value": 511,
+								"name": "armor.crack_wolf"
+							}
+						},
+						{
+							"durability": 20,
+							"particleType": 92,
+							"soundEvent": {
+								"value": 511,
+								"name": "armor.crack_wolf"
+							}
+						},
+						{
+							"durability": 44,
+							"particleType": 92,
+							"soundEvent": {
+								"value": 511,
+								"name": "armor.crack_wolf"
+							}
+						},
+						{
+							"durability": 60,
+							"particleType": 92,
+							"soundEvent": {
+								"value": 511,
+								"name": "armor.crack_wolf"
+							}
+						}
+					],
+					"networked": false
 				},
 				"minecraft:dyeable": {
-					"unread": "declared, no address; the built map does not carry it"
+					"defaultColor": "#FFFFFFFF",
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -163615,43 +165185,74 @@
 				"minecraft:tags",
 				"minecraft:use_modifiers"
 			],
+			"builtComponents": [
+				"minecraft:cooldown",
+				"minecraft:damage",
+				"minecraft:display_name",
+				"minecraft:durability",
+				"minecraft:enchantable",
+				"minecraft:fuel",
+				"minecraft:hand_equipped",
+				"minecraft:icon",
+				"minecraft:kinetic_weapon",
+				"minecraft:max_stack_size",
+				"minecraft:piercing_weapon",
+				"minecraft:repairable",
+				"minecraft:swing_duration",
+				"minecraft:swing_sounds",
+				"minecraft:tags",
+				"minecraft:use_modifiers"
+			],
 			"components": {
 				"minecraft:cooldown": {
 					"duration": 0.65,
 					"type": {
-						"raw": "01"
+						"value": 1,
+						"name": "Attack"
 					},
-					"padding1": null,
-					"category": "spear"
+					"padding1": {
+						"raw": "000000"
+					},
+					"category": "spear",
+					"networked": true
 				},
 				"minecraft:damage": {
-					"damage": 1
+					"damage": 1,
+					"networked": true
 				},
 				"minecraft:display_name": {
-					"descriptionId": "item.wooden_spear.name"
+					"descriptionId": "item.wooden_spear.name",
+					"networked": true
 				},
 				"minecraft:durability": {
 					"maxDamage": 60,
 					"damageChance": {
 						"min": 0,
 						"max": 100
-					}
+					},
+					"networked": true
 				},
 				"minecraft:enchantable": {
 					"enchantValue": 15,
-					"padding1": null,
-					"enchantSlot": "melee_spear"
+					"padding1": {
+						"raw": "D91A6001000100"
+					},
+					"enchantSlot": "melee_spear",
+					"networked": true
 				},
 				"minecraft:fuel": {
-					"fuelDuration": 10
+					"fuelDuration": 10,
+					"networked": true
 				},
 				"minecraft:hand_equipped": {
-					"handEquipped": true
+					"handEquipped": true,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"default": "wood_spear"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:kinetic_weapon": {
 					"reach": [
@@ -163674,10 +165275,12 @@
 					"knockbackConditionMaxDuration": 200,
 					"dismountConditionMinSpeed": 14,
 					"dismountConditionMinRelativeSpeed": 0,
-					"dismountConditionMaxDuration": 100
+					"dismountConditionMaxDuration": 100,
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
 				},
 				"minecraft:piercing_weapon": {
 					"reach": [
@@ -163688,7 +165291,14 @@
 						2,
 						7.5
 					],
-					"hitboxMargin": 0.25
+					"hitboxMargin": 0.25,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
+				},
+				"minecraft:publisher_on_use_as_attack": {
+					"networked": false
 				},
 				"minecraft:repairable": {
 					"repairItems": [
@@ -163712,25 +165322,31 @@
 							],
 							"repairAmount": "query.max_durability * 0.25"
 						}
-					]
+					],
+					"networked": true
 				},
 				"minecraft:swing_duration": {
-					"valueInSeconds": 0.65
+					"valueInSeconds": 0.65,
+					"networked": true
 				},
 				"minecraft:swing_sounds": {
 					"attackMiss": 573,
-					"attackHit": 572
+					"attackHit": 572,
+					"networked": true
 				},
 				"minecraft:tags": {
 					"tags": [
 						"minecraft:wooden_tier",
 						"minecraft:is_spear"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:use_modifiers": {
 					"useDuration": 72000,
 					"emitVibrations": false,
-					"padding1": null,
+					"padding1": {
+						"raw": "000000"
+					},
 					"startSound": {
 						"value": 577,
 						"name": "item.wooden_spear.use"
@@ -163742,16 +165358,10 @@
 						"value": 1,
 						"name": "always"
 					},
-					"padding2": null,
-					"onUseSubscription": {
-						"pointer": "0x28F01041650"
-					}
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
-				},
-				"minecraft:publisher_on_use_as_attack": {
-					"unread": "declared, no address; the built map does not carry it"
+					"padding2": {
+						"raw": "00000000000000"
+					},
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,
@@ -164165,19 +165775,33 @@
 				"minecraft:storage_weight_limit",
 				"minecraft:storage_weight_modifier"
 			],
+			"builtComponents": [
+				"minecraft:bundle_interaction",
+				"minecraft:icon",
+				"minecraft:max_stack_size",
+				"minecraft:storage_item",
+				"minecraft:storage_weight_limit",
+				"minecraft:storage_weight_modifier"
+			],
 			"components": {
 				"minecraft:bundle_interaction": {
-					"numViewableSlots": 12
+					"numViewableSlots": 12,
+					"networked": true
 				},
 				"minecraft:icon": {
 					"textures": {
 						"bundle_open_back": "bundle_yellow_open_back",
 						"bundle_open_front": "bundle_yellow_open_front",
 						"default": "bundle_yellow"
-					}
+					},
+					"networked": true
 				},
 				"minecraft:max_stack_size": {
-					"maxStackSize": 1
+					"maxStackSize": 1,
+					"networked": true
+				},
+				"minecraft:publisher_on_use": {
+					"networked": false
 				},
 				"minecraft:storage_item": {
 					"maxSlots": 64,
@@ -164185,16 +165809,16 @@
 					"bannedItems": [
 						"minecraft:shulker_box",
 						"minecraft:undyed_shulker_box"
-					]
+					],
+					"networked": true
 				},
 				"minecraft:storage_weight_limit": {
-					"weightLimit": 64
+					"weightLimit": 64,
+					"networked": true
 				},
 				"minecraft:storage_weight_modifier": {
-					"weightInStorageItem": 4
-				},
-				"minecraft:publisher_on_use": {
-					"unread": "declared, no address; the built map does not carry it"
+					"weightInStorageItem": 4,
+					"networked": true
 				}
 			},
 			"miningSpeed": 1,

@@ -1572,8 +1572,10 @@ namespace MiNET.Worlds
 		///         is good at.
 		///     </para>
 		///     <para>
-		///         <paramref name="chunksUsed" /> is what this player already holds, as column to the
-		///         version that was sent. A column in here is skipped unless its version has moved on.
+		///         <paramref name="chunksUsed" /> is what this player already holds. Membership is the
+		///         whole test: a column in here is never yielded again, whatever has been written to it
+		///         since, because block writes reach the client as UpdateBlock. The only way back in is
+		///         leaving the disc and re-entering it.
 		///     </para>
 		/// </summary>
 		public IEnumerable<(ChunkCoordinates Coordinates, McpeLevelChunk Chunk)> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<ChunkCoordinates, long> chunksUsed, double radius, Func<Vector3> getCurrentPositionAction = null, double viewYawDegrees = double.NaN, bool prune = true, bool cachedPush = false)
@@ -1643,9 +1645,9 @@ namespace MiNET.Worlds
 
 				foreach (var pair in newOrders.OrderBy(pair => pair.Value))
 				{
-					// Already sent, and unchanged since. A column only earns a second push by actually
-					// being different, which is what the version says.
-					bool alreadySent = chunksUsed.TryGetValue(pair.Key, out long sentVersion);
+					// Held by the client already. Content changes since then travelled as UpdateBlock,
+					// so a second push would only make the client rebuild a column it has.
+					if (chunksUsed.ContainsKey(pair.Key)) continue;
 
 					if (WorldProvider == null) continue;
 
@@ -1659,8 +1661,6 @@ namespace MiNET.Worlds
 					McpeLevelChunk chunk = null;
 					if (chunkColumn != null)
 					{
-						if (alreadySent && sentVersion == chunkColumn.Version) continue;
-
 						// The caller said which form it wants. Push hands the client every hash the
 						// column has and asks nothing of it; a skeleton announces the biomes and
 						// leaves the client to request the sections it actually needs.

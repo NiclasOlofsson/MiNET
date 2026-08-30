@@ -26,6 +26,7 @@
 namespace MiNET.BdsExtract;
 
 using System.Globalization;
+using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -90,7 +91,8 @@ public static class BlockDocument
 		IReadOnlyDictionary<string, BlockStateRange> ranges,
 		IReadOnlyDictionary<string, int> propertyIds,
 		IReadOnlyDictionary<string, LegacyStateTable> legacy,
-		IReadOnlyDictionary<string, List<BlockComponent>> components)
+		IReadOnlyDictionary<string, List<BlockComponent>> components,
+		IReadOnlyDictionary<string, BlockDefinitions.Definition> definitions)
 	{
 		var window = new byte[BlockLayout.Reach];
 		var scratch = new byte[256];
@@ -104,6 +106,11 @@ public static class BlockDocument
 
 		// Its states, by the index the state file publishes them under.
 		foreach (PaletteEntry state in palette) known.TryAdd(state.Address, state.Index);
+
+		// Another block, by its name. The derived class a block is keeps one: a stair holds the
+		// block it is a stair of, which is the base_block the wire's block archetype carries and
+		// which no member of BlockType states.
+		foreach (BlockProperties held in blocks) known.TryAdd(held.Address, held.Name);
 
 		// Its class. The method table keeps its address, because that is what was read, and carries
 		// the name the class table gives it where there is one.
@@ -161,8 +168,8 @@ public static class BlockDocument
 			// one with the other would be this file deciding which is true rather than saying what
 			// each holds.
 			var carried = components.GetValueOrDefault(block.Name) ?? [];
-			string geometry = carried.FirstOrDefault(c => c.Name == "minecraft:geometry")?.Holds?
-				["identifier"]?.GetValue<string>() ?? block.Geometry;
+			string geometry = carried.FirstOrDefault(c => c.Name == "BlockGeometryComponent")?.Holds?
+				["geometryName"]?.GetValue<string>() ?? block.Geometry;
 
 			// The row is the object: every member of the class, in the class's own order, and
 			// nothing put in front of them. What this tool works out about the block follows after,
@@ -196,6 +203,12 @@ public static class BlockDocument
 			row["name"] = block.Name;
 			row["geometry"] = geometry;
 
+			// The definition the server still keeps for this block, where it keeps one. A block the
+			// map does not hold has no definition, which is a value: 1,379 of these are compiled
+			// blocks the data driven path never built, and the wire sends block properties for none
+			// of them.
+			row["definition"] = definitions.GetValueOrDefault(block.Name)?.Read;
+
 			// What of the object these values represent. The size is the allocator's, not the
 			// furthest field read, and the holes are the bytes inside the object that no member
 			// above accounts for. They are stated rather than dropped so the gap is countable: a
@@ -205,7 +218,7 @@ public static class BlockDocument
 			row["unread"] = block.Unread is null
 				? null
 				: new JsonArray(block.Unread
-					.Select(hole => (JsonNode) new JsonObject { ["at"] = hole.At, ["bytes"] = hole.Bytes })
+					.Select(hole => (JsonNode) Hole(process, block.Address, hole, identify))
 					.ToArray());
 
 			// The carried components are not published. Their ids are per-instance registration
@@ -374,6 +387,7 @@ public static class BlockDocument
 				if (member.Enum is not null) stated["enum"] = member.Enum;
 				if (member.Elements is not null) stated["elements"] = member.Elements;
 				if (member.Entries is not null) stated["entries"] = member.Entries;
+				if (member.Gate != 0) stated["gate"] = member.Gate;
 				members.Add(stated);
 			}
 
@@ -382,6 +396,14 @@ public static class BlockDocument
 			// not nought, so a class that is the whole object says nothing extra, and a component
 			// class carries the sixteen or twenty four bytes of base it does not declare.
 			if (held.Base != 0) stated2["base"] = held.Base;
+			// How a class no id names is picked out of the build. Dropping either would leave the
+			// next reference unable to tell one definition component description from another.
+			if (held.Installs is not null) stated2["installs"] = held.Installs;
+			if (held.States is not null)
+			{
+				stated2["states"] = new JsonArray(held.States.Select(t => (JsonNode) t).ToArray());
+			}
+
 			stated2["members"] = members;
 			classes[held.Name] = stated2;
 		}
@@ -408,6 +430,44 @@ public static class BlockDocument
 		}
 
 		if (components.Count > 0) document["componentClasses"] = components;
+	}
+
+	/// <summary>
+	///     One stretch of a block object that no member of BlockType covers, as its bytes and as
+	///     whatever this extraction can already say about them.
+	///     <para>
+	///         All of it is the derived class's own tail: BlockType is 888 bytes and every hole
+	///         starts there. No layout exists for any of those tails, so the bytes go out as bytes;
+	///         what is added is the same thing every other pointer in this file gets, which is that
+	///         an address this extraction already publishes travels as the thing it names. That is
+	///         where a stair states its base block: the first word of StairBlock's tail points at
+	///         the BlockType of the block it is a stair of, which is the base_block of the wire's
+	///         block archetype and is stated nowhere else in the object.
+	///     </para>
+	/// </summary>
+	private static JsonObject Hole(BedrockProcess process, ulong address, ByteRange hole,
+		BlockMemberReader.Identify identify)
+	{
+		var stated = new JsonObject { ["at"] = hole.At, ["bytes"] = hole.Bytes };
+
+		var body = new byte[hole.Bytes];
+		if (!process.TryRead(address + (ulong) hole.At, body, body.Length)) return stated;
+		stated["raw"] = Convert.ToHexString(body);
+
+		// Word by word, in place, so a reader can tell which eight bytes named the thing. A word
+		// that names nothing is null; every hole is a multiple of eight on every block here, and
+		// one that is not simply has no words to state.
+		var words = new JsonArray();
+		bool any = false;
+		for (int at = 0; at + 8 <= body.Length; at += 8)
+		{
+			JsonNode named = identify(BitConverter.ToUInt64(body, at));
+			any |= named is not null;
+			words.Add(named);
+		}
+
+		if (any) stated["words"] = words;
+		return stated;
 	}
 
 	/// <summary>

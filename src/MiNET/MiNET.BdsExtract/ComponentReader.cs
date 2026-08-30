@@ -23,8 +23,8 @@
 
 #endregion
 
-using System.Globalization;
 using System.Text.Json.Nodes;
+using MiNET.BdsExtract.Binary;
 
 namespace MiNET.BdsExtract;
 
@@ -61,41 +61,37 @@ public sealed class BlockComponent
 }
 
 /// <summary>
-///     The components a block actually carries, read from the vector on BlockLegacy.
-///     The schema says a block may have forty nine components. Vanilla instantiates thirteen types,
-///     so most of that list is modding surface no block here holds, and the census is what tells one
-///     from the other.
-///     Types are found the same way block classes are, by grouping instances on their method table,
-///     and then named by what the group holds rather than by its address. An address moves every
-///     build; a component carrying a namespaced geometry name, or a loot table path, or four floats
-///     that read as a colour, carries that whatever it is compiled to.
-///     A group that cannot be named is still emitted, with its size and the blocks holding it,
-///     because a component dropped for being unrecognised makes the block look like it has fewer
-///     than it does.
+///     The components a block actually carries, read from the vector on BlockType.
+///     Each is filed under a number the server hands out the first time that component class is
+///     asked for, so the number is a fact about this run and the class behind it is the fact about
+///     the game. <see cref="BinaryFacts.LiveIds" /> reads which is which out of the server's own
+///     code, and the layout of each class comes from the reference like every other layout, so
+///     nothing here decides what a component is by looking at what it happens to hold.
+///     A component whose class the reference does not state is still emitted, as its measured size
+///     and its bytes, because a component dropped for being unrecognised makes the block look like
+///     it has fewer than it does.
 /// </summary>
 public static class ComponentReader
 {
 	private const int VectorReach = 4096;
 	private const int MaximumSize = 512;
-	private const string Namespace = "minecraft:";
-	private const string LootPrefix = "loot_tables/";
-	private const string LootDefault = "normal";
-
-	/// <summary>A model reference, which the visual component uses and geometry does not.</summary>
-	private const string ModelPrefix = "minecraft:geometry.";
 
 	/// <summary>Where a component keeps its first value, past the method table.</summary>
 	private const int FirstField = 8;
 
-	/// <summary>Geometry states its name one field further in than every other string component.</summary>
-	private const int GeometryText = 16;
-
 	/// <summary>
-	///     What each component id is, worked out from every instance carrying it. A registration
-	///     number is per instance and two runs of one build disagree on every one of them, so the
-	///     number is never published: the name it stands for is.
+	///     What class each component id is, read out of the server's own code by the binary phase.
+	///     A registration number is per run, so the number is never a name: what it stands for on
+	///     THIS run is, and both travel out together.
 	/// </summary>
 	public static IReadOnlyDictionary<int, string> Names { get; private set; } = new Dictionary<int, string>();
+
+	/// <summary>
+	///     What the executable states about its own classes, which is where <see cref="Names" />
+	///     comes from and what the node's method table is confirmed against. Null before
+	///     <see cref="Read" /> has run, and then nothing is confirmed and nothing is claimed.
+	/// </summary>
+	private static BinaryFacts _facts;
 
 	/// <summary>
 	///     The components one object holds, read the same way whether it is a block or a state.
@@ -109,12 +105,15 @@ public static class ComponentReader
 		{
 			string name = Names.GetValueOrDefault(id);
 			int size = Size(process, at, word);
+			string disagreement = Confirm(process, id, name, at, word);
 			list.Add(new BlockComponent
 			{
 				Id = id,
-				Name = name,
+				Name = disagreement is null ? name : null,
 				Size = size,
-				Holds = Decode(process, name, at, size, word)
+				Holds = disagreement is null
+					? Decode(process, name, at, size, word)
+					: new JsonObject { ["unread"] = disagreement }
 			});
 		}
 
@@ -123,7 +122,7 @@ public static class ComponentReader
 			list.Add(new BlockComponent
 			{
 				Id = id,
-				Name = Names.GetValueOrDefault(id) ?? KnownIds.GetValueOrDefault(id),
+				Name = Names.GetValueOrDefault(id),
 				Stateless = true
 			});
 		}
@@ -132,72 +131,151 @@ public static class ComponentReader
 	}
 
 	public static Dictionary<string, List<BlockComponent>> Read(BedrockProcess process,
-		IReadOnlyList<BlockProperties> blocks,
-		IReadOnlyList<PaletteEntry> palette)
+		IReadOnlyList<BlockProperties> blocks, BinaryFacts facts)
 	{
 		var word = new byte[8];
-		var facts = Facts(process, palette);
-		var byBlock = new Dictionary<string, List<(int Id, ulong At)>>(StringComparer.Ordinal);
-		var byId = new Dictionary<int, List<(string Block, ulong At)>>();
 
-		foreach (var block in blocks)
-		{
-			var held = Instances(process, block.Address + (ulong) BlockLayout.At("components"), word);
-			byBlock[block.Name] = held;
-			foreach (var (id, at) in held)
-			{
-				if (!byId.TryGetValue(id, out var list)) byId[id] = list = [];
-				list.Add((block.Name, at));
-			}
-		}
-
-		// One name per id, decided from every instance carrying it. Grouping on the method table
-		// instead put two components in one bucket, because one class serves several of them: the
-		// id separates what the class does not.
-		var named = new Dictionary<int, string>();
-		var sized = new Dictionary<int, int>();
-		foreach (var (id, instances) in byId)
-		{
-			sized[id] = Size(process, instances[0].At, word);
-			named[id] = Identify(process, instances, facts, word);
-		}
-
-		ApplyKnownIds(named);
-
-		// The same ids answer on a state, because both come out of one registry, so the names
-		// worked out here are what lets a state say what it carries rather than a bare number.
-		Names = named;
+		// Which class each id is, from the server rather than from a table in here. The number is a
+		// per-run registration, so a list of them written down last week describes a heap that no
+		// longer exists: 7 was redstone conductivity in one such table and is the redstone component
+		// on this run, and 26 was leashable and is the connection component.
+		_facts = facts;
+		Names = facts.LiveIds;
 
 		var result = new Dictionary<string, List<BlockComponent>>(StringComparer.Ordinal);
+		var sized = new Dictionary<int, int>();
 		foreach (var block in blocks)
 		{
 			var list = new List<BlockComponent>();
-			foreach (var (id, at) in byBlock[block.Name])
+			foreach (var (id, at) in Instances(process,
+						block.Address + (ulong) BlockLayout.At("components"), word))
 			{
-				string name = named.GetValueOrDefault(id);
-				int size = sized.GetValueOrDefault(id);
+				// The class states its own size, and every instance of one class is one size, so it
+				// is measured once per id rather than once per block.
+				if (!sized.TryGetValue(id, out int size)) sized[id] = size = Size(process, at, word);
+				string name = Names.GetValueOrDefault(id);
+				string disagreement = Confirm(process, id, name, at, word);
 				list.Add(new BlockComponent
 				{
 					Id = id,
-					Name = name,
+					Name = disagreement is null ? name : null,
 					Size = size,
-					Holds = Decode(process, name, at, size, word)
+					Holds = disagreement is null
+						? Decode(process, name, at, size, word)
+						: new JsonObject { ["unread"] = disagreement }
 				});
 			}
 			// The ones with no data are components too, so they go in the same list saying what they
-			// are: an id, its name where the run knows it, and nothing else, because there is
-			// nothing else in the server either.
+			// are: an id, its class, and nothing else, because there is nothing else in the server
+			// either.
 			foreach (int id in Stateless(process, block.Address + (ulong) BlockLayout.At("components"), word))
 			{
-				// A dataless component is never in the map, so the naming above never sees its id and
-				// the table is the only thing that can name it.
-				string bare = named.GetValueOrDefault(id) ?? KnownIds.GetValueOrDefault(id);
-				list.Add(new BlockComponent { Id = id, Name = bare, Stateless = true });
+				list.Add(new BlockComponent { Id = id, Name = Names.GetValueOrDefault(id), Stateless = true });
 			}
 
 			result[block.Name] = list;
 		}
 		return result;
+	}
+
+	/// <summary>
+	///     Whether the object an id points at is the class that id names, or the reason it is not.
+	///     <para>
+	///         The id and the method table are two independent statements about the same object.
+	///         The id comes from a static the binary phase located from the class's own signature
+	///         literal; the leading word of the object is the storage node's table, which the same
+	///         phase read from that class's construction path. A block component is built inside a
+	///         node that holds it, so the table is the node's rather than the component's, and a
+	///         node holding eight bytes or less is the same node whatever it holds: eighteen classes
+	///         share one table on this build, and any of them is a confirmation.
+	///     </para>
+	///     <para>
+	///         Where the two disagree the entry is left unread saying which said what. Reading it
+	///         under the id's name would be publishing one statement and dropping the other.
+	///     </para>
+	///     <para>
+	///         A class whose node table the binary phase did not settle is a different thing
+	///         entirely: there is one statement and nothing to hold it against, so the entry is read
+	///         as its id names and the missing confirmation is counted and named. Calling that a
+	///         disagreement would throw away every value the id does account for.
+	///     </para>
+	/// </summary>
+	private static string Confirm(BedrockProcess process, int id, string name, ulong at, byte[] word)
+	{
+		if (_facts is null) return null;
+		if (name is null)
+		{
+			Tally("(no class for the id)").Unnamed++;
+			return null;
+		}
+
+		NodeTally tally = Tally(name);
+		if (!_facts.NodeTable(name, out ulong expected))
+		{
+			tally.Unconfirmed++;
+			tally.Note ??= $"{name}: the binary settles no node table for it, so the id stands on its own";
+			return null;
+		}
+
+		ulong table = process.ReadUInt64(at, word);
+		IReadOnlyList<string> names = _facts.ClassesAt(table);
+		if (table == expected || names.Contains(name, StringComparer.Ordinal))
+		{
+			tally.Agrees++;
+			return null;
+		}
+
+		tally.Differs++;
+		string states = names.Count == 0
+			? $"no class in the binary (0x{table:X})"
+			: string.Join(", ", names);
+		string reason = $"id {id} names {name}, the node's method table names {states}";
+		tally.Note ??= reason;
+		return reason;
+	}
+
+	/// <summary>How the objects under one class's id answered the class's own node table.</summary>
+	private sealed class NodeTally
+	{
+		public int Agrees;
+		public int Differs;
+		public int Unconfirmed;
+		public int Unnamed;
+		public string Note;
+	}
+
+	private static readonly Dictionary<string, NodeTally> _nodeTables = new(StringComparer.Ordinal);
+
+	private static NodeTally Tally(string kind)
+	{
+		if (!_nodeTables.TryGetValue(kind, out NodeTally tally)) _nodeTables[kind] = tally = new NodeTally();
+		return tally;
+	}
+
+	/// <summary>
+	///     What every block component object said about its own class, per kind. It is printed after
+	///     the blocks AND the states have been read, because both carry the same kinds and a count
+	///     taken halfway through would be a count of half of them.
+	/// </summary>
+	public static void ReportNodeTables()
+	{
+		if (_nodeTables.Count == 0) return;
+
+		int agrees = _nodeTables.Values.Sum(t => t.Agrees);
+		int differs = _nodeTables.Values.Sum(t => t.Differs);
+		int unconfirmed = _nodeTables.Values.Sum(t => t.Unconfirmed);
+		int unnamed = _nodeTables.Values.Sum(t => t.Unnamed);
+		Console.WriteLine($"block component tables: {agrees + differs + unconfirmed + unnamed:N0} objects across "
+			+ $"{_nodeTables.Count(t => t.Value.Unnamed == 0)} kinds, {agrees:N0} whose node table names the class "
+			+ $"their id names, {differs:N0} that disagree, {unconfirmed:N0} whose class the binary settles no table for, "
+			+ $"{unnamed:N0} whose id names no class");
+		foreach ((string kind, NodeTally tally) in _nodeTables.OrderBy(t => t.Key, StringComparer.Ordinal))
+		{
+			Console.WriteLine($"  {kind,-52} {tally.Agrees,6:N0} agree, {tally.Differs,4:N0} disagree"
+				+ (tally.Unconfirmed > 0 ? $", {tally.Unconfirmed:N0} with no table to confirm against" : "")
+				+ (tally.Unnamed > 0 ? $", {tally.Unnamed:N0} with no class for the id" : ""));
+			if (tally.Note is not null) Console.WriteLine($"      {tally.Note}");
+		}
 	}
 
 	/// <summary>
@@ -260,255 +338,6 @@ public static class ComponentReader
 	}
 
 	/// <summary>
-	///     What a group of instances is, from what they hold. Each test is something the other
-	///     twelve types fail, and a test that only most of a group passes names nothing: a
-	///     component type holds one kind of value in every instance or it is not one type.
-	/// </summary>
-	/// <summary>
-	///     What a block's own state says about the values four of its components carry. The state
-	///     holds these compiled out into fields, and the component holds the same numbers, so the
-	///     state is the left hand side that names the component.
-	/// </summary>
-	private readonly record struct StateFacts(float Hardness, float Resistance, int FlameOdds,
-		int BurnOdds, bool CanContainLiquid, int OnLiquidTouches);
-
-	/// <summary>
-	///     One reading per block, taken from the first state the palette lists for it. Hardness,
-	///     blast resistance and the two odds are properties of the block rather than of one state,
-	///     so any state of the block states them; a state whose values cannot be read is left out
-	///     rather than entered as zero, because a zero that was never read would match a component
-	///     holding zero and name it wrongly.
-	/// </summary>
-	private static Dictionary<string, StateFacts> Facts(BedrockProcess process,
-		IReadOnlyList<PaletteEntry> palette)
-	{
-		int destroySpeed = BlockLayout.StateAt("directData.destroySpeed");
-		int resistance = BlockLayout.StateAt("directData.explosionResistance");
-		int flameOdds = BlockLayout.StateAt("directData.flameOdds");
-		int liquid = BlockLayout.StateAt("directData.waterDetectionRule.canContainLiquid");
-		int touches = BlockLayout.StateAt("directData.waterDetectionRule.onLiquidTouches");
-
-		var facts = new Dictionary<string, StateFacts>(StringComparer.Ordinal);
-		var word = new byte[8];
-		foreach (PaletteEntry state in palette)
-		{
-			if (state.Name is null || facts.ContainsKey(state.Name)) continue;
-
-			float[] speed = Floats(process, state.Address + (ulong) destroySpeed, 1, word);
-			float[] blast = Floats(process, state.Address + (ulong) resistance, 1, word);
-			int[] odds = Shorts(process, state.Address + (ulong) flameOdds, 2, word);
-			byte[] holds = Bytes(process, state.Address + (ulong) liquid, 1, word);
-			byte[] reaction = Bytes(process, state.Address + (ulong) touches, 1, word);
-			if (speed is null || blast is null || odds is null || holds is null || reaction is null) continue;
-
-			facts[state.Name] = new StateFacts(speed[0], blast[0], odds[0], odds[1],
-				holds[0] != 0, reaction[0]);
-		}
-
-		return facts;
-	}
-
-	private static string Identify(BedrockProcess process,
-		List<(string Block, ulong At)> instances,
-		IReadOnlyDictionary<string, StateFacts> facts,
-		byte[] word)
-	{
-		var sample = instances.Take(SampleSize).ToList();
-
-		// A test on shape or on a matching number proves nothing about a handful of instances: a
-		// single float is symmetric about zero, or equal to that one block's hardness, far too
-		// easily. Running a pack of one-block-per-component through this named five different ids
-		// "random_offset" at once. Only tests that read a distinctive STRING are allowed below the
-		// bar, because a component holding "loot_tables/blocks/x.json" is not a coincidence at any
-		// size.
-		bool weighty = instances.Count >= MinimumEvidence;
-
-		// Geometry names itself. The visual component also carries a namespaced string here, so
-		// the model references it uses are excluded rather than folded in: minecraft:unit_cube is
-		// a shape, minecraft:geometry.cross is a model, and they are not the same component.
-		if (sample.All(i => StdString(process, i.At + GeometryText, word) is { } shape
-							&& shape.StartsWith(Namespace, StringComparison.Ordinal)
-							&& !shape.StartsWith(ModelPrefix, StringComparison.Ordinal)))
-		{
-			return "minecraft:geometry";
-		}
-
-		// Loot names a table in the packs. The id holding the literal "normal" on every block is a
-		// different component and is deliberately not matched here: one string test covering both
-		// put 1,429 instances under the wrong name.
-		if (sample.All(i => StdString(process, i.At + FirstField, word)?.StartsWith(LootPrefix,
-				StringComparison.Ordinal) == true))
-		{
-			return "minecraft:loot";
-		}
-
-		// Break particles, whose texture is optional: most blocks take their own, and the ones that
-		// override name a texture outright. lever_particle and straw_bed_particle say what the
-		// field is; grass_bottom and big_oak_leaves say it is the break texture rather than the
-		// block's. The rule is that no instance holds anything but a plain texture name, and at
-		// least one holds one, which a component with no string at all cannot pass.
-		// The texture is OPTIONAL, and that is the test. A component where every instance carries
-		// the same literal is a different component that merely also holds a plain word, which is
-		// how the id holding "normal" everywhere ended up under this name once already.
-		var textures = sample
-			.Select(i => StdString(process, i.At + FirstField, word))
-			.ToList();
-		if (weighty && textures.Any(t => t is not null) && textures.Any(t => t is null)
-			&& textures.All(t => t is null || (t.Length > 2 && !t.Contains(':') && !t.Contains('/'))))
-		{
-			return "minecraft:destruction_particles";
-		}
-
-		// Four floats reading as a colour, the fourth being opaque alpha.
-		if (weighty && sample.All(i => Floats(process, i.At + FirstField, 4, word) is { } rgba
-							&& rgba.All(v => v is >= 0f and <= 1f) && Math.Abs(rgba[3] - 1f) < 1e-6))
-		{
-			return "minecraft:map_color";
-		}
-
-		// A symmetric range about zero, which is what an offset jitter is.
-		if (weighty && sample.All(i => Floats(process, i.At + FirstField, 2, word) is { } range
-							&& range[0] < 0f && Math.Abs(range[0] + range[1]) < 1e-6))
-		{
-			return "minecraft:random_offset";
-		}
-
-		// One float that is this block's hardness, on every block in the group. Hardness takes
-		// dozens of values across the registry, so agreeing everywhere is not a coincidence.
-		if (weighty && Every(sample, facts, (i, state) =>
-				Floats(process, i.At + FirstField, 1, word) is { } one
-				&& Math.Abs(one[0] - state.Hardness) < 1e-4f))
-		{
-			return "minecraft:destructible_by_mining";
-		}
-
-		// Liquid detection, which is where both liquid answers come from: the component holds a
-		// detection rule laid out exactly as the state's own, a flag first and the reaction two
-		// bytes in. Every block that can hold a liquid source carries this component, so the
-		// state's pair is a copy of what this says and both halves are checked against it.
-		if (weighty && Every(sample, facts, (i, state) =>
-				Bytes(process, i.At + FirstField, 3, word) is { } raw
-				&& raw[0] <= 1 && (raw[0] != 0) == state.CanContainLiquid
-				&& raw[2] == state.OnLiquidTouches))
-		{
-			return "minecraft:liquid_detection";
-		}
-
-		// Catching fire: two sixteen bit odds, matching the pair the state carries. The blocks that
-		// hold this component with both odds at zero are a block saying outright that it does not
-		// burn, and they agree too.
-		if (weighty && Every(sample, facts, (i, state) =>
-				Shorts(process, i.At + FlammableOdds, 2, word) is { } odds
-				&& odds[0] == state.FlameOdds && odds[1] == state.BurnOdds))
-		{
-			return "minecraft:flammable";
-		}
-
-		// Blast resistance, stated five times over. Only instances on blocks with a non zero
-		// resistance are asked, because at zero the test proves nothing; but the id already says
-		// these are all one component, so agreeing on the ones that CAN be checked names the whole
-		// group, zero-resistance blocks included.
-		var checkable = sample
-			.Where(i => facts.TryGetValue(i.Block, out StateFacts s) && s.Resistance > 0f)
-			.ToList();
-		if (weighty && checkable.Count > 0
-			&& checkable.All(i => Floats(process, i.At + FirstField, 1, word) is { } one
-								&& Math.Abs(one[0] - facts[i.Block].Resistance * ResistanceScale) < 1e-3f))
-		{
-			return "minecraft:destructible_by_explosion";
-		}
-
-		return null;
-	}
-
-	/// <summary>
-	///     A test every sampled instance must pass against its own block's state. An instance whose
-	///     block has no state reading fails it, because an unconfirmed instance is not a passing one.
-	/// </summary>
-	private static bool Every(List<(string Block, ulong At)> sample,
-		IReadOnlyDictionary<string, StateFacts> facts,
-		Func<(string Block, ulong At), StateFacts, bool> test) =>
-		sample.All(i => facts.TryGetValue(i.Block, out StateFacts state) && test(i, state));
-
-	/// <summary>
-	///     Components named by experiment rather than by reading their contents, keyed by the id
-	///     they had when the experiment ran.
-	///     They were found by giving a behaviour pack one block per component and seeing which id
-	///     appeared. That is the only way to name a component whose payload says nothing about what
-	///     it is: a byte holding 1 is a byte holding 1 whether it means movable or replaceable.
-	///     An id is NOT a stable name for a component. Registering a pack moved loot from 28 to 31
-	///     on the very server this was measured against, so the table is applied only while the
-	///     anchors below still sit where they did, and dropped whole if any has moved.
-	/// </summary>
-	private static readonly Dictionary<int, string> KnownIds = new()
-	{
-		[5] = "minecraft:precipitation_interactions",
-		[6] = "minecraft:connection_rule",
-		[7] = "minecraft:redstone_conductivity",
-		[8] = "minecraft:movable",
-		[13] = "minecraft:collision_box",
-		[14] = "minecraft:selection_box",
-		[24] = "minecraft:support",
-		[26] = "minecraft:leashable",
-
-		// Named from the class, not from a pack. The Linux build keeps Itanium RTTI, and every
-		// ComponentInstance<T> typeinfo in it names its component class; these four were tied to an
-		// id by the size their own destructor states plus the blocks that carry them. Ambient sound
-		// is 80 bytes on the nine blocks that have one, item visual 24 on doors and trapdoors and
-		// shelves, flower pottable on exactly the 38 blocks a pot takes, and redstone producer on
-		// redstone_block alone, whose first byte is 15, full signal.
-		// Named by identity, not by inference: on all four blocks that carry it, the
-		// blockTransformationComponent slot in the state's direct data points at the same object
-		// this id names in the list. The class is declared, so the entry decodes.
-		[28] = "BlockTransformationComponent",
-
-		[17] = "BlockAmbientSoundComponent",
-		[18] = "BlockItemVisualComponent",
-		[22] = "BlockFlowerPottableComponent",
-		[27] = "BlockRedstoneProducerComponent",
-
-		// No data at all, so they are in the set beside the map rather than in it, and the classes
-		// they match declare no members either.
-		[4] = "BlockReplaceableComponent",
-		[16] = "BlockDesertAmbientSoundComponent"
-	};
-
-	/// <summary>
-	///     Ids this run works out on its own, and where the table expects them. One disagreement
-	///     means the enumeration has moved and the table describes an ordering that no longer
-	///     exists, so none of it is applied.
-	/// </summary>
-	private static readonly Dictionary<int, string> Anchors = new()
-	{
-		[1] = "minecraft:destructible_by_explosion",
-		[2] = "minecraft:destructible_by_mining",
-		[3] = "minecraft:liquid_detection",
-		[11] = "minecraft:destruction_particles",
-		[12] = "minecraft:map_color",
-		[15] = "minecraft:flammable",
-		[20] = "minecraft:geometry"
-	};
-
-	private static void ApplyKnownIds(Dictionary<int, string> named)
-	{
-		foreach (var (id, expected) in Anchors)
-		{
-			if (named.GetValueOrDefault(id) != expected) return;
-		}
-
-		// Including ids the block census never saw. A component carried only by states, or only in
-		// the dataless set, is not in that census at all, and requiring it to be there left
-		// BlockTransformationComponent anonymous on every state that holds it.
-		foreach (var (id, name) in KnownIds)
-		{
-			if (!named.TryGetValue(id, out string already) || already is null) named[id] = name;
-		}
-	}
-
-	/// <summary>Blast resistance is stated five times over in the explosion component.</summary>
-	private const float ResistanceScale = 5f;
-
-	/// <summary>
 	///     What one component holds, read as the class it is. The reference states that class the
 	///     same way it states the block's, so a component is not decoded by a switch on its name
 	///     here: the layout lives beside every other layout and a new build is a reference edit.
@@ -524,7 +353,9 @@ public static class ComponentReader
 		var fields = new JsonObject();
 		var covered = new List<(int At, int Bytes)> { (0, FirstField) };
 
-		ClassLayout held = BlockMembers.Component(name);
+		// A class the reference states under the component's own class name, or under the pack name
+		// it used to be looked up by. Either way the layout comes from the file.
+		ClassLayout held = BlockMembers.Component(name) ?? BlockMembers.Any(name);
 		if (held is null)
 		{
 			Leftovers(process, at, size, covered, fields, false);
@@ -536,12 +367,36 @@ public static class ComponentReader
 		int read = process.ReadClipped(at, window, span);
 		Members(process, at, window, read, held, FirstField, fields, covered);
 
-		// The class states how big it is, so the tiling stops there. What the allocator handed out
-		// past the end of the object is slack, and calling that unknown says the class has fields
-		// nobody decoded when it does not: a component of a method table and one float is twelve
-		// bytes whatever size block it was given.
-		// Nothing else. The class declares the object, so every byte a member does not cover is one
-		// the compiler inserted for alignment, and alignment is not data about the block.
+		// What the class the server compiled has past the members the reference declares. The size
+		// comes from the object's own deleting destructor, so it is the class rather than the block
+		// the allocator handed out, and a stretch of it that no member covers is a hole in the
+		// layout rather than slack: the geometry component measures 264 bytes and 60 are declared.
+		// A stretch narrower than the object's own pointer alignment cannot be a member, so that one
+		// is the compiler rounding the class up and is not called unknown.
+		int tail = size - FirstField - held.Size;
+		if (size > 0 && size <= MaximumSize && tail >= 8)
+		{
+			// After whatever gaps the class itself declares, because two entries under one key is a
+			// value lost and nothing in the file says it happened.
+			int number = 1;
+			while (fields.ContainsKey($"unknown{number}")) number++;
+
+			var body = new byte[tail];
+			bool got = process.TryRead(at + (ulong) (FirstField + held.Size), body, tail);
+			string raw = got ? Convert.ToHexString(body) : null;
+			fields[$"unknown{number}"] = new JsonObject
+			{
+				["unknown"] = tail,
+				["at"] = held.Size,
+				["raw"] = raw
+			};
+
+			// Counted like every other hole, so the class the reference states short is countable in
+			// one place rather than only in the rows that happen to carry it.
+			BlockMemberReader.Unknown(new BlockMember(held.Size, tail, MemberKind.Unknown,
+				$"unknown{number}", Class: name ?? held.Name), raw ?? "unread");
+		}
+
 		return fields;
 	}
 
@@ -559,17 +414,27 @@ public static class ComponentReader
 			int at = lead + member.At;
 			covered.Add((at, member.Bytes));
 
-			// The class tiler names every gap so a hole in an object nobody has fully described
-			// stays countable. A component is fully described, so its gaps are the compiler's
-			// alignment and nothing else, and emitting them is noise.
-			if (member.Kind is MemberKind.Unknown or MemberKind.Padding || !member.Emit) continue;
+			// A gap the tiler could not call alignment is a member nobody has named, and its bytes
+			// are what says so: the culling component's leading two bytes hold the same occlusion
+			// shape handle the finalized one does, and a class table entry saying "two bytes, here"
+			// would never have shown that. Padding stays out of the rows; the class table states it
+			// once and the padding span report counts every reading of it.
+			if (member.Kind is MemberKind.Padding)
+			{
+				if (at + member.Bytes <= read) BlockMemberReader.Node(process, address, window, scratch, at, member);
+				continue;
+			}
+
+			if (!member.Emit) continue;
 			if (at + member.Bytes > read) { fields[member.Name] = null; continue; }
 
 			if (member.Holds is not null)
 			{
+				// From whichever file declares it, the same way every other nested class is found.
+				// The transformation component is stated by the state file and carried by blocks,
+				// so looking only in the block file threw on a class the reference does state.
 				var inner = new JsonObject();
-				Members(process, address, window, read, BlockMembers.Held(member.Holds, BlockMembers.Source.Blocks),
-					at, inner, covered);
+				Members(process, address, window, read, BlockMembers.Any(member.Holds), at, inner, covered);
 				fields[member.Name] = inner;
 				continue;
 			}
@@ -616,59 +481,6 @@ public static class ComponentReader
 		}
 	}
 
-	/// <summary>How many instances of a group are asked. Enough that a wrong test cannot pass.</summary>
-	private const int SampleSize = 64;
-
-	/// <summary>How many carriers a numeric or shape test needs before its agreement means anything.</summary>
-	private const int MinimumEvidence = 10;
-
-	/// <summary>Where the flammable component keeps its two odds, past a leading flag.</summary>
-	private const int FlammableOdds = 10;
-
-	private static byte[] Bytes(BedrockProcess process, ulong at, int count, byte[] word)
-	{
-		var raw = new byte[count];
-		return process.TryRead(at, raw, count) ? raw : null;
-	}
-
-	private static int[] Shorts(BedrockProcess process, ulong at, int count, byte[] word)
-	{
-		var raw = new byte[count * 2];
-		if (!process.TryRead(at, raw, raw.Length)) return null;
-		var values = new int[count];
-		for (int i = 0; i < count; i++) values[i] = BitConverter.ToUInt16(raw, i * 2);
-		return values;
-	}
-
-	private static float[] Floats(BedrockProcess process, ulong at, int count, byte[] word)
-	{
-		var raw = new byte[count * 4];
-		if (!process.TryRead(at, raw, raw.Length)) return null;
-		var values = new float[count];
-		for (int i = 0; i < count; i++)
-		{
-			values[i] = BitConverter.ToSingle(raw, i * 4);
-			if (!float.IsFinite(values[i])) return null;
-		}
-		return values;
-	}
-
-	/// <summary>
-	///     Everything the component holds after its method table, as hex.
-	///     Emitted rather than interpreted: a component whose meaning is unknown still has a value,
-	///     and guessing at the value's type is how a float field that is not a float ends up in the
-	///     output reading as 1.8e-40.
-	/// </summary>
-	private static string Payload(BedrockProcess process, ulong at, int size)
-	{
-		int length = size - FirstField;
-		if (length is <= 0 or > MaximumSize) return null;
-
-		var body = new byte[length];
-		return process.TryRead(at + FirstField, body, length) ? Convert.ToHexString(body) : null;
-	}
-
-	/// <summary>The allocator's size for the object, so an unnamed component is still countable.</summary>
 	/// <summary>
 	///     How big a component instance is, from the class rather than from the heap. The method
 	///     table's first slot is the deleting destructor, and the compiler writes the allocation
@@ -685,39 +497,4 @@ public static class ComponentReader
 		return vtable < 0x10000 ? 0 : ItemRegistry.ClassSize(process, vtable);
 	}
 
-	/// <summary>An MSVC std::string, which is short inside the object and long behind a pointer.</summary>
-	private static string StdString(BedrockProcess process, ulong at, byte[] word)
-	{
-		var head = new byte[32];
-		if (!process.TryRead(at, head, head.Length)) return null;
-
-		ulong length = BitConverter.ToUInt64(head, 16);
-		ulong capacity = BitConverter.ToUInt64(head, 24);
-		if (length == 0 || length > 512 || capacity < length) return null;
-
-		byte[] body;
-		if (capacity == 15)
-		{
-			if (length > 15) return null;
-			body = head;
-		}
-		else
-		{
-			ulong pointer = BitConverter.ToUInt64(head, 0);
-			if (pointer < 0x10000 || !process.IsMapped(pointer)) return null;
-			body = new byte[length];
-			if (!process.TryRead(pointer, body, body.Length)) return null;
-		}
-
-		for (int i = 0; i < (int) length; i++)
-		{
-			if (body[i] is < 0x20 or > 0x7E) return null;
-		}
-		return System.Text.Encoding.ASCII.GetString(body, 0, (int) length);
-	}
-
-	private static string Text(float value)
-	{
-		return value.ToString("0.######", CultureInfo.InvariantCulture);
-	}
 }

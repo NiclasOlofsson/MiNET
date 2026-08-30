@@ -70,6 +70,38 @@ namespace TestPlugin
 		{
 			//Context.PluginManager.LoadCommands(new HelpCommand(Context.Server.PluginManager));
 			Context.PluginManager.LoadCommands(new VanillaCommands());
+			ItemTestAxe.Register();
+		}
+
+		[Command(Name = "testaxe", Description = "Puts the component-based test axe in hand")]
+		public void TestAxe(Player player)
+		{
+			int slot = player.Inventory.InHandSlot;
+
+			// In hand: registry text only (display_name, hover_text_color, rarity), no stack NBT.
+			player.Inventory.SetInventorySlot(slot, new ItemTestAxe(), forceReplace: true);
+
+			// Next slot: the same item with stack NBT, one line per text layer and formatting.
+			var withNbt = new ItemTestAxe
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtCompound("display")
+					{
+						new NbtString("Name", ChatFormatting.Reset + ChatColors.LightPurple + "Stack Name (display.Name)"),
+						new NbtList("Lore")
+						{
+							new NbtString("Lore line, no codes"),
+							new NbtString(ChatFormatting.Reset + "Lore line, reset only"),
+							new NbtString(ChatColors.Green + "Green lore"),
+							new NbtString(ChatColors.Gold + ChatFormatting.Bold + "Bold gold lore"),
+							new NbtString(ChatFormatting.Reset + ChatFormatting.Italic + ChatColors.Aqua + "Italic aqua lore"),
+							new NbtString(ChatColors.Red + "Red " + ChatColors.White + "then white " + ChatColors.Gray + "then gray"),
+						}
+					}
+				}
+			};
+			player.Inventory.SetInventorySlot((slot + 1) % 9, withNbt, forceReplace: true);
 		}
 
 		//[PacketHandler, Receive, UsedImplicitly]

@@ -57,6 +57,24 @@ public enum MemberKind
 	Version,
 	Box,
 
+	/// <summary>
+	///     A Bedrock::StaticOptimizedString: one word holding the characters' address in its low
+	///     forty eight bits and, in the byte above them, either the length or a flag saying the
+	///     length sits in the eight bytes before the characters. The address is a fact about this
+	///     heap; the text is the value, so the text is what comes out.
+	/// </summary>
+	Packed,
+
+	/// <summary>
+	///     A std::variant. The storage is at the member's own offset and the byte saying which
+	///     alternative it holds is at <see cref="BlockMember.Gate" /> from there, which is how MSVC
+	///     lays one out. The member states which class the first alternative is, or none when it is
+	///     a bool; an alternative the reference does not declare comes out as the alternative's
+	///     number and the size of what was not read, because a variant holding something this
+	///     reference has no layout for is a value read and not understood.
+	/// </summary>
+	Variant,
+
 	/// <summary>Three floats: a position or an offset, not a box.</summary>
 	Vector3,
 
@@ -67,6 +85,13 @@ public enum MemberKind
 	///     then the component, so the class this states is read eight bytes past the pointer.
 	/// </summary>
 	Component,
+
+	/// <summary>
+	///     A shared pointer: the object and its control block, two pointers wide, where the object
+	///     is a class this reference declares. The first word is the object, so the class is read
+	///     at the pointer itself, and a shared pointer holding nothing is null.
+	/// </summary>
+	Shared,
 
 	/// <summary>
 	///     An ItemDescriptor: its own bytes at offset 8 hold a pointer to the descriptor a member
@@ -113,9 +138,17 @@ public enum MemberKind
 ///     server, so writing them makes the output differ from itself for no reason a reader can use,
 ///     and the fact they carry is proven by a check rather than by being printed.
 /// </param>
+/// <param name="Gate">
+///     Where the byte that says whether this member holds a value sits, counted from the member's
+///     own first byte. Nought where nothing gates it. An optional whose flag is clear has never had
+///     its value written, so what is in that storage is whatever was there before: the instrument
+///     component's down slot reads 26 different numbers across the 888 blocks that state no
+///     instrument for it, and writing one of them out says the block plays a harp when it plays
+///     nothing. A gated member with a clear flag comes out null.
+/// </param>
 public readonly record struct BlockMember(int At, int Bytes, MemberKind Kind, string Name, string Holds = null,
 	int Bit = 0, bool Comparable = true, string Enum = null, string Elements = null,
-	string Entries = null, string Class = null, bool Emit = true);
+	string Entries = null, string Class = null, bool Emit = true, int Gate = 0);
 
 /// <summary>
 ///     One class: how big it is and what it holds, in the order it declares them, and where inside
@@ -127,8 +160,17 @@ public readonly record struct BlockMember(int At, int Bytes, MemberKind Kind, st
 ///         in. Food carries a second polymorphic base and states 24. It is a fact about the class
 ///         and never about one object: every instance of a class reads at the same offsets.
 ///     </para>
+///     <para>
+///         Installs and States are how a class that no id names is picked out of the build. A block
+///         definition's component carries no id: it is a heap object whose first word is its own
+///         method table, so the table is the identity. Installs is the component class that table's
+///         own slots name through a signature literal, and States the tag literals those slots
+///         reference. Both are read out of the image; stating them here is the ruling that this
+///         class is the one the build describes that way.
+///     </para>
 /// </summary>
-public sealed record ClassLayout(string Name, int Size, IReadOnlyList<BlockMember> Members, int Base = 0);
+public sealed record ClassLayout(string Name, int Size, IReadOnlyList<BlockMember> Members, int Base = 0,
+	string Installs = null, IReadOnlyList<string> States = null);
 
 /// <summary>
 ///     One member as it actually occurs: the member itself, what it holds if it holds a class, and
@@ -461,14 +503,24 @@ public static class BlockMembers
 						|| across.ValueKind != JsonValueKind.False;
 					bool emit = !member.TryGetProperty("emit", out JsonElement written)
 						|| written.ValueKind != JsonValueKind.False;
+					int gate = member.TryGetProperty("gate", out JsonElement says) ? says.GetInt32() : 0;
 					members.Add(new BlockMember(at.GetInt32(), memberBytes.GetInt32(), parsedKind,
 						memberName.GetString(), holds, bit, comparable, enumeration, elements, entries,
-						held.Name, emit));
+						held.Name, emit, gate));
 				}
 			}
 
 			int classBase = held.Value.TryGetProperty("base", out JsonElement lead) ? lead.GetInt32() : 0;
-			var layout = new ClassLayout(held.Name, size, Tile(members, size, held.Name), classBase);
+			string installs = held.Value.TryGetProperty("installs", out JsonElement builds) ? builds.GetString() : null;
+			List<string> states = null;
+			if (held.Value.TryGetProperty("states", out JsonElement tags))
+			{
+				states = new List<string>();
+				foreach (JsonElement tag in tags.EnumerateArray()) states.Add(tag.GetString());
+			}
+
+			var layout = new ClassLayout(held.Name, size, Tile(members, size, held.Name, classBase), classBase,
+				installs, states);
 			classes[held.Name] = layout;
 			order.Add(layout);
 		}
@@ -507,6 +559,13 @@ public static class BlockMembers
 			case MemberKind.Range:
 			case MemberKind.Box:
 			case MemberKind.Vector3: return 4;
+
+			// A member holding another class states no width of its own, so what it has to sit on
+			// comes from where it sits: an alignment divides the offset the class puts it at. The
+			// selection box holds an AABB of floats at +4, and calling that eight-aligned made the
+			// three bytes of alignment in front of it read as a hole nobody had named.
+			case MemberKind.Container when member.Holds is not null && member.At > 0:
+				return Math.Min(8, member.At & -member.At);
 			default: return 8;
 		}
 	}
@@ -516,9 +575,23 @@ public static class BlockMembers
 		return members.Select(Alignment).DefaultIfEmpty(1).Max();
 	}
 
-	private static List<BlockMember> Tile(List<BlockMember> members, int size, string owner)
+	private static List<BlockMember> Tile(List<BlockMember> members, int size, string owner, int classBase = 0)
 	{
-		if (members.Count == 0) return members;
+		// A class named and sized and nothing else is a class the build states and this reference
+		// has no layout for, so the whole of it is one hole. Saying that is what makes the object
+		// countable; a class with no members at all would read as an object holding nothing.
+		if (members.Count == 0)
+		{
+			return size <= 0
+				? members
+				: [new BlockMember(0, size, MemberKind.Unknown, "unknown1", null, 0, false, null, null, null, owner)];
+		}
+
+		// A class that sits behind a base (a method table and the owner word, sixteen bytes of
+		// pointers) is aligned to a pointer whatever its own members are: a class holding one
+		// two-byte damage value is still 8 bytes long, and the six after the value are alignment,
+		// not a field. The base says so; a bare struct keeps its members' own alignment.
+		int classAlignment = classBase > 0 ? Math.Max(8, Alignment(members)) : Alignment(members);
 
 		var covered = new bool[Math.Max(size, members.Max(m => m.At + m.Bytes))];
 		foreach (BlockMember member in members)
@@ -538,7 +611,7 @@ public static class BlockMembers
 			// on that alignment. A trailing gap is padding when the class's own size is rounded to
 			// its widest member's alignment.
 			BlockMember next = members.Where(m => m.At >= end).OrderBy(m => m.At).FirstOrDefault();
-			int need = next.Name is null ? Alignment(members) : Alignment(next);
+			int need = next.Name is null ? classAlignment : Alignment(next);
 			bool fits = end - at < need && (next.Name is null ? size % need == 0 : next.At % need == 0);
 			gaps.Add(fits
 				? new BlockMember(at, end - at, MemberKind.Padding, $"padding{++padding}", null, 0, false,

@@ -26,6 +26,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json.Nodes;
+using MiNET.BdsExtract.Binary;
 
 namespace MiNET.BdsExtract;
 
@@ -84,10 +85,18 @@ public static class Program
 				continue;
 			}
 
-			Console.Error.WriteLine("usage: MiNET.BdsExtract [--server <path fragment>]");
+			if (args[i] == "--show-padding")
+			{
+				BlockMemberReader.EmitPadding = true;
+				continue;
+			}
+
+			Console.Error.WriteLine("usage: MiNET.BdsExtract [--server <path fragment>] [--show-padding]");
 			Console.Error.WriteLine();
 			Console.Error.WriteLine("  --server   which server to read when several are running, matched on");
 			Console.Error.WriteLine(@"             executable path, for example --server server-1.26.20.5");
+			Console.Error.WriteLine("  --show-padding  write every padding member's bytes into the rows (a debugging view;");
+			Console.Error.WriteLine("             the run tallies them either way and reports any span that is not zero)");
 			Console.Error.WriteLine("  --prepare <server folder>  write the canonical config from Assets into a server folder");
 			return 2;
 		}
@@ -148,6 +157,13 @@ public static class Program
 		// world's experiments and positioned by the id scheme, and neither mistake is visible
 		// in the output.
 		if (!WorldConfig.Check(WorldConfig.Read(server.ExecutablePath), true)) return 1;
+		Console.WriteLine();
+
+		// The binary first. What the code states about classes, ids, vtables, enums and the members
+		// its reflection binder registers is read from the exe on disk before any object is read
+		// out of the process, so the live reads have a second witness to agree with. Positions in
+		// it are RVAs of the image, never process addresses.
+		BinaryFacts facts = BinaryPhase(server, outputDirectory);
 		Console.WriteLine();
 
 		// The sound event names, before anything is written, because every output states the enums
@@ -368,11 +384,19 @@ public static class Program
 		Console.WriteLine($"block classes: {classNames.Count:N0} distinct, "
 						+ $"largest {blocks.GroupBy(b => b.Vtable).Max(g => g.Count()):N0} blocks");
 
-		// Read only to resolve each block's geometry, which comes from the component the id names.
-		// Nothing about the components themselves is reported or published: their ids are
-		// per-instance registration numbers that differ between runs of the same build, so a count
-		// of how many were "identified" describes this heap rather than the game.
-		var held = ComponentReader.Read(server, blocks, palette);
+		// Every component every block carries, each read as the class the server files it under.
+		// The number it is filed under is per run and travels beside the class rather than instead
+		// of it, so a reader never has to know what 24 meant on the day this ran.
+		var held = ComponentReader.Read(server, blocks, facts);
+
+		// The definitions the server keeps beside its data driven blocks: the objects StartGame's
+		// blockProperties list is serialized from. Three things the wire carries are stated only
+		// there, and none of them is on BlockType: the archetype's name, the archetype's own value,
+		// and the permutations.
+		(IReadOnlyDictionary<string, BlockDefinitions.Definition> definitions, string definitionReport) =
+			BlockDefinitions.Read(server, blocks, facts);
+		Console.WriteLine(definitionReport);
+		foreach (string line in BlockDefinitions.Kinds()) Console.WriteLine(line);
 
 		var ranges = BlockStateRanges.Read(palette);
 		int dependent = ranges.Count(r => !r.Independent);
@@ -391,17 +415,22 @@ public static class Program
 		File.WriteAllText(blockPath, BlockDocument.Serialize(BlockDocument.Blocks(server, palette, blocks, classNames,
 			ranges.ToDictionary(r => r.Name, StringComparer.Ordinal),
 			stateProperties.ToDictionary(p => p.Name, p => p.Id, StringComparer.Ordinal),
-			legacyStates.ToDictionary(t => t.Name, StringComparer.Ordinal), held)), new UTF8Encoding(false));
+			legacyStates.ToDictionary(t => t.Name, StringComparer.Ordinal), held, definitions)), new UTF8Encoding(false));
 		File.WriteAllText(statePath, BlockDocument.Serialize(BlockDocument.States(server, palette, blocks, report)), new UTF8Encoding(false));
 		File.WriteAllText(upgradePath, BlockDocument.Serialize(Upgrades(palette, rules, renamedIds)), new UTF8Encoding(false));
 		Console.WriteLine($"written {blockPath}");
 		Console.WriteLine($"written {statePath}");
 		Console.WriteLine($"written {upgradePath}");
 
+		// After both documents, because the blocks and the states carry the same component objects
+		// and a count taken between them would be a count of half of them.
+		Console.WriteLine();
+		ComponentReader.ReportNodeTables();
+
 		// The items, from the same process, in the same run. One command, one set of files, and
 		// the run fails if either half does.
 		Console.WriteLine();
-		int items = ItemRegistry.Run(server);
+		int items = ItemRegistry.Run(server, facts);
 
 		// The creative inventory last, because it is the only output that is item STACKS rather than
 		// items, and a stack names the item and the block state it holds. Both of those are read
@@ -492,6 +521,54 @@ public static class Program
 		Console.WriteLine($"  the state destructor hands out {string.Join(", ", sizes)}; "
 						+ $"a state is read as far as +{measured}, so the class is {size}");
 		return size;
+	}
+
+	/// <summary>
+	///     What the executable states about itself, written to binary_facts.json beside the live
+	///     outputs. The reference's own enum tables are the seeds a candidate table has to reproduce,
+	///     and the wire names come from the schema trees; both are stated to the phase rather than
+	///     compiled into it, and what it could not settle is counted in the file under unresolved.
+	/// </summary>
+	private static BinaryFacts BinaryPhase(BedrockProcess server, string outputDirectory)
+	{
+		var unresolved = new List<(string What, string Why)>();
+		IReadOnlyList<string> wireNames = BinaryFacts.WireNames(server.ExecutablePath, unresolved);
+		var seeds = new List<EnumSeed>();
+		foreach (KeyValuePair<string, Dictionary<long, string>> stated in BlockMembers.Enums)
+		{
+			seeds.Add(new EnumSeed(stated.Key, stated.Value.ToDictionary(v => (int) v.Key, v => v.Value)));
+		}
+
+		var descriptionTags = new SortedSet<string>(StringComparer.Ordinal);
+		var descriptionNames = new SortedSet<string>(StringComparer.Ordinal);
+		foreach (ClassLayout held in BlockMembers.All(BlockMembers.Source.Blocks))
+		{
+			if (held.States is not null) descriptionTags.UnionWith(held.States);
+			descriptionNames.Add(held.Name);
+		}
+
+		BinaryFacts facts = BinaryFacts.Read(server.ExecutablePath, wireNames, seeds,
+			server.BuildVersion?.ToString(), descriptionTags.ToList(), descriptionNames.ToList());
+		string path = Path.Combine(outputDirectory, "binary_facts.json");
+		Directory.CreateDirectory(outputDirectory);
+		facts.Write(path);
+		Console.WriteLine(facts.Summary());
+		Console.WriteLine($"written {path}");
+
+		// The reference against the code. The memory checks say whether an offset still reads the
+		// value the reference states; this says whether the layout it declares is the one the
+		// build's own code describes. Nothing here stops the run.
+		var check = new BinaryCheck(facts);
+		check.Run();
+		Console.WriteLine(check.Summary);
+		foreach (string difference in check.Differences) Console.WriteLine($"  {difference}");
+
+		// The two things the image cannot state: which id this server handed each component class,
+		// and where its method tables loaded. Both are the image's own positions plus the module's
+		// load address, so they belong to this process and stay out of the file.
+		facts.ResolveLive(server);
+		foreach (string line in facts.LiveReport) Console.WriteLine(line);
+		return facts;
 	}
 
 	/// <summary>

@@ -74,6 +74,13 @@ public static class WorldConfig
 			{
 				return Path.Combine(directory.FullName, "Assets");
 			}
+
+			// The same folder reached from anywhere else in the checkout. A test host runs out of
+			// another project's bin, so the walk above passes the project by; the checkout root is
+			// still above it and states where the project is.
+			string inCheckout = Path.Combine(directory.FullName, "src", "MiNET", "MiNET.BdsExtract", "Assets");
+			if (Directory.Exists(inCheckout)) return inCheckout;
+
 			directory = directory.Parent;
 		}
 		return "Assets";
@@ -180,6 +187,21 @@ public static class WorldConfig
 		{
 			reasons.Add($"the asset world under {AssetsDirectory()} is missing or carries no experiments,");
 			reasons.Add("  so there is nothing to hold this run's world against.");
+		}
+		else if (config.Experiments.Count == 0)
+		{
+			// Nothing on at all. This is the silent-loss case at its widest: the registries are
+			// filtered down to vanilla content and every id after the first gap is short, and the
+			// output says none of it. It reaches here as "every asset experiment is unknown to this
+			// build", which is the tolerated shape below, so it is refused before that.
+			reasons.Add(config.AllToggles.Count == 0
+				? "the world's level.dat records no experiments at all, and the asset world has "
+					+ $"{expected.Count} on: {string.Join(", ", expected)}."
+				: "the world's level.dat records its experiments and has every one of them off, and "
+					+ $"the asset world has {expected.Count} on: {string.Join(", ", expected)}.");
+			reasons.Add("  The registries a server holds are filtered by its world's toggles: content is");
+			reasons.Add("  absent AND every id after it is short by the number missing, which is not");
+			reasons.Add("  visible in the output.");
 		}
 		else
 		{

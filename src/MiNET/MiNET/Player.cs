@@ -4070,7 +4070,9 @@ namespace MiNET
 				commandsEnabled = EnableCommands,
 				texturePacksRequired = Level.IsTexturepacksRequired,
 				gamerules = Level.GetGameRules(),
-				experiments = new Experiments(),
+				// The six a vanilla 1.26.50 server declares, all on; data_driven_vanilla_blocks_and_items
+				// is what makes the client take the block definitions below.
+				experiments = Experiments.Vanilla(),
 				hasBonusChestEnabled = Level.BonusChest,
 				startWithMapEnabled = Level.MapEnabled,
 				playerPermissions = (LevelSettings.PlayerPermissionLevel) PermissionLevel,
@@ -4123,7 +4125,9 @@ namespace MiNET
 			startGame.levelCurrentTime = (ulong) Level.TickTime;
 			startGame.enchantmentSeed = Level.EnchantmentSeed;
 			startGame.enableItemStackNetManager = true;
-			startGame.blockProperties = new List<ServerBlockProperty>();
+			// The 98 data-driven vanilla blocks, one definition each, generated onto their block
+			// classes from the BDS extract and proven against the captured frame.
+			startGame.blockProperties = BlockDefinitions.ServerBlockProperties();
 			startGame.playerPropertyData = new Nbt {NbtFile = new NbtFile(new NbtCompound("")) {BigEndian = false, UseVarInt = true}};
 			// 0 disables the client's palette-checksum verification. NEVER mirror BDS's value:
 			// the client recomputes the checksum locally and rejects the join with "Blocks

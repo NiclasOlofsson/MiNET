@@ -3,7 +3,6 @@
 		"server": "C:\\Development\\github\\MiNET\\temp_auto\\bds\\server-1.26.50.26",
 		"world": "flatworld",
 		"experiments": [
-			"data_driven_vanilla_blocks_and_items",
 			"experimental_creator_cameras",
 			"gametest",
 			"upcoming_creator_features",

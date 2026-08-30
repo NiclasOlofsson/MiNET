@@ -23,10 +23,171 @@
 
 #endregion
 
+// Usings are spelled out rather than left to implicit usings: MiNET.Test links this file so the
+// generator and the tests read the captures with one piece of code, and that project has none.
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using fNbt;
 
 namespace MiNET.BlockGen;
+
+/// <summary>
+///     The StartGame frame, read for the two fields the block definitions are proved against: the
+///     blockProperties array and the experiments list.
+///     MiNET.BlockGen does not reference MiNET (see the csproj), so it cannot call
+///     <c>McpeStartGame.Decode</c> and walk the packet field by field. Both fields are located by
+///     trial parse instead: an offset qualifies only when everything from it parses as the whole
+///     field, and the read fails when more than one offset does, so an ambiguous frame is an error
+///     rather than a guess. Nothing here is a fixed offset.
+/// </summary>
+public sealed class StartGameCapture
+{
+	private static readonly Regex BlockName = new(@"^[a-z0-9_]+:[a-z0-9_]+$", RegexOptions.Compiled);
+	private static readonly Regex ExperimentName = new(@"^[a-z0-9_]+$", RegexOptions.Compiled);
+
+	private StartGameCapture(IReadOnlyList<string> blockOrder, IReadOnlyDictionary<string, byte[]> blockProperties,
+		IReadOnlyList<(string Name, bool Enabled)> experiments, bool experimentsEverToggled,
+		int blockPropertiesOffset, int blockPropertiesEnd, int experimentsOffset, int length)
+	{
+		BlockOrder = blockOrder;
+		BlockProperties = blockProperties;
+		Experiments = experiments;
+		ExperimentsEverToggled = experimentsEverToggled;
+		BlockPropertiesOffset = blockPropertiesOffset;
+		BlockPropertiesEnd = blockPropertiesEnd;
+		ExperimentsOffset = experimentsOffset;
+		Length = length;
+	}
+
+	/// <summary>Block name to the entry's NBT bytes: tag, root name, payload and the end marker.</summary>
+	public IReadOnlyDictionary<string, byte[]> BlockProperties { get; }
+
+	/// <summary>The names in the order BDS sent them.</summary>
+	public IReadOnlyList<string> BlockOrder { get; }
+
+	public IReadOnlyList<(string Name, bool Enabled)> Experiments { get; }
+
+	public bool ExperimentsEverToggled { get; }
+
+	public int BlockPropertiesOffset { get; }
+
+	public int BlockPropertiesEnd { get; }
+
+	public int ExperimentsOffset { get; }
+
+	public int Length { get; }
+
+	public static StartGameCapture Read(string path)
+	{
+		byte[] buffer = File.ReadAllBytes(path);
+		var header = new Captures.Reader(buffer);
+		int id = (int) header.ReadVarUInt();
+		if ((id & 0x3ff) != 11) throw new InvalidDataException($"{Path.GetFileName(path)} is packet id {id & 0x3ff}, not 11");
+
+		(int offset, List<string> order, Dictionary<string, byte[]> entries, int end) = FindBlockProperties(buffer, Path.GetFileName(path));
+		(int experimentsOffset, List<(string, bool)> experiments, bool everToggled) = FindExperiments(buffer, offset, Path.GetFileName(path));
+
+		return new StartGameCapture(order, entries, experiments, everToggled, offset, end, experimentsOffset, buffer.Length);
+	}
+
+	/// <summary>
+	///     The blockProperties array: a varuint count followed by that many (name, network NBT)
+	///     pairs. A candidate offset has to produce the whole array, every name namespaced and
+	///     distinct, every tree an unnamed non-empty compound.
+	/// </summary>
+	private static (int Offset, List<string> Order, Dictionary<string, byte[]> Entries, int End) FindBlockProperties(byte[] buffer, string file)
+	{
+		var found = new List<(int, List<string>, Dictionary<string, byte[]>, int)>();
+		for (int offset = 1; offset < buffer.Length; offset++)
+		{
+			var reader = new Captures.Reader(buffer) {Position = offset};
+			try
+			{
+				int count = (int) reader.ReadVarUInt(3);
+				if (count is < 1 or > 65535) continue;
+
+				var order = new List<string>(count);
+				var entries = new Dictionary<string, byte[]>(count, StringComparer.Ordinal);
+				for (int i = 0; i < count; i++)
+				{
+					int length = (int) reader.ReadVarUInt(2);
+					if (length is < 3 or > 64) goto next;
+
+					string name = Encoding.UTF8.GetString(reader.ReadBytes(length));
+					if (!BlockName.IsMatch(name) || entries.ContainsKey(name)) goto next;
+
+					int start = reader.Position;
+					NbtCompound tree = reader.ReadNbt(useVarInt: true);
+					if (tree.Name != "" || tree.Count == 0) goto next;
+
+					order.Add(name);
+					entries.Add(name, reader.Slice(start, reader.Position - start));
+				}
+
+				found.Add((offset, order, entries, reader.Position));
+			}
+			catch (Exception)
+			{
+				// Not the array. Every other offset in the packet fails here.
+			}
+
+			next: ;
+		}
+
+		if (found.Count == 1) return found[0];
+		throw new InvalidDataException($"{file}: {found.Count} offsets parse as the blockProperties array, expected exactly one");
+	}
+
+	/// <summary>
+	///     The experiments list inside LevelSettings: an le32 count, that many (name, enabled byte)
+	///     pairs and the ever-toggled bool. It sits before the block array, and a one-entry candidate
+	///     is indistinguishable from a game rule, so at least two are required.
+	/// </summary>
+	private static (int Offset, List<(string, bool)> Experiments, bool EverToggled) FindExperiments(byte[] buffer, int limit, string file)
+	{
+		var found = new List<(int, List<(string, bool)>, bool)>();
+		for (int offset = 0; offset + 4 < limit; offset++)
+		{
+			var reader = new Captures.Reader(buffer) {Position = offset};
+			try
+			{
+				int count = reader.ReadInt32();
+				if (count is < 2 or > 64) continue;
+
+				var experiments = new List<(string, bool)>(count);
+				for (int i = 0; i < count; i++)
+				{
+					int length = (int) reader.ReadVarUInt(2);
+					if (length is < 4 or > 64) goto next;
+
+					string name = Encoding.UTF8.GetString(reader.ReadBytes(length));
+					if (!ExperimentName.IsMatch(name)) goto next;
+
+					byte enabled = reader.ReadByte();
+					if (enabled > 1) goto next;
+					experiments.Add((name, enabled != 0));
+				}
+
+				byte everToggled = reader.ReadByte();
+				if (everToggled > 1) goto next;
+
+				found.Add((offset, experiments, everToggled != 0));
+			}
+			catch (Exception)
+			{
+				// Not the list.
+			}
+
+			next: ;
+		}
+
+		if (found.Count == 1) return found[0];
+		throw new InvalidDataException($"{file}: {found.Count} offsets parse as the experiments list, expected exactly one");
+	}
+}
 
 /// <summary>
 ///     Reads the two captured BDS frames under Captures/. They are the CHECK the generated item
@@ -170,14 +331,18 @@ public static class Captures
 	}
 
 	/// <summary>The wire primitives a Bedrock frame is written in, over one buffer.</summary>
-	private sealed class Reader
+	internal sealed class Reader
 	{
 		private readonly byte[] _buffer;
 		private int _position;
 
 		public Reader(byte[] buffer) => _buffer = buffer;
 
-		public int Position => _position;
+		public int Position
+		{
+			get => _position;
+			set => _position = value;
+		}
 
 		public bool AtEnd => _position == _buffer.Length;
 
@@ -194,17 +359,19 @@ public static class Captures
 
 		public byte[] Slice(int start, int length) => _buffer[start..(start + length)];
 
-		public uint ReadVarUInt()
+		public uint ReadVarUInt(int maxBytes = 5)
 		{
 			uint value = 0;
 			int shift = 0;
-			while (true)
+			for (int i = 0; i < maxBytes; i++)
 			{
 				byte b = ReadByte();
 				value |= (uint) (b & 0x7f) << shift;
 				if ((b & 0x80) == 0) return value;
 				shift += 7;
 			}
+
+			throw new InvalidDataException($"varuint longer than {maxBytes} bytes");
 		}
 
 		public int ReadZigZag32()

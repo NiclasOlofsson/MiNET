@@ -573,12 +573,13 @@ public static class ItemRegistry
 	/// </summary>
 	/// <summary>
 	///     The item half of the one run, on the process the block half already attached to and
-	///     checked. It takes no arguments of its own: two halves of one extraction reading two
-	///     different servers, or one of them writing somewhere else, is not a thing that should be
-	///     expressible.
+	///     checked, with what that half read out of the executable. It takes nothing else: two
+	///     halves of one extraction reading two different servers, or one of them writing somewhere
+	///     else, is not a thing that should be expressible.
 	/// </summary>
-	public static int Run(BedrockProcess process)
+	public static int Run(BedrockProcess process, Binary.BinaryFacts facts)
 	{
+		_facts = facts;
 		string output = Path.Combine(Program.DefaultOutputDirectory(), "items-runtime.json");
 		WorldConfig.Config config = WorldConfig.Read(process.ExecutablePath);
 		List<Item> all = Read(process);
@@ -1444,6 +1445,11 @@ public static class ItemRegistry
 			return fields;
 		}
 
+		// The declared map's key already names the kind. The method table is a second, independent
+		// statement about the same object, so the two are held against each other and the result is
+		// counted. Nothing acts on it: the payload is read exactly the same way either way.
+		ConfirmTable(name, methodTable, tally);
+
 		// Stated by the class itself, out of the size its deleting destructor hands to delete.
 		int classSize = ClassSize(process, methodTable);
 		(bool? networked, string stub) = Networks(process, methodTable);
@@ -1495,8 +1501,17 @@ public static class ItemRegistry
 			_ => 0
 		};
 		// A class states its own extent, so where one is declared the switch below has nothing to
-		// say about how far the decode reaches.
+		// say about how far the decode reaches. The object states its own size too, and the two
+		// have to agree: a declaration shorter than the object is a member the reference does not
+		// know, and one longer reads the next allocation as a field. FoodItemComponent was declared
+		// 88 where every food object is 96 (the header's mOnConsumePublisher was missing), and the
+		// two members after the hole came out under each other's names, so it is counted and said.
 		if (declared is not null) extent = declared.Size;
+		if (declared is not null && classSize > 0 && declared.Base + declared.Size != classSize)
+		{
+			tally.SizeDisagrees++;
+			tally.SizeDisagreement ??= $"the reference declares {declared.Base}+{declared.Size} = {declared.Base + declared.Size} bytes, the deleting destructor says {classSize}";
+		}
 		if (at + extent > have)
 		{
 			fields["unread"] = tally.Failed(
@@ -1510,18 +1525,7 @@ public static class ItemRegistry
 		// the black bundle a stack of 8193.
 		if (declared is not null)
 		{
-			// The component's padding travels with it, and only here. A stretch a class calls
-			// padding is a claim about its content, and the run counts the readings so a span that
-			// is carrying something says so instead of coming out as a null.
-			BlockMemberReader.EmitPadding = true;
-			try
-			{
-				fields = BlockMemberReader.Held(process, address, scratch, declared, at, new byte[256]);
-			}
-			finally
-			{
-				BlockMemberReader.EmitPadding = false;
-			}
+			fields = BlockMemberReader.Held(process, address, scratch, declared, at, new byte[256]);
 
 			tally.Read++;
 			tally.ByReference++;
@@ -1846,6 +1850,70 @@ public static class ItemRegistry
 	///     networking them, and every reason a read did not happen with the number of times it did
 	///     not. Printed once, from the same counters the rows were built with.
 	/// </summary>
+	/// <summary>
+	///     What the executable states about its own classes, from the binary phase of this same run.
+	///     Null before <see cref="Run" /> has set it, and then no table is checked and none is
+	///     claimed.
+	/// </summary>
+	private static Binary.BinaryFacts _facts;
+
+	/// <summary>
+	///     Whether the object's method table is the class the reference maps this kind to.
+	///     <para>
+	///         Three statements meet here. The container's key says the kind; the reference's
+	///         componentClasses map says which class that kind is; the binary says where that class's
+	///         table sits, by its bare name or by any namespaced spelling of it, because the
+	///         versioned schema structs carry the same class name under the version that introduced
+	///         it. The object's leading word is the fourth thing, and it is the only one read out of
+	///         the heap.
+	///     </para>
+	///     <para>
+	///         A kind the binary does not name at all is not a disagreement. There is nothing to
+	///         disagree with, and it is counted and said as that.
+	///     </para>
+	/// </summary>
+	private static void ConfirmTable(string kind, ulong methodTable, ComponentTally tally)
+	{
+		if (_facts is null) return;
+
+		string declared = BlockMembers.ComponentClasses.GetValueOrDefault(kind);
+		if (declared is null)
+		{
+			tally.TableUndeclared++;
+			tally.TableNote ??= $"the reference maps {kind} to no class, so there is no class to check the table against";
+			return;
+		}
+
+		IReadOnlyList<Binary.BinaryClass> named = _facts.ItemClasses(declared);
+		if (named.Count == 0)
+		{
+			tally.TableUnnamed++;
+			tally.TableNote ??= $"{declared} has no binary name to check against";
+			return;
+		}
+
+		if (named.All(c => c.Vtable == 0))
+		{
+			// The class is named and its construction path did not settle a table, so there is one
+			// statement and nothing to hold it against. That is not a disagreement.
+			tally.TableUnsettled++;
+			tally.TableNote ??= $"{declared} is named in the binary and no construction path settles its table";
+			return;
+		}
+
+		IReadOnlyList<string> states = _facts.ClassesAt(methodTable);
+		if (named.Any(c => states.Contains(c.Name, StringComparer.Ordinal)))
+		{
+			tally.TableAgrees++;
+			return;
+		}
+
+		tally.TableDiffers++;
+		tally.TableNote ??= $"the reference maps {kind} to {declared}, which the binary names "
+			+ $"{string.Join(", ", named.Select(c => c.Name))}; the object's method table names "
+			+ (states.Count == 0 ? $"no class in the binary (0x{methodTable:X})" : string.Join(", ", states));
+	}
+
 	private sealed class ComponentTally
 	{
 		public int Entries;
@@ -1860,6 +1928,14 @@ public static class ItemRegistry
 		public int SecondTable;
 		public int Networked;
 		public int NotNetworked;
+		public int SizeDisagrees;
+		public string SizeDisagreement;
+		public int TableAgrees;
+		public int TableDiffers;
+		public int TableUnnamed;
+		public int TableUnsettled;
+		public int TableUndeclared;
+		public string TableNote;
 		public readonly Dictionary<string, int> Unread = new(StringComparer.Ordinal);
 
 		/// <summary>Counts a reason and hands it back, so the count and the emitted text are one act.</summary>
@@ -1892,13 +1968,27 @@ public static class ItemRegistry
 			+ $"{Tallies.Values.Sum(t => t.ByName):N0} by name), "
 			+ $"{Tallies.Values.Sum(t => t.Networked):N0} networked, "
 			+ $"{Tallies.Values.Sum(t => t.NotNetworked):N0} not");
+		Console.WriteLine($"  method tables against the binary: {Tallies.Values.Sum(t => t.TableAgrees):N0} agree, "
+			+ $"{Tallies.Values.Sum(t => t.TableDiffers):N0} disagree, "
+			+ $"{Tallies.Values.Sum(t => t.TableUnnamed):N0} with no binary name to check against, "
+			+ $"{Tallies.Values.Sum(t => t.TableUnsettled):N0} whose class the binary settles no table for, "
+			+ $"{Tallies.Values.Sum(t => t.TableUndeclared):N0} whose kind the reference maps to no class");
 		foreach ((string kind, ComponentTally tally) in Tallies.OrderBy(t => t.Key, StringComparer.Ordinal))
 		{
 			Console.WriteLine($"  {kind,-42} {tally.Entries,4} entries ({tally.Declared} declared, {tally.Built} built)"
 				+ $", {tally.Read} read"
 				+ $", owner {tally.OwnerHolds} back at the item / {tally.OwnerZero} zero / {tally.OwnerOther} elsewhere"
 				+ $", {tally.SecondTable} with a method table at +16"
-				+ $", networked {tally.Networked} / not {tally.NotNetworked}");
+				+ $", networked {tally.Networked} / not {tally.NotNetworked}"
+				+ $", table {tally.TableAgrees} agree / {tally.TableDiffers} disagree"
+				+ (tally.TableUnnamed > 0 ? $" / {tally.TableUnnamed} unnamed" : "")
+				+ (tally.TableUnsettled > 0 ? $" / {tally.TableUnsettled} unsettled" : "")
+				+ (tally.TableUndeclared > 0 ? $" / {tally.TableUndeclared} undeclared" : ""));
+			if (tally.TableNote is not null) Console.WriteLine($"      {tally.TableNote}");
+			if (tally.SizeDisagrees > 0)
+			{
+				Console.WriteLine($"      SIZE DISAGREES x{tally.SizeDisagrees}: {tally.SizeDisagreement}");
+			}
 			foreach ((string reason, int count) in tally.Unread.OrderByDescending(u => u.Value))
 			{
 				Console.WriteLine($"      unread x{count}: {reason}");
@@ -2615,8 +2705,15 @@ public static class ItemRegistry
 		foreach (MemberNode node in ItemLayout.Items.Roots)
 		{
 			// The class states its gaps once, with offsets and lengths. Repeating the same zero
-			// padding on every one of 1,933 items adds nothing.
-			if (node.Member.Kind is MemberKind.Unknown or MemberKind.Padding) continue;
+			// padding on every one of 1,933 items adds nothing to a row, so a gap is counted rather
+			// than written: the span report is where every reading of it lands, and a span nothing
+			// counts is a claim nobody can settle.
+			if (node.Member.Kind is MemberKind.Unknown or MemberKind.Padding)
+			{
+				int gap = item.At(node.At - NameInsideItem);
+				BlockMemberReader.Tally(node.Member, item.Window, gap, item.Window.Length);
+				continue;
+			}
 
 			int at = item.At(node.At - NameInsideItem);
 			row[node.Member.Name] = at >= 0 && at + node.Member.Bytes <= item.Window.Length

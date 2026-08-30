@@ -12,6 +12,7 @@
     <PackageReference Include="System.CodeDom" Version="10.0.10" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MiNET.BdsExtract\MiNET.BdsExtract.csproj" />
     <ProjectReference Include="..\MiNET.Client\MiNET.Client.csproj" />
     <ProjectReference Include="..\MiNET.Parking\MiNET.Parking.csproj" />
     <ProjectReference Include="..\MiNET\MiNET.csproj" />
@@ -29,5 +30,11 @@
     <None Include="..\MiNET.BlockGen\Captures\*.bin" Link="Data\registry\%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The frame readers, linked for the same reason the frames are: the generator and the tests
+         read the captures with one piece of code. A project reference would pull in the generator's
+         linked copy of BlockDefinition.cs and collide with MiNET's own. -->
+    <Compile Include="..\MiNET.BlockGen\Captures.cs" Link="Data\registry\Captures.cs" />
   </ItemGroup>
 </Project>

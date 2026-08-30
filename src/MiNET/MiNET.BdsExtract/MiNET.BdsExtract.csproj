@@ -22,5 +22,13 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
+  <!-- The binary facts phase reads bedrock_server.exe directly: AsmResolver.PE parses the PE
+       image (sections, exception directory / .pdata runtime functions), Iced decodes .text so
+       the code can be cross-referenced against what memory reads live. -->
+  <ItemGroup>
+    <PackageReference Include="AsmResolver.PE" Version="6.0.1" />
+    <PackageReference Include="Iced" Version="1.21.0" />
+  </ItemGroup>
+
 
 </Project>

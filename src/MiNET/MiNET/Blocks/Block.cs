@@ -40,6 +40,8 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Block));
 
+		private BlockDefinition _definition;
+
 		public bool IsGenerated { get; protected set; } = false;
 
 		public BlockCoordinates Coordinates { get; set; }
@@ -72,6 +74,15 @@ namespace MiNET.Blocks
 
 		/// <summary>Whether a wrong tool still drops the block, or just breaks it.</summary>
 		public virtual bool RequiresCorrectToolForDrops => false;
+
+		/// <summary>
+		///     What StartGame sends the client for a data-driven block. Null means the client already
+		///     has the block built in and is told nothing about it.
+		/// </summary>
+		public virtual BlockDefinition CreateDefinition() => null;
+
+		/// <summary>The definition, built once per block.</summary>
+		public BlockDefinition Definition => _definition ??= CreateDefinition();
 
 		/// <summary>Whether water can occupy the same space, which is what waterlogging means.</summary>
 		public virtual bool CanContainLiquidSource => false;

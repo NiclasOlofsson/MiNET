@@ -28,6 +28,7 @@ using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using fNbt;
+using MiNET.Blocks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -60,6 +61,7 @@ public static class Program
 		string capturesDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET.BlockGen", "Captures");
 		string itemRegistryCapture = Path.Combine(capturesDir, "item_registry-1.26.50.26.bin");
 		string creativeCapture = Path.Combine(capturesDir, "creative_content-1.26.50.26.bin");
+		string startGameCapture = Path.Combine(capturesDir, "startgame-1.26.50.26.bin");
 
 		if (!Directory.Exists(blocksDir))
 		{
@@ -75,7 +77,7 @@ public static class Program
 			return 1;
 		}
 
-		foreach (string required in new[] {itemRegistryCapture, creativeCapture})
+		foreach (string required in new[] {itemRegistryCapture, creativeCapture, startGameCapture})
 		{
 			if (File.Exists(required)) continue;
 			Console.Error.WriteLine($"captured frame not found: {required}");
@@ -104,8 +106,22 @@ public static class Program
 		Dictionary<string, string> familyBases = ReadFamilyBases(blockCreativePath, blocksDir, handWritten);
 		Console.WriteLine($"family bases: {familyBases.Values.Distinct().Count()} bases covering {familyBases.Count} blocks");
 
-		int classes = WriteBlockDataClasses(Path.Combine(blocksDir, "BlockData.generated.cs"), byName, handWritten, familyBases);
-		Console.WriteLine($"BlockData.generated.cs: {classes} classes");
+		// The block definitions StartGame carries, built from the extraction's definition rows and
+		// proved against the captured frame before a single file is written.
+		StartGameCapture startGame = StartGameCapture.Read(startGameCapture);
+		Console.WriteLine($"startgame frame: {startGame.BlockProperties.Count} block definitions at offset {startGame.BlockPropertiesOffset}, {startGame.Experiments.Count} experiments at offset {startGame.ExperimentsOffset}");
+
+		Dictionary<string, BlockDefinition> definitions = DefinitionGenerator.BuildAll(blockTypesPath);
+		if (definitions == null) return 1;
+		if (!DefinitionGenerator.Prove(definitions, startGame)) return 1;
+		Console.WriteLine($"block definitions proof: {definitions.Count}/{startGame.BlockProperties.Count} entries equal the frame byte for byte");
+
+		int classes = WriteBlockDataClasses(Path.Combine(blocksDir, "BlockData.generated.cs"), byName, handWritten, familyBases, definitions);
+		Console.WriteLine($"BlockData.generated.cs: {classes} classes, {definitions.Count} with a definition");
+
+		// Experiments are server configuration (Experiments.Vanilla), not generated; the run still
+		// says where the extraction's world and the frame disagree on them.
+		DefinitionGenerator.ReportExperiments(blockCreativePath, startGame);
 
 		// Where each block's states are declared. The creative families are one answer; a base the
 		// code declares for itself is the other, and both hoist the same way. Assigning a base to a
@@ -831,10 +847,13 @@ public static class Program
 		return names;
 	}
 
-	private static int WriteBlockDataClasses(string path, List<IGrouping<string, BlockState>> byName, HashSet<string> handWritten, Dictionary<string, string> familyBases)
+	private static int WriteBlockDataClasses(string path, List<IGrouping<string, BlockState>> byName, HashSet<string> handWritten,
+		Dictionary<string, string> familyBases, Dictionary<string, BlockDefinition> definitions)
 	{
 		var sb = new StringBuilder();
 		WriteHeader(sb, "MiNET.BdsExtract/Data block_states.json + blocks.json");
+		sb.AppendLine("using System.Collections.Generic;");
+		sb.AppendLine();
 		sb.AppendLine("namespace MiNET.Blocks");
 		sb.AppendLine("{");
 
@@ -856,6 +875,15 @@ public static class Program
 			sb.AppendLine("\t\t{");
 			sb.AppendLine("\t\t\tIsGenerated = true;");
 			sb.AppendLine("\t\t}");
+
+			// A data-driven block carries what StartGame declares about it. The client has no such
+			// block built in, so this is the whole of what it knows.
+			if (definitions.TryGetValue(group.Key, out BlockDefinition definition))
+			{
+				sb.AppendLine();
+				sb.Append(DefinitionGenerator.Emit(definition, "\t\t"));
+			}
+
 			sb.AppendLine("\t} // class");
 		}
 

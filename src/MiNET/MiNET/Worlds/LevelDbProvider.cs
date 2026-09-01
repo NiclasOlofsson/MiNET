@@ -477,15 +477,33 @@ namespace MiNET.Worlds
 				palette.Clear();
 
 				// One reader for the whole palette: fNbt hands back a fresh tag tree per load, so the
-				// file object itself is the only thing worth not allocating per entry.
+				// file object itself is the only thing worth not allocating per entry. Only the
+				// fallback below uses it; the entries that resolve never build a tag at all.
 				var file = new NbtFile
 				{
 					BigEndian = false,
 					UseVarInt = false
 				};
 
+				// Refilled per entry and never kept: the palette lookup returns its own container and
+				// all we read off it is the runtime id.
+				var scratch = new BlockStateContainer();
+
 				for (int entry = 0; entry < paletteSize; entry++)
 				{
+					long entryStart = reader.Position;
+
+					int runtimeId = ResolveFromSpan(data.Span, reader, scratch);
+					if (runtimeId >= 0)
+					{
+						palette.Add(runtimeId);
+						continue;
+					}
+
+					// Not in the palette as stored, or written in a shape the span reader does not
+					// know. Either way the entry needs the tag tree: the upgrade chain works on it,
+					// and it is the form every legacy path expects.
+					reader.Position = entryStart;
 					file.LoadFromStream(reader, NbtCompression.None);
 
 					palette.Add(ResolveRuntimeId((NbtCompound) file.RootTag));
@@ -504,6 +522,33 @@ namespace MiNET.Worlds
 			// The arrays were written directly rather than through the per-cell setters, so the dirty
 			// mark and the encode cache have to be seen to once, here.
 			section.MarkBulkLoaded();
+		}
+
+		/// <summary>
+		///     The fast half of the palette read: the entry straight off the bytes into a reused
+		///     container, then the same lookup the tag path does. Returns -1 for anything that does
+		///     not resolve exactly, which is the caller's signal to read the entry again with fNbt and
+		///     take the upgrade chain. The reader's position is advanced past the entry either way, so
+		///     a caller that falls back must rewind.
+		/// </summary>
+		private static int ResolveFromSpan(ReadOnlySpan<byte> data, MemoryStreamReader reader, BlockStateContainer scratch)
+		{
+			int position = (int) reader.Position;
+
+			try
+			{
+				PaletteEntryReader.Read(data, ref position, scratch);
+			}
+			catch (Exception e) when (e is FormatException or ArgumentOutOfRangeException or IndexOutOfRangeException)
+			{
+				return -1;
+			}
+
+			reader.Position = position;
+
+			if (scratch.Name == null) return -1;
+
+			return BlockFactory.BlockStates.TryGetValue(scratch, out BlockStateContainer match) ? match.RuntimeId : -1;
 		}
 
 		/// <summary>

@@ -561,26 +561,6 @@ namespace MiNET
 		}
 
 		/// <summary>Chunk radius vanilla publishes during the join burst, before negotiation.</summary>
-		/// <summary>
-		///     Pacing for the skeleton stream. Each column is pre-compressed into its own
-		///     <see cref="McpeWrapper" />, and a wrapper cannot nest inside another, so the send lane
-		///     passes every one through as its own SCTP message: a radius-64 pass is 16,641 messages
-		///     handed to one session back to back, with everything else that player needs queued behind
-		///     them.
-		///     <para>
-		///     This pacing was removed once on the grounds that the send queue already paces it. It does
-		///     not: the queue is an unbounded channel, so the producer never blocks and never feels the
-		///     transport's backpressure at all. The only real limit is the SCTP window, which stalls the
-		///     LANE rather than the loop feeding it, which is how send queue depth reached 1,284 packets
-		///     under load with the producer already finished.
-		///     </para>
-		///     <para>Set <see cref="ChunkSendDelayMs" /> to 0 to send unpaced.</para>
-		/// </summary>
-		public int ChunkSendBatchSize { get; set; } = 16;
-
-		/// <inheritdoc cref="ChunkSendBatchSize" />
-		public int ChunkSendDelayMs { get; set; } = 12;
-
 		public const int JoinBurstChunkRadius = 4;
 
 		/// <summary>
@@ -590,9 +570,10 @@ namespace MiNET
 		private const int MaxBlobStatusIds = 4095;
 
 		/// <summary>
-		///     Hash count at which a chunk group flushes mid-sweep: what one ClientCacheBlobStatus
-		///     can answer. Tick-sized blocks (250) were tried 2026-08-17 and made the join WORSE,
-		///     so small is not better here. int.MaxValue turns grouping off.
+		///     Hash count at which a chunk group flushes mid-sweep. This is the protocol cap, not a
+		///     tuning knob: it is what one ClientCacheBlobStatus can answer, so a group never
+		///     announces more hashes than the client can settle in one status packet. Announcements
+		///     are otherwise unpaced.
 		/// </summary>
 		private const int GroupFlushHashes = MaxBlobStatusIds;
 
@@ -3199,20 +3180,16 @@ namespace MiNET
 			// The client rejects a SubChunkPacket with more than 8192 entries (packet violation
 			// 0xAE, "too many input elements"), so a mass re-request is answered as a run of
 			// packets at the cap instead of one mirror of the request.
-			const int maxEntriesPerPacket = 8192;
+			// Paced delivery: the answers flush in tick-sized slices instead of mirroring the
+			// request wholesale, so the client can mesh terrain progressively rather than
+			// receiving one request's entire answer at once. 264 sections is ~80 columns per
+			// 50ms at the measured 3.3 requested sections per column, half the rate a real
+			// client asks at. The slices go from a background task; the entries are built
+			// here because BuildSubChunkEntry reads the pooled request packet.
+			const int sectionsPerFlush = 264;
+			const int flushDelayMs = 50;
 
-			McpeSubChunkPacket response = null;
-
-			McpeSubChunkPacket NewResponse()
-			{
-				var packet = McpeSubChunkPacket.CreateObject();
-				packet.cacheEnabled = true;
-				packet.dimensionType = message.dimension;
-				packet.centerPos = new SubChunkPos {subchunkPositionX = message.originX, subchunkPositionY = message.originY, subchunkPositionZ = message.originZ};
-				packet.subchunkData = new List<SubChunkPacketData>();
-				return packet;
-			}
-
+			var entries = new List<SubChunkPacketData>(message.offsets.Count);
 			foreach (SubChunkPosOffset offset in message.offsets)
 			{
 				SubChunkPacketData entry = BuildSubChunkEntry(message, offset);
@@ -3222,17 +3199,31 @@ namespace MiNET
 				EngineMetrics.SubChunkResult(entry.subchunkRequestResult.ToString().ToLowerInvariant());
 				if (entry.serializedSubChunk != null) EngineMetrics.SubChunkBytes(entry.serializedSubChunk.Length);
 
-				response ??= NewResponse();
-				response.subchunkData.Add(entry);
-
-				if (response.subchunkData.Count >= maxEntriesPerPacket)
-				{
-					SendPacket(response);
-					response = null;
-				}
+				entries.Add(entry);
 			}
 
-			if (response != null) SendPacket(response);
+			if (entries.Count == 0) return;
+
+			// Captured before the task: the request packet is pooled and dead once this returns.
+			int dimension = message.dimension;
+			var centerPos = new SubChunkPos {subchunkPositionX = message.originX, subchunkPositionY = message.originY, subchunkPositionZ = message.originZ};
+
+			MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
+			{
+				for (int i = 0; i < entries.Count; i += sectionsPerFlush)
+				{
+					if (!IsConnected) return;
+
+					var packet = McpeSubChunkPacket.CreateObject();
+					packet.cacheEnabled = true;
+					packet.dimensionType = dimension;
+					packet.centerPos = centerPos;
+					packet.subchunkData = entries.GetRange(i, Math.Min(sectionsPerFlush, entries.Count - i));
+					SendPacket(packet);
+
+					if (i + sectionsPerFlush < entries.Count) Thread.Sleep(flushDelayMs);
+				}
+			});
 		}
 
 		private SubChunkPacketData BuildSubChunkEntry(McpeSubChunkRequestPacket message, SubChunkPosOffset offset)
@@ -4070,9 +4061,9 @@ namespace MiNET
 				commandsEnabled = EnableCommands,
 				texturePacksRequired = Level.IsTexturepacksRequired,
 				gamerules = Level.GetGameRules(),
-				// The six a vanilla 1.26.50 server declares, all on; data_driven_vanilla_blocks_and_items
-				// is what makes the client take the block definitions below.
-				experiments = Experiments.Vanilla(),
+				// EXPERIMENT in progress: none declared, to see whether the client accepts the block
+				// definitions without any toggles. The vanilla set is Experiments.Vanilla().
+				experiments = new Experiments(),
 				hasBonusChestEnabled = Level.BonusChest,
 				startWithMapEnabled = Level.MapEnabled,
 				playerPermissions = (LevelSettings.PlayerPermissionLevel) PermissionLevel,
@@ -4517,7 +4508,7 @@ namespace MiNET
 				// request selectivity is what makes a cold horizon bearable, and every pass after
 				// that pushes, because a walking player takes the whole rim anyway.
 				bool pushRim = !spawningPass;
-				foreach ((ChunkCoordinates coordinates, McpeLevelChunk chunk) in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius, () => KnownPosition, KnownPosition.HeadYaw, cachedPush: pushRim))
+				foreach ((ChunkCoordinates coordinates, McpeLevelChunk chunk) in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius, () => KnownPosition, cachedPush: pushRim))
 				{
 					if (chunk != null)
 					{

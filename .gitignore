@@ -229,3 +229,6 @@ server.*.conf
 /src/MiNET/MiNET.BdsExtract/Data/items-runtime-layout.json
 /src/MiNET/MiNET.BdsExtract/Data/items-runtime-classes.json
 /src/MiNET/MiNET.BdsExtract/Data/items-runtime-components.json
+
+# BenchmarkDotNet run output
+/BenchmarkDotNet.Artifacts/

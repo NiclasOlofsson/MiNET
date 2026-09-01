@@ -80,16 +80,17 @@ namespace MiNET.Test
 			Assert.AreEqual(source.clickPosition, result.clickPosition);
 		}
 
-		// The 2168 capture from the hand-written codec, updated for the one 2192 change: a Hand
-		// enum (uint8 varint, mainhand 0) between Face and the carried item, shifting everything
-		// after it (Mojang's ItemUseInventoryTransaction schema, ordinal 6).
+		// The 2168 capture from the hand-written codec, with two later corrections. A Hand enum
+		// (uint8 varint, mainhand 0) arrived at 2192 between Face and the carried item, shifting
+		// everything after it (Mojang's ItemUseInventoryTransaction schema, ordinal 6). And the two
+		// always-true presence bytes that used to sit before the transaction type and the
+		// transaction data are gone: the generator wrapped an optionality around fields that are not
+		// optional in the schema. Corrected in 502bb755 alongside unrelated work.
 		//
 		//   1e            packet id 0x1e
 		//   00            request id 0, zigzag
 		//   00            no changed slots
-		//   01            presence byte before the transaction type, which IS on the wire here
 		//   02            transaction type 2, item use
-		//   01            presence byte before the transaction data
 		//   00            no transaction records
 		//   00            action 0, place
 		//   01            trigger type 1, player input
@@ -103,7 +104,7 @@ namespace MiNET.Test
 		//   b015          block runtime id 2736
 		//   00 00         client prediction, client cooldown state
 		private const string ExpectedItemUse =
-			"1e" + "00" + "00" + "01" + "02" + "01" + "00" +
+			"1e" + "00" + "00" + "02" + "00" +
 			"00" + "01" + "14820127" + "01" + "06" + "00" +
 			"0000000000000000" +
 			"000028410000844200009cc1" +

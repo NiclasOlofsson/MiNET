@@ -44,6 +44,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 [assembly: InternalsVisibleTo("MiNETTests")]
+[assembly: InternalsVisibleTo("MiNET.Benchmarks")]
 namespace MiNET.Plugins
 {
 	public class PluginManager

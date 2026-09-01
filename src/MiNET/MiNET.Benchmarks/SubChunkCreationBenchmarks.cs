@@ -39,38 +39,19 @@ namespace MiNET.Benchmarks
 	[MemoryDiagnoser]
 	public class SubChunkCreationBenchmarks
 	{
+		/// <summary>The constructor as the write path uses it: everything cleared.</summary>
 		[Benchmark(Baseline = true)]
-		public SubChunk RentAsIs()
+		public SubChunk CtorCleared()
 		{
 			return new SubChunk();
 		}
 
-		/// <summary>One block holding all four buffers back to back: blocks 0..8192 (as shorts),
-		/// logged 8192..12288, blocklight 12288..14336, skylight 14336..16384. Uninitialized: the
-		/// zeroing is deferred to whoever writes the block.</summary>
+		/// <summary>The constructor as the parse path uses it: cell buffers uninitialized, only
+		/// the light regions defined.</summary>
 		[Benchmark]
-		public byte[] OneBlockUninitialized()
+		public SubChunk CtorParseMode()
 		{
-			var block = GC.AllocateUninitializedArray<byte>(16384);
-			return block;
-		}
-
-		private static readonly byte[] ZeroTemplate = new byte[16384];
-
-		[Benchmark]
-		public byte[] OneBlockUninitializedCopyZeros()
-		{
-			var block = GC.AllocateUninitializedArray<byte>(16384);
-			ZeroTemplate.CopyTo(block, 0);
-			return block;
-		}
-
-		[Benchmark]
-		public byte[] OneBlockUninitializedFastFill()
-		{
-			var block = GC.AllocateUninitializedArray<byte>(16384);
-			ChunkColumn.FastFill(ref block, (byte) 0, 0UL);
-			return block;
+			return new SubChunk(clearBuffers: false);
 		}
 
 	}

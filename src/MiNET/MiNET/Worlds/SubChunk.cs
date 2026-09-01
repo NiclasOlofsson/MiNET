@@ -24,11 +24,11 @@
 #endregion
 
 using System;
-using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
@@ -53,18 +53,34 @@ namespace MiNET.Worlds
 		private List<int> _runtimeIds; // Add air, always as first (performance)
 		internal List<int> RuntimeIds => _runtimeIds;
 
-		private short[] _blocks;
-		internal short[] Blocks => _blocks;
-
 		private List<int> _loggedRuntimeIds = new List<int>();
 		internal List<int> LoggedRuntimeIds => _loggedRuntimeIds;
 
-		private byte[] _loggedBlocks; // We use only byte size on this palette index table, because can basically only be water and snow-levels
-		internal byte[] LoggedBlocks => _loggedBlocks;
+		// All buffers live in one block: the cell indices as shorts, the logged indices
+		// (byte-sized, basically only water and snow-levels), then, only when light calculation
+		// is on, the two light nibble arrays. One allocation instead of four, uninitialized on the
+		// parse path because a storage record overwrites every cell it covers, and sized without
+		// the light tail when nothing will ever read it.
+		internal const int DataSize = 16384;
+		private const int DataSizeWithoutLights = 12288;
+		private const int LoggedOffset = 8192; // 4096 shorts
+		private const int BlockLightOffset = 12288;
+		private const int SkyLightOffset = 14336;
 
-		// Consider disabling these if we don't calculate lights
-		public NibbleArray _blocklight;
-		public NibbleArray _skylight;
+		/// <summary>
+		///     Light nibbles are written at creation only when something will read them: light is
+		///     never serialized to the client, so with CalculateLights off the arrays are dead
+		///     weight and stay uninitialized. Read once at startup; flipping the config needs a
+		///     restart, like the config itself.
+		/// </summary>
+		internal static bool InitializeLightBuffers = Config.GetProperty("CalculateLights", false);
+
+		private byte[] _data;
+
+		internal Span<short> Blocks => MemoryMarshal.Cast<byte, short>(_data.AsSpan(0, LoggedOffset));
+		internal Span<byte> LoggedBlocks => _data.AsSpan(LoggedOffset, 4096);
+		internal Span<byte> BlockLightData => _data.AsSpan(BlockLightOffset, 2048);
+		internal Span<byte> SkyLightData => _data.AsSpan(SkyLightOffset, 2048);
 
 		public bool IsDirty { get; private set; }
 
@@ -83,24 +99,38 @@ namespace MiNET.Worlds
 
 		public SubChunk(bool clearBuffers = true)
 		{
-			// The air runtime id, not a block built to be asked for it. GetBlockByName ends in
-			// Activator.CreateInstance, and this runs for every section that comes into existence.
-			_runtimeIds = new List<int> {BlockFactory.AirRuntimeId};
-				
-			_blocks = ArrayPool<short>.Shared.Rent(4096);
-			_loggedBlocks = ArrayPool<byte>.Shared.Rent(4096);
-			_blocklight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));
-			_skylight = new NibbleArray(ArrayPool<byte>.Shared.Rent(2048));
+			// Empty, not seeded with air: the readers all answer air for an empty palette, and
+			// the setters seed air into slot 0 the moment a first real entry needs one above it.
+			// Parse fills it straight from the record, which never wants a seed in the way.
+			_runtimeIds = new List<int>();
 
-			if (clearBuffers) ClearBuffers();
+			// Uninitialized on purpose: zeroing the block costs more than everything else here.
+			// clearBuffers: false is strictly for the parse path, whose storages overwrite every
+			// cell they cover and whose uniform branch clears explicitly. The lights are defined
+			// either way, because nothing ever parses them.
+			_data = GC.AllocateUninitializedArray<byte>(InitializeLightBuffers ? DataSize : DataSizeWithoutLights);
+
+			if (clearBuffers)
+			{
+				ClearBuffers();
+			}
+			else if (InitializeLightBuffers)
+			{
+				BlockLightData.Clear();
+				SkyLightData.Fill(0xff);
+			}
 		}
 
 		public void ClearBuffers()
 		{
-			Array.Clear(_blocks, 0, 4096);
-			Array.Clear(_loggedBlocks, 0, 4096);
-			Array.Clear(_blocklight.Data, 0, 2048);
-			ChunkColumn.Fill<byte>(_skylight.Data, 0xff);
+			Blocks.Clear();
+			LoggedBlocks.Clear();
+
+			if (InitializeLightBuffers)
+			{
+				BlockLightData.Clear();
+				SkyLightData.Fill(0xff);
+			}
 		}
 
 
@@ -113,23 +143,20 @@ namespace MiNET.Worlds
 				// subchunk that is uniformly one block (solid stone underground, a bedrock layer)
 				// has a single-entry palette and all-zero indices, and calling that air deletes the
 				// whole section from the chunk while the heightmap still says terrain is there.
-				_isAllAir = AllZeroFast(_blocks) && (_runtimeIds.Count == 0 || _runtimeIds[0] == BlockFactory.AirRuntimeId);
+				_isAllAir = AllZeroFast(_data.AsSpan(0, LoggedOffset)) && (_runtimeIds.Count == 0 || _runtimeIds[0] == BlockFactory.AirRuntimeId);
 			}
 			return _isAllAir;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static unsafe bool AllZeroFast<T>(T[] data) where T : unmanaged
+		public static unsafe bool AllZeroFast(ReadOnlySpan<byte> data)
 		{
-			fixed (T* start = data)
+			fixed (byte* start = data)
 			{
-				byte* bytes = (byte*) start;
-				int len = data.Length * sizeof(T);
+				byte* bytes = start;
+				int len = data.Length;
 				int rem = len % (sizeof(long) * 16);
 				long* b = (long*) bytes;
-				// len is a byte count, so it has to advance the byte pointer. Advancing the T*
-				// instead scanned sizeof(T) times too far, reading past the array into whatever
-				// followed it: zeroed heap for a fresh array, stale contents for a pooled one.
 				long* e = (long*) (bytes + len - rem);
 
 				while (b < e)
@@ -154,10 +181,6 @@ namespace MiNET.Worlds
 					b += 16;
 				}
 
-				// rem counts bytes, so the leftover is scanned as bytes. Indexing data here mixed a
-				// byte offset into a T-indexed array, and the comparison was inverted on top of
-				// that. Neither showed up while the only caller passed 4096 shorts, because 8192
-				// bytes divides evenly into the block above and rem was always zero.
 				for (int i = 0; i < rem; i++)
 				{
 					if (bytes[len - 1 - i] != 0) return false;
@@ -176,7 +199,7 @@ namespace MiNET.Worlds
 		{
 			if (_runtimeIds.Count == 0) return 0;
 
-			int paletteIndex = _blocks[GetIndex(bx, by, bz)];
+			int paletteIndex = Blocks[GetIndex(bx, by, bz)];
 			if (paletteIndex >= _runtimeIds.Count || paletteIndex < 0) Log.Warn($"Unexpected paletteIndex of {paletteIndex} with size of palette is {_runtimeIds.Count}");
 			int runtimeId = _runtimeIds[paletteIndex];
 			if (runtimeId < 0 || runtimeId >= BlockFactory.BlockPalette.Count) Log.Warn($"Couldn't locate runtime id {runtimeId} for block");
@@ -193,7 +216,7 @@ namespace MiNET.Worlds
 		{
 			if (_runtimeIds.Count == 0) return BlockFactory.AirRuntimeId;
 
-			int paletteIndex = _blocks[GetIndex(bx, by, bz)];
+			int paletteIndex = Blocks[GetIndex(bx, by, bz)];
 			if (paletteIndex < 0 || paletteIndex >= _runtimeIds.Count) return BlockFactory.AirRuntimeId;
 
 			return _runtimeIds[paletteIndex];
@@ -203,7 +226,7 @@ namespace MiNET.Worlds
 		{
 			if (_runtimeIds.Count == 0) return new Air();
 
-			int index = _blocks[GetIndex(bx, by, bz)];
+			int index = Blocks[GetIndex(bx, by, bz)];
 			int runtimeId = _runtimeIds[index];
 
 			// By name, not by legacy id: the id predates flattening and hands back a class whose
@@ -236,18 +259,22 @@ namespace MiNET.Worlds
 			var paletteIndex = _runtimeIds.IndexOf(runtimeId);
 			if (paletteIndex == -1)
 			{
+				// Slot 0 must be air, because every untouched cell holds index 0. The first real
+				// entry therefore lands above an air seeded in just in time.
+				if (_runtimeIds.Count == 0 && runtimeId != BlockFactory.AirRuntimeId) _runtimeIds.Add(BlockFactory.AirRuntimeId);
+
 				_runtimeIds.Add(runtimeId);
 				paletteIndex = _runtimeIds.IndexOf(runtimeId);
 			}
 
-			_blocks[GetIndex(bx, by, bz)] = (short) paletteIndex;
+			Blocks[GetIndex(bx, by, bz)] = (short) paletteIndex;
 			_cache = null;
 			IsDirty = true;
 		}
 
 		public void SetBlockIndex(int bx, int by, int bz, short paletteIndex)
 		{
-			_blocks[GetIndex(bx, by, bz)] = paletteIndex;
+			Blocks[GetIndex(bx, by, bz)] = paletteIndex;
 			_cache = null;
 			IsDirty = true;
 		}
@@ -277,40 +304,75 @@ namespace MiNET.Worlds
 			var paletteIndex = _loggedRuntimeIds.IndexOf(runtimeId);
 			if (paletteIndex == -1)
 			{
+				// The empty logged palette is what keeps a never-written logged buffer unreadable;
+				// this append opens that gate, so every cell must be defined before it does. And
+				// slot 0 must be air here too: without it, one waterlogged block puts water at
+				// index 0 and all 4095 untouched cells read as waterlogged.
+				if (_loggedRuntimeIds.Count == 0)
+				{
+					LoggedBlocks.Clear();
+					if (runtimeId != BlockFactory.AirRuntimeId) _loggedRuntimeIds.Add(BlockFactory.AirRuntimeId);
+				}
+
 				_loggedRuntimeIds.Add(runtimeId);
 				paletteIndex = (byte) _loggedRuntimeIds.IndexOf(runtimeId);
 			}
 
-			_loggedBlocks[GetIndex(bx, by, bz)] = (byte) paletteIndex;
+			LoggedBlocks[GetIndex(bx, by, bz)] = (byte) paletteIndex;
 			_cache = null;
 			IsDirty = true;
 		}
 
 		public void SetLoggedBlockIndex(int bx, int by, int bz, byte paletteIndex)
 		{
-			_loggedBlocks[GetIndex(bx, by, bz)] = paletteIndex;
+			LoggedBlocks[GetIndex(bx, by, bz)] = paletteIndex;
 			_cache = null;
 			IsDirty = true;
 		}
 
+		// With light calculation off the block carries no light regions at all, so the accessors
+		// answer the defaults (no blocklight, full skylight) and writes drop, instead of indexing
+		// past the short block.
 		public byte GetBlocklight(int bx, int by, int bz)
 		{
-			return _blocklight[GetIndex(bx, by, bz)];
+			if (!InitializeLightBuffers) return 0;
+
+			return GetNibble(BlockLightOffset, GetIndex(bx, by, bz));
 		}
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
-			_blocklight[GetIndex(bx, by, bz)] = data;
+			if (!InitializeLightBuffers) return;
+
+			SetNibble(BlockLightOffset, GetIndex(bx, by, bz), data);
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
 		{
-			return _skylight[GetIndex(bx, by, bz)];
+			if (!InitializeLightBuffers) return 15;
+
+			return GetNibble(SkyLightOffset, GetIndex(bx, by, bz));
 		}
 
 		public void SetSkylight(int bx, int by, int bz, byte data)
 		{
-			_skylight[GetIndex(bx, by, bz)] = data;
+			if (!InitializeLightBuffers) return;
+
+			SetNibble(SkyLightOffset, GetIndex(bx, by, bz), data);
+		}
+
+		// Same nibble order as NibbleArray: even cell in the low half, odd cell in the high half.
+		private byte GetNibble(int offset, int index)
+		{
+			return (byte) ((_data[offset + (index >> 1)] >> ((index & 1) * 4)) & 0xF);
+		}
+
+		private void SetNibble(int offset, int index, byte value)
+		{
+			value &= 0xF;
+			int idx = offset + (index >> 1);
+			_data[idx] &= (byte) (0xF << (((index + 1) & 1) * 4));
+			_data[idx] |= (byte) (value << ((index & 1) * 4));
 		}
 
 		/// <summary>
@@ -329,9 +391,9 @@ namespace MiNET.Worlds
 			stream.WriteByte((byte) numberOfStores);
 			stream.WriteByte((byte) yIndex);
 
-			if (WriteStore(stream, _blocks, null, false, _runtimeIds))
+			if (WriteStore(stream, Blocks, default, _runtimeIds))
 			{
-				WriteStore(stream, null, _loggedBlocks, false, _loggedRuntimeIds);
+				WriteStore(stream, default, LoggedBlocks, _loggedRuntimeIds);
 			}
 		}
 
@@ -350,26 +412,20 @@ namespace MiNET.Worlds
 			int numberOfStores = 0;
 
 			var runtimeIds = _runtimeIds;
-			var blocks = _blocks;
-			
+
 			if (runtimeIds != null && runtimeIds.Count > 0)
 				numberOfStores++;
-			
+
 			var loggedRuntimeIds = _loggedRuntimeIds;
-			var loggedBlocks = _loggedBlocks;
 
 			if (loggedRuntimeIds != null && loggedRuntimeIds.Count > 0)
 				numberOfStores++;
-			
+
 			stream.WriteByte((byte) numberOfStores); // storage size
-			
-			if (WriteStore(stream, blocks, null, false, runtimeIds))
+
+			if (WriteStore(stream, Blocks, default, runtimeIds))
 			{
-				//numberOfStores++;
-				if (WriteStore(stream, null, loggedBlocks, false, loggedRuntimeIds))
-				{
-					//numberOfStores++;
-				}
+				WriteStore(stream, default, LoggedBlocks, loggedRuntimeIds);
 			}
 
 			int length = (int) (stream.Position - startPos);
@@ -393,7 +449,7 @@ namespace MiNET.Worlds
 			IsDirty = false;
 		}
 
-		public static bool WriteStore(MemoryStream stream, short[] blocks, byte[] loggedBlocks, bool forceWrite, List<int> palette, bool isBlockPalette = true)
+		public static bool WriteStore(MemoryStream stream, ReadOnlySpan<short> blocks, ReadOnlySpan<byte> loggedBlocks, List<int> palette, bool isBlockPalette = true)
 		{
 			if (palette.Count == 0) return false;
 
@@ -403,7 +459,8 @@ namespace MiNET.Worlds
 			switch (bitsPerBlock)
 			{
 				case 0:
-					if (!forceWrite && palette.Contains(0)) return false;
+					// A single-entry palette always writes: its one value can be any runtime id or
+					// biome id, and the caller has already counted this storage into the stream.
 					bitsPerBlock = 1;
 					break;
 				case 1:
@@ -449,7 +506,7 @@ namespace MiNET.Worlds
 						continue;
 
 					uint state;
-					if (blocks != null)
+					if (!blocks.IsEmpty)
 					{
 						state = (uint) blocks[position];
 					}
@@ -483,16 +540,14 @@ namespace MiNET.Worlds
 
 		public object Clone()
 		{
-			SubChunk cc = CreateObject();
+			// clearBuffers: false because the copy below overwrites the whole block.
+			SubChunk cc = new SubChunk(clearBuffers: false);
 			cc._isAllAir = _isAllAir;
 			cc.IsDirty = IsDirty;
 
 			cc._runtimeIds = new List<int>(_runtimeIds);
-			_blocks.CopyTo(cc._blocks, 0);
 			cc._loggedRuntimeIds = new List<int>(_loggedRuntimeIds);
-			_loggedBlocks.CopyTo(cc._loggedBlocks, 0);
-			_blocklight.Data.CopyTo(cc._blocklight.Data, 0);
-			_skylight.Data.CopyTo(cc._skylight.Data, 0);
+			_data.CopyTo(cc._data, 0);
 
 			if (_cache != null)
 			{
@@ -512,44 +567,11 @@ namespace MiNET.Worlds
 
 		public void PutPool()
 		{
-			Dispose();
-			//Reset();
-			//Pool.PutObject(this);
 		}
 
-		public void REMOVEReset()
-		{
-			_isAllAir = true;
-			_runtimeIds.Clear();
-			Array.Clear(_blocks, 0, _blocks.Length);
-			_loggedRuntimeIds.Clear();
-			Array.Clear(_loggedBlocks, 0, _blocks.Length);
-			Array.Clear(_blocklight.Data, 0, _blocklight.Data.Length);
-			Array.Fill<byte>(_skylight.Data, 0xff);
-			_cache = null;
-			IsDirty = false;
-		}
-
-		private void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				if (_blocks != null) ArrayPool<short>.Shared.Return(_blocks);
-				if (_loggedBlocks != null) ArrayPool<byte>.Shared.Return(_loggedBlocks);
-				if (_blocklight != null) ArrayPool<byte>.Shared.Return(_blocklight.Data);
-				if (_skylight != null) ArrayPool<byte>.Shared.Return(_skylight.Data);
-			}
-		}
-
+		// The buffers are plain managed memory in one block; there is nothing to release.
 		public void Dispose()
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		~SubChunk()
-		{
-			Dispose(false);
 		}
 	}
 

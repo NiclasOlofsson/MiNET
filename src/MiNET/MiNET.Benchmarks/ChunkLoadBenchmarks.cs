@@ -26,6 +26,8 @@
 using System;
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Diagnosers;
+using MiNET.Blocks;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
 
@@ -41,6 +43,15 @@ namespace MiNET.Benchmarks
 	///     </para>
 	/// </summary>
 	[MemoryDiagnoser]
+	// The server runs Server GC (MiNET.Console.csproj), so the baseline measures under it too.
+	// This is the GC-on instrument; the GC-free numbers come from the phases harness, whose
+	// no-GC regions hold because no engine machinery runs inside them. BenchmarkDotNet's engine
+	// induces its own GC.Collect between IterationSetup and the workload, which legally
+	// terminates a no-GC region, so the region approach cannot work here.
+	[GcServer(true)]
+	// Every run emits a speedscope file per benchmark: the sampled call tree, method granularity.
+	// This attribute stays; the profile rides along with the numbers.
+	[EventPipeProfiler(EventPipeProfile.CpuSampling)]
 	public class ChunkLoadBenchmarks
 	{
 		/// <summary>The Bedrock world to read: the folder holding level.dat and db.</summary>
@@ -63,6 +74,11 @@ namespace MiNET.Benchmarks
 		[GlobalSetup]
 		public void Setup()
 		{
+			// Warm every lazy static before anything is timed: the block palette load is the
+			// biggest initialization in the process and must never run inside a measurement.
+			_ = BlockFactory.BlockPalette.Count;
+			_ = BlockFactory.AirRuntimeId;
+
 			_provider = new LevelDbProvider(World);
 			_provider.Initialize();
 
@@ -142,10 +158,8 @@ namespace MiNET.Benchmarks
 			int blocks = 0;
 			foreach (byte[] bytes in _sections)
 			{
-				// No PutPool: the load path never returns a section's buffers, and returning them
-				// here restocks the ArrayPool so every Rent succeeds, which measured a pool state
-				// GetChunk cannot be in.
-				SubChunk section = SubChunk.CreateObject();
+				// Parse-mode section, exactly as GetChunk creates them.
+				var section = new SubChunk(clearBuffers: false);
 				_provider.ParseSection(section, bytes);
 				blocks += section.RuntimeIds.Count;
 			}

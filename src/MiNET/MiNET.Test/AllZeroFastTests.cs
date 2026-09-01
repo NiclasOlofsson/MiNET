@@ -23,6 +23,8 @@
 
 #endregion
 
+using System;
+using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
 using MiNET.Worlds;
@@ -48,7 +50,7 @@ namespace MiNET.Test
 		[TestMethod]
 		public void Empty_subchunk_sized_buffer_is_all_zero()
 		{
-			Assert.IsTrue(SubChunk.AllZeroFast(new short[SubChunkBlocks]));
+			Assert.IsTrue(SubChunk.AllZeroFast(MemoryMarshal.AsBytes<short>(new short[SubChunkBlocks])));
 		}
 
 		[TestMethod]
@@ -74,11 +76,11 @@ namespace MiNET.Test
 		{
 			foreach (int length in new[] {1, 7, 63, 65, 100, 1000, 4095})
 			{
-				Assert.IsTrue(SubChunk.AllZeroFast(new short[length]), $"Empty buffer of {length} reported non-zero.");
+				Assert.IsTrue(SubChunk.AllZeroFast(MemoryMarshal.AsBytes<short>(new short[length])), $"Empty buffer of {length} reported non-zero.");
 
 				var buffer = new short[length];
 				buffer[length - 1] = 1;
-				Assert.IsFalse(SubChunk.AllZeroFast(buffer), $"Missed a non-zero value in the tail of a {length} buffer.");
+				Assert.IsFalse(SubChunk.AllZeroFast(MemoryMarshal.AsBytes<short>(buffer)), $"Missed a non-zero value in the tail of a {length} buffer.");
 			}
 		}
 
@@ -108,7 +110,7 @@ namespace MiNET.Test
 
 		private static bool SubChunkBlocksAllZero(short[] buffer)
 		{
-			return SubChunk.AllZeroFast(buffer);
+			return SubChunk.AllZeroFast(MemoryMarshal.AsBytes<short>(buffer));
 		}
 	}
 }

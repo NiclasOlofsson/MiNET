@@ -43,18 +43,6 @@ namespace MiNET.Benchmarks
 				return;
 			}
 
-			if (args.Length > 0 && args[0] == "phases")
-			{
-				ChunkPhaseMeasurement.Run();
-				return;
-			}
-
-			if (args.Length > 0 && args[0] == "ctor")
-			{
-				ChunkPhaseMeasurement.RunCtorSplit();
-				return;
-			}
-
 			BenchmarkSwitcher.FromAssembly(Assembly.GetExecutingAssembly()).Run(args);
 		}
 

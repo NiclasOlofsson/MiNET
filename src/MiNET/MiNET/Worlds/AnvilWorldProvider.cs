@@ -757,14 +757,26 @@ namespace MiNET.Worlds
 			// catches almost everything), light nibbles move via the index permutation, and the
 			// dirty mark is set once at the end instead of per cell.
 			List<int> palette = subChunk.RuntimeIds;
+			// Slot 0 must be air: the loop below skips air cells, leaving them at index 0.
+			if (palette.Count == 0) palette.Add(BlockFactory.AirRuntimeId);
 			var paletteMap = new Dictionary<int, short>(8);
 			for (short i = 0; i < palette.Count; i++) paletteMap[palette[i]] = i;
 			int lastRuntimeId = -1;
 			short lastPaletteIndex = 0;
 
-			short[] blocksOut = subChunk.Blocks;
-			byte[] blockLightOut = subChunk._blocklight.Data;
-			byte[] skyLightOut = subChunk._skylight.Data;
+			Span<short> blocksOut = subChunk.Blocks;
+
+			// With light calculation off the section carries no light regions, so Anvil's light
+			// from storage has nowhere to go and is skipped wholesale. With it on, the loop below
+			// writes light only for non-air cells, so the defaults are established here first.
+			bool carryLight = SubChunk.InitializeLightBuffers;
+			Span<byte> blockLightOut = carryLight ? subChunk.BlockLightData : default;
+			Span<byte> skyLightOut = carryLight ? subChunk.SkyLightData : default;
+			if (carryLight)
+			{
+				blockLightOut.Clear();
+				skyLightOut.Fill(0xff);
+			}
 			bool isSectionZero = sectionIndex == 0;
 
 			// Sky is most of a populated section, and the loop's job for an air cell is only to
@@ -822,7 +834,7 @@ namespace MiNET.Worlds
 						blocksOut[storageIndex] = paletteIndex;
 					}
 
-					if (!ProfileSkipLightWrites)
+					if (carryLight && !ProfileSkipLightWrites)
 					{
 						if (ReadBlockLight) SetNibble4(blockLightOut, storageIndex, Nibble4(blockLight, anvilIndex));
 
@@ -853,7 +865,7 @@ namespace MiNET.Worlds
 						int y = anvilIndex >> 8;
 						Block block = subChunk.GetBlockObject(x, y, z);
 						block.Coordinates = new BlockCoordinates(x + (chunkColumn.X << 4), (sectionIndex << 4) + y, z + (chunkColumn.Z << 4));
-						SetNibble4(blockLightOut, storageIndex, (byte) block.LightLevel);
+						if (carryLight) SetNibble4(blockLightOut, storageIndex, (byte) block.LightLevel);
 						lock (LightSources) LightSources.Enqueue(block);
 					}
 				}
@@ -892,7 +904,7 @@ namespace MiNET.Worlds
 			return (byte) (arr[index >> 1] >> ((index & 1) * 4) & 0xF);
 		}
 
-		private static void SetNibble4(byte[] arr, int index, byte value)
+		private static void SetNibble4(Span<byte> arr, int index, byte value)
 		{
 			value &= 0xF;
 			var idx = index >> 1;

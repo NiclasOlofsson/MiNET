@@ -57,8 +57,8 @@ namespace MiNET.Worlds.Tests
 			provider.ParseSection(parsedChunk, output);
 
 			// Assert
-			CollectionAssert.AreEqual(chunk.Blocks, parsedChunk.Blocks);
-			CollectionAssert.AreEqual(chunk.LoggedBlocks, parsedChunk.LoggedBlocks);
+			CollectionAssert.AreEqual(chunk.Blocks.ToArray(), parsedChunk.Blocks.ToArray());
+			CollectionAssert.AreEqual(chunk.LoggedBlocks.ToArray(), parsedChunk.LoggedBlocks.ToArray());
 			CollectionAssert.AreEqual(chunk.RuntimeIds, parsedChunk.RuntimeIds);
 		}
 	}

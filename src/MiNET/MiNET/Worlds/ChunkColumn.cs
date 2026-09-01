@@ -475,7 +475,7 @@ namespace MiNET.Worlds
 					SubChunk chunk = missing;
 					if (isInAir && chunk.IsAllAir())
 					{
-						if (chunk.IsDirty) Array.Fill<byte>(chunk._skylight.Data, 0xff);
+						if (chunk.IsDirty) chunk.SkyLightData.Fill(0xff);
 
 						// Drop to this subchunk's floor and let the loop step below it. y is not
 						// aligned to a subchunk boundary, so it has to be floored rather than
@@ -525,7 +525,7 @@ namespace MiNET.Worlds
 
 					if (isInAir && chunk.IsAllAir())
 					{
-						if (chunk.IsDirty) Array.Fill<byte>(chunk._skylight.Data, 0xff);
+						if (chunk.IsDirty) chunk.SkyLightData.Fill(0xff);
 
 						// Drop to this subchunk's floor and let the loop step below it. y is not
 						// aligned to a subchunk boundary, so it has to be floored rather than
@@ -951,7 +951,7 @@ namespace MiNET.Worlds
 			
 			for (int i = 0; i < 24; i++)
 			{
-				SubChunk.WriteStore(stream, newBiomes, null, false, uniqueBiomes, isBlockPalette: false);
+				SubChunk.WriteStore(stream, newBiomes, null, uniqueBiomes, isBlockPalette: false);
 			}
 
 			return stream.ToArray();

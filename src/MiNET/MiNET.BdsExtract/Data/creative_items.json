@@ -1,8 +1,9 @@
 {
 	"source": {
-		"server": "C:\\Development\\github\\MiNET\\temp_auto\\bds\\server-1.26.50.26",
+		"server": "C:\\Development\\github\\MiNET\\temp_auto\\bds\\server-1.26.50.27",
 		"world": "flatworld",
 		"experiments": [
+			"data_driven_vanilla_blocks_and_items",
 			"experimental_creator_cameras",
 			"gametest",
 			"upcoming_creator_features",
@@ -58,7 +59,7 @@
 				"check": "component containers",
 				"guards": "the class tail slots, derived",
 				"held": true,
-				"detail": "declared set at +304 (75 containers), built map at +344 (31), every one walks to its stated count; class-own tree containers: [+248 (26 int-keyed containers, keys 0..12, values unfollowed), +280 (3 close, 0 walk hashed, 0 walk plain, 0 int-keyed; failing: minecraft:element_117, minecraft:element_116, minecraft:element_118), +328 (1 close, 0 walk hashed, 0 walk plain, 0 int-keyed; failing: minecraft:cherry_fence_gate)]"
+				"detail": "declared set at +304 (75 containers), built map at +344 (31), every one walks to its stated count; class-own tree containers: [+248 (26 close, 0 walk hashed, 0 walk plain, 24 int-keyed; failing: minecraft:poplar_sign, minecraft:poplar_hanging_sign), +280 (2 close, 0 walk hashed, 0 walk plain, 0 int-keyed; failing: minecraft:respawn_anchor, minecraft:element_113)]"
 			},
 			{
 				"check": "data-driven fields",

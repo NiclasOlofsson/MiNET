@@ -281,11 +281,7 @@ public static class CreativeItems
 			{
 				Unnamed++;
 				Failures.Add($"0x{block:X} is a block the palette holds no state for, so no state was read");
-				return new JsonObject
-				{
-					["pointer"] = $"0x{block:X}",
-					["unread"] = "the palette holds no state at this address"
-				};
+				return BlockMemberReader.Pointer(new JsonObject { ["unread"] = "the palette holds no state at this address" }, block);
 			}
 
 			Named++;

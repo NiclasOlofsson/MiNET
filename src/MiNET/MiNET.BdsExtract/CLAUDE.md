@@ -106,9 +106,13 @@ byte that says whether the member holds a value sits, counted from the member's 
 optional whose flag is clear has never had its value written, so its storage holds whatever was
 there before, and a gated member with a clear flag comes out null. And a member may be padding,
 which the class table states once and the rows never carry, because padding is alignment and a row
-saying so is a row of noise; `--show-padding` puts it in the rows as its raw bytes for a debugging
-view, never as null, and the run tallies every padding span either way and reports any that is not
-zero.
+saying so is a row of noise; `--debug` puts it in the rows as its raw bytes for a debugging view,
+never as null, and the run tallies every padding span either way and reports any that is not zero.
+The same flag governs heap addresses. An address is true for one start of one server and moves on
+the next, so off, a pointer is written as what it led to (the class it names, the id it resolves
+to, `unfollowed` where nothing followed it) and never as a number; on, the address is written
+beside that. Without the flag a diff between two runs shows what changed in the server, not where
+its allocator put things.
 
 ## The code is walked by flow
 

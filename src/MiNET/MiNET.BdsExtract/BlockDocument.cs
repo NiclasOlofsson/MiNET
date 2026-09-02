@@ -135,7 +135,7 @@ public static class BlockDocument
 		{
 			if (vtables.TryGetValue(a, out string named))
 			{
-				return new JsonObject { ["pointer"] = $"0x{a:X}", ["class"] = named };
+				return BlockMemberReader.Pointer(new JsonObject { ["class"] = named }, a);
 			}
 
 			if (materials.TryGetValue(a, out byte type))
@@ -275,7 +275,7 @@ public static class BlockDocument
 		ulong stateTable = palette.Count > 0 ? process.ReadUInt64(palette[0].Address, word2) : 0;
 
 		BlockMemberReader.Identify owner = a => a == stateTable && stateTable != 0
-			? new JsonObject { ["pointer"] = $"0x{a:X}", ["class"] = root }
+			? BlockMemberReader.Pointer(new JsonObject { ["class"] = root }, a)
 			: Scalar(known.GetValueOrDefault(a));
 
 		// Say the id scheme in the file. Without it a reader cannot tell whether networkId is a

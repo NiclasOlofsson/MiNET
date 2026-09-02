@@ -54,12 +54,27 @@ public static class BlockMemberReader
 	public delegate JsonNode Identify(ulong address);
 
 	/// <summary>
-	///     Whether a padding member's bytes travel out with the rest of the object, for the whole
-	///     run. Off, a padding member is read and counted but not written; on (--show-padding), it
-	///     comes out as its bytes on every row of every class, which is a debugging view of what
-	///     the class table calls alignment.
+	///     Whether the per-process view travels out with the rest of the object, for the whole run:
+	///     padding bytes and heap addresses. Off, a padding member is read and counted but not
+	///     written, and an address is written as what it led to rather than as a number; on
+	///     (--debug), padding comes out as its bytes on every row of every class and every address
+	///     is written. An address is true for one start of one server and moves on the next, so
+	///     with them in the rows a diff between two runs is mostly addresses that changed with
+	///     nothing behind them changed.
 	/// </summary>
-	internal static bool EmitPadding;
+	internal static bool Debug;
+
+	/// <summary>
+	///     An address on a row: written under --debug, otherwise <paramref name="otherwise" /> where
+	///     the row would say nothing else about the pointer, and nothing where a key beside it
+	///     already says what the pointer led to.
+	/// </summary>
+	internal static JsonObject Pointer(JsonObject stated, ulong address, string otherwise = null)
+	{
+		if (Debug) stated["pointer"] = $"0x{address:X}";
+		else if (otherwise is not null) stated["pointer"] = otherwise;
+		return stated;
+	}
 
 	/// <summary>What every instance of one padding or unknown member held, so the claim can be settled.</summary>
 	private sealed class PaddingSpan
@@ -214,7 +229,7 @@ public static class BlockMemberReader
 				// Counted here whether or not it is written. A gap that no path tallies is a gap
 				// nobody can rule on, and the rows are not where that ruling is made.
 				Tally(node.Member, window, node.At, read);
-				if (node.Member.Kind is MemberKind.Unknown || !EmitPadding) continue;
+				if (node.Member.Kind is MemberKind.Unknown || !Debug) continue;
 			}
 
 			members[node.Member.Name] = node.IsLeaf
@@ -422,17 +437,13 @@ public static class BlockMemberReader
 
 				if (BlockMembers.Any(member.Holds) is not { } held)
 				{
-					return new JsonObject
-					{
-						["pointer"] = $"0x{pointer:X}",
-						["undeclared"] = member.Holds
-					};
+					return Pointer(new JsonObject { ["undeclared"] = member.Holds }, pointer);
 				}
 
 				var body = new byte[Math.Max(held.Size, 16)];
 				if (!process.TryRead(pointer, body, body.Length))
 				{
-					return new JsonObject { ["pointer"] = $"0x{pointer:X}", ["unreadable"] = held.Size };
+					return Pointer(new JsonObject { ["unreadable"] = held.Size }, pointer);
 				}
 
 				return Held(process, pointer, body, held, 0, scratch);
@@ -501,7 +512,7 @@ public static class BlockMemberReader
 
 				string source = MolangSource(process, payload, scratch);
 				return source is null
-					? new JsonObject { ["pointer"] = $"0x{payload:X}", ["unread"] = "the expression states no source text" }
+					? Pointer(new JsonObject { ["unread"] = "the expression states no source text" }, payload)
 					: JsonValue.Create(source);
 			}
 
@@ -514,7 +525,7 @@ public static class BlockMemberReader
 			{
 				string raw = Convert.ToHexString(window, at, member.Bytes);
 				Padding(member, raw);
-				return EmitPadding ? new JsonObject { ["raw"] = raw } : null;
+				return Debug ? new JsonObject { ["raw"] = raw } : null;
 			}
 
 			// Bytes nothing declares. They travel out as themselves so the member list adds up to
@@ -563,8 +574,7 @@ public static class BlockMemberReader
 			ulong pointer = BitConverter.ToUInt64(window, at);
 			if (pointer == 0) return null;
 			if (identify?.Invoke(pointer) is { } named) return named;
-			stated["pointer"] = $"0x{pointer:X}";
-			return stated;
+			return Pointer(stated, pointer, "unfollowed");
 		}
 
 		// An unordered_map: a load factor, then the list its entries live in, then the buckets.
@@ -667,12 +677,14 @@ public static class BlockMemberReader
 
 			if (end > begin && capacity >= end)
 			{
-				stated["vector"] = new JsonObject
+				var vector = new JsonObject();
+				if (Debug)
 				{
-					["begin"] = $"0x{begin:X}",
-					["end"] = $"0x{end:X}",
-					["bytes"] = (long) (end - begin)
-				};
+					vector["begin"] = $"0x{begin:X}";
+					vector["end"] = $"0x{end:X}";
+				}
+				vector["bytes"] = (long) (end - begin);
+				stated["vector"] = vector;
 				return stated;
 			}
 		}
@@ -685,8 +697,7 @@ public static class BlockMemberReader
 			// its control block happens to contain.
 			ulong held = BitConverter.ToUInt64(window, at);
 			if (held == 0) return null;
-			stated["pointer"] = $"0x{held:X}";
-			return stated;
+			return Pointer(stated, held, "unfollowed");
 		}
 
 		stated["raw"] = Convert.ToHexString(window, at, member.Bytes);
@@ -780,7 +791,7 @@ public static class BlockMemberReader
 
 			// Padding is read and tallied above, and stays out of the file unless the run was asked
 			// to show it, in which case it is the bytes. Never a key with nothing in it.
-			if (member.Kind == MemberKind.Padding && !EmitPadding) continue;
+			if (member.Kind == MemberKind.Padding && !Debug) continue;
 
 			fields[member.Name] = value;
 		}

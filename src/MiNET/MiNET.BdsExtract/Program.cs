@@ -85,18 +85,20 @@ public static class Program
 				continue;
 			}
 
-			if (args[i] == "--show-padding")
+			if (args[i] == "--debug")
 			{
-				BlockMemberReader.EmitPadding = true;
+				BlockMemberReader.Debug = true;
 				continue;
 			}
 
-			Console.Error.WriteLine("usage: MiNET.BdsExtract [--server <path fragment>] [--show-padding]");
+			Console.Error.WriteLine("usage: MiNET.BdsExtract [--server <path fragment>] [--debug]");
 			Console.Error.WriteLine();
 			Console.Error.WriteLine("  --server   which server to read when several are running, matched on");
 			Console.Error.WriteLine(@"             executable path, for example --server server-1.26.20.5");
-			Console.Error.WriteLine("  --show-padding  write every padding member's bytes into the rows (a debugging view;");
-			Console.Error.WriteLine("             the run tallies them either way and reports any span that is not zero)");
+			Console.Error.WriteLine("  --debug    write the per-process view into the rows: every padding member's bytes and");
+			Console.Error.WriteLine("             every heap address (the run tallies padding either way and reports any span");
+			Console.Error.WriteLine("             that is not zero; addresses move on every server start, so off they are");
+			Console.Error.WriteLine("             written as what they led to)");
 			Console.Error.WriteLine("  --prepare <server folder>  write the canonical config from Assets into a server folder");
 			return 2;
 		}

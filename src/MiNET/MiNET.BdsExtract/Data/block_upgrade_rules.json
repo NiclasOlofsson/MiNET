@@ -36,9 +36,9 @@
 			},
 			"result": {
 				"states": {
-					"3": "tile.cobblestone_wall.diorite",
-					"2813203578884": "tile.cobblestone_wall.andesite",
-					"2813203578885": "tile.cobblestone_wall.sandstone"
+					"1572437211376": "tile.cobblestone_wall.stone_brick",
+					"1572437212272": "tile.cobblestone_wall.nether_brick",
+					"1572437197936": "tile.cobblestone_wall.prismarine"
 				}
 			}
 		},
@@ -1052,7 +1052,7 @@
 			"match": {
 				"name": "minecraft:log2",
 				"direction": {
-					"pattern": null
+					"pattern": "[3]"
 				}
 			},
 			"result": {
@@ -1065,8 +1065,15 @@
 			],
 			"remaps": [
 				[
+					"oak",
+					"spruce",
+					"birch",
+					"jungle",
 					"acacia",
 					"dark_oak"
+				],
+				[
+					"acacia"
 				],
 				[
 					"y",
@@ -2724,7 +2731,9 @@
 			"version": "1.20.10.0",
 			"block": "minecraft:shulker_box",
 			"match": {
-				"color": "orange"
+				"color": {
+					"unread": 0
+				}
 			},
 			"result": {},
 			"fields": [
@@ -5775,9 +5784,6 @@
 			"version": "1.20.50.1",
 			"block": "minecraft:planks",
 			"match": {
-				"states": {
-					"unread": 0
-				},
 				"wood_type": "dark_oak"
 			},
 			"result": {},
@@ -6440,10 +6446,16 @@
 			"version": "1.20.70.1",
 			"block": "minecraft:double_wooden_slab",
 			"match": {
-				"wood_type": "jungle"
+				"wood_type": "jungle",
+				"name": {
+					"unread": 0
+				}
 			},
 			"result": {},
-			"fields": [
+			"matchFields": [
+				"wood_type"
+			],
+			"resultFields": [
 				"wood_type",
 				"name"
 			],
@@ -8537,17 +8549,11 @@
 			"version": "1.21.10.8",
 			"block": "minecraft:coral_fan_hang3",
 			"match": {
-				"coral_hang_type_bit": {
-					"unread": 0
-				},
+				"coral_hang_type_bit": 1,
 				"dead_bit": 0
 			},
 			"result": {},
-			"matchFields": [
-				"dead_bit",
-				"name"
-			],
-			"resultFields": [
+			"fields": [
 				"coral_hang_type_bit",
 				"dead_bit",
 				"name"
@@ -9726,9 +9732,7 @@
 			"version": "1.21.30.2",
 			"block": "minecraft:cobblestone_wall",
 			"match": {
-				"wall_block_type": {
-					"unread": 0
-				}
+				"wall_block_type": "granite"
 			},
 			"result": {},
 			"fields": [

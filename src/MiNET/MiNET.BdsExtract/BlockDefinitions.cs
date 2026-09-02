@@ -345,7 +345,8 @@ public static class BlockDefinitions
 			if (component < 0x10000) { list.Add(null); continue; }
 
 			ulong table = process.ReadUInt64(component, word);
-			var read = new JsonObject { ["methodTable"] = $"0x{table:X}" };
+			var read = new JsonObject();
+			if (BlockMemberReader.Debug) read["methodTable"] = $"0x{table:X}";
 			BlockDescriptionTable stated = null;
 			if (_facts is not null && _facts.TryDescription(table, out BlockDescriptionTable found)) stated = found;
 

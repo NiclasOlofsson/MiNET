@@ -1798,15 +1798,13 @@ public static class ItemRegistry
 			// the field base to the end of the class is the hole, and the bytes go with it.
 			default:
 				named = false;
-				fields["unread"] = new JsonObject
-				{
-					["reason"] = "no class for this component in the reference and no decode by name",
-					["methodTable"] = $"0x{methodTable:X}",
-					["classSize"] = classSize,
-					["from"] = at,
-					["bytes"] = Math.Max(0, Math.Min(classSize > 0 ? classSize : have, have) - at),
-					["hex"] = Convert.ToHexString(scratch, 0, Math.Min(classSize > 0 ? classSize : have, have))
-				};
+				var unread = new JsonObject { ["reason"] = "no class for this component in the reference and no decode by name" };
+				if (BlockMemberReader.Debug) unread["methodTable"] = $"0x{methodTable:X}";
+				unread["classSize"] = classSize;
+				unread["from"] = at;
+				unread["bytes"] = Math.Max(0, Math.Min(classSize > 0 ? classSize : have, have) - at);
+				unread["hex"] = Convert.ToHexString(scratch, 0, Math.Min(classSize > 0 ? classSize : have, have));
+				fields["unread"] = unread;
 				tally.Failed("no class for this component in the reference and no decode by name");
 				break;
 		}

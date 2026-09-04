@@ -24,10 +24,13 @@
 #endregion
 
 using System.Globalization;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using fNbt;
+using MiNET.Blocks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MiNET.BlockGen;
 
@@ -50,9 +53,15 @@ public static class Program
 		string blocksDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET", "Blocks");
 		string itemsDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET", "Items");
 		string dataDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET.BlockGen", "Data");
-		string palettePath = Path.Combine(dataDir, "block_palette.nbt");
-		string itemStatesPath = Path.Combine(dataDir, "runtime_item_states.json");
-		string itemComponentsPath = Path.Combine(dataDir, "item_components.nbt");
+		string extractDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET.BdsExtract", "Data");
+		string blockStatesPath = Path.Combine(extractDir, "block_states.json");
+		string blockTypesPath = Path.Combine(extractDir, "blocks.json");
+		string blockCreativePath = Path.Combine(extractDir, "creative_items.json");
+		string itemRowsPath = Path.Combine(extractDir, "items-runtime.json");
+		string capturesDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET.BlockGen", "Captures");
+		string itemRegistryCapture = Path.Combine(capturesDir, "item_registry-1.26.50.26.bin");
+		string creativeCapture = Path.Combine(capturesDir, "creative_content-1.26.50.26.bin");
+		string startGameCapture = Path.Combine(capturesDir, "startgame-1.26.50.26.bin");
 
 		if (!Directory.Exists(blocksDir))
 		{
@@ -60,18 +69,29 @@ public static class Program
 			return 1;
 		}
 
-		foreach (string required in new[] {palettePath, itemStatesPath, itemComponentsPath})
+		foreach (string required in new[] {blockStatesPath, blockTypesPath, blockCreativePath, itemRowsPath})
 		{
 			if (File.Exists(required)) continue;
-			Console.Error.WriteLine($"data file not found: {required}");
-			Console.Error.WriteLine("The data is a git submodule. Run: git submodule update --init");
+			Console.Error.WriteLine($"extraction data file not found: {required}");
+			Console.Error.WriteLine("It is committed with MiNET.BdsExtract. Run that extraction to rebuild it.");
 			return 1;
 		}
 
-		Console.WriteLine($"source: {dataDir}");
-		Console.WriteLine($"        {DescribeSource(dataDir)}");
+		foreach (string required in new[] {itemRegistryCapture, creativeCapture, startGameCapture})
+		{
+			if (File.Exists(required)) continue;
+			Console.Error.WriteLine($"captured frame not found: {required}");
+			Console.Error.WriteLine("It is the check every generated item tree and creative stack is measured against.");
+			return 1;
+		}
 
-		List<BlockState> palette = ReadPalette(palettePath);
+		BlockExtract extract = ReadBlockExtract(blockStatesPath, blockTypesPath);
+		Console.WriteLine($"block source: {extractDir}");
+		Console.WriteLine($"              BDS {extract.PublishedFor}, block state release {extract.BlockStateRelease}, network ids are hashes: {extract.NetworkIdsAreHashes}");
+
+		if (!VerifyNetworkHashes(extract)) return 1;
+
+		List<BlockState> palette = extract.Palette;
 		Console.WriteLine($"palette: {palette.Count} states, {palette.Select(p => p.Name).Distinct().Count()} blocks");
 
 		HashSet<string> handWritten = ReadHandWrittenClasses(blocksDir);
@@ -83,11 +103,25 @@ public static class Program
 		Dictionary<string, int> baseIndex = VerifyPaletteLayout(palette, byName);
 		if (baseIndex == null) return 1;
 
-		Dictionary<string, string> familyBases = ReadFamilyBases(dataDir, blocksDir, handWritten);
+		Dictionary<string, string> familyBases = ReadFamilyBases(blockCreativePath, blocksDir, handWritten);
 		Console.WriteLine($"family bases: {familyBases.Values.Distinct().Count()} bases covering {familyBases.Count} blocks");
 
-		int classes = WriteBlockDataClasses(Path.Combine(blocksDir, "BlockData.generated.cs"), byName, handWritten, familyBases);
-		Console.WriteLine($"BlockData.generated.cs: {classes} classes");
+		// The block definitions StartGame carries, built from the extraction's definition rows and
+		// proved against the captured frame before a single file is written.
+		StartGameCapture startGame = StartGameCapture.Read(startGameCapture);
+		Console.WriteLine($"startgame frame: {startGame.BlockProperties.Count} block definitions at offset {startGame.BlockPropertiesOffset}, {startGame.Experiments.Count} experiments at offset {startGame.ExperimentsOffset}");
+
+		Dictionary<string, BlockDefinition> definitions = DefinitionGenerator.BuildAll(blockTypesPath);
+		if (definitions == null) return 1;
+		if (!DefinitionGenerator.Prove(definitions, startGame)) return 1;
+		Console.WriteLine($"block definitions proof: {definitions.Count}/{startGame.BlockProperties.Count} entries equal the frame byte for byte");
+
+		int classes = WriteBlockDataClasses(Path.Combine(blocksDir, "BlockData.generated.cs"), byName, handWritten, familyBases, definitions);
+		Console.WriteLine($"BlockData.generated.cs: {classes} classes, {definitions.Count} with a definition");
+
+		// Experiments are server configuration (Experiments.Vanilla), not generated; the run still
+		// says where the extraction's world and the frame disagree on them.
+		DefinitionGenerator.ReportExperiments(blockCreativePath, startGame);
 
 		// Where each block's states are declared. The creative families are one answer; a base the
 		// code declares for itself is the other, and both hoist the same way. Assigning a base to a
@@ -103,214 +137,31 @@ public static class Program
 
 		Console.WriteLine($"state owners: {stateOwners.Values.Distinct().Count()} bases covering {stateOwners.Count} blocks");
 
-		int partials = WritePartialBlocks(Path.Combine(blocksDir, "PartialBlocks.cs"), byName, handImplemented, baseIndex, stateOwners);
+		int partials = WritePartialBlocks(Path.Combine(blocksDir, "PartialBlocks.cs"), byName, handImplemented, baseIndex, stateOwners, extract.Properties);
 		Console.WriteLine($"PartialBlocks.cs: {partials} partials");
 
 		int entries = WriteBlockPalette(Path.Combine(blocksDir, "BlockPaletteData.generated.cs"), palette);
 		Console.WriteLine($"BlockPaletteData.generated.cs: {entries} entries");
 
-		List<ItemEntry> items = ReadItemRegistry(itemStatesPath, itemComponentsPath);
-		Console.WriteLine($"item registry: {items.Count} items, {items.Count(i => i.ComponentBased)} component-based, {items.Count(i => i.ComponentNbt != null)} with components");
-
-		int itemEntries = WriteItemRegistry(Path.Combine(itemsDir, "ItemRegistryData.generated.cs"), items);
-		Console.WriteLine($"ItemRegistryData.generated.cs: {itemEntries} entries");
-
 		var blockNames = new HashSet<string>(palette.Select(p => p.Name), StringComparer.OrdinalIgnoreCase);
 		HashSet<string> handWrittenItems = ReadHandWrittenClasses(itemsDir, "ItemData.generated.cs", "ItemRegistryData.generated.cs");
 		Console.WriteLine($"hand-written item classes: {handWrittenItems.Count}");
 
-		int itemClasses = WriteItemDataClasses(Path.Combine(itemsDir, "ItemData.generated.cs"), items, blockNames, handWrittenItems,
-			Path.Combine(dataDir, "item_mappings.json"));
-		Console.WriteLine($"ItemData.generated.cs: {itemClasses} classes");
+		List<ItemGenerator.ItemEntry> items = ItemGenerator.Run(extractDir, itemsDir, itemRegistryCapture, blockNames, handWrittenItems);
 
-		// The creative catalog, regenerated from Cloudburst's name-addressed creative_items.json
-		// through the same registry ids, so it can never drift from the item registry the way the
-		// old hand-captured file did. Data, not symbols, like the biome table below.
+		// The creative catalog, regenerated from the extraction's own stacks through the same
+		// registry ids, so it can never drift from the item registry the way the old hand-captured
+		// file did. Data, not symbols, like the biome table below.
 		var networkIdByName = items.ToDictionary(i => i.Name, i => i.NetworkId, StringComparer.OrdinalIgnoreCase);
-		CreativeGenerator.Run(dataDir, Path.Combine(itemsDir, "Data", "creative_groups.json"), networkIdByName);
+		CreativeGenerator.Run(extractDir, Path.Combine(itemsDir, "Data", "creative_groups.json"), creativeCapture, networkIdByName);
 
 		// Not code: this one emits our own data file, because biomes are a table nobody writes
 		// against by symbol. Their file stays here, ours ships.
+		Console.WriteLine($"biome source: {dataDir}");
+		Console.WriteLine($"              {DescribeSource(dataDir)}");
 		BiomeGenerator.Run(dataDir, Path.Combine(repoRoot, "src", "MiNET", "MiNET", "Data", "biome_definitions.json.gz"));
 
 		return 0;
-	}
-
-	/// <summary>
-	///     Writes MiNET/Items/ItemData.generated.cs: a typed <see cref="object" /> subclass for every
-	///     registry identity that doesn't already have one.
-	///     Three things are skipped. Block items, because a block's own generated class covers them.
-	///     Names with a hand-written class in Items/. And names that are only a rename of something
-	///     already written, since ItemFactory resolves the old class under the current name too.
-	///     The class carries the registry string id and nothing else. The network id is not baked in:
-	///     it changes every protocol version, and an identity that carries a stale number is worse
-	///     than one that carries none.
-	/// </summary>
-	private static int WriteItemDataClasses(string path, List<ItemEntry> items, HashSet<string> blockNames, HashSet<string> handWritten, string mappingsPath)
-	{
-		// Renames, current name back to the old one the class was written under.
-		var mappings = JsonConvert.DeserializeObject<ItemMappingsJson>(File.ReadAllText(mappingsPath));
-		var renamedFrom = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-		foreach (KeyValuePair<string, string> rename in mappings.Simple) renamedFrom[rename.Value] = rename.Key;
-
-		var sb = new StringBuilder();
-		WriteHeader(sb, "CloudburstMC/Data runtime_item_states.json");
-		sb.AppendLine("namespace MiNET.Items");
-		sb.AppendLine("{");
-
-		var seen = new HashSet<string>();
-		int count = 0;
-		foreach (ItemEntry item in items.OrderBy(i => i.Name, StringComparer.Ordinal))
-		{
-			if (blockNames.Contains(BlockNameOf(item.Name))) continue;
-
-			string className = "Item" + CodeName(item.Name.Replace("minecraft:", ""));
-			if (handWritten.Contains(className)) continue;
-			if (renamedFrom.TryGetValue(item.Name, out string oldName) && handWritten.Contains("Item" + CodeName(oldName.Replace("minecraft:", "")))) continue;
-			if (!seen.Add(className)) continue;
-
-			string baseClass = BaseClassFor(className);
-			count++;
-			sb.AppendLine();
-			sb.AppendLine($"\tpublic partial class {className} : {baseClass} // {item.Name}");
-			sb.AppendLine("\t{");
-			sb.AppendLine($"\t\tpublic {className}() : base(\"{item.Name}\") {{ }}");
-			sb.AppendLine("\t} // class");
-		}
-
-		sb.AppendLine("}");
-		File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));
-		return count;
-	}
-
-	/// <summary>
-	///     The block an item name refers to. Identical to the item name, except for the 17 surviving
-	///     "minecraft:item.x" twins, whose block simply drops the "item." prefix.
-	/// </summary>
-	private static string BlockNameOf(string itemName)
-	{
-		return itemName.StartsWith("minecraft:item.", StringComparison.Ordinal) ? "minecraft:" + itemName.Substring("minecraft:item.".Length) : itemName;
-	}
-
-	private static string BaseClassFor(string className)
-	{
-		if (className.EndsWith("Axe", StringComparison.Ordinal)) return "ItemAxe";
-		if (className.EndsWith("Shovel", StringComparison.Ordinal)) return "ItemShovel";
-		if (className.EndsWith("Pickaxe", StringComparison.Ordinal)) return "ItemPickaxe";
-		if (className.EndsWith("Hoe", StringComparison.Ordinal)) return "ItemHoe";
-		if (className.EndsWith("Sword", StringComparison.Ordinal)) return "ItemSword";
-		if (className.EndsWith("Helmet", StringComparison.Ordinal)) return "ArmorHelmetBase";
-		if (className.EndsWith("Chestplate", StringComparison.Ordinal)) return "ArmorChestplateBase";
-		if (className.EndsWith("Leggings", StringComparison.Ordinal)) return "ArmorLeggingsBase";
-		if (className.EndsWith("Boots", StringComparison.Ordinal)) return "ArmorBootsBase";
-		return "Item";
-	}
-
-	private sealed class ItemMappingsJson
-	{
-		[JsonProperty("simple")] public Dictionary<string, string> Simple { get; set; } = new Dictionary<string, string>();
-	}
-
-	// One item registry identity: the durable string id, this protocol version's network id, and
-	// the component blob for the items that carry one. ComponentNbt is already serialized as
-	// network NBT, which is exactly what the item_registry packet puts on the wire.
-	private sealed record ItemEntry(string Name, short NetworkId, bool ComponentBased, int Version, byte[] ComponentNbt);
-
-	/// <summary>
-	///     Reads CloudburstMC/Data runtime_item_states.json and item_components.nbt into one list.
-	///     Verified against a live BDS 1.26.34 item_registry capture on 2026-08-01: same 1933 names,
-	///     same network ids, same component_based flags, same versions, and the 76 component trees
-	///     re-serialize to byte-identical network NBT.
-	///     Note that "component based" and "has components" are close to independent here. 73 items
-	///     carry the flag, 76 carry components, and the sets only partly overlap (food carries
-	///     components without the flag, music discs carry the flag without components). BDS reports
-	///     it that way, so neither is derived from the other.
-	/// </summary>
-	private static List<ItemEntry> ReadItemRegistry(string statesPath, string componentsPath)
-	{
-		var states = JsonConvert.DeserializeObject<List<ItemStateJson>>(File.ReadAllText(statesPath));
-
-		// Gzipped big-endian NBT, a root compound holding one compound per item name. An item with
-		// no components is present with an empty compound.
-		var file = new NbtFile {BigEndian = true, UseVarInt = false};
-		file.LoadFromFile(componentsPath, NbtCompression.AutoDetect, null);
-		var componentRoot = (NbtCompound) file.RootTag;
-
-		var result = new List<ItemEntry>(states.Count);
-		foreach (ItemStateJson state in states)
-		{
-			byte[] nbt = null;
-			if (componentRoot[state.Name] is NbtCompound components && components.Count > 0)
-			{
-				// The tree is keyed by item name, so its root tag carries that name. The wire root is
-				// unnamed; without this the client reads a name where it expects the payload.
-				var root = (NbtCompound) components.Clone();
-				root.Name = "";
-				nbt = new NbtFile(root) {BigEndian = false, UseVarInt = true}.SaveToBuffer(NbtCompression.None);
-			}
-
-			result.Add(new ItemEntry(state.Name, state.Id, state.ComponentBased, state.Version, nbt));
-		}
-
-		return result;
-	}
-
-	private sealed class ItemStateJson
-	{
-		[JsonProperty("name")] public string Name { get; set; }
-		[JsonProperty("id")] public short Id { get; set; }
-		[JsonProperty("version")] public int Version { get; set; }
-		[JsonProperty("componentBased")] public bool ComponentBased { get; set; }
-	}
-
-	/// <summary>
-	///     Emits the item registry as compiled code, the same way the block palette is emitted.
-	///     An item's identity is its string id; the network id is only what this protocol version
-	///     numbered it, so it is generated data rather than something the server works out.
-	///     Component blobs are stored base64 and handed to the wire verbatim. They are already the
-	///     exact bytes BDS sends, so nothing parses NBT to write the item_registry packet.
-	///     Split into parts for the 64KB IL method body cap, as with the block palette.
-	/// </summary>
-	private static int WriteItemRegistry(string path, List<ItemEntry> items)
-	{
-		const int PerPart = 400;
-		int parts = (items.Count + PerPart - 1) / PerPart;
-
-		var sb = new StringBuilder();
-		WriteHeader(sb, "CloudburstMC/Data runtime_item_states.json + item_components.nbt");
-		sb.AppendLine("namespace MiNET.Items");
-		sb.AppendLine("{");
-		sb.AppendLine("\tpublic static partial class ItemRegistryData");
-		sb.AppendLine("\t{");
-		sb.AppendLine("\t\t/// <summary>Fills the registry. Entry order is the order the item_registry packet sends.</summary>");
-		sb.AppendLine("\t\tpublic static void Create(ItemRegistry registry)");
-		sb.AppendLine("\t\t{");
-		for (int part = 1; part <= parts; part++) sb.AppendLine($"\t\t\tCreateItems_Part{part}(registry);");
-		sb.AppendLine("\t\t}");
-
-		for (int part = 1; part <= parts; part++)
-		{
-			sb.AppendLine();
-			sb.AppendLine($"\t\tprivate static void CreateItems_Part{part}(ItemRegistry registry)");
-			sb.AppendLine("\t\t{");
-
-			int from = (part - 1) * PerPart;
-			int to = Math.Min(from + PerPart, items.Count);
-			for (int i = from; i < to; i++)
-			{
-				ItemEntry item = items[i];
-				string componentBased = item.ComponentBased ? "true" : "false";
-				string nbt = item.ComponentNbt == null ? "null" : $"\"{Convert.ToBase64String(item.ComponentNbt)}\"";
-				sb.AppendLine($"\t\t\tregistry.Add(\"{item.Name}\", {item.NetworkId}, {componentBased}, {item.Version}, {nbt});");
-			}
-
-			sb.AppendLine("\t\t}");
-		}
-
-		sb.AppendLine("\t}");
-		sb.AppendLine("}");
-		File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));
-		return items.Count;
 	}
 
 	// A block's identity in the palette: its name, its legacy id if it still has one, and the
@@ -534,7 +385,7 @@ public static class Program
 		int parts = (palette.Count + PerPart - 1) / PerPart;
 
 		var sb = new StringBuilder();
-		WriteHeader(sb, "CloudburstMC/Data block_palette.nbt");
+		WriteHeader(sb, "MiNET.BdsExtract/Data block_states.json + blocks.json");
 		sb.AppendLine("using System.Collections.Generic;");
 		sb.AppendLine("using MiNET.Utils;");
 		sb.AppendLine();
@@ -625,52 +476,231 @@ public static class Program
 		}
 	}
 
+	// Everything the block half of the generator reads: the palette in canonical order, the
+	// per state physical properties keyed by block name, and the network hash each state carries,
+	// which is what proves the palette was read the way Bedrock writes it.
+	private sealed record BlockExtract(
+		List<BlockState> Palette,
+		Dictionary<string, List<BlockProperties>> Properties,
+		List<uint> NetworkHashes,
+		int BlockStateVersion,
+		string BlockStateRelease,
+		string PublishedFor,
+		bool NetworkIdsAreHashes);
+
 	/// <summary>
-	///     Reads CloudburstMC/Data block_palette.nbt: gzipped, big endian, a root compound holding
-	///     a "blocks" list. List order is the canonical palette order, and each entry also carries
-	///     block_id, network_id and name_hash.
-	///     The submodule is pinned to the commit matching the protocol we target. Their master runs
-	///     ahead, and a newer palette has extra states that shift every index after them, which
-	///     looks exactly like an ordering bug.
+	///     Reads the BDS memory extraction: block_states.json is the palette, one row per state in
+	///     canonical order, and blocks.json is one row per block type. Between them they carry
+	///     everything the palette NBT and the properties dump used to hold, read out of the running
+	///     server rather than republished by a third party.
+	///     The row's own networkId is its list index, which is asserted rather than assumed: the
+	///     index is the runtime id every generated GetRuntimeId returns.
+	///     Three values live on the block type instead of the state: the legacy numeric id, the
+	///     translucency and whether the block requires the correct tool to drop anything.
 	/// </summary>
-	private static List<BlockState> ReadPalette(string nbtPath)
+	private static BlockExtract ReadBlockExtract(string statesPath, string typesPath)
 	{
-		var file = new NbtFile {BigEndian = true, UseVarInt = false};
-		file.LoadFromFile(nbtPath, NbtCompression.AutoDetect, null);
-		var root = (NbtCompound) file.RootTag;
+		var statesFile = JsonConvert.DeserializeObject<BlockStatesJson>(File.ReadAllText(statesPath));
+		var typesFile = JsonConvert.DeserializeObject<BlockTypesJson>(File.ReadAllText(typesPath));
 
-		if (root["blocks"] is not NbtList blocks)
-		{
-			throw new InvalidDataException($"no 'blocks' list in {nbtPath}; root tags: {string.Join(",", root.Names)}");
-		}
+		var types = typesFile.Blocks.ToDictionary(b => b.NameInfo.FullName, StringComparer.Ordinal);
 
-		var result = new List<BlockState>(blocks.Count);
-		foreach (NbtTag tag in blocks)
+		var palette = new List<BlockState>(statesFile.States.Count);
+		var properties = new Dictionary<string, List<BlockProperties>>(StringComparer.Ordinal);
+		var hashes = new List<uint>(statesFile.States.Count);
+
+		for (int i = 0; i < statesFile.States.Count; i++)
 		{
-			var entry = (NbtCompound) tag;
+			BlockStateJson row = statesFile.States[i];
+			BlockSerializationIdJson id = row.SerializationId;
+
+			if (row.NetworkId != i) throw new InvalidDataException($"{row.Name} at index {i} carries networkId {row.NetworkId}");
+			if (id.Version != statesFile.BlockStateVersion) throw new InvalidDataException($"{row.Name} at index {i} carries version {id.Version}, not {statesFile.BlockStateVersion}");
+			if (!types.TryGetValue(id.Name, out BlockTypeJson type)) throw new InvalidDataException($"{id.Name} at index {i} has no block type in {Path.GetFileName(typesPath)}");
+
 			var states = new List<(string, object)>();
-			if (entry["states"] is NbtCompound stateTag)
+			foreach (KeyValuePair<string, JToken> state in id.States)
 			{
-				foreach (NbtTag state in stateTag)
+				// The three state kinds Bedrock serializes: a bit as an NBT byte, a number as an
+				// NBT int, an enum as a string. The kind decides the tag, and the tag decides the
+				// hash, so a wrong reading here cannot survive VerifyNetworkHashes.
+				object value = state.Value.Type switch
 				{
-					object value = state.TagType switch
-					{
-						NbtTagType.Byte => state.ByteValue,
-						NbtTagType.Int => state.IntValue,
-						NbtTagType.String => state.StringValue,
-						_ => null
-					};
-					if (value != null) states.Add((state.Name, value));
-				}
+					JTokenType.Boolean => (byte) (state.Value.Value<bool>() ? 1 : 0),
+					JTokenType.Integer => state.Value.Value<int>(),
+					JTokenType.String => state.Value.Value<string>(),
+					_ => throw new InvalidDataException($"{id.Name}.{state.Key} holds {state.Value.Type}, which is not a block state kind")
+				};
+				states.Add((state.Key, value));
 			}
 
-			// block_id is the legacy numeric id, or absent for a block that never had one.
-			// version is the block state schema stamp, the same on every entry.
-			result.Add(new BlockState(entry["name"].StringValue, entry["block_id"]?.IntValue ?? 0,
-				entry["version"]?.IntValue ?? 0, states));
+			palette.Add(new BlockState(id.Name, type.Id, id.Version, states));
+			hashes.Add(row.NetworkHash);
+
+			if (!properties.TryGetValue(id.Name, out List<BlockProperties> rows)) properties[id.Name] = rows = new List<BlockProperties>();
+			BlockDirectDataJson direct = row.DirectData;
+			rows.Add(new BlockProperties
+			{
+				Name = id.Name,
+				IsSolid = row.CachedComponentData.IsSolid,
+				Hardness = direct.DestroySpeed,
+				ExplosionResistance = direct.ExplosionResistance,
+				Friction = direct.Friction,
+				Translucency = type.Translucency,
+				LightEmission = direct.LightEmission,
+				LightDampening = direct.Light,
+				BurnOdds = direct.BurnOdds,
+				FlameOdds = direct.FlameOdds,
+				RequiresCorrectToolForDrops = type.RequiresCorrectToolForDrops,
+				CanContainLiquidSource = direct.WaterDetectionRule.CanContainLiquid
+			});
 		}
 
-		return result;
+		return new BlockExtract(palette, properties, hashes, statesFile.BlockStateVersion, statesFile.BlockStateRelease,
+			statesFile.LayoutPublishedFor, statesFile.NetworkIdsAreHashes);
+	}
+
+	/// <summary>
+	///     Re-serializes every palette entry the way Bedrock hashes it and requires the result to
+	///     equal the hash the extraction read out of the block itself.
+	///     This is the whole proof that the palette was read correctly. The hash covers the name,
+	///     every state name, every state value and the NBT tag each value was written as, so a
+	///     dropped state, a reordered pair or a bit read as a number all fail it. A recipe that
+	///     agrees on every row is proven; one that agrees on some is not, so a single mismatch
+	///     stops the run before anything is written.
+	/// </summary>
+	private static bool VerifyNetworkHashes(BlockExtract extract)
+	{
+		var failures = new List<string>();
+		for (int i = 0; i < extract.Palette.Count; i++)
+		{
+			BlockState state = extract.Palette[i];
+			uint computed = ComputeNetworkHash(state);
+			if (computed == extract.NetworkHashes[i]) continue;
+			failures.Add($"  index {i} {state.Name}: computed {computed}, extraction read {extract.NetworkHashes[i]}");
+		}
+
+		if (failures.Count > 0)
+		{
+			Console.Error.WriteLine($"network hash proof failed on {failures.Count} of {extract.Palette.Count} states:");
+			foreach (string f in failures.Take(20)) Console.Error.WriteLine(f);
+			return false;
+		}
+
+		Console.WriteLine($"network hash proof: {extract.Palette.Count}/{extract.Palette.Count} states re-serialize to their own serializationIdHashForNetwork");
+		return true;
+	}
+
+	/// <summary>
+	///     FNV-1a 32 over the little-endian, non-varint NBT of {name, states}, states sorted
+	///     alphabetically. The same recipe as MiNET.Blocks.BlockFactory.ComputeNetworkHash, written
+	///     out again here because the generator does not reference the code it emits.
+	/// </summary>
+	private static uint ComputeNetworkHash(BlockState state)
+	{
+		var states = new NbtCompound("states");
+		foreach ((string name, object value) in state.States.OrderBy(s => s.Name, StringComparer.Ordinal))
+		{
+			switch (value)
+			{
+				case byte b:
+					states.Add(new NbtByte(name, b));
+					break;
+				case int n:
+					states.Add(new NbtInt(name, n));
+					break;
+				case string s:
+					states.Add(new NbtString(name, s));
+					break;
+			}
+		}
+
+		var root = new NbtCompound("")
+		{
+			new NbtString("name", state.Name),
+			states
+		};
+
+		byte[] bytes = new NbtFile(root) {BigEndian = false, UseVarInt = false}.SaveToBuffer(NbtCompression.None);
+
+		uint hash = 0x811c9dc5;
+		foreach (byte b in bytes)
+		{
+			hash ^= b;
+			hash *= 0x01000193;
+		}
+
+		return hash;
+	}
+
+	private sealed class BlockStatesJson
+	{
+		[JsonProperty("networkIdsAreHashes")] public bool NetworkIdsAreHashes { get; set; }
+		[JsonProperty("blockStateVersion")] public int BlockStateVersion { get; set; }
+		[JsonProperty("blockStateRelease")] public string BlockStateRelease { get; set; }
+		[JsonProperty("layoutPublishedFor")] public string LayoutPublishedFor { get; set; }
+		[JsonProperty("states")] public List<BlockStateJson> States { get; set; }
+	}
+
+	private sealed class BlockStateJson
+	{
+		[JsonProperty("name")] public string Name { get; set; }
+		[JsonProperty("networkId")] public int NetworkId { get; set; }
+		[JsonProperty("serializationId")] public BlockSerializationIdJson SerializationId { get; set; }
+		[JsonProperty("serializationIdHashForNetwork")] public uint NetworkHash { get; set; }
+		[JsonProperty("cachedComponentData")] public BlockCachedComponentDataJson CachedComponentData { get; set; }
+		[JsonProperty("directData")] public BlockDirectDataJson DirectData { get; set; }
+	}
+
+	private sealed class BlockSerializationIdJson
+	{
+		[JsonProperty("name")] public string Name { get; set; }
+		[JsonProperty("version")] public int Version { get; set; }
+
+		// A JObject, because the states keep the order they are written in and each value carries
+		// its own kind. A dictionary would keep neither.
+		[JsonProperty("states")] public JObject States { get; set; }
+	}
+
+	private sealed class BlockCachedComponentDataJson
+	{
+		[JsonProperty("isSolid")] public bool IsSolid { get; set; }
+	}
+
+	private sealed class BlockDirectDataJson
+	{
+		[JsonProperty("destroySpeed")] public float DestroySpeed { get; set; }
+		[JsonProperty("explosionResistance")] public float ExplosionResistance { get; set; }
+		[JsonProperty("friction")] public float Friction { get; set; }
+		[JsonProperty("lightEmission")] public int LightEmission { get; set; }
+		[JsonProperty("light")] public int Light { get; set; }
+		[JsonProperty("burnOdds")] public int BurnOdds { get; set; }
+		[JsonProperty("flameOdds")] public int FlameOdds { get; set; }
+		[JsonProperty("waterDetectionRule")] public BlockWaterDetectionJson WaterDetectionRule { get; set; }
+	}
+
+	private sealed class BlockWaterDetectionJson
+	{
+		[JsonProperty("canContainLiquid")] public bool CanContainLiquid { get; set; }
+	}
+
+	private sealed class BlockTypesJson
+	{
+		[JsonProperty("blocks")] public List<BlockTypeJson> Blocks { get; set; }
+	}
+
+	private sealed class BlockTypeJson
+	{
+		[JsonProperty("nameInfo")] public BlockNameInfoJson NameInfo { get; set; }
+		[JsonProperty("id")] public int Id { get; set; }
+		[JsonProperty("creativeGroup")] public string CreativeGroup { get; set; }
+		[JsonProperty("translucency")] public float Translucency { get; set; }
+		[JsonProperty("requiresCorrectToolForDrops")] public bool RequiresCorrectToolForDrops { get; set; }
+	}
+
+	private sealed class BlockNameInfoJson
+	{
+		[JsonProperty("fullName")] public string FullName { get; set; }
 	}
 
 	/// <summary>
@@ -690,17 +720,15 @@ public static class Program
 	///         is one new file and no wiring, and a family with nothing to share stays on Block.
 	///     </para>
 	/// </summary>
-	private static Dictionary<string, string> ReadFamilyBases(string dataDir, string blocksDir, HashSet<string> handWritten)
+	private static Dictionary<string, string> ReadFamilyBases(string creativePath, string blocksDir, HashSet<string> handWritten)
 	{
-		var creative = JsonConvert.DeserializeObject<CreativeFamiliesJson>(File.ReadAllText(Path.Combine(dataDir, "creative_items.json")));
+		var creative = JsonConvert.DeserializeObject<CreativeFamiliesJson>(File.ReadAllText(creativePath));
 		var bases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 		var usable = new Dictionary<string, bool>();
 
 		foreach (CreativeFamilyItemJson item in creative.Items)
 		{
-			if (item.GroupId < 0 || item.GroupId >= creative.Groups.Count) continue;
-
-			string group = creative.Groups[item.GroupId].Name;
+			string group = item.Group;
 			if (string.IsNullOrEmpty(group) || !group.StartsWith("itemGroup.name.")) continue;
 
 			string baseName = CodeName(group.Substring("itemGroup.name.".Length)) + "Base";
@@ -726,7 +754,7 @@ public static class Program
 
 			if (!ok) continue;
 
-			bases[item.Id] = baseName;
+			bases[item.Item] = baseName;
 		}
 
 		return bases;
@@ -734,19 +762,13 @@ public static class Program
 
 	private sealed class CreativeFamiliesJson
 	{
-		[JsonProperty("groups")] public List<CreativeFamilyGroupJson> Groups { get; set; }
 		[JsonProperty("items")] public List<CreativeFamilyItemJson> Items { get; set; }
-	}
-
-	private sealed class CreativeFamilyGroupJson
-	{
-		[JsonProperty("name")] public string Name { get; set; }
 	}
 
 	private sealed class CreativeFamilyItemJson
 	{
-		[JsonProperty("id")] public string Id { get; set; }
-		[JsonProperty("groupId")] public int GroupId { get; set; }
+		[JsonProperty("item")] public string Item { get; set; }
+		[JsonProperty("group")] public string Group { get; set; }
 	}
 
 	private static HashSet<string> ReadHandWrittenClasses(string blocksDir, params string[] generatedFiles)
@@ -825,10 +847,13 @@ public static class Program
 		return names;
 	}
 
-	private static int WriteBlockDataClasses(string path, List<IGrouping<string, BlockState>> byName, HashSet<string> handWritten, Dictionary<string, string> familyBases)
+	private static int WriteBlockDataClasses(string path, List<IGrouping<string, BlockState>> byName, HashSet<string> handWritten,
+		Dictionary<string, string> familyBases, Dictionary<string, BlockDefinition> definitions)
 	{
 		var sb = new StringBuilder();
-		WriteHeader(sb, "CloudburstMC/Data block_palette.nbt");
+		WriteHeader(sb, "MiNET.BdsExtract/Data block_states.json + blocks.json");
+		sb.AppendLine("using System.Collections.Generic;");
+		sb.AppendLine();
 		sb.AppendLine("namespace MiNET.Blocks");
 		sb.AppendLine("{");
 
@@ -850,6 +875,15 @@ public static class Program
 			sb.AppendLine("\t\t{");
 			sb.AppendLine("\t\t\tIsGenerated = true;");
 			sb.AppendLine("\t\t}");
+
+			// A data-driven block carries what StartGame declares about it. The client has no such
+			// block built in, so this is the whole of what it knows.
+			if (definitions.TryGetValue(group.Key, out BlockDefinition definition))
+			{
+				sb.AppendLine();
+				sb.Append(DefinitionGenerator.Emit(definition, "\t\t"));
+			}
+
 			sb.AppendLine("\t} // class");
 		}
 
@@ -860,28 +894,155 @@ public static class Program
 
 	/// <summary>
 	///     The physical properties of a block, from CloudburstMC block_properties.json. The file is
-	///     per block state, 16913 of them, but only 51 blocks vary these values between their own
-	///     states (candles, whose light scales with how many are lit), so the first state's values
-	///     stand for the block. Those 51 keep whatever their hand-written class does.
-	///     Emitted as overrides with initializers rather than constructor assignments, so a
-	///     hand-written constructor still wins: an override's initializer runs before the body.
+	///     per block STATE and in palette order, so a block's rows pair positionally with its
+	///     permutations. A property whose value is the same across all of them is emitted as a
+	///     constant; one that differs is emitted as a switch over the states it depends on, which is
+	///     how a lit candle reports 3, 6, 9 or 12 instead of the unlit 0 that leads its palette run.
+	///     Emitted get-only, because these describe the block rather than record anything: a block
+	///     needing a different value overrides the property.
 	/// </summary>
-	private static void WriteBlockProperties(StringBuilder sb, string blockName, Dictionary<string, BlockProperties> properties)
+	private static void WriteBlockProperties(StringBuilder sb, IGrouping<string, BlockState> group, Dictionary<string, List<BlockProperties>> properties)
 	{
-		if (!properties.TryGetValue(blockName, out BlockProperties p)) return;
+		if (!properties.TryGetValue(group.Key, out List<BlockProperties> rows) || rows.Count == 0) return;
 
-		sb.AppendLine($"\t\tpublic override float Hardness {{ get; protected set; }} = {Literal(p.Hardness)};");
-		sb.AppendLine($"\t\tpublic override float BlastResistance {{ get; protected set; }} = {Literal(p.ExplosionResistance)};");
-		sb.AppendLine($"\t\tpublic override float FrictionFactor {{ get; protected set; }} = {Literal(p.Friction)};");
-		sb.AppendLine($"\t\tpublic override int LightLevel {{ get; set; }} = {p.LightEmission};");
-		sb.AppendLine($"\t\tpublic override int LightDampening {{ get; protected set; }} = {p.LightDampening};");
-		sb.AppendLine($"\t\tpublic override float Translucency {{ get; protected set; }} = {Literal(p.Translucency)};");
-		sb.AppendLine($"\t\tpublic override int BurnOdds {{ get; protected set; }} = {p.BurnOdds};");
-		sb.AppendLine($"\t\tpublic override int FlameOdds {{ get; protected set; }} = {p.FlameOdds};");
-		sb.AppendLine($"\t\tpublic override bool IsSolid {{ get; protected set; }} = {(p.IsSolid ? "true" : "false")};");
-		sb.AppendLine($"\t\tpublic override bool RequiresCorrectToolForDrops {{ get; protected set; }} = {(p.RequiresCorrectToolForDrops ? "true" : "false")};");
-		sb.AppendLine($"\t\tpublic override bool CanContainLiquidSource {{ get; protected set; }} = {(p.CanContainLiquidSource ? "true" : "false")};");
+		List<BlockState> permutations = group.ToList();
+
+		WriteProperty(sb, "float", "Hardness", group.Key, rows, permutations, p => Literal(p.Hardness));
+		WriteProperty(sb, "float", "BlastResistance", group.Key, rows, permutations, p => Literal(p.ExplosionResistance));
+		WriteProperty(sb, "float", "FrictionFactor", group.Key, rows, permutations, p => Literal(p.Friction));
+		WriteProperty(sb, "int", "LightLevel", group.Key, rows, permutations, p => p.LightEmission.ToString(CultureInfo.InvariantCulture));
+		WriteProperty(sb, "int", "LightDampening", group.Key, rows, permutations, p => p.LightDampening.ToString(CultureInfo.InvariantCulture));
+		WriteProperty(sb, "float", "Translucency", group.Key, rows, permutations, p => Literal(p.Translucency));
+		WriteProperty(sb, "int", "BurnOdds", group.Key, rows, permutations, p => p.BurnOdds.ToString(CultureInfo.InvariantCulture));
+		WriteProperty(sb, "int", "FlameOdds", group.Key, rows, permutations, p => p.FlameOdds.ToString(CultureInfo.InvariantCulture));
+		WriteProperty(sb, "bool", "IsSolid", group.Key, rows, permutations, p => p.IsSolid ? "true" : "false");
+		WriteProperty(sb, "bool", "RequiresCorrectToolForDrops", group.Key, rows, permutations, p => p.RequiresCorrectToolForDrops ? "true" : "false");
+		WriteProperty(sb, "bool", "CanContainLiquidSource", group.Key, rows, permutations, p => p.CanContainLiquidSource ? "true" : "false");
 		sb.AppendLine();
+	}
+
+	/// <summary>
+	///     One property: a constant when every state agrees, otherwise a switch over the smallest set
+	///     of states that decides it. A block whose rows do not pair with its permutations cannot be
+	///     resolved per state, so a varying value there is an error rather than a silent first-row
+	///     guess, which is the bug this replaces.
+	/// </summary>
+	private static void WriteProperty(StringBuilder sb, string type, string name, string blockName,
+		List<BlockProperties> rows, List<BlockState> permutations, Func<BlockProperties, string> format)
+	{
+		List<string> values = rows.Select(format).ToList();
+		string first = values[0];
+		if (values.All(v => v == first))
+		{
+			sb.AppendLine($"\t\tpublic override {type} {name} => {first};");
+			return;
+		}
+
+		if (rows.Count != permutations.Count)
+		{
+			throw new InvalidDataException(
+				$"{blockName}.{name} differs between states, but it has {rows.Count} property rows against " +
+				$"{permutations.Count} palette permutations, so no row can be attributed to a state.");
+		}
+
+		List<string> deciding = FindDecidingStates(permutations, values)
+			?? throw new InvalidDataException($"{blockName}.{name} differs between states but no combination of its states decides it.");
+
+		// The commonest value carries the default arm, so the switch lists only the exceptions.
+		string fallback = values.GroupBy(v => v).OrderByDescending(g => g.Count()).First().Key;
+		var arms = new List<string>();
+		var seen = new HashSet<string>(StringComparer.Ordinal);
+		for (int i = 0; i < permutations.Count; i++)
+		{
+			if (values[i] == fallback) continue;
+			string pattern = StatePattern(permutations, deciding, i);
+			if (seen.Add(pattern)) arms.Add($"\t\t\t{pattern} => {values[i]},");
+		}
+
+		string subject = deciding.Count == 1
+			? StateProperty(deciding[0])
+			: $"({string.Join(", ", deciding.Select(StateProperty))})";
+
+		sb.AppendLine($"\t\tpublic override {type} {name} => {subject} switch");
+		sb.AppendLine("\t\t{");
+		foreach (string arm in arms) sb.AppendLine(arm);
+		sb.AppendLine($"\t\t\t_ => {fallback}");
+		sb.AppendLine("\t\t};");
+	}
+
+	/// <summary>
+	///     The smallest group of states whose values decide this property, preferring fewer states so
+	///     a candle switches on lit and candles rather than on every state it happens to carry.
+	///     Null when no group does, which means the data disagrees with itself.
+	/// </summary>
+	private static List<string> FindDecidingStates(List<BlockState> permutations, List<string> values)
+	{
+		List<string> candidates = permutations[0].States
+			.Select(s => s.Name)
+			.Where(n => permutations.Select(p => StateValue(p, n)).Distinct().Count() > 1)
+			.ToList();
+		if (candidates.Count == 0 || candidates.Count > 12) return null;
+
+		for (int size = 1; size <= candidates.Count; size++)
+		{
+			for (int mask = 0; mask < 1 << candidates.Count; mask++)
+			{
+				if (BitOperations.PopCount((uint) mask) != size) continue;
+
+				List<string> subset = candidates.Where((_, i) => (mask & (1 << i)) != 0).ToList();
+				var byKey = new Dictionary<string, string>(StringComparer.Ordinal);
+				bool consistent = true;
+				for (int i = 0; i < permutations.Count && consistent; i++)
+				{
+					string key = string.Join("", subset.Select(n => StateValue(permutations[i], n)));
+					if (byKey.TryGetValue(key, out string existing)) consistent = existing == values[i];
+					else byKey[key] = values[i];
+				}
+				if (consistent) return subset;
+			}
+		}
+		return null;
+	}
+
+	private static string StateValue(BlockState permutation, string stateName)
+	{
+		object value = permutation.States.First(s => s.Name == stateName).Value;
+		return Convert.ToString(value, CultureInfo.InvariantCulture);
+	}
+
+	private static string StateProperty(string stateName)
+	{
+		return CodeName(stateName.Replace("minecraft:", ""));
+	}
+
+	/// <summary>
+	///     The case pattern for one permutation, matching how the state itself is declared: a byte
+	///     that only ever holds 0 or 1 is a bool property, so it has to be matched as true or false.
+	/// </summary>
+	private static string StatePattern(List<BlockState> permutations, List<string> deciding, int index)
+	{
+		var parts = new List<string>();
+		foreach (string stateName in deciding)
+		{
+			object value = permutations[index].States.First(s => s.Name == stateName).Value;
+			List<object> all = permutations.Select(p => p.States.First(s => s.Name == stateName).Value).Distinct().ToList();
+			parts.Add(value switch
+			{
+				byte b when IsBitState(all) => b == 1 ? "true" : "false",
+				byte b => b.ToString(CultureInfo.InvariantCulture),
+				int n => n.ToString(CultureInfo.InvariantCulture),
+				_ => $"\"{value}\""
+			});
+		}
+		return deciding.Count == 1 ? parts[0] : $"({string.Join(", ", parts)})";
+	}
+
+	/// <summary>Matches the rule the state declaration uses: a 0/1 byte state becomes a bool.</summary>
+	private static bool IsBitState(List<object> values)
+	{
+		if (values.Count == 0 || values[0] is not byte) return false;
+		List<byte> bytes = values.Cast<byte>().ToList();
+		return bytes.Count <= 2 && bytes.Min() == 0 && bytes.Max() <= 1;
 	}
 
 	private static string Literal(float value)
@@ -889,40 +1050,33 @@ public static class Program
 		return value.ToString("0.0###########", CultureInfo.InvariantCulture) + "f";
 	}
 
-	/// <summary>Reads block_properties.json, keeping the first state seen for each block name.</summary>
-	private static Dictionary<string, BlockProperties> ReadBlockProperties(string path)
-	{
-		if (!File.Exists(path))
-		{
-			Console.Error.WriteLine($"block properties not found: {path}");
-			return new Dictionary<string, BlockProperties>();
-		}
-
-		var all = JsonConvert.DeserializeObject<List<BlockProperties>>(File.ReadAllText(path));
-
-		var result = new Dictionary<string, BlockProperties>(StringComparer.Ordinal);
-		foreach (BlockProperties p in all) result.TryAdd(p.Name, p);
-		return result;
-	}
-
+	/// <summary>
+	///     The physical properties of one block state, as the extraction reads them off the block:
+	///     the ones on the block itself from its directData and cachedComponentData, the two that
+	///     live on the block type from there. A block's rows are in palette order, so they pair
+	///     positionally with its permutations, which is what lets a per-state value be generated as
+	///     a switch. Only lightEmission (51 blocks, the candles) and lightDampening (cauldron)
+	///     differ between a block's own states; the rest are constant and collapse back to one
+	///     value.
+	/// </summary>
 	private class BlockProperties
 	{
-		[JsonProperty("name")] public string Name { get; set; }
-		[JsonProperty("isSolid")] public bool IsSolid { get; set; }
-		[JsonProperty("hardness")] public float Hardness { get; set; }
-		[JsonProperty("explosionResistance")] public float ExplosionResistance { get; set; }
-		[JsonProperty("friction")] public float Friction { get; set; }
-		[JsonProperty("translucency")] public float Translucency { get; set; }
-		[JsonProperty("lightEmission")] public int LightEmission { get; set; }
-		[JsonProperty("lightDampening")] public int LightDampening { get; set; }
-		[JsonProperty("burnOdds")] public int BurnOdds { get; set; }
-		[JsonProperty("flameOdds")] public int FlameOdds { get; set; }
-		[JsonProperty("requiresCorrectToolForDrops")] public bool RequiresCorrectToolForDrops { get; set; }
-		[JsonProperty("canContainLiquidSource")] public bool CanContainLiquidSource { get; set; }
+		public string Name { get; set; }
+		public bool IsSolid { get; set; }
+		public float Hardness { get; set; }
+		public float ExplosionResistance { get; set; }
+		public float Friction { get; set; }
+		public float Translucency { get; set; }
+		public int LightEmission { get; set; }
+		public int LightDampening { get; set; }
+		public int BurnOdds { get; set; }
+		public int FlameOdds { get; set; }
+		public bool RequiresCorrectToolForDrops { get; set; }
+		public bool CanContainLiquidSource { get; set; }
 	}
 
 	private static int WritePartialBlocks(string path, List<IGrouping<string, BlockState>> byName, HashSet<string> handImplemented, Dictionary<string, int> baseIndex,
-		Dictionary<string, string> familyBases)
+		Dictionary<string, string> familyBases, Dictionary<string, List<BlockProperties>> properties)
 	{
 		// State declarations for each family base, collected once and written at the end.
 		var baseStates = new Dictionary<string, StringBuilder>();
@@ -940,12 +1094,10 @@ public static class Program
 			else sharedStateNames[owner] = names;
 		}
 
-		Dictionary<string, BlockProperties> properties = ReadBlockProperties(
-			Path.Combine(Path.GetDirectoryName(path)!, "..", "..", "MiNET.BlockGen", "Data", "block_properties.json"));
 		Console.WriteLine($"block properties: {properties.Count} blocks");
 
 		var sb = new StringBuilder();
-		WriteHeader(sb, "CloudburstMC/Data block_palette.nbt");
+		WriteHeader(sb, "MiNET.BdsExtract/Data block_states.json + blocks.json");
 		sb.AppendLine("using System;");
 		sb.AppendLine("using System.Collections.Generic;");
 		sb.AppendLine("using MiNET.Utils;");
@@ -978,7 +1130,7 @@ public static class Program
 			sb.AppendLine("\t{");
 			sb.AppendLine($"\t\tpublic override string Name => \"{group.Key}\";");
 			sb.AppendLine();
-			WriteBlockProperties(sb, group.Key, properties);
+			WriteBlockProperties(sb, group, properties);
 
 			// A family shares one state signature, so its states are declared once on the base
 			// rather than repeated on every member. Emitted into baseStates here and written out
@@ -1104,7 +1256,7 @@ public static class Program
 	private static void WriteHeader(StringBuilder sb, string source)
 	{
 		sb.AppendLine($"// GENERATED by MiNET.BlockGen from {source}.");
-		sb.AppendLine("// Do not hand-edit. Run the tool again after updating the pinned data submodule.");
+		sb.AppendLine("// Do not hand-edit. Run the tool again after updating the source data.");
 		sb.AppendLine();
 	}
 

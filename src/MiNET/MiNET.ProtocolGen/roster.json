@@ -34,6 +34,22 @@
 			"schema": "AnvilDamagePacket"
 		},
 		{
+			"name": "MCPE_BOSS_EVENT",
+			"id": "0x4a",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "BossEventPacket"
+		},
+		{
+			"name": "MCPE_CAMERA_PRESETS",
+			"id": "0xc6",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "CameraPresetsPacket"
+		},
+		{
 			"name": "MCPE_CLIENTBOUND_MAP_ITEM_DATA",
 			"id": "0x43",
 			"online": false,
@@ -64,6 +80,14 @@
 			"client": true,
 			"server": true,
 			"schema": "InventoryTransactionPacket"
+		},
+		{
+			"name": "MCPE_DIMENSION_DATA",
+			"id": "0xb4",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "DimensionDataPacket"
 		},
 		{
 			"name": "MCPE_INVENTORY_CONTENT",
@@ -154,6 +178,14 @@
 			"schema": "PlayerAuthInputPacket"
 		},
 		{
+			"name": "MCPE_PLAY_SOUND",
+			"id": "0x56",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "PlaySoundPacket"
+		},
+		{
 			"name": "MCPE_PLAYER_LIST",
 			"id": "0x3f",
 			"online": false,
@@ -232,6 +264,30 @@
 			"client": false,
 			"server": true,
 			"schema": "ServerToClientHandshakePacket"
+		},
+		{
+			"name": "MCPE_SERVERBOUND_PACK_SETTING_CHANGE",
+			"id": "0x149",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ServerboundPackSettingChangePacket"
+		},
+		{
+			"name": "MCPE_SET_PLAYER_FURNACE_OPTIONS",
+			"id": "0x15f",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "SetPlayerFurnaceOptionsPacket"
+		},
+		{
+			"name": "MCPE_RECORD_STARTED",
+			"id": "0x160",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "RecordStartedPacket"
 		},
 		{
 			"name": "MCPE_SET_ENTITY_DATA",

@@ -122,7 +122,7 @@ namespace TestPlugin.NiceLobby
 				var currentFrame = _frameTicker.GetCurrentFrame(this);
 				if (currentFrame >= _frames.Count) return;
 
-				var map = new ItemMap(_frames[currentFrame].EntityId);
+				var map = new ItemFilledMap(_frames[currentFrame].EntityId);
 
 				ItemFrameBlockEntity blockEntity = _itemFrameBlockEntity;
 				if (blockEntity != null)

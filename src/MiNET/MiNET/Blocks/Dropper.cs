@@ -32,7 +32,7 @@ using MiNET.Worlds;
 namespace MiNET.Blocks
 {
 	/// <summary>Nine slots that hold what is put in them. Redstone does not fire it.</summary>
-	public partial class Dropper
+	public partial class Dropper : Block
 	{
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{

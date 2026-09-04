@@ -801,6 +801,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message)
+		{
+		}
+
 		public void HandleMcpeServerboundDataStore(McpeServerboundDataStore message)
 		{
 		}

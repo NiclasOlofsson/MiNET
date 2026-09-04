@@ -1,0 +1,35 @@
+{
+    "title": "minecraft:use_modifiers",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.20.50/minecraft_use_modifiers.json",
+    "x-format-version": "1.20.50",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "emit_vibrations": {
+            "type": "boolean",
+            "default": true,
+            "x-underlying-type": "boolean",
+            "x-ordinal-index": 1
+        },
+        "movement_modifier": {
+            "type": "number",
+            "x-underlying-type": "float",
+            "x-ordinal-index": 3,
+            "minimum": 0.0,
+            "maximum": 1.0
+        },
+        "start_sound": {
+            "$ref": "../../common/1.20.50/LevelSoundEvent.json",
+            "x-underlying-type": "uint32",
+            "x-ordinal-index": 2
+        },
+        "use_duration": {
+            "type": "number",
+            "default": 0.0,
+            "x-underlying-type": "float",
+            "x-ordinal-index": 0,
+            "minimum": 0.0
+        }
+    }
+}

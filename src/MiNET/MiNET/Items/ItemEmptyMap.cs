@@ -45,7 +45,7 @@ namespace MiNET.Items
 			mapEntity.SpawnEntity();
 
 			// Initialize a new map and add it.
-			ItemMap itemMap = new ItemMap(mapEntity.EntityId);
+			ItemFilledMap itemMap = new ItemFilledMap(mapEntity.EntityId);
 			player.Inventory.SetFirstEmptySlot(itemMap, true);
 		}
 	}

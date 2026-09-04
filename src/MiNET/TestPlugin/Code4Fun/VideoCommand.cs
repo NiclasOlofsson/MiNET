@@ -222,7 +222,7 @@ namespace TestPlugin.Code4Fun
 					foreach (MapEntity entity in entities.Values)
 					{
 						entity.SpawnEntity();
-						player.Inventory.Slots[i++] = new ItemMap(entity.EntityId);
+						player.Inventory.Slots[i++] = new ItemFilledMap(entity.EntityId);
 					}
 
 					player.SendPlayerInventory();

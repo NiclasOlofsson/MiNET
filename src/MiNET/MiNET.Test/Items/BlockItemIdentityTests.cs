@@ -56,28 +56,31 @@ namespace MiNET.Test.Items
 		}
 
 		// A sign is two blocks and the face decides which, so both halves have to resolve.
+		// The pairs are written out rather than derived from the class name. Oak is why: its blocks
+		// are "minecraft:standing_sign" and "minecraft:wall_sign" with no wood in them at all, so any
+		// rule that reads the wood off the class is a rule with an exception, and a test that infers
+		// what it is checking cannot fail when the pairing itself is wrong.
 		[TestMethod]
 		public void SignVariants_ResolveBothHalves()
 		{
-			foreach (ItemBlock sign in new ItemBlock[]
+			var expected = new Dictionary<ItemBlock, (string Standing, string Wall)>
 			{
-				new ItemSign(), new ItemAcaciaSign(), new ItemSpruceSign(), new ItemBirchSign(),
-				new ItemJungleSign(), new ItemDarkoakSign(), new ItemCrimsonSign(), new ItemWarpedSign()
-			})
+				[new ItemOakSign()] = ("minecraft:standing_sign", "minecraft:wall_sign"),
+				[new ItemAcaciaSign()] = ("minecraft:acacia_standing_sign", "minecraft:acacia_wall_sign"),
+				[new ItemSpruceSign()] = ("minecraft:spruce_standing_sign", "minecraft:spruce_wall_sign"),
+				[new ItemBirchSign()] = ("minecraft:birch_standing_sign", "minecraft:birch_wall_sign"),
+				[new ItemJungleSign()] = ("minecraft:jungle_standing_sign", "minecraft:jungle_wall_sign"),
+				[new ItemDarkOakSign()] = ("minecraft:darkoak_standing_sign", "minecraft:darkoak_wall_sign"),
+				[new ItemCrimsonSign()] = ("minecraft:crimson_standing_sign", "minecraft:crimson_wall_sign"),
+				[new ItemWarpedSign()] = ("minecraft:warped_standing_sign", "minecraft:warped_wall_sign")
+			};
+
+			foreach ((ItemBlock sign, (string standing, string wall)) in expected)
 			{
 				string name = sign.GetType().Name;
-				Assert.IsNotNull(MiNET.Blocks.BlockFactory.GetBlockByName(StandingNameOf(name)), $"{name} standing half missing");
-				Assert.IsNotNull(MiNET.Blocks.BlockFactory.GetBlockByName(WallNameOf(name)), $"{name} wall half missing");
+				Assert.IsNotNull(MiNET.Blocks.BlockFactory.GetBlockByName(standing), $"{name} standing half {standing} missing");
+				Assert.IsNotNull(MiNET.Blocks.BlockFactory.GetBlockByName(wall), $"{name} wall half {wall} missing");
 			}
-		}
-
-		private static string StandingNameOf(string itemClass) => SignBlockName(itemClass, "standing_sign");
-		private static string WallNameOf(string itemClass) => SignBlockName(itemClass, "wall_sign");
-
-		private static string SignBlockName(string itemClass, string suffix)
-		{
-			string wood = itemClass.Replace("Item", "").Replace("Sign", "").ToLowerInvariant();
-			return wood.Length == 0 ? $"minecraft:{suffix}" : $"minecraft:{wood}_{suffix}";
 		}
 	}
 }

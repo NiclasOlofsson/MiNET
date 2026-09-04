@@ -1,0 +1,33 @@
+{
+    "title": "minecraft:entity_placer",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.20.50/minecraft_entity_placer.json",
+    "x-format-version": "1.20.50",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "dispense_on": {
+            "type": "array",
+            "default": [],
+            "items": {
+                "$ref": "../../common/1.20.50/Block%20Descriptor.json"
+            },
+            "x-ordinal-index": 2
+        },
+        "entity": {
+            "default": "",
+            "$ref": "../../../client_server/common/legacy/Reference%201.json",
+            "x-ordinal-index": 0,
+            "minLength": 0,
+            "pattern": "^(?:\\w+(?:\\.\\w+)*:(?=\\w))?(?:\\w+(?:\\.\\w+)*)(?:<((?:\\w+(?:\\.\\w+)*:(?=\\w))?\\w+(?:\\.\\w+)*)*>)?$"
+        },
+        "use_on": {
+            "type": "array",
+            "default": [],
+            "items": {
+                "$ref": "../../common/1.20.50/Block%20Descriptor.json"
+            },
+            "x-ordinal-index": 1
+        }
+    }
+}

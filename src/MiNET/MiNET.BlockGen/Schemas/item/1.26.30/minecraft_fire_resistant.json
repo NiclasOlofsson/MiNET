@@ -1,0 +1,16 @@
+{
+    "title": "minecraft:fire_resistant",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/minecraft_fire_resistant.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "value": {
+            "type": "boolean",
+            "default": true,
+            "x-underlying-type": "boolean",
+            "x-ordinal-index": 0
+        }
+    }
+}

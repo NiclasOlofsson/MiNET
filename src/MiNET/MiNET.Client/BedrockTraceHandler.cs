@@ -860,10 +860,7 @@ namespace MiNET.Client
 		{
 			base.HandleMcpeCommandOutput(message);
 
-			//foreach (var msg in message.Messages)
-			//{
-			//	Log.Warn($"Received command output: {msg}");
-			//}
+			Client.CommandOutputReceived?.Invoke(message);
 		}
 	}
 }

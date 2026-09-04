@@ -1,0 +1,21 @@
+{
+    "title": "minecraft:durability_sensor",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/minecraft_durability_sensor.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "durability_thresholds": {
+            "type": "array",
+            "items": {
+                "$ref": "./minecraft_durability_sensor%20durability_threshold.json"
+            },
+            "x-ordinal-index": 0,
+            "minItems": 1
+        }
+    },
+    "required": [
+        "durability_thresholds"
+    ]
+}

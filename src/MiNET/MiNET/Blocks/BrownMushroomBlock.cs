@@ -30,12 +30,6 @@ namespace MiNET.Blocks
 {
 	public partial class BrownMushroomBlock : Block
 	{
-		public BrownMushroomBlock()
-		{
-			BlastResistance = 1;
-			Hardness = 0.2f;
-		}
-
 		public override Item[] GetDrops(Item tool)
 		{
 			var rnd = new Random();

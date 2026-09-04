@@ -561,26 +561,6 @@ namespace MiNET
 		}
 
 		/// <summary>Chunk radius vanilla publishes during the join burst, before negotiation.</summary>
-		/// <summary>
-		///     Pacing for the skeleton stream. Each column is pre-compressed into its own
-		///     <see cref="McpeWrapper" />, and a wrapper cannot nest inside another, so the send lane
-		///     passes every one through as its own SCTP message: a radius-64 pass is 16,641 messages
-		///     handed to one session back to back, with everything else that player needs queued behind
-		///     them.
-		///     <para>
-		///     This pacing was removed once on the grounds that the send queue already paces it. It does
-		///     not: the queue is an unbounded channel, so the producer never blocks and never feels the
-		///     transport's backpressure at all. The only real limit is the SCTP window, which stalls the
-		///     LANE rather than the loop feeding it, which is how send queue depth reached 1,284 packets
-		///     under load with the producer already finished.
-		///     </para>
-		///     <para>Set <see cref="ChunkSendDelayMs" /> to 0 to send unpaced.</para>
-		/// </summary>
-		public int ChunkSendBatchSize { get; set; } = 16;
-
-		/// <inheritdoc cref="ChunkSendBatchSize" />
-		public int ChunkSendDelayMs { get; set; } = 12;
-
 		public const int JoinBurstChunkRadius = 4;
 
 		/// <summary>
@@ -590,9 +570,10 @@ namespace MiNET
 		private const int MaxBlobStatusIds = 4095;
 
 		/// <summary>
-		///     Hash count at which a chunk group flushes mid-sweep: what one ClientCacheBlobStatus
-		///     can answer. Tick-sized blocks (250) were tried 2026-08-17 and made the join WORSE,
-		///     so small is not better here. int.MaxValue turns grouping off.
+		///     Hash count at which a chunk group flushes mid-sweep. This is the protocol cap, not a
+		///     tuning knob: it is what one ClientCacheBlobStatus can answer, so a group never
+		///     announces more hashes than the client can settle in one status packet. Announcements
+		///     are otherwise unpaced.
 		/// </summary>
 		private const int GroupFlushHashes = MaxBlobStatusIds;
 
@@ -2168,6 +2149,8 @@ namespace MiNET
 
 			bool oldNoAi = NoAi;
 			SetNoAi(true);
+			int oldChunkRadius = ChunkRadius;
+			SendChunkRadiusUpdate(1);
 
 			if (useLoadingScreen)
 			{
@@ -2217,22 +2200,39 @@ namespace MiNET
 
 				CleanCache();
 
-				ForcedSendChunk(SpawnPosition);
+				// Level.AddPlayer(this, true);
 
-				// send teleport to spawn
-				SetPosition(SpawnPosition);
+				// KnownPosition = SpawnPosition;
+
+				// SendChunkRadiusUpdate(oldChunkRadius);
+
+				// SendSetTime();
+
+				// // send teleport to spawn
+				// SetPosition(SpawnPosition);
+				// SetNoAi(oldNoAi);
+
+				// Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+
+				// postSpawnAction?.Invoke();
 
 				MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
 				{
 					Level.AddPlayer(this, true);
 
-					SetNoAi(oldNoAi);
+					KnownPosition = SpawnPosition;
+
+					SendChunkRadiusUpdate(oldChunkRadius);
 
 					ForcedSendChunks(() =>
 					{
 						Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
 						SendSetTime();
+
+						// send teleport to spawn
+						SetPosition(SpawnPosition);
+						SetNoAi(oldNoAi);
 
 						postSpawnAction?.Invoke();
 					});
@@ -2345,9 +2345,8 @@ namespace MiNET
 			creativeContent.groups = new List<CreativeGroupInfoPayload>();
 			creativeContent.entries = new List<CreativeItemEntryPayload>();
 
-			// Vanilla tab groups (captured 1.26.34 data): groups with category/name/icon, and each
-			// entry referencing its group by index. Without correct groups the client shows empty
-			// creative tabs.
+			// Vanilla tab groups: groups with category/name/icon, and each entry referencing its
+			// group by index. Without correct groups the client shows empty creative tabs.
 			CreativeGroupData groupData = InventoryUtils.CreativeGroups.Value;
 			foreach (CreativeGroupDef def in groupData.Groups)
 			{
@@ -2360,13 +2359,7 @@ namespace MiNET
 					icon = ItemFactory.GetItemByNetworkId(def.IconNetworkId, def.IconMetadata);
 					icon.NetworkMetadata = def.IconMetadata;
 					icon.RuntimeId = def.IconRuntimeId;
-					if (def.IconNbtB64 != null)
-					{
-						byte[] nbtBytes = Convert.FromBase64String(def.IconNbtB64);
-						var nbtFile = new NbtFile {BigEndian = false, UseVarInt = true};
-						nbtFile.LoadFromBuffer(nbtBytes, 0, nbtBytes.Length, NbtCompression.None);
-						icon.ExtraData = (NbtCompound) nbtFile.RootTag;
-					}
+					if (def.IconNbt != null) icon.ExtraData = TypedNbtJson.ReadCompound(def.IconNbt);
 				}
 
 				creativeContent.groups.Add(new CreativeGroupInfoPayload
@@ -2383,13 +2376,7 @@ namespace MiNET
 				Item item = ItemFactory.GetItemByNetworkId(def.NetworkId, def.Metadata);
 				item.NetworkMetadata = def.Metadata;
 				item.RuntimeId = def.RuntimeId;
-				if (def.NbtB64 != null)
-				{
-					byte[] nbtBytes = Convert.FromBase64String(def.NbtB64);
-					var nbtFile = new NbtFile {BigEndian = false, UseVarInt = true};
-					nbtFile.LoadFromBuffer(nbtBytes, 0, nbtBytes.Length, NbtCompression.None);
-					item.ExtraData = (NbtCompound) nbtFile.RootTag;
-				}
+				if (def.Nbt != null) item.ExtraData = TypedNbtJson.ReadCompound(def.Nbt);
 
 				creativeContent.entries.Add(new CreativeItemEntryPayload
 				{
@@ -2977,6 +2964,11 @@ namespace MiNET
 			// Client resource pack setting (slider/toggle) change. Ignored.
 		}
 
+		public virtual void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message)
+		{
+			// Client furnace UI layout preference (new at 2192). Ignored.
+		}
+
 		public virtual void HandleMcpeServerboundDataStore(McpeServerboundDataStore message)
 		{
 			// Client data store update request. Ignored.
@@ -3185,12 +3177,19 @@ namespace MiNET
 			// The block half of the chunk flow: the skeleton LevelChunk carried only biomes, and
 			// the client asks here for the sections it wants, as offsets from an origin in absolute
 			// sub-chunk coordinates. One entry is answered per offset; the column serializes it.
-			var response = McpeSubChunkPacket.CreateObject();
-			response.cacheEnabled = true;
-			response.dimensionType = message.dimension;
-			response.centerPos = new SubChunkPos {subchunkPositionX = message.originX, subchunkPositionY = message.originY, subchunkPositionZ = message.originZ};
-			response.subchunkData = new List<SubChunkPacketData>();
+			// The client rejects a SubChunkPacket with more than 8192 entries (packet violation
+			// 0xAE, "too many input elements"), so a mass re-request is answered as a run of
+			// packets at the cap instead of one mirror of the request.
+			// Paced delivery: the answers flush in tick-sized slices instead of mirroring the
+			// request wholesale, so the client can mesh terrain progressively rather than
+			// receiving one request's entire answer at once. 264 sections is ~80 columns per
+			// 50ms at the measured 3.3 requested sections per column, half the rate a real
+			// client asks at. The slices go from a background task; the entries are built
+			// here because BuildSubChunkEntry reads the pooled request packet.
+			const int sectionsPerFlush = 264;
+			const int flushDelayMs = 50;
 
+			var entries = new List<SubChunkPacketData>(message.offsets.Count);
 			foreach (SubChunkPosOffset offset in message.offsets)
 			{
 				SubChunkPacketData entry = BuildSubChunkEntry(message, offset);
@@ -3200,10 +3199,31 @@ namespace MiNET
 				EngineMetrics.SubChunkResult(entry.subchunkRequestResult.ToString().ToLowerInvariant());
 				if (entry.serializedSubChunk != null) EngineMetrics.SubChunkBytes(entry.serializedSubChunk.Length);
 
-				response.subchunkData.Add(entry);
+				entries.Add(entry);
 			}
 
-			SendPacket(response);
+			if (entries.Count == 0) return;
+
+			// Captured before the task: the request packet is pooled and dead once this returns.
+			int dimension = message.dimension;
+			var centerPos = new SubChunkPos {subchunkPositionX = message.originX, subchunkPositionY = message.originY, subchunkPositionZ = message.originZ};
+
+			MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
+			{
+				for (int i = 0; i < entries.Count; i += sectionsPerFlush)
+				{
+					if (!IsConnected) return;
+
+					var packet = McpeSubChunkPacket.CreateObject();
+					packet.cacheEnabled = true;
+					packet.dimensionType = dimension;
+					packet.centerPos = centerPos;
+					packet.subchunkData = entries.GetRange(i, Math.Min(sectionsPerFlush, entries.Count - i));
+					SendPacket(packet);
+
+					if (i + sectionsPerFlush < entries.Count) Thread.Sleep(flushDelayMs);
+				}
+			});
 		}
 
 		private SubChunkPacketData BuildSubChunkEntry(McpeSubChunkRequestPacket message, SubChunkPosOffset offset)
@@ -4025,7 +4045,7 @@ namespace MiNET
 				seed = (ulong) Level.Seed,
 				generatorType = (LevelSettings.GeneratorType) Level.GeneratorType,
 				gameType = (LevelSettings.GameType) GameMode,
-				gameDifficulty = (LevelSettings.GameDifficulty) Level.Difficulty,
+				gameDifficulty = (LevelSettings.Difficulty) Level.Difficulty,
 				// The LEVEL spawn, not this player's: SpawnPosition is per-player and plugins
 				// (Plotter) persist it, so it is wherever this player last was. Vanilla puts the
 				// world's fixed spawn block here.
@@ -4041,10 +4061,12 @@ namespace MiNET
 				commandsEnabled = EnableCommands,
 				texturePacksRequired = Level.IsTexturepacksRequired,
 				gamerules = Level.GetGameRules(),
+				// EXPERIMENT in progress: none declared, to see whether the client accepts the block
+				// definitions without any toggles. The vanilla set is Experiments.Vanilla().
 				experiments = new Experiments(),
 				hasBonusChestEnabled = Level.BonusChest,
 				startWithMapEnabled = Level.MapEnabled,
-				playerPermissions = (LevelSettings.PlayerPermissions) PermissionLevel,
+				playerPermissions = (LevelSettings.PlayerPermissionLevel) PermissionLevel,
 				// "*" is what vanilla sends here, not the version string and not empty.
 				baseGameVersion = "*",
 
@@ -4094,7 +4116,9 @@ namespace MiNET
 			startGame.levelCurrentTime = (ulong) Level.TickTime;
 			startGame.enchantmentSeed = Level.EnchantmentSeed;
 			startGame.enableItemStackNetManager = true;
-			startGame.blockProperties = new List<ServerBlockProperty>();
+			// The 98 data-driven vanilla blocks, one definition each, generated onto their block
+			// classes from the BDS extract and proven against the captured frame.
+			startGame.blockProperties = BlockDefinitions.ServerBlockProperties();
 			startGame.playerPropertyData = new Nbt {NbtFile = new NbtFile(new NbtCompound("")) {BigEndian = false, UseVarInt = true}};
 			// 0 disables the client's palette-checksum verification. NEVER mirror BDS's value:
 			// the client recomputes the checksum locally and rejects the join with "Blocks
@@ -4484,7 +4508,7 @@ namespace MiNET
 				// request selectivity is what makes a cold horizon bearable, and every pass after
 				// that pushes, because a walking player takes the whole rim anyway.
 				bool pushRim = !spawningPass;
-				foreach ((ChunkCoordinates coordinates, McpeLevelChunk chunk) in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius, () => KnownPosition, KnownPosition.HeadYaw, cachedPush: pushRim))
+				foreach ((ChunkCoordinates coordinates, McpeLevelChunk chunk) in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius, () => KnownPosition, cachedPush: pushRim))
 				{
 					if (chunk != null)
 					{

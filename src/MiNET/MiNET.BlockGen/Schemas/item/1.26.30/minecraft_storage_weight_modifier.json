@@ -1,0 +1,17 @@
+{
+    "title": "minecraft:storage_weight_modifier",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/minecraft_storage_weight_modifier.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "weight_in_storage_item": {
+            "type": "integer",
+            "default": 4,
+            "x-underlying-type": "int32",
+            "x-ordinal-index": 0,
+            "minimum": 0.0
+        }
+    }
+}

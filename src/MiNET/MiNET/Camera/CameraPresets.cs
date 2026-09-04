@@ -51,7 +51,7 @@ namespace MiNET.Camera
 		{
 			get
 			{
-				yield return new CameraPreset {Name = FirstPerson, Parent = ""};
+				yield return new CameraPreset {name = FirstPerson, inheritFrom = ""};
 
 				// The boom presets pin an offset even though it is the origin: the client
 				// distinguishes "no offset given" from "an offset of zero". The -0 on X is what BDS
@@ -59,35 +59,35 @@ namespace MiNET.Camera
 				// it stays.
 				yield return new CameraPreset
 				{
-					Name = FixedBoom,
-					Parent = "",
-					Offset = Vector2.Zero,
-					EntityOffset = new Vector3(-0f, 0f, 0f)
+					name = FixedBoom,
+					inheritFrom = "",
+					viewOffset = Vector2.Zero,
+					entityOffset = new Vector3(-0f, 0f, 0f)
 				};
 				yield return new CameraPreset
 				{
-					Name = FollowOrbit,
-					Parent = "",
-					Offset = Vector2.Zero,
-					EntityOffset = new Vector3(-0f, 0f, 0f),
-					Radius = 10
+					name = FollowOrbit,
+					inheritFrom = "",
+					viewOffset = Vector2.Zero,
+					entityOffset = new Vector3(-0f, 0f, 0f),
+					radius = 10
 				};
 
 				// The free camera is the only one placed absolutely, so it opens at the origin and
 				// stays there until an instruction moves it.
 				yield return new CameraPreset
 				{
-					Name = Free,
-					Parent = "",
-					PositionX = 0,
-					PositionY = 0,
-					PositionZ = 0,
-					RotationX = 0,
-					RotationY = 0
+					name = Free,
+					inheritFrom = "",
+					posX = 0,
+					posY = 0,
+					posZ = 0,
+					rotX = 0,
+					rotY = 0
 				};
 
-				yield return new CameraPreset {Name = ThirdPerson, Parent = ""};
-				yield return new CameraPreset {Name = ThirdPersonFront, Parent = ""};
+				yield return new CameraPreset {name = ThirdPerson, inheritFrom = ""};
+				yield return new CameraPreset {name = ThirdPersonFront, inheritFrom = ""};
 			}
 		}
 	}

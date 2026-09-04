@@ -248,6 +248,11 @@ namespace MiNET
 					NetherNetListener listener = _netherNetListener;
 					ConnectionInfo = new ConnectionInfo(() => listener.Sessions.Count);
 
+					// The 1.26.50 client's server-list ping is GET /v1/join over the signaling TCP
+					// port; the JSON body is the MOTD now.
+					MotdProvider motdProvider = MotdProvider;
+					_netherNetListener.JoinStatusProvider = () => motdProvider.GetJoinStatus(ConnectionInfo, listener.Sessions.Count);
+
 					// The same live count the console line reads, handed to the meter so
 					// transport.sessions.active is the denominator for every per-session rate a
 					// collector computes. The two queue depths walk the same table; both run on the

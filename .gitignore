@@ -216,3 +216,19 @@ keys/
 # server.conf itself stays tracked: it is the documented default and holds nothing private.
 server.*.conf
 *.server.conf
+
+# BDS scratch world dropped in the repo root by a docgen/test run
+/World/
+
+# The evidence half of the item extraction, not its result. The forensics file is every byte of
+# every item object as hex plus the holes; the layout, class and component maps describe the C++
+# objects the data was read out of and how far each one is decoded. None of it is game data,
+# nothing in MiNET reads any of it, and one run against a matching server rebuilds all four.
+# Only items-runtime.json is the result, and it stays tracked.
+/src/MiNET/MiNET.BdsExtract/Data/items-runtime-forensics.json
+/src/MiNET/MiNET.BdsExtract/Data/items-runtime-layout.json
+/src/MiNET/MiNET.BdsExtract/Data/items-runtime-classes.json
+/src/MiNET/MiNET.BdsExtract/Data/items-runtime-components.json
+
+# BenchmarkDotNet run output
+/BenchmarkDotNet.Artifacts/

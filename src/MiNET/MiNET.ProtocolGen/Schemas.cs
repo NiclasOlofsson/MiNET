@@ -113,6 +113,7 @@ public class Overrides
 		foreach (var prop in ((JObject) json["packets"]).Properties())
 		{
 			var p = new PacketOverride();
+			p.TypeName = (string) ((JObject) prop.Value)["typeName"];
 			var fields = (JObject) ((JObject) prop.Value)["fields"];
 			if (fields != null)
 			{
@@ -122,6 +123,7 @@ public class Overrides
 					if (o["name"] != null) p.FieldNames[f.Name] = (string) o["name"];
 					if (o["enum"] != null) p.FieldEnums[f.Name] = ((JArray) o["enum"]).Select(v => (string) v).ToList();
 					if (o["optional"] != null) p.FieldOptional[f.Name] = (bool) o["optional"];
+					if (o["array"] != null) p.FieldArray[f.Name] = (bool) o["array"];
 					if (o["presenceBytes"] != null) p.FieldPresenceBytes[f.Name] = (int) o["presenceBytes"];
 					if (o["presentWhen"] != null)
 					{
@@ -155,6 +157,9 @@ public class Overrides
 
 public class PacketOverride
 {
+	/// <summary>Emitted type name for this schema struct, where the schema title collides with or misnames the house type (schema "CameraPresets" is one preset, emitted as CameraPreset).</summary>
+	public string TypeName;
+
 	/// <summary>Wire field name -> MiNET member name, where the schema-derived name is not the one the code should carry.</summary>
 	public Dictionary<string, string> FieldNames = new();
 
@@ -170,6 +175,12 @@ public class PacketOverride
 	///     of the struct; the schema has been wrong about it, so the changelog wins.
 	/// </summary>
 	public Dictionary<string, bool> FieldOptional = new();
+
+	/// <summary>
+	///     Wire field name -> forced vector-ness, for fields the schema declares as a single struct
+	///     while the wire carries a varint-counted list of them (CameraPresets' payload).
+	/// </summary>
+	public Dictionary<string, bool> FieldArray = new();
 
 	/// <summary>
 	///     Wire field name -> how many presence bytes gate an optional field, default one. Mojang
@@ -239,6 +250,8 @@ public enum FieldKind
 	Array,
 	/// <summary>A tagged variant (oneOf): varint tag in declaration order, then the selected payload.</summary>
 	Variant,
+	/// <summary>A varint-counted string-keyed dictionary: each entry is the key string, then the value.</summary>
+	Map,
 }
 
 public class CerealField
@@ -294,7 +307,10 @@ public class CerealField
 	/// </summary>
 	public string EnumRef;
 
-	private static readonly HashSet<string> ValueTypes = new() {"bool", "byte", "sbyte", "short", "ushort", "int", "uint", "long", "ulong", "float"};
+	// Vector2/Vector3 are structs too: leaving them out made an optional Vec2 emit as a bare
+	// Vector2 whose "!= null" presence check lifts to always-true, so the presence bool wrote
+	// true for a field the sender never set.
+	private static readonly HashSet<string> ValueTypes = new() {"bool", "byte", "sbyte", "short", "ushort", "int", "uint", "long", "ulong", "float", "Vector2", "Vector3"};
 
 	public bool IsValueType => Kind == FieldKind.Plain && (Enum != null || ValueTypes.Contains(Type.CsType));
 
@@ -302,6 +318,7 @@ public class CerealField
 	{
 		FieldKind.Struct => Struct.Name,
 		FieldKind.Array => $"List<{Element.CsType}>",
+		FieldKind.Map => $"Dictionary<string, {Element.CsType}>",
 		FieldKind.Variant => Variant.BaseName,
 		_ when Enum != null => Optional ? (EnumRef ?? Enum.Name) + "?" : EnumRef ?? Enum.Name,
 		_ => Optional && IsValueType ? Type.CsType + "?" : Type.CsType,
@@ -474,6 +491,28 @@ public class CerealPacket
 				field.Enum.Values = enumValues.Select(v => CodeNames.CodeName(v, true)).ToList();
 			}
 
+			if (packetOverride != null && packetOverride.FieldArray.TryGetValue(prop.Name, out bool forceArray) && forceArray && field.Kind != FieldKind.Array)
+			{
+				// The schema declared one value where the wire carries a varint-counted list of
+				// them: rewrap what ResolveType produced as this field's element.
+				field.Element = new CerealField
+				{
+					WireName = field.WireName + " element",
+					FieldName = "item",
+					Kind = field.Kind,
+					Struct = field.Struct,
+					Type = field.Type,
+					Enum = field.Enum,
+					EnumRef = field.EnumRef,
+					Variant = field.Variant,
+				};
+				field.Kind = FieldKind.Array;
+				field.Struct = null;
+				field.Type = null;
+				field.Enum = null;
+				field.Variant = null;
+			}
+
 			yield return field;
 		}
 	}
@@ -492,6 +531,27 @@ public class CerealPacket
 			field.ConstValue = (string) prop["const"];
 			field.Kind = FieldKind.Plain;
 			field.Type = new TypeMapping {CsType = "string", Write = $"Write(\"{(string) prop["const"]}\");", Read = "ReadString();"};
+			return;
+		}
+
+		if ((string) prop["type"] == "object" && prop["additionalProperties"] != null)
+		{
+			// A string-keyed map (DimensionData's Definitions and friends): varint count, then per
+			// entry the key string followed by the value. The schema spells the key constraint in
+			// propertyNames; anything but a plain string key has no known wire form.
+			if ((string) prop["propertyNames"]?["type"] != "string")
+				throw new NotImplementedException($"{owner}.{field.WireName}: map with non-string keys is not implemented yet");
+
+			var mapElement = new CerealField
+			{
+				WireName = field.WireName + " element",
+				FieldName = "item",
+			};
+			ResolveType(owner, mapElement, (JObject) prop["additionalProperties"], schemas, overrides, structs);
+			if (mapElement.Kind is FieldKind.Array or FieldKind.Map or FieldKind.Variant)
+				throw new NotImplementedException($"{owner}.{field.WireName}: map values of kind {mapElement.Kind} are not implemented yet");
+			field.Kind = FieldKind.Map;
+			field.Element = mapElement;
 			return;
 		}
 
@@ -659,9 +719,9 @@ public class CerealPacket
 	{
 		if (structs.TryGetValue(name, out CerealStruct existing)) return existing;
 
-		var result = new CerealStruct {Name = SanitizeTypeName(name)};
-		structs[name] = result;
 		overrides.Packets.TryGetValue(name, out PacketOverride structOverride);
+		var result = new CerealStruct {Name = structOverride?.TypeName ?? SanitizeTypeName(name)};
+		structs[name] = result;
 
 		foreach (CerealField field in ResolveFields(name, schema, schemas, overrides, structs, structOverride))
 		{
@@ -694,8 +754,9 @@ public class CerealPacket
 		int nested = name.LastIndexOf("::", StringComparison.Ordinal);
 		if (nested >= 0) name = name.Substring(nested + 2);
 
-		string joined = name.Contains('_') || name.Contains(' ')
-			? string.Concat(name.Split('_', ' ').Where(p => p.Length > 0).Select(p => char.ToUpperInvariant(p[0]) + p.Substring(1)))
+		// Hyphens join like underscores: "Aim-Assist_Target_Mode" is not a legal identifier as is.
+		string joined = name.Contains('_') || name.Contains(' ') || name.Contains('-')
+			? string.Concat(name.Split('_', ' ', '-').Where(p => p.Length > 0).Select(p => char.ToUpperInvariant(p[0]) + p.Substring(1)))
 			: name;
 		return char.ToUpperInvariant(joined[0]) + joined.Substring(1);
 	}

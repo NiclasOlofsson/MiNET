@@ -1,0 +1,35 @@
+{
+    "title": "menu_category",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/menu_category.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "category": {
+            "type": "string",
+            "default": "none",
+            "enum": [
+                "construction",
+                "nature",
+                "equipment",
+                "items",
+                "none"
+            ],
+            "x-underlying-type": "uint8",
+            "x-ordinal-index": 0
+        },
+        "group": {
+            "type": "string",
+            "x-ordinal-index": 1,
+            "maxLength": 256,
+            "pattern": "^(?:.)+:(?:.)+$",
+            "x-regex-flags": "ECMAScript,icase"
+        },
+        "is_hidden_in_commands": {
+            "type": "boolean",
+            "x-underlying-type": "boolean",
+            "x-ordinal-index": 2
+        }
+    }
+}

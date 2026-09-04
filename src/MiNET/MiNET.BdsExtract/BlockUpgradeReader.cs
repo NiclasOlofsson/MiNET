@@ -1,0 +1,1101 @@
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE.
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14
+// and 15 have been added to cover use of software over a computer network and
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has
+// been modified to be consistent with Exhibit B.
+//
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+//
+// The Original Code is MiNET.
+//
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+//
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2020 Niclas Olofsson.
+// All Rights Reserved.
+
+#endregion
+
+using System.Text;
+
+namespace MiNET.BdsExtract;
+
+/// <summary>What an entry's value is, which follows from how big the entry's object is.</summary>
+public enum UpgradeValueKind
+{
+	/// <summary>The entry names a property and constrains nothing about its value.</summary>
+	None,
+
+	/// <summary>A number, which is how booleans are stored here too.</summary>
+	Number,
+
+	/// <summary>A string.</summary>
+	Text,
+
+	/// <summary>
+	///     A regular expression. The block a rule applies to is matched by pattern, not by name,
+	///     on more than half of the entries that carry one. <see cref="UpgradeEntry.Text" /> holds
+	///     the literal run recovered from the compiled pattern, which for every rule seen so far is
+	///     the whole block id.
+	/// </summary>
+	Pattern,
+
+	/// <summary>A table of number to string, held inline in the entry.</summary>
+	Table,
+
+	/// <summary>
+	///     An object whose size matches none of the shapes above. Reported as its own kind rather
+	///     than as an absent value, because those are different facts.
+	/// </summary>
+	Unknown
+}
+
+/// <summary>One number-to-string row of a <see cref="UpgradeValueKind.Table" /> value.</summary>
+public readonly record struct UpgradeRow(long Key, string Value);
+
+/// <summary>
+///     One entry of an upgrade table: a key, and a value whose shape is stated rather than guessed.
+///     Nothing is dropped for being unreadable. An entry with no value is a fact about the table,
+///     and so is an entry whose object is a size this reader has no shape for, so both are reported
+///     with the kind that says which they are.
+/// </summary>
+public readonly record struct UpgradeEntry(string Key, UpgradeValueKind Kind, string Text, long Number,
+	IReadOnlyList<UpgradeRow> Table, int Size)
+{
+	/// <summary>The value as text where it is text, which is what the subject search wants.</summary>
+	public string Value => Kind is UpgradeValueKind.Text or UpgradeValueKind.Pattern ? Text : null;
+}
+
+/// <summary>One step of the migration chain, exactly as the server holds it.</summary>
+public sealed class UpgradeSchema
+{
+	/// <summary>
+	///     The version this step upgrades to, packed one byte per component, reported whatever it
+	///     contains. The upgrader is a chain: a world states the version it was written at and
+	///     every step above that runs in order, so the version is what places a rule in the
+	///     sequence. Some records carry a value that does not read as a version; that is reported
+	///     too rather than being used to decide what is a record.
+	/// </summary>
+	public uint Version { get; init; }
+
+	/// <summary>Where this record sits in the table, which is the order it is applied in.</summary>
+	public int Index { get; init; }
+
+	public ulong Address { get; init; }
+
+	/// <summary>The block the rule applies to, named outright or matched by pattern.</summary>
+	public string Subject { get; init; }
+
+	/// <summary>
+	///     Whether the subject is a pattern rather than a block id. It matters: most patterns spell
+	///     a whole id and read like one, but some are a prefix, and minecraft: on its own selects
+	///     every block there is.
+	/// </summary>
+	public bool SubjectIsPattern { get; init; }
+
+	/// <summary>The container this record belongs to, which is what groups rules together.</summary>
+	public ulong Container { get; init; }
+
+	/// <summary>The two tables the record holds, each as its own list, not merged.</summary>
+	public IReadOnlyList<IReadOnlyList<UpgradeEntry>> Tables { get; init; } = [];
+
+	/// <summary>
+	///     The rules nested inside this one, which is how a flattening is held: one parent naming
+	///     the old block, one child per value of the property being flattened away.
+	/// </summary>
+	public IReadOnlyList<UpgradeSchema> Nested { get; init; } = [];
+
+	/// <summary>
+	///     The block this rule turns its subject into, when there is one.
+	///     It is never beside the rule's keys, which is why the tables read as a rename with no
+	///     target for so long. A flattening child captures it as a string in the slot that does the
+	///     work; a plain rename has no data for it at all and states it in the code the slot points
+	///     at, as a constant in a class generated for that one rule.
+	/// </summary>
+	public string Produces { get; init; }
+
+	/// <summary>Where <see cref="Produces" /> was read, since the two are different kinds of fact.</summary>
+	public bool ProducesFromCode { get; init; }
+
+	/// <summary>
+	///     What the rule's old property value becomes, indexed by that value.
+	///     The rule does not store a pair per value. It stores nothing at all: the transformation
+	///     loads an array of the new property's values and indexes it with the old one, so the
+	///     whole remap is the array, and the old value is its subscript. Position 0 is what an old
+	///     value of 0 becomes.
+	///     The array a rule uses does not have to start at the beginning of the property's own list.
+	///     The slab families share one long list and each rule points partway into it, which is why
+	///     the reconstruction needed a base offset here and this does not: the address the code
+	///     loads already is the rule's first entry.
+	/// </summary>
+	public IReadOnlyList<IReadOnlyList<string>> RemapValues { get; init; } = [];
+
+	/// <summary>How many slots the tables have, and how many of them held a readable object.</summary>
+	public int Slots { get; init; }
+
+	public int Resolved => EntryCount;
+
+	/// <summary>
+	///     Whether this reads as an upgrade rule rather than something that merely has the same
+	///     shape. Two things separate them and both are structural rather than a matter of taste.
+	///     A rule's table is small and every slot in it holds a tag, because every slot is
+	///     genuinely part of the rule. A hash bucket is large and mostly opaque, because it holds
+	///     hashes and pointers of which the occasional one happens to look like a tag: the record
+	///     that produced minecraft:oak_fence had one slot resolve out of thirty nine.
+	///     On top of that a rule says what it is about, so it names a block or its states.
+	/// </summary>
+	public bool IsRule => Slots is > 0 and <= RuleSlotLimit
+						&& Resolved * 2 >= Slots
+						&& Tables.Any(t => t.Any(e => e.Key is "states" or "name"));
+
+	/// <summary>
+	///     A rule's tables are short. Demanding that every slot resolve is too strict, because a
+	///     real rule can carry an empty one: the stained glass flattening rules read four of five
+	///     and would be thrown out by it. The gap between them and a hash bucket is wide enough
+	///     that neither the limit nor the half needs to be precise, one resolved slot in thirty
+	///     nine being the case this separates them from.
+	/// </summary>
+	private const int RuleSlotLimit = 16;
+
+	public string VersionText => $"{(Version >> 24) & 0xFF}.{(Version >> 16) & 0xFF}."
+								+ $"{(Version >> 8) & 0xFF}.{Version & 0xFF}";
+
+	public int EntryCount => Tables.Sum(t => t.Count);
+}
+
+/// <summary>
+///     Reads the block state upgrader out of a running server.
+///     A world written by an older version still holds blocks that no longer exist, so the server
+///     carries the steps that bring them forward, applied in order from the version the world was
+///     written at. Nothing publishes those steps. Every copy in circulation was reconstructed from
+///     the outside, which means hand editing, and a step nobody knew about is a step somebody had
+///     to infer from its effects.
+///     The steps are not shipped as data. The server builds them at startup from string literals,
+///     so there is nothing to parse: what exists is objects on the heap. Each is a method table
+///     then the entry's key, then a value whose shape the object's size states: nothing, a number,
+///     a string, a compiled regular expression, or a table of number to string.
+///     This decodes what is there and reports it. It does not decide which entries are
+///     interesting, drop records that do not name a block, or filter keys against a list of names
+///     worth having. Those judgements belong to whoever reads the output, and every one of them
+///     applied here has already cost real rules: anchoring on a block name discarded forty nine of
+///     the fifty nine renames sitting in memory.
+///     The one thing it does judge is what counts as a record at all, because something has to.
+///     That test is structural: a pair of vectors whose bounds cover a whole number of elements,
+///     pointing at objects that read as strings. Recognising records by a plausible version number
+///     instead matched a great deal of unrelated memory.
+/// </summary>
+public static class BlockUpgradeReader
+{
+	private const int RecordSize = 96;
+	private const int TableFirst = 8;         // the first vector head inside a record
+	private const int TableSecond = 32;
+	private const int TableThird = 56;        // the nested rules, on the records that have any
+	private const int NestedFirst = 0;        // a nested record has no version in front of it
+	private const int NestedSecond = 24;
+	private const int CodeWindow = 112;       // one rule's worth of the generated function
+	private const int MaximumConstant = 96;
+	private const string Namespace = "minecraft:";
+	private const int ElementSize = 64;
+	private const int ElementPointer = 56;    // where an element points at its object
+	private const int TagString = 8;          // the string inside a tag object
+	private const int TagValue = 40;          // and its value, when it has one
+	private const int StringSize = 32;
+
+	/// <summary>
+	///     What an entry's object is, read off its size. Every class holds one shape and holds it
+	///     in every instance: over the whole table not one class ever measured two sizes, which is
+	///     what makes size a safe thing to switch on.
+	/// </summary>
+	private const int SizeNoValue = 40;       // vtable, key
+	private const int SizeNumber = 56;        // vtable, key, number
+	private const int SizeText = 72;          // vtable, key, string
+	private const int SizePattern = 88;       // vtable, key, compiled regex, shared traits
+	private const int SizeTableBase = 48;     // vtable, key, a second vtable, then the rows
+	private const int TableRow = 16;          // a number and a pointer to the string's holder
+	private const int TableRowText = 8;       // where that holder keeps the string
+	private const int TableTail = 8;          // the entry ends pointing back at its own rows
+	private const int MaximumTagSize = 512;
+
+	private const int MaximumTableBytes = 1 << 18;
+	private const int ContainerSize = 24;             // begin, end, capacity
+	private const int MaximumContainerBytes = 1 << 20;
+	private const int MinimumTableEntries = 32;
+	private const int MaximumTableEntries = 8192;
+	/// <summary>
+	///     A node of a compiled pattern: a method table, then a kind and flags as two 32 bit
+	///     fields, then the next and previous nodes. Literal text sits on the node as a capacity
+	///     and a length, again two 32 bit fields, then the buffer holding it.
+	/// </summary>
+	private const int NodeKind = 8;           // the kind, then the flags, as two 32 bit fields
+	private const int NodeNext = 16;
+	private const int NodePrevious = 24;
+	private const int NodeRunLength = 32;     // zero on a node whose payload is a class bitmap
+	private const int NodeRunText = 40;
+	private const int ClassBitmap = 32;       // one bit per byte value
+	private const uint NodeFlagNegated = 1;
+	private const int MaximumNodeSize = 128;
+	private const int MaximumNodes = 256;
+	private const int MaximumRun = 4096;
+
+	/// <summary>How many elements to sample before giving up on a large span.</summary>
+	private const int EarlyElements = 4;
+
+	/// <summary>
+	///     Spans at or under this are read in full rather than sampled. Sampling the front of a
+	///     short table drops the ones that begin with empty slots and saves nothing; it silently
+	///     cost two blocks before a diff against an unsampled run caught it.
+	/// </summary>
+	private const int SmallTableBytes = 64 * 64;
+
+	/// <summary>
+	///     Every pair of strings the server holds whose left side is a property name.
+	///     A renamed property is one of these, old name then new, but so is a property and one of
+	///     its values, and so is a component rename: dirt_type to coarse and light_emission to
+	///     minecraft:block_light_emission come out alongside axis to portal_axis. They are reported
+	///     together because separating them is a judgement about meaning, and every filter tried
+	///     here has thrown away real rules along with the noise.
+	///     This is a second pass over the same objects <see cref="Read" /> walks, and it exists
+	///     because those pairs are held once and referenced from the records rather than living
+	///     inside them. Reading them only where a record also names a block found ten of the fifty
+	///     nine that are actually there.
+	///     The property names are not a list carried in this repository. They come from the palette
+	///     this same run read, plus the keys the records themselves mention, so a server that adds
+	///     a property gets it for free and nothing here goes stale.
+	/// </summary>
+	public static Dictionary<string, string> ReadRenamedProperties(BedrockProcess process,
+		IEnumerable<string> propertyNames)
+	{
+		var known = new HashSet<string>(propertyNames, StringComparer.Ordinal);
+		var scratch = new byte[StringSize];
+		var window = new byte[8 * 1024 * 1024];
+		var renames = new Dictionary<string, string>(StringComparer.Ordinal);
+		int reach = TagValue + StringSize;
+
+		foreach (var region in process.Regions)
+		{
+			for (ulong at = region.Base; at < region.End; at += (ulong) window.Length - (ulong) reach)
+			{
+				int length = (int) Math.Min((ulong) window.Length, region.End - at);
+				if (length < reach || !process.TryRead(at, window, length)) continue;
+
+				for (int i = 0; i + reach <= length; i += 8)
+				{
+					ulong table = BitConverter.ToUInt64(window, i);
+					if (table is < 0x7FF600000000 or > 0x7FF700000000) continue;
+
+					string key = StdString(process, at + (ulong) i + TagString, scratch);
+					if (key is null || !known.Contains(key)) continue;
+
+					string value = StdString(process, at + (ulong) i + TagValue, scratch);
+					if (value is not null && value != key) renames[key] = value;
+				}
+			}
+		}
+		return renames;
+	}
+
+	/// <summary>
+	///     The upgrade table: a vector of pointers to records, in the order the server applies them.
+	///     Finding it is one search, not a sweep. Every record is pointed at from this vector, so
+	///     the vector is what the records have in common; looking instead for spans of memory whose
+	///     length divides by the record size matched a great deal that was not a table, because
+	///     three consecutive record pointers look exactly like a begin, an end and a capacity when
+	///     the records themselves sit ninety six bytes apart.
+	/// </summary>
+	private static List<ulong> FindTable(BedrockProcess process)
+	{
+		var scratch = new byte[StringSize];
+		var word = new byte[8];
+		var window = new byte[8 * 1024 * 1024];
+		var best = new List<ulong>();
+		int bestScore = 0;
+
+		foreach (var region in process.Regions)
+		{
+			for (ulong at = region.Base; at < region.End; at += (ulong) window.Length - ContainerSize)
+			{
+				int length = (int) Math.Min((ulong) window.Length, region.End - at);
+				if (length < ContainerSize || !process.TryRead(at, window, length)) continue;
+
+				for (int i = 0; i + ContainerSize <= length; i += 8)
+				{
+					ulong begin = BitConverter.ToUInt64(window, i);
+					ulong end = BitConverter.ToUInt64(window, i + 8);
+					ulong capacity = BitConverter.ToUInt64(window, i + 16);
+					if (begin < 0x10000 || end <= begin || capacity < end) continue;
+
+					ulong span = end - begin;
+					if (span % 8 != 0 || span > MaximumContainerBytes) continue;
+					int count = (int) (span / 8);
+					if (count is < MinimumTableEntries or > MaximumTableEntries) continue;
+					if (!process.IsMapped(begin) || !process.IsMapped(end - 8)) continue;
+
+					// Score by what the entries are, not how many there are. The biggest vector of
+					// pointers in the process is a hash table with sixty five thousand buckets and
+					// nothing to do with upgrading; the table wanted here is the one whose entries
+					// are records that actually read as rules.
+					var records = new List<ulong>(count);
+					int score = 0;
+					for (int k = 0; k < count; k++)
+					{
+						ulong record = process.ReadUInt64(begin + (ulong) (k * 8), word);
+						if (record < 0x10000 || !process.IsMapped(record)) break;
+						records.Add(record);
+						if (ReadTable(process, record + TableFirst, scratch, word, out _) is { Count: > 0 }) score++;
+					}
+
+					// Most of a real table's records parse; a coincidence has a few at best.
+					if (records.Count == count && score * 2 >= count && score > bestScore)
+					{
+						bestScore = score;
+						best = records;
+					}
+				}
+			}
+		}
+		return best;
+	}
+
+	public static List<UpgradeSchema> Read(BedrockProcess process)
+	{
+		var scratch = new byte[StringSize];
+		var word = new byte[8];
+		var schemas = new List<UpgradeSchema>();
+
+		var table = FindTable(process);
+
+		// A class shared between rules cannot say anything about one of them, so the code side is
+		// read only from classes belonging to a single rule. Counting them needs the whole table
+		// first, which is why this is a pass of its own.
+		var owners = CountClasses(process, table, word);
+
+		for (int index = 0; index < table.Count; index++)
+		{
+			schemas.Add(ReadRecord(process, table[index], index, TableFirst, TableSecond, owners,
+				scratch, word));
+		}
+		return schemas;
+	}
+
+	/// <summary>
+	///     One record, and the rules nested inside it.
+	///     A record's two vectors are at different offsets in a top level record and in a nested
+	///     one, because only the top level carries a version in front of them, so the caller says
+	///     where they are.
+	/// </summary>
+	private static UpgradeSchema ReadRecord(BedrockProcess process, ulong record, int index,
+		int firstAt, int secondAt, Dictionary<ulong, int> owners, byte[] scratch, byte[] word)
+	{
+		var first = ReadTable(process, record + (ulong) firstAt, scratch, word, out int firstSlots);
+		var second = ReadTable(process, record + (ulong) secondAt, scratch, word, out int secondSlots);
+
+		var tables = new List<IReadOnlyList<UpgradeEntry>>();
+		tables.Add(first ?? []);
+		tables.Add(second ?? []);
+
+		// A rule names its block either outright or as the pattern it matches, and both are read
+		// now, so the subject is whichever of them this rule carries.
+		string named = first?.FirstOrDefault(e => e.Key == "name"
+												&& e.Kind == UpgradeValueKind.Text).Text;
+		string matched = first?.FirstOrDefault(e => e.Key == "name"
+												&& e.Kind == UpgradeValueKind.Pattern).Text;
+
+		string produces = ReadProduced(process, record, firstAt, secondAt, scratch, word);
+		bool fromCode = false;
+		if (produces is null)
+		{
+			produces = ReadProducedFromCode(process, record, firstAt, secondAt, owners, word);
+			fromCode = produces is not null;
+		}
+
+		bool nested = firstAt == TableFirst;
+		return new UpgradeSchema
+		{
+			Index = index,
+			Subject = named ?? matched,
+			SubjectIsPattern = named is null && matched is not null,
+			Version = nested && process.TryRead(record, word, 4) ? BitConverter.ToUInt32(word, 0) : 0,
+			Address = record,
+			Tables = tables,
+			Nested = nested ? ReadNested(process, record, owners, scratch, word) : [],
+			Produces = produces,
+			ProducesFromCode = fromCode,
+			RemapValues = ReadRemap(process, record, firstAt, secondAt, word),
+			Slots = firstSlots + secondSlots
+		};
+	}
+
+	/// <summary>
+	///     The rules hanging off a record's third vector, which fifty nine records carry.
+	///     This is the flattening half. A parent names the old block and each child pins one value
+	///     of the property being flattened away, so wool has sixteen children and planks six. Its
+	///     absence was most of the gap against the reconstructed schemas, and it was invisible
+	///     because the vector head sits past where a record was assumed to end.
+	/// </summary>
+	private static List<UpgradeSchema> ReadNested(BedrockProcess process, ulong record,
+		Dictionary<ulong, int> owners, byte[] scratch, byte[] word)
+	{
+		ulong begin = process.ReadUInt64(record + TableThird, word);
+		ulong end = process.ReadUInt64(record + TableThird + 8, word);
+		if (begin < 0x10000 || end <= begin) return [];
+
+		ulong span = end - begin;
+		if (span % 8 != 0 || span > MaximumContainerBytes) return [];
+
+		var nested = new List<UpgradeSchema>();
+		for (ulong at = begin; at < end; at += 8)
+		{
+			ulong child = process.ReadUInt64(at, word);
+			if (child < 0x10000 || !process.IsMapped(child)) continue;
+			// A child has no version of its own, so its vectors start where the version would be.
+			nested.Add(ReadRecord(process, child, nested.Count, NestedFirst, NestedSecond, owners,
+				scratch, word));
+		}
+		return nested;
+	}
+
+	/// <summary>
+	///     The block a rule produces, captured in the slot that does the producing.
+	///     A slot is a std::function, sixty four bytes with the callable's pointer last, pointing
+	///     at the slot itself when the callable is small enough to live there. A callable stored
+	///     that way has the same layout as one on the heap, method table then a string, so the slots
+	///     dismissed as empty are in four hundred and fifty six cases the target of a flattening.
+	/// </summary>
+	private static string ReadProduced(BedrockProcess process, ulong record, int firstAt, int secondAt,
+		byte[] scratch, byte[] word)
+	{
+		foreach (int at in (int[]) [firstAt, secondAt])
+		{
+			ulong begin = process.ReadUInt64(record + (ulong) at, word);
+			ulong end = process.ReadUInt64(record + (ulong) at + 8, word);
+			if (begin < 0x10000 || end <= begin || (end - begin) % ElementSize != 0) continue;
+			if (end - begin > MaximumTableBytes || !process.IsMapped(begin)) continue;
+
+			for (ulong element = begin; element < end; element += ElementSize)
+			{
+				if (process.ReadUInt64(element + ElementPointer, word) != element) continue;
+				string text = StdString(process, element + TagString, scratch);
+				if (text is not null) return text;
+			}
+		}
+		return null;
+	}
+
+	/// <summary>
+	///     The block a rule produces when nothing holds it, which is the case for a plain rename.
+	///     There is no data for it anywhere: the slot's callable captures nothing and the compiler
+	///     put the name in the class it generated for that one rule, as a rip relative constant in
+	///     the first method. Reading it means reading code, which is only safe because the class
+	///     belongs to a single rule; a class shared by two hundred would hand every one of them the
+	///     same answer.
+	/// </summary>
+	private static string ReadProducedFromCode(BedrockProcess process, ulong record, int firstAt,
+		int secondAt, Dictionary<ulong, int> owners, byte[] word)
+	{
+		foreach (int at in (int[]) [firstAt, secondAt])
+		{
+			ulong begin = process.ReadUInt64(record + (ulong) at, word);
+			ulong end = process.ReadUInt64(record + (ulong) at + 8, word);
+			if (begin < 0x10000 || end <= begin || (end - begin) % ElementSize != 0) continue;
+			if (end - begin > MaximumTableBytes || !process.IsMapped(begin)) continue;
+
+			for (ulong element = begin; element < end; element += ElementSize)
+			{
+				if (process.ReadUInt64(element + ElementPointer, word) != element) continue;
+				ulong type = process.ReadUInt64(element, word);
+				if (type < 0x10000 || owners.GetValueOrDefault(type) != 1) continue;
+
+				string name = FirstConstant(process, process.ReadUInt64(type, word), word);
+				if (name is not null) return name;
+			}
+		}
+		return null;
+	}
+
+	/// <summary>Which classes the whole table uses, and how many records use each.</summary>
+	private static Dictionary<ulong, int> CountClasses(BedrockProcess process, List<ulong> table,
+		byte[] word)
+	{
+		var owners = new Dictionary<ulong, HashSet<ulong>>();
+
+		void Count(ulong record, int at)
+		{
+			ulong begin = process.ReadUInt64(record + (ulong) at, word);
+			ulong end = process.ReadUInt64(record + (ulong) at + 8, word);
+			if (begin < 0x10000 || end <= begin || (end - begin) % ElementSize != 0) return;
+			if (end - begin > MaximumTableBytes || !process.IsMapped(begin)) return;
+
+			for (ulong element = begin; element < end; element += ElementSize)
+			{
+				if (process.ReadUInt64(element + ElementPointer, word) != element) continue;
+				ulong type = process.ReadUInt64(element, word);
+				if (type < 0x10000) continue;
+				if (!owners.TryGetValue(type, out var users)) owners[type] = users = [];
+				users.Add(record);
+			}
+		}
+
+		foreach (ulong record in table)
+		{
+			Count(record, TableFirst);
+			Count(record, TableSecond);
+
+			ulong begin = process.ReadUInt64(record + TableThird, word);
+			ulong end = process.ReadUInt64(record + TableThird + 8, word);
+			if (begin < 0x10000 || end <= begin || end - begin > MaximumContainerBytes) continue;
+			for (ulong at = begin; at < end; at += 8)
+			{
+				ulong child = process.ReadUInt64(at, word);
+				if (child < 0x10000 || !process.IsMapped(child)) continue;
+				// Counted against the parent, because a child's class being shared between the
+				// children of one flattening still says nothing about which child it is.
+				Count(child, NestedFirst);
+				Count(child, NestedSecond);
+			}
+		}
+		return owners.ToDictionary(o => o.Key, o => o.Value.Count);
+	}
+
+	/// <summary>
+	///     The value array a rule's transformation indexes, which is the remap itself.
+	///     Read from the same rip relative loads the rename targets come from, and taken from the
+	///     first one that resolves, because the compiler lays these out one rule's block after
+	///     another and a wider window walks into the next rule's.
+	/// </summary>
+	private static List<IReadOnlyList<string>> ReadRemap(BedrockProcess process, ulong record,
+		int firstAt, int secondAt, byte[] word)
+	{
+		var found = new List<IReadOnlyList<string>>();
+		foreach (int at in (int[]) [firstAt, secondAt])
+		{
+			ulong begin = process.ReadUInt64(record + (ulong) at, word);
+			ulong end = process.ReadUInt64(record + (ulong) at + 8, word);
+			if (begin < 0x10000 || end <= begin || (end - begin) % ElementSize != 0) continue;
+			if (end - begin > MaximumTableBytes || !process.IsMapped(begin)) continue;
+
+			for (ulong element = begin; element < end; element += ElementSize)
+			{
+				if (process.ReadUInt64(element + ElementPointer, word) != element) continue;
+				ulong type = process.ReadUInt64(element, word);
+				if (type < 0x10000) continue;
+
+				// Slot zero is usually a thunk of a dozen bytes that jumps to the real code, so
+				// the array is reached from one of the other slots. Each is bounded to its own
+				// function, so widening the search cannot widen the misattribution.
+				for (int slot = 0; slot < TypeSlots; slot++)
+				{
+					// A rule changes as many properties as it changes, so it has as many arrays.
+					// Taking the first gave log and log2 the same six wood types, which belong to
+					// a class they share, and lost the two that are their own.
+					foreach (var values in ReadArrays(process,
+						process.ReadUInt64(type + (ulong) (slot * 8), word), word))
+					{
+						if (!found.Any(f => f.SequenceEqual(values))) found.Add(values);
+					}
+				}
+			}
+		}
+		return found;
+	}
+
+	/// <summary>
+	///     The value arrays a function loads, read the way the code uses them.
+	///     Two shapes, and both are here because a rule using the second reads as one using the
+	///     first. Usually the old value is the subscript and the helper bounds it, so the remap is
+	///     the array's first N entries. Sometimes the compiler has already branched on the old
+	///     value and each branch loads a constant subscript, in which case the remap is those
+	///     constants in the order they appear: log2 loads indices four and five of the wood list to
+	///     mean acacia and dark_oak, and read the first way it came out as the whole list from oak.
+	/// </summary>
+	private static List<IReadOnlyList<string>> ReadArrays(BedrockProcess process, ulong function,
+		byte[] word)
+	{
+		var arrays = new List<IReadOnlyList<string>>();
+		if (function < 0x10000 || !process.IsMapped(function)) return arrays;
+
+		// A whole function, not a rule's worth of one. The narrow window that suits a rename
+		// target cut log2's second case off at the edge, so it kept index four and lost index five,
+		// which is the difference between "acacia" and "acacia, dark_oak". The int3 padding still
+		// bounds it, so a longer window reads more of this function and none of the next.
+		var code = new byte[FunctionWindow];
+		if (!process.TryRead(function, code, code.Length)) return arrays;
+
+		int limit = FunctionEnd(code);
+		var cases = new List<(ulong Array, int Index)>();
+
+		for (int i = 0; i + 7 <= limit; i++)
+		{
+			if (code[i] is not (0x48 or 0x4C) || code[i + 1] != 0x8D || (code[i + 2] & 0xC7) != 0x05) continue;
+
+			ulong at = function + (ulong) (i + 7) + (ulong) (long) BitConverter.ToInt32(code, i + 3);
+			if (ReadValue(process, at, 0, word) is null) continue;
+
+			int index = FixedIndex(code, i, limit);
+			if (index >= 0)
+			{
+				cases.Add((at, index));
+				continue;
+			}
+
+			int count = ValueCount(process, function, code, i, limit);
+			var values = new List<string>();
+			for (int k = 0; k < count && k < MaximumRemapValues; k++)
+			{
+				string value = ReadValue(process, at, k, word);
+				if (value is null) break;
+				values.Add(value);
+			}
+			if (values.Count >= 2) arrays.Add(values);
+		}
+
+		// The constant subscripts, grouped by the array they index, in the order they were written.
+		foreach (var group in cases.GroupBy(c => c.Array))
+		{
+			var values = new List<string>();
+			foreach (var (_, index) in group)
+			{
+				string value = ReadValue(process, group.Key, index, word);
+				if (value is null) break;
+				values.Add(value);
+			}
+			if (values.Count > 0) arrays.Add(values);
+		}
+		return arrays;
+	}
+
+	/// <summary>
+	///     The constant the code puts in r8 before the call, or minus one when it puts a value
+	///     there instead. r8 is the subscript, so a constant there means the branch already knows
+	///     which entry it wants.
+	/// </summary>
+	private static int FixedIndex(byte[] code, int from, int limit)
+	{
+		for (int i = from; i + 3 <= limit; i++)
+		{
+			if (code[i] == 0xE8) return -1;
+			if (code[i] != 0x41) continue;
+			if (code[i + 1] == 0xB0) return code[i + 2];
+			if (code[i + 1] == 0xB8 && i + 6 <= limit) return BitConverter.ToInt32(code, i + 2);
+		}
+		return -1;
+	}
+
+	/// <summary>
+	///     One entry of a value array: a pointer and the length of what it points at, which is a
+	///     string_view. Self checking, because the length has to agree with the text.
+	/// </summary>
+	private static string ReadValue(BedrockProcess process, ulong array, int index, byte[] word)
+	{
+		if (index is < 0 or > MaximumRemapValues) return null;
+
+		ulong pointer = process.ReadUInt64(array + (ulong) (index * 16), word);
+		ulong length = process.ReadUInt64(array + (ulong) (index * 16) + 8, word);
+		if (pointer < 0x10000 || length is 0 or > MaximumConstant) return null;
+		if (!process.IsMapped(pointer)) return null;
+
+		var text = new byte[length + 1];
+		if (!process.TryRead(pointer, text, text.Length)) return null;
+		if (text[length] != 0 || !Printable(text, 0, (int) length)) return null;
+		return Encoding.ASCII.GetString(text, 0, (int) length);
+	}
+
+	/// <summary>
+	///     How many entries the array a rule loads actually has.
+	///     Follows the call that comes after the load and reads the size the helper was
+	///     instantiated with. The helper's first job is exactly the bounds check: compare the old
+	///     value against the count, take it as the index when it is below, and fall back to entry
+	///     zero when it is not, which is why an out of range value maps to the first entry.
+	/// </summary>
+	private static int ValueCount(BedrockProcess process, ulong function, byte[] code, int from,
+		int limit)
+	{
+		for (int i = from; i + 5 <= limit; i++)
+		{
+			if (code[i] != 0xE8) continue;
+
+			ulong helper = function + (ulong) (i + 5) + (ulong) (long) BitConverter.ToInt32(code, i + 1);
+			if (helper < 0x10000 || !process.IsMapped(helper)) continue;
+
+			var body = new byte[HelperWindow];
+			if (!process.TryRead(helper, body, body.Length)) continue;
+
+			for (int k = 0; k + 4 <= body.Length; k++)
+			{
+				// cmp r8d, imm8 and cmp r8b, imm8. The value being compared is the old property
+				// value, which arrives in r8 as the fourth argument.
+				if (body[k] != 0x41 || body[k + 1] is not (0x83 or 0x80) || body[k + 2] != 0xF8) continue;
+				int count = body[k + 3];
+				if (count is > 0 and <= MaximumRemapValues) return count;
+			}
+
+			// The other helper takes the old value as a string and searches the array for it, one
+			// unrolled comparison per entry, so the entries it compares against are the count.
+			// This is how a rule that renames a property keeps its values: log matches old_log_type
+			// by name against the new list, and the four comparisons are its four values.
+			int highest = 0;
+			for (int k = 0; k + 4 <= body.Length; k++)
+			{
+				// cmp r14, [rdi+disp8]: the entry's length field, sixteen bytes apart, eight in.
+				if (body[k] != 0x4C || body[k + 1] != 0x39 || body[k + 2] != 0x77) continue;
+				int offset = body[k + 3];
+				if (offset >= 8 && (offset - 8) % 16 == 0) highest = Math.Max(highest, offset);
+			}
+			return highest == 0 ? 0 : Math.Min((highest - 8) / 16 + 1, MaximumRemapValues);
+		}
+		return 0;
+	}
+
+	/// <summary>
+	///     How much of the helper to read. The size-comparing form states it in its first few
+	///     instructions, but the searching form unrolls one comparison per entry and its fourth
+	///     lands past a hundred bytes in, so a short window sees none of them and reports no count.
+	/// </summary>
+	private const int HelperWindow = 256;
+
+	/// <summary>No property has anywhere near this many values, so a longer run is not one.</summary>
+	private const int MaximumRemapValues = 64;
+
+	/// <summary>As much of one function as is worth reading, still bounded by its padding.</summary>
+	private const int FunctionWindow = 512;
+
+	/// <summary>How many of a class's method slots to look in for its own constants.</summary>
+	private const int TypeSlots = 6;
+
+	/// <summary>
+	///     Where a function stops, so a scan cannot read the next one's constants as its own.
+	///     The compiler pads between functions with int3, so a return followed by padding is the
+	///     boundary. Reading past it gave thirty three fence gate rules the value list belonging to
+	///     creaking_heart, three functions further on: values that are real, that verify, and that
+	///     have nothing to do with the rule they were attached to. A wrong value is worse than no
+	///     value, and nothing about it looks wrong in the output.
+	/// </summary>
+	private static int FunctionEnd(byte[] code)
+	{
+		for (int i = 0; i + 1 < code.Length; i++)
+		{
+			if (code[i] == 0xCC && code[i + 1] == 0xCC) return i;
+		}
+		return code.Length;
+	}
+
+	/// <summary>
+	///     The first block id a function refers to, read off its rip relative loads.
+	///     Only one instruction form is decoded, the sixty four bit lea with a rip operand, because
+	///     that is how a pointer to a string constant is taken and decoding more would mean a
+	///     disassembler. The first is taken and the rest ignored: the compiler laid these out as one
+	///     block per rule, and a longer window runs into the block belonging to the next rule.
+	/// </summary>
+	private static string FirstConstant(BedrockProcess process, ulong function, byte[] word)
+	{
+		if (function < 0x10000 || !process.IsMapped(function)) return null;
+
+		var code = new byte[CodeWindow];
+		if (!process.TryRead(function, code, code.Length)) return null;
+
+		for (int i = 0; i + 7 <= code.Length; i++)
+		{
+			if (code[i] is not (0x48 or 0x4C) || code[i + 1] != 0x8D || (code[i + 2] & 0xC7) != 0x05) continue;
+
+			int displacement = BitConverter.ToInt32(code, i + 3);
+			ulong target = function + (ulong) (i + 7) + (ulong) (long) displacement;
+			string text = CString(process, target);
+			if (text is not null) return text;
+		}
+		return null;
+	}
+
+	/// <summary>A NUL terminated block id in the image's pool of string constants.</summary>
+	private static string CString(BedrockProcess process, ulong at)
+	{
+		if (at < 0x10000 || !process.IsMapped(at)) return null;
+
+		var buffer = new byte[MaximumConstant];
+		if (!process.TryRead(at, buffer, buffer.Length)) return null;
+
+		int length = Array.IndexOf(buffer, (byte) 0);
+		if (length <= Namespace.Length || !Printable(buffer, 0, length)) return null;
+
+		string text = Encoding.ASCII.GetString(buffer, 0, length);
+		return text.StartsWith(Namespace, StringComparison.Ordinal) ? text : null;
+	}
+
+	/// <summary>
+	///     The literal text of a compiled regular expression.
+	///     An entry of this shape holds a pattern, not a name. More than half the rules select their
+	///     block that way, so the block is inside a compiled pattern rather than beside the key, and
+	///     that is why the slab rules once read identical and subjectless with their ids in memory
+	///     the whole time.
+	///     The walk follows the next and previous links and nothing else. Following every pointer in
+	///     each node instead leaves the graph, lands in a neighbouring rule's allocation and reports
+	///     that rule's block: it named end_rod's facing_direction as stripped_crimson_hyphae, and
+	///     across the whole table it disagreed with the pattern on a hundred and six rules out of a
+	///     hundred and thirty, usually by picking up the rule next door.
+	///     The literal is read with its own length, which the node keeps beside a capacity. Reading
+	///     to the buffer's first zero instead picks up whatever a longer earlier occupant left in
+	///     it, which turned minecraft:powered_repeater into minecraft:powered_repeaterer.
+	/// </summary>
+	private static string ReadPattern(BedrockProcess process, ulong tag, byte[] word)
+	{
+		ulong root = process.ReadUInt64(tag + TagValue, word);
+		if (root < 0x10000) return null;
+
+		var seen = new HashSet<ulong>();
+		var frontier = new Queue<ulong>();
+		var runs = new List<string>();
+		frontier.Enqueue(root);
+
+		while (frontier.Count > 0 && seen.Count < MaximumNodes)
+		{
+			ulong node = frontier.Dequeue();
+			if (node < 0x10000 || !seen.Add(node) || !process.IsMapped(node)) continue;
+
+			// A node whose size will not measure is still a node, and its links still lead
+			// somewhere. Stopping the walk at one costs whatever is past it: it hid
+			// cut_copper_slab, the single block the 1.20.20 comparison said was missing, behind a
+			// pattern that read as empty. Only the value is skipped, never the links.
+			int size = SizeOf(process, node, word);
+			if (size is not (0 or > MaximumNodeSize))
+			{
+				string run = ReadRun(process, node, word) ?? ReadClass(process, node, word);
+				if (run is not null) runs.Add(run);
+			}
+			frontier.Enqueue(process.ReadUInt64(node + NodeNext, word));
+			frontier.Enqueue(process.ReadUInt64(node + NodePrevious, word));
+		}
+
+		// Concatenated in the order the walk reaches them, which is not a parse of the pattern.
+		// All but five patterns here are a single literal, and those five are a literal followed
+		// by one class, so the concatenation is the pattern; a richer one would need parsing.
+		return runs.Count == 0 ? null : string.Concat(runs);
+	}
+
+	/// <summary>
+	///     A node's character class, written the way a pattern writes one.
+	///     A class keeps a bitmap of the characters it accepts instead of a run, so its length
+	///     field is zero and its pointer leads to the bitmap. Reading it recovers the numeric
+	///     constraints, which are the part of a rule that says which of a block's states it fires
+	///     on: log matching direction 3 and end_rod matching facing_direction outside 0 to 5 both
+	///     read out of here, and both agree with the reconstruction pmmp publishes.
+	///     The one flag this reads is negation, and it is read because the rule it appears on says
+	///     what it means: end_rod's class covers the six valid faces, its rule converts the invalid
+	///     seventh, so the class is inverted.
+	/// </summary>
+	private static string ReadClass(BedrockProcess process, ulong node, byte[] word)
+	{
+		if (process.ReadUInt64(node + NodeRunLength, word) != 0) return null;
+
+		ulong at = process.ReadUInt64(node + NodeRunText, word);
+		if (at < 0x10000 || !process.IsMapped(at)) return null;
+
+		var bitmap = new byte[ClassBitmap];
+		if (!process.TryRead(at, bitmap, bitmap.Length)) return null;
+
+		var accepted = new List<int>();
+		for (int i = 0; i < bitmap.Length * 8; i++)
+		{
+			if ((bitmap[i >> 3] >> (i & 7) & 1) == 0) continue;
+			// Anything unprintable says this is not a class bitmap but whatever else lives here.
+			if (i is < 0x20 or > 0x7E) return null;
+			accepted.Add(i);
+		}
+		if (accepted.Count == 0) return null;
+
+		var text = new StringBuilder("[");
+		if (((process.ReadUInt64(node + NodeKind, word) >> 32) & NodeFlagNegated) != 0) text.Append('^');
+		for (int i = 0; i < accepted.Count; i++)
+		{
+			int last = i;
+			while (last + 1 < accepted.Count && accepted[last + 1] == accepted[last] + 1) last++;
+			text.Append((char) accepted[i]);
+			if (last > i + 1) text.Append('-');
+			if (last > i) text.Append((char) accepted[last]);
+			i = last;
+		}
+		return text.Append(']').ToString();
+	}
+
+	/// <summary>
+	///     A node's literal run: a capacity and a length as two 32 bit fields, then the buffer.
+	///     Self checking in the same way the string reader is, so a node that holds no run says so
+	///     rather than producing whatever its bytes happen to spell.
+	/// </summary>
+	private static string ReadRun(BedrockProcess process, ulong node, byte[] word)
+	{
+		ulong header = process.ReadUInt64(node + NodeRunLength, word);
+		uint capacity = (uint) header;
+		uint length = (uint) (header >> 32);
+		if (length == 0 || length > capacity || capacity > MaximumRun) return null;
+
+		ulong text = process.ReadUInt64(node + NodeRunText, word);
+		if (text < 0x10000 || !process.IsMapped(text)) return null;
+
+		var buffer = new byte[length];
+		if (!process.TryRead(text, buffer, buffer.Length)) return null;
+		return Printable(buffer, 0, buffer.Length) ? Encoding.ASCII.GetString(buffer) : null;
+	}
+
+	/// <summary>Reads the vector head at this address and returns what its elements point at.</summary>
+	private static List<UpgradeEntry> ReadTable(BedrockProcess process, ulong head, byte[] scratch,
+		byte[] word, out int slots)
+	{
+		return ReadTable(process, process.ReadUInt64(head, word),
+			process.ReadUInt64(head + 8, word), scratch, word, out slots);
+	}
+
+	/// <summary>One vector of elements, each pointing at a tag object.</summary>
+	private static List<UpgradeEntry> ReadTable(BedrockProcess process, ulong begin, ulong end,
+		byte[] scratch, byte[] word, out int slots)
+	{
+		slots = 0;
+		if (begin < 0x10000 || end <= begin) return null;
+		ulong span = end - begin;
+		if (span % ElementSize != 0 || span > MaximumTableBytes) return null;
+		if (!process.IsMapped(begin) || !process.IsMapped(end - 8)) return null;
+
+		// Almost every span that survives the arithmetic is not a table, and rejecting those
+		// cheaply is what keeps this from being a read per element across the whole address space.
+		if (span > SmallTableBytes && !AnyEarlyElement(process, begin, end, scratch, word)) return null;
+
+		var entries = new List<UpgradeEntry>();
+		for (ulong element = begin; element < end; element += ElementSize)
+		{
+			ulong tag = process.ReadUInt64(element + ElementPointer, word);
+
+			// A slot holding its callable inline is an operation, and the string it carries is the
+			// block the rule produces, not a key. Read as one it becomes an entry named
+			// minecraft:white_wool, which is a value wearing a key's place.
+			// It is not counted either. Slots exist to measure how much of a table resolved, which
+			// is what tells a rule from a hash bucket, and a slot that is never meant to yield an
+			// entry drags that ratio down: counting them dropped log and log2, two rules already
+			// confirmed against the published reconstruction, out of the filtered output.
+			if (tag == element) continue;
+
+			slots++;
+			if (tag < 0x10000 || !process.IsMapped(tag)) continue;
+
+			string key = StdString(process, tag + TagString, scratch);
+			if (key is null) continue;
+			entries.Add(ReadEntry(process, tag, key, scratch, word));
+		}
+		return entries;
+	}
+
+	/// <summary>
+	///     One entry, read according to how big its object is.
+	///     Reading the value at a fixed offset and keeping whatever parsed as a string is what left
+	///     most of this table saying null: an entry with no value and an entry holding a number both
+	///     have something at that offset, and neither is a string. Measuring the object first
+	///     separates them, and it separates both from the entries whose value is a pattern.
+	/// </summary>
+	private static UpgradeEntry ReadEntry(BedrockProcess process, ulong tag, string key, byte[] scratch,
+		byte[] word)
+	{
+		int size = SizeOf(process, tag, word);
+		switch (size)
+		{
+			case SizeNoValue:
+				return new UpgradeEntry(key, UpgradeValueKind.None, null, 0, [], size);
+
+			case SizeNumber:
+				return new UpgradeEntry(key, UpgradeValueKind.Number, null,
+					(long) process.ReadUInt64(tag + TagValue, word), [], size);
+
+			case SizeText:
+				string text = StdString(process, tag + TagValue, scratch);
+				return text is null
+					? new UpgradeEntry(key, UpgradeValueKind.Unknown, null, 0, [], size)
+					: new UpgradeEntry(key, UpgradeValueKind.Text, text, 0, [], size);
+
+			case SizePattern:
+				return new UpgradeEntry(key, UpgradeValueKind.Pattern, ReadPattern(process, tag, word),
+					0, [], size);
+
+			// The rows sit in the entry itself, so its size states how many there are. Sizes that
+			// do not divide into whole rows are not this shape and fall through to unknown.
+			case > SizeTableBase when (size - SizeTableBase - TableTail) % TableRow == 0:
+				var rows = new List<UpgradeRow>();
+				for (int at = SizeTableBase; at + TableRow <= size - TableTail; at += TableRow)
+				{
+					ulong holder = process.ReadUInt64(tag + (ulong) at + 8, word);
+					if (holder < 0x10000 || !process.IsMapped(holder)) continue;
+					string value = StdString(process, holder + TableRowText, scratch);
+					if (value is null) continue;
+					rows.Add(new UpgradeRow((long) process.ReadUInt64(tag + (ulong) at, word), value));
+				}
+				return rows.Count == 0
+					? new UpgradeEntry(key, UpgradeValueKind.Unknown, null, 0, [], size)
+					: new UpgradeEntry(key, UpgradeValueKind.Table, null, 0, rows, size);
+
+			default:
+				return new UpgradeEntry(key, UpgradeValueKind.Unknown, null, 0, [], size);
+		}
+	}
+
+	/// <summary>
+	///     How many bytes an object occupies, taken from the allocator rather than assumed.
+	///     A busy block on this heap starts with an eight byte header whose top byte is 0x88 or
+	///     0x90, and nothing inside a tag looks like that: the payloads are zero, small numbers, or
+	///     pointers, and every pointer here is below 0x7FF8. So the first such word after the key is
+	///     where the object ends. It reads the same size for every instance of a class, which is the
+	///     check that this is measuring the object and not finding a pattern in noise.
+	/// </summary>
+	private static int SizeOf(BedrockProcess process, ulong at, byte[] word)
+	{
+		for (int offset = TagValue; offset < MaximumTagSize; offset += 8)
+		{
+			if (process.ReadUInt64(at + (ulong) offset, word) >> 56 is 0x88 or 0x90) return offset;
+		}
+		return 0;
+	}
+
+	/// <summary>Does any of the first few elements resolve? Used only to reject spans quickly.</summary>
+	private static bool AnyEarlyElement(BedrockProcess process, ulong begin, ulong end,
+		byte[] scratch, byte[] word)
+	{
+		ulong limit = Math.Min(end, begin + (ElementSize * EarlyElements));
+		for (ulong element = begin; element < limit; element += ElementSize)
+		{
+			ulong tag = process.ReadUInt64(element + ElementPointer, word);
+			if (tag < 0x10000 || !process.IsMapped(tag)) continue;
+			if (StdString(process, tag + TagString, scratch) is not null) return true;
+		}
+		return false;
+	}
+
+	/// <summary>An MSVC std::string: sixteen bytes of union, then the length, then the capacity.</summary>
+	private static string StdString(BedrockProcess process, ulong at, byte[] scratch)
+	{
+		if (!process.IsMapped(at) || !process.TryRead(at, scratch, StringSize)) return null;
+
+		ulong length = BitConverter.ToUInt64(scratch, 16);
+		ulong capacity = BitConverter.ToUInt64(scratch, 24);
+		if (length == 0 || length > capacity || length > 256 || capacity > 4096) return null;
+
+		if (capacity < 16)
+		{
+			if (capacity != 15) return null;
+			return Printable(scratch, 0, (int) length) ? Encoding.ASCII.GetString(scratch, 0, (int) length) : null;
+		}
+
+		ulong pointer = BitConverter.ToUInt64(scratch, 0);
+		var heap = new byte[length];
+		if (pointer < 0x10000 || !process.IsMapped(pointer) || !process.TryRead(pointer, heap, heap.Length)) return null;
+		return Printable(heap, 0, heap.Length) ? Encoding.ASCII.GetString(heap, 0, heap.Length) : null;
+	}
+
+	private static bool Printable(byte[] buffer, int at, int length)
+	{
+		for (int i = at; i < at + length; i++)
+		{
+			if (buffer[i] is < 0x20 or > 0x7E) return false;
+		}
+		return true;
+	}
+}

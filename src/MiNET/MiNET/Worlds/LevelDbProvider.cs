@@ -27,7 +27,6 @@ using System;
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -164,19 +163,14 @@ namespace MiNET.Worlds
 
 		public ChunkColumn GetChunk(ChunkCoordinates coordinates, IWorldGenerator generator)
 		{
-			var sw = Stopwatch.StartNew();
-			sw.Stop();
-
 			byte[] index = Combine(BitConverter.GetBytes(coordinates.X), BitConverter.GetBytes(coordinates.Z));
 			if (Dimension == Dimension.Nether)
 			{
 				index = Combine(index, BitConverter.GetBytes(1));
 			}
 
-			sw.Start();
 			// 1.16.100 onwards the version lives under 0x2c; older worlds still carry 0x76.
 			byte[] version = Db.Get(Combine(index, KeyVersion)) ?? Db.Get(Combine(index, KeyVersionLegacy));
-			sw.Stop();
 
 			ChunkColumn chunkColumn = null;
 			// 7 is PMMP's v1_2_0 stamp, which it wrote for years while already writing paletted
@@ -197,9 +191,7 @@ namespace MiNET.Worlds
 				{
 					// Section indices are signed since 1.18: -4 is the bottom, stored as 0xfc.
 					chunkDataKey[^1] = unchecked((byte) (sbyte) (i - SubChunkIndexOffset));
-					sw.Start();
 					byte[] sectionBytes = Db.Get(chunkDataKey);
-					sw.Stop();
 
 					if (sectionBytes == null)
 					{
@@ -212,14 +204,16 @@ namespace MiNET.Worlds
 						continue;
 					}
 
-					ParseSection(chunkColumn[i], sectionBytes);
+					// Parse-mode section: cell buffers uninitialized, because the record's storages
+					// overwrite every cell they cover and the uniform branch clears explicitly.
+					var section = new SubChunk(clearBuffers: false);
+					chunkColumn[i] = section;
+					ParseSection(section, sectionBytes);
 				}
 
 				// Biomes: 3D since 1.18, with the flat record kept for older worlds.
-				sw.Start();
 				byte[] biome3DBytes = Db.Get(Combine(index, KeyHeightAndBiomes3D));
 				byte[] flatDataBytes = biome3DBytes == null ? Db.Get(Combine(index, KeyHeightAndBiomes2D)) : null;
-				sw.Stop();
 				if (biome3DBytes != null)
 				{
 					Buffer.BlockCopy(biome3DBytes.AsSpan().Slice(0, 512).ToArray(), 0, chunkColumn.height, 0, 512);
@@ -232,11 +226,7 @@ namespace MiNET.Worlds
 				}
 
 				// Block entities
-				sw.Start();
 				byte[] blockEntityBytes = Db.Get(Combine(index, KeyBlockEntity));
-				sw.Stop();
-
-				//Log.Debug($"Read chunk from LevelDB {coordinates.X}, {coordinates.Z} in {sw.ElapsedMilliseconds} ms.");
 
 				// A chunk with no block entities still carries this record, written as zero bytes
 				// because MiNET.LevelDB throws on Delete.
@@ -452,6 +442,11 @@ namespace MiNET.Worlds
 				int paletteSize;
 				if (bitsPerBlock == 0)
 				{
+					// A uniform storage writes no indices: every cell reads as palette index zero,
+					// which on an uninitialized buffer is only true after this clear.
+					if (isNotLoggedStorage) section.Blocks.Clear();
+					else section.LoggedBlocks.Clear();
+
 					paletteSize = 1;
 
 					// Some worlds written by PocketMine 4 put a length in front of that single entry
@@ -473,19 +468,40 @@ namespace MiNET.Worlds
 				{
 					paletteSize = reader.ReadInt32();
 				}
+				// The section is fresh and its palettes are empty; that is ParseSection's contract.
+				// One exact allocation instead of the 4-8-16 doubling walk while entries append.
 				List<int> palette = isNotLoggedStorage ? section.RuntimeIds : section.LoggedRuntimeIds;
-				palette.Clear();
+				palette.EnsureCapacity(paletteSize);
 
-				// One reader for the whole palette: fNbt hands back a fresh tag tree per load, so the
-				// file object itself is the only thing worth not allocating per entry.
-				var file = new NbtFile
-				{
-					BigEndian = false,
-					UseVarInt = false
-				};
+				// Only the fallback below needs the file, and most palettes resolve every entry off
+				// the span, so it is built on the first entry that actually falls back.
+				NbtFile file = null;
+
+				// Refilled per entry and never kept: the palette lookup returns its own container and
+				// all we read off it is the runtime id.
+				var scratch = new BlockStateContainer();
 
 				for (int entry = 0; entry < paletteSize; entry++)
 				{
+					long entryStart = reader.Position;
+
+					int runtimeId = ResolveFromSpan(data.Span, reader, scratch);
+					if (runtimeId >= 0)
+					{
+						palette.Add(runtimeId);
+						continue;
+					}
+
+					// Not in the palette as stored, or written in a shape the span reader does not
+					// know. Either way the entry needs the tag tree: the upgrade chain works on it,
+					// and it is the form every legacy path expects.
+					file ??= new NbtFile
+					{
+						BigEndian = false,
+						UseVarInt = false
+					};
+
+					reader.Position = entryStart;
 					file.LoadFromStream(reader, NbtCompression.None);
 
 					palette.Add(ResolveRuntimeId((NbtCompound) file.RootTag));
@@ -504,6 +520,33 @@ namespace MiNET.Worlds
 			// The arrays were written directly rather than through the per-cell setters, so the dirty
 			// mark and the encode cache have to be seen to once, here.
 			section.MarkBulkLoaded();
+		}
+
+		/// <summary>
+		///     The fast half of the palette read: the entry straight off the bytes into a reused
+		///     container, then the same lookup the tag path does. Returns -1 for anything that does
+		///     not resolve exactly, which is the caller's signal to read the entry again with fNbt and
+		///     take the upgrade chain. The reader's position is advanced past the entry either way, so
+		///     a caller that falls back must rewind.
+		/// </summary>
+		private static int ResolveFromSpan(ReadOnlySpan<byte> data, MemoryStreamReader reader, BlockStateContainer scratch)
+		{
+			int position = (int) reader.Position;
+
+			try
+			{
+				PaletteEntryReader.Read(data, ref position, scratch);
+			}
+			catch (Exception e) when (e is FormatException or ArgumentOutOfRangeException or IndexOutOfRangeException)
+			{
+				return -1;
+			}
+
+			reader.Position = position;
+
+			if (scratch.Name == null) return -1;
+
+			return BlockFactory.BlockStates.TryGetValue(scratch, out BlockStateContainer match) ? match.RuntimeId : -1;
 		}
 
 		/// <summary>
@@ -647,11 +690,10 @@ namespace MiNET.Worlds
 			reader.Read(metas, 0, metas.Length);
 
 			List<int> palette = section.RuntimeIds;
-			palette.Clear();
 			palette.Add(BlockFactory.AirRuntimeId); // Index 0 is air, which is what an empty section reads as.
 
 			var indexByRuntimeId = new Dictionary<int, int> {{BlockFactory.AirRuntimeId, 0}};
-			short[] blocks = section.Blocks;
+			Span<short> blocks = section.Blocks;
 
 			for (int position = 0; position < 4096; position++)
 			{
@@ -726,7 +768,7 @@ namespace MiNET.Worlds
 			else ReadLoggedIndices(reader, section.LoggedBlocks, bitsPerBlock, blocksPerWord, wordCount, paletteCount, mask);
 		}
 
-		private static void ReadIndices(MemoryStreamReader reader, short[] blocks, int bitsPerBlock, int blocksPerWord, int wordCount, int paletteCount, int mask)
+		private static void ReadIndices(MemoryStreamReader reader, Span<short> blocks, int bitsPerBlock, int blocksPerWord, int wordCount, int paletteCount, int mask)
 		{
 			int position = 0;
 
@@ -745,7 +787,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private static void ReadLoggedIndices(MemoryStreamReader reader, byte[] loggedBlocks, int bitsPerBlock, int blocksPerWord, int wordCount, int paletteCount, int mask)
+		private static void ReadLoggedIndices(MemoryStreamReader reader, Span<byte> loggedBlocks, int bitsPerBlock, int blocksPerWord, int wordCount, int paletteCount, int mask)
 		{
 			int position = 0;
 
@@ -1031,10 +1073,10 @@ namespace MiNET.Worlds
 			// Version 9 onwards the record carries its own signed section index.
 			stream.WriteByte(unchecked((byte) (sbyte) sectionY));
 
-			if (WriteStore(stream, subChunk.Blocks, null, false, subChunk.RuntimeIds))
+			if (WriteStore(stream, subChunk.Blocks, default, subChunk.RuntimeIds))
 			{
 				numberOfStores++;
-				if (WriteStore(stream, null, subChunk.LoggedBlocks, false, subChunk.LoggedRuntimeIds))
+				if (WriteStore(stream, default, subChunk.LoggedBlocks, subChunk.LoggedRuntimeIds))
 				{
 					numberOfStores++;
 				}
@@ -1044,7 +1086,7 @@ namespace MiNET.Worlds
 			stream.WriteByte((byte) numberOfStores); // storage size
 		}
 
-		internal bool WriteStore(MemoryStream stream, short[] blocks, byte[] loggedBlocks, bool forceWrite, List<int> palette)
+		internal bool WriteStore(MemoryStream stream, ReadOnlySpan<short> blocks, ReadOnlySpan<byte> loggedBlocks, List<int> palette)
 		{
 			if (palette.Count == 0) return false;
 
@@ -1054,7 +1096,8 @@ namespace MiNET.Worlds
 			switch (bitsPerBlock)
 			{
 				case 0:
-					if (!forceWrite && palette.Contains(0)) return false;
+					// A single-entry palette always writes: its one value can be any runtime id,
+					// and skipping here silently drops the section's blocks from the save.
 					bitsPerBlock = 1;
 					break;
 				case 1:
@@ -1099,7 +1142,7 @@ namespace MiNET.Worlds
 					if (position >= 4096) continue;
 
 					uint state;
-					if (blocks != null)
+					if (!blocks.IsEmpty)
 					{
 						state = (uint) blocks[position];
 					}

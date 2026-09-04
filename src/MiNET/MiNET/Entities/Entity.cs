@@ -353,7 +353,7 @@ namespace MiNET.Entities
 			Ignited,
 			Baby,
 			Converting,
-			Critcal,
+			Critical,
 			ShowName,
 			AlwaysShowName,
 
@@ -500,7 +500,7 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.Ignited] = IsIgnited;
 			bits[(int) DataFlags.Baby] = IsBaby;
 			bits[(int) DataFlags.Converting] = IsConverting;
-			bits[(int) DataFlags.Critcal] = IsCritical;
+			bits[(int) DataFlags.Critical] = IsCritical;
 			bits[(int) DataFlags.ShowName] = IsShowName;
 			bits[(int) DataFlags.AlwaysShowName] = IsAlwaysShowName;
 			bits[(int) DataFlags.NoAi] = IsNoAi;

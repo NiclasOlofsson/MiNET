@@ -1,0 +1,46 @@
+{
+    "title": "minecraft:throwable",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.20.50/minecraft_throwable.json",
+    "x-format-version": "1.20.50",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "do_swing_animation": {
+            "type": "boolean",
+            "default": false,
+            "x-underlying-type": "boolean",
+            "x-ordinal-index": 0
+        },
+        "launch_power_scale": {
+            "type": "number",
+            "default": 1.0,
+            "x-underlying-type": "float",
+            "x-ordinal-index": 3
+        },
+        "max_draw_duration": {
+            "type": "number",
+            "default": 0.0,
+            "x-underlying-type": "float",
+            "x-ordinal-index": 2
+        },
+        "max_launch_power": {
+            "type": "number",
+            "default": 1.0,
+            "x-underlying-type": "float",
+            "x-ordinal-index": 4
+        },
+        "min_draw_duration": {
+            "type": "number",
+            "default": 0.0,
+            "x-underlying-type": "float",
+            "x-ordinal-index": 1
+        },
+        "scale_power_by_draw_duration": {
+            "type": "boolean",
+            "default": false,
+            "x-underlying-type": "boolean",
+            "x-ordinal-index": 5
+        }
+    }
+}

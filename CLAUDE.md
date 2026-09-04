@@ -18,6 +18,45 @@ Every difference between what vanilla BDS puts on the wire and what MiNET puts o
 
 The division of labour: the diff enumerates EVERY divergence with its field, offset, and both values; classifying one as acceptable is Niclas's call, not Claude's. Stating a hypothesis about a difference is fine ("this is probably world state") as long as the difference is still listed and still counted. Building a catalogue of which divergences are genuinely benign is a goal of this work, so each ruling gets recorded here or in the effort memory with the reason and the evidence. Until a difference has been explicitly ruled benign, it is an open defect.
 
+## Every byte read is declared, identified and emitted
+
+This governs every extraction [MiNET.BdsExtract](src/MiNET/MiNET.BdsExtract/) does, not just the
+block upgrader. **No data loss, no skipping. All data declared, identified and emitted.**
+
+- **No data loss.** A value that was read reaches the output. Not "most of it", not "the part that
+  fit the shape I chose".
+- **No skipping.** A field that is not understood is emitted saying so, with its size or offset, so
+  the hole is countable. Omitting it makes the output look complete when it is not.
+- **Nothing is filtered on judgment.** What is interesting is the reader's call, not the tool's.
+- **Nothing is invented.** A read that failed is reported as failed. The tool may fail to find a
+  thing; it may never write something it did not read.
+
+Every one of those came from losing real data, and the losses were invisible until something else
+contradicted them:
+
+- Two different kinds of entry written into one JSON object put the same property in twice. JSON
+  keeps the last, so every rule that constrained a property silently lost the constraint.
+- A walk that stopped at a node whose size would not measure hid `minecraft:cut_copper_slab`
+  entirely, and it read as a rule with an empty pattern rather than as an error.
+- Anchoring the upgrade rules on a block name discarded 49 of the 59 renames sitting in memory.
+- Reading a value at one fixed offset made "has no value", "holds a number" and "holds a pattern"
+  all come out as `null`, which is three facts flattened into one wrong one.
+- An empty candidate that scored 5 out of 7 shipped three invented block rows per run, with a
+  hardness of zero and an enum value that does not exist.
+
+The practices that follow from it:
+
+- **Measure, do not assume.** Object size comes from the allocator's block header, string length
+  from the length field beside the pointer. Reading to the first zero returned
+  `minecraft:powered_repeaterer`, which is an earlier occupant's slack.
+- **Structure, never adjacency.** Two things sitting next to each other prove nothing. Adjacency
+  sweeps returned 2,717 fake component pairs, 2,173 fake id renames, and named the wrong block on
+  106 of 130 upgrade rules. Follow the container's own links and keep what is connected.
+- **Make the read self proving.** A HashedString must hash to its own text, a `{pointer, length}`
+  pair must agree with the text it points at, a class must measure one size across every instance.
+  A check that arbitrary bytes cannot pass is what separates a find from a coincidence.
+- **Unknown is a value.** Emit it (`{"unread": 96}`) rather than dropping the entry.
+
 ## Commands
 
 ```bash
@@ -186,6 +225,13 @@ Most work in this repo is keeping up with Mojang protocol changes. The network c
 
 A protocol update is reverse engineering against a real vanilla BDS. Work it in this order; the early steps are not preamble, they are what makes the later evidence trustworthy.
 
+**Always launch BDS from its own server folder, never from the repo root.** It resolves every
+path against its working directory, so starting it anywhere else makes it create its world, its
+`docs/` and its config there. That is where the stray `World/` in the repo root came from, and
+the gitignore line for it is a symptom, not a fix. `cd temp_auto/bds/server-<version>` first,
+then run `./bedrock_server.exe`, so everything it writes stays inside that folder where it
+belongs and can be thrown away with the folder.
+
 **1. Get the reference server right.** Download the BDS build matching the target protocol and run it with the configuration we are comparing against. In `server.properties`:
 
 - `block-network-ids-are-hashes=false`, ALWAYS, when testing. Both schemes are legal (the server declares which one it uses in StartGame and the client honours it), but with hashes off both sides speak palette indices, which is what the CloudburstMC data we generate from gives us. Leave it on and every block id in a capture is a hash, comparable to nothing we hold.
@@ -196,7 +242,7 @@ Captures are only comparable to each other when the reference server's configura
 
 **2. Get the client right.** Confirm the real Bedrock client is the target version. Its error screen reports the version and `RakNet:<protocol>`, which is the fastest way to be sure.
 
-**3. Scout the data sources and refresh them.** Bump the CloudburstMC `Data` submodule pin, rerun `MiNET.BlockGen`, and check what it did and did not touch: each data folder's own `CLAUDE.md` says per file what is generated and what has a distinct source. Files with no generator (the pmmp legacy maps, the join-sequence captures) do not move on a protocol bump and go stale silently.
+**3. Extract the data and regenerate.** Blocks, block states, items, the creative inventory and the sound table come out of the target BDS's memory with `MiNET.BdsExtract` (`-- --server <folder>`, canonical config from its `Assets`), into `MiNET.BdsExtract/Data`. The run reads `bedrock_server.exe` off disk before it touches the process, so `Data/binary_facts.json` is where a new build's class inventory, type-id slots, method tables, enum tables and reflection bindings show up, along with what the reference agrees and disagrees with the code about. Then rerun `MiNET.BlockGen`, which reads only that folder plus Mojang's item schemas and the captured frames under `MiNET.BlockGen/Schemas` and `Captures`, and refuses to write anything it cannot prove (every state's network hash, every registry entry and creative entry against the frames). Recapture the two frames from the new build first (bot with `MINET_PACKET_DUMP` against a non-Editor copy of the asset world) or the proof compares against the old version. The CloudburstMC submodule now feeds only `BiomeGenerator`. Check what the run did and did not touch: each data folder's own `CLAUDE.md` says per file what is generated and what has a distinct source. Files with no generator (the pmmp legacy maps, the join-sequence captures) do not move on a protocol bump and go stale silently.
 
 **4. Read Mojang's specifications and generate.** Start the target BDS once with a `test_config.json` of `{"generate_documentation":true}`, which writes `docs/json_schemas/protocol` and exits, then point `MiNET.ProtocolGen` at that folder (second argument, or `MINET_SCHEMA_DIR`) and move packets from the XML to schema generation as Mojang completes them. The schemas are authoritative for field semantics and wire order via `x-ordinal-index`. They are not committed, and they must come from the BDS whose version matches the XML: github.com/Mojang/bedrock-protocol-docs publishes only the current protocol, normally a version ahead of ours, and its changelogs and guides are still worth reading there.
 

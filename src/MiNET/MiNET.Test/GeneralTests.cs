@@ -82,7 +82,7 @@ namespace MiNET.Test
 			var buffer = new short[10_000].Concat(new short[] {42}).ToArray();
 			for (int i = 0; i < _iterations; i++)
 			{
-				Assert.IsFalse(SubChunk.AllZeroFast(buffer));
+				Assert.IsFalse(SubChunk.AllZeroFast(MemoryMarshal.AsBytes<short>(buffer)));
 			}
 		}
 

@@ -31,7 +31,7 @@ namespace MiNET.Blocks
 {
 	/// <summary>The working stonecutter. minecraft:stonecutter is the 1.x block of the same name, kept
 	/// for old worlds, and it opens nothing.</summary>
-	public partial class StonecutterBlock
+	public partial class StonecutterBlock : Block
 	{
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{

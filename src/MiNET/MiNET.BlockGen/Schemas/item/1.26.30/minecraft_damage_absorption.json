@@ -1,0 +1,21 @@
+{
+    "title": "minecraft:damage_absorption",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.26.30/minecraft_damage_absorption.json",
+    "x-format-version": "1.26.30",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "absorbable_causes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "x-ordinal-index": 0,
+            "minItems": 1
+        }
+    },
+    "required": [
+        "absorbable_causes"
+    ]
+}

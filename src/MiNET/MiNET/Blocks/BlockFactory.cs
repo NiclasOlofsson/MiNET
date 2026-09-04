@@ -513,6 +513,15 @@ namespace MiNET.Blocks
 			}
 			
 			BlockStates = new HashSet<BlockStateContainer>(BlockPalette);
+
+			// Identity is the state hash alone, so two palette entries sharing one would be
+			// indistinguishable and one of them unreachable. At 64 bits that is a 1-in-10^11 event
+			// for a palette this size, which is exactly the kind of odds that eventually happen to
+			// someone, so it is checked rather than assumed.
+			if (BlockStates.Count != BlockPalette.Count)
+			{
+				Log.Error($"Block palette hash collision: {BlockPalette.Count} states collapsed to {BlockStates.Count}. Blocks are now unreachable and chunks will read wrong.");
+			}
 		}
 		
 		private static BlockStateContainer GetBlockStateContainer(NbtTag tag)

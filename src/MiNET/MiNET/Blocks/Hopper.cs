@@ -32,7 +32,7 @@ namespace MiNET.Blocks
 {
 	/// <summary>Five slots that hold what is put in them. Nothing is pulled in from above and nothing
 	/// is pushed on.</summary>
-	public partial class Hopper
+	public partial class Hopper : Block
 	{
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{

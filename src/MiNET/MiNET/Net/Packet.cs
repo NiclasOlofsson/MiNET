@@ -2880,57 +2880,90 @@ namespace MiNET.Net
 			return entries;
 		}
 
-		public DimensionData ReadDimensionData()
+		/// <summary>
+		///     A sub-chunk heightmap: 16 rows of 16 int8 heights, each row carrying its own length
+		///     prefix. The grid is fixed at 16x16, but the wire still counts every row, so 272 bytes
+		///     travel for 256 values. Held flat, one row after another, because every caller builds
+		///     and indexes it that way.
+		/// </summary>
+		public void WriteSubChunkHeightmap(byte[] heights)
 		{
-			DimensionData data = new DimensionData();
-			data.MaxHeight = ReadSignedVarInt();
-			data.MinHeight = ReadSignedVarInt();
-			data.Generator = ReadSignedVarInt();
-			data.DimensionType = ReadSignedVarInt();
-			data.PackId = ReadUUID();
-
-			return data;
-		}
-
-		public void Write(DimensionData data)
-		{
-			WriteSignedVarInt(data.MaxHeight);
-			WriteSignedVarInt(data.MinHeight);
-			WriteSignedVarInt(data.Generator);
-			WriteSignedVarInt(data.DimensionType);
-
-			// Ordinal 4 and required, per Mojang's DimensionDefinition schema for 2168. PMMP still
-			// writes four fields and stops, so it is behind here, not us.
-			Write(data.PackId ?? new UUID(new byte[16]));
-		}
-		
-		public void Write(DimensionDefinitions definitions)
-		{
-			WriteUnsignedVarInt((uint) definitions.Count);
-
-			foreach (var def in definitions)
+			for (int row = 0; row < SubChunkHeightmapRows; row++)
 			{
-				Write(def.Key);
-				Write(def.Value);
+				WriteUnsignedVarInt(SubChunkHeightmapRows);
+				_writer.Write(heights, row * (int) SubChunkHeightmapRows, (int) SubChunkHeightmapRows);
 			}
 		}
-		
-		public DimensionDefinitions ReadDimensionDefinitions()
-		{
-			DimensionDefinitions definitions = new DimensionDefinitions();
-			
-			var count = ReadUnsignedVarInt();
-			for (int i = 0; i < count; i++)
-			{
-				var stringId = ReadString();
-				var data = ReadDimensionData();
 
-				definitions.TryAdd(stringId, data);
+		public byte[] ReadSubChunkHeightmap()
+		{
+			var heights = new byte[SubChunkHeightmapRows * SubChunkHeightmapRows];
+
+			for (int row = 0; row < SubChunkHeightmapRows; row++)
+			{
+				uint count = ReadUnsignedVarInt();
+				if (count != SubChunkHeightmapRows) throw new Exception($"Sub-chunk heightmap row {row} carries {count} heights, expected {SubChunkHeightmapRows}");
+
+				ReadBytes((int) SubChunkHeightmapRows).CopyTo(heights, row * (int) SubChunkHeightmapRows);
 			}
 
-			return definitions;
+			return heights;
 		}
-		
+
+		private const uint SubChunkHeightmapRows = 16;
+
+		public void Write(PackSettingValue value)
+		{
+			if (value == null)
+			{
+				WriteUnsignedVarInt(0);
+				Write(0f);
+				return;
+			}
+
+			WriteUnsignedVarInt(value.TypeId);
+			switch (value.TypeId)
+			{
+				case 0:
+					Write(value.FloatValue);
+					break;
+				case 1:
+					Write(value.BoolValue);
+					break;
+				case 2:
+					Write(value.StringValue ?? string.Empty);
+					break;
+				case 3:
+					WriteUnsignedVarInt((uint) (value.StringListValue?.Count ?? 0));
+					if (value.StringListValue != null) foreach (string entry in value.StringListValue) Write(entry);
+					break;
+			}
+		}
+
+		public PackSettingValue ReadPackSettingValue()
+		{
+			var value = new PackSettingValue {TypeId = ReadUnsignedVarInt()};
+			switch (value.TypeId)
+			{
+				case 0:
+					value.FloatValue = ReadFloat();
+					break;
+				case 1:
+					value.BoolValue = ReadBool();
+					break;
+				case 2:
+					value.StringValue = ReadString();
+					break;
+				case 3:
+					uint count = ReadUnsignedVarInt();
+					value.StringListValue = new List<string>((int) count);
+					for (int i = 0; i < count; i++) value.StringListValue.Add(ReadString());
+					break;
+			}
+
+			return value;
+		}
+
 		public bool CanRead()
 		{
 			return _reader.Position < _reader.Length;

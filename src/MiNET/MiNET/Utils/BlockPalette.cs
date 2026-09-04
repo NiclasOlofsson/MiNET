@@ -51,36 +51,53 @@ namespace MiNET.Utils
 		public ItemPickInstance ItemInstance { get; set; }
 
 		/// <summary>
-		///     Name plus the set of states, without regard to the order they are listed in: two lists
-		///     holding the same states are the same block, and a stored world writes them in whatever
-		///     order the version that wrote it used.
+		///     Name plus the set of states as one 64-bit number, and the identity every comparison
+		///     runs on. The states combine with XOR so the order they were listed in cannot change the
+		///     result: a stored world writes them in whatever order the version that wrote it used.
 		///     <para>
-		///     Allocation-free on purpose. This runs for every palette entry of every section read off
-		///     disk, and a state list is a handful of entries, so scanning beats building a set.
+		///         Deterministic, unlike <see cref="string.GetHashCode()" />, which is seeded per
+		///         process. Same block, same number, every run and every machine.
 		///     </para>
+		///     <para>
+		///         Computed every time and never kept. Name and States are public and the palette's
+		///         own entries are filled by adding to the list, so no setter can see a change and any
+		///         cached value would eventually be stale. Recomputing is a few multiplies, which is
+		///         the whole reason this replaced walking the state lists.
+		///     </para>
+		/// </summary>
+		public ulong Hash
+		{
+			get
+			{
+				ulong hash = StateHash.OfString(Name);
+
+				foreach (IBlockState state in States)
+				{
+					// The type goes in with the value so a byte 0 and an int 0 under the same name
+					// are different blocks, which they are.
+					ulong value = state switch
+					{
+						BlockStateByte stateByte => ((ulong) stateByte.Value << 8) | 1,
+						BlockStateInt stateInt => ((ulong) (uint) stateInt.Value << 8) | 3,
+						BlockStateString stateString => StateHash.OfString(stateString.Value) | 8,
+						_ => 0
+					};
+
+					hash ^= StateHash.Mix(StateHash.OfString(state.Name), value);
+				}
+
+				return hash;
+			}
+		}
+
+		/// <summary>
+		///     Identity is the 64-bit hash and nothing else. Two entries agreeing on it are the same
+		///     block: the palette asserts its own entries are mutually distinct at startup, and a
+		///     stored entry outside the palette colliding with one is a 1-in-10^15 event.
 		/// </summary>
 		protected bool Equals(BlockStateContainer other)
 		{
-			if (Name != other.Name) return false;
-			if (States.Count != other.States.Count) return false;
-
-			for (int i = 0; i < States.Count; i++)
-			{
-				IBlockState state = States[i];
-				bool found = false;
-				for (int j = 0; j < other.States.Count; j++)
-				{
-					if (state.Equals(other.States[j]))
-					{
-						found = true;
-						break;
-					}
-				}
-
-				if (!found) return false;
-			}
-
-			return true;
+			return Hash == other.Hash;
 		}
 
 		public override bool Equals(object obj)
@@ -93,18 +110,9 @@ namespace MiNET.Utils
 
 		public override int GetHashCode()
 		{
-			// Mirrors Equals, which is why the states combine with XOR rather than in sequence: order
-			// must not change the result. Hashing them in list order put two containers holding the
-			// same states in different buckets, so whether a palette lookup found its block came down
-			// to the order the world it came from happened to store them in.
-			int hash = Name?.GetHashCode() ?? 0;
+			ulong hash = Hash;
 
-			foreach (IBlockState state in States)
-			{
-				hash ^= state.GetHashCode();
-			}
-
-			return hash;
+			return (int) (hash ^ (hash >> 32));
 		}
 
 		public override string ToString()

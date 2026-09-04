@@ -154,8 +154,8 @@ namespace MiNET.Worlds
 		public bool IsMultiplayer { get; set; } = true;
 		public bool BroadcastToLan { get; set; } = true;
 		// Enum-typed, not int: the client rejects a broadcast setting outside GamePublishSetting.
-		public LevelSettings.XboxLiveBroadcastSetting XboxLiveBroadcastMode { get; set; } = LevelSettings.XboxLiveBroadcastSetting.Nomultiplay;
-		public LevelSettings.PlatformBroadcastSetting PlatformBroadcastMode { get; set; } = LevelSettings.PlatformBroadcastSetting.Nomultiplay;
+		public LevelSettings.GamePublishSetting XboxLiveBroadcastMode { get; set; } = LevelSettings.GamePublishSetting.Nomultiplay;
+		public LevelSettings.GamePublishSetting PlatformBroadcastMode { get; set; } = LevelSettings.GamePublishSetting.Nomultiplay;
 		public bool UseMsaGamertagsOnly { get; set; } = true;
 		public bool IsTexturepacksRequired { get; set; }
 		public bool BonusChest { get; set; }
@@ -1550,18 +1550,6 @@ namespace MiNET.Worlds
 		}
 
 		/// <summary>
-		///     How much the player's facing direction reorders the radial sweep. 0 is pure inside-out by
-		///     distance; higher values pull the cone in front of the player forward. At 1.0 a column
-		///     directly ahead outranks one directly behind at up to 1.41x its distance, so the order
-		///     stays fundamentally radial and near columns behind you still beat far ones in front.
-		/// </summary>
-		public static double ChunkDirectionBias { get; set; } = 1.0;
-
-		/// <param name="viewYawDegrees">
-		///     Minecraft yaw the player is facing, snapshotted when the sweep is computed. NaN orders
-		///     purely by distance.
-		/// </param>
-		/// <summary>
 		///     The columns a player at <paramref name="chunkPosition" /> should hold, nearest first,
 		///     as ordinary packets rather than finished wrappers.
 		///     <para>
@@ -1572,11 +1560,13 @@ namespace MiNET.Worlds
 		///         is good at.
 		///     </para>
 		///     <para>
-		///         <paramref name="chunksUsed" /> is what this player already holds, as column to the
-		///         version that was sent. A column in here is skipped unless its version has moved on.
+		///         <paramref name="chunksUsed" /> is what this player already holds. Membership is the
+		///         whole test: a column in here is never yielded again, whatever has been written to it
+		///         since, because block writes reach the client as UpdateBlock. The only way back in is
+		///         leaving the disc and re-entering it.
 		///     </para>
 		/// </summary>
-		public IEnumerable<(ChunkCoordinates Coordinates, McpeLevelChunk Chunk)> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<ChunkCoordinates, long> chunksUsed, double radius, Func<Vector3> getCurrentPositionAction = null, double viewYawDegrees = double.NaN, bool prune = true, bool cachedPush = false)
+		public IEnumerable<(ChunkCoordinates Coordinates, McpeLevelChunk Chunk)> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<ChunkCoordinates, long> chunksUsed, double radius, Func<Vector3> getCurrentPositionAction = null, bool prune = true, bool cachedPush = false)
 		{
 			lock (chunksUsed)
 			{
@@ -1587,13 +1577,9 @@ namespace MiNET.Worlds
 				int centerX = chunkPosition.X;
 				int centerZ = chunkPosition.Z;
 
-				// Minecraft yaw: 0 faces +Z, and it turns toward -X, so this is the unit vector the
-				// player is looking along on the horizontal plane.
-				bool directional = ChunkDirectionBias > 0 && !double.IsNaN(viewYawDegrees);
-				double yawRadians = viewYawDegrees * Math.PI / 180d;
-				double lookX = directional ? -Math.Sin(yawRadians) : 0;
-				double lookZ = directional ? Math.Cos(yawRadians) : 0;
-
+				// Ordered by distance alone, the way vanilla does it: the client asks for the whole
+				// disc as soon as it is announced, whatever it is facing, so which side of the
+				// circle goes first buys nothing.
 				for (double x = -radius; x <= radius; ++x)
 				{
 					for (double z = -radius; z <= radius; ++z)
@@ -1607,19 +1593,7 @@ namespace MiNET.Worlds
 						int chunkZ = (int) (z + centerZ);
 						var index = new ChunkCoordinates(chunkX, chunkZ);
 
-						// Squared distance scaled by how far off the view direction this column sits:
-						// 1.0 straight ahead, 1 + bias directly behind. Multiplying rather than adding
-						// keeps the sweep radial - the penalty grows with distance, so it never
-						// promotes a far column ahead over a near one behind.
-						double cost = distance;
-						if (directional && distance > 0)
-						{
-							double length = Math.Sqrt(distance);
-							double alignment = (x * lookX + z * lookZ) / length; // -1 behind, 1 ahead
-							cost *= 1d + ChunkDirectionBias * (1d - alignment) / 2d;
-						}
-
-						newOrders[index] = cost;
+						newOrders[index] = distance;
 					}
 				}
 
@@ -1643,9 +1617,9 @@ namespace MiNET.Worlds
 
 				foreach (var pair in newOrders.OrderBy(pair => pair.Value))
 				{
-					// Already sent, and unchanged since. A column only earns a second push by actually
-					// being different, which is what the version says.
-					bool alreadySent = chunksUsed.TryGetValue(pair.Key, out long sentVersion);
+					// Held by the client already. Content changes since then travelled as UpdateBlock,
+					// so a second push would only make the client rebuild a column it has.
+					if (chunksUsed.ContainsKey(pair.Key)) continue;
 
 					if (WorldProvider == null) continue;
 
@@ -1659,8 +1633,6 @@ namespace MiNET.Worlds
 					McpeLevelChunk chunk = null;
 					if (chunkColumn != null)
 					{
-						if (alreadySent && sentVersion == chunkColumn.Version) continue;
-
 						// The caller said which form it wants. Push hands the client every hash the
 						// column has and asks nothing of it; a skeleton announces the biomes and
 						// leaves the client to request the sections it actually needs.

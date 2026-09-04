@@ -40,6 +40,8 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Block));
 
+		private BlockDefinition _definition;
+
 		public bool IsGenerated { get; protected set; } = false;
 
 		public BlockCoordinates Coordinates { get; set; }
@@ -49,33 +51,44 @@ namespace MiNET.Blocks
 		[Obsolete("Use block states instead.")]
 		public byte Metadata { get; set; }
 
-		// Values below are overridden per block by BlockData.generated.cs, from CloudburstMC
-		// block_properties.json. Virtual so the generated override supplies the vanilla value and a
-		// hand-written constructor can still assign over it: the override's initializer runs first.
-		public virtual float Hardness { get; protected set; } = 0;
-		public virtual float BlastResistance { get; protected set; } = 0;
+		// Values below are supplied per block by PartialBlocks.cs, generated from CloudburstMC
+		// block_properties.json. They are answers about a block, never state the server writes, so
+		// they are get-only: a block that needs a different value overrides the property, and a
+		// value that depends on the block's own state (a candle's light) is generated as a switch
+		// over that state rather than flattened to whichever state came first in the palette.
+		public virtual float Hardness => 0;
+		public virtual float BlastResistance => 0;
 		public short FuelEfficiency { get; protected set; } = 0;
-		public virtual float FrictionFactor { get; protected set; } = 0.6f;
-		public virtual int LightLevel { get; set; } = 0;
+		public virtual float FrictionFactor => 0.6f;
+		public virtual int LightLevel => 0;
 
 		/// <summary>How much light this block removes as it passes through, 0 to 15.</summary>
-		public virtual int LightDampening { get; protected set; } = 15;
+		public virtual int LightDampening => 15;
 
 		/// <summary>0 opaque through 1 fully see-through. Not the same question as IsSolid.</summary>
-		public virtual float Translucency { get; protected set; } = 0f;
+		public virtual float Translucency => 0f;
 
 		/// <summary>Chance fire consumes this block, and chance fire spreads from it. 0 means neither.</summary>
-		public virtual int BurnOdds { get; protected set; } = 0;
-		public virtual int FlameOdds { get; protected set; } = 0;
+		public virtual int BurnOdds => 0;
+		public virtual int FlameOdds => 0;
 
 		/// <summary>Whether a wrong tool still drops the block, or just breaks it.</summary>
-		public virtual bool RequiresCorrectToolForDrops { get; protected set; } = false;
+		public virtual bool RequiresCorrectToolForDrops => false;
+
+		/// <summary>
+		///     What StartGame sends the client for a data-driven block. Null means the client already
+		///     has the block built in and is told nothing about it.
+		/// </summary>
+		public virtual BlockDefinition CreateDefinition() => null;
+
+		/// <summary>The definition, built once per block.</summary>
+		public BlockDefinition Definition => _definition ??= CreateDefinition();
 
 		/// <summary>Whether water can occupy the same space, which is what waterlogging means.</summary>
-		public virtual bool CanContainLiquidSource { get; protected set; } = false;
+		public virtual bool CanContainLiquidSource => false;
 
 		public bool IsReplaceable { get; protected set; } = false;
-		public virtual bool IsSolid { get; protected set; } = true;
+		public virtual bool IsSolid => true;
 		public bool IsBuildable { get; protected set; } = true;
 
 		// Derived, not stored. These used to be set by hand on each block, which is why most blocks

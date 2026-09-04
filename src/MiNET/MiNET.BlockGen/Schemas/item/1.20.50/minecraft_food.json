@@ -1,0 +1,34 @@
+{
+    "title": "minecraft:food",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.20.50/minecraft_food.json",
+    "x-format-version": "1.20.50",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "type": "object",
+    "properties": {
+        "can_always_eat": {
+            "type": "boolean",
+            "default": false,
+            "x-underlying-type": "boolean",
+            "x-ordinal-index": 1
+        },
+        "nutrition": {
+            "type": "integer",
+            "default": 0,
+            "x-underlying-type": "int32",
+            "x-ordinal-index": 0
+        },
+        "saturation_modifier": {
+            "type": "number",
+            "default": 0.6000000238418579,
+            "x-underlying-type": "float",
+            "x-ordinal-index": 2,
+            "minimum": 0.0
+        },
+        "using_converts_to": {
+            "default": {},
+            "$ref": "../../common/1.20.50/Item%20Descriptor.json",
+            "x-ordinal-index": 3
+        }
+    }
+}

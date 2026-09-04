@@ -151,6 +151,13 @@ namespace MiNET.Net.NetherNet
 		public Func<HttpRequest, HttpResponse> RequestHandler { get; set; }
 
 		/// <summary>
+		///     The JSON body <c>GET /v1/join</c> answers with: since 1.26.50 that GET is the client's
+		///     server-list ping and the body is the status line the server tab renders. Null leaves
+		///     the pre-1.26.50 behavior, an empty 200 that only says "we speak NetherNet".
+		/// </summary>
+		public Func<string> JoinStatusProvider { get; set; }
+
+		/// <summary>
 		///     Consulted when a client opens with TLS instead of plaintext: given the ClientHello's
 		///     SNI host (null when absent, which is every real Bedrock client) and the connection's
 		///     source address, returns the certificate context to complete the handshake with, or
@@ -465,13 +472,15 @@ namespace MiNET.Net.NetherNet
 						return;
 					}
 
-					// Signaling is one round trip per connection and the whole negotiation lives in
-					// it, so the full exchange is logged. A client that refuses us leaves no other
-					// trace: there is no error packet, it simply stops. Plugin routes are a general
-					// surface rather than one negotiation, so those go to Debug instead.
-					bool isSignaling = path != null && path.StartsWith("/v1/", StringComparison.Ordinal);
-					if (isSignaling) Log.Info($"NetherNet signaling <<< {client.Client.RemoteEndPoint}\n{headers}\n{body}");
-					else Log.Debug($"Request <<< {client.Client.RemoteEndPoint}\n{headers}\n{body}");
+					// Every request logged whole, request line and all headers, whatever it asks
+					// for. Signaling is one round trip per connection and the whole negotiation
+					// lives in it, so nothing about it is recoverable later: a client that refuses
+					// us leaves no other trace, there is no error packet, it simply stops. A route
+					// that is NOT ours is worth as much, because a client version that starts
+					// asking for a path or sending a header we have never seen shows up here and
+					// nowhere else.
+					bool isSignaling = path.StartsWith("/v1/", StringComparison.Ordinal);
+					Log.Info($"{(isSignaling ? "NetherNet signaling" : "HTTP")} <<< {SafePeer(client)}{(stream is SslStream ? " (tls)" : "")}\n{headers}\n{body}");
 
 					if (!AcceptConnections)
 					{
@@ -483,8 +492,11 @@ namespace MiNET.Net.NetherNet
 
 					if (method == "GET" && path.StartsWith("/v1/join", StringComparison.Ordinal))
 					{
-						// Any 2xx means "yes, we speak NetherNet". The body is ignored by the client.
-						await Respond(stream, 200, "text/plain", "");
+						// Any 2xx means "yes, we speak NetherNet"; since 1.26.50 the body is also the
+						// server-list status the client renders in the server tab.
+						string status = JoinStatusProvider?.Invoke();
+						if (status != null) await Respond(stream, 200, "application/json", status);
+						else await Respond(stream, 200, "text/plain", "");
 						return;
 					}
 

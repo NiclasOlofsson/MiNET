@@ -13,6 +13,14 @@
        on them would mean it could only run while its own output already compiled, and could
        never recover from a broken or empty generated file. Its only inputs are the palette data
        file and the Blocks directory listing. -->
+  <!-- The one MiNET source file this tool compiles, linked rather than referenced. The generator
+       emits calls into the block definition model and proves them by serializing with MiNET's own
+       writer, so the two have to be the same code: a second writer here would drift, and the proof
+       would then be against the wrong bytes. Linking one file keeps the no-reference rule above. -->
+  <ItemGroup>
+    <Compile Include="..\MiNET\Blocks\BlockDefinition.cs" Link="BlockDefinition.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="MiNET.fnbt" Version="1.0.22" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />

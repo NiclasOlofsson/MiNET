@@ -42,39 +42,44 @@ namespace MiNET.Test
 		// carrying none, a slot whose stack has a network id and one whose stack has none, and a
 		// second container so the per-container framing is exercised more than once.
 
-		// Captured from the hand-written codec that was built against live BDS 1.26.40:
+		// An optional is one bool and then the value. It was two for a while: the generator wrapped
+		// the field's own optionality around the struct's, so every one of these carried a spurious
+		// always-true byte in front. Mojang's schema has Item Stack Net Id as an optional field whose
+		// type is a struct with one required int, and Containers likewise, so one bool is the shape.
+		// Corrected in 502bb755 alongside unrelated work, which is why this test is the only record
+		// that it happened.
 		//
 		//   9401        packet id 0x94, as a varint
 		//   02          two responses
 		//   00          response 0: result Ok
 		//   02          client request id 1, zigzag
-		//   0101        containers: invariant gate, then present
+		//   01          containers: present
 		//   02          two containers
 		//   1c 00       container Hotbar, no dynamic id
 		//   02          two slots
 		//   050520      requested slot 5, slot 5, amount 32
-		//   010104      net id: gate, present, id 2 zigzag
+		//   0104        net id: present, id 2 zigzag
 		//   0000 00     custom name empty, filtered empty, no durability correction
 		//   060610      requested slot 6, slot 6, amount 16
-		//   0100        net id: gate, absent (a zero id is not sent)
+		//   00          net id: absent
 		//   0000 00
 		//   3e 00       container CrafterLevelEntity, no dynamic id
 		//   01          one slot
 		//   000000      requested slot 0, slot 0, amount 0
-		//   0100        net id: gate, absent
+		//   00          net id: absent
 		//   0000 00
 		//   01          response 1: result Error
 		//   04          client request id 2, zigzag
-		//   0100        containers: gate, absent
+		//   00          containers: absent
 		private const string Expected =
 			"9401" + "02" +
-			"00" + "02" + "0101" + "02" +
+			"00" + "02" + "01" + "02" +
 			"1c00" + "02" +
-			"050520" + "010104" + "000000" +
-			"060610" + "0100" + "000000" +
+			"050520" + "0104" + "000000" +
+			"060610" + "00" + "000000" +
 			"3e00" + "01" +
-			"000000" + "0100" + "000000" +
-			"01" + "04" + "0100";
+			"000000" + "00" + "000000" +
+			"01" + "04" + "00";
 
 		[TestMethod]
 		public void ItemStackResponse_EncodesToTheSameBytesItAlwaysHas()

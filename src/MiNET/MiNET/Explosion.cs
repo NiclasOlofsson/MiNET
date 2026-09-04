@@ -116,8 +116,7 @@ namespace MiNET
 
 								if (!(block is Air))
 								{
-									float blastForce3 = block.BlastResistance / 5f;
-									blastForce1 -= (blastForce3 + 0.3F) * 0.3f;
+									blastForce1 -= (block.BlastResistance + 0.3F) * 0.3f;
 								}
 
 								if (blastForce1 > 0.0F)

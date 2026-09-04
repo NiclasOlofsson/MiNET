@@ -247,8 +247,8 @@ namespace MiNET.Items
 	public class ItemKelp : Item { public ItemKelp() : base("minecraft:kelp") {} }
 	public class ItemBrick : Item { public ItemBrick() : base("minecraft:brick") {} }
 	public class ItemClayBall : Item { public ItemClayBall() : base("minecraft:clay_ball") {} }
-	public class ItemCarrotonastick : Item { public ItemCarrotonastick() : base("minecraft:carrot_on_a_stick") {} }
-	public class ItemReeds : Item { public ItemReeds() : base("minecraft:item.reeds") {} }
+	public class ItemCarrotOnAStick : Item { public ItemCarrotOnAStick() : base("minecraft:carrot_on_a_stick") {} }
+	public class ItemSugarCane : Item { public ItemSugarCane() : base("minecraft:sugar_cane") {} }
 	public class ItemPaper : Item { public ItemPaper() : base("minecraft:paper") {} }
 	public class ItemTrident : Item { public ItemTrident() : base("minecraft:trident") {} }
 	public class ItemSlimeBall : Item { public ItemSlimeBall() : base("minecraft:slime_ball") {} }
@@ -273,7 +273,7 @@ namespace MiNET.Items
 	public class ItemEmerald : Item { public ItemEmerald() : base("minecraft:emerald") {} }
 	public class ItemMusicDiscPigstep : Item { public ItemMusicDiscPigstep() : base("minecraft:music_disc_pigstep") {} }
 	public class ItemFlowerPot : Item { public ItemFlowerPot() : base("minecraft:flower_pot") {} }
-	public class ItemNetherstar : Item { public ItemNetherstar() : base("minecraft:nether_star") {} }
+	public class ItemNetherStar : Item { public ItemNetherStar() : base("minecraft:nether_star") {} }
 	public class ItemHopperMinecart : Item { public ItemHopperMinecart() : base("minecraft:hopper_minecart") {} }
 	public class ItemFireworkStar : Item { public ItemFireworkStar() : base("minecraft:firework_star") {} }
 	public class ItemNetherbrick : Item { public ItemNetherbrick() : base("minecraft:netherbrick") {} }
@@ -301,7 +301,7 @@ namespace MiNET.Items
 	public class ItemPrismarineShard : Item { public ItemPrismarineShard() : base("minecraft:prismarine_shard") {} }
 	public class ItemShulkerShell : Item { public ItemShulkerShell() : base("minecraft:shulker_shell") {} }
 	public class ItemTotemOfUndying : Item { public ItemTotemOfUndying() : base("minecraft:totem_of_undying") {} }
-	public class ItemTurtleShellPiece : Item { public ItemTurtleShellPiece() : base("minecraft:scute") {} }
+	public class ItemTurtleScute : Item { public ItemTurtleScute() : base("minecraft:turtle_scute") {} }
 	public class ItemCrossbow : Item { public ItemCrossbow() : base("minecraft:crossbow") {} }
 	public class ItemBalloon : Item { public ItemBalloon() : base("minecraft:balloon") {} }
 	public class ItemBannerPattern : Item { public ItemBannerPattern() : base("minecraft:banner_pattern") {} }
@@ -314,7 +314,7 @@ namespace MiNET.Items
 	public class ItemLodestoneCompass : Item { public ItemLodestoneCompass() : base("minecraft:lodestone_compass") {} }
 	public class ItemNetheriteIngot : Item { public ItemNetheriteIngot() : base("minecraft:netherite_ingot") {} }
 	public class ItemNetheriteScrap : Item { public ItemNetheriteScrap() : base("minecraft:netherite_scrap") {} }
-	public class ItemChain : Item { public ItemChain() : base("minecraft:chain") {} }
+	public class ItemIronChain : Item { public ItemIronChain() : base("minecraft:iron_chain") {} }
 	public class ItemWarpedFungusOnAStick : Item { public ItemWarpedFungusOnAStick() : base("minecraft:warped_fungus_on_a_stick") {} }
 	public class ItemNetherSprouts : Item { public ItemNetherSprouts() : base("minecraft:nether_sprouts") {} }
 	public class ItemSoulCampfire : Item { public ItemSoulCampfire() : base("minecraft:soul_campfire") {} }

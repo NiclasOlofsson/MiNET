@@ -1,0 +1,24 @@
+{
+    "title": "minecraft:use_animation",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "/server/item/1.20.50/minecraft_use_animation.json",
+    "x-format-version": "1.20.50",
+    "x-minecraft-version": "1.26.50-beta.26",
+    "oneOf": [
+        {
+            "$ref": "./Animation.json",
+            "x-underlying-type": "uint8"
+        },
+        {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "default": "none",
+                    "$ref": "./Animation.json",
+                    "x-underlying-type": "uint8",
+                    "x-ordinal-index": 0
+                }
+            }
+        }
+    ]
+}

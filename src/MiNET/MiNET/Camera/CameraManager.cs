@@ -114,7 +114,7 @@ namespace MiNET.Camera
 
 		public CameraPreset GetPreset(string name)
 		{
-			return Presets.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+			return Presets.FirstOrDefault(p => string.Equals(p.name, name, StringComparison.OrdinalIgnoreCase));
 		}
 
 		/// <summary>
@@ -124,9 +124,9 @@ namespace MiNET.Camera
 		/// </summary>
 		public virtual CameraPreset AddPreset(CameraPreset preset)
 		{
-			if (preset?.Name == null) throw new ArgumentException("A camera preset needs a name", nameof(preset));
+			if (preset?.name == null) throw new ArgumentException("A camera preset needs a name", nameof(preset));
 
-			int existing = Presets.FindIndex(p => string.Equals(p.Name, preset.Name, StringComparison.OrdinalIgnoreCase));
+			int existing = Presets.FindIndex(p => string.Equals(p.name, preset.name, StringComparison.OrdinalIgnoreCase));
 			if (existing >= 0)
 			{
 				Presets[existing] = preset;
@@ -142,7 +142,7 @@ namespace MiNET.Camera
 		public virtual void SendPresets()
 		{
 			McpeCameraPresets packet = McpeCameraPresets.CreateObject();
-			packet.Presets.AddRange(Presets);
+			packet.presets = new List<CameraPreset>(Presets);
 			Player.SendPacket(packet);
 		}
 
@@ -164,7 +164,7 @@ namespace MiNET.Camera
 			Vector3? facing = null,
 			bool ignoreStartingValues = false)
 		{
-			int index = Presets.FindIndex(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+			int index = Presets.FindIndex(p => string.Equals(p.name, name, StringComparison.OrdinalIgnoreCase));
 			if (index < 0) throw new ArgumentException($"No camera preset named {name} for this player", nameof(name));
 
 			McpeCameraInstruction packet = McpeCameraInstruction.CreateObject();

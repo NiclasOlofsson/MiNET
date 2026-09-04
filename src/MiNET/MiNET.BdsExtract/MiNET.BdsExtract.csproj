@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>MiNET.BdsExtract</RootNamespace>
+    <AssemblyName>MiNET.BdsExtract</AssemblyName>
+  </PropertyGroup>
+
+  <!-- Deliberately no reference to MiNET, and no reference to MiNET.BlockGen. This tool only
+       reads a running Bedrock Dedicated Server and writes data files. Keeping it independent
+       means it still runs when the generated block code is broken or absent, which is exactly
+       when the data is needed. Windows only: it uses the Win32 process-reading API. -->
+
+  <!-- The memory side writes its JSON by hand and needs nothing. The probe side has to READ JSON,
+       both the rows the pack reports and the server's own block documentation, and hand-rolling a
+       parser for that would be its own bug farm. -->
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+
+  <!-- The binary facts phase reads bedrock_server.exe directly: AsmResolver.PE parses the PE
+       image (sections, exception directory / .pdata runtime functions), Iced decodes .text so
+       the code can be cross-referenced against what memory reads live. -->
+  <ItemGroup>
+    <PackageReference Include="AsmResolver.PE" Version="6.0.1" />
+    <PackageReference Include="Iced" Version="1.21.0" />
+  </ItemGroup>
+
+
+</Project>

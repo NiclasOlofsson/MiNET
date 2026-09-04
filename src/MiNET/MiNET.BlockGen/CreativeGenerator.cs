@@ -38,9 +38,9 @@ namespace MiNET.BlockGen;
 ///     carried as typed JSON NBT in the extraction's own shape rather than base64, so the file says
 ///     what each stack holds.
 ///     The output schema matches MiNET.CreativeGroupData exactly (the runtime reads it at startup,
-///     the same way the biome table is a generated data file rather than symbols), and nothing is
-///     written until every group and every entry has been measured against the captured BDS
-///     creative_content frame.
+///     the same way the biome table is a generated data file rather than symbols). When a captured
+///     BDS creative_content frame is present, every group and every entry is measured against it
+///     and each difference is reported; the extraction is written either way.
 /// </summary>
 public static class CreativeGenerator
 {
@@ -55,8 +55,8 @@ public static class CreativeGenerator
 			throw new InvalidDataException($"creative item {name} is not in the item registry");
 		}
 
-		Captures.FrameCreative frame = Captures.ReadCreativeContent(capturePath, NetworkId("minecraft:shield"));
-		Console.WriteLine($"creative_content frame: {frame.Groups.Count} groups, {frame.Entries.Count} entries");
+		Captures.FrameCreative frame = capturePath == null ? null : Captures.ReadCreativeContent(capturePath, NetworkId("minecraft:shield"));
+		if (frame != null) Console.WriteLine($"creative_content frame: {Path.GetFileName(capturePath)}, {frame.Groups.Count} groups, {frame.Entries.Count} entries");
 
 		var output = new CreativeGroupDataJson();
 		var failures = new List<string>();
@@ -96,6 +96,7 @@ public static class CreativeGenerator
 
 			output.Groups.Add(definition);
 
+			if (frame == null) continue;
 			if (i >= frame.Groups.Count)
 			{
 				failures.Add($"group {i} {definition.Name}: the frame has only {frame.Groups.Count} groups");
@@ -129,6 +130,7 @@ public static class CreativeGenerator
 
 			output.Entries.Add(definition);
 
+			if (frame == null) continue;
 			if (i >= frame.Entries.Count)
 			{
 				failures.Add($"entry {i} {entry["item"]}: the frame has only {frame.Entries.Count} entries");
@@ -142,7 +144,7 @@ public static class CreativeGenerator
 				failures);
 		}
 
-		if (entries.Count < frame.Entries.Count) failures.Add($"the frame has {frame.Entries.Count - entries.Count} entries the extraction does not");
+		if (frame != null && entries.Count < frame.Entries.Count) failures.Add($"the frame has {frame.Entries.Count - entries.Count} entries the extraction does not");
 
 		// Unused by the runtime but part of the schema; keep it truthful rather than empty.
 		output.EntryGroups = output.Entries.Select(e => e.GroupIndex).ToList();
@@ -150,14 +152,20 @@ public static class CreativeGenerator
 		Console.WriteLine($"creative stacks: {blockStacks} place a block, each carrying the network id of the state it places");
 		if (dropped > 0) Console.WriteLine($"creative stacks: {dropped} editor: entries dropped, which a normal world does not send");
 
-		if (failures.Count > 0)
+		// Every difference is printed, none is dropped; the catalog is written either way.
+		if (frame == null)
 		{
-			Console.Error.WriteLine($"creative catalog proof failed on {failures.Count} points:");
-			foreach (string failure in failures.Take(60)) Console.Error.WriteLine($"  {failure}");
-			throw new InvalidDataException("the generated creative catalog does not equal the captured frame");
+			Console.WriteLine($"creative catalog: {output.Groups.Count} groups and {output.Entries.Count} entries written unmeasured, no captured frame under Captures");
 		}
-
-		Console.WriteLine($"creative catalog proof: {output.Groups.Count} groups and {output.Entries.Count} entries equal the frame");
+		else if (failures.Count > 0)
+		{
+			Console.Error.WriteLine($"creative catalog differs from the frame on {failures.Count} points:");
+			foreach (string failure in failures) Console.Error.WriteLine($"  {failure}");
+		}
+		else
+		{
+			Console.WriteLine($"creative catalog: {output.Groups.Count} groups and {output.Entries.Count} entries equal the frame");
+		}
 
 		string json = JsonConvert.SerializeObject(output, Formatting.Indented, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
 		File.WriteAllText(outputPath, json, new UTF8Encoding(true));

@@ -68,6 +68,59 @@ namespace MiNET.Test.BdsExtract
 		}
 
 		/// <summary>
+		///     A destructor that frees heap members before itself hands their sizes out first. The
+		///     object's own free is the one behind the deleting-flag test, so that is the size named,
+		///     whatever position it sits at; without such a test nothing is guessed.
+		/// </summary>
+		[TestMethod]
+		public void The_own_size_is_the_flagged_free_not_the_first()
+		{
+			static byte[] Free(int size) => [0xBA, (byte) size, 0, 0, 0, 0xE8, 0, 0, 0, 0];
+
+			// The 1.26.60.21 shape, clang-cl: `mov edi, edx` parks the flag, a list walk frees two
+			// 120-byte entries behind a `test rbx, rbx` null check, then `test edi, edi; jz; mov edx,
+			// 72; mov rcx, rsi; call` frees the object. The null check must not name the entry free.
+			byte[] prologue = [0x56, 0x57, 0x48, 0x83, 0xEC, 0x28, 0x89, 0xD7, 0x48, 0x89, 0xCE];
+			byte[] nullCheck = [0x48, 0x85, 0xDB, 0x74, 0x26];
+			byte[] own = [0x85, 0xFF, 0x74, 0x0D, 0xBA, 72, 0, 0, 0, 0x48, 0x89, 0xF1, 0xE8, 0, 0, 0, 0];
+			(List<int> sizes, int index) = Vtables.DestructorSizes([.. prologue, .. nullCheck, .. Free(120), .. Free(120), .. own, .. Free(120)]);
+			CollectionAssert.AreEqual(new[] {120, 120, 72, 120}, sizes);
+			Assert.AreEqual(2, index);
+			Assert.AreEqual(72, Vtables.OwnSize((sizes, index)));
+
+			// MSVC's shape: `mov ebx, edx` then `test bl, 1`; and the flag left in edx, `test dl, 1`.
+			Assert.AreEqual(1, Vtables.DestructorSizes([0x89, 0xD3, .. Free(120), 0xF6, 0xC3, 0x01, 0x74, 0x05, .. Free(40)]).Own);
+			Assert.AreEqual(0, Vtables.DestructorSizes([0x48, 0x89, 0xCE, 0xF6, 0xC2, 0x01, 0x74, 0x05, .. Free(40)]).Own);
+
+			// A flag parked in r14d (`mov r14d, edx`, REX.B) is tested as `test r14d, r14d` (REX.RB).
+			Assert.AreEqual(1, Vtables.DestructorSizes([0x41, 0x89, 0xD6, .. Free(120), 0x45, 0x85, 0xF6, 0x74, 0x05, .. Free(56)]).Own);
+
+			// No flag test at all: a lone candidate is the class, candidates that all agree state
+			// their one value, candidates that differ are unstated.
+			Assert.AreEqual(40, Vtables.OwnSize(Vtables.DestructorSizes(Free(40))));
+			Assert.AreEqual(80, Vtables.OwnSize(Vtables.DestructorSizes([0x89, 0xD7, .. Free(80), .. Free(80)])));
+			Assert.AreEqual(0, Vtables.OwnSize(Vtables.DestructorSizes([0x89, 0xD7, .. Free(120), .. Free(72)])));
+		}
+
+		/// <summary>
+		///     The one block component on this image whose destructor frees members first: its
+		///     materials are a list of 120-byte entries, and its own node is 72.
+		/// </summary>
+		[TestMethod]
+		public void Material_instances_size_is_its_own_node_not_an_entry()
+		{
+			var image = PeImage.Open(PeImageTests.ExePath());
+			var code = new CodeIndex(image);
+			List<InventoryClass> blocks = SignatureStrings.Find(image).Where(c => c.Family == "BlockComponentStorage").ToList();
+			IReadOnlyList<ClassVtable> vtables = Vtables.Find(code, image, blocks);
+
+			ClassVtable materials = vtables.Single(v => v.Name == "BlockMaterialInstancesComponent");
+			Console.WriteLine($"candidates [{string.Join(", ", materials.SizeCandidates)}], own {materials.Size}");
+			Assert.AreEqual(72, materials.Size);
+			Assert.IsTrue(materials.SizeCandidates.Contains(120), "the entry frees are still listed, in order");
+		}
+
+		/// <summary>
 		///     The block component storage folds identical wrappers, so a table can name more than
 		///     one class and every class in the fold has to say so. Seventeen classes whose data is
 		///     eight bytes or less share one table on 1.26.50.26.
@@ -98,6 +151,12 @@ namespace MiNET.Test.BdsExtract
 		///     The same tables a previous run read out of live item objects, RVA for RVA. The scan's
 		///     addresses are process addresses of a relocated module, so its own moduleBase comes off
 		///     first. Every difference is printed; which of them matters is not this test's call.
+		///     <para>
+		///         Addresses move with every build, so the scan is only a witness for the image it
+		///         was read on: it has to carry that image's SHA-256 as exeSha256, and an exe with
+		///         another digest is not a disagreement, it is a different question. A scan without
+		///         the digest cannot say which build it belongs to and is not measured against any.
+		///     </para>
 		/// </summary>
 		[TestMethod]
 		public void The_vtables_agree_with_the_live_scan()
@@ -105,11 +164,16 @@ namespace MiNET.Test.BdsExtract
 			string path = TypeIdSlotsTests.RepoFile(Path.Combine("temp_auto", "widths", "vtables.json"));
 			if (path == null) Assert.Inconclusive("temp_auto/widths/vtables.json is not in this checkout");
 
+			JObject scan = JObject.Parse(File.ReadAllText(path));
+			string scanned = (string) scan["exeSha256"];
+			if (string.IsNullOrEmpty(scanned)) Assert.Inconclusive("the scan carries no exeSha256, so nothing says which build its addresses belong to");
+			string digest = BinaryFacts.Digest(PeImageTests.ExePath());
+			if (!string.Equals(scanned, digest, StringComparison.OrdinalIgnoreCase)) Assert.Inconclusive($"the scan was read on an image with digest {scanned}; MINET_BDS_EXE has {digest}");
+
 			var image = PeImage.Open(PeImageTests.ExePath());
 			var code = new CodeIndex(image);
 			IReadOnlyList<ClassVtable> vtables = Vtables.Find(code, image, ItemComponents(SignatureStrings.Find(image)));
 
-			JObject scan = JObject.Parse(File.ReadAllText(path));
 			ulong moduleBase = Convert.ToUInt64((string) scan["moduleBase"], 16);
 			var live = new Dictionary<string, uint>();
 			foreach (JProperty property in ((JObject) scan["classes"]).Properties())

@@ -51,7 +51,7 @@ namespace MiNET.Test
 		public void Item_registry_declares_what_bds_declares()
 		{
 			var packet = McpeItemComponent.CreateObject();
-			packet.Decode(File.ReadAllBytes(Path.Combine(CaptureDirectory, "item_registry-1.26.50.26.bin")).AsMemory());
+			packet.Decode(File.ReadAllBytes(Path.Combine(CaptureDirectory, "item_registry-1.26.60.21.bin")).AsMemory());
 
 			ItemRegistry registry = ItemFactory.ItemRegistry;
 			Assert.AreEqual(packet.entries.Count, registry.Count, "the registry declares a different number of items than BDS does");
@@ -84,7 +84,7 @@ namespace MiNET.Test
 		public void Creative_catalog_declares_what_bds_declares()
 		{
 			var packet = McpeCreativeContent.CreateObject();
-			packet.Decode(File.ReadAllBytes(Path.Combine(CaptureDirectory, "creative_content-1.26.50.26.bin")).AsMemory());
+			packet.Decode(File.ReadAllBytes(Path.Combine(CaptureDirectory, "creative_content-1.26.60.21.bin")).AsMemory());
 
 			CreativeGroupData catalog = InventoryUtils.CreativeGroups.Value;
 			Assert.AreEqual(packet.groups.Count, catalog.Groups.Count, "the catalog declares a different number of groups than BDS does");

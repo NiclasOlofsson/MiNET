@@ -51,6 +51,7 @@ namespace MiNET.Net
 				writer.WriteSignedVarLong(entry.actorUniqueId);
 				writer.Write(entry.playerName);
 				writer.Write(entry.xblXuid);
+				writer.Write(entry.playfabId);
 				writer.Write(entry.platformOnlineId);
 				writer.Write((int) entry.buildPlatform);
 				byte[] prefix = scratch.ToArray();
@@ -84,6 +85,7 @@ namespace MiNET.Net
 				actorUniqueId = player.EntityId,
 				playerName = player.DisplayName ?? player.Username,
 				xblXuid = player.PlayerInfo.CertificateData?.ExtraData?.Xuid ?? string.Empty,
+				playfabId = player.Skin?.PlayFabId ?? string.Empty,
 				platformOnlineId = player.PlayerInfo.PlatformChatId,
 				buildPlatform = (PlayerListAddEntry.BuildPlatform) player.PlayerInfo.DeviceOS,
 				serializedSkin = player.Skin,

@@ -1902,7 +1902,6 @@ namespace MiNET.Net
 		public void Write(Skin skin)
 		{
 			Write(skin.SkinId);
-			Write(skin.PlayFabId);
 			Write(skin.ResourcePatch);
 			Write(skin.Width);
 			Write(skin.Height);
@@ -2007,7 +2006,6 @@ namespace MiNET.Net
 			Skin skin = new Skin();
 
 			skin.SkinId = ReadString();
-			skin.PlayFabId = ReadString();
 			skin.ResourcePatch = ReadString();
 			skin.Width = ReadInt();
 			skin.Height = ReadInt();

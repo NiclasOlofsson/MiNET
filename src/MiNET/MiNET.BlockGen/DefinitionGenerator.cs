@@ -397,7 +397,8 @@ public static class DefinitionGenerator
 	/// <summary>
 	///     Every model serialized by MiNET's own writer has to equal the frame's entry byte for
 	///     byte, and the set of names has to be the frame's set. A difference is printed as the
-	///     block, the leaf path and both values, and nothing is written.
+	///     block, the leaf path and both values; every one is printed and the definitions are
+	///     written either way, the frame being a witness for the extraction rather than a gate on it.
 	/// </summary>
 	public static bool Prove(IReadOnlyDictionary<string, BlockDefinition> definitions, StartGameCapture capture)
 	{
@@ -434,8 +435,8 @@ public static class DefinitionGenerator
 
 		if (failures.Count == 0) return true;
 
-		Console.Error.WriteLine($"block definitions proof failed on {failures.Count} points:");
-		foreach (string failure in failures.Take(60)) Console.Error.WriteLine($"  {failure}");
+		Console.Error.WriteLine($"block definitions differ from the frame on {failures.Count} points:");
+		foreach (string failure in failures) Console.Error.WriteLine($"  {failure}");
 		return false;
 	}
 

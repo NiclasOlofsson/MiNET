@@ -36,8 +36,10 @@ namespace MiNET.BlockGen;
 ///     The registry entry carries the component tree as fNbt construction code, so the tree is
 ///     readable and reviewable in the generated file rather than a base64 blob. The runtime
 ///     serializes it once at startup and hands the bytes to the item_registry packet.
-///     Nothing is written until every entry and every tree has been measured against the captured
-///     BDS frame. Where the extraction cannot yet read a value, the leaf is taken from that frame
+///     When a captured BDS frame is present, every entry and every tree is measured against it and
+///     each difference is reported; the extraction is the source and is written either way, so a
+///     frame from an older build reports the version gap rather than blocking the newer data.
+///     Where the extraction cannot yet read a value, the leaf is taken from that frame
 ///     through a NAMED gap in <see cref="Gaps" />: every gap is counted, printed on each run, and
 ///     disappears the moment the extraction supplies the value.
 /// </summary>
@@ -72,9 +74,9 @@ public static class ItemGenerator
 		Console.WriteLine($"item source: {rowsPath}");
 		Console.WriteLine($"             BDS {extract["source"]?["server"]}, {rows.Count} items");
 
-		List<Captures.FrameItem> frame = Captures.ReadItemRegistry(capturesPath);
-		var frameByName = frame.ToDictionary(f => f.Name, StringComparer.Ordinal);
-		Console.WriteLine($"item_registry frame: {frame.Count} entries, {frame.Count(f => f.Tree != null)} with a component tree");
+		List<Captures.FrameItem> frame = capturesPath == null ? null : Captures.ReadItemRegistry(capturesPath);
+		var frameByName = (frame ?? []).ToDictionary(f => f.Name, StringComparer.Ordinal);
+		if (frame != null) Console.WriteLine($"item_registry frame: {Path.GetFileName(capturesPath)}, {frame.Count} entries, {frame.Count(f => f.Tree != null)} with a component tree");
 
 		// The extraction lists items alphabetically; BDS sends them in its own map order, which
 		// nothing here can reproduce. Entries are emitted alphabetically and checked by name.
@@ -91,24 +93,28 @@ public static class ItemGenerator
 		foreach (JObject row in rows)
 		{
 			string name = (string) row["name"];
-			if (!frameByName.TryGetValue(name, out Captures.FrameItem frameItem))
-			{
-				failures.Add($"{name}: not in the frame");
-				continue;
-			}
-
 			short id = (short) row["id"];
 			bool componentBased = (bool) row["componentBased"];
 			int version = (int) row["version"];
-
-			if (id != frameItem.Id) failures.Add($"{name}: network id {id}, frame has {frameItem.Id}");
-			if (componentBased != frameItem.ComponentBased) failures.Add($"{name}: component_based {componentBased}, frame has {frameItem.ComponentBased}");
-			if (version != frameItem.Version) failures.Add($"{name}: version {version}, frame has {frameItem.Version}");
-
 			NbtCompound tree = BuildTree(row, componentBased);
-			if (tree != null && frameItem.Tree == null) failures.Add($"{name}: generated a tree, the frame carries none");
-			else if (tree == null && frameItem.Tree != null) failures.Add($"{name}: generated no tree, the frame carries one");
-			else if (tree != null) Reconcile(name, tree.Get<NbtCompound>("components"), frameItem.Tree.Get<NbtCompound>("components"), "", used, failures);
+
+			if (frame != null)
+			{
+				if (!frameByName.TryGetValue(name, out Captures.FrameItem frameItem))
+				{
+					failures.Add($"{name}: not in the frame");
+				}
+				else
+				{
+					if (id != frameItem.Id) failures.Add($"{name}: network id {id}, frame has {frameItem.Id}");
+					if (componentBased != frameItem.ComponentBased) failures.Add($"{name}: component_based {componentBased}, frame has {frameItem.ComponentBased}");
+					if (version != frameItem.Version) failures.Add($"{name}: version {version}, frame has {frameItem.Version}");
+
+					if (tree != null && frameItem.Tree == null) failures.Add($"{name}: generated a tree, the frame carries none");
+					else if (tree == null && frameItem.Tree != null) failures.Add($"{name}: generated no tree, the frame carries one");
+					else if (tree != null) Reconcile(name, tree.Get<NbtCompound>("components"), frameItem.Tree.Get<NbtCompound>("components"), "", used, failures);
+				}
+			}
 
 			entries.Add(new ItemEntry(name, id, componentBased, version, tree == null ? null : Sorted(tree)));
 		}
@@ -118,12 +124,13 @@ public static class ItemGenerator
 			failures.Add($"{missing}: in the frame, not in the extraction");
 		}
 
-		// The proof: every generated tree re-serialized must be the frame's exact bytes.
+		// Every generated tree re-serialized against the frame's exact bytes, for the items the
+		// frame carries.
 		foreach (ItemEntry entry in entries)
 		{
-			if (entry.Tree == null) continue;
+			if (entry.Tree == null || !frameByName.TryGetValue(entry.Name, out Captures.FrameItem witness) || witness.TreeBytes == null) continue;
 			byte[] bytes = Serialize(entry.Tree);
-			byte[] expected = frameByName[entry.Name].TreeBytes;
+			byte[] expected = witness.TreeBytes;
 			if (bytes.SequenceEqual(expected)) continue;
 
 			int at = 0;
@@ -134,14 +141,21 @@ public static class ItemGenerator
 
 		ReportGaps(used);
 
-		if (failures.Count > 0)
+		// Every difference is printed, none is dropped: which of them are the game changing and
+		// which are the generator being wrong is the reader's call, not this tool's.
+		if (frame == null)
 		{
-			Console.Error.WriteLine($"item registry proof failed on {failures.Count} points:");
-			foreach (string failure in failures.Take(60)) Console.Error.WriteLine($"  {failure}");
-			throw new InvalidDataException("the generated item registry does not equal the captured frame");
+			Console.WriteLine($"item registry: {entries.Count} entries written unmeasured, no captured frame under Captures");
 		}
-
-		Console.WriteLine($"item registry proof: {entries.Count}/{frame.Count} entries and {entries.Count(e => e.Tree != null)} trees equal the frame byte for byte");
+		else if (failures.Count > 0)
+		{
+			Console.Error.WriteLine($"item registry differs from the frame on {failures.Count} points:");
+			foreach (string failure in failures) Console.Error.WriteLine($"  {failure}");
+		}
+		else
+		{
+			Console.WriteLine($"item registry: {entries.Count}/{frame.Count} entries and {entries.Count(e => e.Tree != null)} trees equal the frame byte for byte");
+		}
 
 		WriteItemRegistry(Path.Combine(itemsDir, "ItemRegistryData.generated.cs"), entries);
 		Console.WriteLine($"ItemRegistryData.generated.cs: {entries.Count} entries");

@@ -1160,8 +1160,17 @@ public static class ItemRegistry
 	public static int ClassSize(BedrockProcess process, ulong vtable)
 	{
 		if (SizeByClass.TryGetValue(vtable, out int cached)) return cached;
-		List<int> sizes = ClassSizeCandidates(process, vtable);
-		int size = sizes.Count == 0 ? 0 : sizes[0];
+		(List<int> sizes, int own) = ClassSizes(process, vtable);
+		int size = Binary.Vtables.OwnSize((sizes, own));
+
+		// Unstated is a value: a destructor that hands out several sizes and flags none as the
+		// object's own gets no size, and the reader then stops at the declared members rather than
+		// reading somebody else's bytes past them.
+		if (size == 0 && sizes.Count > 1)
+		{
+			Console.WriteLine($"  class at method table 0x{vtable:X}: the destructor hands out {string.Join(", ", sizes)} and flags none as its own; size unstated");
+		}
+
 		SizeByClass[vtable] = size;
 		return size;
 	}
@@ -1169,40 +1178,36 @@ public static class ItemRegistry
 	/// <summary>
 	///     Every size the deleting destructor passes to a call, in the order it passes them. A
 	///     destructor that destroys members first hands their sizes to their own deletes before its
-	///     own, so a class whose first one is not its own is visible here rather than answered wrong.
+	///     own, so the first one is not always the class's; <see cref="ClassSizes" /> says which is.
 	/// </summary>
 	public static List<int> ClassSizeCandidates(BedrockProcess process, ulong vtable)
 	{
-		var sizes = new List<int>();
-		if (!IsModule(vtable)) return sizes;
+		return ClassSizes(process, vtable).Sizes;
+	}
+
+	/// <summary>
+	///     The deleting destructor's sizes and which is the class's own, read out of the live
+	///     process with the same scan <see cref="Binary.Vtables.DestructorSizes" /> runs on the image.
+	/// </summary>
+	public static (List<int> Sizes, int Own) ClassSizes(BedrockProcess process, ulong vtable)
+	{
+		var none = (new List<int>(), -1);
+		if (!IsModule(vtable)) return none;
 		var scratch = new byte[8];
 		ulong destructor = process.ReadUInt64(vtable, scratch);
-		if (!IsModule(destructor)) return sizes;
+		if (!IsModule(destructor)) return none;
 
 		var code = new byte[1024];
-		if (!process.TryRead(destructor, code, code.Length)) return sizes;
+		if (!process.TryRead(destructor, code, code.Length)) return none;
 
 		// A slot that only jumps is a thunk, so the destructor is wherever it jumps to.
 		if (code[0] == 0xE9)
 		{
 			ulong target = (ulong) ((long) destructor + 5 + BitConverter.ToInt32(code, 1));
-			if (!IsModule(target) || !process.TryRead(target, code, code.Length)) return sizes;
+			if (!IsModule(target) || !process.TryRead(target, code, code.Length)) return none;
 		}
 
-		for (int i = 0; i + 5 <= code.Length; i++)
-		{
-			if (code[i] != 0xBA) continue;
-			int value = BitConverter.ToInt32(code, i + 1);
-			if (value is < 16 or > 8192 || value % 8 != 0) continue;
-			for (int j = i + 5; j < Math.Min(i + 21, code.Length); j++)
-			{
-				if (code[j] != 0xE8) continue;
-				sizes.Add(value);
-				break;
-			}
-		}
-
-		return sizes;
+		return Binary.Vtables.DestructorSizes(code);
 	}
 
 	/// <summary>

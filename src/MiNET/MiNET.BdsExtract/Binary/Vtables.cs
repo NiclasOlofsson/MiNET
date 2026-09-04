@@ -151,10 +151,10 @@ public static class Vtables
 			}
 
 			uint vtable = candidates[0];
-			List<int> sizes = ClassSizeCandidates(image, vtable);
+			(List<int> sizes, int own) = ClassSizes(image, vtable);
 			(bool? networked, string bytes) = Networks(image, vtable);
 			found.Add(new ClassVtable(entry.Name, entry.Family, vtable, votes[vtable], candidates,
-				sizes.Count == 0 ? 0 : sizes[0], sizes, networked, bytes, Array.Empty<string>()));
+				OwnSize((sizes, own)), sizes, networked, bytes, Array.Empty<string>()));
 		}
 
 		// The folded tables, filled in once every class has one.
@@ -386,28 +386,59 @@ public static class Vtables
 
 	/// <summary>
 	///     Every size the deleting destructor passes to a call, in the order it passes them. This is
-	///     <see cref="ItemRegistry.ClassSizeCandidates" /> reading the image instead of the process:
-	///     the table's first slot is a code address, the address is an RVA once the image base comes
-	///     off, and a slot that only jumps is a thunk whose target is the real body. A destructor
-	///     that destroys members first hands their sizes to their own deletes before its own, so a
-	///     class whose first one is not its own is visible here rather than answered wrong.
+	///     the image-side twin of <see cref="ItemRegistry.ClassSizeCandidates" />: the table's first
+	///     slot is a code address, the address is an RVA once the image base comes off, and a slot
+	///     that only jumps is a thunk whose target is the real body. Which of them is the class's own
+	///     is <see cref="DestructorSizes" />'s answer, not the first one.
 	/// </summary>
 	public static List<int> ClassSizeCandidates(PeImage image, uint vtableRva)
 	{
-		var sizes = new List<int>();
-		if (!TryRead(image, vtableRva, 8, out ReadOnlySpan<byte> slot)) return sizes;
+		return ClassSizes(image, vtableRva).Sizes;
+	}
+
+	/// <summary>The deleting destructor's sizes and which of them is the class's own, read off the image.</summary>
+	public static (List<int> Sizes, int Own) ClassSizes(PeImage image, uint vtableRva)
+	{
+		var none = (new List<int>(), -1);
+		if (!TryRead(image, vtableRva, 8, out ReadOnlySpan<byte> slot)) return none;
 		ulong destructor = BitConverter.ToUInt64(slot);
-		if (destructor < image.ImageBase) return sizes;
+		if (destructor < image.ImageBase) return none;
 		uint at = (uint) (destructor - image.ImageBase);
 
-		if (!TryRead(image, at, DestructorWindow, out ReadOnlySpan<byte> code)) return sizes;
+		if (!TryRead(image, at, DestructorWindow, out ReadOnlySpan<byte> code)) return none;
 
 		if (code[0] == 0xE9)
 		{
 			long target = (long) at + 5 + BitConverter.ToInt32(code.Slice(1, 4));
-			if (target < 0 || !TryRead(image, (uint) target, DestructorWindow, out code)) return sizes;
+			if (target < 0 || !TryRead(image, (uint) target, DestructorWindow, out code)) return none;
 		}
 
+		return DestructorSizes(code);
+	}
+
+	/// <summary>
+	///     What a scalar deleting destructor hands its deletes, and which of those is the object's
+	///     own. Every <c>mov edx, imm32</c> followed by a call within a few bytes is a size handed
+	///     to a deallocator, in code order. A destructor that owns heap members frees them first,
+	///     so the first size is theirs, not the class's: a component holding a list of 120-byte
+	///     entries frees 120, 120, and only then its own 72.
+	///     <para>
+	///         The class's own free is the one the compiler guards with the deleting flag: the
+	///         destructor's second argument, arriving in <c>edx</c>, says whether to free
+	///         <c>this</c> at all. The prologue parks it in a callee-saved register (<c>mov edi,
+	///         edx</c> on this build), and right before the object's own size and delete call that
+	///         register is tested: <c>test edi, edi</c> from clang-cl, <c>test dil, 1</c> from
+	///         MSVC. Member frees carry no such test. A test of any other register is a null check
+	///         and names nothing, which is what keeps a <c>test rbx, rbx</c> beside a member free
+	///         from being mistaken for the flag. So <see cref="ValueTuple{T1,T2}.Item2" /> is the
+	///         index of the first size within a short reach after the flag register's test, or -1
+	///         when no such test is found, which is reported as unstated rather than guessed at.
+	///     </para>
+	/// </summary>
+	public static (List<int> Sizes, int Own) DestructorSizes(ReadOnlySpan<byte> code)
+	{
+		var sizes = new List<int>();
+		var positions = new List<int>();
 		for (int i = 0; i + 5 <= code.Length; i++)
 		{
 			if (code[i] != 0xBA) continue;
@@ -417,11 +448,109 @@ public static class Vtables
 			{
 				if (code[j] != 0xE8) continue;
 				sizes.Add(value);
+				positions.Add(i);
 				break;
 			}
 		}
 
-		return sizes;
+		int flag = FlagRegister(code);
+		int own = -1;
+		for (int i = 1; i + 2 <= code.Length && own < 0; i++)
+		{
+			if (!IsFlagTest(code, i, flag, out int length)) continue;
+			int reach = i + length + OwnDeleteReach;
+			for (int k = 0; k < positions.Count; k++)
+			{
+				if (positions[k] <= i || positions[k] > reach) continue;
+				own = k;
+				break;
+			}
+		}
+
+		return (sizes, own);
+	}
+
+	/// <summary>
+	///     The size <see cref="DestructorSizes" /> names as the class's own: the flagged one; else,
+	///     with no flag test found, the one value every candidate agrees on (a destructor handing
+	///     out 80 and 80 states 80 whichever call is its own); else 0 for unstated.
+	/// </summary>
+	public static int OwnSize((List<int> Sizes, int Own) sizes)
+	{
+		if (sizes.Own >= 0) return sizes.Sizes[sizes.Own];
+		return sizes.Sizes.Count > 0 && sizes.Sizes.All(s => s == sizes.Sizes[0]) ? sizes.Sizes[0] : 0;
+	}
+
+	/// <summary>How far past the flag test the object's own size may sit: the jump over the free, the size, and a <c>this</c> move.</summary>
+	private const int OwnDeleteReach = 24;
+
+	/// <summary>How far into the destructor the prologue parks the flag argument.</summary>
+	private const int PrologueReach = 32;
+
+	/// <summary>
+	///     The register the deleting flag lives in: whichever one the prologue copies <c>edx</c>
+	///     into (<c>89 /r</c> with edx as source, or <c>8B /r</c> with edx as the memory-side
+	///     operand, either behind a REX prefix), and <c>edx</c> itself when nothing copies it.
+	/// </summary>
+	private static int FlagRegister(ReadOnlySpan<byte> code)
+	{
+		for (int i = 0; i + 3 <= Math.Min(code.Length, PrologueReach); i++)
+		{
+			int rex = code[i] is >= 0x40 and <= 0x4F ? code[i] : 0;
+			int op = rex == 0 ? i : i + 1;
+			if (op + 2 > code.Length || (rex & 0x08) != 0) continue;
+			byte modrm = code[op + 1];
+			if ((modrm & 0xC0) != 0xC0) continue;
+			int reg = (modrm >> 3) & 7, rm = modrm & 7;
+			if (code[op] == 0x89 && reg == 2 && (rex & 0x04) == 0) return rm + ((rex & 0x01) != 0 ? 8 : 0);
+			if (code[op] == 0x8B && rm == 2 && (rex & 0x01) == 0) return reg + ((rex & 0x04) != 0 ? 8 : 0);
+		}
+
+		return 2;
+	}
+
+	/// <summary>
+	///     Whether the bytes at <paramref name="at" /> test <paramref name="register" /> as the
+	///     deleting flag: <c>test r32, r32</c> or <c>test r8, r8</c> of that one register against
+	///     itself (<c>85</c> / <c>84</c>, never behind REX.W, which would be a pointer null check),
+	///     <c>test r8, 1</c> (<c>F6 /0 01</c>), or <c>test al, 1</c> (<c>A8 01</c>) when it is eax.
+	/// </summary>
+	private static bool IsFlagTest(ReadOnlySpan<byte> code, int at, int register, out int length)
+	{
+		length = 0;
+		int low = register & 7;
+		bool high = register >= 8;
+
+		if (!high && register == 0 && code[at] == 0xA8 && code[at + 1] == 0x01)
+		{
+			length = 2;
+			return true;
+		}
+
+		int rex = code[at] is >= 0x40 and <= 0x4F ? code[at] : 0;
+		int op = rex == 0 ? at : at + 1;
+		if (op + 2 > code.Length || (rex & 0x08) != 0) return false;
+		if (rex == 0 && code[at - 1] is >= 0x48 and <= 0x4F) return false;
+
+		byte modrm = code[op + 1];
+		if (code[op] is 0x85 or 0x84)
+		{
+			bool sameRegister = modrm == (0xC0 | (low << 3) | low);
+			bool sameHalf = high ? (rex & 0x05) == 0x05 : (rex & 0x05) == 0;
+			if (!sameRegister || !sameHalf) return false;
+			length = op + 2 - at;
+			return true;
+		}
+
+		if (code[op] == 0xF6 && op + 3 <= code.Length && modrm == (0xC0 | low) && code[op + 2] == 0x01)
+		{
+			bool sameHalf = high ? (rex & 0x01) != 0 : (rex & 0x01) == 0;
+			if (!sameHalf) return false;
+			length = op + 3 - at;
+			return true;
+		}
+
+		return false;
 	}
 
 	/// <summary>

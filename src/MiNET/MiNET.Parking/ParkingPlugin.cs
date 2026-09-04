@@ -347,7 +347,9 @@ namespace MiNET.Parking
 			// Registers them with the plugin's clock as well as starting the lap: the timer walks
 			// this map, so a player absent from it is a player nothing ever comes back for.
 			_orbitSeconds[player] = 0;
-			StartOrbit(player);
+			// Parking.Orbit=false parks without the camera lap. A bisect switch: the camera
+			// instructions are the last packets a fresh arrival receives.
+			if (Config.GetProperty("Parking.Orbit", true)) StartOrbit(player);
 		}
 
 		/// <summary>

@@ -689,7 +689,8 @@ public sealed class BinaryFacts
 		}
 	}
 
-	private static string Digest(string path)
+	/// <summary>The executable's SHA-256, which is what a saved live scan has to carry to say which image it was read on.</summary>
+	public static string Digest(string path)
 	{
 		using FileStream stream = File.OpenRead(path);
 		return Convert.ToHexString(SHA256.HashData(stream)).ToLowerInvariant();

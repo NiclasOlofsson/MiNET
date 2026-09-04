@@ -1508,26 +1508,33 @@
 					"bytes": 4,
 					"kind": "Enum32",
 					"enum": "LevelSoundEvent",
-					"gate": 32
+					"gate": 40
+				},
+				{
+					"name": "padding3",
+					"at": 12,
+					"bytes": 4,
+					"kind": "Padding",
+					"comparable": false
 				},
 				{
 					"name": "unknown1",
-					"at": 12,
-					"bytes": 28,
+					"at": 16,
+					"bytes": 32,
 					"kind": "Unknown",
 					"comparable": false
 				},
 				{
 					"name": "startSoundHasValue",
-					"at": 40,
+					"at": 48,
 					"bytes": 1,
 					"kind": "Bool"
 				},
 				{
-					"name": "unknown2",
-					"at": 41,
-					"bytes": 15,
-					"kind": "Unknown",
+					"name": "padding4",
+					"at": 49,
+					"bytes": 7,
+					"kind": "Padding",
 					"comparable": false
 				},
 				{

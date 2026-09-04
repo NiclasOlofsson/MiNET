@@ -2803,8 +2803,12 @@ namespace MiNET.Net
 			if (entityDiagnostics != null) foreach (EntityDiagnosticTimingInfo item in entityDiagnostics) Write(item);
 			WriteUnsignedVarInt((uint) (systemDiagnostics?.Count ?? 0));
 			if (systemDiagnostics != null) foreach (SystemDiagnosticTimingInfo item in systemDiagnostics) Write(item);
-			WriteUnsignedVarInt((uint) (systemCategories?.Count ?? 0));
-			if (systemCategories != null) foreach (SystemCategory item in systemCategories) Write(item);
+			Write(systemCategories != null);
+			if (systemCategories != null)
+			{
+				WriteUnsignedVarInt((uint) systemCategories.Count);
+				foreach (SystemCategory item in systemCategories) Write(item);
+			}
 			WriteUnsignedVarInt((uint) (whiskerScopes?.Count ?? 0));
 			if (whiskerScopes != null) foreach (WhiskerScopeDataSummary item in whiskerScopes) Write(item);
 
@@ -2838,9 +2842,12 @@ namespace MiNET.Net
 			uint systemDiagnosticsCount = ReadUnsignedVarInt();
 			systemDiagnostics = new List<SystemDiagnosticTimingInfo>((int) systemDiagnosticsCount);
 			for (int i = 0; i < systemDiagnosticsCount; i++) systemDiagnostics.Add(ReadSystemDiagnosticTimingInfo());
-			uint systemCategoriesCount = ReadUnsignedVarInt();
-			systemCategories = new List<SystemCategory>((int) systemCategoriesCount);
-			for (int i = 0; i < systemCategoriesCount; i++) systemCategories.Add(ReadSystemCategory());
+			if (ReadBool())
+			{
+				uint systemCategoriesCount = ReadUnsignedVarInt();
+				systemCategories = new List<SystemCategory>((int) systemCategoriesCount);
+				for (int i = 0; i < systemCategoriesCount; i++) systemCategories.Add(ReadSystemCategory());
+			}
 			uint whiskerScopesCount = ReadUnsignedVarInt();
 			whiskerScopes = new List<WhiskerScopeDataSummary>((int) whiskerScopesCount);
 			for (int i = 0; i < whiskerScopesCount; i++) whiskerScopes.Add(ReadWhiskerScopeDataSummary());
@@ -3510,6 +3517,8 @@ namespace MiNET.Net
 		public int dimensionType;
 		public UUID packId;
 		public string defaultBiome;
+		public int cloudHeight;
+		public bool renderClouds;
 	}
 
 	public class EduSharedUriResource
@@ -3528,7 +3537,7 @@ namespace MiNET.Net
 		public string entity;
 		public ulong timeInNs;
 		public byte percentOfTotal;
-		public Vector3 position;
+		public Vector3? position;
 		public string dimension;
 	}
 
@@ -3721,11 +3730,18 @@ namespace MiNET.Net
 			Use = 1,
 		}
 
+		public enum HandSlot
+		{
+			Mainhand = 0,
+			Offhand = 1,
+		}
+
 		public List<InventoryAction> actions;
 		public ItemReleaseInventoryTransaction.ItemReleaseActionType actionType;
 		public int slot;
 		public Item item;
 		public Vector3 fromPosition;
+		public ItemReleaseInventoryTransaction.HandSlot hand;
 	}
 
 	public class ItemStackRequest
@@ -4040,10 +4056,17 @@ namespace MiNET.Net
 			ItemInteract = 2,
 		}
 
+		public enum HandSlot
+		{
+			Mainhand = 0,
+			Offhand = 1,
+		}
+
 		public List<InventoryAction> actions;
 		public long runtimeId;
 		public ItemUseOnActorInventoryTransaction.ItemUseOnActorActionType actionType;
 		public int slot;
+		public ItemUseOnActorInventoryTransaction.HandSlot hand;
 		public Item item;
 		public Vector3 fromPosition;
 		public Vector3 hitPosition;
@@ -4432,6 +4455,7 @@ namespace MiNET.Net
 			GamefaceScriptengine = 107,
 			GamefaceScript = 108,
 			GamefaceLayout = 109,
+			Executable = 110,
 		}
 
 		public MemoryCategoryCounter.MemoryCategory category;
@@ -4595,6 +4619,7 @@ namespace MiNET.Net
 		public long actorUniqueId;
 		public string playerName;
 		public string xblXuid;
+		public string playfabId;
 		public string platformOnlineId;
 		public PlayerListAddEntry.BuildPlatform buildPlatform;
 		public Skin serializedSkin;
@@ -5160,6 +5185,8 @@ namespace MiNET.Net
 			WriteSignedVarInt(data.dimensionType);
 			Write(data.packId);
 			Write(data.defaultBiome);
+			WriteSignedVarInt(data.cloudHeight);
+			Write(data.renderClouds);
 		}
 
 		public DimensionDefinition ReadDimensionDefinition()
@@ -5171,6 +5198,8 @@ namespace MiNET.Net
 			data.dimensionType = ReadSignedVarInt();
 			data.packId = ReadUUID();
 			data.defaultBiome = ReadString();
+			data.cloudHeight = ReadSignedVarInt();
+			data.renderClouds = ReadBool();
 			return data;
 		}
 
@@ -5206,8 +5235,10 @@ namespace MiNET.Net
 			Write(data.entity);
 			Write(data.timeInNs);
 			Write(data.percentOfTotal);
-			Write(data.position);
-			Write(data.dimension);
+			Write(data.position != null);
+			if (data.position != null) Write(data.position.Value);
+			Write(data.dimension != null);
+			if (data.dimension != null) Write(data.dimension);
 		}
 
 		public EntityDiagnosticTimingInfo ReadEntityDiagnosticTimingInfo()
@@ -5217,8 +5248,8 @@ namespace MiNET.Net
 			data.entity = ReadString();
 			data.timeInNs = ReadUlong();
 			data.percentOfTotal = ReadByte();
-			data.position = ReadVector3();
-			data.dimension = ReadString();
+			if (ReadBool()) data.position = ReadVector3();
+			if (ReadBool()) data.dimension = ReadString();
 			return data;
 		}
 
@@ -5416,6 +5447,7 @@ namespace MiNET.Net
 			WriteSignedVarInt(data.slot);
 			WriteNetworkItemStackDescriptor(data.item);
 			Write(data.fromPosition);
+			Write((byte) data.hand);
 		}
 
 		public ItemReleaseInventoryTransaction ReadItemReleaseInventoryTransaction()
@@ -5428,6 +5460,7 @@ namespace MiNET.Net
 			data.slot = ReadSignedVarInt();
 			data.item = ReadNetworkItemStackDescriptor();
 			data.fromPosition = ReadVector3();
+			data.hand = (ItemReleaseInventoryTransaction.HandSlot) ReadByte();
 			return data;
 		}
 
@@ -6022,6 +6055,7 @@ namespace MiNET.Net
 			WriteUnsignedVarLong(data.runtimeId);
 			WriteSignedVarInt((int) data.actionType);
 			WriteSignedVarInt(data.slot);
+			Write((byte) data.hand);
 			WriteNetworkItemStackDescriptor(data.item);
 			Write(data.fromPosition);
 			Write(data.hitPosition);
@@ -6036,6 +6070,7 @@ namespace MiNET.Net
 			data.runtimeId = ReadUnsignedVarLong();
 			data.actionType = (ItemUseOnActorInventoryTransaction.ItemUseOnActorActionType) ReadSignedVarInt();
 			data.slot = ReadSignedVarInt();
+			data.hand = (ItemUseOnActorInventoryTransaction.HandSlot) ReadByte();
 			data.item = ReadNetworkItemStackDescriptor();
 			data.fromPosition = ReadVector3();
 			data.hitPosition = ReadVector3();
@@ -6421,6 +6456,7 @@ namespace MiNET.Net
 			WriteSignedVarLong(data.actorUniqueId);
 			Write(data.playerName);
 			Write(data.xblXuid);
+			Write(data.playfabId);
 			Write(data.platformOnlineId);
 			Write((int) data.buildPlatform);
 			Write(data.serializedSkin);
@@ -6438,6 +6474,7 @@ namespace MiNET.Net
 			data.actorUniqueId = ReadSignedVarLong();
 			data.playerName = ReadString();
 			data.xblXuid = ReadString();
+			data.playfabId = ReadString();
 			data.platformOnlineId = ReadString();
 			data.buildPlatform = (PlayerListAddEntry.BuildPlatform) ReadInt();
 			data.serializedSkin = ReadSkin();

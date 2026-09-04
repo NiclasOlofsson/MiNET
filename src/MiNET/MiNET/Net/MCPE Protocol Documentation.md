@@ -41,7 +41,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Player Video Capture | 0x144 | 20 |   
 | Clientbound Control Scheme Set | 0x147 | 20 |   
 | Primitive Shapes | 0x148 | 20 |   
-| Serverbound Pack Setting Change | 0x149 | 20 |   
 | Clientbound Data Store | 0x14a | 20 |   
 | Graphics Override Parameter | 0x14b | 20 |   
 | Serverbound Data Store | 0x14c | 20 |   
@@ -99,7 +98,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Chunk Radius Update | 0x46 | 70 |   
 | Game Rules Changed | 0x48 | 72 |   
 | Camera | 0x49 | 73 |   
-| Boss Event | 0x4a | 74 |   
 | Show Credits | 0x4b | 75 |   
 | Available Commands | 0x4c | 76 |   
 | Command Request | 0x4d | 77 |   
@@ -110,7 +108,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Resource Pack Data Info | 0x52 | 82 |   
 | Resource Pack Chunk Data | 0x53 | 83 |   
 | Resource Pack Chunk Request | 0x54 | 84 |   
-| Play Sound | 0x56 | 86 |   
 | Stop Sound | 0x57 | 87 |   
 | Set Title | 0x58 | 88 |   
 | Add Behavior Tree | 0x59 | 89 |   
@@ -182,7 +179,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Script Message | 0xb1 | 177 |   
 | Code Builder Source | 0xb2 | 178 |   
 | Ticking Areas Load Status | 0xb3 | 179 |   
-| Dimension Data | 0xb4 | 180 |   
 | Agent Action Event | 0xb5 | 181 |   
 | Change Mob Property | 0xb6 | 182 |   
 | Lesson Progress | 0xb7 | 183 |   
@@ -198,7 +194,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Game Test Request | 0xc2 | 194 |   
 | Game Test Results | 0xc3 | 195 |   
 | Update Client Input Locks | 0xc4 | 196 |   
-| Camera Presets | 0xc6 | 198 |   
 | Unlocked Recipes | 0xc7 | 199 |   
 
 
@@ -212,7 +207,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | byte[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte[]) |
 | ByteArray [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ByteArray) |
 | CommandOriginData [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-CommandOriginData) |
-| DimensionDefinitions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-DimensionDefinitions) |
 | EnchantOptions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-EnchantOptions) |
 | Experiments [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Experiments) |
 | FixedString [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-FixedString) |
@@ -1136,42 +1130,6 @@ Wiki: [Camera](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Camera)
 |Unknown1 | SignedVarLong |  |
 |Unknown2 | SignedVarLong |  |
 -----------------------------------------------------------------------
-### Boss Event (0x4a)
-Wiki: [Boss Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BossEvent)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-#### Type constants
-
-| Name | Value |
-|:-----|:-----|
-|Add Boss | 0 |
-|Add Player | 1 |
-|Remove Boss | 2 |
-|Remove Player | 3 |
-|Update Progress | 4 |
-|Update Name | 5 |
-|Update Options | 6 |
-|Update Style | 7 |
-|Query | 8 |
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Boss Entity ID | SignedVarLong |  |
-|Player ID | SignedVarLong |  |
-|Event Type | byte |  |
-|Title | string |  |
-|Filtered Title | string |  |
-|Health Percent | float |  |
-|Color | byte |  |
-|Overlay | byte |  |
------------------------------------------------------------------------
 ### Show Credits (0x4b)
 Wiki: [Show Credits](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ShowCredits)
 
@@ -1346,24 +1304,6 @@ Wiki: [Resource Pack Chunk Request](https://github.com/NiclasOlofsson/MiNET/wiki
 |:-----|:-----|:-----|
 |Package ID | string |  |
 |Chunk Index | uint |  |
------------------------------------------------------------------------
-### Play Sound (0x56)
-Wiki: [Play Sound](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlaySound)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Name | string |  |
-|Coordinates | BlockCoordinates |  |
-|Volume | float |  |
-|Pitch | float |  |
 -----------------------------------------------------------------------
 ### Stop Sound (0x57)
 Wiki: [Stop Sound](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StopSound)
@@ -2535,21 +2475,6 @@ Wiki: [Ticking Areas Load Status](https://github.com/NiclasOlofsson/MiNET/wiki//
 |:-----|:-----|:-----|
 |Waiting For Preload | bool |  |
 -----------------------------------------------------------------------
-### Dimension Data (0xb4)
-Wiki: [Dimension Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-DimensionData)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Definitions | DimensionDefinitions |  |
------------------------------------------------------------------------
 ### Agent Action Event (0xb5)
 Wiki: [Agent Action Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AgentActionEvent)
 
@@ -2801,20 +2726,6 @@ Wiki: [Update Client Input Locks](https://github.com/NiclasOlofsson/MiNET/wiki//
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Flags | UnsignedVarInt |  |
------------------------------------------------------------------------
-### Camera Presets (0xc6)
-Wiki: [Camera Presets](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CameraPresets)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Unlocked Recipes (0xc7)
 Wiki: [Unlocked Recipes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UnlockedRecipes)
@@ -3185,23 +3096,6 @@ Wiki: [Primitive Shapes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
------------------------------------------------------------------------
-### Serverbound Pack Setting Change (0x149)
-Wiki: [Serverbound Pack Setting Change](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ServerboundPackSettingChange)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Pack ID | UUID |  |
-|Name | string |  |
-|Type ID | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 ### Clientbound Data Store (0x14a)
 Wiki: [Clientbound Data Store](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientboundDataStore)

@@ -604,6 +604,10 @@ namespace TestPlugin.NiceLobby
 				player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
 				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
 			}
+
+			// The action bar rather than the subtitle: the subtitle renders wide enough that the
+			// server name alone nearly fills the screen, so a version appended to it runs off.
+			player.SendTitle($"{ChatColors.Gray}MiNET {McpeProtocolInfo.GameVersion} (protocol {McpeProtocolInfo.ProtocolVersion})", TitleType.ActionBar);
 		}
 
 		private void OnPlayerLeave(object o, PlayerEventArgs eventArgs)

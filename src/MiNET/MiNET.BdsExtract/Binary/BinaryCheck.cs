@@ -184,6 +184,15 @@ public sealed class BinaryCheck
 			if (declared == entry.Size)
 			{
 				_sizeAgrees++;
+
+				// Said when the agreement was not the destructor's first size: the ones ahead of it
+				// are member frees, and a reader taking the first would read past the object.
+				int own = entry.SizeCandidates.ToList().IndexOf(entry.Size);
+				if (own > 0)
+				{
+					Differences.Add($"size: {held.Name} states {entry.Size} by its own flagged delete, candidate {own + 1} of {entry.SizeCandidates.Count}; "
+						+ $"{string.Join(", ", entry.SizeCandidates.Take(own))} ahead of it are member frees");
+				}
 			}
 			else
 			{

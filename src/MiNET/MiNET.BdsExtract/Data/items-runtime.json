@@ -1,6 +1,6 @@
 {
 	"source": {
-		"server": "C:\\Development\\github\\MiNET\\temp_auto\\bds\\server-1.26.50.27",
+		"server": "C:\\Development\\github\\MiNET\\temp_auto\\bds\\server-1.26.60.21",
 		"world": "flatworld",
 		"experiments": [
 			"data_driven_vanilla_blocks_and_items",
@@ -59,7 +59,7 @@
 				"check": "component containers",
 				"guards": "the class tail slots, derived",
 				"held": true,
-				"detail": "declared set at +304 (75 containers), built map at +344 (31), every one walks to its stated count; class-own tree containers: [+248 (26 close, 0 walk hashed, 0 walk plain, 24 int-keyed; failing: minecraft:poplar_sign, minecraft:poplar_hanging_sign), +280 (2 close, 0 walk hashed, 0 walk plain, 0 int-keyed; failing: minecraft:respawn_anchor, minecraft:element_113)]"
+				"detail": "declared set at +304 (75 containers), built map at +344 (31), every one walks to its stated count; class-own tree containers: [+248 (26 int-keyed containers, keys 0..12, values unfollowed)]"
 			},
 			{
 				"check": "data-driven fields",
@@ -1508,25 +1508,25 @@
 					"bytes": 4,
 					"kind": "Enum32",
 					"enum": "LevelSoundEvent",
-					"gate": 32
+					"gate": 40
 				},
 				{
 					"name": "unknown1",
 					"at": 12,
-					"bytes": 28,
+					"bytes": 36,
 					"kind": "Unknown",
 					"comparable": false
 				},
 				{
 					"name": "startSoundHasValue",
-					"at": 40,
+					"at": 48,
 					"bytes": 1,
 					"kind": "Bool"
 				},
 				{
 					"name": "unknown2",
-					"at": 41,
-					"bytes": 15,
+					"at": 49,
+					"bytes": 7,
 					"kind": "Unknown",
 					"comparable": false
 				},
@@ -5023,11 +5023,8 @@
 				"minecraft:use_modifiers": {
 					"useDuration": 1.6,
 					"emitVibrations": true,
-					"startSound": {
-						"value": 1852795252,
-						"name": null
-					},
-					"startSoundHasValue": true,
+					"startSound": null,
+					"startSoundHasValue": false,
 					"movementModifier": 0.35,
 					"movementModifierHasValue": true,
 					"startUsing": {
@@ -19743,18 +19740,7 @@
 				"mineBlockType": "do_nothing",
 				"creativeCategory": "Equipment"
 			},
-			"componentBased": false,
-			"armorMaterial": {
-				"durabilityMultiplier": 15,
-				"protection": {
-					"boots": 2,
-					"chestplate": 5,
-					"leggings": 4,
-					"helmet": 1
-				},
-				"toughness": 0,
-				"enchantability": 12
-			}
+			"componentBased": false
 		},
 		{
 			"methodTable": {

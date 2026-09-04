@@ -2,7 +2,7 @@
 
 Embedded resources (`MiNET.Blocks.Data.*`), read at runtime through `ResourceUtil.ReadResource<T>(name, typeof(Block), "Data")`. **Nothing in this folder is generated.** Do not "regenerate" it, and do not assume running `MiNET.BlockGen` refreshes it.
 
-The generator writes C# next to this folder, never into it. `MiNET.BlockGen` produces `Blocks/BlockData.generated.cs`, `Blocks/PartialBlocks.cs` and `Blocks/BlockPaletteData.generated.cs` from the BDS memory extraction committed under `MiNET.BdsExtract/Data` (`block_states.json`, `blocks.json`, `creative_items.json`; build 1.26.50.26), and refuses to write unless every state reproduces its own network hash. The palette lives in those generated .cs files, not here.
+The generator writes C# next to this folder, never into it. `MiNET.BlockGen` produces `Blocks/BlockData.generated.cs`, `Blocks/PartialBlocks.cs` and `Blocks/BlockPaletteData.generated.cs` from the BDS memory extraction committed under `MiNET.BdsExtract/Data` (`block_states.json`, `blocks.json`, `creative_items.json`; build 1.26.60.21), and refuses to write unless every state reproduces its own network hash. The palette lives in those generated .cs files, not here.
 
 | File | Read by | Source |
 |---|---|---|

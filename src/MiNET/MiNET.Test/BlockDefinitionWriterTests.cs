@@ -45,7 +45,7 @@ namespace MiNET.Test
 		[TestMethod]
 		public void LightGrayConcreteStairs_WritesTheFrameBytes()
 		{
-			StartGameCapture frame = StartGameCapture.Read(Path.Combine(CaptureDirectory, "startgame-1.26.50.26.bin"));
+			StartGameCapture frame = StartGameCapture.Read(Path.Combine(CaptureDirectory, "startgame-1.26.60.21.bin"));
 			byte[] expected = frame.BlockProperties["minecraft:light_gray_concrete_stairs"];
 
 			var definition = new BlockDefinition(

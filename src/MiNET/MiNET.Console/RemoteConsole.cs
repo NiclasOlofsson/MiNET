@@ -311,13 +311,38 @@ namespace MiNET.Console
 
 			if (!string.Equals(parts[0], "restart", StringComparison.OrdinalIgnoreCase)) return Shutdown();
 
-			// Defaults to this server, since coming straight back to it is the point. It has to be
-			// an address the CLIENT can resolve, not one that works from here: with players joining
-			// over the internet, sending them to 127.0.0.1 points them at their own machine.
-			string address = parts.Length > 1 ? parts[1] : Config.GetProperty("RemoteConsole.TransferAddress", "127.0.0.1");
-			int port = parts.Length > 2 ? int.Parse(parts[2]) : _server.Endpoint?.Port ?? 19132;
+			(string address, int port) = TransferTarget(parts);
 
 			return Restart(address, port);
+		}
+
+		/// <summary>
+		///     The address and port a "restart" or "transfer" sends players to: the command's own
+		///     arguments when given, otherwise <c>RemoteConsole.TransferAddress</c>, which may carry
+		///     its own port as <c>host:port</c>. A configured address without a port, or no address
+		///     at all, falls back to this server's port.
+		///     <para>
+		///         Defaults to this server, since coming straight back to it is the point. It has to
+		///         be an address the CLIENT can resolve, not one that works from here: with players
+		///         joining over the internet, sending them to 127.0.0.1 points them at their own
+		///         machine. The port matters as soon as the target is a parking server: those listen
+		///         on their protocol number, never on this server's port.
+		///     </para>
+		/// </summary>
+		private (string address, int port) TransferTarget(string[] parts)
+		{
+			int ownPort = _server.Endpoint?.Port ?? 19132;
+
+			if (parts.Length > 1) return (parts[1], parts.Length > 2 ? int.Parse(parts[2]) : ownPort);
+
+			string configured = Config.GetProperty("RemoteConsole.TransferAddress", "127.0.0.1");
+			int colon = configured.LastIndexOf(':');
+			if (colon > 0 && int.TryParse(configured.AsSpan(colon + 1), out int configuredPort))
+			{
+				return (configured.Substring(0, colon), configuredPort);
+			}
+
+			return (configured, ownPort);
 		}
 
 		private string Execute(string line)
@@ -332,9 +357,7 @@ namespace MiNET.Console
 			// restart, so a parking server configured with the dev box's address needs no arguments.
 			if (line.StartsWith("transfer", StringComparison.OrdinalIgnoreCase))
 			{
-				string[] parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-				string target = parts.Length > 1 ? parts[1] : Config.GetProperty("RemoteConsole.TransferAddress", "127.0.0.1");
-				int targetPort = parts.Length > 2 ? int.Parse(parts[2]) : _server.Endpoint?.Port ?? 19132;
+				(string target, int targetPort) = TransferTarget(line.Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
 				return Transfer(target, targetPort);
 			}

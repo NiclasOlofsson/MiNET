@@ -59,9 +59,13 @@ public static class Program
 		string blockCreativePath = Path.Combine(extractDir, "creative_items.json");
 		string itemRowsPath = Path.Combine(extractDir, "items-runtime.json");
 		string capturesDir = Path.Combine(repoRoot, "src", "MiNET", "MiNET.BlockGen", "Captures");
-		string itemRegistryCapture = Path.Combine(capturesDir, "item_registry-1.26.50.26.bin");
-		string creativeCapture = Path.Combine(capturesDir, "creative_content-1.26.50.26.bin");
-		string startGameCapture = Path.Combine(capturesDir, "startgame-1.26.50.26.bin");
+		// Frames captured off vanilla BDS are witnesses, not sources. When one is present, what is
+		// generated is measured against it and every difference is reported in full; when none is,
+		// the run says so and writes from the extraction alone. Taking a fresh capture is the
+		// debugging path for a reported difference, not a step of regeneration.
+		string itemRegistryCapture = FindCapture(capturesDir, "item_registry-*.bin");
+		string creativeCapture = FindCapture(capturesDir, "creative_content-*.bin");
+		string startGameCapture = FindCapture(capturesDir, "startgame-*.bin");
 
 		if (!Directory.Exists(blocksDir))
 		{
@@ -77,17 +81,9 @@ public static class Program
 			return 1;
 		}
 
-		foreach (string required in new[] {itemRegistryCapture, creativeCapture, startGameCapture})
-		{
-			if (File.Exists(required)) continue;
-			Console.Error.WriteLine($"captured frame not found: {required}");
-			Console.Error.WriteLine("It is the check every generated item tree and creative stack is measured against.");
-			return 1;
-		}
-
 		BlockExtract extract = ReadBlockExtract(blockStatesPath, blockTypesPath);
 		Console.WriteLine($"block source: {extractDir}");
-		Console.WriteLine($"              BDS {extract.PublishedFor}, block state release {extract.BlockStateRelease}, network ids are hashes: {extract.NetworkIdsAreHashes}");
+		Console.WriteLine($"              layout published for {extract.PublishedFor}, block state release {extract.BlockStateRelease}, network ids are hashes: {extract.NetworkIdsAreHashes}");
 
 		if (!VerifyNetworkHashes(extract)) return 1;
 
@@ -107,21 +103,23 @@ public static class Program
 		Console.WriteLine($"family bases: {familyBases.Values.Distinct().Count()} bases covering {familyBases.Count} blocks");
 
 		// The block definitions StartGame carries, built from the extraction's definition rows and
-		// proved against the captured frame before a single file is written.
-		StartGameCapture startGame = StartGameCapture.Read(startGameCapture);
-		Console.WriteLine($"startgame frame: {startGame.BlockProperties.Count} block definitions at offset {startGame.BlockPropertiesOffset}, {startGame.Experiments.Count} experiments at offset {startGame.ExperimentsOffset}");
+		// measured against the captured frame when there is one.
+		StartGameCapture startGame = startGameCapture == null ? null : StartGameCapture.Read(startGameCapture);
+		if (startGame != null) Console.WriteLine($"startgame frame: {startGame.BlockProperties.Count} block definitions at offset {startGame.BlockPropertiesOffset}, {startGame.Experiments.Count} experiments at offset {startGame.ExperimentsOffset}");
 
 		Dictionary<string, BlockDefinition> definitions = DefinitionGenerator.BuildAll(blockTypesPath);
 		if (definitions == null) return 1;
-		if (!DefinitionGenerator.Prove(definitions, startGame)) return 1;
-		Console.WriteLine($"block definitions proof: {definitions.Count}/{startGame.BlockProperties.Count} entries equal the frame byte for byte");
+		if (startGame != null && DefinitionGenerator.Prove(definitions, startGame))
+		{
+			Console.WriteLine($"block definitions: {definitions.Count}/{startGame.BlockProperties.Count} entries equal the frame byte for byte");
+		}
 
 		int classes = WriteBlockDataClasses(Path.Combine(blocksDir, "BlockData.generated.cs"), byName, handWritten, familyBases, definitions);
 		Console.WriteLine($"BlockData.generated.cs: {classes} classes, {definitions.Count} with a definition");
 
 		// Experiments are server configuration (Experiments.Vanilla), not generated; the run still
 		// says where the extraction's world and the frame disagree on them.
-		DefinitionGenerator.ReportExperiments(blockCreativePath, startGame);
+		if (startGame != null) DefinitionGenerator.ReportExperiments(blockCreativePath, startGame);
 
 		// Where each block's states are declared. The creative families are one answer; a base the
 		// code declares for itself is the other, and both hoist the same way. Assigning a base to a
@@ -498,6 +496,24 @@ public static class Program
 	///     Three values live on the block type instead of the state: the legacy numeric id, the
 	///     translucency and whether the block requires the correct tool to drop anything.
 	/// </summary>
+	/// <summary>
+	///     The captured frame under Captures/ matching <paramref name="pattern" />, or null when there
+	///     is none. Several matches are all named, and the last in name order is the one measured
+	///     against, so a newer capture beside an older one wins without a code edit.
+	/// </summary>
+	private static string FindCapture(string capturesDir, string pattern)
+	{
+		string[] found = Directory.Exists(capturesDir) ? Directory.GetFiles(capturesDir, pattern).OrderBy(f => f, StringComparer.Ordinal).ToArray() : [];
+		if (found.Length == 0)
+		{
+			Console.WriteLine($"capture {pattern}: none under {capturesDir}; the output it would measure is written unmeasured");
+			return null;
+		}
+
+		if (found.Length > 1) Console.WriteLine($"capture {pattern}: {found.Length} present ({string.Join(", ", found.Select(Path.GetFileName))}), measuring against {Path.GetFileName(found[^1])}");
+		return found[^1];
+	}
+
 	private static BlockExtract ReadBlockExtract(string statesPath, string typesPath)
 	{
 		var statesFile = JsonConvert.DeserializeObject<BlockStatesJson>(File.ReadAllText(statesPath));

@@ -44,7 +44,7 @@ namespace MiNET.Test
 	[TestClass]
 	public class StartGameCaptureTests
 	{
-		private static string CapturePath => Path.Combine(AppContext.BaseDirectory, "Data", "registry", "startgame-1.26.50.26.bin");
+		private static string CapturePath => Path.Combine(AppContext.BaseDirectory, "Data", "registry", "startgame-1.26.60.21.bin");
 
 		[TestMethod]
 		public void BlockProperties_EqualTheCapture()

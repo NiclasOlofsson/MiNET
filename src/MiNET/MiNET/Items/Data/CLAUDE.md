@@ -12,7 +12,7 @@ The item classes and registry are generated C# written next to this folder, not 
 
 ## The proof
 
-`MiNET.BlockGen` measures everything it emits here against two frames captured off vanilla BDS ([MiNET.BlockGen/Captures](../../../MiNET.BlockGen/Captures)) and refuses to write on any difference it cannot name. [ItemRegistryCaptureTests](../../../MiNET.Test/ItemRegistryCaptureTests.cs) measures the compiled result against the same frames, which is the half a generator cannot check: the emitted construction code, the registry's serialization, and the typed JSON this folder stores.
+When frames captured off vanilla BDS are present under [MiNET.BlockGen/Captures](../../../MiNET.BlockGen/Captures), `MiNET.BlockGen` measures everything it emits here against them and prints every difference; the extraction is the source and is written either way, so a frame from an older build reports the version gap rather than blocking the newer data. [ItemRegistryCaptureTests](../../../MiNET.Test/ItemRegistryCaptureTests.cs) measures the compiled result against the same frames, which is the half a generator cannot check: the emitted construction code, the registry's serialization, and the typed JSON this folder stores. Those tests hold only while the frames and the extraction come from the same build.
 
 A component leaf the extraction cannot read yet comes from the frame through a named gap in [ItemGenerator.Gaps](../../../MiNET.BlockGen/ItemGenerator.cs), and every run prints the list with a count and a reason. A gap disappears by itself once the extraction supplies the value.
 

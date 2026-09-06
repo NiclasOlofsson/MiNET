@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Linq;
 using fNbt;
 
@@ -800,6 +801,17 @@ namespace MiNET.Worlds
 				default:
 					return isGrass ? BiomeGrassColor(GetBiome(biome).Temperature, GetBiome(biome).Downfall, elevation) : BiomeFoliageColor(GetBiome(biome).Temperature, GetBiome(biome).Downfall, elevation);
 			}
+		}
+
+		/// <summary>A biome by numeric id, display name or definition name (case-insensitive); null when nothing matches.</summary>
+		public static Biome GetBiome(string nameOrId)
+		{
+			if (string.IsNullOrWhiteSpace(nameOrId)) return null;
+			if (int.TryParse(nameOrId, out int id)) return Biomes.FirstOrDefault(biome => biome.Id == id);
+			string wanted = nameOrId.Trim().Replace(' ', '_');
+			return Biomes.FirstOrDefault(biome => string.Equals(biome.DefinitionName, wanted, StringComparison.OrdinalIgnoreCase)
+				|| string.Equals(biome.Name, nameOrId.Trim(), StringComparison.OrdinalIgnoreCase)
+				|| string.Equals(biome.Name.Replace(" ", "_"), wanted, StringComparison.OrdinalIgnoreCase));
 		}
 
 		public static Biome GetBiome(int biomeId)

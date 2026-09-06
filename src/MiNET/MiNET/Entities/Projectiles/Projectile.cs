@@ -127,7 +127,7 @@ namespace MiNET.Entities.Projectiles
 
 					McpeAnimate animate = McpeAnimate.CreateObject();
 					animate.runtimeEntityId = entityCollided.EntityId;
-					animate.actionId = 4;
+					animate.actionId = McpeAnimate.AnimatePacketPayloadAction.Criticalhit;
 					Level.RelayBroadcast(animate);
 				}
 

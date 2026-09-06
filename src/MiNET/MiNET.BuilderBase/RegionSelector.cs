@@ -248,7 +248,7 @@ namespace MiNET.BuilderBase
 					{
 						var block = Player.Level.GetBlock(_structureBlock.Coordinates);
 						var updateBlock = McpeUpdateBlock.CreateObject();
-						updateBlock.blockRuntimeId = (uint) block.GetRuntimeId();
+						updateBlock.blockRuntimeId = BlockFactory.GetNetworkId(block);
 						updateBlock.coordinates = _structureBlock.Coordinates;
 						updateBlock.blockPriority = 0xb;
 						Player.SendPacket(updateBlock);
@@ -266,7 +266,9 @@ namespace MiNET.BuilderBase
 
 				{
 					var updateBlock = McpeUpdateBlock.CreateObject();
-					updateBlock.blockRuntimeId = (uint) _structureBlock.GetRuntimeId();
+					// The wire id, not the runtime id: with BlockNetworkIdsAreHashes on, the client
+					// resolves this as the state's network hash and a runtime id lands on nothing.
+					updateBlock.blockRuntimeId = BlockFactory.GetNetworkId(_structureBlock);
 					updateBlock.coordinates = _structureBlock.Coordinates;
 					updateBlock.blockPriority = 0xb;
 					Player.SendPacket(updateBlock);

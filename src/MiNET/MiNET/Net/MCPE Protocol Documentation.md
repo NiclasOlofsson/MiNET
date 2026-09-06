@@ -77,7 +77,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Set Entity Link | 0x29 | 41 |   
 | Set Health | 0x2a | 42 |   
 | Set Spawn Position | 0x2b | 43 |   
-| Animate | 0x2c | 44 |   
 | Respawn | 0x2d | 45 |   
 | Container Open | 0x2e | 46 |   
 | Container Close | 0x2f | 47 |   
@@ -779,29 +778,13 @@ Wiki: [Set Spawn Position](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 |Dimension | SignedVarInt |  |
 |Unknown coordinates | BlockCoordinates |  |
 -----------------------------------------------------------------------
-### Animate (0x2c)
-Wiki: [Animate](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Animate)
-
-**Sent from server:** true  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Action ID | byte |  |
-|Runtime Entity ID | UnsignedVarLong |  |
------------------------------------------------------------------------
 ### Respawn (0x2d)
 Wiki: [Respawn](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Respawn)
 
 **Sent from server:** true  
 **Sent from client:** true
 
-
+ 0x2c Animate is Cereal: generated from AnimatePacket.json, see MiNET.ProtocolGen/roster.json 
 
 #### Respawn State constants
 

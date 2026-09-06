@@ -242,6 +242,36 @@ Captures are only comparable to each other when the reference server's configura
 
 **2. Get the client right.** Confirm the real Bedrock client is the target version. Its error screen reports the version and `RakNet:<protocol>`, which is the fastest way to be sure.
 
+**Getting our own client onto that BDS**, start to finish, from the repo root:
+
+```bash
+(cd temp_auto/bds/server-<version> && ./bedrock_server.exe > /c/Development/github/MiNET/temp_auto/bds.log 2>&1 &)
+until grep -q "Server started" temp_auto/bds.log; do :; done
+MINET_XBL=signaling MINET_TARGET=127.0.0.1:19232 src/MiNET/MiNET.Client/bin/Debug/net10.0/MiNET.Client.exe
+```
+
+`... spawned` on stdout is the success line; `MINET_PACKET_DUMP=<dir>` on the same command writes every
+frame as `<seq>-id<N>.bin`. Where an attempt dies, in the order it happens:
+
+- BDS must be on a port other than 19132, which is MiNET's own; `download-bds.sh` and the
+  extractor's `--prepare` both put it on 19232. `MINET_TARGET` must name that port: signaling is
+  plain HTTP on it (`GET /v1/join`, `POST /v1/join/<id>`) and the data channel is UDP on it.
+- `MINET_XBL=signaling` is mandatory: since 1.26.50 BDS refuses a NetherNet offer without an Xbox
+  identity assertion. The first run prints a device-code login; after that the saved token is
+  reused and the login itself stays offline under the bot's name.
+- `online-mode=false` and `block-network-ids-are-hashes=false` in `server.properties`.
+- The world must not be an Editor project, or the join ends right after login with
+  `disconnectionScreen.editor.joinIntentPolicyFailure.editorClientWithEditorIntentRequired`. The
+  extractor's asset world IS one (that is what registers the full item set). For a client join set
+  `editorWorldType` to 0 in the copied world's `level.dat`, with BDS stopped, because it rewrites
+  the file on shutdown. Never edit `Assets/flatworld` itself; `--prepare` overwrites the copy anyway.
+- A BDS whose signaling listener has died accepts the TCP connection and resets it without a byte
+  (`curl -s http://127.0.0.1:19232/v1/join` prints nothing). Restart it.
+- `DtlsSession.SendApplicationData called before the handshake completed` at connect is a
+  harmless race; SCTP retransmits the INIT.
+
+Stop BDS when the step that needed it is done; nothing else stops it.
+
 **3. Extract the data and regenerate.** Blocks, block states, items, the creative inventory and the sound table come out of the target BDS's memory with `MiNET.BdsExtract` (`-- --server <folder>`, canonical config from its `Assets`), into `MiNET.BdsExtract/Data`. The run reads `bedrock_server.exe` off disk before it touches the process, so `Data/binary_facts.json` is where a new build's class inventory, type-id slots, method tables, enum tables and reflection bindings show up, along with what the reference agrees and disagrees with the code about. Then rerun `MiNET.BlockGen`, which reads only that folder plus Mojang's item schemas under `MiNET.BlockGen/Schemas`, and refuses to write a palette unless every state reproduces its own network hash. The frames under `MiNET.BlockGen/Captures` are witnesses, not sources and not a gate: when one is present, every registry entry, creative entry and block definition is measured against it and every difference is printed; the extraction is written either way. A frame from an older build therefore reports the version gap on every run, which is useful reading and not a failure. Taking a fresh capture (bot with `MINET_PACKET_DUMP` against a non-Editor copy of the asset world) is the debugging path for a reported difference, not a step of regeneration. The CloudburstMC submodule now feeds only `BiomeGenerator`. Check what the run did and did not touch: each data folder's own `CLAUDE.md` says per file what is generated and what has a distinct source. Files with no generator (the pmmp legacy maps, the join-sequence captures) do not move on a protocol bump and go stale silently.
 
 **4. Read Mojang's specifications and generate.** Start the target BDS once with a `test_config.json` of `{"generate_documentation":true}`, which writes `docs/json_schemas/protocol` and exits, then point `MiNET.ProtocolGen` at that folder (second argument, or `MINET_SCHEMA_DIR`) and move packets from the XML to schema generation as Mojang completes them. The schemas are authoritative for field semantics and wire order via `x-ordinal-index`. They are not committed, and they must come from the BDS whose version matches the XML: github.com/Mojang/bedrock-protocol-docs publishes only the current protocol, normally a version ahead of ours, and its changelogs and guides are still worth reading there.

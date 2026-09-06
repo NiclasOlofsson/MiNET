@@ -102,7 +102,7 @@ namespace MiNET
 
 			McpeAnimate animate = McpeAnimate.CreateObject();
 			animate.runtimeEntityId = target.EntityId;
-			animate.actionId = 4;
+			animate.actionId = McpeAnimate.AnimatePacketPayloadAction.Criticalhit;
 			player.Level.RelayBroadcast(animate);
 			return fallDamage;
 		}

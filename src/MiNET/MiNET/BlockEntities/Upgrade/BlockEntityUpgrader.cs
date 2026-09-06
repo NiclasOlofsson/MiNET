@@ -119,7 +119,8 @@ namespace MiNET.BlockEntities.Upgrade
 
 			sign.Add(SignFace("FrontText", text, color, glowing));
 			sign.Add(SignFace("BackText", string.Empty, color, false));
-			sign.Add(new NbtByte("IsWaxed", 0));
+			// A sign written between 1.19.80 and the waxing update can already carry IsWaxed without FrontText.
+			if (sign["IsWaxed"] == null) sign.Add(new NbtByte("IsWaxed", 0));
 		}
 
 		private static NbtCompound SignFace(string name, string text, int color, bool glowing)

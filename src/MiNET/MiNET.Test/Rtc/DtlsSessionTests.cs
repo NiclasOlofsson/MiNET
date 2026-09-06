@@ -38,7 +38,9 @@ using MiNET.Net.Rtc.FastDtls;
 
 namespace MiNET.Test.Rtc
 {
-	[TestClass]
+	// Counts GC allocations across a whole exchange; any neighbour allocating on another worker
+	// lands in the count.
+	[TestClass, DoNotParallelize]
 	public class DtlsSessionTests
 	{
 		private const byte HandshakeContentType = 22;

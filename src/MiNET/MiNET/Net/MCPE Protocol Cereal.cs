@@ -408,17 +408,17 @@ namespace MiNET.Net
 		}
 		public enum BuildPlatform
 		{
-			Google = 0,
-			Ios = 1,
-			Osx = 2,
-			Amazon = 3,
-			Win32 = 4,
-			Dedicated = 5,
-			Sony = 6,
-			Nintendo = 7,
-			Xbox = 8,
-			Linux = 9,
-			Unknown = 10,
+			Google = 1,
+			Ios = 2,
+			Osx = 3,
+			Amazon = 4,
+			Win32 = 8,
+			Dedicated = 9,
+			Sony = 11,
+			Nintendo = 12,
+			Xbox = 13,
+			Linux = 15,
+			Unknown = -1,
 		}
 
 		public UUID uuid; // = null;
@@ -1071,6 +1071,98 @@ namespace MiNET.Net
 			metadata=default(MetadataDictionary);
 			synchedProperties=default(PropertySyncData);
 			tick=default(long);
+		}
+
+	}
+
+	public partial class McpeAnimate : Packet<McpeAnimate>
+	{
+		public enum AnimatePacketPayloadAction
+		{
+			Noaction = 0,
+			Swing = 1,
+			Wakeup = 3,
+			Criticalhit = 4,
+			Magiccriticalhit = 5,
+		}
+		public enum ActorSwingSource
+		{
+			None = 0,
+			Build = 1,
+			Mine = 2,
+			Interact = 3,
+			Attack = 4,
+			Useitem = 5,
+			Throwitem = 6,
+			Dropitem = 7,
+			Event = 8,
+		}
+		public enum HandSlot
+		{
+			Mainhand = 0,
+			Offhand = 1,
+		}
+
+		public McpeAnimate.AnimatePacketPayloadAction actionId; // = null;
+		public long runtimeEntityId; // = null;
+		public float data; // = null;
+		public McpeAnimate.ActorSwingSource swingSource; // = null;
+		public McpeAnimate.HandSlot hand; // = null;
+
+		public McpeAnimate()
+		{
+			Id = 0x2c;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((byte) actionId);
+			WriteUnsignedVarLong(runtimeEntityId);
+			Write(data);
+			Write((byte) swingSource);
+			Write((byte) hand);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			actionId = (McpeAnimate.AnimatePacketPayloadAction) ReadByte();
+			runtimeEntityId = ReadUnsignedVarLong();
+			data = ReadFloat();
+			swingSource = (McpeAnimate.ActorSwingSource) ReadByte();
+			if (!_reader.Eof)
+			{
+				hand = (McpeAnimate.HandSlot) ReadByte();
+			}
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			actionId=default(McpeAnimate.AnimatePacketPayloadAction);
+			runtimeEntityId=default(long);
+			data=default(float);
+			swingSource=default(McpeAnimate.ActorSwingSource);
+			hand=default(McpeAnimate.HandSlot);
 		}
 
 	}
@@ -2218,15 +2310,15 @@ namespace MiNET.Net
 			Mouse = 1,
 			Touch = 2,
 			Gamepad = 3,
-			Count = 4,
+			Count = 5,
 		}
 		public enum ClientPlayMode
 		{
 			Normal = 0,
 			Teaser = 1,
 			Screen = 2,
-			Exitlevel = 3,
-			Nummodes = 4,
+			Exitlevel = 7,
+			Nummodes = 9,
 		}
 		public enum NewInteractionModel
 		{
@@ -3702,7 +3794,7 @@ namespace MiNET.Net
 			GlobalInventory = 1,
 			WorldInteraction = 2,
 			CreativeInventory = 3,
-			NonImplementedFeatureTodo = 4,
+			NonImplementedFeatureTodo = 99999,
 		}
 
 		public enum InventorySourceFlags
@@ -3748,23 +3840,23 @@ namespace MiNET.Net
 	{
 		public enum TextProcessingEventOrigin
 		{
-			Unknown = 0,
-			Serverchatpublic = 1,
-			Serverchatwhisper = 2,
-			Signtext = 3,
-			Anviltext = 4,
-			Bookandquilltext = 5,
-			Commandblocktext = 6,
-			Blockactordatatext = 7,
-			Joineventtext = 8,
-			Leaveeventtext = 9,
-			Slashcommandchat = 10,
-			Cartographytext = 11,
-			Kickcommand = 12,
-			Titlecommand = 13,
-			Summoncommand = 14,
-			Serverform = 15,
-			Datadrivenui = 16,
+			Unknown = -1,
+			Serverchatpublic = 0,
+			Serverchatwhisper = 1,
+			Signtext = 2,
+			Anviltext = 3,
+			Bookandquilltext = 4,
+			Commandblocktext = 5,
+			Blockactordatatext = 6,
+			Joineventtext = 7,
+			Leaveeventtext = 8,
+			Slashcommandchat = 9,
+			Cartographytext = 10,
+			Kickcommand = 11,
+			Titlecommand = 12,
+			Summoncommand = 13,
+			Serverform = 14,
+			Datadrivenui = 15,
 		}
 
 		public int clientRequestId;
@@ -4094,55 +4186,55 @@ namespace MiNET.Net
 			Recipeconstructioncontainer = 15,
 			Recipenaturecontainer = 16,
 			Recipeitemscontainer = 17,
-			Recipefoodcontainer = 18,
-			Recipeblockscontainer = 19,
-			Recipefurnaceitemscontainer = 20,
-			Recipesearchcontainer = 21,
-			Recipesearchbarcontainer = 22,
-			Recipeequipmentcontainer = 23,
-			Recipebookcontainer = 24,
-			Enchantinginputcontainer = 25,
-			Enchantingmaterialcontainer = 26,
-			Furnacefuelcontainer = 27,
-			Furnaceingredientcontainer = 28,
-			Furnaceresultcontainer = 29,
-			Horseequipcontainer = 30,
-			Hotbarcontainer = 31,
-			Inventorycontainer = 32,
-			Shulkerboxcontainer = 33,
-			Tradeingredient1container = 34,
-			Tradeingredient2container = 35,
-			Traderesultpreviewcontainer = 36,
-			Offhandcontainer = 37,
-			Compoundcreatorinput = 38,
-			Compoundcreatoroutputpreview = 39,
-			Elementconstructoroutputpreview = 40,
-			Materialreducerinput = 41,
-			Materialreduceroutput = 42,
-			Labtableinput = 43,
-			Loominputcontainer = 44,
-			Loomdyecontainer = 45,
-			Loommaterialcontainer = 46,
-			Loomresultpreviewcontainer = 47,
-			Blastfurnaceingredientcontainer = 48,
-			Smokeringredientcontainer = 49,
-			Trade2ingredient1container = 50,
-			Trade2ingredient2container = 51,
-			Trade2resultpreviewcontainer = 52,
-			Grindstoneinputcontainer = 53,
-			Grindstoneadditionalcontainer = 54,
-			Grindstoneresultpreviewcontainer = 55,
-			Stonecutterinputcontainer = 56,
-			Stonecutterresultpreviewcontainer = 57,
-			Cartographyinputcontainer = 58,
-			Cartographyadditionalcontainer = 59,
-			Cartographyresultpreviewcontainer = 60,
-			Barrelcontainer = 61,
-			Cursorcontainer = 62,
-			Createdoutputcontainer = 63,
-			Smithingtabletemplatecontainer = 64,
-			Crafterlevelentitycontainer = 65,
-			Dynamiccontainer = 66,
+			Recipefoodcontainer = 64,
+			Recipeblockscontainer = 65,
+			Recipefurnaceitemscontainer = 66,
+			Recipesearchcontainer = 18,
+			Recipesearchbarcontainer = 19,
+			Recipeequipmentcontainer = 20,
+			Recipebookcontainer = 21,
+			Enchantinginputcontainer = 22,
+			Enchantingmaterialcontainer = 23,
+			Furnacefuelcontainer = 24,
+			Furnaceingredientcontainer = 25,
+			Furnaceresultcontainer = 26,
+			Horseequipcontainer = 27,
+			Hotbarcontainer = 28,
+			Inventorycontainer = 29,
+			Shulkerboxcontainer = 30,
+			Tradeingredient1container = 31,
+			Tradeingredient2container = 32,
+			Traderesultpreviewcontainer = 33,
+			Offhandcontainer = 34,
+			Compoundcreatorinput = 35,
+			Compoundcreatoroutputpreview = 36,
+			Elementconstructoroutputpreview = 37,
+			Materialreducerinput = 38,
+			Materialreduceroutput = 39,
+			Labtableinput = 40,
+			Loominputcontainer = 41,
+			Loomdyecontainer = 42,
+			Loommaterialcontainer = 43,
+			Loomresultpreviewcontainer = 44,
+			Blastfurnaceingredientcontainer = 45,
+			Smokeringredientcontainer = 46,
+			Trade2ingredient1container = 47,
+			Trade2ingredient2container = 48,
+			Trade2resultpreviewcontainer = 49,
+			Grindstoneinputcontainer = 50,
+			Grindstoneadditionalcontainer = 51,
+			Grindstoneresultpreviewcontainer = 52,
+			Stonecutterinputcontainer = 53,
+			Stonecutterresultpreviewcontainer = 54,
+			Cartographyinputcontainer = 55,
+			Cartographyadditionalcontainer = 56,
+			Cartographyresultpreviewcontainer = 57,
+			Barrelcontainer = 58,
+			Cursorcontainer = 59,
+			Createdoutputcontainer = 60,
+			Smithingtabletemplatecontainer = 61,
+			Crafterlevelentitycontainer = 62,
+			Dynamiccontainer = 63,
 		}
 
 		public LegacySetSlot.ContainerEnumName containerEnum;
@@ -4466,23 +4558,23 @@ namespace MiNET.Net
 	{
 		public enum MolangVersion
 		{
-			Invalid = 0,
-			Beforeversioning = 1,
-			Initial = 2,
-			Fixeditemremainingusedurationquery = 3,
-			Expressionerrormessages = 4,
-			Unexpectedoperatorerrors = 5,
-			Conditionaloperatorassociativity = 6,
-			Comparisonandlogicaloperatorprecedence = 7,
-			Dividebynegativevalue = 8,
-			Fixedcapeflapamountquery = 9,
-			Queryblockpropertyrenamedtostate = 10,
-			Deprecateoldblockquerynames = 11,
-			Deprecatedsnifferandcamelqueries = 12,
-			Leafsupportinginfirstsolidblockbelow = 13,
+			Invalid = -1,
+			Beforeversioning = 0,
+			Initial = 1,
+			Fixeditemremainingusedurationquery = 2,
+			Expressionerrormessages = 3,
+			Unexpectedoperatorerrors = 4,
+			Conditionaloperatorassociativity = 5,
+			Comparisonandlogicaloperatorprecedence = 6,
+			Dividebynegativevalue = 7,
+			Fixedcapeflapamountquery = 8,
+			Queryblockpropertyrenamedtostate = 9,
+			Deprecateoldblockquerynames = 10,
+			Deprecatedsnifferandcamelqueries = 11,
+			Leafsupportinginfirstsolidblockbelow = 12,
 			Numvalidversions = 14,
-			Latest = 15,
-			Hardcodedmolang = 16,
+			Latest = 13,
+			Hardcodedmolang = 13,
 		}
 
 		public string tagExpression;
@@ -4550,41 +4642,41 @@ namespace MiNET.Net
 	{
 		public enum PlayerActionType
 		{
-			Unknown = 0,
-			Startdestroyblock = 1,
-			Abortdestroyblock = 2,
-			Stopdestroyblock = 3,
-			Startsleeping = 4,
-			Stopsleeping = 5,
-			Respawn = 6,
-			Startjump = 7,
-			Startsprinting = 8,
-			Stopsprinting = 9,
-			Startsneaking = 10,
-			Stopsneaking = 11,
-			Creativedestroyblock = 12,
-			Changedimensionack = 13,
-			Startgliding = 14,
-			Stopgliding = 15,
-			Denydestroyblock = 16,
-			Crackblock = 17,
-			Startswimming = 18,
-			Stopswimming = 19,
-			Startspinattack = 20,
-			Stopspinattack = 21,
-			Predictdestroyblock = 22,
-			Continuedestroyblock = 23,
-			Startitemuseon = 24,
-			Stopitemuseon = 25,
-			Handledteleport = 26,
-			Missedswing = 27,
-			Startcrawling = 28,
-			Stopcrawling = 29,
-			Startflying = 30,
-			Stopflying = 31,
-			Startusingitem = 32,
-			Internalupdate = 33,
-			Count = 34,
+			Unknown = -1,
+			Startdestroyblock = 0,
+			Abortdestroyblock = 1,
+			Stopdestroyblock = 2,
+			Startsleeping = 5,
+			Stopsleeping = 6,
+			Respawn = 7,
+			Startjump = 8,
+			Startsprinting = 9,
+			Stopsprinting = 10,
+			Startsneaking = 11,
+			Stopsneaking = 12,
+			Creativedestroyblock = 13,
+			Changedimensionack = 14,
+			Startgliding = 15,
+			Stopgliding = 16,
+			Denydestroyblock = 17,
+			Crackblock = 18,
+			Startswimming = 21,
+			Stopswimming = 22,
+			Startspinattack = 23,
+			Stopspinattack = 24,
+			Predictdestroyblock = 26,
+			Continuedestroyblock = 27,
+			Startitemuseon = 28,
+			Stopitemuseon = 29,
+			Handledteleport = 30,
+			Missedswing = 31,
+			Startcrawling = 32,
+			Stopcrawling = 33,
+			Startflying = 34,
+			Stopflying = 35,
+			Startusingitem = 37,
+			Internalupdate = 38,
+			Count = 39,
 		}
 
 		public PlayerBlockActionData.PlayerActionType playerActionType;
@@ -4601,17 +4693,17 @@ namespace MiNET.Net
 
 		public enum BuildPlatform
 		{
-			Google = 0,
-			Ios = 1,
-			Osx = 2,
-			Amazon = 3,
-			Win32 = 4,
-			Dedicated = 5,
-			Sony = 6,
-			Nintendo = 7,
-			Xbox = 8,
-			Linux = 9,
-			Unknown = 10,
+			Google = 1,
+			Ios = 2,
+			Osx = 3,
+			Amazon = 4,
+			Win32 = 8,
+			Dedicated = 9,
+			Sony = 11,
+			Nintendo = 12,
+			Xbox = 13,
+			Linux = 15,
+			Unknown = -1,
 		}
 
 		public PlayerListAddEntry.Action action;

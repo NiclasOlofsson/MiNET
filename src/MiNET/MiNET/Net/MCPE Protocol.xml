@@ -261,11 +261,7 @@
 		<field name="Unknown coordinates" type="BlockCoordinates" />
 	</pdu>
 
-	<pdu id="0x2c" online="false" client="true" server="true" name="MCPE_ANIMATE">
-		<field name="Action ID" type="byte" />
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<!-- data float and optional swing source string handled in partial (McpeAnimate.cs) -->
-	</pdu>
+	<!-- 0x2c Animate is Cereal: generated from AnimatePacket.json, see MiNET.ProtocolGen/roster.json -->
 
 	<pdu id="0x2d" online="false" client="true" server="true" name="MCPE_RESPAWN">
 		<enums id="Respawn State">

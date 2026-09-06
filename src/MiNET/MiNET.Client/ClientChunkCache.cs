@@ -361,7 +361,7 @@ namespace MiNET.Client
 			{
 				_known.RemoveWhere(c =>
 				{
-					if (c.DistanceTo(center) <= radiusChunks) return false;
+					if (c.IsWithinView(center, radiusChunks)) return false;
 
 					_columns.TryRemove(c, out _);
 					return true;

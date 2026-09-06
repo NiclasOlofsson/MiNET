@@ -81,6 +81,31 @@ namespace MiNET.Utils.Vectors
 		}
 
 		/// <summary>
+		///     Whether this column is inside the view of the given chunk radius around
+		///     <paramref name="center" />, the shape vanilla loads: the square of the radius, cut to
+		///     the circle inscribed in it plus a cube diagonal of slack. Radius counts from the centre
+		///     of the middle column, hence the half; the root of three covers measuring two cells
+		///     centre to centre when the points inside them can lie anywhere (BDS
+		///     GridArea::_fill, read from 1.21.0.03). The test is strict, as there.
+		///     <para>
+		///         One rule for the server's disc, the client's publisher gate and the client's forget
+		///         window, so the two ends never disagree about which columns are in view.
+		///     </para>
+		/// </summary>
+		public bool IsWithinView(ChunkCoordinates center, int radiusChunks)
+		{
+			int dx = X - center.X;
+			int dz = Z - center.Z;
+			if (dx > radiusChunks || dx < -radiusChunks || dz > radiusChunks || dz < -radiusChunks) return false;
+
+			double reach = radiusChunks + 0.5 + ViewSlack;
+			return dx * dx + dz * dz < reach * reach;
+		}
+
+		/// <summary>The centre-to-centre slack of the view test: one unit cube diagonal.</summary>
+		public static readonly double ViewSlack = Math.Sqrt(3);
+
+		/// <summary>
 		///     Calculates the square of a num.
 		/// </summary>
 		private int Square(int num)

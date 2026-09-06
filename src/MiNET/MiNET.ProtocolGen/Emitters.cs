@@ -255,7 +255,7 @@ public static class CerealEmitter
 				sb.AppendLine("\t\t{");
 				for (int i = 0; i < e.Values.Count; i++)
 				{
-					sb.AppendLine($"\t\t\t{e.Values[i]} = {i},");
+					sb.AppendLine($"\t\t\t{e.Values[i]} = {e.ValueOf(i)},");
 				}
 				sb.AppendLine("\t\t}");
 			}
@@ -338,7 +338,7 @@ public static class CerealEmitter
 				sb.AppendLine("\t\t{");
 				for (int i = 0; i < e.Values.Count; i++)
 				{
-					sb.AppendLine($"\t\t\t{e.Values[i]} = {i},");
+					sb.AppendLine($"\t\t\t{e.Values[i]} = {e.ValueOf(i)},");
 				}
 				sb.AppendLine("\t\t}");
 				sb.AppendLine();
@@ -595,6 +595,16 @@ public static class CerealEmitter
 		if (field.PresentWhen != null)
 		{
 			foreach (string line in Conditional(field, prefix, ReadLinesInner(field, prefix))) yield return line;
+			yield break;
+		}
+
+		if (field.TrailingDefault)
+		{
+			// A sender holding the default leaves the field off the end; the C# default stands in.
+			yield return "if (!_reader.Eof)";
+			yield return "{";
+			foreach (string line in ReadLinesInner(field, prefix)) yield return "\t" + line;
+			yield return "}";
 			yield break;
 		}
 

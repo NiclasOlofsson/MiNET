@@ -124,8 +124,8 @@ namespace MiNET.Client
 				client.CurrentLocation = new PlayerLocation(position, headYaw, yaw, pitch);
 
 				if (i % 100 == 0) SendDiagnostics(client);
-				if (i == 20) SendAnimate(client, "mine");
-					if (i == 31) SendAnimate(client, null);
+				if (i == 20) SendAnimate(client, McpeAnimate.ActorSwingSource.Mine);
+					if (i == 31) SendAnimate(client, McpeAnimate.ActorSwingSource.None);
 				if (i == 40) SendInteractMouseOver(client);
 				if (i == 45) SendInteractOpenInventory(client);
 				if (i == 50) SendMobEquipment(client);
@@ -184,13 +184,14 @@ namespace MiNET.Client
 			client.SendPacket(packet);
 		}
 
-		private static void SendAnimate(MiNetClient client, string swingSource)
+		private static void SendAnimate(MiNetClient client, McpeAnimate.ActorSwingSource swingSource)
 		{
 			var packet = McpeAnimate.CreateObject();
-			packet.actionId = 1;
+			packet.actionId = McpeAnimate.AnimatePacketPayloadAction.Swing;
 			packet.runtimeEntityId = client.EntityId;
 			packet.data = 0f;
 			packet.swingSource = swingSource;
+			packet.hand = McpeAnimate.HandSlot.Mainhand;
 			client.SendPacket(packet);
 		}
 

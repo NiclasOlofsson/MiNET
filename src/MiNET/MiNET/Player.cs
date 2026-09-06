@@ -777,6 +777,7 @@ namespace MiNET
 			msg.actionId = message.actionId;
 			msg.data = message.data;
 			msg.swingSource = message.swingSource;
+			msg.hand = message.hand;
 
 			Level.RelayBroadcast(this, msg);
 		}
@@ -2711,6 +2712,13 @@ namespace MiNET
 			}
 			EngineMetrics.BlobCacheReport("unresolved", unresolved);
 
+			// Every miss with its payload's length and leading bytes: a section blob starts with
+			// version 9, storage count, section Y; a biome blob starts with a palette header.
+			Log.Info($"Blob misses from {Username} ({message.hashMisses.Length}, hits {message.hashHits?.Length ?? 0}): "
+			         + string.Join("; ", message.hashMisses.Select(h => blobs.TryGetValue(h, out byte[] b)
+				         ? $"{h:X16} len {b.Length} [{Convert.ToHexString(b, 0, Math.Min(4, b.Length))}]"
+				         : $"{h:X16} missing")));
+
 			if (blobs.Count == 0) return;
 
 			var response = McpeClientCacheMissResponse.CreateObject();
@@ -4269,6 +4277,29 @@ namespace MiNET
 		///         last told about, and that area is centred wherever this says, not on the player.
 		///     </para>
 		/// </summary>
+		/// <summary>
+		///     Re-pushes one column the player already holds, after its content changed in a way
+		///     UpdateBlock cannot carry (biomes). Columns outside the player's window are skipped,
+		///     and the publisher stamp is left alone: this is a refresh, not a move.
+		/// </summary>
+		public void ForcedSendChunk(ChunkCoordinates chunkPosition)
+		{
+			lock (_sendChunkSync)
+			{
+				if (Level == null) return;
+				if (!chunkPosition.IsWithinView(new ChunkCoordinates(KnownPosition), ChunkRadius)) return;
+
+				ChunkColumn column = Level.GetChunk(chunkPosition);
+				if (column == null) return;
+
+				// Pushed, the same way the standing column is pushed on a join or a teleport.
+				McpeLevelChunk chunk = column.CreateCachedPushChunk();
+				_chunksUsed[chunkPosition] = column.Version;
+
+				SendPacket(chunk);
+			}
+		}
+
 		private void ForcedSendChunk(PlayerLocation position)
 		{
 			lock (_sendChunkSync)
@@ -4469,11 +4500,14 @@ namespace MiNET
 				{
 					// The join-burst publisher first, the way vanilla does it: the client is told
 					// about the small spawn area only, so the columns that follow COMPLETE it and
-					// it can draw. prune: false because this radius is not the published area,
-					// and the spawn goes out right after it: block on the queue first,
-					// PlayStatus(3) second.
-					group.Add(CreateNetworkChunkPublisherUpdate(JoinBurstChunkRadius));
-					foreach ((ChunkCoordinates coordinates, McpeLevelChunk chunk) in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, Math.Min(JoinBurstChunkRadius + 2, ChunkRadius), prune: false))
+					// it can draw. The stamp covers exactly the block that follows: the client
+					// discards any column outside the published area on receive and it is never
+					// sent again, so a stamp narrower than the block is a permanent hole. prune:
+					// false because this radius is not the view, and the spawn goes out right
+					// after it: block on the queue first, PlayStatus(3) second.
+					int spawnBlockRadius = Math.Min(JoinBurstChunkRadius + 2, ChunkRadius);
+					group.Add(CreateNetworkChunkPublisherUpdate(spawnBlockRadius));
+					foreach ((ChunkCoordinates coordinates, McpeLevelChunk chunk) in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, spawnBlockRadius, prune: false))
 					{
 						if (chunk == null) continue;
 

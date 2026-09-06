@@ -114,6 +114,25 @@
 		}
 	},
 	"packets": {
+		"AnimatePacket": {
+			"fields": {
+				"Action": {
+					"name": "actionId"
+				},
+				"Target Actor Runtime ID": {
+					"name": "runtimeEntityId"
+				},
+				"Swing Source": {
+					"optional": false,
+					"reason": "Not in the schema's required list, but on the wire it is one plain byte: a 1.26.60.21 client's swing arrived as action 01, id, float, then a single 00 (server log 2026-09-06), no presence byte."
+				},
+				"Hand": {
+					"optional": false,
+					"trailingDefault": true,
+					"reason": "Carries a schema default (mainhand) and no presence byte. The same client omits it entirely when it is the default (that swing was 8 bytes), and disconnected with a level 2 violation on 0x2C when a server packet lacked it, so it is always written and read only when bytes remain."
+				}
+			}
+		},
 		"SetActorDataPacket": {
 			"fields": {
 				"Target Runtime ID": {

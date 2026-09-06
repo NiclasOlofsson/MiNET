@@ -26,6 +26,14 @@
 			"schema": "AddPlayerPacket"
 		},
 		{
+			"name": "MCPE_ANIMATE",
+			"id": "0x2c",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "AnimatePacket"
+		},
+		{
 			"name": "MCPE_ANVIL_DAMAGE",
 			"id": "0x8d",
 			"online": false,

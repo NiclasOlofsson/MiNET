@@ -41,7 +41,9 @@ namespace MiNET.Test
 	///     value returning false, which an implementation that always returns false passes. These
 	///     assert the direction that actually matters.
 	/// </summary>
-	[TestClass]
+	// Shares SubChunk's static buffers and pools with SubChunkWriteStoreTests; interleaved they
+	// read each other's sections.
+	[TestClass, DoNotParallelize]
 	public class AllZeroFastTests
 	{
 		/// <summary>The real subchunk size: 16x16x16 block indices.</summary>

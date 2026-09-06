@@ -389,11 +389,14 @@ namespace MiNET.Client
 		{
 			// The publisher's acceptance window, first thing and cheap: "this is the area I
 			// will publish chunks for" - an arrival outside it is an in-flight stray from a
-			// window the stream moved past. Discard on receive, no further work.
+			// window the stream moved past. Discard on receive, no further work. The window has
+			// vanilla's shape (IsWithinView), so a column the server streams inside its own stamp
+			// is never rejected here; one outside it is the server's defect, since a dropped
+			// column is never sent again.
 			if (Client.PublishedRadiusChunks > 0)
 			{
 				var arrived = new ChunkCoordinates(message.chunkPosition.x, message.chunkPosition.z);
-				if (arrived.DistanceTo(Client.PublishedCenter) > Client.PublishedRadiusChunks) return;
+				if (!arrived.IsWithinView(Client.PublishedCenter, Client.PublishedRadiusChunks)) return;
 			}
 
 			var hits = new List<ulong>();
@@ -465,6 +468,9 @@ namespace MiNET.Client
 
 		public virtual void HandleMcpeChunkRadiusUpdate(McpeChunkRadiusUpdate message)
 		{
+			// The granted radius is the server's fact, not the request: the window the client
+			// keeps (and forgets by) is this one, whatever it asked for.
+			Client.ChunkRadius = message.chunkRadius;
 		}
 
 		public virtual void HandleMcpeGameRulesChanged(McpeGameRulesChanged message)

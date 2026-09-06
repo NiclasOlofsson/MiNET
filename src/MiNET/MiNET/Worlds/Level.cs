@@ -1572,28 +1572,22 @@ namespace MiNET.Worlds
 			{
 				var newOrders = new Dictionary<ChunkCoordinates, double>();
 
-				double radiusSquared = Math.Pow(radius, 2);
-
+				int radiusChunks = (int) radius;
 				int centerX = chunkPosition.X;
 				int centerZ = chunkPosition.Z;
 
 				// Ordered by distance alone, the way vanilla does it: the client asks for the whole
 				// disc as soon as it is announced, whatever it is facing, so which side of the
-				// circle goes first buys nothing.
-				for (double x = -radius; x <= radius; ++x)
+				// circle goes first buys nothing. The shape is vanilla's too: see
+				// ChunkCoordinates.IsWithinView.
+				for (int x = -radiusChunks; x <= radiusChunks; ++x)
 				{
-					for (double z = -radius; z <= radius; ++z)
+					for (int z = -radiusChunks; z <= radiusChunks; ++z)
 					{
-						var distance = (x * x) + (z * z);
-						if (distance > radiusSquared)
-						{
-							continue;
-						}
-						int chunkX = (int) (x + centerX);
-						int chunkZ = (int) (z + centerZ);
-						var index = new ChunkCoordinates(chunkX, chunkZ);
+						var index = new ChunkCoordinates(x + centerX, z + centerZ);
+						if (!index.IsWithinView(chunkPosition, radiusChunks)) continue;
 
-						newOrders[index] = distance;
+						newOrders[index] = (x * x) + (z * z);
 					}
 				}
 
@@ -1627,7 +1621,7 @@ namespace MiNET.Worlds
 					{
 						var currentPos = getCurrentPositionAction();
 						var coords = new ChunkCoordinates(currentPos);
-						if(coords.DistanceTo(pair.Key) > radius) continue;
+						if (!pair.Key.IsWithinView(coords, radiusChunks)) continue;
 					}
 					ChunkColumn chunkColumn = GetChunk(pair.Key);
 					McpeLevelChunk chunk = null;
@@ -1907,6 +1901,36 @@ namespace MiNET.Worlds
 		{
 			ChunkColumn chunk = GetChunk(coordinates);
 			chunk?.SetBiome(coordinates.X & 0x0f, coordinates.Z & 0x0f, biomeId);
+		}
+
+		/// <summary>
+		///     Sets the biome of every column in the box spanned by the two corners (Y is ignored, a
+		///     biome is per column here), marks the touched chunks dirty and returns them so the
+		///     caller can re-push them: a biome change is not carried by UpdateBlock.
+		/// </summary>
+		public List<ChunkCoordinates> SetBiome(BlockCoordinates from, BlockCoordinates to, byte biomeId)
+		{
+			var touched = new HashSet<ChunkCoordinates>();
+			for (int x = Math.Min(from.X, to.X); x <= Math.Max(from.X, to.X); x++)
+			for (int z = Math.Min(from.Z, to.Z); z <= Math.Max(from.Z, to.Z); z++)
+			{
+				var chunkCoordinates = new ChunkCoordinates(x >> 4, z >> 4);
+				ChunkColumn chunk = GetChunk(chunkCoordinates);
+				if (chunk == null) continue;
+				chunk.SetBiome(x & 0x0f, z & 0x0f, biomeId);
+				chunk.IsDirty = true;
+				touched.Add(chunkCoordinates);
+			}
+			return touched.ToList();
+		}
+
+		/// <summary>Re-pushes the given columns to every spawned player whose window holds them.</summary>
+		public void ResendChunks(IEnumerable<ChunkCoordinates> chunks)
+		{
+			List<ChunkCoordinates> list = chunks.ToList();
+			foreach (Player player in GetSpawnedPlayers())
+			foreach (ChunkCoordinates chunk in list)
+				player.ForcedSendChunk(chunk);
 		}
 
 		public void SetSkyLight(Block block)

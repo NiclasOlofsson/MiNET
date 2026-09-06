@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.BdsExtract", "MiNET.B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.Benchmarks", "MiNET.Benchmarks\MiNET.Benchmarks.csproj", "{087931F8-CB8C-4CD9-854D-3EB6C1E79EC8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.AgentClient", "MiNET.AgentClient\MiNET.AgentClient.csproj", "{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -215,6 +217,18 @@ Global
 		{087931F8-CB8C-4CD9-854D-3EB6C1E79EC8}.Release|x64.Build.0 = Release|Any CPU
 		{087931F8-CB8C-4CD9-854D-3EB6C1E79EC8}.Release|x86.ActiveCfg = Release|Any CPU
 		{087931F8-CB8C-4CD9-854D-3EB6C1E79EC8}.Release|x86.Build.0 = Release|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Debug|x64.Build.0 = Debug|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Debug|x86.Build.0 = Debug|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Release|x64.ActiveCfg = Release|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Release|x64.Build.0 = Release|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Release|x86.ActiveCfg = Release|Any CPU
+		{CA8DC486-1CF3-43D7-9FBD-99D725EAAB07}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

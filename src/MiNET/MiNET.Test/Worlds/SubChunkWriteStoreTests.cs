@@ -37,7 +37,9 @@ namespace MiNET.Worlds.Tests
 	///     data loss: the declared storage count has already gone into the stream, and the save
 	///     path simply drops the section's blocks.
 	/// </summary>
-	[TestClass]
+	// Shares SubChunk's static buffers and pools with AllZeroFastTests; interleaved they read each
+	// other's sections.
+	[TestClass, DoNotParallelize]
 	public class SubChunkWriteStoreTests
 	{
 		/// <summary>

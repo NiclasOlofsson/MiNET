@@ -1746,58 +1746,6 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeAnimate : Packet<McpeAnimate>
-	{
-
-		public byte actionId; // = null;
-		public long runtimeEntityId; // = null;
-
-		public McpeAnimate()
-		{
-			Id = 0x2c;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			Write(actionId);
-			WriteUnsignedVarLong(runtimeEntityId);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			actionId = ReadByte();
-			runtimeEntityId = ReadUnsignedVarLong();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			actionId=default(byte);
-			runtimeEntityId=default(long);
-		}
-
-	}
-
 	public partial class McpeRespawn : Packet<McpeRespawn>
 	{
 		public enum RespawnState

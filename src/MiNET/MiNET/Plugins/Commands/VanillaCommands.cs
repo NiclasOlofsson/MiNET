@@ -104,6 +104,19 @@ namespace MiNET.Plugins.Commands
 			return $"Placed {block.Name} at {block.Coordinates}.";
 		}
 
+		[Command(Description = "Sets the biome of every column in a box, by id or name; the columns are re-sent so it shows at once")]
+		public string SetBiome(Player commander, BlockPos from, BlockPos to, string biome)
+		{
+			Biome resolved = BiomeUtils.GetBiome(biome);
+			if (resolved == null) return $"There is no biome called {biome}.";
+
+			var origin = (BlockCoordinates) commander.KnownPosition;
+			List<ChunkCoordinates> touched = commander.Level.SetBiome(from.ToCoordinates(origin), to.ToCoordinates(origin), (byte) resolved.Id);
+			commander.Level.ResendChunks(touched);
+
+			return $"Set biome {resolved.Name} ({resolved.Id}) over {touched.Count} chunk(s).";
+		}
+
 		[Command]
 		public string Give(Player commander, Target player, ItemTypeEnum itemName, int amount = 1, int data = 0)
 		{

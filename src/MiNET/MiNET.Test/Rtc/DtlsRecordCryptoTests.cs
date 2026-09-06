@@ -30,7 +30,9 @@ using MiNET.Net.Rtc.FastDtls;
 
 namespace MiNET.Test.Rtc
 {
-	[TestClass]
+	// Counts GC allocations over ten thousand records; any neighbour allocating on another
+	// worker lands in the count.
+	[TestClass, DoNotParallelize]
 	public class DtlsRecordCryptoTests
 	{
 		private const byte ApplicationData = 23;

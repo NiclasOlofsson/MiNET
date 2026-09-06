@@ -837,7 +837,8 @@ namespace TestPlugin.NiceLobby
 			}
 			else
 			{
-				rank = $"{ChatColors.White}";
+				// Offline logins (the bots) carry no XUID; orange keeps them readable against the chat text.
+				rank = $"{ChatColors.Gold}";
 			}
 
 			return $"{rank} {username}";

@@ -32,6 +32,7 @@ using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Utils.Vectors;
+using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Commands
 {
@@ -80,6 +81,17 @@ namespace MiNET.BuilderBase.Commands
 
 			pattern = new Pattern(block);
 			return true;
+		}
+
+		[Command(Description = "Set the biome of every column in the selection, by id or name")]
+		public string SetBiome(Player player, string biome)
+		{
+			Biome resolved = BiomeUtils.GetBiome(biome);
+			if (resolved == null) return $"There is no biome called {biome}.";
+
+			var touched = player.Level.SetBiome(Selector.GetMin(), Selector.GetMax(), (byte) resolved.Id);
+			player.Level.ResendChunks(touched);
+			return $"Set biome {resolved.Name} ({resolved.Id}) over {touched.Count} chunk(s).";
 		}
 
 		[Command(Description = "Replace all blocks in the selection with another")]

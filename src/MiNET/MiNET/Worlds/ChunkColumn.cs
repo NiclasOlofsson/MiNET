@@ -475,7 +475,9 @@ namespace MiNET.Worlds
 					SubChunk chunk = missing;
 					if (isInAir && chunk.IsAllAir())
 					{
-						if (chunk.IsDirty) chunk.SkyLightData.Fill(0xff);
+						// The light tail only exists when CalculateLights is on; the span is a slice
+						// past the end of the buffer otherwise.
+						if (chunk.IsDirty && SubChunk.InitializeLightBuffers) chunk.SkyLightData.Fill(0xff);
 
 						// Drop to this subchunk's floor and let the loop step below it. y is not
 						// aligned to a subchunk boundary, so it has to be floored rather than
@@ -525,7 +527,9 @@ namespace MiNET.Worlds
 
 					if (isInAir && chunk.IsAllAir())
 					{
-						if (chunk.IsDirty) chunk.SkyLightData.Fill(0xff);
+						// The light tail only exists when CalculateLights is on; the span is a slice
+						// past the end of the buffer otherwise.
+						if (chunk.IsDirty && SubChunk.InitializeLightBuffers) chunk.SkyLightData.Fill(0xff);
 
 						// Drop to this subchunk's floor and let the loop step below it. y is not
 						// aligned to a subchunk boundary, so it has to be floored rather than

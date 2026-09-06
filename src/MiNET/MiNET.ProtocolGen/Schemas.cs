@@ -125,6 +125,7 @@ public class Overrides
 					if (o["optional"] != null) p.FieldOptional[f.Name] = (bool) o["optional"];
 					if (o["array"] != null) p.FieldArray[f.Name] = (bool) o["array"];
 					if (o["presenceBytes"] != null) p.FieldPresenceBytes[f.Name] = (int) o["presenceBytes"];
+					if (o["trailingDefault"] != null) p.FieldTrailingDefault[f.Name] = (bool) o["trailingDefault"];
 					if (o["presentWhen"] != null)
 					{
 						var when = (JObject) o["presentWhen"];
@@ -193,6 +194,15 @@ public class PacketOverride
 	/// <summary>Wire field name -> the condition under which the field is on the wire at all.</summary>
 	public Dictionary<string, FieldCondition> FieldPresentWhen = new();
 
+	/// <summary>
+	///     Wire field name -> a trailing field with a schema default that the sender leaves off
+	///     when it holds the default, and the reader must accept as absent at end of data. The
+	///     schema says "default", not "optional": no presence byte, and it is written on the way
+	///     out because the client's reader does not tolerate its absence (Animate's Hand at 2207
+	///     kicked a real client when it was missing, and the same client omits it when sending).
+	/// </summary>
+	public Dictionary<string, bool> FieldTrailingDefault = new();
+
 	/// <summary>Wire field name -> the variant's payload carries its own presence byte after the tag.</summary>
 	public Dictionary<string, bool> FieldVariantPayloadGate = new();
 
@@ -260,6 +270,8 @@ public class CerealField
 	public string FieldName;
 	public int Ordinal;
 	public bool Optional;
+	/// <summary>Read only when bytes remain; always written. See PacketOverride.FieldTrailingDefault.</summary>
+	public bool TrailingDefault;
 	public FieldKind Kind;
 	public TypeMapping Type;
 	public CerealStruct Struct;
@@ -358,6 +370,21 @@ public class CerealEnum
 {
 	public string Name;
 	public List<string> Values = new();
+
+	/// <summary>
+	///     The wire value of each member, from the schema's x-enum-binary-value, when it carries
+	///     one. Null means the declaration index is the value. Mojang's enums have holes
+	///     (AnimatePacketPayload_Action is 0, 1, 3, 4, 5), so the index is wrong whenever this is
+	///     present and differs.
+	/// </summary>
+	public List<int> BinaryValues;
+
+	public int ValueOf(int index) => BinaryValues != null && index < BinaryValues.Count ? BinaryValues[index] : index;
+
+	public static List<int> ReadBinaryValues(JObject schema)
+	{
+		return schema["x-enum-binary-value"] is JArray values ? values.Select(v => (int) v).ToList() : null;
+	}
 }
 
 /// <summary>A packet resolved from its schema into an ordered list of emittable fields.</summary>
@@ -455,6 +482,7 @@ public class CerealPacket
 				FieldName = memberName,
 				Ordinal = (int) ((JObject) prop.Value)["x-ordinal-index"],
 				Optional = optional,
+				TrailingDefault = packetOverride != null && packetOverride.FieldTrailingDefault.TryGetValue(prop.Name, out bool trailing) && trailing,
 				PresenceBytes = presenceBytes < 1 ? 1 : presenceBytes,
 				PresentWhen = packetOverride != null && packetOverride.FieldPresentWhen.TryGetValue(prop.Name, out FieldCondition when) ? when : null,
 				VariantPayloadGate = packetOverride != null && packetOverride.FieldVariantPayloadGate.TryGetValue(prop.Name, out bool gate) && gate,
@@ -488,7 +516,11 @@ public class CerealPacket
 
 			if (field.Enum != null && packetOverride != null && packetOverride.FieldEnums.TryGetValue(prop.Name, out List<string> enumValues))
 			{
+				// An override list is written in wire order, index = value: it exists precisely
+				// because the schema's own names and values did not line up, so the schema's
+				// value array must not be paired with it.
 				field.Enum.Values = enumValues.Select(v => CodeNames.CodeName(v, true)).ToList();
+				field.Enum.BinaryValues = null;
 			}
 
 			if (packetOverride != null && packetOverride.FieldArray.TryGetValue(prop.Name, out bool forceArray) && forceArray && field.Kind != FieldKind.Array)
@@ -594,6 +626,7 @@ public class CerealPacket
 				{
 					Name = SanitizeTypeName((string) target["title"]),
 					Values = ((JArray) target["enum"]).Select(v => CodeNames.CodeName((string) v, true)).ToList(),
+					BinaryValues = CerealEnum.ReadBinaryValues(target),
 				};
 				field.Kind = FieldKind.Plain;
 				// Compression is a property of the reference, not of the enum: GameType.json says
@@ -696,6 +729,7 @@ public class CerealPacket
 				// out as "Creativecategory" where the wire name still carries the word breaks.
 				Name = CodeNames.CodeTypeName(field.WireName),
 				Values = ((JArray) prop["enum"]).Select(v => CodeNames.CodeName((string) v, true)).ToList(),
+				BinaryValues = CerealEnum.ReadBinaryValues(prop),
 			};
 			field.Kind = FieldKind.Plain;
 			field.Type = Primitive(owner, field.WireName, (string) prop["x-underlying-type"], HasOption(prop, "Compression"));

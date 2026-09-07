@@ -112,7 +112,8 @@ namespace MiNET.Plugins.Commands
 
 			var origin = (BlockCoordinates) commander.KnownPosition;
 			List<ChunkCoordinates> touched = commander.Level.SetBiome(from.ToCoordinates(origin), to.ToCoordinates(origin), (byte) resolved.Id);
-			commander.Level.ResendChunks(touched);
+			Level level = commander.Level;
+			System.Threading.Tasks.Task.Run(() => level.ResendChunks(touched));
 
 			return $"Set biome {resolved.Name} ({resolved.Id}) over {touched.Count} chunk(s).";
 		}

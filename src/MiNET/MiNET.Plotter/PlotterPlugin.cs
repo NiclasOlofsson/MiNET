@@ -64,6 +64,10 @@ namespace MiNET.Plotter
 
 		private void LevelOnPlayerRemoved(object sender, LevelEventArgs e)
 		{
+			// A level change parks the player far above the world before removing them; that is
+			// nowhere anyone stood, so it is not a position to come back to.
+			if (e.Player.KnownPosition.Y >= ChunkColumn.WorldMaxY) return;
+
 			var plotPlayer = _plotManager.GetOrAddPlotPlayer(e.Player);
 			plotPlayer.LastPosition = e.Player.KnownPosition;
 			_plotManager.UpdatePlotPlayer(plotPlayer);
@@ -161,7 +165,10 @@ namespace MiNET.Plotter
 			if (!PlotterLevelManager.IsPlotWorld(level)) return;
 
 			var plotPlayer = _plotManager.GetOrAddPlotPlayer(player);
-			var pos = plotPlayer.LastPosition ?? plotPlayer.Home;
+			PlayerLocation last = plotPlayer.LastPosition;
+			// A parked position recorded before the guard above existed is not a place to return to.
+			if (last != null && last.Y >= ChunkColumn.WorldMaxY) last = null;
+			var pos = last ?? plotPlayer.Home;
 			if (pos != null)
 			{
 				int height = level.GetHeight((BlockCoordinates) pos);

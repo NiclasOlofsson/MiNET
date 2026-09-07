@@ -825,6 +825,38 @@ namespace MiNET.Worlds
 		}
 
 		/// <summary>
+		///     The full inline form: every section from the bottom to the top non-empty one as a
+		///     version 9 store, then the full 24-store biome palette, the border byte and the block
+		///     entities. Nothing addressed by hash, the data travels in the packet. Version 8 and 9
+		///     stores behave the same on a 1.26.60.21 client here; 9 is the current format.
+		/// </summary>
+		public McpeLevelChunk CreateLegacyChunk()
+		{
+			int topEmpty = GetTopEmpty();
+			using var stream = new MemoryStream();
+			for (int ci = 0; ci < topEmpty; ci++)
+			{
+				this[ci].Write(stream);
+			}
+
+			byte[] biomePalette = GetBiomePalette(biomeId);
+			stream.Write(biomePalette, 0, biomePalette.Length);
+
+			stream.WriteByte(0); // Border blocks - nope (EDU)
+
+			WriteBlockEntities(stream);
+
+			var packet = McpeLevelChunk.CreateObject();
+			packet.chunkPosition = new ChunkPos {x = X, z = Z};
+			packet.dimension = (int) Dimension;
+			packet.subChunkCount = (uint) topEmpty;
+			packet.cacheEnabled = false;
+			packet.cacheMetadata = new List<ulong>();
+			packet.chunkData = stream.ToArray();
+			return packet;
+		}
+
+		/// <summary>
 		///     Everything in the chunk payload that is not a blob: the border block count and the
 		///     block entities. Sections and biomes are addressed by hash in the cached form, so
 		///     this is all that still travels inline.

@@ -491,8 +491,7 @@ namespace TestPlugin
 		{
 			Task.Run(() =>
 			{
-				player.CleanCache();
-				player.ForcedSendChunks(() => { player.SendMessage($"Resent chunks."); });
+				player.ForcedSendLegacyChunks(() => { player.SendMessage($"Resent chunks (legacy full form)."); });
 			});
 		}
 

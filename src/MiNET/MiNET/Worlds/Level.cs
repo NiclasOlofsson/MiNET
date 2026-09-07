@@ -661,6 +661,26 @@ namespace MiNET.Worlds
 
 		public Profiler _profiler = new Profiler();
 
+		private readonly object _tickSignal = new object();
+
+		/// <summary>
+		///     Blocks the caller until the next world tick has started. Senders that pace their
+		///     output per tick wait here between slices, so a slice goes out at the start of a tick
+		///     rather than after a fixed sleep.
+		/// </summary>
+		public void WaitForNextTick()
+		{
+			long tick = TickTime;
+			lock (_tickSignal)
+			{
+				while (TickTime == tick)
+				{
+					// Bounded: a level whose tick has stopped must not hold a sender forever.
+					if (!Monitor.Wait(_tickSignal, 250)) return;
+				}
+			}
+		}
+
 		private void WorldTick(object sender)
 		{
 			//if (_tickTimer.ElapsedMilliseconds < 40 && LastTickProcessingTime < 50)
@@ -684,6 +704,7 @@ namespace MiNET.Worlds
 			try
 			{
 				TickTime++;
+				lock (_tickSignal) Monitor.PulseAll(_tickSignal);
 
 				Player[] players = GetSpawnedPlayers();
 
@@ -1609,7 +1630,9 @@ namespace MiNET.Worlds
 					}
 				}
 
-				foreach (var pair in newOrders.OrderBy(pair => pair.Value))
+				// Onion rings outward: the ring is the distance rounded to whole chunks, and inside a
+				// ring the columns go by angle around the player, one rotating sweep per ring.
+				foreach (var pair in newOrders.OrderBy(pair => (int) Math.Round(Math.Sqrt(pair.Value))).ThenBy(pair => Math.Atan2(pair.Key.Z - centerZ, pair.Key.X - centerX)))
 				{
 					// Held by the client already. Content changes since then travelled as UpdateBlock,
 					// so a second push would only make the client rebuild a column it has.
@@ -1927,10 +1950,17 @@ namespace MiNET.Worlds
 		/// <summary>Re-pushes the given columns to every spawned player whose window holds them.</summary>
 		public void ResendChunks(IEnumerable<ChunkCoordinates> chunks)
 		{
-			List<ChunkCoordinates> list = chunks.ToList();
+			// Every column each player holds, nearest first, in the inline full form: the one
+			// re-send a client draws completely, biomes included.
+			var set = new HashSet<ChunkCoordinates>(chunks);
 			foreach (Player player in GetSpawnedPlayers())
-			foreach (ChunkCoordinates chunk in list)
-				player.ForcedSendChunk(chunk);
+			{
+				player.ForcedSendLegacyChunks(cached: true, stamp: false, only: set);
+
+				// Out 16 blocks and back, client side only, so its chunk-boundary pass runs over
+				// what just arrived.
+				player.NudgeClient();
+			}
 		}
 
 		public void SetSkyLight(Block block)

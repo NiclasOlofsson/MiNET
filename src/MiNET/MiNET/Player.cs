@@ -577,6 +577,12 @@ namespace MiNET
 		/// </summary>
 		private const int GroupFlushHashes = MaxBlobStatusIds;
 
+		/// <summary>Columns the streamer's sweep sends per world tick, BDS's measured budget.</summary>
+		private const int SweepColumnsPerTick = 40;
+
+		/// <summary>Inline full columns a resend sends per world tick.</summary>
+		private const int ResendColumnsPerTick = 40;
+
 		public int ChunkRadius { get; private set; } = -1;
 
 		/// <summary>
@@ -1684,6 +1690,34 @@ namespace MiNET
 			SendPacket(packet);
 		}
 
+		/// <summary>
+		///     Client-side only: moves the client 16 blocks out and straight back, two teleport
+		///     packets, so its own chunk-boundary pass runs. The server's idea of the position is
+		///     not touched.
+		/// </summary>
+		public void NudgeClient()
+		{
+			PlayerLocation here = KnownPosition;
+			var away = new PlayerLocation(here.X + 16, here.Y, here.Z) {Yaw = here.Yaw, HeadYaw = here.HeadYaw, Pitch = here.Pitch};
+
+			foreach (PlayerLocation target in new[] {away, here})
+			{
+				var packet = McpeMovePlayer.CreateObject();
+				packet.runtimeEntityId = EntityManager.EntityIdSelf;
+				packet.position = new Vector3(target.X, target.Y + 1.62f, target.Z);
+				// The shape BDS sends for a command teleport (captured 2026-09-07): rotation is
+				// (pitch, yaw), mode Teleport, teleport data cause 3 (command) source type 1.
+				packet.rotation = new Vector2(target.Pitch, target.Yaw);
+				packet.headYaw = target.HeadYaw;
+				packet.mode = McpeMovePlayer.PositionMode.Teleport;
+				packet.teleportData = new MovePlayerTeleportData {teleportationCause = 3, sourceActorType = 1};
+				SendPacket(packet);
+
+				// One tick out there before coming back, so the client's pass runs at the far side.
+				if (target == away) Level?.WaitForNextTick();
+			}
+		}
+
 		private object _teleportSync = new object();
 
 		public virtual void Teleport(PlayerLocation newPosition)
@@ -2712,13 +2746,6 @@ namespace MiNET
 			}
 			EngineMetrics.BlobCacheReport("unresolved", unresolved);
 
-			// Every miss with its payload's length and leading bytes: a section blob starts with
-			// version 9, storage count, section Y; a biome blob starts with a palette header.
-			Log.Info($"Blob misses from {Username} ({message.hashMisses.Length}, hits {message.hashHits?.Length ?? 0}): "
-			         + string.Join("; ", message.hashMisses.Select(h => blobs.TryGetValue(h, out byte[] b)
-				         ? $"{h:X16} len {b.Length} [{Convert.ToHexString(b, 0, Math.Min(4, b.Length))}]"
-				         : $"{h:X16} missing")));
-
 			if (blobs.Count == 0) return;
 
 			var response = McpeClientCacheMissResponse.CreateObject();
@@ -3188,14 +3215,10 @@ namespace MiNET
 			// The client rejects a SubChunkPacket with more than 8192 entries (packet violation
 			// 0xAE, "too many input elements"), so a mass re-request is answered as a run of
 			// packets at the cap instead of one mirror of the request.
-			// Paced delivery: the answers flush in tick-sized slices instead of mirroring the
-			// request wholesale, so the client can mesh terrain progressively rather than
-			// receiving one request's entire answer at once. 264 sections is ~80 columns per
-			// 50ms at the measured 3.3 requested sections per column, half the rate a real
-			// client asks at. The slices go from a background task; the entries are built
-			// here because BuildSubChunkEntry reads the pooled request packet.
+			// The answers go out in slices of 264 sections, back to back, from a background task;
+			// the entries are built here because BuildSubChunkEntry reads the pooled request
+			// packet. No wait between slices: BDS answers requests as they come.
 			const int sectionsPerFlush = 264;
-			const int flushDelayMs = 50;
 
 			var entries = new List<SubChunkPacketData>(message.offsets.Count);
 			foreach (SubChunkPosOffset offset in message.offsets)
@@ -3228,8 +3251,6 @@ namespace MiNET
 					packet.centerPos = centerPos;
 					packet.subchunkData = entries.GetRange(i, Math.Min(sectionsPerFlush, entries.Count - i));
 					SendPacket(packet);
-
-					if (i + sectionsPerFlush < entries.Count) Thread.Sleep(flushDelayMs);
 				}
 			});
 		}
@@ -4278,26 +4299,56 @@ namespace MiNET
 		///     </para>
 		/// </summary>
 		/// <summary>
-		///     Re-pushes one column the player already holds, after its content changed in a way
-		///     UpdateBlock cannot carry (biomes). Columns outside the player's window are skipped,
-		///     and the publisher stamp is left alone: this is a refresh, not a move.
+		///     Re-sends every column in the player's view in the legacy full form: sections, biomes
+		///     and tail inline in one packet per column, nothing addressed by hash. A refresh of
+		///     columns the client already holds, so the publisher stamp is left alone.
 		/// </summary>
-		public void ForcedSendChunk(ChunkCoordinates chunkPosition)
+		public void ForcedSendLegacyChunks(Action postAction = null, bool cached = false, bool stamp = true, ICollection<ChunkCoordinates> only = null)
 		{
 			lock (_sendChunkSync)
 			{
 				if (Level == null) return;
-				if (!chunkPosition.IsWithinView(new ChunkCoordinates(KnownPosition), ChunkRadius)) return;
 
-				ChunkColumn column = Level.GetChunk(chunkPosition);
-				if (column == null) return;
+				// Every group rides behind a publisher stamp (RULING): a chunk send always
+				// re-declares the player's area, the way vanilla stamps beside every chunk batch.
+				// Nearest first, from the player's own column outward.
+				var center = new ChunkCoordinates(KnownPosition);
+				var view = new List<ChunkCoordinates>();
+				for (int x = -ChunkRadius; x <= ChunkRadius; x++)
+				for (int z = -ChunkRadius; z <= ChunkRadius; z++)
+				{
+					var coordinates = new ChunkCoordinates(center.X + x, center.Z + z);
+					if (!coordinates.IsWithinView(center, ChunkRadius)) continue;
+					if (only != null && !only.Contains(coordinates)) continue;
+					view.Add(coordinates);
+				}
 
-				// Pushed, the same way the standing column is pushed on a join or a teleport.
-				McpeLevelChunk chunk = column.CreateCachedPushChunk();
-				_chunksUsed[chunkPosition] = column.Version;
+				List<Packet> NewGroup() => stamp ? new List<Packet> {CreateNetworkChunkPublisherUpdate(ChunkRadius)} : new List<Packet>();
+				int head = stamp ? 1 : 0;
 
-				SendPacket(chunk);
+				var group = NewGroup();
+				foreach (ChunkCoordinates coordinates in view.OrderBy(c => (int) Math.Round(c.DistanceTo(center))).ThenBy(c => Math.Atan2(c.Z - center.Z, c.X - center.X)))
+				{
+					ChunkColumn column = Level.GetChunk(coordinates);
+					if (column == null) continue;
+
+					group.Add(cached ? column.CreateCachedPushChunk() : column.CreateLegacyChunk());
+					_chunksUsed[coordinates] = column.Version;
+
+					// Paced like the streamer's sweep: a slice per world tick, released at the
+					// start of the next tick.
+					if (group.Count - head >= ResendColumnsPerTick)
+					{
+						SendPackets(group);
+						if (!IsConnected) return;
+						Level.WaitForNextTick();
+						group = NewGroup();
+					}
+				}
+				if (group.Count > head) SendPackets(group);
 			}
+
+			postAction?.Invoke();
 		}
 
 		private void ForcedSendChunk(PlayerLocation position)
@@ -4373,23 +4424,29 @@ namespace MiNET
 				long spawnSent = Stopwatch.GetTimestamp();
 				group = new List<Packet> {CreateNetworkChunkPublisherUpdate(ChunkRadius, position ?? KnownPosition)};
 
-				// The rest of the disc at the blob-status boundary (see the streamer).
+				// The rest of the disc, paced like the streamer's sweep: a slice of columns per
+				// world tick, released at the start of the next tick, a stamp at the head of each.
+				int sliceColumns = 0;
 				foreach ((ChunkCoordinates _, McpeLevelChunk chunk) in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius, cachedPush: true))
 				{
 					if (chunk == null) continue;
 
 					group.Add(chunk);
 					streamColumns++;
+					sliceColumns++;
 					groupHashes += chunk.cacheMetadata?.Count ?? 0;
 
-					if (groupHashes >= GroupFlushHashes)
+					if (sliceColumns >= SweepColumnsPerTick || groupHashes >= GroupFlushHashes)
 					{
 						SendPackets(group);
-						group = new List<Packet>();
+						sliceColumns = 0;
 						groupHashes = 0;
+						if (!IsConnected) break;
+						Level.WaitForNextTick();
+						group = new List<Packet> {CreateNetworkChunkPublisherUpdate(ChunkRadius, position ?? KnownPosition)};
 					}
 				}
-				if (group.Count > 0) SendPackets(group);
+				if (group.Count > 1) SendPackets(group);
 
 				long passEnded = Stopwatch.GetTimestamp();
 				double Ms(long from, long to) => (to - from) * 1000d / Stopwatch.Frequency;
@@ -4500,18 +4557,27 @@ namespace MiNET
 				{
 					// The join-burst publisher first, the way vanilla does it: the client is told
 					// about the small spawn area only, so the columns that follow COMPLETE it and
-					// it can draw. The stamp covers exactly the block that follows: the client
-					// discards any column outside the published area on receive and it is never
-					// sent again, so a stamp narrower than the block is a permanent hole. prune:
-					// false because this radius is not the view, and the spawn goes out right
-					// after it: block on the queue first, PlayStatus(3) second.
-					int spawnBlockRadius = Math.Min(JoinBurstChunkRadius + 2, ChunkRadius);
-					group.Add(CreateNetworkChunkPublisherUpdate(spawnBlockRadius));
-					foreach ((ChunkCoordinates coordinates, McpeLevelChunk chunk) in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, spawnBlockRadius, prune: false))
+					// it can draw. The block is vanilla's (BDS 1.26.60.21, measured): a 3x5
+					// rectangle around the player's chunk, x +-1 by z +-2 in world axes, nearest
+					// first, well inside the 64-block stamp. The client discards any column
+					// outside the published area on receive and it is never sent again, so the
+					// stamp must cover the block. The spawn goes out right after it: block on the
+					// queue first, PlayStatus(3) second.
+					group.Add(CreateNetworkChunkPublisherUpdate(JoinBurstChunkRadius));
+					var spawnBlock = new List<ChunkCoordinates>(15);
+					for (int dx = -1; dx <= 1; dx++)
+					for (int dz = -2; dz <= 2; dz++)
 					{
-						if (chunk == null) continue;
+						spawnBlock.Add(new ChunkCoordinates(_currentChunkPosition.X + dx, _currentChunkPosition.Z + dz));
+					}
 
-						group.Add(chunk);
+					foreach (ChunkCoordinates coordinates in spawnBlock.OrderBy(c => c.DistanceTo(_currentChunkPosition)))
+					{
+						ChunkColumn column = Level.GetChunk(coordinates);
+						if (column == null) continue;
+
+						lock (_chunksUsed) _chunksUsed[coordinates] = column.Version;
+						group.Add(column.CreateSkeletonChunk());
 						groupCoordinates.Add(coordinates);
 						packetCount++;
 					}
@@ -4541,7 +4607,11 @@ namespace MiNET
 				// The streamer's own call: a spawning pass leaves the client to ask, because its
 				// request selectivity is what makes a cold horizon bearable, and every pass after
 				// that pushes, because a walking player takes the whole rim anyway.
+				// Paced the way BDS paces its sweep (measured 15-24 columns per tick in the tunnel
+				// capture): a slice of columns per tick, each slice released at the start of the
+				// next world tick, not after a fixed sleep.
 				bool pushRim = !spawningPass;
+				int sliceColumns = 0;
 				foreach ((ChunkCoordinates coordinates, McpeLevelChunk chunk) in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius, () => KnownPosition, cachedPush: pushRim))
 				{
 					if (chunk != null)
@@ -4549,10 +4619,14 @@ namespace MiNET
 						group.Add(chunk);
 						if (!pushRim) groupCoordinates.Add(coordinates);
 						groupHashes += chunk.cacheMetadata?.Count ?? 0;
+						sliceColumns++;
 
-						if (groupHashes >= GroupFlushHashes)
+						if (sliceColumns >= SweepColumnsPerTick || groupHashes >= GroupFlushHashes)
 						{
 							FlushGroup();
+							sliceColumns = 0;
+							if (!IsConnected) break;
+							Level.WaitForNextTick();
 							group.Add(CreateNetworkChunkPublisherUpdate(ChunkRadius));
 						}
 					}

@@ -3,7 +3,7 @@
 namespace MiNET.Net
 {
 	/// <summary>
-	///     The experiment toggles a 1.26.50 vanilla server declares in StartGame. Server
+	///     The experiment toggles a 1.26.60 vanilla server declares in StartGame. Server
 	///     configuration, not extracted data: the client turns features on by these names, and
 	///     <see cref="DataDrivenVanillaBlocksAndItems" /> is the one that makes it accept the block
 	///     definitions StartGame carries.
@@ -15,12 +15,14 @@ namespace MiNET.Net
 		public const string ExperimentalCreatorCameras = "experimental_creator_cameras";
 		public const string VillagerTradesRebalance = "villager_trades_rebalance";
 		public const string VoxelShapes = "voxel_shapes";
+		public const string Poi = "poi";
+		public const string CreatorWorldClocks = "creator_world_clocks";
 		public const string DataDrivenVanillaBlocksAndItems = "data_driven_vanilla_blocks_and_items";
 
-		/// <summary>The six, in the order vanilla sends them, all enabled.</summary>
+		/// <summary>The eight, in the order vanilla sends them, all enabled.</summary>
 		public static readonly string[] Vanilla =
 		[
-			UpcomingCreatorFeatures, GameTest, ExperimentalCreatorCameras, VillagerTradesRebalance, VoxelShapes, DataDrivenVanillaBlocksAndItems
+			UpcomingCreatorFeatures, GameTest, ExperimentalCreatorCameras, VillagerTradesRebalance, VoxelShapes, Poi, CreatorWorldClocks, DataDrivenVanillaBlocksAndItems
 		];
 	}
 
@@ -29,7 +31,7 @@ namespace MiNET.Net
 		/// <summary>Whether any experiments have ever been toggled in this world. Part of the wire type (trailing bool after the toggle list).</summary>
 		public bool ExperimentsEverToggled { get; set; }
 
-		/// <summary>What a vanilla 1.26.50 server sends: the six known experiments on, and the toggled bit set.</summary>
+		/// <summary>What a vanilla 1.26.60 server sends: the eight known experiments on, and the toggled bit set.</summary>
 		public static Experiments Vanilla()
 		{
 			var experiments = new Experiments {ExperimentsEverToggled = true};

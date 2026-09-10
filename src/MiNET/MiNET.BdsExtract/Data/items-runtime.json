@@ -1,11 +1,13 @@
 {
 	"source": {
-		"server": "C:\\Development\\github\\MiNET\\temp_auto\\bds\\server-1.26.60.21",
+		"server": "C:\\Development\\github\\MiNET\\temp_auto\\bds\\server-1.26.60.23",
 		"world": "flatworld",
 		"experiments": [
+			"creator_world_clocks",
 			"data_driven_vanilla_blocks_and_items",
 			"experimental_creator_cameras",
 			"gametest",
+			"poi",
 			"upcoming_creator_features",
 			"villager_trades_rebalance",
 			"voxel_shapes",
@@ -19740,7 +19742,18 @@
 				"mineBlockType": "do_nothing",
 				"creativeCategory": "Equipment"
 			},
-			"componentBased": false
+			"componentBased": false,
+			"armorMaterial": {
+				"durabilityMultiplier": 15,
+				"protection": {
+					"boots": 2,
+					"chestplate": 5,
+					"leggings": 4,
+					"helmet": 1
+				},
+				"toughness": 0,
+				"enchantability": 12
+			}
 		},
 		{
 			"methodTable": {
@@ -67586,7 +67599,7 @@
 			"ignoresPermissions": false,
 			"useDuration": 0,
 			"minimumVersion": {
-				"version": "1.21.110",
+				"version": "1.26.50",
 				"parsed": true,
 				"anyVersion": false,
 				"neverCompatible": false

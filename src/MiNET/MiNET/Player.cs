@@ -4303,7 +4303,7 @@ namespace MiNET
 		///     and tail inline in one packet per column, nothing addressed by hash. A refresh of
 		///     columns the client already holds, so the publisher stamp is left alone.
 		/// </summary>
-		public void ForcedSendLegacyChunks(Action postAction = null, bool cached = false, bool stamp = true, ICollection<ChunkCoordinates> only = null)
+		public void ForcedSendLegacyChunks(Action postAction = null, bool cached = false, bool stamp = true, ICollection<ChunkCoordinates> only = null, bool biomeUpdate = false)
 		{
 			lock (_sendChunkSync)
 			{
@@ -4319,7 +4319,6 @@ namespace MiNET
 				{
 					var coordinates = new ChunkCoordinates(center.X + x, center.Z + z);
 					if (!coordinates.IsWithinView(center, ChunkRadius)) continue;
-					if (only != null && !only.Contains(coordinates)) continue;
 					view.Add(coordinates);
 				}
 
@@ -4332,7 +4331,14 @@ namespace MiNET
 					ChunkColumn column = Level.GetChunk(coordinates);
 					if (column == null) continue;
 
-					group.Add(cached ? column.CreateCachedPushChunk() : column.CreateLegacyChunk());
+					// The whole view goes out. Columns named in `only` (the changed ones) travel
+					// inline; every other column in the form `cached` says.
+					bool inline = !cached || (only != null && only.Contains(coordinates));
+					McpeLevelChunk chunk = inline ? column.CreateLegacyChunk() : column.CreateCachedPushChunk();
+					// Protocol 2208's flag for exactly this: a LevelChunk that updates the biomes of a
+					// column the client already holds.
+					chunk.isClientBiomeUpdate = biomeUpdate;
+					group.Add(chunk);
 					_chunksUsed[coordinates] = column.Version;
 
 					// Paced like the streamer's sweep: a slice per world tick, released at the

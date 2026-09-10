@@ -161,7 +161,7 @@ public sealed class StartGameCapture
 				for (int i = 0; i < count; i++)
 				{
 					int length = (int) reader.ReadVarUInt(2);
-					if (length is < 4 or > 64) goto next;
+					if (length is < 3 or > 64) goto next; // poi is the shortest name
 
 					string name = Encoding.UTF8.GetString(reader.ReadBytes(length));
 					if (!ExperimentName.IsMatch(name)) goto next;

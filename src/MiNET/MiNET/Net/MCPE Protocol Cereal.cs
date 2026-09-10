@@ -1303,6 +1303,7 @@ namespace MiNET.Net
 		public bool cacheEnabled; // = null;
 		public List<ulong> cacheMetadata; // = null;
 		public byte[] chunkData; // = null;
+		public bool isClientBiomeUpdate; // = null;
 
 		public McpeLevelChunk()
 		{
@@ -1325,6 +1326,7 @@ namespace MiNET.Net
 			WriteUnsignedVarInt((uint) (cacheMetadata?.Count ?? 0));
 			if (cacheMetadata != null) foreach (ulong item in cacheMetadata) Write(item);
 			WriteByteArray(chunkData);
+			Write(isClientBiomeUpdate);
 
 			AfterEncode();
 		}
@@ -1347,6 +1349,7 @@ namespace MiNET.Net
 			cacheMetadata = new List<ulong>((int) cacheMetadataCount);
 			for (int i = 0; i < cacheMetadataCount; i++) cacheMetadata.Add(ReadUlong());
 			chunkData = ReadByteArray();
+			isClientBiomeUpdate = ReadBool();
 
 			AfterDecode();
 		}
@@ -1365,6 +1368,7 @@ namespace MiNET.Net
 			cacheEnabled=default(bool);
 			cacheMetadata=default(List<ulong>);
 			chunkData=default(byte[]);
+			isClientBiomeUpdate=default(bool);
 		}
 
 	}

@@ -1955,10 +1955,10 @@ namespace MiNET.Worlds
 			var set = new HashSet<ChunkCoordinates>(chunks);
 			foreach (Player player in GetSpawnedPlayers())
 			{
-				player.ForcedSendLegacyChunks(cached: true, stamp: false, only: set);
+				player.ForcedSendLegacyChunks(cached: true, stamp: true, only: set, biomeUpdate: true);
 
 				// Out 16 blocks and back, client side only, so its chunk-boundary pass runs over
-				// what just arrived.
+				// what just arrived; the flag alone does not make it redraw.
 				player.NudgeClient();
 			}
 		}

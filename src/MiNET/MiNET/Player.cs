@@ -3019,6 +3019,11 @@ namespace MiNET
 			// Client registration of signed audio content (new at 2225). Ignored.
 		}
 
+		public virtual void HandleMcpeChat(McpeChat message)
+		{
+			// Chat Service signed message (new at 2235). MiNET declares no managed chat, so chat arrives as Text. Ignored.
+		}
+
 		public virtual void HandleMcpeServerboundDataStore(McpeServerboundDataStore message)
 		{
 			// Client data store update request. Ignored.

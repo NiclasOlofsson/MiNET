@@ -817,6 +817,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeChat(McpeChat message)
+		{
+		}
+
 		public void HandleMcpeServerboundDataStore(McpeServerboundDataStore message)
 		{
 		}

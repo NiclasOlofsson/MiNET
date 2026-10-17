@@ -1843,6 +1843,7 @@ namespace MiNET.Net
 		public StructureEditorData structureData; // = null;
 		public bool trigger; // = null;
 		public bool iswaterlogged; // = null;
+		public bool keepstructurevoid; // = null;
 
 		public McpeStructureBlockUpdate()
 		{
@@ -1860,6 +1861,7 @@ namespace MiNET.Net
 			Write(structureData ?? new StructureEditorData());
 			Write(trigger);
 			Write(iswaterlogged);
+			Write(keepstructurevoid);
 
 			AfterEncode();
 		}
@@ -1877,6 +1879,7 @@ namespace MiNET.Net
 			structureData = ReadStructureEditorData();
 			trigger = ReadBool();
 			iswaterlogged = ReadBool();
+			keepstructurevoid = ReadBool();
 
 			AfterDecode();
 		}
@@ -1892,6 +1895,7 @@ namespace MiNET.Net
 			structureData=default(StructureEditorData);
 			trigger=default(bool);
 			iswaterlogged=default(bool);
+			keepstructurevoid=default(bool);
 		}
 
 	}
@@ -3737,6 +3741,59 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeChat : Packet<McpeChat>
+	{
+
+		public SignedChat signedChat; // = null;
+		public ChatPacketFormatting formatting; // = null;
+
+		public McpeChat()
+		{
+			Id = 0x169;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(signedChat ?? new SignedChat());
+			Write(formatting != null);
+			if (formatting != null) Write(formatting);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			signedChat = ReadSignedChat();
+			if (ReadBool()) formatting = ReadChatPacketFormatting();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			signedChat=default(SignedChat);
+			formatting=default(ChatPacketFormatting);
+		}
+
+	}
+
 	public abstract class EventBase
 	{
 	}
@@ -3883,6 +3940,14 @@ namespace MiNET.Net
 		public string objectiveName;
 		public int scoreValue;
 		public long playerUniqueId;
+	}
+
+	public class ChatPacketFormatting
+	{
+		public string namePrefix;
+		public string namePostfix;
+		public string messagePrefix;
+		public string messagePostfix;
 	}
 
 	public class ChunkPos
@@ -5232,6 +5297,7 @@ namespace MiNET.Net
 		public GatheringsConfig gathering;
 		public ClientStoreEntryPointConfig clientstoreentrypoint;
 		public string presence;
+		public bool? managedchat;
 	}
 
 	public class ServerTelemetryData
@@ -5250,6 +5316,17 @@ namespace MiNET.Net
 	public class SetVolume : EventBase
 	{
 		public float volume;
+	}
+
+	public class SignedChat
+	{
+		public string keyId;
+		public string senderId;
+		public string roomId;
+		public string messageId;
+		public string scanText;
+		public string redactedText;
+		public string signature;
 	}
 
 	public class SpawnSettings
@@ -5599,6 +5676,28 @@ namespace MiNET.Net
 			data.objectiveName = ReadString();
 			data.scoreValue = ReadInt();
 			data.playerUniqueId = ReadSignedVarLong();
+			return data;
+		}
+
+		public void Write(ChatPacketFormatting data)
+		{
+			Write(data.namePrefix != null);
+			if (data.namePrefix != null) Write(data.namePrefix);
+			Write(data.namePostfix != null);
+			if (data.namePostfix != null) Write(data.namePostfix);
+			Write(data.messagePrefix != null);
+			if (data.messagePrefix != null) Write(data.messagePrefix);
+			Write(data.messagePostfix != null);
+			if (data.messagePostfix != null) Write(data.messagePostfix);
+		}
+
+		public ChatPacketFormatting ReadChatPacketFormatting()
+		{
+			var data = new ChatPacketFormatting();
+			if (ReadBool()) data.namePrefix = ReadString();
+			if (ReadBool()) data.namePostfix = ReadString();
+			if (ReadBool()) data.messagePrefix = ReadString();
+			if (ReadBool()) data.messagePostfix = ReadString();
 			return data;
 		}
 
@@ -7314,6 +7413,8 @@ namespace MiNET.Net
 			if (data.clientstoreentrypoint != null) Write(data.clientstoreentrypoint);
 			Write(data.presence != null);
 			if (data.presence != null) Write(data.presence);
+			Write(data.managedchat != null);
+			if (data.managedchat != null) Write(data.managedchat.Value);
 		}
 
 		public ServerConfig ReadServerConfig()
@@ -7322,6 +7423,7 @@ namespace MiNET.Net
 			if (ReadBool()) data.gathering = ReadGatheringsConfig();
 			if (ReadBool()) data.clientstoreentrypoint = ReadClientStoreEntryPointConfig();
 			if (ReadBool()) data.presence = ReadString();
+			if (ReadBool()) data.managedchat = ReadBool();
 			return data;
 		}
 
@@ -7368,6 +7470,30 @@ namespace MiNET.Net
 			var data = new SetVolume();
 			ReadByte();
 			data.volume = ReadFloat();
+			return data;
+		}
+
+		public void Write(SignedChat data)
+		{
+			Write(data.keyId);
+			Write(data.senderId);
+			Write(data.roomId);
+			Write(data.messageId);
+			Write(data.scanText);
+			Write(data.redactedText);
+			Write(data.signature);
+		}
+
+		public SignedChat ReadSignedChat()
+		{
+			var data = new SignedChat();
+			data.keyId = ReadString();
+			data.senderId = ReadString();
+			data.roomId = ReadString();
+			data.messageId = ReadString();
+			data.scanText = ReadString();
+			data.redactedText = ReadString();
+			data.signature = ReadString();
 			return data;
 		}
 

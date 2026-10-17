@@ -984,6 +984,10 @@ namespace MiNET.Client
 		{
 		}
 
+		public virtual void HandleMcpeChat(McpeChat message)
+		{
+		}
+
 		public virtual void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message)
 		{
 		}
@@ -1017,13 +1021,6 @@ namespace MiNET.Client
 		{
 		}
 
-		public virtual void HandleMcpeAddVolumeEntity(McpeAddVolumeEntity message)
-		{
-		}
-
-		public virtual void HandleMcpeRemoveVolumeEntity(McpeRemoveVolumeEntity message)
-		{
-		}
 
 		public virtual void HandleMcpeSimulationType(McpeSimulationType message)
 		{

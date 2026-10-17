@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.26.60" protocolVersion="2225">
+<protocol gameVersion="1.26.70" protocolVersion="2235">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
@@ -854,22 +854,6 @@
 
 	<pdu id="0xa5" online="false" client="false" server="true" name="MCPE_SYNC_ENTITY_PROPERTY">
 		<field name="NamedTag" type="Nbt" />
-	</pdu>
-
-	<pdu id="0xa6" online="false" client="false" server="true" name="MCPE_ADD_VOLUME_ENTITY">
-		<field name="Entity Network ID" type="UnsignedVarInt" />
-		<field name="Data" type="Nbt" />
-		<field name="JSON Identifier" type="string" />
-		<field name="Instance Name" type="string" />
-		<field name="Min Bounds" type="BlockCoordinates" />
-		<field name="Max Bounds" type="BlockCoordinates" />
-		<field name="Dimension" type="SignedVarInt" />
-		<field name="Engine Version" type="string" />
-	</pdu>
-
-	<pdu id="0xa7" online="false" client="false" server="true" name="MCPE_REMOVE_VOLUME_ENTITY">
-		<field name="Entity Network ID" type="UnsignedVarInt" />
-		<field name="Dimension" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0xa8" online="false" client="false" server="true" name="MCPE_SIMULATION_TYPE">

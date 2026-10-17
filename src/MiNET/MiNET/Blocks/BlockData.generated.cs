@@ -1110,6 +1110,14 @@ namespace MiNET.Blocks
 		}
 	} // class
 
+	public partial class BrittleIce : Block // minecraft:brittle_ice
+	{
+		public BrittleIce()
+		{
+			IsGenerated = true;
+		}
+	} // class
+
 	public partial class BrownCandle : Block // minecraft:brown_candle
 	{
 		public BrownCandle()
@@ -3177,14 +3185,6 @@ namespace MiNET.Blocks
 	public partial class DirtWithRoots : Block // minecraft:dirt_with_roots
 	{
 		public DirtWithRoots()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
-	public partial class DiscPress : Block // minecraft:disc_press
-	{
-		public DiscPress()
 		{
 			IsGenerated = true;
 		}

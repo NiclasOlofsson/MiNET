@@ -31,7 +31,7 @@ namespace MiNET.Net
 
 	public class AttributeValueData
 	{
-		public byte Type { get; set; } // 0=bool, 1=float, 2=color
+		public byte Type { get; set; } // 0=bool, 1=float, 2=color, 3=string
 		public bool BoolValue { get; set; }
 		public float FloatValue { get; set; }
 		public float? FloatConstraintMin { get; set; }
@@ -39,6 +39,7 @@ namespace MiNET.Net
 		public byte ColorType { get; set; } // 0=string, 1=array of 4
 		public string ColorString { get; set; }
 		public int[] ColorArray { get; set; }
+		public string StringValue { get; set; }
 		public string Operation { get; set; }
 	}
 
@@ -123,6 +124,10 @@ namespace MiNET.Net
 					}
 					value.Operation = ReadString();
 					break;
+				case 3:
+					value.StringValue = ReadString();
+					value.Operation = ReadString();
+					break;
 			}
 
 			return value;
@@ -159,6 +164,10 @@ namespace MiNET.Net
 						Write(value.ColorArray[2]);
 						Write(value.ColorArray[3]);
 					}
+					Write(value.Operation);
+					break;
+				case 3:
+					Write(value.StringValue);
 					Write(value.Operation);
 					break;
 			}

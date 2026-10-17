@@ -565,6 +565,10 @@
 				}
 			}
 		},
+		"ChatFormatting": {
+			"typeName": "ChatPacketFormatting",
+			"reason": "Type name only: MiNET.Utils.ChatFormatting already holds the chat colour codes, and both namespaces are in scope across the server."
+		},
 		"ClientboundUpdateSoundDataPacket": {
 			"fields": {
 				"Event": {

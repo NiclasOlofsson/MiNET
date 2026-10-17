@@ -116,6 +116,7 @@ namespace MiNET.Net
 		void HandleMcpeServerboundMatchmakingCancel(McpeServerboundMatchmakingCancel message);
 		void HandleMcpeServerboundCursorItemDrag(McpeServerboundCursorItemDrag message);
 		void HandleMcpeServerboundRegisterAudioContent(McpeServerboundRegisterAudioContent message);
+		void HandleMcpeChat(McpeChat message);
 	}
 
 	public interface IMcpeClientMessageHandler
@@ -247,8 +248,6 @@ namespace MiNET.Net
 		void HandleMcpeItemComponent(McpeItemComponent message);
 		void HandleMcpeClientboundDebugRenderer(McpeClientboundDebugRenderer message);
 		void HandleMcpeSyncEntityProperty(McpeSyncEntityProperty message);
-		void HandleMcpeAddVolumeEntity(McpeAddVolumeEntity message);
-		void HandleMcpeRemoveVolumeEntity(McpeRemoveVolumeEntity message);
 		void HandleMcpeSimulationType(McpeSimulationType message);
 		void HandleMcpeNpcDialogue(McpeNpcDialogue message);
 		void HandleMcpeEduUriResource(McpeEduUriResource message);
@@ -311,6 +310,7 @@ namespace MiNET.Net
 		void HandleMcpeClientboundMatchmakingState(McpeClientboundMatchmakingState message);
 		void HandleMcpeSetPassengerOfBlock(McpeSetPassengerOfBlock message);
 		void HandleMcpeClientboundPlayAudioContent(McpeClientboundPlayAudioContent message);
+		void HandleMcpeChat(McpeChat message);
 	}
 
 	public class McpeClientMessageDispatcher
@@ -707,12 +707,6 @@ namespace MiNET.Net
 				case McpeSyncEntityProperty msg:
 					_messageHandler.HandleMcpeSyncEntityProperty(msg);
 					break;
-				case McpeAddVolumeEntity msg:
-					_messageHandler.HandleMcpeAddVolumeEntity(msg);
-					break;
-				case McpeRemoveVolumeEntity msg:
-					_messageHandler.HandleMcpeRemoveVolumeEntity(msg);
-					break;
 				case McpeSimulationType msg:
 					_messageHandler.HandleMcpeSimulationType(msg);
 					break;
@@ -898,6 +892,9 @@ namespace MiNET.Net
 					break;
 				case McpeClientboundPlayAudioContent msg:
 					_messageHandler.HandleMcpeClientboundPlayAudioContent(msg);
+					break;
+				case McpeChat msg:
+					_messageHandler.HandleMcpeChat(msg);
 					break;
 				default:
 					return false;
@@ -1236,10 +1233,6 @@ namespace MiNET.Net
 						return McpeClientboundDebugRenderer.CreateObject().Decode(buffer);
 					case 0xa5:
 						return McpeSyncEntityProperty.CreateObject().Decode(buffer);
-					case 0xa6:
-						return McpeAddVolumeEntity.CreateObject().Decode(buffer);
-					case 0xa7:
-						return McpeRemoveVolumeEntity.CreateObject().Decode(buffer);
 					case 0xa8:
 						return McpeSimulationType.CreateObject().Decode(buffer);
 					case 0xa9:
@@ -1412,6 +1405,8 @@ namespace MiNET.Net
 						return McpeClientboundPlayAudioContent.CreateObject().Decode(buffer);
 					case 0x168:
 						return McpeServerboundRegisterAudioContent.CreateObject().Decode(buffer);
+					case 0x169:
+						return McpeChat.CreateObject().Decode(buffer);
 				}
 			}
 

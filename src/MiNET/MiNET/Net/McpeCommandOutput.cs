@@ -31,6 +31,9 @@ namespace MiNET.Net
 		public string MessageId { get; set; }
 		public string[] Parameters { get; set; }
 
+		/// <summary>Optional on the wire (2235): a presence byte, then the text.</summary>
+		public string RawMessage { get; set; }
+
 		/// <inheritdoc />
 		public override string ToString()
 		{
@@ -132,6 +135,9 @@ namespace MiNET.Net
 			{
 				Write(parameter);
 			}
+
+			Write(message.RawMessage != null);
+			if (message.RawMessage != null) Write(message.RawMessage);
 		}
 
 		private CommandOutputMessage ReadCommandOutputMessage()
@@ -147,6 +153,8 @@ namespace MiNET.Net
 			{
 				result.Parameters[i] = ReadString();
 			}
+
+			if (ReadBool()) result.RawMessage = ReadString();
 
 			return result;
 		}

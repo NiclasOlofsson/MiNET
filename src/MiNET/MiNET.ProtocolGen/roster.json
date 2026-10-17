@@ -346,6 +346,14 @@
 			"schema": "ServerboundRegisterAudioContentPacket"
 		},
 		{
+			"name": "MCPE_CHAT",
+			"id": "0x169",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "ChatPacket"
+		},
+		{
 			"name": "MCPE_SET_ENTITY_DATA",
 			"id": "0x27",
 			"online": false,

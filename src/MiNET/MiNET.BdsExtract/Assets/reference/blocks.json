@@ -124,102 +124,95 @@
 					"bit": 5
 				},
 				{
-					"name": "allowsRunes",
+					"name": "canBeBrokenFromFalling",
 					"at": 355,
 					"bytes": 1,
 					"kind": "Bit",
 					"bit": 6
 				},
 				{
-					"name": "canBeBrokenFromFalling",
+					"name": "canBeOriginalSurface",
 					"at": 355,
 					"bytes": 1,
 					"kind": "Bit",
 					"bit": 7
-				},
-				{
-					"name": "canBeOriginalSurface",
-					"at": 356,
-					"bytes": 1,
-					"kind": "Bit",
-					"bit": 0
 				},
 				{
 					"name": "solid",
 					"at": 356,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 1
+					"bit": 0
 				},
 				{
 					"name": "pushesOutItems",
 					"at": 356,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 2
+					"bit": 1
 				},
 				{
 					"name": "ignoreBlockForInsideCubeRenderer",
 					"at": 356,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 3
+					"bit": 2
 				},
 				{
 					"name": "isOpaqueFullBlock",
 					"at": 356,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 4
+					"bit": 3
 				},
 				{
 					"name": "shouldRandomTickExtraLayer",
 					"at": 356,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 5
+					"bit": 4
 				},
 				{
 					"name": "isMobPiece",
 					"at": 356,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 6
+					"bit": 5
 				},
 				{
 					"name": "canBeExtraBlock",
 					"at": 356,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 7
+					"bit": 6
 				},
 				{
 					"name": "isVanilla",
-					"at": 357,
+					"at": 356,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 0
+					"bit": 7
 				},
 				{
 					"name": "dataDrivenVanillaBlocksAndItemsEnabled",
 					"at": 357,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 1
+					"bit": 0
 				},
 				{
 					"name": "requiresCorrectToolForDrops",
 					"at": 357,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 2
+					"bit": 1
 				},
 				{
 					"name": "returnDefaultBlockOnUnidentifiedBlockState",
 					"at": 357,
 					"bytes": 1,
 					"kind": "Bit",
-					"bit": 3
+					"bit": 2
 				},
 				{
 					"name": "lightBlock",

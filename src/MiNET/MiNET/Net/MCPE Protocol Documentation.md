@@ -166,8 +166,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Item Component | 0xa2 | 162 |   
 | Clientbound Debug Renderer | 0xa4 | 164 |   
 | Sync Entity Property | 0xa5 | 165 |   
-| Add Volume Entity | 0xa6 | 166 |   
-| Remove Volume Entity | 0xa7 | 167 |   
 | Simulation Type | 0xa8 | 168 |   
 | Npc Dialogue | 0xa9 | 169 |   
 | Edu Uri Resource | 0xaa | 170 |   
@@ -2256,44 +2254,6 @@ Wiki: [Sync Entity Property](https://github.com/NiclasOlofsson/MiNET/wiki//Proto
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |NamedTag | Nbt |  |
------------------------------------------------------------------------
-### Add Volume Entity (0xa6)
-Wiki: [Add Volume Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddVolumeEntity)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Entity Network ID | UnsignedVarInt |  |
-|Data | Nbt |  |
-|JSON Identifier | string |  |
-|Instance Name | string |  |
-|Min Bounds | BlockCoordinates |  |
-|Max Bounds | BlockCoordinates |  |
-|Dimension | SignedVarInt |  |
-|Engine Version | string |  |
------------------------------------------------------------------------
-### Remove Volume Entity (0xa7)
-Wiki: [Remove Volume Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-RemoveVolumeEntity)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Entity Network ID | UnsignedVarInt |  |
-|Dimension | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Simulation Type (0xa8)
 Wiki: [Simulation Type](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SimulationType)

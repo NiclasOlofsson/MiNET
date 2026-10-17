@@ -58,7 +58,6 @@ public static class ItemLayout
 	public static int TextureAtlas => At("textureAtlas");
 	public static int FrameCount => At("frameCount");
 	public static int AnimatesInToolbar => At("animatesInToolbar");
-	public static int MirroredArt => At("mirroredArt");
 	public static int UseAnimation => At("useAnimation");
 	public static int HoverTextColorFormat => At("hoverTextColorFormat");
 	public static int IconName => At("iconName");

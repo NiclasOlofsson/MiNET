@@ -47,8 +47,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 2225;
-		public const string GameVersion = "1.26.60";
+		public const int ProtocolVersion = 2235;
+		public const string GameVersion = "1.26.70";
 	}
 
 	public enum CommandPermission
@@ -6490,134 +6490,6 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			namedtag=default(Nbt);
-		}
-
-	}
-
-	public partial class McpeAddVolumeEntity : Packet<McpeAddVolumeEntity>
-	{
-
-		public uint entityNetworkId; // = null;
-		public Nbt data; // = null;
-		public string jsonIdentifier; // = null;
-		public string instanceName; // = null;
-		public BlockCoordinates minBounds; // = null;
-		public BlockCoordinates maxBounds; // = null;
-		public int dimension; // = null;
-		public string engineVersion; // = null;
-
-		public McpeAddVolumeEntity()
-		{
-			Id = 0xa6;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			WriteUnsignedVarInt(entityNetworkId);
-			Write(data);
-			Write(jsonIdentifier);
-			Write(instanceName);
-			Write(minBounds);
-			Write(maxBounds);
-			WriteSignedVarInt(dimension);
-			Write(engineVersion);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			entityNetworkId = ReadUnsignedVarInt();
-			data = ReadNbt();
-			jsonIdentifier = ReadString();
-			instanceName = ReadString();
-			minBounds = ReadBlockCoordinates();
-			maxBounds = ReadBlockCoordinates();
-			dimension = ReadSignedVarInt();
-			engineVersion = ReadString();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			entityNetworkId=default(uint);
-			data=default(Nbt);
-			jsonIdentifier=default(string);
-			instanceName=default(string);
-			minBounds=default(BlockCoordinates);
-			maxBounds=default(BlockCoordinates);
-			dimension=default(int);
-			engineVersion=default(string);
-		}
-
-	}
-
-	public partial class McpeRemoveVolumeEntity : Packet<McpeRemoveVolumeEntity>
-	{
-
-		public uint entityNetworkId; // = null;
-		public int dimension; // = null;
-
-		public McpeRemoveVolumeEntity()
-		{
-			Id = 0xa7;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			WriteUnsignedVarInt(entityNetworkId);
-			WriteSignedVarInt(dimension);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			entityNetworkId = ReadUnsignedVarInt();
-			dimension = ReadSignedVarInt();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			entityNetworkId=default(uint);
-			dimension=default(int);
 		}
 
 	}

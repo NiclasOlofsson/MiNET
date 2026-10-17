@@ -32,7 +32,9 @@
 			},
 			"result": {
 				"states": {
-					"unread": 104
+					"2727304232963": "tile.double_stone_slab2.prismarine.dark",
+					"4": "tile.double_stone_slab2.prismarine.bricks",
+					"5": "tile.double_stone_slab2.mossy_cobblestone"
 				}
 			}
 		},
@@ -858,8 +860,6 @@
 				"direction",
 				"name"
 			],
-			"produces": "minecraft:wood",
-			"producesFrom": "code",
 			"remaps": [
 				[
 					"oak",
@@ -1119,10 +1119,14 @@
 			"match": {},
 			"result": {
 				"facing_direction": {
-					"unread": 104
+					"140702861293632": "minecraft:stripped_spruce_wood",
+					"140702861293488": "minecraft:stripped_jungle_wood",
+					"140702861293392": "minecraft:stripped_dark_oak_wood"
 				},
 				"fill_level": {
-					"unread": 104
+					"3": "tile.stone_slab.cobble",
+					"4": "tile.stone_slab.brick",
+					"5": "tile.stone_slab.smoothStoneBrick"
 				}
 			}
 		},
@@ -1566,11 +1570,7 @@
 		},
 		{
 			"version": "1.20.20.8",
-			"match": {
-				"states": {
-					"unread": 0
-				}
-			},
+			"match": {},
 			"result": {},
 			"fields": [
 				"top_slot_bit"

@@ -30,6 +30,7 @@ using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using MiNET;
 using MiNET.Blocks;
@@ -607,7 +608,20 @@ namespace TestPlugin.NiceLobby
 
 			// The action bar rather than the subtitle: the subtitle renders wide enough that the
 			// server name alone nearly fills the screen, so a version appended to it runs off.
-			player.SendTitle($"{ChatColors.Gray}MiNET {McpeProtocolInfo.GameVersion} (protocol {McpeProtocolInfo.ProtocolVersion})", TitleType.ActionBar);
+			string version = $"{ChatColors.Gray}MiNET {McpeProtocolInfo.GameVersion} (protocol {McpeProtocolInfo.ProtocolVersion})";
+			player.SendTitle(version, TitleType.ActionBar);
+
+			// Re-sent once a second for ten seconds, so the line stays up ten seconds longer than one
+			// send keeps it. Delayed, not slept: a fleet joining at once must not park a thread each.
+			_ = Task.Run(async () =>
+			{
+				for (int i = 0; i < 10; i++)
+				{
+					await Task.Delay(1000);
+					if (!player.IsConnected) return;
+					player.SendTitle(version, TitleType.ActionBar);
+				}
+			});
 		}
 
 		private void OnPlayerLeave(object o, PlayerEventArgs eventArgs)

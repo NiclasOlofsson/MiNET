@@ -75,6 +75,7 @@ namespace MiNET.Effects
 		Oozing = 35,
 		Infested = 36,
 		BreathOfTheNautilus = 37,
+		Freezing = 38,
 	}
 
 	public class Effect

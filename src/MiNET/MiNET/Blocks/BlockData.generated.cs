@@ -3182,6 +3182,14 @@ namespace MiNET.Blocks
 		}
 	} // class
 
+	public partial class DiscPress : Block // minecraft:disc_press
+	{
+		public DiscPress()
+		{
+			IsGenerated = true;
+		}
+	} // class
+
 	public partial class DoubleCutCopperSlab : Block // minecraft:double_cut_copper_slab
 	{
 		public DoubleCutCopperSlab()
@@ -5337,6 +5345,22 @@ namespace MiNET.Blocks
 	public partial class Ice : Block // minecraft:ice
 	{
 		public Ice()
+		{
+			IsGenerated = true;
+		}
+	} // class
+
+	public partial class IceCrystal : Block // minecraft:ice_crystal
+	{
+		public IceCrystal()
+		{
+			IsGenerated = true;
+		}
+	} // class
+
+	public partial class Icicle : Block // minecraft:icicle
+	{
+		public Icicle()
 		{
 			IsGenerated = true;
 		}

@@ -805,6 +805,18 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeServerboundMatchmakingCancel(McpeServerboundMatchmakingCancel message)
+		{
+		}
+
+		public void HandleMcpeServerboundCursorItemDrag(McpeServerboundCursorItemDrag message)
+		{
+		}
+
+		public void HandleMcpeServerboundRegisterAudioContent(McpeServerboundRegisterAudioContent message)
+		{
+		}
+
 		public void HandleMcpeServerboundDataStore(McpeServerboundDataStore message)
 		{
 		}

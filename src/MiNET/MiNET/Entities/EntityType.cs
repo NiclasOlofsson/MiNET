@@ -79,6 +79,8 @@ namespace MiNET.Entities
 		WindCharge = 143,
 		BreezeWindCharge = 141,
 		OminousItemSpawner = 145,
+		Cushion = 154,
+		IceBall = 156,
 		ChestBoat = 218,
 
 		Zombie = 32,
@@ -124,6 +126,7 @@ namespace MiNET.Entities
 		Parched = 151,
 		CamelHusk = 152,
 		SulfurCube = 153,
+		Frostbite = 155,
 		ZombieVillagerV2 = 116,
 
 		Chicken = 10,
@@ -337,6 +340,9 @@ namespace MiNET.Entities
 			{ EntityType.Parched, new EntityIdentity("minecraft:parched", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.CamelHusk, new EntityIdentity("minecraft:camel_husk", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.SulfurCube, new EntityIdentity("minecraft:sulfur_cube", HasSpawnEgg: true, Summonable: true) },
+			{ EntityType.Frostbite, new EntityIdentity("minecraft:frostbite", HasSpawnEgg: true, Summonable: true) },
+			{ EntityType.Cushion, new EntityIdentity("minecraft:cushion", HasSpawnEgg: false, Summonable: true) },
+			{ EntityType.IceBall, new EntityIdentity("minecraft:ice_ball", HasSpawnEgg: false, Summonable: true) },
 			{ EntityType.ChestBoat, new EntityIdentity("minecraft:chest_boat", HasSpawnEgg: false, Summonable: true) },
 		};
 

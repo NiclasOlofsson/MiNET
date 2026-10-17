@@ -36,14 +36,17 @@ namespace MiNET.Test
 		// move a player makes arrives in this packet, so a decode that throws here takes the whole
 		// request with it and the item silently does not move. These are the client's bytes, not
 		// ours, which is the point: a self round-trip only ever exercises values we already emit,
-		// and the bug this test was written for lived in a field we never write.
+		// and the bug this test was written for lived in a field we never write. Each action is its
+		// position in the schema's option list as a varint, then its action type as a byte. 2225
+		// inserted a reserved craft action ahead of the two deprecated ones, so the results action
+		// below is re-tagged from the captured 11 13 to 12 14; every other byte is the client's.
 		private const string CreativePickOfAChest =
 			"9301" +                                 // packet id 147, unsigned varint
 			"01" +                                   // one request
 			"a901" +                                 // client request id -85
 			"03" +                                   // three actions
 			"0c" + "0e" + "e10a" + "01" +            // CraftCreative: creative entry 1377, one craft
-			"11" + "13" + "01" +                     // CraftResultsDeprecated, one result
+			"12" + "14" + "01" +                     // CraftResultsDeprecated, one result
 			"01" + "01" +                            // descriptor variant 1, ItemName
 			"0f" + "6d696e6563726166743a6368657374" + // "minecraft:chest"
 			"04" +                                   // aux value 2
@@ -106,6 +109,21 @@ namespace MiNET.Test
 			// Only the correct width leaves the tail aligned. Off by one byte this reads -65536, and
 			// McpeItemStackRequest warns that two bytes are left over.
 			Assert.AreEqual(-1, (int) request.stringstofilterorigin, "the request ends clean, with nothing left to read");
+		}
+
+		// The byte after each action's tag is the action type, not the tag: the action enum skips
+		// 7 and 8 and the option list does not, so CraftCreative is 0c 0e. Writing the tag twice
+		// still decodes, because the reader drops that byte, which is why only a re-encode sees it.
+		[TestMethod]
+		public void CreativePick_ReencodesToTheClientsOwnBytes()
+		{
+			var decoded = McpeItemStackRequest.CreateObject();
+			decoded.Decode(Convert.FromHexString(CreativePickOfAChest));
+
+			var packet = McpeItemStackRequest.CreateObject();
+			packet.requests = decoded.requests;
+
+			Assert.AreEqual(CreativePickOfAChest, Convert.ToHexString(packet.Encode()).ToLowerInvariant());
 		}
 	}
 }

@@ -794,6 +794,10 @@ namespace MiNET
 		BucketEmptyLandAnimal = 608,
 		GeyserContinuousEruptionStart = 609,
 		GeyserContinuousEruptionActive = 610,
-		Undefined = 611,
+		Mount = 611,
+		Dismount = 612,
+		StrawBedBreakLeave = 613,
+		IceBallBreak = 614,
+		Undefined = 615,
 	}
 }

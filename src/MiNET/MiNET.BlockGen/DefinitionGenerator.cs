@@ -101,7 +101,7 @@ public static class DefinitionGenerator
 			}
 			catch (Exception e)
 			{
-				failures.Add($"{name}: {e.Message}");
+				failures.Add($"{name}: {e.Message} {e.StackTrace?.Split('\n')[0].Trim()}");
 			}
 		}
 

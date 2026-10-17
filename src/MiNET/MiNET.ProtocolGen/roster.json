@@ -298,6 +298,54 @@
 			"schema": "RecordStartedPacket"
 		},
 		{
+			"name": "MCPE_CLIENTBOUND_MATCHMAKING_STATE",
+			"id": "0x161",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ClientboundMatchmakingStatePacket"
+		},
+		{
+			"name": "MCPE_SERVERBOUND_MATCHMAKING_CANCEL",
+			"id": "0x164",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ServerboundMatchmakingCancelPacket"
+		},
+		{
+			"name": "MCPE_SET_PASSENGER_OF_BLOCK",
+			"id": "0x165",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SetPassengerOfBlockPacket"
+		},
+		{
+			"name": "MCPE_SERVERBOUND_CURSOR_ITEM_DRAG",
+			"id": "0x166",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ServerboundCursorItemDragPacket"
+		},
+		{
+			"name": "MCPE_CLIENTBOUND_PLAY_AUDIO_CONTENT",
+			"id": "0x167",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ClientboundPlayAudioContentPacket"
+		},
+		{
+			"name": "MCPE_SERVERBOUND_REGISTER_AUDIO_CONTENT",
+			"id": "0x168",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ServerboundRegisterAudioContentPacket"
+		},
+		{
 			"name": "MCPE_SET_ENTITY_DATA",
 			"id": "0x27",
 			"online": false,

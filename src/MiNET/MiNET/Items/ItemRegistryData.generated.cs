@@ -65,7 +65,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:andesite_wall", -974, false, 2, null);
 			registry.Add("minecraft:angler_pottery_sherd", 672, false, 2, null);
 			registry.Add("minecraft:anvil", 145, false, 2, null);
-			registry.Add("minecraft:apple", 882, true, 1,
+			registry.Add("minecraft:apple", 883, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -191,7 +191,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:bamboo_trapdoor", -520, false, 2, null);
 			registry.Add("minecraft:bamboo_wall_sign", -519, false, 2, null);
 			registry.Add("minecraft:banner", 577, false, 2, null);
-			registry.Add("minecraft:banner_pattern", 849, false, 2, null);
+			registry.Add("minecraft:banner_pattern", 850, false, 2, null);
 			registry.Add("minecraft:barrel", -203, false, 2, null);
 			registry.Add("minecraft:barrier", -161, false, 2, null);
 			registry.Add("minecraft:basalt", -234, false, 2, null);
@@ -303,7 +303,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:birch_trapdoor", -146, false, 2, null);
 			registry.Add("minecraft:birch_wall_sign", -187, false, 2, null);
 			registry.Add("minecraft:birch_wood", -815, false, 2, null);
-			registry.Add("minecraft:black_bundle", 861, true, 1,
+			registry.Add("minecraft:black_bundle", 862, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -406,7 +406,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:blaze_rod", 426, false, 2, null);
 			registry.Add("minecraft:blaze_spawn_egg", 460, false, 2, null);
 			registry.Add("minecraft:bleach", 612, false, 2, null);
-			registry.Add("minecraft:blue_bundle", 862, true, 1,
+			registry.Add("minecraft:blue_bundle", 863, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -502,7 +502,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:blue_wool_slab", -1177, false, 2, null);
 			registry.Add("minecraft:blue_wool_stairs", -1151, false, 2, null);
 			registry.Add("minecraft:board", 606, false, 2, null);
-			registry.Add("minecraft:boat", 845, false, 2, null);
+			registry.Add("minecraft:boat", 846, false, 2, null);
 			registry.Add("minecraft:bogged_spawn_egg", 467, false, 2, null);
 			registry.Add("minecraft:bolt_armor_trim_smithing_template", 714, false, 2, null);
 			registry.Add("minecraft:bone", 418, false, 2, null);
@@ -539,7 +539,7 @@ namespace MiNET.Items
 					},
 					new NbtInt("minecraft:use_duration", 32)
 				});
-			registry.Add("minecraft:breeze_rod", 878, true, 1,
+			registry.Add("minecraft:breeze_rod", 879, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -595,7 +595,7 @@ namespace MiNET.Items
 
 		private static void CreateItems_Part2(ItemRegistry registry)
 		{
-			registry.Add("minecraft:brown_bundle", 863, true, 1,
+			registry.Add("minecraft:brown_bundle", 864, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -698,7 +698,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:bubble_coral_wall_fan", -136, false, 2, null);
 			registry.Add("minecraft:bucket", 363, false, 2, null);
 			registry.Add("minecraft:budding_amethyst", -328, false, 2, null);
-			registry.Add("minecraft:bundle", 864, true, 1,
+			registry.Add("minecraft:bundle", 865, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -797,7 +797,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:campfire", 601, true, 2, null);
 			registry.Add("minecraft:candle", -412, false, 2, null);
 			registry.Add("minecraft:candle_cake", -429, false, 2, null);
-			registry.Add("minecraft:carpet", 792, false, 2, null);
+			registry.Add("minecraft:carpet", 793, false, 2, null);
 			registry.Add("minecraft:carrot", 279, false, 0,
 				new NbtCompound("components")
 				{
@@ -847,7 +847,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:chalkboard", 230, false, 2, null);
 			registry.Add("minecraft:charcoal", 305, true, 2, null);
 			registry.Add("minecraft:chemical_heat", 192, false, 2, null);
-			registry.Add("minecraft:chemistry_table", 838, false, 2, null);
+			registry.Add("minecraft:chemistry_table", 839, false, 2, null);
 			registry.Add("minecraft:cherry_boat", 664, false, 2, null);
 			registry.Add("minecraft:cherry_button", -530, false, 2, null);
 			registry.Add("minecraft:cherry_chest_boat", 665, false, 2, null);
@@ -1000,11 +1000,11 @@ namespace MiNET.Items
 			registry.Add("minecraft:cod_bucket", 367, false, 2, null);
 			registry.Add("minecraft:cod_spawn_egg", 485, false, 2, null);
 			registry.Add("minecraft:colored_torch_blue", 204, false, 2, null);
-			registry.Add("minecraft:colored_torch_bp", 843, false, 2, null);
+			registry.Add("minecraft:colored_torch_bp", 844, false, 2, null);
 			registry.Add("minecraft:colored_torch_green", -963, false, 2, null);
 			registry.Add("minecraft:colored_torch_purple", -964, false, 2, null);
 			registry.Add("minecraft:colored_torch_red", 202, false, 2, null);
-			registry.Add("minecraft:colored_torch_rg", 842, false, 2, null);
+			registry.Add("minecraft:colored_torch_rg", 843, false, 2, null);
 			registry.Add("minecraft:command_block", 137, false, 2, null);
 			registry.Add("minecraft:command_block_minecart", 573, false, 2, null);
 			registry.Add("minecraft:comparator", 532, true, 2, null);
@@ -1012,8 +1012,8 @@ namespace MiNET.Items
 			registry.Add("minecraft:composter", -213, false, 2, null);
 			registry.Add("minecraft:compound", 610, false, 2, null);
 			registry.Add("minecraft:compound_creator", 238, false, 2, null);
-			registry.Add("minecraft:concrete", 826, false, 2, null);
-			registry.Add("minecraft:concrete_powder", 827, false, 2, null);
+			registry.Add("minecraft:concrete", 827, false, 2, null);
+			registry.Add("minecraft:concrete_powder", 828, false, 2, null);
 			registry.Add("minecraft:conduit", -157, false, 2, null);
 			registry.Add("minecraft:cooked_beef", 274, false, 0,
 				new NbtCompound("components")
@@ -1208,7 +1208,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:copper_ore", -311, false, 2, null);
 			registry.Add("minecraft:copper_pickaxe", 751, false, 2, null);
 			registry.Add("minecraft:copper_shovel", 750, false, 2, null);
-			registry.Add("minecraft:copper_spear", 854, true, 1,
+			registry.Add("minecraft:copper_spear", 855, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -1389,10 +1389,10 @@ namespace MiNET.Items
 			registry.Add("minecraft:copper_sword", 749, false, 2, null);
 			registry.Add("minecraft:copper_torch", -1082, false, 2, null);
 			registry.Add("minecraft:copper_trapdoor", -792, false, 2, null);
-			registry.Add("minecraft:coral", 820, false, 2, null);
-			registry.Add("minecraft:coral_block", 796, false, 2, null);
-			registry.Add("minecraft:coral_fan", 805, false, 2, null);
-			registry.Add("minecraft:coral_fan_dead", 806, false, 2, null);
+			registry.Add("minecraft:coral", 821, false, 2, null);
+			registry.Add("minecraft:coral_block", 797, false, 2, null);
+			registry.Add("minecraft:coral_fan", 806, false, 2, null);
+			registry.Add("minecraft:coral_fan_dead", 807, false, 2, null);
 		}
 
 		private static void CreateItems_Part3(ItemRegistry registry)
@@ -1442,7 +1442,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:cut_sandstone", -945, false, 2, null);
 			registry.Add("minecraft:cut_sandstone_double_slab", -927, false, 2, null);
 			registry.Add("minecraft:cut_sandstone_slab", -900, false, 2, null);
-			registry.Add("minecraft:cyan_bundle", 865, true, 1,
+			registry.Add("minecraft:cyan_bundle", 866, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -1623,7 +1623,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:diamond_ore", 56, false, 2, null);
 			registry.Add("minecraft:diamond_pickaxe", 320, false, 2, null);
 			registry.Add("minecraft:diamond_shovel", 319, false, 2, null);
-			registry.Add("minecraft:diamond_spear", 855, true, 1,
+			registry.Add("minecraft:diamond_spear", 856, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -1812,15 +1812,16 @@ namespace MiNET.Items
 			registry.Add("minecraft:dirt", 3, false, 2, null);
 			registry.Add("minecraft:dirt_with_roots", -318, false, 2, null);
 			registry.Add("minecraft:disc_fragment_5", 652, false, 2, null);
+			registry.Add("minecraft:disc_press", -1251, false, 2, null);
 			registry.Add("minecraft:dispenser", 23, false, 2, null);
 			registry.Add("minecraft:dolphin_spawn_egg", 489, false, 2, null);
 			registry.Add("minecraft:donkey_spawn_egg", 470, false, 2, null);
 			registry.Add("minecraft:double_cut_copper_slab", -368, false, 2, null);
-			registry.Add("minecraft:double_plant", 814, false, 2, null);
-			registry.Add("minecraft:double_stone_block_slab", 801, false, 2, null);
-			registry.Add("minecraft:double_stone_block_slab2", 802, false, 2, null);
-			registry.Add("minecraft:double_stone_block_slab3", 803, false, 2, null);
-			registry.Add("minecraft:double_stone_block_slab4", 804, false, 2, null);
+			registry.Add("minecraft:double_plant", 815, false, 2, null);
+			registry.Add("minecraft:double_stone_block_slab", 802, false, 2, null);
+			registry.Add("minecraft:double_stone_block_slab2", 803, false, 2, null);
+			registry.Add("minecraft:double_stone_block_slab3", 804, false, 2, null);
+			registry.Add("minecraft:double_stone_block_slab4", 805, false, 2, null);
 			registry.Add("minecraft:dragon_breath", 570, false, 2, null);
 			registry.Add("minecraft:dragon_egg", 122, false, 2, null);
 			registry.Add("minecraft:dragon_head", -969, false, 2, null);
@@ -1851,7 +1852,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:dropper", 125, false, 2, null);
 			registry.Add("minecraft:drowned_spawn_egg", 488, false, 2, null);
 			registry.Add("minecraft:dune_armor_trim_smithing_template", 698, false, 2, null);
-			registry.Add("minecraft:dye", 848, false, 2, null);
+			registry.Add("minecraft:dye", 849, false, 2, null);
 			registry.Add("minecraft:echo_shard", 662, false, 2, null);
 			registry.Add("minecraft:egg", 393, false, 2, null);
 			registry.Add("minecraft:elder_guardian_spawn_egg", 476, false, 2, null);
@@ -1866,11 +1867,11 @@ namespace MiNET.Items
 			registry.Add("minecraft:element_105", -116, false, 2, null);
 			registry.Add("minecraft:element_106", -117, false, 2, null);
 			registry.Add("minecraft:element_107", -118, false, 2, null);
-			registry.Add("minecraft:element_108", -119, false, 2, null);
 		}
 
 		private static void CreateItems_Part4(ItemRegistry registry)
 		{
+			registry.Add("minecraft:element_108", -119, false, 2, null);
 			registry.Add("minecraft:element_109", -120, false, 2, null);
 			registry.Add("minecraft:element_11", -22, false, 2, null);
 			registry.Add("minecraft:element_110", -121, false, 2, null);
@@ -2050,7 +2051,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:enchanting_table", 116, false, 2, null);
 			registry.Add("minecraft:end_brick_stairs", -178, false, 2, null);
 			registry.Add("minecraft:end_bricks", 206, false, 2, null);
-			registry.Add("minecraft:end_crystal", 851, false, 2, null);
+			registry.Add("minecraft:end_crystal", 852, false, 2, null);
 			registry.Add("minecraft:end_gateway", 209, false, 2, null);
 			registry.Add("minecraft:end_portal", 119, false, 2, null);
 			registry.Add("minecraft:end_portal_frame", 120, false, 2, null);
@@ -2087,7 +2088,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:eye_armor_trim_smithing_template", 702, false, 2, null);
 			registry.Add("minecraft:farmland", 60, false, 2, null);
 			registry.Add("minecraft:feather", 330, false, 2, null);
-			registry.Add("minecraft:fence", 794, false, 2, null);
+			registry.Add("minecraft:fence", 795, false, 2, null);
 			registry.Add("minecraft:fence_gate", 107, false, 2, null);
 			registry.Add("minecraft:fermented_spider_eye", 432, false, 2, null);
 			registry.Add("minecraft:fern", -848, false, 2, null);
@@ -2119,6 +2120,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:friend_pottery_sherd", 681, false, 2, null);
 			registry.Add("minecraft:frog_spawn", -468, false, 2, null);
 			registry.Add("minecraft:frog_spawn_egg", 643, false, 2, null);
+			registry.Add("minecraft:frostbite_spawn_egg", 791, false, 2, null);
 			registry.Add("minecraft:frosted_ice", 207, false, 2, null);
 			registry.Add("minecraft:furnace", 61, false, 2, null);
 			registry.Add("minecraft:ghast_spawn_egg", 458, false, 2, null);
@@ -2129,7 +2131,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:glass_pane", 102, false, 2, null);
 			registry.Add("minecraft:glistering_melon_slice", 438, false, 2, null);
 			registry.Add("minecraft:globe_banner_pattern", 598, false, 2, null);
-			registry.Add("minecraft:glow_berries", 883, false, 0,
+			registry.Add("minecraft:glow_berries", 884, false, 0,
 				new NbtCompound("components")
 				{
 					new NbtCompound("minecraft:food")
@@ -2161,12 +2163,12 @@ namespace MiNET.Items
 					},
 					new NbtInt("minecraft:use_duration", 32)
 				});
-			registry.Add("minecraft:glow_frame", 638, true, 2, null);
-			registry.Add("minecraft:glow_ink_sac", 514, false, 2, null);
 		}
 
 		private static void CreateItems_Part5(ItemRegistry registry)
 		{
+			registry.Add("minecraft:glow_frame", 638, true, 2, null);
+			registry.Add("minecraft:glow_ink_sac", 514, false, 2, null);
 			registry.Add("minecraft:glow_lichen", -411, false, 2, null);
 			registry.Add("minecraft:glow_squid_spawn_egg", 509, false, 2, null);
 			registry.Add("minecraft:glow_stick", 617, false, 2, null);
@@ -2255,7 +2257,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:golden_pickaxe", 327, false, 2, null);
 			registry.Add("minecraft:golden_rail", 27, false, 2, null);
 			registry.Add("minecraft:golden_shovel", 326, false, 2, null);
-			registry.Add("minecraft:golden_spear", 856, true, 1,
+			registry.Add("minecraft:golden_spear", 857, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -2442,7 +2444,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:grass_block", 2, false, 2, null);
 			registry.Add("minecraft:grass_path", 198, false, 2, null);
 			registry.Add("minecraft:gravel", 13, false, 2, null);
-			registry.Add("minecraft:gray_bundle", 866, true, 1,
+			registry.Add("minecraft:gray_bundle", 867, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -2534,7 +2536,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:gray_wool_double_slab", -1183, false, 2, null);
 			registry.Add("minecraft:gray_wool_slab", -1167, false, 2, null);
 			registry.Add("minecraft:gray_wool_stairs", -1158, false, 2, null);
-			registry.Add("minecraft:green_bundle", 867, true, 1,
+			registry.Add("minecraft:green_bundle", 868, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -2663,8 +2665,8 @@ namespace MiNET.Items
 			registry.Add("minecraft:hard_purple_stained_glass_pane", -667, false, 2, null);
 			registry.Add("minecraft:hard_red_stained_glass", -701, false, 2, null);
 			registry.Add("minecraft:hard_red_stained_glass_pane", -671, false, 2, null);
-			registry.Add("minecraft:hard_stained_glass", 840, false, 2, null);
-			registry.Add("minecraft:hard_stained_glass_pane", 841, false, 2, null);
+			registry.Add("minecraft:hard_stained_glass", 841, false, 2, null);
+			registry.Add("minecraft:hard_stained_glass_pane", 842, false, 2, null);
 			registry.Add("minecraft:hard_white_stained_glass", 254, false, 2, null);
 			registry.Add("minecraft:hard_white_stained_glass_pane", 191, false, 2, null);
 			registry.Add("minecraft:hard_yellow_stained_glass", -691, false, 2, null);
@@ -2718,6 +2720,8 @@ namespace MiNET.Items
 			registry.Add("minecraft:husk_spawn_egg", 468, false, 2, null);
 			registry.Add("minecraft:ice", 79, false, 2, null);
 			registry.Add("minecraft:ice_bomb", 611, false, 2, null);
+			registry.Add("minecraft:ice_crystal", -1248, false, 2, null);
+			registry.Add("minecraft:icicle", -1247, false, 2, null);
 			registry.Add("minecraft:infested_chiseled_stone_bricks", -862, false, 2, null);
 			registry.Add("minecraft:infested_cobblestone", -858, false, 2, null);
 			registry.Add("minecraft:infested_cracked_stone_bricks", -861, false, 2, null);
@@ -2747,7 +2751,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:iron_ore", 15, false, 2, null);
 			registry.Add("minecraft:iron_pickaxe", 299, false, 2, null);
 			registry.Add("minecraft:iron_shovel", 298, false, 2, null);
-			registry.Add("minecraft:iron_spear", 857, true, 1,
+			registry.Add("minecraft:iron_spear", 858, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -2946,14 +2950,14 @@ namespace MiNET.Items
 			registry.Add("minecraft:item.straw_bed", -1198, false, 2, null);
 			registry.Add("minecraft:item.wheat", 59, false, 2, null);
 			registry.Add("minecraft:jigsaw", -211, false, 2, null);
-			registry.Add("minecraft:jukebox", 84, false, 2, null);
-			registry.Add("minecraft:jungle_boat", 380, false, 2, null);
-			registry.Add("minecraft:jungle_button", -143, false, 2, null);
-			registry.Add("minecraft:jungle_chest_boat", 655, false, 2, null);
 		}
 
 		private static void CreateItems_Part6(ItemRegistry registry)
 		{
+			registry.Add("minecraft:jukebox", 84, false, 2, null);
+			registry.Add("minecraft:jungle_boat", 380, false, 2, null);
+			registry.Add("minecraft:jungle_button", -143, false, 2, null);
+			registry.Add("minecraft:jungle_chest_boat", 655, false, 2, null);
 			registry.Add("minecraft:jungle_door", 565, false, 2, null);
 			registry.Add("minecraft:jungle_double_slab", -811, false, 2, null);
 			registry.Add("minecraft:jungle_fence", -578, false, 2, null);
@@ -2991,11 +2995,11 @@ namespace MiNET.Items
 			registry.Add("minecraft:leather_helmet", 338, false, 2, null);
 			registry.Add("minecraft:leather_horse_armor", 540, false, 2, null);
 			registry.Add("minecraft:leather_leggings", 340, false, 2, null);
-			registry.Add("minecraft:leaves", 808, false, 2, null);
-			registry.Add("minecraft:leaves2", 809, false, 2, null);
+			registry.Add("minecraft:leaves", 809, false, 2, null);
+			registry.Add("minecraft:leaves2", 810, false, 2, null);
 			registry.Add("minecraft:lectern", -194, false, 2, null);
 			registry.Add("minecraft:lever", 69, false, 2, null);
-			registry.Add("minecraft:light_block", 844, false, 2, null);
+			registry.Add("minecraft:light_block", 845, false, 2, null);
 			registry.Add("minecraft:light_block_0", -215, false, 2, null);
 			registry.Add("minecraft:light_block_1", -929, false, 2, null);
 			registry.Add("minecraft:light_block_10", -938, false, 2, null);
@@ -3012,7 +3016,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:light_block_7", -935, false, 2, null);
 			registry.Add("minecraft:light_block_8", -936, false, 2, null);
 			registry.Add("minecraft:light_block_9", -937, false, 2, null);
-			registry.Add("minecraft:light_blue_bundle", 868, true, 1,
+			registry.Add("minecraft:light_blue_bundle", 869, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -3104,7 +3108,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:light_blue_wool_double_slab", -1192, false, 2, null);
 			registry.Add("minecraft:light_blue_wool_slab", -1176, false, 2, null);
 			registry.Add("minecraft:light_blue_wool_stairs", -1154, false, 2, null);
-			registry.Add("minecraft:light_gray_bundle", 869, true, 1,
+			registry.Add("minecraft:light_gray_bundle", 870, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -3199,7 +3203,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:lightning_rod", -312, false, 2, null);
 			registry.Add("minecraft:lilac", -863, false, 2, null);
 			registry.Add("minecraft:lily_of_the_valley", -839, false, 2, null);
-			registry.Add("minecraft:lime_bundle", 870, true, 1,
+			registry.Add("minecraft:lime_bundle", 871, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -3302,11 +3306,11 @@ namespace MiNET.Items
 			registry.Add("minecraft:llama_spawn_egg", 478, false, 2, null);
 			registry.Add("minecraft:lodestone", -222, false, 2, null);
 			registry.Add("minecraft:lodestone_compass", 618, false, 2, null);
-			registry.Add("minecraft:log", 793, false, 2, null);
-			registry.Add("minecraft:log2", 822, false, 2, null);
+			registry.Add("minecraft:log", 794, false, 2, null);
+			registry.Add("minecraft:log2", 823, false, 2, null);
 			registry.Add("minecraft:loom", -204, false, 2, null);
 			registry.Add("minecraft:mace", 322, false, 2, null);
-			registry.Add("minecraft:magenta_bundle", 871, true, 1,
+			registry.Add("minecraft:magenta_bundle", 872, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -3467,14 +3471,14 @@ namespace MiNET.Items
 			registry.Add("minecraft:minecart", 373, false, 2, null);
 			registry.Add("minecraft:miner_pottery_sherd", 686, false, 2, null);
 			registry.Add("minecraft:mob_spawner", 52, false, 2, null);
-			registry.Add("minecraft:mojang_banner_pattern", 594, false, 2, null);
-			registry.Add("minecraft:monster_egg", 824, false, 2, null);
-			registry.Add("minecraft:mooshroom_spawn_egg", 444, false, 2, null);
-			registry.Add("minecraft:moss_block", -320, false, 2, null);
 		}
 
 		private static void CreateItems_Part7(ItemRegistry registry)
 		{
+			registry.Add("minecraft:mojang_banner_pattern", 594, false, 2, null);
+			registry.Add("minecraft:monster_egg", 825, false, 2, null);
+			registry.Add("minecraft:mooshroom_spawn_egg", 444, false, 2, null);
+			registry.Add("minecraft:moss_block", -320, false, 2, null);
 			registry.Add("minecraft:moss_carpet", -335, false, 2, null);
 			registry.Add("minecraft:mossy_cobblestone", 48, false, 2, null);
 			registry.Add("minecraft:mossy_cobblestone_double_slab", -915, false, 2, null);
@@ -3523,22 +3527,22 @@ namespace MiNET.Items
 			registry.Add("minecraft:music_disc_13", 544, true, 2, null);
 			registry.Add("minecraft:music_disc_5", 651, true, 2, null);
 			registry.Add("minecraft:music_disc_blocks", 546, true, 2, null);
-			registry.Add("minecraft:music_disc_bounce", 837, true, 2, null);
+			registry.Add("minecraft:music_disc_bounce", 838, true, 2, null);
 			registry.Add("minecraft:music_disc_cat", 545, true, 2, null);
 			registry.Add("minecraft:music_disc_chirp", 547, true, 2, null);
-			registry.Add("minecraft:music_disc_creator", 832, true, 2, null);
-			registry.Add("minecraft:music_disc_creator_music_box", 833, true, 2, null);
+			registry.Add("minecraft:music_disc_creator", 833, true, 2, null);
+			registry.Add("minecraft:music_disc_creator_music_box", 834, true, 2, null);
 			registry.Add("minecraft:music_disc_far", 548, true, 2, null);
-			registry.Add("minecraft:music_disc_lava_chicken", 836, true, 2, null);
+			registry.Add("minecraft:music_disc_lava_chicken", 837, true, 2, null);
 			registry.Add("minecraft:music_disc_mall", 549, true, 2, null);
 			registry.Add("minecraft:music_disc_mellohi", 550, true, 2, null);
 			registry.Add("minecraft:music_disc_otherside", 641, true, 2, null);
 			registry.Add("minecraft:music_disc_pigstep", 635, true, 2, null);
-			registry.Add("minecraft:music_disc_precipice", 834, true, 2, null);
+			registry.Add("minecraft:music_disc_precipice", 835, true, 2, null);
 			registry.Add("minecraft:music_disc_relic", 715, true, 2, null);
 			registry.Add("minecraft:music_disc_stal", 551, true, 2, null);
 			registry.Add("minecraft:music_disc_strad", 552, true, 2, null);
-			registry.Add("minecraft:music_disc_tears", 835, true, 2, null);
+			registry.Add("minecraft:music_disc_tears", 836, true, 2, null);
 			registry.Add("minecraft:music_disc_wait", 555, true, 2, null);
 			registry.Add("minecraft:music_disc_ward", 553, true, 2, null);
 			registry.Add("minecraft:mutton", 560, false, 0,
@@ -3604,7 +3608,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:netherite_pickaxe", 621, false, 2, null);
 			registry.Add("minecraft:netherite_scrap", 629, false, 2, null);
 			registry.Add("minecraft:netherite_shovel", 620, false, 2, null);
-			registry.Add("minecraft:netherite_spear", 858, true, 1,
+			registry.Add("minecraft:netherite_spear", 859, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -3814,7 +3818,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:ocelot_spawn_egg", 455, false, 2, null);
 			registry.Add("minecraft:ochre_froglight", -471, false, 2, null);
 			registry.Add("minecraft:ominous_bottle", 605, false, 2, null);
-			registry.Add("minecraft:ominous_trial_key", 879, true, 1,
+			registry.Add("minecraft:ominous_trial_key", 880, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -3854,7 +3858,7 @@ namespace MiNET.Items
 					}
 				});
 			registry.Add("minecraft:open_eyeblossom", -1018, false, 2, null);
-			registry.Add("minecraft:orange_bundle", 872, true, 1,
+			registry.Add("minecraft:orange_bundle", 873, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -4009,7 +4013,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:piglin_head", -970, false, 2, null);
 			registry.Add("minecraft:piglin_spawn_egg", 502, false, 2, null);
 			registry.Add("minecraft:pillager_spawn_egg", 496, false, 2, null);
-			registry.Add("minecraft:pink_bundle", 873, true, 1,
+			registry.Add("minecraft:pink_bundle", 874, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -4086,14 +4090,14 @@ namespace MiNET.Items
 			registry.Add("minecraft:pink_carpet", -602, false, 2, null);
 			registry.Add("minecraft:pink_concrete", -633, false, 2, null);
 			registry.Add("minecraft:pink_concrete_double_slab", -1246, false, 2, null);
-			registry.Add("minecraft:pink_concrete_powder", -714, false, 2, null);
-			registry.Add("minecraft:pink_concrete_slab", -1230, false, 2, null);
-			registry.Add("minecraft:pink_concrete_stairs", -1207, false, 2, null);
-			registry.Add("minecraft:pink_cushion", 786, false, 2, null);
 		}
 
 		private static void CreateItems_Part8(ItemRegistry registry)
 		{
+			registry.Add("minecraft:pink_concrete_powder", -714, false, 2, null);
+			registry.Add("minecraft:pink_concrete_slab", -1230, false, 2, null);
+			registry.Add("minecraft:pink_concrete_stairs", -1207, false, 2, null);
+			registry.Add("minecraft:pink_cushion", 786, false, 2, null);
 			registry.Add("minecraft:pink_dye", 407, false, 2, null);
 			registry.Add("minecraft:pink_glazed_terracotta", 226, false, 2, null);
 			registry.Add("minecraft:pink_harness", 743, false, 2, null);
@@ -4125,7 +4129,7 @@ namespace MiNET.Items
 						new NbtString("plant_at_face", "up")
 					}
 				});
-			registry.Add("minecraft:planks", 816, false, 2, null);
+			registry.Add("minecraft:planks", 817, false, 2, null);
 			registry.Add("minecraft:player_head", -967, false, 2, null);
 			registry.Add("minecraft:plenty_pottery_sherd", 688, false, 2, null);
 			registry.Add("minecraft:podzol", 243, false, 2, null);
@@ -4395,7 +4399,7 @@ namespace MiNET.Items
 					}
 				});
 			registry.Add("minecraft:pumpkin_stem", 104, false, 2, null);
-			registry.Add("minecraft:purple_bundle", 874, true, 1,
+			registry.Add("minecraft:purple_bundle", 875, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -4557,7 +4561,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:raw_iron", 516, false, 2, null);
 			registry.Add("minecraft:raw_iron_block", -451, false, 2, null);
 			registry.Add("minecraft:recovery_compass", 661, false, 2, null);
-			registry.Add("minecraft:red_bundle", 875, true, 1,
+			registry.Add("minecraft:red_bundle", 876, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -4639,7 +4643,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:red_concrete_stairs", -1199, false, 2, null);
 			registry.Add("minecraft:red_cushion", 788, false, 2, null);
 			registry.Add("minecraft:red_dye", 399, false, 2, null);
-			registry.Add("minecraft:red_flower", 813, false, 2, null);
+			registry.Add("minecraft:red_flower", 814, false, 2, null);
 			registry.Add("minecraft:red_glazed_terracotta", 234, false, 2, null);
 			registry.Add("minecraft:red_harness", 745, false, 2, null);
 			registry.Add("minecraft:red_mushroom", 40, false, 2, null);
@@ -4652,15 +4656,15 @@ namespace MiNET.Items
 			registry.Add("minecraft:red_poplar_leaves", -1145, false, 2, null);
 			registry.Add("minecraft:red_sand", -949, false, 2, null);
 			registry.Add("minecraft:red_sandstone", 179, false, 2, null);
-			registry.Add("minecraft:red_sandstone_double_slab", 181, false, 2, null);
-			registry.Add("minecraft:red_sandstone_slab", 182, false, 2, null);
-			registry.Add("minecraft:red_sandstone_stairs", 180, false, 2, null);
-			registry.Add("minecraft:red_sandstone_wall", -982, false, 2, null);
 		}
 
 		private static void CreateItems_Part9(ItemRegistry registry)
 		{
-			registry.Add("minecraft:red_shrub", 852, true, 1,
+			registry.Add("minecraft:red_sandstone_double_slab", 181, false, 2, null);
+			registry.Add("minecraft:red_sandstone_slab", 182, false, 2, null);
+			registry.Add("minecraft:red_sandstone_stairs", 180, false, 2, null);
+			registry.Add("minecraft:red_sandstone_wall", -982, false, 2, null);
+			registry.Add("minecraft:red_shrub", 853, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -4811,7 +4815,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:sandstone_slab", -872, false, 2, null);
 			registry.Add("minecraft:sandstone_stairs", 128, false, 2, null);
 			registry.Add("minecraft:sandstone_wall", -975, false, 2, null);
-			registry.Add("minecraft:sapling", 807, false, 2, null);
+			registry.Add("minecraft:sapling", 808, false, 2, null);
 			registry.Add("minecraft:scaffolding", -165, false, 2, null);
 			registry.Add("minecraft:scrape_pottery_sherd", 690, false, 2, null);
 			registry.Add("minecraft:sculk", -458, false, 2, null);
@@ -4827,7 +4831,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:sheaf_pottery_sherd", 691, false, 2, null);
 			registry.Add("minecraft:shears", 424, false, 2, null);
 			registry.Add("minecraft:sheep_spawn_egg", 442, false, 2, null);
-			registry.Add("minecraft:shelf_mushroom", 853, true, 1,
+			registry.Add("minecraft:shelf_mushroom", 854, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -4890,7 +4894,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:short_dry_grass", -1028, false, 2, null);
 			registry.Add("minecraft:short_grass", 31, false, 2, null);
 			registry.Add("minecraft:shroomlight", -230, false, 2, null);
-			registry.Add("minecraft:shulker_box", 830, false, 2, null);
+			registry.Add("minecraft:shulker_box", 831, false, 2, null);
 			registry.Add("minecraft:shulker_shell", 576, false, 2, null);
 			registry.Add("minecraft:shulker_spawn_egg", 474, false, 2, null);
 			registry.Add("minecraft:silence_armor_trim_smithing_template", 708, false, 2, null);
@@ -4940,7 +4944,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:soul_soil", -236, false, 2, null);
 			registry.Add("minecraft:soul_torch", -268, false, 2, null);
 			registry.Add("minecraft:sparkler", 616, false, 2, null);
-			registry.Add("minecraft:spawn_egg", 850, false, 2, null);
+			registry.Add("minecraft:spawn_egg", 851, false, 2, null);
 			registry.Add("minecraft:spider_eye", 278, false, 0,
 				new NbtCompound("components")
 				{
@@ -5002,8 +5006,8 @@ namespace MiNET.Items
 			registry.Add("minecraft:spruce_wood", -814, false, 2, null);
 			registry.Add("minecraft:spyglass", 640, false, 2, null);
 			registry.Add("minecraft:squid_spawn_egg", 454, false, 2, null);
-			registry.Add("minecraft:stained_glass", 828, false, 2, null);
-			registry.Add("minecraft:stained_glass_pane", 829, false, 2, null);
+			registry.Add("minecraft:stained_glass", 829, false, 2, null);
+			registry.Add("minecraft:stained_glass_pane", 830, false, 2, null);
 			registry.Add("minecraft:stained_hardened_clay", 720, false, 2, null);
 			registry.Add("minecraft:standing_banner", 176, false, 2, null);
 			registry.Add("minecraft:standing_sign", 63, false, 2, null);
@@ -5012,10 +5016,10 @@ namespace MiNET.Items
 			registry.Add("minecraft:sticky_piston_arm_collision", -217, false, 2, null);
 			registry.Add("minecraft:stone", 1, false, 2, null);
 			registry.Add("minecraft:stone_axe", 317, false, 2, null);
-			registry.Add("minecraft:stone_block_slab", 797, false, 2, null);
-			registry.Add("minecraft:stone_block_slab2", 798, false, 2, null);
-			registry.Add("minecraft:stone_block_slab3", 799, false, 2, null);
-			registry.Add("minecraft:stone_block_slab4", 800, false, 2, null);
+			registry.Add("minecraft:stone_block_slab", 798, false, 2, null);
+			registry.Add("minecraft:stone_block_slab2", 799, false, 2, null);
+			registry.Add("minecraft:stone_block_slab3", 800, false, 2, null);
+			registry.Add("minecraft:stone_block_slab4", 801, false, 2, null);
 			registry.Add("minecraft:stone_brick_double_slab", -881, false, 2, null);
 			registry.Add("minecraft:stone_brick_slab", -875, false, 2, null);
 			registry.Add("minecraft:stone_brick_stairs", 109, false, 2, null);
@@ -5026,7 +5030,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:stone_pickaxe", 316, false, 2, null);
 			registry.Add("minecraft:stone_pressure_plate", 70, false, 2, null);
 			registry.Add("minecraft:stone_shovel", 315, false, 2, null);
-			registry.Add("minecraft:stone_spear", 859, true, 1,
+			registry.Add("minecraft:stone_spear", 860, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -5206,7 +5210,7 @@ namespace MiNET.Items
 				});
 			registry.Add("minecraft:stone_stairs", 67, false, 2, null);
 			registry.Add("minecraft:stone_sword", 314, false, 2, null);
-			registry.Add("minecraft:stonebrick", 795, false, 2, null);
+			registry.Add("minecraft:stonebrick", 796, false, 2, null);
 			registry.Add("minecraft:stonecutter", 245, false, 2, null);
 			registry.Add("minecraft:stonecutter_block", -197, false, 2, null);
 			registry.Add("minecraft:straw_bed", 774, false, 2, null);
@@ -5231,14 +5235,14 @@ namespace MiNET.Items
 			registry.Add("minecraft:stripped_oak_log", -10, false, 2, null);
 			registry.Add("minecraft:stripped_oak_wood", -819, false, 2, null);
 			registry.Add("minecraft:stripped_pale_oak_log", -994, false, 2, null);
-			registry.Add("minecraft:stripped_pale_oak_wood", -1004, false, 2, null);
-			registry.Add("minecraft:stripped_poplar_log", -1131, false, 2, null);
-			registry.Add("minecraft:stripped_poplar_wood", -1141, false, 2, null);
-			registry.Add("minecraft:stripped_spruce_log", -5, false, 2, null);
 		}
 
 		private static void CreateItems_Part10(ItemRegistry registry)
 		{
+			registry.Add("minecraft:stripped_pale_oak_wood", -1004, false, 2, null);
+			registry.Add("minecraft:stripped_poplar_log", -1131, false, 2, null);
+			registry.Add("minecraft:stripped_poplar_wood", -1141, false, 2, null);
+			registry.Add("minecraft:stripped_spruce_log", -5, false, 2, null);
 			registry.Add("minecraft:stripped_spruce_wood", -820, false, 2, null);
 			registry.Add("minecraft:stripped_warped_hyphae", -301, false, 2, null);
 			registry.Add("minecraft:stripped_warped_stem", -241, false, 2, null);
@@ -5329,7 +5333,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:tadpole_spawn_egg", 644, false, 2, null);
 			registry.Add("minecraft:tall_dry_grass", -1029, false, 2, null);
 			registry.Add("minecraft:tall_grass", -864, false, 2, null);
-			registry.Add("minecraft:tallgrass", 821, false, 2, null);
+			registry.Add("minecraft:tallgrass", 822, false, 2, null);
 			registry.Add("minecraft:target", -239, false, 2, null);
 			registry.Add("minecraft:tide_armor_trim_smithing_template", 704, false, 2, null);
 			registry.Add("minecraft:tinted_glass", -334, false, 2, null);
@@ -5356,7 +5360,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:trader_llama_spawn_egg", 663, false, 2, null);
 			registry.Add("minecraft:trapdoor", 96, false, 2, null);
 			registry.Add("minecraft:trapped_chest", 146, false, 2, null);
-			registry.Add("minecraft:trial_key", 880, true, 1,
+			registry.Add("minecraft:trial_key", 881, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -5567,14 +5571,14 @@ namespace MiNET.Items
 			registry.Add("minecraft:weathered_cut_copper_stairs", -356, false, 2, null);
 			registry.Add("minecraft:weathered_double_cut_copper_slab", -370, false, 2, null);
 			registry.Add("minecraft:weathered_lightning_rod", -1060, false, 2, null);
-			registry.Add("minecraft:web", 30, false, 2, null);
-			registry.Add("minecraft:weeping_vines", -231, false, 2, null);
-			registry.Add("minecraft:wet_sponge", -984, false, 2, null);
-			registry.Add("minecraft:wheat", 337, false, 2, null);
 		}
 
 		private static void CreateItems_Part11(ItemRegistry registry)
 		{
+			registry.Add("minecraft:web", 30, false, 2, null);
+			registry.Add("minecraft:weeping_vines", -231, false, 2, null);
+			registry.Add("minecraft:wet_sponge", -984, false, 2, null);
+			registry.Add("minecraft:wheat", 337, false, 2, null);
 			registry.Add("minecraft:wheat_seeds", 291, false, 0,
 				new NbtCompound("components")
 				{
@@ -5589,7 +5593,7 @@ namespace MiNET.Items
 						new NbtString("plant_at_face", "up")
 					}
 				});
-			registry.Add("minecraft:white_bundle", 876, true, 1,
+			registry.Add("minecraft:white_bundle", 877, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -5684,7 +5688,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:white_wool_stairs", -1150, false, 2, null);
 			registry.Add("minecraft:wild_armor_trim_smithing_template", 700, false, 2, null);
 			registry.Add("minecraft:wildflowers", -1024, false, 2, null);
-			registry.Add("minecraft:wind_charge", 881, true, 1,
+			registry.Add("minecraft:wind_charge", 882, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -5750,7 +5754,7 @@ namespace MiNET.Items
 			registry.Add("minecraft:wither_spawn_egg", 513, false, 2, null);
 			registry.Add("minecraft:wolf_armor", 723, true, 2, null);
 			registry.Add("minecraft:wolf_spawn_egg", 443, false, 2, null);
-			registry.Add("minecraft:wood", 831, false, 2, null);
+			registry.Add("minecraft:wood", 832, false, 2, null);
 			registry.Add("minecraft:wooden_axe", 313, false, 2, null);
 			registry.Add("minecraft:wooden_button", 143, false, 2, null);
 			registry.Add("minecraft:wooden_door", 362, false, 2, null);
@@ -5758,8 +5762,8 @@ namespace MiNET.Items
 			registry.Add("minecraft:wooden_pickaxe", 312, false, 2, null);
 			registry.Add("minecraft:wooden_pressure_plate", 72, false, 2, null);
 			registry.Add("minecraft:wooden_shovel", 311, false, 2, null);
-			registry.Add("minecraft:wooden_slab", 812, false, 2, null);
-			registry.Add("minecraft:wooden_spear", 860, true, 1,
+			registry.Add("minecraft:wooden_slab", 813, false, 2, null);
+			registry.Add("minecraft:wooden_spear", 861, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")
@@ -5942,10 +5946,10 @@ namespace MiNET.Items
 					}
 				});
 			registry.Add("minecraft:wooden_sword", 310, false, 2, null);
-			registry.Add("minecraft:wool", 791, false, 2, null);
+			registry.Add("minecraft:wool", 792, false, 2, null);
 			registry.Add("minecraft:writable_book", 521, false, 2, null);
 			registry.Add("minecraft:written_book", 522, false, 2, null);
-			registry.Add("minecraft:yellow_bundle", 877, true, 1,
+			registry.Add("minecraft:yellow_bundle", 878, true, 1,
 				new NbtCompound("components")
 				{
 					new NbtCompound("item_properties")

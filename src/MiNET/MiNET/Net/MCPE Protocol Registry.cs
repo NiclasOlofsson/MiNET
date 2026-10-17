@@ -113,6 +113,9 @@ namespace MiNET.Net
 		void HandleMcpeServerboundDataDrivenScreenClosed(McpeServerboundDataDrivenScreenClosed message);
 		void HandleMcpePartyDestinationCookieResponse(McpePartyDestinationCookieResponse message);
 		void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message);
+		void HandleMcpeServerboundMatchmakingCancel(McpeServerboundMatchmakingCancel message);
+		void HandleMcpeServerboundCursorItemDrag(McpeServerboundCursorItemDrag message);
+		void HandleMcpeServerboundRegisterAudioContent(McpeServerboundRegisterAudioContent message);
 	}
 
 	public interface IMcpeClientMessageHandler
@@ -305,6 +308,9 @@ namespace MiNET.Net
 		void HandleMcpeSendPartyDestinationCookie(McpeSendPartyDestinationCookie message);
 		void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message);
 		void HandleMcpeRecordStarted(McpeRecordStarted message);
+		void HandleMcpeClientboundMatchmakingState(McpeClientboundMatchmakingState message);
+		void HandleMcpeSetPassengerOfBlock(McpeSetPassengerOfBlock message);
+		void HandleMcpeClientboundPlayAudioContent(McpeClientboundPlayAudioContent message);
 	}
 
 	public class McpeClientMessageDispatcher
@@ -884,6 +890,15 @@ namespace MiNET.Net
 				case McpeRecordStarted msg:
 					_messageHandler.HandleMcpeRecordStarted(msg);
 					break;
+				case McpeClientboundMatchmakingState msg:
+					_messageHandler.HandleMcpeClientboundMatchmakingState(msg);
+					break;
+				case McpeSetPassengerOfBlock msg:
+					_messageHandler.HandleMcpeSetPassengerOfBlock(msg);
+					break;
+				case McpeClientboundPlayAudioContent msg:
+					_messageHandler.HandleMcpeClientboundPlayAudioContent(msg);
+					break;
 				default:
 					return false;
 			}
@@ -1385,6 +1400,18 @@ namespace MiNET.Net
 						return McpeSetPlayerFurnaceOptions.CreateObject().Decode(buffer);
 					case 0x160:
 						return McpeRecordStarted.CreateObject().Decode(buffer);
+					case 0x161:
+						return McpeClientboundMatchmakingState.CreateObject().Decode(buffer);
+					case 0x164:
+						return McpeServerboundMatchmakingCancel.CreateObject().Decode(buffer);
+					case 0x165:
+						return McpeSetPassengerOfBlock.CreateObject().Decode(buffer);
+					case 0x166:
+						return McpeServerboundCursorItemDrag.CreateObject().Decode(buffer);
+					case 0x167:
+						return McpeClientboundPlayAudioContent.CreateObject().Decode(buffer);
+					case 0x168:
+						return McpeServerboundRegisterAudioContent.CreateObject().Decode(buffer);
 				}
 			}
 

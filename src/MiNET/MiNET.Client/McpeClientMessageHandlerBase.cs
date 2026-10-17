@@ -972,6 +972,18 @@ namespace MiNET.Client
 		{
 		}
 
+		public virtual void HandleMcpeClientboundMatchmakingState(McpeClientboundMatchmakingState message)
+		{
+		}
+
+		public virtual void HandleMcpeSetPassengerOfBlock(McpeSetPassengerOfBlock message)
+		{
+		}
+
+		public virtual void HandleMcpeClientboundPlayAudioContent(McpeClientboundPlayAudioContent message)
+		{
+		}
+
 		public virtual void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message)
 		{
 		}

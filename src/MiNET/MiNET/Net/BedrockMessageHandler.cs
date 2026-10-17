@@ -160,6 +160,15 @@ namespace MiNET.Net
 				case McpeServerboundDataStore msg:
 					handler.HandleMcpeServerboundDataStore(msg);
 					break;
+				case McpeServerboundMatchmakingCancel msg:
+					handler.HandleMcpeServerboundMatchmakingCancel(msg);
+					break;
+				case McpeServerboundCursorItemDrag msg:
+					handler.HandleMcpeServerboundCursorItemDrag(msg);
+					break;
+				case McpeServerboundRegisterAudioContent msg:
+					handler.HandleMcpeServerboundRegisterAudioContent(msg);
+					break;
 				case McpeSetPlayerInventoryOptions msg:
 					handler.HandleMcpeSetPlayerInventoryOptions(msg);
 					break;

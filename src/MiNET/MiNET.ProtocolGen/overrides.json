@@ -487,7 +487,7 @@
 			"fields": {
 				"Pos X": {
 					"optional": true,
-					"reason": "Schema bug carried since 2168: the schema marks every preset field required, but the wire bool-prefixes each field from Pos X onward (the preset struct is std::optional per member). The retired hand-written codec read exactly this shape and was verified against real 1.26.40-1.26.44 clients. Only Name and Inherit From are unconditional. The 26.50 rumor that optional encoding changed is unresolved; if the tunnel shows a new shape, fix the emitter's optional policy, not these flags."
+					"reason": "Schema bug carried since 2168: the schema marks every preset field required, but the wire bool-prefixes each field from Pos X onward (the preset struct is std::optional per member). The retired hand-written codec read exactly this shape and was verified against real 1.26.40-1.26.44 clients. Only Name and Inherit From are unconditional, plus Apply Inherited Starting Rotation, a bare bool between Control Scheme and Starting Rotation: BDS 1.26.60.30's own presets send it as 01 with no presence byte, and its schema lists exactly those three as required. Marking it optional made the decode read 01 as presence and drift until it ran off the frame."
 				},
 				"Pos Y": { "optional": true },
 				"Pos Z": { "optional": true },
@@ -508,7 +508,6 @@
 				"Player Effects": { "optional": true },
 				"Aim Assist": { "optional": true },
 				"Control Scheme": { "optional": true },
-				"Apply Inherited Starting Rotation": { "optional": true },
 				"Starting Rotation": { "optional": true }
 			}
 		},
@@ -563,6 +562,14 @@
 					"variantConstIsByte": true,
 					"name": "actions",
 					"reason": "Each action repeats its tag as a byte right after the varint tag. CloudburstMC's readRequestActionData at v2168 opens with byteBuf.readByte() before switching on the type it was handed, and the hand-written codec wrote WriteUnsignedVarInt(tag) then Write((byte) tag). Not the same as SetScore, where the const is the name spelled out, which is why this is per field and not a rule."
+				}
+			}
+		},
+		"ClientboundUpdateSoundDataPacket": {
+			"fields": {
+				"Event": {
+					"variantConstIsByte": true,
+					"reason": "From 2225 every event option opens with a Type typed SoundDataEventType, uint8 with Enum-as-Value, so the const after the tag is that byte, not the name spelled out. Same shape as the item stack request actions. Not yet measured against BDS bytes."
 				}
 			}
 		},
@@ -719,9 +726,13 @@
 						"DynamicContainer",
 						"RecipeFoodContainer",
 						"RecipeBlocksContainer",
-						"RecipeFurnaceItemsContainer"
+						"RecipeFurnaceItemsContainer",
+						"ReservedContainerA",
+						"ReservedContainerB",
+						"ReservedContainerC",
+						"ReservedContainerD"
 					],
-					"reason": "ContainerEnumName.json lists the 67 names grouped by purpose, not in wire order, so declaration index is not the value. Mojang's own 924 changelog gives the numbers explicitly: 'Added RecipeFoodContainer (64)', 'RecipeBlocksContainer (65)', 'RecipeFurnaceItemsContainer (66)', where the schema puts them at 18, 19 and 20 and shifts every later name by three. CloudburstMC's CONTAINER_SLOT_TYPES table and PMMP's ContainerUIIds agree with the changelog against the schema. This list is that numbering, in Mojang's spelling; it is the same set as the schema's, reordered."
+					"reason": "ContainerEnumName.json lists the names grouped by purpose, not in wire order, so declaration index is not the value. Mojang's own 924 changelog gives the numbers explicitly: 'Added RecipeFoodContainer (64)', 'RecipeBlocksContainer (65)', 'RecipeFurnaceItemsContainer (66)', where the schema puts them at 18, 19 and 20 and shifts every later name by three. CloudburstMC's CONTAINER_SLOT_TYPES table and PMMP's ContainerUIIds agree with the changelog against the schema. This list is that numbering, in Mojang's spelling; it is the same set as the schema's, reordered. The four reserved names arrived at 2225 with schema values 67 to 70."
 				},
 				"Dynamic ID": {
 					"optional": true,

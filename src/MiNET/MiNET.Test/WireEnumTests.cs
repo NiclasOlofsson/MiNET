@@ -215,7 +215,8 @@ namespace MiNET.Test
 		// LevelSoundEventType, settled by majority among Cloudburst (chain-order replay),
 		// minecraft-data 1.26.30, and Mojang's docs. 113/155/222 are the spec-hiding cases:
 		// both implementations carry them while Mojang's docs drop or rename them. 274 is a
-		// real event, not a sentinel; the actual Undefined is 611.
+		// real event, not a sentinel. The tail from 611 is BDS 1.26.60.30's own LevelSoundEvent
+		// schema (explicit binary values), where Undefined is 615.
 		[TestMethod]
 		public void LevelSoundEventType_CarriesTheRuledWireIds()
 		{
@@ -233,7 +234,10 @@ namespace MiNET.Test
 			Assert.AreEqual(483, (int) LevelSoundEventType.CrafterDisableSlot);
 			Assert.AreEqual(530, (int) LevelSoundEventType.VaultRejectRewardedPlayer);
 			Assert.AreEqual(610, (int) LevelSoundEventType.GeyserContinuousEruptionActive);
-			Assert.AreEqual(611, (int) LevelSoundEventType.Undefined);
+			Assert.AreEqual(611, (int) LevelSoundEventType.Mount);
+			Assert.AreEqual(613, (int) LevelSoundEventType.StrawBedBreakLeave);
+			Assert.AreEqual(614, (int) LevelSoundEventType.IceBallBreak);
+			Assert.AreEqual(615, (int) LevelSoundEventType.Undefined);
 		}
 
 		// DamageCause is server-internal today, but it mirrors ActorDamageCause so a future

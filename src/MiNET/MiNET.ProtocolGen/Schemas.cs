@@ -313,6 +313,13 @@ public class CerealField
 	public string ConstValue;
 
 	/// <summary>
+	///     The const's binary value in the enum it references, where it names one. A byte
+	///     discriminator writes this, not the option's position: a 1.26.40 client sends CraftCreative
+	///     as tag 0c, byte 0e, because the action enum skips 7 and 8 and the option list does not.
+	/// </summary>
+	public int? ConstEnumValue;
+
+	/// <summary>
 	///     Qualified reference to the field's nested enum type ("LevelSettings.Xboxlivebroadcastsetting"),
 	///     stamped once the owning class is known. Enum-schema'd fields are declared with this type so an
 	///     out-of-enum constant cannot be assigned silently; the wire keeps the underlying primitive.
@@ -561,6 +568,12 @@ public class CerealPacket
 			// the schema's type implies makes a 2168 client drop the connection 55ms after the
 			// packet lands (measured on SetScore, 2026-08-09).
 			field.ConstValue = (string) prop["const"];
+			if (prop["$ref"] != null && schemas.Get(SchemaRepo.RefName((string) prop["$ref"]))["enum"] is JArray constNames)
+			{
+				JObject constEnum = schemas.Get(SchemaRepo.RefName((string) prop["$ref"]));
+				int index = constNames.Select(n => ((string) n).ToLowerInvariant()).ToList().IndexOf(field.ConstValue.ToLowerInvariant());
+				if (index >= 0) field.ConstEnumValue = CerealEnum.ReadBinaryValues(constEnum)?[index] ?? index;
+			}
 			field.Kind = FieldKind.Plain;
 			field.Type = new TypeMapping {CsType = "string", Write = $"Write(\"{(string) prop["const"]}\");", Read = "ReadString();"};
 			return;
@@ -699,12 +712,13 @@ public class CerealPacket
 					}
 				}
 
-				// Where the discriminator is a byte it repeats the tag, which is only known here.
+				// Where the discriminator is a byte it carries the const's enum value, falling back to
+				// the tag, which is only known here, when the const names no enum.
 				if (field.VariantConstIsByte)
 				{
 					foreach (CerealField optionField in option.Fields)
 					{
-						if (optionField.ConstValue != null) optionField.Type = new TypeMapping {CsType = "byte", Write = $"Write((byte) {i});", Read = "ReadByte();"};
+						if (optionField.ConstValue != null) optionField.Type = new TypeMapping {CsType = "byte", Write = $"Write((byte) {optionField.ConstEnumValue ?? i});", Read = "ReadByte();"};
 					}
 				}
 

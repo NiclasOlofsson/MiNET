@@ -634,6 +634,11 @@ namespace MiNET.Items
 		public ItemFrogSpawnEgg() : base("minecraft:frog_spawn_egg") { }
 	} // class
 
+	public partial class ItemFrostbiteSpawnEgg : Item // minecraft:frostbite_spawn_egg
+	{
+		public ItemFrostbiteSpawnEgg() : base("minecraft:frostbite_spawn_egg") { }
+	} // class
+
 	public partial class ItemGhastSpawnEgg : Item // minecraft:ghast_spawn_egg
 	{
 		public ItemGhastSpawnEgg() : base("minecraft:ghast_spawn_egg") { }

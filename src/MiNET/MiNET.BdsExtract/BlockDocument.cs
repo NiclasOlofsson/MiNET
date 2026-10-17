@@ -116,20 +116,32 @@ public static class BlockDocument
 		// the name the class table gives it where there is one.
 		var vtables = new Dictionary<ulong, string>(classNames);
 
-		// Its material, by the type the entry states. The materials are a registry: 25 entries of
-		// 16 bytes sharing one array, each leading with its own type, and those types run 0 to 24
-		// with no repeats, which is what says the byte is the entry's identity rather than its
-		// position. 1,356 blocks point into those 25.
+		// Its material, by the type the entry states. Through 1.26.60.23 the member points into a
+		// registry: 25 entries of 16 bytes sharing one array, each leading with its own type, and
+		// those types run 0 to 24 with no repeats, which is what says the byte is the entry's
+		// identity rather than its position. 1,356 blocks point into those 25. From 1.26.60.30 the
+		// member holds the type itself in its first byte, and the seven after it are not
+		// understood. The registry has to prove itself on this run, by holding at most 25 entries
+		// of distinct types that most blocks point into; failing that, the first byte is the type
+		// only where every block's first byte is one, and otherwise neither shape is taken.
 		int materialAt = BlockLayout.At("material");
 		var word = new byte[8];
+		var materialWords = new Dictionary<BlockProperties, ulong>();
 		foreach (BlockProperties block in blocks)
 		{
 			ulong entry = process.ReadUInt64(block.Address + (ulong) materialAt, word);
+			materialWords[block] = entry;
 			if (entry < 0x10000 || known.ContainsKey(entry)) continue;
 			// Both halves: the value is what was read, the name is what it means. A name alone
 			// throws the byte away, and a byte alone says nothing.
 			if (process.TryRead(entry, word, 1)) materials[entry] = word[0];
 		}
+		bool materialRegistry = materials.Count <= Materials.Length
+			&& materials.Values.Distinct().Count() == materials.Count
+			&& materials.Values.All(t => t < Materials.Length)
+			&& materialWords.Values.Count(materials.ContainsKey) * 2 > blocks.Count;
+		bool materialInline = !materialRegistry && materialWords.Values.All(w => (w & 0xFF) < (ulong) Materials.Length);
+		if (!materialRegistry) materials.Clear();
 
 		BlockMemberReader.Identify identify = a =>
 		{
@@ -183,6 +195,19 @@ public static class BlockDocument
 			// than sitting null beside a second list under the same name.
 			JsonObject members = BlockMemberReader.Read(process, block.Address, window, scratch, identify);
 			members["tags"] = new JsonArray(block.Tags.Select(t => (JsonNode) t).ToArray());
+			if (materialInline)
+			{
+				ulong held = materialWords[block];
+				byte type = (byte) held;
+				var material = new JsonObject
+				{
+					["value"] = (int) type,
+					["name"] = Materials[type],
+					["unread"] = 7
+				};
+				if (BlockMemberReader.Debug) material["raw"] = $"0x{held:X16}";
+				members["material"] = material;
+			}
 
 			// The components the block holds, in the member that holds them. The id is not published
 			// on its own: it is a per-instance registration number and two runs of one build disagree

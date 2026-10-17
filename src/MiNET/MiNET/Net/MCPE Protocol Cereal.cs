@@ -435,6 +435,7 @@ namespace MiNET.Net
 		public PropertySyncData synchedProperties; // = null;
 		public SerializedAbilitiesData abilitiesData; // = null;
 		public List<ActorLink> links; // = null;
+		public PassengerOfBlockArguments passengerBlockData; // = null;
 		public string deviceId; // = null;
 		public McpeAddPlayer.BuildPlatform buildPlatform; // = null;
 
@@ -465,6 +466,8 @@ namespace MiNET.Net
 			Write(abilitiesData ?? new SerializedAbilitiesData());
 			WriteUnsignedVarInt((uint) (links?.Count ?? 0));
 			if (links != null) foreach (ActorLink item in links) Write(item);
+			Write(passengerBlockData != null);
+			if (passengerBlockData != null) Write(passengerBlockData);
 			Write(deviceId);
 			Write((int) buildPlatform);
 
@@ -496,6 +499,7 @@ namespace MiNET.Net
 			uint linksCount = ReadUnsignedVarInt();
 			links = new List<ActorLink>((int) linksCount);
 			for (int i = 0; i < linksCount; i++) links.Add(ReadActorLink());
+			if (ReadBool()) passengerBlockData = ReadPassengerOfBlockArguments();
 			deviceId = ReadString();
 			buildPlatform = (McpeAddPlayer.BuildPlatform) ReadInt();
 
@@ -523,6 +527,7 @@ namespace MiNET.Net
 			synchedProperties=default(PropertySyncData);
 			abilitiesData=default(SerializedAbilitiesData);
 			links=default(List<ActorLink>);
+			passengerBlockData=default(PassengerOfBlockArguments);
 			deviceId=default(string);
 			buildPlatform=default(McpeAddPlayer.BuildPlatform);
 		}
@@ -544,6 +549,7 @@ namespace MiNET.Net
 		public MetadataDictionary metadata; // = null;
 		public PropertySyncData synchedProperties; // = null;
 		public List<ActorLink> links; // = null;
+		public PassengerOfBlockArguments passengerBlockData; // = null;
 
 		public McpeAddEntity()
 		{
@@ -570,6 +576,8 @@ namespace MiNET.Net
 			Write(synchedProperties ?? new PropertySyncData());
 			WriteUnsignedVarInt((uint) (links?.Count ?? 0));
 			if (links != null) foreach (ActorLink item in links) Write(item);
+			Write(passengerBlockData != null);
+			if (passengerBlockData != null) Write(passengerBlockData);
 
 			AfterEncode();
 		}
@@ -597,6 +605,7 @@ namespace MiNET.Net
 			uint linksCount = ReadUnsignedVarInt();
 			links = new List<ActorLink>((int) linksCount);
 			for (int i = 0; i < linksCount; i++) links.Add(ReadActorLink());
+			if (ReadBool()) passengerBlockData = ReadPassengerOfBlockArguments();
 
 			AfterDecode();
 		}
@@ -620,6 +629,7 @@ namespace MiNET.Net
 			metadata=default(MetadataDictionary);
 			synchedProperties=default(PropertySyncData);
 			links=default(List<ActorLink>);
+			passengerBlockData=default(PassengerOfBlockArguments);
 		}
 
 	}
@@ -3190,7 +3200,7 @@ namespace MiNET.Net
 	{
 
 		public ulong serverSoundHandle; // = null;
-		public ClientboundUpdateSoundDataParamBase clientboundUpdateSoundDataParamBase; // = null;
+		public EventBase @event; // = null;
 
 		public McpeClientboundUpdateSoundData()
 		{
@@ -3205,43 +3215,38 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(serverSoundHandle);
-			for (int slot = 0; slot < 6; slot++) Write(false);
-			Write(clientboundUpdateSoundDataParamBase != null);
-			if (clientboundUpdateSoundDataParamBase != null)
+			switch (@event)
 			{
-				switch (clientboundUpdateSoundDataParamBase)
-				{
-					case Stop v0:
-						WriteUnsignedVarInt(0);
-						Write(v0);
-						break;
-					case SetVolume v1:
-						WriteUnsignedVarInt(1);
-						Write(v1);
-						break;
-					case SetPitch v2:
-						WriteUnsignedVarInt(2);
-						Write(v2);
-						break;
-					case Fade v3:
-						WriteUnsignedVarInt(3);
-						Write(v3);
-						break;
-					case SeekTo v4:
-						WriteUnsignedVarInt(4);
-						Write(v4);
-						break;
-					case Pause v5:
-						WriteUnsignedVarInt(5);
-						Write(v5);
-						break;
-					case Resume v6:
-						WriteUnsignedVarInt(6);
-						Write(v6);
-						break;
-					default:
-						throw new Exception($"clientboundUpdateSoundDataParamBase variant not set or unknown: {clientboundUpdateSoundDataParamBase}");
-				}
+				case Stop v0:
+					WriteUnsignedVarInt(0);
+					Write(v0);
+					break;
+				case SetVolume v1:
+					WriteUnsignedVarInt(1);
+					Write(v1);
+					break;
+				case SetPitch v2:
+					WriteUnsignedVarInt(2);
+					Write(v2);
+					break;
+				case Fade v3:
+					WriteUnsignedVarInt(3);
+					Write(v3);
+					break;
+				case SeekTo v4:
+					WriteUnsignedVarInt(4);
+					Write(v4);
+					break;
+				case Pause v5:
+					WriteUnsignedVarInt(5);
+					Write(v5);
+					break;
+				case Resume v6:
+					WriteUnsignedVarInt(6);
+					Write(v6);
+					break;
+				default:
+					throw new Exception($"@event variant not set or unknown: {@event}");
 			}
 
 			AfterEncode();
@@ -3257,23 +3262,18 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			serverSoundHandle = ReadUlong();
-			clientboundUpdateSoundDataParamBase = null;
-			for (int slot = 0; slot < 7; slot++)
+			uint @eventTag = ReadUnsignedVarInt();
+			@event = @eventTag switch
 			{
-				if (!ReadBool()) continue;
-				uint clientboundUpdateSoundDataParamBaseTag = ReadUnsignedVarInt();
-				clientboundUpdateSoundDataParamBase = clientboundUpdateSoundDataParamBaseTag switch
-				{
-					0 => ReadStop(),
-					1 => ReadSetVolume(),
-					2 => ReadSetPitch(),
-					3 => ReadFade(),
-					4 => ReadSeekTo(),
-					5 => ReadPause(),
-					6 => ReadResume(),
-					uint other => throw new Exception($"Unknown clientboundUpdateSoundDataParamBase variant tag {other}"),
-				};
-			}
+				0 => ReadStop(),
+				1 => ReadSetVolume(),
+				2 => ReadSetPitch(),
+				3 => ReadFade(),
+				4 => ReadSeekTo(),
+				5 => ReadPause(),
+				6 => ReadResume(),
+				uint other => throw new Exception($"Unknown @event variant tag {other}"),
+			};
 
 			AfterDecode();
 		}
@@ -3286,7 +3286,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			serverSoundHandle=default(ulong);
-			clientboundUpdateSoundDataParamBase=default(ClientboundUpdateSoundDataParamBase);
+			@event=default(EventBase);
 		}
 
 	}
@@ -3402,7 +3402,342 @@ namespace MiNET.Net
 
 	}
 
-	public abstract class ClientboundUpdateSoundDataParamBase
+	public partial class McpeClientboundMatchmakingState : Packet<McpeClientboundMatchmakingState>
+	{
+		public enum MatchmakingState
+		{
+			Idle = 0,
+			Matchmaking = 1,
+			Matchfound = 2,
+			Canceled = 3,
+			Playerleftparty = 4,
+			Playerleftserver = 5,
+			Servershutdown = 6,
+			Timedout = 7,
+			Requeueasparty = 8,
+		}
+
+		public McpeClientboundMatchmakingState.MatchmakingState state; // = null;
+		public string destinationName; // = null;
+		public MatchmakingStateOptions options; // = null;
+
+		public McpeClientboundMatchmakingState()
+		{
+			Id = 0x161;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((byte) state);
+			Write(destinationName);
+			Write(options != null);
+			if (options != null) Write(options);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			state = (McpeClientboundMatchmakingState.MatchmakingState) ReadByte();
+			destinationName = ReadString();
+			if (ReadBool()) options = ReadMatchmakingStateOptions();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			state=default(McpeClientboundMatchmakingState.MatchmakingState);
+			destinationName=default(string);
+			options=default(MatchmakingStateOptions);
+		}
+
+	}
+
+	public partial class McpeServerboundMatchmakingCancel : Packet<McpeServerboundMatchmakingCancel>
+	{
+
+
+		public McpeServerboundMatchmakingCancel()
+		{
+			Id = 0x164;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+		}
+
+	}
+
+	public partial class McpeSetPassengerOfBlock : Packet<McpeSetPassengerOfBlock>
+	{
+
+		public long passenger; // = null;
+		public PassengerOfBlockArguments passengerofblockdata; // = null;
+
+		public McpeSetPassengerOfBlock()
+		{
+			Id = 0x165;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarLong(passenger);
+			Write(passengerofblockdata != null);
+			if (passengerofblockdata != null) Write(passengerofblockdata);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			passenger = ReadSignedVarLong();
+			if (ReadBool()) passengerofblockdata = ReadPassengerOfBlockArguments();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			passenger=default(long);
+			passengerofblockdata=default(PassengerOfBlockArguments);
+		}
+
+	}
+
+	public partial class McpeServerboundCursorItemDrag : Packet<McpeServerboundCursorItemDrag>
+	{
+		public enum State
+		{
+			Start = 0,
+			Stop = 1,
+		}
+
+		public McpeServerboundCursorItemDrag.State state; // = null;
+
+		public McpeServerboundCursorItemDrag()
+		{
+			Id = 0x166;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((byte) state);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			state = (McpeServerboundCursorItemDrag.State) ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			state=default(McpeServerboundCursorItemDrag.State);
+		}
+
+	}
+
+	public partial class McpeClientboundPlayAudioContent : Packet<McpeClientboundPlayAudioContent>
+	{
+		public enum AudioContentPlaybackType
+		{
+			Music = 0,
+			Sound = 1,
+		}
+
+		public string sharedMetadata; // = null;
+		public string playbackContent; // = null;
+		public McpeClientboundPlayAudioContent.AudioContentPlaybackType playbackType; // = null;
+		public PlaySoundPacketPayload playSound; // = null;
+
+		public McpeClientboundPlayAudioContent()
+		{
+			Id = 0x167;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(sharedMetadata);
+			Write(playbackContent);
+			Write((byte) playbackType);
+			Write(playSound ?? new PlaySoundPacketPayload());
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			sharedMetadata = ReadString();
+			playbackContent = ReadString();
+			playbackType = (McpeClientboundPlayAudioContent.AudioContentPlaybackType) ReadByte();
+			playSound = ReadPlaySoundPacketPayload();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			sharedMetadata=default(string);
+			playbackContent=default(string);
+			playbackType=default(McpeClientboundPlayAudioContent.AudioContentPlaybackType);
+			playSound=default(PlaySoundPacketPayload);
+		}
+
+	}
+
+	public partial class McpeServerboundRegisterAudioContent : Packet<McpeServerboundRegisterAudioContent>
+	{
+
+		public List<AudioContentRegistrationEntry> registrations; // = null;
+
+		public McpeServerboundRegisterAudioContent()
+		{
+			Id = 0x168;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteUnsignedVarInt((uint) (registrations?.Count ?? 0));
+			if (registrations != null) foreach (AudioContentRegistrationEntry item in registrations) Write(item);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			uint registrationsCount = ReadUnsignedVarInt();
+			registrations = new List<AudioContentRegistrationEntry>((int) registrationsCount);
+			for (int i = 0; i < registrationsCount; i++) registrations.Add(ReadAudioContentRegistrationEntry());
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			registrations=default(List<AudioContentRegistrationEntry>);
+		}
+
+	}
+
+	public abstract class EventBase
 	{
 	}
 
@@ -3455,6 +3790,14 @@ namespace MiNET.Net
 		public float vehicleAngularVelocity;
 	}
 
+	public class AudioContentRegistrationEntry
+	{
+		public string audioContentId;
+		public string sharedMetadata;
+		public string serverContent;
+		public string playbackContent;
+	}
+
 	public class BedrockSafetyRedactableString
 	{
 		public string unredacted;
@@ -3500,7 +3843,7 @@ namespace MiNET.Net
 		public bool? playerEffects;
 		public CameraPresetAimAssist aimAssist;
 		public CameraPreset.ControlScheme? controlScheme;
-		public bool? applyInheritedStartingRotation;
+		public bool applyInheritedStartingRotation;
 		public Vector2? startingRotation;
 	}
 
@@ -3637,7 +3980,7 @@ namespace MiNET.Net
 		public string dimension;
 	}
 
-	public class Fade : ClientboundUpdateSoundDataParamBase
+	public class Fade : EventBase
 	{
 		public float duration;
 		public float targetVolume;
@@ -3719,6 +4062,10 @@ namespace MiNET.Net
 			Recipefoodcontainer = 64,
 			Recipeblockscontainer = 65,
 			Recipefurnaceitemscontainer = 66,
+			Reservedcontainera = 67,
+			Reservedcontainerb = 68,
+			Reservedcontainerc = 69,
+			Reservedcontainerd = 70,
 		}
 
 		public FullContainerName.ContainerEnumName containerName;
@@ -3971,6 +4318,12 @@ namespace MiNET.Net
 		public byte amount;
 		public ItemStackRequestSlotInfo source;
 		public ItemStackRequestSlotInfo destination;
+	}
+
+	public class ItemStackRequestReservedAction : ItemStackRequestBase
+	{
+		public string reservedId;
+		public byte numCrafts;
 	}
 
 	public class ItemStackRequestSlotInfo
@@ -4239,6 +4592,10 @@ namespace MiNET.Net
 			Smithingtabletemplatecontainer = 61,
 			Crafterlevelentitycontainer = 62,
 			Dynamiccontainer = 63,
+			Reservedcontainera = 67,
+			Reservedcontainerb = 68,
+			Reservedcontainerc = 69,
+			Reservedcontainerd = 70,
 		}
 
 		public LegacySetSlot.ContainerEnumName containerEnum;
@@ -4285,6 +4642,12 @@ namespace MiNET.Net
 			Editorproject = 1,
 			Editortestlevel = 2,
 			Editorrealmsupload = 3,
+		}
+
+		public enum EditorLevelMigrationVersion
+		{
+			Legacy = 0,
+			Editorachievements = 1,
 		}
 
 		public enum EducationEditionOffer
@@ -4337,6 +4700,7 @@ namespace MiNET.Net
 		public LevelSettings.EditorWorldType editorWorldType;
 		public bool isCreatedInEditor;
 		public bool isExportedFromEditor;
+		public LevelSettings.EditorLevelMigrationVersion editorLevelMigrationVersion;
 		public int dayCycleStopTime;
 		public LevelSettings.EducationEditionOffer educationEditionOffer;
 		public bool educationFeaturesEnabled;
@@ -4435,6 +4799,12 @@ namespace MiNET.Net
 		public MapItemTrackedActorUniqueId.MapItemTrackedActorType type;
 		public long? entityId;
 		public BlockCoordinates blockPosition;
+	}
+
+	public class MatchmakingStateOptions
+	{
+		public string triggeringPlayerName;
+		public bool? triggeredByLocalPlayer;
 	}
 
 	public class MemoryCategoryCounter
@@ -4638,7 +5008,23 @@ namespace MiNET.Net
 		public string cdnUrl;
 	}
 
-	public class Pause : ClientboundUpdateSoundDataParamBase
+	public class PassengerOfBlockArguments
+	{
+		public enum EmoteType
+		{
+			Standing = 0,
+			Riding = 1,
+			Laying = 2,
+		}
+
+		public BlockCoordinates blockpos;
+		public Vector3 offset;
+		public float rotation;
+		public float rotationlimit;
+		public PassengerOfBlockArguments.EmoteType emotetype;
+	}
+
+	public class Pause : EventBase
 	{
 	}
 
@@ -4737,6 +5123,18 @@ namespace MiNET.Net
 		public UUID uuid;
 	}
 
+	public class PlaySoundPacketPayload
+	{
+		public string name;
+		public BlockCoordinates position;
+		public float volume;
+		public float pitch;
+		public int loopCount;
+		public bool bypassListenerRangeCheck;
+		public ulong? serverSoundHandle;
+		public float? playbackPositionSeconds;
+	}
+
 	public class PropertySyncData
 	{
 		public List<PropertySyncDataPropertySyncIntEntry> intEntriesList;
@@ -4782,7 +5180,7 @@ namespace MiNET.Net
 	{
 	}
 
-	public class Resume : ClientboundUpdateSoundDataParamBase
+	public class Resume : EventBase
 	{
 	}
 
@@ -4792,7 +5190,7 @@ namespace MiNET.Net
 		public long? playerUniqueId;
 	}
 
-	public class SeekTo : ClientboundUpdateSoundDataParamBase
+	public class SeekTo : EventBase
 	{
 		public float seconds;
 	}
@@ -4844,12 +5242,12 @@ namespace MiNET.Net
 		public string ownerId;
 	}
 
-	public class SetPitch : ClientboundUpdateSoundDataParamBase
+	public class SetPitch : EventBase
 	{
 		public float pitch;
 	}
 
-	public class SetVolume : ClientboundUpdateSoundDataParamBase
+	public class SetVolume : EventBase
 	{
 		public float volume;
 	}
@@ -4867,7 +5265,7 @@ namespace MiNET.Net
 		public int dimension;
 	}
 
-	public class Stop : ClientboundUpdateSoundDataParamBase
+	public class Stop : EventBase
 	{
 	}
 
@@ -5010,6 +5408,24 @@ namespace MiNET.Net
 			return data;
 		}
 
+		public void Write(AudioContentRegistrationEntry data)
+		{
+			Write(data.audioContentId);
+			Write(data.sharedMetadata);
+			Write(data.serverContent);
+			Write(data.playbackContent);
+		}
+
+		public AudioContentRegistrationEntry ReadAudioContentRegistrationEntry()
+		{
+			var data = new AudioContentRegistrationEntry();
+			data.audioContentId = ReadString();
+			data.sharedMetadata = ReadString();
+			data.serverContent = ReadString();
+			data.playbackContent = ReadString();
+			return data;
+		}
+
 		public void Write(BedrockSafetyRedactableString data)
 		{
 			Write(data.unredacted);
@@ -5069,8 +5485,7 @@ namespace MiNET.Net
 			if (data.aimAssist != null) Write(data.aimAssist);
 			Write(data.controlScheme != null);
 			if (data.controlScheme != null) Write((byte) data.controlScheme.Value);
-			Write(data.applyInheritedStartingRotation != null);
-			if (data.applyInheritedStartingRotation != null) Write(data.applyInheritedStartingRotation.Value);
+			Write(data.applyInheritedStartingRotation);
 			Write(data.startingRotation != null);
 			if (data.startingRotation != null) Write(data.startingRotation.Value);
 		}
@@ -5100,7 +5515,7 @@ namespace MiNET.Net
 			if (ReadBool()) data.playerEffects = ReadBool();
 			if (ReadBool()) data.aimAssist = ReadCameraPresetAimAssist();
 			if (ReadBool()) data.controlScheme = (CameraPreset.ControlScheme) ReadByte();
-			if (ReadBool()) data.applyInheritedStartingRotation = ReadBool();
+			data.applyInheritedStartingRotation = ReadBool();
 			if (ReadBool()) data.startingRotation = ReadVector2();
 			return data;
 		}
@@ -5351,6 +5766,7 @@ namespace MiNET.Net
 
 		public void Write(Fade data)
 		{
+			Write((byte) 3);
 			Write(data.duration);
 			Write(data.targetVolume);
 		}
@@ -5358,6 +5774,7 @@ namespace MiNET.Net
 		public Fade ReadFade()
 		{
 			var data = new Fade();
+			ReadByte();
 			data.duration = ReadFloat();
 			data.targetVolume = ReadFloat();
 			return data;
@@ -5634,13 +6051,17 @@ namespace MiNET.Net
 							WriteUnsignedVarInt(15);
 							Write(v15);
 							break;
-						case ItemStackRequestCraftNonImplementedDeprecatedAction v16:
+						case ItemStackRequestReservedAction v16:
 							WriteUnsignedVarInt(16);
 							Write(v16);
 							break;
-						case ItemStackRequestCraftResultsDeprecatedAction v17:
+						case ItemStackRequestCraftNonImplementedDeprecatedAction v17:
 							WriteUnsignedVarInt(17);
 							Write(v17);
+							break;
+						case ItemStackRequestCraftResultsDeprecatedAction v18:
+							WriteUnsignedVarInt(18);
+							Write(v18);
 							break;
 						default:
 							throw new Exception($"actions element variant not set or unknown: {item}");
@@ -5659,7 +6080,7 @@ namespace MiNET.Net
 			data.clientRequestId = ReadSignedVarInt();
 			uint actionsCount = ReadUnsignedVarInt();
 			data.actions = new List<ItemStackRequestBase>((int) actionsCount);
-			for (int i = 0; i < actionsCount; i++) data.actions.Add(ReadUnsignedVarInt() switch { 0 => ReadItemStackRequestTakeAction(), 1 => ReadItemStackRequestPlaceAction(), 2 => ReadItemStackRequestSwapAction(), 3 => ReadItemStackRequestDropAction(), 4 => ReadItemStackRequestDestroyAction(), 5 => ReadItemStackRequestConsumeAction(), 6 => ReadItemStackRequestCreateAction(), 7 => ReadItemStackRequestLabTableCombineAction(), 8 => ReadItemStackRequestBeaconPaymentAction(), 9 => ReadItemStackRequestMineBlockAction(), 10 => ReadItemStackRequestCraftRecipeAction(), 11 => ReadItemStackRequestCraftRecipeAutoAction(), 12 => ReadItemStackRequestCraftCreativeAction(), 13 => ReadItemStackRequestCraftRecipeOptionalAction(), 14 => ReadItemStackRequestCraftRepairAndDisenchantAction(), 15 => ReadItemStackRequestCraftLoomAction(), 16 => ReadItemStackRequestCraftNonImplementedDeprecatedAction(), 17 => ReadItemStackRequestCraftResultsDeprecatedAction(), uint other => throw new Exception($"Unknown item variant tag {other}") });
+			for (int i = 0; i < actionsCount; i++) data.actions.Add(ReadUnsignedVarInt() switch { 0 => ReadItemStackRequestTakeAction(), 1 => ReadItemStackRequestPlaceAction(), 2 => ReadItemStackRequestSwapAction(), 3 => ReadItemStackRequestDropAction(), 4 => ReadItemStackRequestDestroyAction(), 5 => ReadItemStackRequestConsumeAction(), 6 => ReadItemStackRequestCreateAction(), 7 => ReadItemStackRequestLabTableCombineAction(), 8 => ReadItemStackRequestBeaconPaymentAction(), 9 => ReadItemStackRequestMineBlockAction(), 10 => ReadItemStackRequestCraftRecipeAction(), 11 => ReadItemStackRequestCraftRecipeAutoAction(), 12 => ReadItemStackRequestCraftCreativeAction(), 13 => ReadItemStackRequestCraftRecipeOptionalAction(), 14 => ReadItemStackRequestCraftRepairAndDisenchantAction(), 15 => ReadItemStackRequestCraftLoomAction(), 16 => ReadItemStackRequestReservedAction(), 17 => ReadItemStackRequestCraftNonImplementedDeprecatedAction(), 18 => ReadItemStackRequestCraftResultsDeprecatedAction(), uint other => throw new Exception($"Unknown item variant tag {other}") });
 			uint stringsToFilterCount = ReadUnsignedVarInt();
 			data.stringsToFilter = new List<string>((int) stringsToFilterCount);
 			for (int i = 0; i < stringsToFilterCount; i++) data.stringsToFilter.Add(ReadString());
@@ -5669,7 +6090,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestBeaconPaymentAction data)
 		{
-			Write((byte) 8);
+			Write((byte) 10);
 			WriteSignedVarInt(data.primaryEffectId);
 			WriteSignedVarInt(data.secondaryEffectId);
 		}
@@ -5701,7 +6122,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestCraftCreativeAction data)
 		{
-			Write((byte) 12);
+			Write((byte) 14);
 			WriteUnsignedVarInt(data.creativeItemNetId);
 			Write(data.numberOfRequestedCrafts);
 		}
@@ -5717,7 +6138,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestCraftLoomAction data)
 		{
-			Write((byte) 15);
+			Write((byte) 17);
 			Write(data.patternNameId);
 			Write(data.numCrafts);
 		}
@@ -5733,7 +6154,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestCraftNonImplementedDeprecatedAction data)
 		{
-			Write((byte) 16);
+			Write((byte) 19);
 		}
 
 		public ItemStackRequestCraftNonImplementedDeprecatedAction ReadItemStackRequestCraftNonImplementedDeprecatedAction()
@@ -5745,7 +6166,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestCraftRecipeAction data)
 		{
-			Write((byte) 10);
+			Write((byte) 12);
 			WriteUnsignedVarInt(data.recipeNetId);
 			Write(data.numberOfRequestedCrafts);
 		}
@@ -5761,7 +6182,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestCraftRecipeAutoAction data)
 		{
-			Write((byte) 11);
+			Write((byte) 13);
 			WriteUnsignedVarInt(data.recipeNetId);
 			Write(data.numberOfRequestedCrafts);
 			WriteUnsignedVarInt((uint) (data.ingredients?.Count ?? 0));
@@ -5782,7 +6203,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestCraftRecipeOptionalAction data)
 		{
-			Write((byte) 13);
+			Write((byte) 15);
 			WriteUnsignedVarInt(data.recipeNetId);
 			Write(data.filteredStringIndex);
 		}
@@ -5798,7 +6219,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestCraftRepairAndDisenchantAction data)
 		{
-			Write((byte) 14);
+			Write((byte) 16);
 			Write(data.recipeNetId);
 			Write(data.numberOfRequestedCrafts);
 			WriteSignedVarInt(data.repairCost);
@@ -5816,7 +6237,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestCraftResultsDeprecatedAction data)
 		{
-			Write((byte) 17);
+			Write((byte) 20);
 			WriteUnsignedVarInt((uint) (data.craftResults?.Count ?? 0));
 			if (data.craftResults != null) foreach (ItemStackRequestNetworkItemInstanceDescriptor item in data.craftResults) Write(item);
 			Write(data.numCrafts);
@@ -5883,7 +6304,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestLabTableCombineAction data)
 		{
-			Write((byte) 7);
+			Write((byte) 9);
 		}
 
 		public ItemStackRequestLabTableCombineAction ReadItemStackRequestLabTableCombineAction()
@@ -5895,7 +6316,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStackRequestMineBlockAction data)
 		{
-			Write((byte) 9);
+			Write((byte) 11);
 			WriteSignedVarInt(data.slot);
 			WriteSignedVarInt(data.predictedDurability);
 			Write(data.netIdVariant);
@@ -5972,6 +6393,22 @@ namespace MiNET.Net
 			data.amount = ReadByte();
 			data.source = ReadItemStackRequestSlotInfo();
 			data.destination = ReadItemStackRequestSlotInfo();
+			return data;
+		}
+
+		public void Write(ItemStackRequestReservedAction data)
+		{
+			Write((byte) 18);
+			Write(data.reservedId);
+			Write(data.numCrafts);
+		}
+
+		public ItemStackRequestReservedAction ReadItemStackRequestReservedAction()
+		{
+			var data = new ItemStackRequestReservedAction();
+			ReadByte();
+			data.reservedId = ReadString();
+			data.numCrafts = ReadByte();
 			return data;
 		}
 
@@ -6203,6 +6640,7 @@ namespace MiNET.Net
 			WriteSignedVarInt((int) data.editorWorldType);
 			Write(data.isCreatedInEditor);
 			Write(data.isExportedFromEditor);
+			Write((byte) (sbyte) data.editorLevelMigrationVersion);
 			WriteSignedVarInt(data.dayCycleStopTime);
 			WriteUnsignedVarInt((uint) data.educationEditionOffer);
 			Write(data.educationFeaturesEnabled);
@@ -6259,6 +6697,7 @@ namespace MiNET.Net
 			data.editorWorldType = (LevelSettings.EditorWorldType) ReadSignedVarInt();
 			data.isCreatedInEditor = ReadBool();
 			data.isExportedFromEditor = ReadBool();
+			data.editorLevelMigrationVersion = (LevelSettings.EditorLevelMigrationVersion) (sbyte) ReadByte();
 			data.dayCycleStopTime = ReadSignedVarInt();
 			data.educationEditionOffer = (LevelSettings.EducationEditionOffer) ReadUnsignedVarInt();
 			data.educationFeaturesEnabled = ReadBool();
@@ -6338,6 +6777,22 @@ namespace MiNET.Net
 			data.type = (MapItemTrackedActorUniqueId.MapItemTrackedActorType) ReadInt();
 			if (ReadBool()) data.entityId = ReadSignedVarLong();
 			if (ReadBool()) data.blockPosition = ReadBlockCoordinates();
+			return data;
+		}
+
+		public void Write(MatchmakingStateOptions data)
+		{
+			Write(data.triggeringPlayerName != null);
+			if (data.triggeringPlayerName != null) Write(data.triggeringPlayerName);
+			Write(data.triggeredByLocalPlayer != null);
+			if (data.triggeredByLocalPlayer != null) Write(data.triggeredByLocalPlayer.Value);
+		}
+
+		public MatchmakingStateOptions ReadMatchmakingStateOptions()
+		{
+			var data = new MatchmakingStateOptions();
+			if (ReadBool()) data.triggeringPlayerName = ReadString();
+			if (ReadBool()) data.triggeredByLocalPlayer = ReadBool();
 			return data;
 		}
 
@@ -6507,13 +6962,35 @@ namespace MiNET.Net
 			return data;
 		}
 
+		public void Write(PassengerOfBlockArguments data)
+		{
+			Write(data.blockpos);
+			Write(data.offset);
+			Write(data.rotation);
+			Write(data.rotationlimit);
+			Write((byte) data.emotetype);
+		}
+
+		public PassengerOfBlockArguments ReadPassengerOfBlockArguments()
+		{
+			var data = new PassengerOfBlockArguments();
+			data.blockpos = ReadBlockCoordinates();
+			data.offset = ReadVector3();
+			data.rotation = ReadFloat();
+			data.rotationlimit = ReadFloat();
+			data.emotetype = (PassengerOfBlockArguments.EmoteType) ReadByte();
+			return data;
+		}
+
 		public void Write(Pause data)
 		{
+			Write((byte) 5);
 		}
 
 		public Pause ReadPause()
 		{
 			var data = new Pause();
+			ReadByte();
 			return data;
 		}
 
@@ -6592,6 +7069,34 @@ namespace MiNET.Net
 			var data = new PlayerListRemoveEntry();
 			data.action = (PlayerListRemoveEntry.Action) ReadByte();
 			data.uuid = ReadUUID();
+			return data;
+		}
+
+		public void Write(PlaySoundPacketPayload data)
+		{
+			Write(data.name);
+			Write(data.position);
+			Write(data.volume);
+			Write(data.pitch);
+			WriteSignedVarInt(data.loopCount);
+			Write(data.bypassListenerRangeCheck);
+			Write(data.serverSoundHandle != null);
+			if (data.serverSoundHandle != null) Write(data.serverSoundHandle.Value);
+			Write(data.playbackPositionSeconds != null);
+			if (data.playbackPositionSeconds != null) Write(data.playbackPositionSeconds.Value);
+		}
+
+		public PlaySoundPacketPayload ReadPlaySoundPacketPayload()
+		{
+			var data = new PlaySoundPacketPayload();
+			data.name = ReadString();
+			data.position = ReadBlockCoordinates();
+			data.volume = ReadFloat();
+			data.pitch = ReadFloat();
+			data.loopCount = ReadSignedVarInt();
+			data.bypassListenerRangeCheck = ReadBool();
+			if (ReadBool()) data.serverSoundHandle = ReadUlong();
+			if (ReadBool()) data.playbackPositionSeconds = ReadFloat();
 			return data;
 		}
 
@@ -6727,11 +7232,13 @@ namespace MiNET.Net
 
 		public void Write(Resume data)
 		{
+			Write((byte) 6);
 		}
 
 		public Resume ReadResume()
 		{
 			var data = new Resume();
+			ReadByte();
 			return data;
 		}
 
@@ -6752,12 +7259,14 @@ namespace MiNET.Net
 
 		public void Write(SeekTo data)
 		{
+			Write((byte) 4);
 			Write(data.seconds);
 		}
 
 		public SeekTo ReadSeekTo()
 		{
 			var data = new SeekTo();
+			ReadByte();
 			data.seconds = ReadFloat();
 			return data;
 		}
@@ -6836,24 +7345,28 @@ namespace MiNET.Net
 
 		public void Write(SetPitch data)
 		{
+			Write((byte) 2);
 			Write(data.pitch);
 		}
 
 		public SetPitch ReadSetPitch()
 		{
 			var data = new SetPitch();
+			ReadByte();
 			data.pitch = ReadFloat();
 			return data;
 		}
 
 		public void Write(SetVolume data)
 		{
+			Write((byte) 1);
 			Write(data.volume);
 		}
 
 		public SetVolume ReadSetVolume()
 		{
 			var data = new SetVolume();
+			ReadByte();
 			data.volume = ReadFloat();
 			return data;
 		}
@@ -6876,11 +7389,13 @@ namespace MiNET.Net
 
 		public void Write(Stop data)
 		{
+			Write((byte) 0);
 		}
 
 		public Stop ReadStop()
 		{
 			var data = new Stop();
+			ReadByte();
 			return data;
 		}
 

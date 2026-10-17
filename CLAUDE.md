@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-MiNET is a Minecraft: Bedrock Edition server written in C#, targeting .NET 10. The solution lives at `src/MiNET/MiNET.sln`; everything is under `src/MiNET/`. The current protocol target lives in `MCPE Protocol.xml` (currently protocol 1001, game 1.26.34).
+MiNET is a Minecraft: Bedrock Edition server written in C#, targeting .NET 10. The solution lives at `src/MiNET/MiNET.sln`; everything is under `src/MiNET/`. The current protocol target lives in `MCPE Protocol.xml` (currently protocol 2225, game 1.26.60).
 
 Naming note: the edition is Minecraft: Bedrock Edition ("Bedrock"). The `Mcpe`/`MCPE` prefix all over the code and filenames (`McpeProtocolInfo`, `MCPE Protocol.xml`, the `Mcpe*` packet classes) is legacy from the Pocket Edition era and stays, it's baked into the codebase, but "Bedrock" is the edition in prose.
 
@@ -247,7 +247,7 @@ Captures are only comparable to each other when the reference server's configura
 ```bash
 (cd temp_auto/bds/server-<version> && ./bedrock_server.exe > /c/Development/github/MiNET/temp_auto/bds.log 2>&1 &)
 until grep -q "Server started" temp_auto/bds.log; do :; done
-MINET_XBL=signaling MINET_TARGET=127.0.0.1:19232 src/MiNET/MiNET.Client/bin/Debug/net10.0/MiNET.Client.exe
+MINET_XBL=1 MINET_TARGET=127.0.0.1:19232 src/MiNET/MiNET.Client/bin/Debug/net10.0/MiNET.Client.exe
 ```
 
 `... spawned` on stdout is the success line; `MINET_PACKET_DUMP=<dir>` on the same command writes every
@@ -256,9 +256,12 @@ frame as `<seq>-id<N>.bin`. Where an attempt dies, in the order it happens:
 - BDS must be on a port other than 19132, which is MiNET's own; `download-bds.sh` and the
   extractor's `--prepare` both put it on 19232. `MINET_TARGET` must name that port: signaling is
   plain HTTP on it (`GET /v1/join`, `POST /v1/join/<id>`) and the data channel is UDP on it.
-- `MINET_XBL=signaling` is mandatory: since 1.26.50 BDS refuses a NetherNet offer without an Xbox
-  identity assertion. The first run prints a device-code login; after that the saved token is
-  reused and the login itself stays offline under the bot's name.
+- An Xbox identity is mandatory: since 1.26.50 BDS refuses a NetherNet offer without an Xbox
+  identity assertion, and since 1.26.60.30 it also disconnects a self-signed offline login with
+  `NotAuthenticated` (46), even with `online-mode=false` and the gamertag as the name. So
+  `MINET_XBL=1`, the full Xbox login; `MINET_XBL=signaling` (assertion only, offline login under
+  the bot's name) still works on earlier builds. The first run prints a device-code login; after
+  that the saved token is reused.
 - `online-mode=false` and `block-network-ids-are-hashes=false` in `server.properties`.
 - The world must not be an Editor project, or the join ends right after login with
   `disconnectionScreen.editor.joinIntentPolicyFailure.editorClientWithEditorIntentRequired`. The

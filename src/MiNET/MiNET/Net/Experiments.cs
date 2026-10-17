@@ -15,14 +15,12 @@ namespace MiNET.Net
 		public const string ExperimentalCreatorCameras = "experimental_creator_cameras";
 		public const string VillagerTradesRebalance = "villager_trades_rebalance";
 		public const string VoxelShapes = "voxel_shapes";
-		public const string Poi = "poi";
-		public const string CreatorWorldClocks = "creator_world_clocks";
 		public const string DataDrivenVanillaBlocksAndItems = "data_driven_vanilla_blocks_and_items";
 
-		/// <summary>The eight, in the order vanilla sends them, all enabled.</summary>
+		/// <summary>The six, in the order vanilla sends them, all enabled.</summary>
 		public static readonly string[] Vanilla =
 		[
-			UpcomingCreatorFeatures, GameTest, ExperimentalCreatorCameras, VillagerTradesRebalance, VoxelShapes, Poi, CreatorWorldClocks, DataDrivenVanillaBlocksAndItems
+			UpcomingCreatorFeatures, GameTest, ExperimentalCreatorCameras, VillagerTradesRebalance, VoxelShapes, DataDrivenVanillaBlocksAndItems
 		];
 	}
 
@@ -31,7 +29,7 @@ namespace MiNET.Net
 		/// <summary>Whether any experiments have ever been toggled in this world. Part of the wire type (trailing bool after the toggle list).</summary>
 		public bool ExperimentsEverToggled { get; set; }
 
-		/// <summary>What a vanilla 1.26.60 server sends: the eight known experiments on, and the toggled bit set.</summary>
+		/// <summary>What a vanilla 1.26.60 server sends: the six known experiments on, and the toggled bit set.</summary>
 		public static Experiments Vanilla()
 		{
 			var experiments = new Experiments {ExperimentsEverToggled = true};

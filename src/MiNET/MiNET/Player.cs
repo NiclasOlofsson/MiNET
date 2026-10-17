@@ -3004,6 +3004,21 @@ namespace MiNET
 			// Client furnace UI layout preference (new at 2192). Ignored.
 		}
 
+		public virtual void HandleMcpeServerboundMatchmakingCancel(McpeServerboundMatchmakingCancel message)
+		{
+			// Client cancelled a matchmaking queue. MiNET runs no matchmaking. Ignored.
+		}
+
+		public virtual void HandleMcpeServerboundCursorItemDrag(McpeServerboundCursorItemDrag message)
+		{
+			// Client started or stopped a cursor split drag (new at 2225). The moves themselves arrive as item stack requests. Ignored.
+		}
+
+		public virtual void HandleMcpeServerboundRegisterAudioContent(McpeServerboundRegisterAudioContent message)
+		{
+			// Client registration of signed audio content (new at 2225). Ignored.
+		}
+
 		public virtual void HandleMcpeServerboundDataStore(McpeServerboundDataStore message)
 		{
 			// Client data store update request. Ignored.

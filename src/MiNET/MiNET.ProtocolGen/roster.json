@@ -408,6 +408,158 @@
 			"client": false,
 			"server": true,
 			"schema": "TransferPacket"
+		},
+		{
+			"name": "MCPE_CLIENT_TO_SERVER_HANDSHAKE",
+			"id": "0x04",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ClientToServerHandshakePacket"
+		},
+		{
+			"name": "MCPE_SET_TIME",
+			"id": "0x0a",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SetTimePacket"
+		},
+		{
+			"name": "MCPE_LEVEL_EVENT",
+			"id": "0x19",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "LevelEventPacket"
+		},
+		{
+			"name": "MCPE_SET_HEALTH",
+			"id": "0x2a",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SetHealthPacket"
+		},
+		{
+			"name": "MCPE_SET_DIFFICULTY",
+			"id": "0x3c",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SetDifficultyPacket"
+		},
+		{
+			"name": "MCPE_CHUNK_RADIUS_UPDATE",
+			"id": "0x46",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ChunkRadiusUpdatedPacket"
+		},
+		{
+			"name": "MCPE_SERVER_SETTINGS_REQUEST",
+			"id": "0x66",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ServerSettingsRequestPacket"
+		},
+		{
+			"name": "MCPE_ON_SCREEN_TEXTURE_ANIMATION",
+			"id": "0x82",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "OnScreenTextureAnimationPacket"
+		},
+		{
+			"name": "MCPE_MAP_CREATE_LOCKED_COPY",
+			"id": "0x83",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "MapCreateLockedCopyPacket"
+		},
+		{
+			"name": "MCPE_SETTINGS_COMMAND",
+			"id": "0x8c",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "SettingsCommandPacket"
+		},
+		{
+			"name": "MCPE_SCRIPT_MESSAGE",
+			"id": "0xb1",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "ScriptMessagePacket"
+		},
+		{
+			"name": "MCPE_TICKING_AREAS_LOAD_STATUS",
+			"id": "0xb3",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "TickingAreasLoadStatusPacket"
+		},
+		{
+			"name": "MCPE_TOAST_REQUEST",
+			"id": "0xba",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ToastRequestPacket"
+		},
+		{
+			"name": "MCPE_REFRESH_ENTITLEMENTS",
+			"id": "0x131",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "RefreshEntitlementsPacket"
+		},
+		{
+			"name": "MCPE_PLAYER_TOGGLE_CRAFTER_SLOT_REQUEST",
+			"id": "0x132",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "PlayerToggleCrafterSlotRequestPacket"
+		},
+		{
+			"name": "MCPE_CLIENTBOUND_CLOSE_FORM",
+			"id": "0x136",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ClientboundCloseFormPacket"
+		},
+		{
+			"name": "MCPE_CLIENTBOUND_DATA_DRIVEN_UI_RELOAD",
+			"id": "0x14f",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ClientboundDataDrivenUIReloadPacket"
+		},
+		{
+			"name": "MCPE_RESOURCE_PACKS_READY_FOR_VALIDATION",
+			"id": "0x154",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ResourcePacksReadyForValidationPacket"
+		},
+		{
+			"name": "MCPE_PARTY_DESTINATION_COOKIE_RESPONSE",
+			"id": "0x15e",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "PartyDestinationCookieResponsePacket"
 		}
 	]
 }

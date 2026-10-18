@@ -86,11 +86,11 @@ namespace MiNET.Test
 					continue;
 				}
 
-				if (packet.subchunkData.Any(entry => entry.heightMapData?.heights != null)) withHeightmap++;
+				if (packet.subChunkData.Any(entry => entry.heightMapData?.heights != null)) withHeightmap++;
 
 				if (!expected.SequenceEqual(packet.Encode()))
 				{
-					failures.Add($"{name}: re-encode differs (cache={packet.cacheEnabled} entries={packet.subchunkData?.Count ?? -1})");
+					failures.Add($"{name}: re-encode differs (cache={packet.cacheEnabled} entries={packet.subChunkData?.Count ?? -1})");
 				}
 			}
 

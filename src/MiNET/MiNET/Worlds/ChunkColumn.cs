@@ -585,7 +585,7 @@ namespace MiNET.Worlds
 
 			// Only a real section is worth keeping. An out-of-bounds or all-air answer is cheap to
 			// produce and caching it would hold a dictionary entry per section of empty sky.
-			if (!DisableCache && built.subchunkRequestResult == SubChunkPacketData.SubchunkRequestResult.Success) _cachedSubChunkData[key] = built;
+			if (!DisableCache && built.subChunkRequestResult == SubChunkPacketData.SubChunkRequestResult.Success) _cachedSubChunkData[key] = built;
 
 			return built;
 		}
@@ -599,8 +599,8 @@ namespace MiNET.Worlds
 		{
 			return new SubChunkPacketData
 			{
-				subchunkPosOffset = offset,
-				subchunkRequestResult = cached.subchunkRequestResult,
+				subChunkPosOffset = offset,
+				subChunkRequestResult = cached.subChunkRequestResult,
 				serializedSubChunk = cached.serializedSubChunk,
 				heightMapData = cached.heightMapData,
 				blobId = cached.blobId
@@ -611,17 +611,17 @@ namespace MiNET.Worlds
 		{
 			var entry = new SubChunkPacketData
 			{
-				subchunkPosOffset = offset,
+				subChunkPosOffset = offset,
 				heightMapData = new SubChunkHeightmapData
 				{
-					heightMapType = SubChunkHeightmapData.HeightMapType.Nodata,
-					renderHeightMapType = SubChunkHeightmapData.RenderHeightMapType.Nodata
+					heightMapType = SubChunkHeightmapData.HeightMapType.NoData,
+					renderHeightMapType = SubChunkHeightmapData.RenderHeightMapType.NoData
 				}
 			};
 
 			if (!IsSectionInBounds(sectionY))
 			{
-				entry.subchunkRequestResult = SubChunkPacketData.SubchunkRequestResult.Indexoutofbounds;
+				entry.subChunkRequestResult = SubChunkPacketData.SubChunkRequestResult.IndexOutOfBounds;
 				return entry;
 			}
 
@@ -646,25 +646,25 @@ namespace MiNET.Worlds
 
 			if (allBelow)
 			{
-				entry.heightMapData.heightMapType = SubChunkHeightmapData.HeightMapType.Alltoolow;
-				entry.heightMapData.renderHeightMapType = SubChunkHeightmapData.RenderHeightMapType.Alltoolow;
+				entry.heightMapData.heightMapType = SubChunkHeightmapData.HeightMapType.AllTooLow;
+				entry.heightMapData.renderHeightMapType = SubChunkHeightmapData.RenderHeightMapType.AllTooLow;
 			}
 			else if (allAbove)
 			{
-				entry.heightMapData.heightMapType = SubChunkHeightmapData.HeightMapType.Alltoohigh;
-				entry.heightMapData.renderHeightMapType = SubChunkHeightmapData.RenderHeightMapType.Alltoohigh;
+				entry.heightMapData.heightMapType = SubChunkHeightmapData.HeightMapType.AllTooHigh;
+				entry.heightMapData.renderHeightMapType = SubChunkHeightmapData.RenderHeightMapType.AllTooHigh;
 			}
 			else
 			{
-				entry.heightMapData.heightMapType = SubChunkHeightmapData.HeightMapType.Hasdata;
+				entry.heightMapData.heightMapType = SubChunkHeightmapData.HeightMapType.HasData;
 				entry.heightMapData.heights = heights;
-				entry.heightMapData.renderHeightMapType = SubChunkHeightmapData.RenderHeightMapType.Allcopied;
+				entry.heightMapData.renderHeightMapType = SubChunkHeightmapData.RenderHeightMapType.AllCopied;
 			}
 
 			SubChunk subChunk = this[sectionY - (WorldMinY / 16), generateIfMissing: false];
 			if (subChunk == null || subChunk.IsAllAir())
 			{
-				entry.subchunkRequestResult = SubChunkPacketData.SubchunkRequestResult.Successallair;
+				entry.subChunkRequestResult = SubChunkPacketData.SubChunkRequestResult.SuccessAllAir;
 				return entry;
 			}
 
@@ -692,7 +692,7 @@ namespace MiNET.Worlds
 				if (entityStream.Length > 0) entry.serializedSubChunk = entityStream.ToArray();
 			}
 
-			entry.subchunkRequestResult = SubChunkPacketData.SubchunkRequestResult.Success;
+			entry.subChunkRequestResult = SubChunkPacketData.SubChunkRequestResult.Success;
 			return entry;
 		}
 
@@ -747,7 +747,7 @@ namespace MiNET.Worlds
 			packet.chunkPosition = seed.Position;
 			packet.dimension = (int) Dimension;
 			packet.subChunkCount = 0;
-			packet.clientRequestSubchunkLimit = seed.Limit;
+			packet.clientRequestSubChunkLimit = seed.Limit;
 			packet.cacheEnabled = true;
 			packet.cacheMetadata = seed.CacheMetadata;
 			packet.chunkData = SkeletonChunkData;

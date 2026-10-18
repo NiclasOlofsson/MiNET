@@ -3247,7 +3247,7 @@ namespace MiNET
 
 				// Counted per entry, not per request: one request carries many offsets and they can
 				// have different outcomes, which is exactly the distinction worth having.
-				EngineMetrics.SubChunkResult(entry.subchunkRequestResult.ToString().ToLowerInvariant());
+				EngineMetrics.SubChunkResult(entry.subChunkRequestResult.ToString().ToLowerInvariant());
 				if (entry.serializedSubChunk != null) EngineMetrics.SubChunkBytes(entry.serializedSubChunk.Length);
 
 				entries.Add(entry);
@@ -3269,7 +3269,7 @@ namespace MiNET
 					packet.cacheEnabled = true;
 					packet.dimensionType = dimension;
 					packet.centerPos = centerPos;
-					packet.subchunkData = entries.GetRange(i, Math.Min(sectionsPerFlush, entries.Count - i));
+					packet.subChunkData = entries.GetRange(i, Math.Min(sectionsPerFlush, entries.Count - i));
 					SendPacket(packet);
 				}
 			});
@@ -3277,21 +3277,21 @@ namespace MiNET
 
 		private SubChunkPacketData BuildSubChunkEntry(McpeSubChunkRequestPacket message, SubChunkPosOffset offset)
 		{
-			SubChunkPacketData Rejected(SubChunkPacketData.SubchunkRequestResult result) => new SubChunkPacketData
+			SubChunkPacketData Rejected(SubChunkPacketData.SubChunkRequestResult result) => new SubChunkPacketData
 			{
-				subchunkPosOffset = offset,
-				subchunkRequestResult = result,
+				subChunkPosOffset = offset,
+				subChunkRequestResult = result,
 				heightMapData = new SubChunkHeightmapData
 				{
-					heightMapType = SubChunkHeightmapData.HeightMapType.Nodata,
-					renderHeightMapType = SubChunkHeightmapData.RenderHeightMapType.Nodata
+					heightMapType = SubChunkHeightmapData.HeightMapType.NoData,
+					renderHeightMapType = SubChunkHeightmapData.RenderHeightMapType.NoData
 				}
 			};
 
-			if (message.dimension != (int) Level.Dimension) return Rejected(SubChunkPacketData.SubchunkRequestResult.Wrongdimension);
+			if (message.dimension != (int) Level.Dimension) return Rejected(SubChunkPacketData.SubChunkRequestResult.WrongDimension);
 
 			int sectionY = message.originY + offset.subchunkOffsetY;
-			if (!ChunkColumn.IsSectionInBounds(sectionY)) return Rejected(SubChunkPacketData.SubchunkRequestResult.Indexoutofbounds);
+			if (!ChunkColumn.IsSectionInBounds(sectionY)) return Rejected(SubChunkPacketData.SubChunkRequestResult.IndexOutOfBounds);
 
 			var coordinates = new ChunkCoordinates(message.originX + offset.subchunkOffsetX, message.originZ + offset.subchunkOffsetZ);
 
@@ -3316,7 +3316,7 @@ namespace MiNET
 			// in it: the client asks for sub-chunks faster than the publisher loads columns, and it
 			// does not come back for a rejection.
 			ChunkColumn chunkColumn = Level.GetChunk(coordinates);
-			if (chunkColumn == null) return Rejected(SubChunkPacketData.SubchunkRequestResult.Levelchunkdoesntexist);
+			if (chunkColumn == null) return Rejected(SubChunkPacketData.SubChunkRequestResult.LevelChunkDoesntExist);
 
 			// A section asked for twice was evicted client-side and re-marked by a fresh skeleton;
 			// counting those is how the client's eviction behaviour stays visible.
@@ -4101,7 +4101,7 @@ namespace MiNET
 				defaultSpawnBlockPosition = new BlockCoordinates((int) Level.SpawnPoint.X, (int) Level.SpawnPoint.Y, (int) Level.SpawnPoint.Z),
 				achievementsDisabled = Level.AchievementsDisabled,
 				dayCycleStopTime = (int) Level.WorldTime,
-				educationEditionOffer = PlayerInfo.Edition == 1 ? LevelSettings.EducationEditionOffer.Restofworld : LevelSettings.EducationEditionOffer.None,
+				educationEditionOffer = PlayerInfo.Edition == 1 ? LevelSettings.EducationEditionOffer.RestOfWorld : LevelSettings.EducationEditionOffer.None,
 				educationProductId = "",
 				rainLevel = Level.RainLevel,
 				lightningLevel = Level.LightningLevel,
@@ -4179,7 +4179,7 @@ namespace MiNET
 			startGame.worldTemplateId = new UUID(new byte[16]);
 			// Session correlation id in vanilla's "<raknet>xxxx-xxxx-xxxx-xxxx" shape.
 			startGame.multiplayerCorrelationId = "<raknet>" + Guid.NewGuid().ToString("N").Substring(0, 16).Insert(4, "-").Insert(9, "-").Insert(14, "-");
-			startGame.serverEnabledClientsideGeneration = false;
+			startGame.serverEnabledClientSideGeneration = false;
 			// Vanilla sends the join-info block with all three optional sub-blocks absent.
 			startGame.serverConfigurationJoinInfo = new ServerConfig();
 			startGame.serverTelemetryData = new ServerTelemetryData {serverId = "", scenarioId = "", worldId = "", ownerId = ""};

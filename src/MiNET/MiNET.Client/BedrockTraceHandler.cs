@@ -74,15 +74,15 @@ namespace MiNET.Client
 
 		private void DumpPositionalIds(McpeSubChunkPacket message, SubChunkPacketData entry)
 		{
-			int chunkX = message.centerPos.subchunkPositionX + entry.subchunkPosOffset.subchunkOffsetX;
-			int chunkZ = message.centerPos.subchunkPositionZ + entry.subchunkPosOffset.subchunkOffsetZ;
+			int chunkX = message.centerPos.subchunkPositionX + entry.subChunkPosOffset.subchunkOffsetX;
+			int chunkZ = message.centerPos.subchunkPositionZ + entry.subChunkPosOffset.subchunkOffsetZ;
 			if (chunkX < 0 || chunkX > 3 || chunkZ < 0 || chunkZ > 3) return;
 
 			int[] grid = ClientUtils.DecodeSubChunkGrid(entry.serializedSubChunk);
 			if (grid == null) return;
 
 			int baseX = chunkX * 16;
-			int baseY = (message.centerPos.subchunkPositionY + entry.subchunkPosOffset.subchunkOffsetY) * 16;
+			int baseY = (message.centerPos.subchunkPositionY + entry.subChunkPosOffset.subchunkOffsetY) * 16;
 			int baseZ = chunkZ * 16;
 			lock (_positionalDumpLock)
 			{
@@ -108,11 +108,11 @@ namespace MiNET.Client
 			if (Client.IsEmulator) return;
 
 			int success = 0, allAir = 0, other = 0, parsedOk = 0, parseFail = 0, cached = 0;
-			foreach (SubChunkPacketData entry in message.subchunkData)
+			foreach (SubChunkPacketData entry in message.subChunkData)
 			{
-				switch ((SubChunkPacketData.SubchunkRequestResult) entry.subchunkRequestResult)
+				switch ((SubChunkPacketData.SubChunkRequestResult) entry.subChunkRequestResult)
 				{
-					case SubChunkPacketData.SubchunkRequestResult.Success:
+					case SubChunkPacketData.SubChunkRequestResult.Success:
 						success++;
 
 						// Cached, the section is a hash and its bytes arrive later in a
@@ -129,7 +129,7 @@ namespace MiNET.Client
 						else parseFail++;
 						if (!Client.BlockNetworkIdsAreHashes) DumpPositionalIds(message, entry);
 						break;
-					case SubChunkPacketData.SubchunkRequestResult.Successallair:
+					case SubChunkPacketData.SubChunkRequestResult.SuccessAllAir:
 						allAir++;
 						break;
 					default:
@@ -140,7 +140,7 @@ namespace MiNET.Client
 
 			if (System.Threading.Interlocked.Increment(ref _subChunkPacketsLogged) <= 5 || parseFail > 0)
 			{
-				Log.Warn($"SubChunk response: origin=({message.centerPos.subchunkPositionX},{message.centerPos.subchunkPositionY},{message.centerPos.subchunkPositionZ}) entries={message.subchunkData.Count} success={success} cached={cached} parsedOk={parsedOk} parseFail={parseFail} allAir={allAir} other={other} positionalCells={_positionalCells}");
+				Log.Warn($"SubChunk response: origin=({message.centerPos.subchunkPositionX},{message.centerPos.subchunkPositionY},{message.centerPos.subchunkPositionZ}) entries={message.subChunkData.Count} success={success} cached={cached} parsedOk={parsedOk} parseFail={parseFail} allAir={allAir} other={other} positionalCells={_positionalCells}");
 			}
 		}
 
@@ -716,7 +716,7 @@ namespace MiNET.Client
 					Log.Debug($"Got hashes for {message.chunkPosition.x}, {message.chunkPosition.z}, {hash}");
 				}
 			}
-			else if (message.clientRequestSubchunkLimit == null)
+			else if (message.clientRequestSubChunkLimit == null)
 			{
 				Client.Chunks.GetOrAdd(new ChunkCoordinates(message.chunkPosition.x, message.chunkPosition.z), coordinates =>
 				{

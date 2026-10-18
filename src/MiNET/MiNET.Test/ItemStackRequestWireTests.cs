@@ -95,7 +95,7 @@ namespace MiNET.Test
 			var take = request.actions[2] as ItemStackRequestTakeAction;
 			Assert.IsNotNull(take, "the third action moves the produced stack out of the output slot");
 			Assert.AreEqual(64, take.amount);
-			Assert.AreEqual(FullContainerName.ContainerEnumName.Createdoutputcontainer, take.source.fullContainerName.containerName);
+			Assert.AreEqual(FullContainerName.ContainerEnumName.CreatedOutputContainer, take.source.fullContainerName.containerName);
 			Assert.AreEqual(50, take.source.slot);
 
 			// The stack net id is a fixed li32. Read as a signed varint it takes one byte too many
@@ -103,12 +103,12 @@ namespace MiNET.Test
 			// the enum: AnvilInputContainer (0) instead of CursorContainer (59). The server then
 			// told the client its chest was in an anvil and the client rolled the pick back.
 			Assert.AreEqual(-85, take.source.netIdVariant, "the source net id is the client request id, li32");
-			Assert.AreEqual(FullContainerName.ContainerEnumName.Cursorcontainer, take.destination.fullContainerName.containerName);
+			Assert.AreEqual(FullContainerName.ContainerEnumName.CursorContainer, take.destination.fullContainerName.containerName);
 			Assert.AreEqual(0, take.destination.slot);
 
 			// Only the correct width leaves the tail aligned. Off by one byte this reads -65536, and
 			// McpeItemStackRequest warns that two bytes are left over.
-			Assert.AreEqual(-1, (int) request.stringstofilterorigin, "the request ends clean, with nothing left to read");
+			Assert.AreEqual(-1, (int) request.stringsToFilterOrigin, "the request ends clean, with nothing left to read");
 		}
 
 		// The byte after each action's tag is the action type, not the tag: the action enum skips

@@ -154,8 +154,8 @@ namespace MiNET.Worlds
 		public bool IsMultiplayer { get; set; } = true;
 		public bool BroadcastToLan { get; set; } = true;
 		// Enum-typed, not int: the client rejects a broadcast setting outside GamePublishSetting.
-		public LevelSettings.GamePublishSetting XboxLiveBroadcastMode { get; set; } = LevelSettings.GamePublishSetting.Nomultiplay;
-		public LevelSettings.GamePublishSetting PlatformBroadcastMode { get; set; } = LevelSettings.GamePublishSetting.Nomultiplay;
+		public LevelSettings.GamePublishSetting XboxLiveBroadcastMode { get; set; } = LevelSettings.GamePublishSetting.NoMultiPlay;
+		public LevelSettings.GamePublishSetting PlatformBroadcastMode { get; set; } = LevelSettings.GamePublishSetting.NoMultiPlay;
 		public bool UseMsaGamertagsOnly { get; set; } = true;
 		public bool IsTexturepacksRequired { get; set; }
 		public bool BonusChest { get; set; }
@@ -1103,7 +1103,7 @@ namespace MiNET.Worlds
 						move.position = new Vector3(knownPosition.X, knownPosition.Y + 1.62f, knownPosition.Z);
 						move.rotation = new Vector2(knownPosition.Pitch, knownPosition.Yaw);
 						move.headYaw = knownPosition.HeadYaw;
-						move.mode = player.Vehicle == 0 ? McpeMovePlayer.PositionMode.Normal : McpeMovePlayer.PositionMode.Onlyheadrot;
+						move.mode = player.Vehicle == 0 ? McpeMovePlayer.PositionMode.Normal : McpeMovePlayer.PositionMode.OnlyHeadRot;
 						move.onGround = !player.IsGliding && player.IsOnGround;
 						move.ridingRuntimeEntityId = player.Vehicle;
 						movePackets.Add(move);
@@ -1414,7 +1414,7 @@ namespace MiNET.Worlds
 				move.position = new Vector3(position.X, position.Y + 1.62f, position.Z);
 				move.rotation = new Vector2(position.Pitch, position.Yaw);
 				move.headYaw = position.HeadYaw;
-				move.mode = mover.Vehicle == 0 ? McpeMovePlayer.PositionMode.Normal : McpeMovePlayer.PositionMode.Onlyheadrot;
+				move.mode = mover.Vehicle == 0 ? McpeMovePlayer.PositionMode.Normal : McpeMovePlayer.PositionMode.OnlyHeadRot;
 				move.onGround = !mover.IsGliding && mover.IsOnGround;
 				move.ridingRuntimeEntityId = mover.Vehicle;
 				move.EncodeAsMemory();

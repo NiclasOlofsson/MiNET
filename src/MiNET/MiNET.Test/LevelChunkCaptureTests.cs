@@ -66,7 +66,7 @@ namespace MiNET.Test
 
 				CollectionAssert.AreEqual(expected, actual,
 					$"Re-encode of {Path.GetFileName(path)} does not match the captured bytes. "
-					+ $"Decoded as limit={packet.clientRequestSubchunkLimit} subChunkCount={packet.subChunkCount} "
+					+ $"Decoded as limit={packet.clientRequestSubChunkLimit} subChunkCount={packet.subChunkCount} "
 					+ $"cacheEnabled={packet.cacheEnabled} chunkData={packet.chunkData?.Length ?? -1} bytes.");
 			}
 		}
@@ -87,7 +87,7 @@ namespace MiNET.Test
 
 			Assert.AreEqual(0, packet.chunkPosition.x);
 			Assert.AreEqual(0, packet.chunkPosition.z);
-			Assert.IsNotNull(packet.clientRequestSubchunkLimit);
+			Assert.IsNotNull(packet.clientRequestSubChunkLimit);
 			Assert.AreEqual(13u, packet.subChunkCount);
 			Assert.IsFalse(packet.cacheEnabled, "Captured with the client declining the blob cache.");
 			Assert.AreEqual(0, packet.cacheMetadata.Count, "No hashes travel when the cache is off.");
@@ -142,7 +142,7 @@ namespace MiNET.Test
 
 				if (!expected.SequenceEqual(packet.Encode()))
 				{
-					failures.Add($"{name}: re-encode differs (limit={packet.clientRequestSubchunkLimit} count={packet.subChunkCount} cache={packet.cacheEnabled})");
+					failures.Add($"{name}: re-encode differs (limit={packet.clientRequestSubChunkLimit} count={packet.subChunkCount} cache={packet.cacheEnabled})");
 				}
 			}
 

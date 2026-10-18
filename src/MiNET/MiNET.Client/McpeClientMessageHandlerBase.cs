@@ -411,7 +411,7 @@ namespace MiNET.Client
 
 			if (!needsRequest) return;
 
-			Client.PendingSubChunkColumns.Enqueue((message.chunkPosition.x, message.chunkPosition.z, message.clientRequestSubchunkLimit.Value, message.dimension));
+			Client.PendingSubChunkColumns.Enqueue((message.chunkPosition.x, message.chunkPosition.z, message.clientRequestSubChunkLimit.Value, message.dimension));
 
 			if (!Client.BatchChunkResponses) Client.FlushChunkResponses();
 		}

@@ -292,9 +292,9 @@ namespace MiNET
 			_player.SetContainerItem(source.fullContainerName.containerName, source.slot, destItem);
 			_player.SetContainerItem(destination.fullContainerName.containerName, destination.slot, sourceItem);
 
-			if (source.fullContainerName.containerName == FullContainerName.ContainerEnumName.Recipebookcontainer || source.fullContainerName.containerName == FullContainerName.ContainerEnumName.Enchantinginputcontainer || destination.fullContainerName.containerName == FullContainerName.ContainerEnumName.Recipebookcontainer || destination.fullContainerName.containerName == FullContainerName.ContainerEnumName.Enchantinginputcontainer)
+			if (source.fullContainerName.containerName == FullContainerName.ContainerEnumName.RecipeBookContainer || source.fullContainerName.containerName == FullContainerName.ContainerEnumName.EnchantingInputContainer || destination.fullContainerName.containerName == FullContainerName.ContainerEnumName.RecipeBookContainer || destination.fullContainerName.containerName == FullContainerName.ContainerEnumName.EnchantingInputContainer)
 			{
-				if (!(_player.GetContainerItem(FullContainerName.ContainerEnumName.Recipebookcontainer, 14) is ItemAir) && !(_player.GetContainerItem(FullContainerName.ContainerEnumName.Enchantinginputcontainer, 15) is ItemAir)) Enchantment.SendEnchantments(_player, _player.GetContainerItem(FullContainerName.ContainerEnumName.Recipebookcontainer, 14));
+				if (!(_player.GetContainerItem(FullContainerName.ContainerEnumName.RecipeBookContainer, 14) is ItemAir) && !(_player.GetContainerItem(FullContainerName.ContainerEnumName.EnchantingInputContainer, 15) is ItemAir)) Enchantment.SendEnchantments(_player, _player.GetContainerItem(FullContainerName.ContainerEnumName.RecipeBookContainer, 14));
 				else Enchantment.SendEmptyEnchantments(_player);
 			}
 
@@ -364,9 +364,9 @@ namespace MiNET
 				_player.SetContainerItem(destination.fullContainerName.containerName, destination.slot, destItem);
 			}
 
-			if (destination.fullContainerName.containerName == FullContainerName.ContainerEnumName.Recipebookcontainer || destination.fullContainerName.containerName == FullContainerName.ContainerEnumName.Enchantinginputcontainer)
+			if (destination.fullContainerName.containerName == FullContainerName.ContainerEnumName.RecipeBookContainer || destination.fullContainerName.containerName == FullContainerName.ContainerEnumName.EnchantingInputContainer)
 			{
-				if (!(_player.GetContainerItem(FullContainerName.ContainerEnumName.Recipebookcontainer, 14) is ItemAir) && !(_player.GetContainerItem(FullContainerName.ContainerEnumName.Enchantinginputcontainer, 15) is ItemAir)) Enchantment.SendEnchantments(_player, _player.GetContainerItem(FullContainerName.ContainerEnumName.Recipebookcontainer, 14));
+				if (!(_player.GetContainerItem(FullContainerName.ContainerEnumName.RecipeBookContainer, 14) is ItemAir) && !(_player.GetContainerItem(FullContainerName.ContainerEnumName.EnchantingInputContainer, 15) is ItemAir)) Enchantment.SendEnchantments(_player, _player.GetContainerItem(FullContainerName.ContainerEnumName.RecipeBookContainer, 14));
 				else Enchantment.SendEmptyEnchantments(_player);
 			}
 
@@ -428,9 +428,9 @@ namespace MiNET
 
 			_player.SetContainerItem(destination.fullContainerName.containerName, destination.slot, destItem);
 
-			if (source.fullContainerName.containerName == FullContainerName.ContainerEnumName.Recipebookcontainer || source.fullContainerName.containerName == FullContainerName.ContainerEnumName.Enchantinginputcontainer)
+			if (source.fullContainerName.containerName == FullContainerName.ContainerEnumName.RecipeBookContainer || source.fullContainerName.containerName == FullContainerName.ContainerEnumName.EnchantingInputContainer)
 			{
-				if (!(_player.GetContainerItem(FullContainerName.ContainerEnumName.Recipebookcontainer, 14) is ItemAir) && !(_player.GetContainerItem(FullContainerName.ContainerEnumName.Enchantinginputcontainer, 15) is ItemAir)) Enchantment.SendEnchantments(_player, _player.GetContainerItem(FullContainerName.ContainerEnumName.Recipebookcontainer, 14));
+				if (!(_player.GetContainerItem(FullContainerName.ContainerEnumName.RecipeBookContainer, 14) is ItemAir) && !(_player.GetContainerItem(FullContainerName.ContainerEnumName.EnchantingInputContainer, 15) is ItemAir)) Enchantment.SendEnchantments(_player, _player.GetContainerItem(FullContainerName.ContainerEnumName.RecipeBookContainer, 14));
 				else Enchantment.SendEmptyEnchantments(_player);
 			}
 
@@ -471,7 +471,7 @@ namespace MiNET
 			if (_activeRecipe != null) return;
 
 			//BUG: Won't work proper with anvil anymore.
-			if (_player.GetContainerItem(FullContainerName.ContainerEnumName.Cursorcontainer, 50).UniqueId > 0) return;
+			if (_player.GetContainerItem(FullContainerName.ContainerEnumName.CursorContainer, 50).UniqueId > 0) return;
 
 			//TODO: We only use this for anvils right now. Until we fixed the anvil merge ourselves.
 			// The deprecated action carries a descriptor rather than an item, so the name has to be
@@ -487,7 +487,7 @@ namespace MiNET
 			Item result = ItemFactory.GetItemByName(named.fullName, (short) named.auxValue);
 			result.Count = (byte) craftingResult.stackSize;
 			result.UniqueId = Environment.TickCount;
-			_player.SetContainerItem(FullContainerName.ContainerEnumName.Cursorcontainer, 50, result);
+			_player.SetContainerItem(FullContainerName.ContainerEnumName.CursorContainer, 50, result);
 		}
 
 		protected virtual void ProcessCraftNotImplementedDeprecatedAction(ItemStackRequestCraftNonImplementedDeprecatedAction action)
@@ -547,7 +547,7 @@ namespace MiNET
 			var craftingResult = (Item) result.Clone();
 			if (result.ExtraData != null) craftingResult.ExtraData = (NbtCompound) result.ExtraData.Clone();
 			craftingResult.UniqueId = Environment.TickCount;
-			_player.SetContainerItem(FullContainerName.ContainerEnumName.Cursorcontainer, 50, craftingResult);
+			_player.SetContainerItem(FullContainerName.ContainerEnumName.CursorContainer, 50, craftingResult);
 
 			return recipe;
 		}

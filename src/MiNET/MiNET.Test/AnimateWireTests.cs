@@ -44,11 +44,11 @@ namespace MiNET.Test
 		[TestMethod]
 		public void Action_values_follow_the_schema_not_the_declaration_order()
 		{
-			Assert.AreEqual(0, (int) McpeAnimate.AnimatePacketPayloadAction.Noaction);
+			Assert.AreEqual(0, (int) McpeAnimate.AnimatePacketPayloadAction.NoAction);
 			Assert.AreEqual(1, (int) McpeAnimate.AnimatePacketPayloadAction.Swing);
-			Assert.AreEqual(3, (int) McpeAnimate.AnimatePacketPayloadAction.Wakeup);
-			Assert.AreEqual(4, (int) McpeAnimate.AnimatePacketPayloadAction.Criticalhit);
-			Assert.AreEqual(5, (int) McpeAnimate.AnimatePacketPayloadAction.Magiccriticalhit);
+			Assert.AreEqual(3, (int) McpeAnimate.AnimatePacketPayloadAction.WakeUp);
+			Assert.AreEqual(4, (int) McpeAnimate.AnimatePacketPayloadAction.CriticalHit);
+			Assert.AreEqual(5, (int) McpeAnimate.AnimatePacketPayloadAction.MagicCriticalHit);
 		}
 
 		[TestMethod]
@@ -69,7 +69,7 @@ namespace MiNET.Test
 		public void Hand_is_written_even_when_it_is_the_default()
 		{
 			var packet = McpeAnimate.CreateObject();
-			packet.actionId = McpeAnimate.AnimatePacketPayloadAction.Criticalhit;
+			packet.actionId = McpeAnimate.AnimatePacketPayloadAction.CriticalHit;
 			packet.runtimeEntityId = 5;
 
 			string hex = Convert.ToHexString(packet.Encode()).ToLowerInvariant();
@@ -99,7 +99,7 @@ namespace MiNET.Test
 		public void Round_trip_keeps_every_field()
 		{
 			var packet = McpeAnimate.CreateObject();
-			packet.actionId = McpeAnimate.AnimatePacketPayloadAction.Magiccriticalhit;
+			packet.actionId = McpeAnimate.AnimatePacketPayloadAction.MagicCriticalHit;
 			packet.runtimeEntityId = 123456;
 			packet.data = 1.5f;
 			packet.swingSource = McpeAnimate.ActorSwingSource.Attack;
@@ -108,7 +108,7 @@ namespace MiNET.Test
 			var decoded = McpeAnimate.CreateObject();
 			decoded.Decode(packet.Encode());
 
-			Assert.AreEqual(McpeAnimate.AnimatePacketPayloadAction.Magiccriticalhit, decoded.actionId);
+			Assert.AreEqual(McpeAnimate.AnimatePacketPayloadAction.MagicCriticalHit, decoded.actionId);
 			Assert.AreEqual(123456L, decoded.runtimeEntityId);
 			Assert.AreEqual(1.5f, decoded.data);
 			Assert.AreEqual(McpeAnimate.ActorSwingSource.Attack, decoded.swingSource);

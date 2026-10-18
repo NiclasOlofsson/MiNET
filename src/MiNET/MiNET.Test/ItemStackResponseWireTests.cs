@@ -104,7 +104,7 @@ namespace MiNET.Test
 					{
 						new ItemStackResponseContainerInfo
 						{
-							fullContainerName = new FullContainerName {containerName = FullContainerName.ContainerEnumName.Hotbarcontainer},
+							fullContainerName = new FullContainerName {containerName = FullContainerName.ContainerEnumName.HotbarContainer},
 							slots = new List<ItemStackResponseSlotInfo>
 							{
 								new ItemStackResponseSlotInfo {requestedSlot = 5, slot = 5, amount = 32, itemStackNetId = 2},
@@ -113,7 +113,7 @@ namespace MiNET.Test
 						},
 						new ItemStackResponseContainerInfo
 						{
-							fullContainerName = new FullContainerName {containerName = FullContainerName.ContainerEnumName.Crafterlevelentitycontainer},
+							fullContainerName = new FullContainerName {containerName = FullContainerName.ContainerEnumName.CrafterLevelEntityContainer},
 							slots = new List<ItemStackResponseSlotInfo>
 							{
 								new ItemStackResponseSlotInfo {requestedSlot = 0, slot = 0, amount = 0, itemStackNetId = null},

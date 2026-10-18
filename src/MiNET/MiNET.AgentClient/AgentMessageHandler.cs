@@ -71,7 +71,7 @@ namespace MiNET.AgentClient
 			// MINET_TRACE_CHUNKS=1 prints every column as it arrives, with the stamp in force,
 			// which is how a server's streaming shape is read off a session.
 			if (TraceChunks)
-				Console.WriteLine($"< chunk {message.chunkPosition.x},{message.chunkPosition.z} sections {message.subChunkCount} limit {message.clientRequestSubchunkLimit?.ToString() ?? "-"} cache {message.cacheEnabled} hashes {message.cacheMetadata?.Count ?? 0} published {Client.PublishedCenter.X},{Client.PublishedCenter.Z} r{Client.PublishedRadiusChunks}");
+				Console.WriteLine($"< chunk {message.chunkPosition.x},{message.chunkPosition.z} sections {message.subChunkCount} limit {message.clientRequestSubChunkLimit?.ToString() ?? "-"} cache {message.cacheEnabled} hashes {message.cacheMetadata?.Count ?? 0} published {Client.PublishedCenter.X},{Client.PublishedCenter.Z} r{Client.PublishedRadiusChunks}");
 
 			base.HandleMcpeLevelChunk(message);
 

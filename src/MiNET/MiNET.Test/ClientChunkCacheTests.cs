@@ -191,7 +191,7 @@ namespace MiNET.Test
 			packet.cacheEnabled = true;
 			packet.cacheMetadata = new List<ulong> {biomeHash};
 			packet.chunkData = new byte[] {0};
-			packet.clientRequestSubchunkLimit = limit;
+			packet.clientRequestSubChunkLimit = limit;
 			return packet;
 		}
 
@@ -213,12 +213,12 @@ namespace MiNET.Test
 			packet.cacheEnabled = true;
 			packet.dimensionType = 0;
 			packet.centerPos = new SubChunkPos {subchunkPositionX = x, subchunkPositionY = 0, subchunkPositionZ = z};
-			packet.subchunkData = new List<SubChunkPacketData>
+			packet.subChunkData = new List<SubChunkPacketData>
 			{
 				new SubChunkPacketData
 				{
-					subchunkPosOffset = new SubChunkPosOffset {subchunkOffsetX = 0, subchunkOffsetY = (sbyte) sectionY, subchunkOffsetZ = 0},
-					subchunkRequestResult = SubChunkPacketData.SubchunkRequestResult.Success,
+					subChunkPosOffset = new SubChunkPosOffset {subchunkOffsetX = 0, subchunkOffsetY = (sbyte) sectionY, subchunkOffsetZ = 0},
+					subChunkRequestResult = SubChunkPacketData.SubChunkRequestResult.Success,
 					blobId = blobId,
 					serializedSubChunk = blockEntities
 				}

@@ -107,8 +107,9 @@ public static class Program
 }
 
 /// <summary>
-///     Name conversion, ported verbatim from the T4 template's CodeName/CodeTypeName so both
-///     generated paths produce identical identifiers for the same wire names.
+///     Name conversion, ported from the T4 template's CodeName/CodeTypeName so a wire name with
+///     separators comes out identical on both generated paths. Schema names are often CamelCase
+///     with no separators, so a lower-to-upper step is a word break here as well.
 /// </summary>
 public static class CodeNames
 {
@@ -120,6 +121,7 @@ public static class CodeNames
 
 	public static string CodeName(string name, bool firstUpper = false)
 	{
+		string original = name;
 		name = name.ToLowerInvariant();
 
 		string result = string.Empty;
@@ -127,6 +129,9 @@ public static class CodeNames
 
 		for (int i = 0; i < name.Length; i++)
 		{
+			// An apostrophe belongs to its word: "Sender's XUID" is sendersXuid.
+			if (name[i] == '\'') continue;
+
 			// Wire names are prose, not identifiers: "Y-Head Rotation" and "Trigger?" both appear.
 			// Anything a C# name cannot carry acts as a word break and is dropped.
 			if (name[i] == ' ' || name[i] == '_' || !(char.IsLetterOrDigit(name[i]) || name[i] == '[' || name[i] == ']'))
@@ -135,6 +140,9 @@ public static class CodeNames
 			}
 			else
 			{
+				// "DisplaySlotName" breaks where "Display Slot Name" does.
+				if (i > 0 && char.IsUpper(original[i]) && (char.IsLower(original[i - 1]) || char.IsDigit(original[i - 1]))) upperCase = true;
+
 				if ((i == 0 && firstUpper) || upperCase)
 				{
 					result += name[i].ToString().ToUpperInvariant();

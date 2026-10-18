@@ -144,11 +144,11 @@ namespace MiNET.Test
 				if (!raw.SequenceEqual(packet.Encode())) roundTripFailures++;
 				if (packet.cacheEnabled) cachedPackets++;
 
-				foreach (SubChunkPacketData entry in packet.subchunkData)
+				foreach (SubChunkPacketData entry in packet.subChunkData)
 				{
 					entryCount++;
 
-					var requestResult = (SubChunkPacketData.SubchunkRequestResult) entry.subchunkRequestResult;
+					var requestResult = (SubChunkPacketData.SubChunkRequestResult) entry.subChunkRequestResult;
 					string result = requestResult.ToString();
 					results.TryGetValue(result, out int seenResult);
 					results[result] = seenResult + 1;

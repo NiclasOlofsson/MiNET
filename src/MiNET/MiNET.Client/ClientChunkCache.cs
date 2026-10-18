@@ -242,7 +242,7 @@ namespace MiNET.Client
 
 			if (column != null)
 			{
-				column.Delivery = message.clientRequestSubchunkLimit != null ? ChunkDelivery.Pull
+				column.Delivery = message.clientRequestSubChunkLimit != null ? ChunkDelivery.Pull
 					: message.cacheEnabled ? ChunkDelivery.Push
 					: ChunkDelivery.Legacy;
 			}
@@ -261,7 +261,7 @@ namespace MiNET.Client
 
 				if (column != null) column.Tail = message.chunkData;
 			}
-			else if (column != null && message.clientRequestSubchunkLimit == null)
+			else if (column != null && message.clientRequestSubChunkLimit == null)
 			{
 				// Legacy push: sections, biomes and tail in one payload, nothing addressed by hash.
 				column.LegacyPayload = message.chunkData;
@@ -270,7 +270,7 @@ namespace MiNET.Client
 
 			// A skeleton is only half a column, so it does not count as complete until the request
 			// it demands has gone out and the answers are outstanding.
-			bool needsRequest = message.clientRequestSubchunkLimit != null && firstTime;
+			bool needsRequest = message.clientRequestSubChunkLimit != null && firstTime;
 			if (column != null && needsRequest) column.AwaitingRequest = true;
 
 			Updated(column);
@@ -284,14 +284,14 @@ namespace MiNET.Client
 		/// </summary>
 		public void OnSubChunkResponse(McpeSubChunkPacket message, List<ulong> hits, List<ulong> misses)
 		{
-			if (message.subchunkData == null) return;
+			if (message.subChunkData == null) return;
 
-			foreach (SubChunkPacketData entry in message.subchunkData)
+			foreach (SubChunkPacketData entry in message.subChunkData)
 			{
 				var coordinates = new ChunkCoordinates(
-					message.centerPos.subchunkPositionX + entry.subchunkPosOffset.subchunkOffsetX,
-					message.centerPos.subchunkPositionZ + entry.subchunkPosOffset.subchunkOffsetZ);
-				int sectionY = message.centerPos.subchunkPositionY + entry.subchunkPosOffset.subchunkOffsetY;
+					message.centerPos.subchunkPositionX + entry.subChunkPosOffset.subchunkOffsetX,
+					message.centerPos.subchunkPositionZ + entry.subChunkPosOffset.subchunkOffsetZ);
+				int sectionY = message.centerPos.subchunkPositionY + entry.subChunkPosOffset.subchunkOffsetY;
 
 				CachedChunkColumn column = null;
 				if (TrackColumns) _columns.TryGetValue(coordinates, out column);

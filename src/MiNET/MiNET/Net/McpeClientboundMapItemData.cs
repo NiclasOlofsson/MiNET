@@ -74,7 +74,7 @@ namespace MiNET.Net
 							tracked.entityId = entity.EntityId;
 							break;
 						case BlockMapDecorator block:
-							tracked.type = MapItemTrackedActorUniqueId.MapItemTrackedActorType.Blockentity;
+							tracked.type = MapItemTrackedActorUniqueId.MapItemTrackedActorType.BlockEntity;
 							tracked.blockPosition = block.Coordinates;
 							break;
 						default:

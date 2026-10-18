@@ -335,8 +335,8 @@ namespace MiNET.Net
 			Survival = 0,
 			Creative = 1,
 			Adventure = 2,
-			Survivalspectator = 3,
-			Creativespectator = 4,
+			SurvivalSpectator = 3,
+			CreativeSpectator = 4,
 			Default = 5,
 			Spectator = 6,
 		}
@@ -361,7 +361,7 @@ namespace MiNET.Net
 		public Nbt playerPropertyData; // = null;
 		public ulong serverBlockTypeRegistryChecksum; // = null;
 		public UUID worldTemplateId; // = null;
-		public bool serverEnabledClientsideGeneration; // = null;
+		public bool serverEnabledClientSideGeneration; // = null;
 		public bool blockNetworkIdsAreHashes; // = null;
 		public bool serverAuthSoundEnabled; // = null;
 		public ServerConfig serverConfigurationJoinInfo; // = null;
@@ -400,7 +400,7 @@ namespace MiNET.Net
 			Write(playerPropertyData);
 			Write(serverBlockTypeRegistryChecksum);
 			Write(worldTemplateId);
-			Write(serverEnabledClientsideGeneration);
+			Write(serverEnabledClientSideGeneration);
 			Write(blockNetworkIdsAreHashes);
 			Write(serverAuthSoundEnabled);
 			Write(serverConfigurationJoinInfo != null);
@@ -441,7 +441,7 @@ namespace MiNET.Net
 			playerPropertyData = ReadNbt();
 			serverBlockTypeRegistryChecksum = ReadUlong();
 			worldTemplateId = ReadUUID();
-			serverEnabledClientsideGeneration = ReadBool();
+			serverEnabledClientSideGeneration = ReadBool();
 			blockNetworkIdsAreHashes = ReadBool();
 			serverAuthSoundEnabled = ReadBool();
 			if (ReadBool()) serverConfigurationJoinInfo = ReadServerConfig();
@@ -477,7 +477,7 @@ namespace MiNET.Net
 			playerPropertyData=default(Nbt);
 			serverBlockTypeRegistryChecksum=default(ulong);
 			worldTemplateId=default(UUID);
-			serverEnabledClientsideGeneration=default(bool);
+			serverEnabledClientSideGeneration=default(bool);
 			blockNetworkIdsAreHashes=default(bool);
 			serverAuthSoundEnabled=default(bool);
 			serverConfigurationJoinInfo=default(ServerConfig);
@@ -493,15 +493,15 @@ namespace MiNET.Net
 			Survival = 0,
 			Creative = 1,
 			Adventure = 2,
-			Survivalspectator = 3,
-			Creativespectator = 4,
+			SurvivalSpectator = 3,
+			CreativeSpectator = 4,
 			Default = 5,
 			Spectator = 6,
 		}
 		public enum BuildPlatform
 		{
 			Google = 1,
-			Ios = 2,
+			IOs = 2,
 			Osx = 3,
 			Amazon = 4,
 			Win32 = 8,
@@ -805,7 +805,7 @@ namespace MiNET.Net
 			Normal = 0,
 			Respawn = 1,
 			Teleport = 2,
-			Onlyheadrot = 3,
+			OnlyHeadRot = 3,
 		}
 
 		public long runtimeEntityId; // = null;
@@ -1285,11 +1285,11 @@ namespace MiNET.Net
 	{
 		public enum AnimatePacketPayloadAction
 		{
-			Noaction = 0,
+			NoAction = 0,
 			Swing = 1,
-			Wakeup = 3,
-			Criticalhit = 4,
-			Magiccriticalhit = 5,
+			WakeUp = 3,
+			CriticalHit = 4,
+			MagicCriticalHit = 5,
 		}
 		public enum ActorSwingSource
 		{
@@ -1298,9 +1298,9 @@ namespace MiNET.Net
 			Mine = 2,
 			Interact = 3,
 			Attack = 4,
-			Useitem = 5,
-			Throwitem = 6,
-			Dropitem = 7,
+			UseItem = 5,
+			ThrowItem = 6,
+			DropItem = 7,
 			Event = 8,
 		}
 		public enum HandSlot
@@ -1505,7 +1505,7 @@ namespace MiNET.Net
 		public ChunkPos chunkPosition; // = null;
 		public int dimension; // = null;
 		public uint subChunkCount; // = null;
-		public int? clientRequestSubchunkLimit; // = null;
+		public int? clientRequestSubChunkLimit; // = null;
 		public bool cacheEnabled; // = null;
 		public List<ulong> cacheMetadata; // = null;
 		public byte[] chunkData; // = null;
@@ -1526,8 +1526,8 @@ namespace MiNET.Net
 			Write(chunkPosition ?? new ChunkPos());
 			WriteSignedVarInt(dimension);
 			WriteUnsignedVarInt(subChunkCount);
-			Write(clientRequestSubchunkLimit != null);
-			if (clientRequestSubchunkLimit != null) WriteSignedVarInt(clientRequestSubchunkLimit.Value);
+			Write(clientRequestSubChunkLimit != null);
+			if (clientRequestSubChunkLimit != null) WriteSignedVarInt(clientRequestSubChunkLimit.Value);
 			Write(cacheEnabled);
 			WriteUnsignedVarInt((uint) (cacheMetadata?.Count ?? 0));
 			if (cacheMetadata != null) foreach (ulong item in cacheMetadata) Write(item);
@@ -1549,7 +1549,7 @@ namespace MiNET.Net
 			chunkPosition = ReadChunkPos();
 			dimension = ReadSignedVarInt();
 			subChunkCount = ReadUnsignedVarInt();
-			if (ReadBool()) clientRequestSubchunkLimit = ReadSignedVarInt();
+			if (ReadBool()) clientRequestSubChunkLimit = ReadSignedVarInt();
 			cacheEnabled = ReadBool();
 			uint cacheMetadataCount = ReadUnsignedVarInt();
 			cacheMetadata = new List<ulong>((int) cacheMetadataCount);
@@ -1570,7 +1570,7 @@ namespace MiNET.Net
 			chunkPosition=default(ChunkPos);
 			dimension=default(int);
 			subChunkCount=default(uint);
-			clientRequestSubchunkLimit=default(int?);
+			clientRequestSubChunkLimit=default(int?);
 			cacheEnabled=default(bool);
 			cacheMetadata=default(List<ulong>);
 			chunkData=default(byte[]);
@@ -1891,9 +1891,9 @@ namespace MiNET.Net
 		public enum BossEventUpdateType
 		{
 			Add = 0,
-			Playeradded = 1,
+			PlayerAdded = 1,
 			Remove = 2,
-			Playerremoved = 3,
+			PlayerRemoved = 3,
 			UpdatePercent = 4,
 			UpdateName = 5,
 			UpdateProperties = 6,
@@ -1923,7 +1923,7 @@ namespace MiNET.Net
 		public long targetActorId; // = null;
 		public McpeBossEvent.BossEventUpdateType eventType; // = null;
 		public string name; // = null;
-		public string filteredname; // = null;
+		public string filteredName; // = null;
 		public float healthPercent; // = null;
 		public McpeBossEvent.BossBarColor color; // = null;
 		public McpeBossEvent.BossBarOverlay overlay; // = null;
@@ -1943,7 +1943,7 @@ namespace MiNET.Net
 			WriteSignedVarLong(targetActorId);
 			Write((byte) eventType);
 			Write(name);
-			Write(filteredname);
+			Write(filteredName);
 			Write(healthPercent);
 			Write((byte) color);
 			Write((byte) overlay);
@@ -1963,7 +1963,7 @@ namespace MiNET.Net
 			targetActorId = ReadSignedVarLong();
 			eventType = (McpeBossEvent.BossEventUpdateType) ReadByte();
 			name = ReadString();
-			filteredname = ReadString();
+			filteredName = ReadString();
 			healthPercent = ReadFloat();
 			color = (McpeBossEvent.BossBarColor) ReadByte();
 			overlay = (McpeBossEvent.BossBarOverlay) ReadByte();
@@ -1981,7 +1981,7 @@ namespace MiNET.Net
 			targetActorId=default(long);
 			eventType=default(McpeBossEvent.BossEventUpdateType);
 			name=default(string);
-			filteredname=default(string);
+			filteredName=default(string);
 			healthPercent=default(float);
 			color=default(McpeBossEvent.BossBarColor);
 			overlay=default(McpeBossEvent.BossBarOverlay);
@@ -2134,8 +2134,8 @@ namespace MiNET.Net
 		public BlockCoordinates blockPosition; // = null;
 		public StructureEditorData structureData; // = null;
 		public bool trigger; // = null;
-		public bool iswaterlogged; // = null;
-		public bool keepstructurevoid; // = null;
+		public bool isWaterlogged; // = null;
+		public bool keepStructureVoid; // = null;
 
 		public McpeStructureBlockUpdate()
 		{
@@ -2152,8 +2152,8 @@ namespace MiNET.Net
 			Write(blockPosition);
 			Write(structureData ?? new StructureEditorData());
 			Write(trigger);
-			Write(iswaterlogged);
-			Write(keepstructurevoid);
+			Write(isWaterlogged);
+			Write(keepStructureVoid);
 
 			AfterEncode();
 		}
@@ -2170,8 +2170,8 @@ namespace MiNET.Net
 			blockPosition = ReadBlockCoordinates();
 			structureData = ReadStructureEditorData();
 			trigger = ReadBool();
-			iswaterlogged = ReadBool();
-			keepstructurevoid = ReadBool();
+			isWaterlogged = ReadBool();
+			keepStructureVoid = ReadBool();
 
 			AfterDecode();
 		}
@@ -2186,8 +2186,8 @@ namespace MiNET.Net
 			blockPosition=default(BlockCoordinates);
 			structureData=default(StructureEditorData);
 			trigger=default(bool);
-			iswaterlogged=default(bool);
-			keepstructurevoid=default(bool);
+			isWaterlogged=default(bool);
+			keepStructureVoid=default(bool);
 		}
 
 	}
@@ -2257,7 +2257,7 @@ namespace MiNET.Net
 		public enum PhotoType
 		{
 			Portfolio = 0,
-			Photoitem = 1,
+			PhotoItem = 1,
 			Book = 2,
 		}
 
@@ -2815,7 +2815,7 @@ namespace MiNET.Net
 			Undefined = 0,
 			Mouse = 1,
 			Touch = 2,
-			Gamepad = 3,
+			GamePad = 3,
 			Count = 5,
 		}
 		public enum ClientPlayMode
@@ -2823,8 +2823,8 @@ namespace MiNET.Net
 			Normal = 0,
 			Teaser = 1,
 			Screen = 2,
-			Exitlevel = 7,
-			Nummodes = 9,
+			ExitLevel = 7,
+			NumModes = 9,
 		}
 		public enum NewInteractionModel
 		{
@@ -3131,7 +3131,7 @@ namespace MiNET.Net
 		public bool cacheEnabled; // = null;
 		public int dimensionType; // = null;
 		public SubChunkPos centerPos; // = null;
-		public List<SubChunkPacketData> subchunkData; // = null;
+		public List<SubChunkPacketData> subChunkData; // = null;
 
 		public McpeSubChunkPacket()
 		{
@@ -3148,8 +3148,8 @@ namespace MiNET.Net
 			Write(cacheEnabled);
 			WriteSignedVarInt(dimensionType);
 			Write(centerPos ?? new SubChunkPos());
-			WriteUnsignedVarInt((uint) (subchunkData?.Count ?? 0));
-			if (subchunkData != null) foreach (SubChunkPacketData item in subchunkData) Write(item);
+			WriteUnsignedVarInt((uint) (subChunkData?.Count ?? 0));
+			if (subChunkData != null) foreach (SubChunkPacketData item in subChunkData) Write(item);
 
 			AfterEncode();
 		}
@@ -3166,9 +3166,9 @@ namespace MiNET.Net
 			cacheEnabled = ReadBool();
 			dimensionType = ReadSignedVarInt();
 			centerPos = ReadSubChunkPos();
-			uint subchunkDataCount = ReadUnsignedVarInt();
-			subchunkData = new List<SubChunkPacketData>((int) subchunkDataCount);
-			for (int i = 0; i < subchunkDataCount; i++) subchunkData.Add(ReadSubChunkPacketData());
+			uint subChunkDataCount = ReadUnsignedVarInt();
+			subChunkData = new List<SubChunkPacketData>((int) subChunkDataCount);
+			for (int i = 0; i < subChunkDataCount; i++) subChunkData.Add(ReadSubChunkPacketData());
 
 			AfterDecode();
 		}
@@ -3183,7 +3183,7 @@ namespace MiNET.Net
 			cacheEnabled=default(bool);
 			dimensionType=default(int);
 			centerPos=default(SubChunkPos);
-			subchunkData=default(List<SubChunkPacketData>);
+			subChunkData=default(List<SubChunkPacketData>);
 		}
 
 	}
@@ -3939,8 +3939,8 @@ namespace MiNET.Net
 	public partial class McpeServerboundPackSettingChange : Packet<McpeServerboundPackSettingChange>
 	{
 
-		public UUID packid; // = null;
-		public string packsettingname; // = null;
+		public UUID packId; // = null;
+		public string packSettingName; // = null;
 		public PackSettingValue value; // = null;
 
 		public McpeServerboundPackSettingChange()
@@ -3955,8 +3955,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(packid);
-			Write(packsettingname);
+			Write(packId);
+			Write(packSettingName);
 			Write(value);
 
 			AfterEncode();
@@ -3971,8 +3971,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			packid = ReadUUID();
-			packsettingname = ReadString();
+			packId = ReadUUID();
+			packSettingName = ReadString();
 			value = ReadPackSettingValue();
 
 			AfterDecode();
@@ -3985,8 +3985,8 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			packid=default(UUID);
-			packsettingname=default(string);
+			packId=default(UUID);
+			packSettingName=default(string);
 			value=default(PackSettingValue);
 		}
 
@@ -4233,11 +4233,11 @@ namespace MiNET.Net
 		{
 			None = 0,
 			Furnace = 1,
-			Blastfurnace = 2,
+			BlastFurnace = 2,
 			Smoker = 3,
 		}
 
-		public McpeSetPlayerFurnaceOptions.SetPlayerFurnaceOptionsPacketPayloadFurnaceType furnacetype; // = null;
+		public McpeSetPlayerFurnaceOptions.SetPlayerFurnaceOptionsPacketPayloadFurnaceType furnaceType; // = null;
 		public FurnaceOptions furnaceOptions; // = null;
 
 		public McpeSetPlayerFurnaceOptions()
@@ -4252,7 +4252,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write((byte) furnacetype);
+			Write((byte) furnaceType);
 			Write(furnaceOptions ?? new FurnaceOptions());
 
 			AfterEncode();
@@ -4267,7 +4267,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			furnacetype = (McpeSetPlayerFurnaceOptions.SetPlayerFurnaceOptionsPacketPayloadFurnaceType) ReadByte();
+			furnaceType = (McpeSetPlayerFurnaceOptions.SetPlayerFurnaceOptionsPacketPayloadFurnaceType) ReadByte();
 			furnaceOptions = ReadFurnaceOptions();
 
 			AfterDecode();
@@ -4280,7 +4280,7 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
-			furnacetype=default(McpeSetPlayerFurnaceOptions.SetPlayerFurnaceOptionsPacketPayloadFurnaceType);
+			furnaceType=default(McpeSetPlayerFurnaceOptions.SetPlayerFurnaceOptionsPacketPayloadFurnaceType);
 			furnaceOptions=default(FurnaceOptions);
 		}
 
@@ -4344,13 +4344,13 @@ namespace MiNET.Net
 		{
 			Idle = 0,
 			Matchmaking = 1,
-			Matchfound = 2,
+			MatchFound = 2,
 			Canceled = 3,
-			Playerleftparty = 4,
-			Playerleftserver = 5,
-			Servershutdown = 6,
-			Timedout = 7,
-			Requeueasparty = 8,
+			PlayerLeftParty = 4,
+			PlayerLeftServer = 5,
+			ServerShutdown = 6,
+			TimedOut = 7,
+			RequeueAsParty = 8,
 		}
 
 		public McpeClientboundMatchmakingState.MatchmakingState state; // = null;
@@ -4455,7 +4455,7 @@ namespace MiNET.Net
 	{
 
 		public long passenger; // = null;
-		public PassengerOfBlockArguments passengerofblockdata; // = null;
+		public PassengerOfBlockArguments passengerOfBlockData; // = null;
 
 		public McpeSetPassengerOfBlock()
 		{
@@ -4470,8 +4470,8 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			WriteSignedVarLong(passenger);
-			Write(passengerofblockdata != null);
-			if (passengerofblockdata != null) Write(passengerofblockdata);
+			Write(passengerOfBlockData != null);
+			if (passengerOfBlockData != null) Write(passengerOfBlockData);
 
 			AfterEncode();
 		}
@@ -4486,7 +4486,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			passenger = ReadSignedVarLong();
-			if (ReadBool()) passengerofblockdata = ReadPassengerOfBlockArguments();
+			if (ReadBool()) passengerOfBlockData = ReadPassengerOfBlockArguments();
 
 			AfterDecode();
 		}
@@ -4499,7 +4499,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			passenger=default(long);
-			passengerofblockdata=default(PassengerOfBlockArguments);
+			passengerOfBlockData=default(PassengerOfBlockArguments);
 		}
 
 	}
@@ -4894,8 +4894,8 @@ namespace MiNET.Net
 
 	public class ClientStoreEntryPointConfig
 	{
-		public string storeid;
-		public string storename;
+		public string storeId;
+		public string storeName;
 	}
 
 	public class CoordinatesLocation : LocationBase
@@ -4918,7 +4918,7 @@ namespace MiNET.Net
 			Nature = 2,
 			Equipment = 3,
 			Items = 4,
-			Itemcommandonly = 5,
+			ItemCommandOnly = 5,
 			Undefined = 6,
 		}
 
@@ -4942,7 +4942,7 @@ namespace MiNET.Net
 			Overworld = 1,
 			Flat = 2,
 			Nether = 3,
-			Theend = 4,
+			TheEnd = 4,
 			Void = 5,
 			Undefined = 6,
 		}
@@ -4992,77 +4992,77 @@ namespace MiNET.Net
 	{
 		public enum ContainerEnumName
 		{
-			Anvilinputcontainer = 0,
-			Anvilmaterialcontainer = 1,
-			Anvilresultpreviewcontainer = 2,
-			Smithingtableinputcontainer = 3,
-			Smithingtablematerialcontainer = 4,
-			Smithingtableresultpreviewcontainer = 5,
-			Armorcontainer = 6,
-			Levelentitycontainer = 7,
-			Beaconpaymentcontainer = 8,
-			Brewingstandinputcontainer = 9,
-			Brewingstandresultcontainer = 10,
-			Brewingstandfuelcontainer = 11,
-			Combinedhotbarandinventorycontainer = 12,
-			Craftinginputcontainer = 13,
-			Craftingoutputpreviewcontainer = 14,
-			Recipeconstructioncontainer = 15,
-			Recipenaturecontainer = 16,
-			Recipeitemscontainer = 17,
-			Recipesearchcontainer = 18,
-			Recipesearchbarcontainer = 19,
-			Recipeequipmentcontainer = 20,
-			Recipebookcontainer = 21,
-			Enchantinginputcontainer = 22,
-			Enchantingmaterialcontainer = 23,
-			Furnacefuelcontainer = 24,
-			Furnaceingredientcontainer = 25,
-			Furnaceresultcontainer = 26,
-			Horseequipcontainer = 27,
-			Hotbarcontainer = 28,
-			Inventorycontainer = 29,
-			Shulkerboxcontainer = 30,
-			Tradeingredient1container = 31,
-			Tradeingredient2container = 32,
-			Traderesultpreviewcontainer = 33,
-			Offhandcontainer = 34,
-			Compoundcreatorinput = 35,
-			Compoundcreatoroutputpreview = 36,
-			Elementconstructoroutputpreview = 37,
-			Materialreducerinput = 38,
-			Materialreduceroutput = 39,
-			Labtableinput = 40,
-			Loominputcontainer = 41,
-			Loomdyecontainer = 42,
-			Loommaterialcontainer = 43,
-			Loomresultpreviewcontainer = 44,
-			Blastfurnaceingredientcontainer = 45,
-			Smokeringredientcontainer = 46,
-			Trade2ingredient1container = 47,
-			Trade2ingredient2container = 48,
-			Trade2resultpreviewcontainer = 49,
-			Grindstoneinputcontainer = 50,
-			Grindstoneadditionalcontainer = 51,
-			Grindstoneresultpreviewcontainer = 52,
-			Stonecutterinputcontainer = 53,
-			Stonecutterresultpreviewcontainer = 54,
-			Cartographyinputcontainer = 55,
-			Cartographyadditionalcontainer = 56,
-			Cartographyresultpreviewcontainer = 57,
-			Barrelcontainer = 58,
-			Cursorcontainer = 59,
-			Createdoutputcontainer = 60,
-			Smithingtabletemplatecontainer = 61,
-			Crafterlevelentitycontainer = 62,
-			Dynamiccontainer = 63,
-			Recipefoodcontainer = 64,
-			Recipeblockscontainer = 65,
-			Recipefurnaceitemscontainer = 66,
-			Reservedcontainera = 67,
-			Reservedcontainerb = 68,
-			Reservedcontainerc = 69,
-			Reservedcontainerd = 70,
+			AnvilInputContainer = 0,
+			AnvilMaterialContainer = 1,
+			AnvilResultPreviewContainer = 2,
+			SmithingTableInputContainer = 3,
+			SmithingTableMaterialContainer = 4,
+			SmithingTableResultPreviewContainer = 5,
+			ArmorContainer = 6,
+			LevelEntityContainer = 7,
+			BeaconPaymentContainer = 8,
+			BrewingStandInputContainer = 9,
+			BrewingStandResultContainer = 10,
+			BrewingStandFuelContainer = 11,
+			CombinedHotbarAndInventoryContainer = 12,
+			CraftingInputContainer = 13,
+			CraftingOutputPreviewContainer = 14,
+			RecipeConstructionContainer = 15,
+			RecipeNatureContainer = 16,
+			RecipeItemsContainer = 17,
+			RecipeSearchContainer = 18,
+			RecipeSearchBarContainer = 19,
+			RecipeEquipmentContainer = 20,
+			RecipeBookContainer = 21,
+			EnchantingInputContainer = 22,
+			EnchantingMaterialContainer = 23,
+			FurnaceFuelContainer = 24,
+			FurnaceIngredientContainer = 25,
+			FurnaceResultContainer = 26,
+			HorseEquipContainer = 27,
+			HotbarContainer = 28,
+			InventoryContainer = 29,
+			ShulkerBoxContainer = 30,
+			TradeIngredient1Container = 31,
+			TradeIngredient2Container = 32,
+			TradeResultPreviewContainer = 33,
+			OffhandContainer = 34,
+			CompoundCreatorInput = 35,
+			CompoundCreatorOutputPreview = 36,
+			ElementConstructorOutputPreview = 37,
+			MaterialReducerInput = 38,
+			MaterialReducerOutput = 39,
+			LabTableInput = 40,
+			LoomInputContainer = 41,
+			LoomDyeContainer = 42,
+			LoomMaterialContainer = 43,
+			LoomResultPreviewContainer = 44,
+			BlastFurnaceIngredientContainer = 45,
+			SmokerIngredientContainer = 46,
+			Trade2Ingredient1Container = 47,
+			Trade2Ingredient2Container = 48,
+			Trade2ResultPreviewContainer = 49,
+			GrindstoneInputContainer = 50,
+			GrindstoneAdditionalContainer = 51,
+			GrindstoneResultPreviewContainer = 52,
+			StonecutterInputContainer = 53,
+			StonecutterResultPreviewContainer = 54,
+			CartographyInputContainer = 55,
+			CartographyAdditionalContainer = 56,
+			CartographyResultPreviewContainer = 57,
+			BarrelContainer = 58,
+			CursorContainer = 59,
+			CreatedOutputContainer = 60,
+			SmithingTableTemplateContainer = 61,
+			CrafterLevelEntityContainer = 62,
+			DynamicContainer = 63,
+			RecipeFoodContainer = 64,
+			RecipeBlocksContainer = 65,
+			RecipeFurnaceItemsContainer = 66,
+			ReservedContainerA = 67,
+			ReservedContainerB = 68,
+			ReservedContainerC = 69,
+			ReservedContainerD = 70,
 		}
 
 		public FullContainerName.ContainerEnumName containerName;
@@ -5074,17 +5074,17 @@ namespace MiNET.Net
 		public enum FurnaceLeftTabIndex
 		{
 			None = 0,
-			Recipefood = 1,
-			Recipeitems = 2,
-			Recipeblocks = 3,
-			Recipesearch = 4,
+			RecipeFood = 1,
+			RecipeItems = 2,
+			RecipeBlocks = 3,
+			RecipeSearch = 4,
 			Inventory = 5,
 		}
 
 		public enum FurnaceLayout
 		{
 			None = 0,
-			Inventoryonly = 1,
+			InventoryOnly = 1,
 			Default = 2,
 		}
 
@@ -5095,22 +5095,22 @@ namespace MiNET.Net
 
 	public class GatheringsConfig
 	{
-		public UUID experienceid;
-		public string experiencename;
-		public UUID worldid;
-		public string worldname;
-		public string creatorid;
-		public UUID targetid;
-		public string scenarioid;
-		public string serverid;
+		public UUID experienceId;
+		public string experienceName;
+		public UUID worldId;
+		public string worldName;
+		public string creatorId;
+		public UUID targetId;
+		public string scenarioId;
+		public string serverId;
 	}
 
 	public class HiddenLocation : LocationBase
 	{
 		public enum PacketType
 		{
-			Playerlocationcoordinates = 0,
-			Playerlocationhide = 1,
+			PlayerLocationCoordinates = 0,
+			PlayerLocationHide = 1,
 		}
 
 		public HiddenLocation.PacketType packetType;
@@ -5189,28 +5189,28 @@ namespace MiNET.Net
 		public enum TextProcessingEventOrigin
 		{
 			Unknown = -1,
-			Serverchatpublic = 0,
-			Serverchatwhisper = 1,
-			Signtext = 2,
-			Anviltext = 3,
-			Bookandquilltext = 4,
-			Commandblocktext = 5,
-			Blockactordatatext = 6,
-			Joineventtext = 7,
-			Leaveeventtext = 8,
-			Slashcommandchat = 9,
-			Cartographytext = 10,
-			Kickcommand = 11,
-			Titlecommand = 12,
-			Summoncommand = 13,
-			Serverform = 14,
-			Datadrivenui = 15,
+			ServerChatPublic = 0,
+			ServerChatWhisper = 1,
+			SignText = 2,
+			AnvilText = 3,
+			BookAndQuillText = 4,
+			CommandBlockText = 5,
+			BlockActorDataText = 6,
+			JoinEventText = 7,
+			LeaveEventText = 8,
+			SlashCommandChat = 9,
+			CartographyText = 10,
+			KickCommand = 11,
+			TitleCommand = 12,
+			SummonCommand = 13,
+			ServerForm = 14,
+			DataDrivenUi = 15,
 		}
 
 		public int clientRequestId;
 		public List<ItemStackRequestBase> actions;
 		public List<string> stringsToFilter;
-		public ItemStackRequest.TextProcessingEventOrigin stringstofilterorigin;
+		public ItemStackRequest.TextProcessingEventOrigin stringsToFilterOrigin;
 	}
 
 	public class ItemStackRequestBeaconPaymentAction : ItemStackRequestBase
@@ -5355,72 +5355,72 @@ namespace MiNET.Net
 		{
 			Success = 0,
 			Error = 1,
-			Invalidrequestactiontype = 2,
-			Actionrequestnotallowed = 3,
-			Screenhandlerendrequestfailed = 4,
-			Itemrequestactionhandlercommitfailed = 5,
-			Invalidrequestcraftactiontype = 6,
-			Invalidcraftrequest = 7,
-			Invalidcraftrequestscreen = 8,
-			Invalidcraftresult = 9,
-			Invalidcraftresultindex = 10,
-			Invalidcraftresultitem = 11,
-			Invaliditemnetid = 12,
-			Missingcreatedoutputcontainer = 13,
-			Failedtosetcreateditemoutputslot = 14,
-			Requestalreadyinprogress = 15,
-			Failedtoinitsparsecontainer = 16,
-			Resulttransferfailed = 17,
-			Expecteditemslotnotfullyconsumed = 18,
-			Expectedanywhereitemnotfullyconsumed = 19,
-			Itemalreadyconsumedfromslot = 20,
-			Consumedtoomuchfromslot = 21,
-			Mismatchslotexpectedconsumeditem = 22,
-			Mismatchslotexpectedconsumeditemnetidvariant = 23,
-			Failedtomatchexpectedslotconsumeditem = 24,
-			Failedtomatchexpectedallowedanywhereconsumeditem = 25,
-			Consumeditemoutofallowedslotrange = 26,
-			Consumeditemnotallowed = 27,
-			Playernotincreativemode = 28,
-			Invalidexperimentalreciperequest = 29,
-			Failedtocraftcreative = 30,
-			Failedtogetlevelrecipe = 31,
-			Failedtofindrecipebynetid = 32,
-			Mismatchedcraftingsize = 33,
-			Missinginputsparsecontainer = 34,
-			Mismatchedrecipeforinputgriditems = 35,
-			Emptycraftresults = 36,
-			Failedtoenchant = 37,
-			Missinginputitem = 38,
-			Insufficientplayerleveltoenchant = 39,
-			Missingmaterialitem = 40,
-			Missingactor = 41,
-			Unknownprimaryeffect = 42,
-			Primaryeffectoutofrange = 43,
-			Primaryeffectunavailable = 44,
-			Secondaryeffectoutofrange = 45,
-			Secondaryeffectunavailable = 46,
-			Dstcontainerequaltocreatedoutputcontainer = 47,
-			Dstcontainerandslotequaltosrccontainerandslot = 48,
-			Failedtovalidatesrcslot = 49,
-			Failedtovalidatedstslot = 50,
-			Invalidadjustedamount = 51,
-			Invaliditemsettype = 52,
-			Invalidtransferamount = 53,
-			Cannotswapitem = 54,
-			Cannotplaceitem = 55,
-			Unhandleditemsettype = 56,
-			Invalidremovedamount = 57,
-			Invalidregion = 58,
-			Cannotdropitem = 59,
-			Cannotdestroyitem = 60,
-			Invalidsourcecontainer = 61,
-			Itemnotconsumed = 62,
-			Invalidnumcrafts = 63,
-			Invalidcraftresultstacksize = 64,
-			Cannotremoveitem = 65,
-			Cannotconsumeitem = 66,
-			Screenstackerror = 67,
+			InvalidRequestActionType = 2,
+			ActionRequestNotAllowed = 3,
+			ScreenHandlerEndRequestFailed = 4,
+			ItemRequestActionHandlerCommitFailed = 5,
+			InvalidRequestCraftActionType = 6,
+			InvalidCraftRequest = 7,
+			InvalidCraftRequestScreen = 8,
+			InvalidCraftResult = 9,
+			InvalidCraftResultIndex = 10,
+			InvalidCraftResultItem = 11,
+			InvalidItemNetId = 12,
+			MissingCreatedOutputContainer = 13,
+			FailedToSetCreatedItemOutputSlot = 14,
+			RequestAlreadyInProgress = 15,
+			FailedToInitSparseContainer = 16,
+			ResultTransferFailed = 17,
+			ExpectedItemSlotNotFullyConsumed = 18,
+			ExpectedAnywhereItemNotFullyConsumed = 19,
+			ItemAlreadyConsumedFromSlot = 20,
+			ConsumedTooMuchFromSlot = 21,
+			MismatchSlotExpectedConsumedItem = 22,
+			MismatchSlotExpectedConsumedItemNetIdVariant = 23,
+			FailedToMatchExpectedSlotConsumedItem = 24,
+			FailedToMatchExpectedAllowedAnywhereConsumedItem = 25,
+			ConsumedItemOutOfAllowedSlotRange = 26,
+			ConsumedItemNotAllowed = 27,
+			PlayerNotInCreativeMode = 28,
+			InvalidExperimentalRecipeRequest = 29,
+			FailedToCraftCreative = 30,
+			FailedToGetLevelRecipe = 31,
+			FailedToFindRecipeByNetId = 32,
+			MismatchedCraftingSize = 33,
+			MissingInputSparseContainer = 34,
+			MismatchedRecipeForInputGridItems = 35,
+			EmptyCraftResults = 36,
+			FailedToEnchant = 37,
+			MissingInputItem = 38,
+			InsufficientPlayerLevelToEnchant = 39,
+			MissingMaterialItem = 40,
+			MissingActor = 41,
+			UnknownPrimaryEffect = 42,
+			PrimaryEffectOutOfRange = 43,
+			PrimaryEffectUnavailable = 44,
+			SecondaryEffectOutOfRange = 45,
+			SecondaryEffectUnavailable = 46,
+			DstContainerEqualToCreatedOutputContainer = 47,
+			DstContainerAndSlotEqualToSrcContainerAndSlot = 48,
+			FailedToValidateSrcSlot = 49,
+			FailedToValidateDstSlot = 50,
+			InvalidAdjustedAmount = 51,
+			InvalidItemSetType = 52,
+			InvalidTransferAmount = 53,
+			CannotSwapItem = 54,
+			CannotPlaceItem = 55,
+			UnhandledItemSetType = 56,
+			InvalidRemovedAmount = 57,
+			InvalidRegion = 58,
+			CannotDropItem = 59,
+			CannotDestroyItem = 60,
+			InvalidSourceContainer = 61,
+			ItemNotConsumed = 62,
+			InvalidNumCrafts = 63,
+			InvalidCraftResultStackSize = 64,
+			CannotRemoveItem = 65,
+			CannotConsumeItem = 66,
+			ScreenStackError = 67,
 		}
 
 		public ItemStackResponseInfo.Result result;
@@ -5522,77 +5522,77 @@ namespace MiNET.Net
 	{
 		public enum ContainerEnumName
 		{
-			Anvilinputcontainer = 0,
-			Anvilmaterialcontainer = 1,
-			Anvilresultpreviewcontainer = 2,
-			Smithingtableinputcontainer = 3,
-			Smithingtablematerialcontainer = 4,
-			Smithingtableresultpreviewcontainer = 5,
-			Armorcontainer = 6,
-			Levelentitycontainer = 7,
-			Beaconpaymentcontainer = 8,
-			Brewingstandinputcontainer = 9,
-			Brewingstandresultcontainer = 10,
-			Brewingstandfuelcontainer = 11,
-			Combinedhotbarandinventorycontainer = 12,
-			Craftinginputcontainer = 13,
-			Craftingoutputpreviewcontainer = 14,
-			Recipeconstructioncontainer = 15,
-			Recipenaturecontainer = 16,
-			Recipeitemscontainer = 17,
-			Recipefoodcontainer = 64,
-			Recipeblockscontainer = 65,
-			Recipefurnaceitemscontainer = 66,
-			Recipesearchcontainer = 18,
-			Recipesearchbarcontainer = 19,
-			Recipeequipmentcontainer = 20,
-			Recipebookcontainer = 21,
-			Enchantinginputcontainer = 22,
-			Enchantingmaterialcontainer = 23,
-			Furnacefuelcontainer = 24,
-			Furnaceingredientcontainer = 25,
-			Furnaceresultcontainer = 26,
-			Horseequipcontainer = 27,
-			Hotbarcontainer = 28,
-			Inventorycontainer = 29,
-			Shulkerboxcontainer = 30,
-			Tradeingredient1container = 31,
-			Tradeingredient2container = 32,
-			Traderesultpreviewcontainer = 33,
-			Offhandcontainer = 34,
-			Compoundcreatorinput = 35,
-			Compoundcreatoroutputpreview = 36,
-			Elementconstructoroutputpreview = 37,
-			Materialreducerinput = 38,
-			Materialreduceroutput = 39,
-			Labtableinput = 40,
-			Loominputcontainer = 41,
-			Loomdyecontainer = 42,
-			Loommaterialcontainer = 43,
-			Loomresultpreviewcontainer = 44,
-			Blastfurnaceingredientcontainer = 45,
-			Smokeringredientcontainer = 46,
-			Trade2ingredient1container = 47,
-			Trade2ingredient2container = 48,
-			Trade2resultpreviewcontainer = 49,
-			Grindstoneinputcontainer = 50,
-			Grindstoneadditionalcontainer = 51,
-			Grindstoneresultpreviewcontainer = 52,
-			Stonecutterinputcontainer = 53,
-			Stonecutterresultpreviewcontainer = 54,
-			Cartographyinputcontainer = 55,
-			Cartographyadditionalcontainer = 56,
-			Cartographyresultpreviewcontainer = 57,
-			Barrelcontainer = 58,
-			Cursorcontainer = 59,
-			Createdoutputcontainer = 60,
-			Smithingtabletemplatecontainer = 61,
-			Crafterlevelentitycontainer = 62,
-			Dynamiccontainer = 63,
-			Reservedcontainera = 67,
-			Reservedcontainerb = 68,
-			Reservedcontainerc = 69,
-			Reservedcontainerd = 70,
+			AnvilInputContainer = 0,
+			AnvilMaterialContainer = 1,
+			AnvilResultPreviewContainer = 2,
+			SmithingTableInputContainer = 3,
+			SmithingTableMaterialContainer = 4,
+			SmithingTableResultPreviewContainer = 5,
+			ArmorContainer = 6,
+			LevelEntityContainer = 7,
+			BeaconPaymentContainer = 8,
+			BrewingStandInputContainer = 9,
+			BrewingStandResultContainer = 10,
+			BrewingStandFuelContainer = 11,
+			CombinedHotbarAndInventoryContainer = 12,
+			CraftingInputContainer = 13,
+			CraftingOutputPreviewContainer = 14,
+			RecipeConstructionContainer = 15,
+			RecipeNatureContainer = 16,
+			RecipeItemsContainer = 17,
+			RecipeFoodContainer = 64,
+			RecipeBlocksContainer = 65,
+			RecipeFurnaceItemsContainer = 66,
+			RecipeSearchContainer = 18,
+			RecipeSearchBarContainer = 19,
+			RecipeEquipmentContainer = 20,
+			RecipeBookContainer = 21,
+			EnchantingInputContainer = 22,
+			EnchantingMaterialContainer = 23,
+			FurnaceFuelContainer = 24,
+			FurnaceIngredientContainer = 25,
+			FurnaceResultContainer = 26,
+			HorseEquipContainer = 27,
+			HotbarContainer = 28,
+			InventoryContainer = 29,
+			ShulkerBoxContainer = 30,
+			TradeIngredient1Container = 31,
+			TradeIngredient2Container = 32,
+			TradeResultPreviewContainer = 33,
+			OffhandContainer = 34,
+			CompoundCreatorInput = 35,
+			CompoundCreatorOutputPreview = 36,
+			ElementConstructorOutputPreview = 37,
+			MaterialReducerInput = 38,
+			MaterialReducerOutput = 39,
+			LabTableInput = 40,
+			LoomInputContainer = 41,
+			LoomDyeContainer = 42,
+			LoomMaterialContainer = 43,
+			LoomResultPreviewContainer = 44,
+			BlastFurnaceIngredientContainer = 45,
+			SmokerIngredientContainer = 46,
+			Trade2Ingredient1Container = 47,
+			Trade2Ingredient2Container = 48,
+			Trade2ResultPreviewContainer = 49,
+			GrindstoneInputContainer = 50,
+			GrindstoneAdditionalContainer = 51,
+			GrindstoneResultPreviewContainer = 52,
+			StonecutterInputContainer = 53,
+			StonecutterResultPreviewContainer = 54,
+			CartographyInputContainer = 55,
+			CartographyAdditionalContainer = 56,
+			CartographyResultPreviewContainer = 57,
+			BarrelContainer = 58,
+			CursorContainer = 59,
+			CreatedOutputContainer = 60,
+			SmithingTableTemplateContainer = 61,
+			CrafterLevelEntityContainer = 62,
+			DynamicContainer = 63,
+			ReservedContainerA = 67,
+			ReservedContainerB = 68,
+			ReservedContainerC = 69,
+			ReservedContainerD = 70,
 		}
 
 		public LegacySetSlot.ContainerEnumName containerEnum;
@@ -5607,7 +5607,7 @@ namespace MiNET.Net
 			Overworld = 1,
 			Flat = 2,
 			Nether = 3,
-			Theend = 4,
+			TheEnd = 4,
 			Void = 5,
 			Undefined = 6,
 		}
@@ -5617,8 +5617,8 @@ namespace MiNET.Net
 			Survival = 0,
 			Creative = 1,
 			Adventure = 2,
-			Survivalspectator = 3,
-			Creativespectator = 4,
+			SurvivalSpectator = 3,
+			CreativeSpectator = 4,
 			Default = 5,
 			Spectator = 6,
 		}
@@ -5635,31 +5635,31 @@ namespace MiNET.Net
 
 		public enum EditorWorldType
 		{
-			Noneditor = 0,
-			Editorproject = 1,
-			Editortestlevel = 2,
-			Editorrealmsupload = 3,
+			NonEditor = 0,
+			EditorProject = 1,
+			EditorTestLevel = 2,
+			EditorRealmsUpload = 3,
 		}
 
 		public enum EditorLevelMigrationVersion
 		{
 			Legacy = 0,
-			Editorachievements = 1,
+			EditorAchievements = 1,
 		}
 
 		public enum EducationEditionOffer
 		{
 			None = 0,
-			Restofworld = 1,
+			RestOfWorld = 1,
 			ChinaDeprecated = 2,
 		}
 
 		public enum GamePublishSetting
 		{
-			Nomultiplay = 0,
-			Inviteonly = 1,
-			Friendsonly = 2,
-			Friendsoffriends = 3,
+			NoMultiPlay = 0,
+			InviteOnly = 1,
+			FriendsOnly = 2,
+			FriendsOfFriends = 3,
 			Public = 4,
 		}
 
@@ -5680,9 +5680,9 @@ namespace MiNET.Net
 
 		public enum ServerEditorConnectionPolicy
 		{
-			Matchworldtype = 0,
-			Editoronly = 1,
-			Vanillaonly = 2,
+			MatchWorldType = 0,
+			EditorOnly = 1,
+			VanillaOnly = 2,
 			Mixed = 3,
 		}
 
@@ -5743,36 +5743,36 @@ namespace MiNET.Net
 	{
 		public enum Type
 		{
-			Markerwhite = 0,
-			Markergreen = 1,
-			Markerred = 2,
-			Markerblue = 3,
+			MarkerWhite = 0,
+			MarkerGreen = 1,
+			MarkerRed = 2,
+			MarkerBlue = 3,
 			Xwhite = 4,
-			Trianglered = 5,
-			Squarewhite = 6,
-			Markersign = 7,
-			Markerpink = 8,
-			Markerorange = 9,
-			Markeryellow = 10,
-			Markerteal = 11,
-			Trianglegreen = 12,
-			Smallsquarewhite = 13,
+			TriangleRed = 5,
+			SquareWhite = 6,
+			MarkerSign = 7,
+			MarkerPink = 8,
+			MarkerOrange = 9,
+			MarkerYellow = 10,
+			MarkerTeal = 11,
+			TriangleGreen = 12,
+			SmallSquareWhite = 13,
 			Mansion = 14,
 			Monument = 15,
-			Nodraw = 16,
-			Villagedesert = 17,
-			Villageplains = 18,
-			Villagesavanna = 19,
-			Villagesnowy = 20,
-			Villagetaiga = 21,
-			Jungletemple = 22,
-			Witchhut = 23,
-			Trialchambers = 24,
-			Abandonedcamp = 25,
-			Buriedancientcity = 26,
-			Buriedmineshaft = 27,
-			Desertpyramid = 28,
-			Warmoceanruins = 29,
+			NoDraw = 16,
+			VillageDesert = 17,
+			VillagePlains = 18,
+			VillageSavanna = 19,
+			VillageSnowy = 20,
+			VillageTaiga = 21,
+			JungleTemple = 22,
+			WitchHut = 23,
+			TrialChambers = 24,
+			AbandonedCamp = 25,
+			BuriedAncientCity = 26,
+			BuriedMineshaft = 27,
+			DesertPyramid = 28,
+			WarmOceanRuins = 29,
 			Count = 30,
 		}
 
@@ -5789,7 +5789,7 @@ namespace MiNET.Net
 		public enum MapItemTrackedActorType
 		{
 			Entity = 0,
-			Blockentity = 1,
+			BlockEntity = 1,
 			Other = 2,
 		}
 
@@ -5809,15 +5809,15 @@ namespace MiNET.Net
 		public enum MemoryCategory
 		{
 			Unknown = 0,
-			InvalidSizeunknown = 1,
+			InvalidSizeUnknown = 1,
 			Actor = 2,
-			Actoranimation = 3,
-			Actorrendering = 4,
-			Blocktickingqueues = 5,
+			ActorAnimation = 3,
+			ActorRendering = 4,
+			BlockTickingQueues = 5,
 			BiomeStorage = 6,
 			Blobs = 7,
 			Cereal = 8,
-			Circuitsystem = 9,
+			CircuitSystem = 9,
 			Client = 10,
 			Commands = 11,
 			Dbstorage = 12,
@@ -5826,96 +5826,96 @@ namespace MiNET.Net
 			Ecssystems = 15,
 			Fmod = 16,
 			Fonts = 17,
-			Imgui = 18,
+			ImGui = 18,
 			Input = 19,
-			Jsonui = 20,
-			JsonuiControlfactoryJson = 21,
-			JsonuiControltree = 22,
-			JsonuiControltreeControlelement = 23,
-			JsonuiControltreePopulatedatabinding = 24,
-			JsonuiControltreePopulatefocus = 25,
-			JsonuiControltreePopulatelayout = 26,
-			JsonuiControltreePopulateother = 27,
-			JsonuiControltreePopulatesprite = 28,
-			JsonuiControltreePopulatetext = 29,
-			JsonuiControltreePopulatetts = 30,
-			JsonuiControltreeVisibility = 31,
-			JsonuiCreateui = 32,
-			JsonuiDefs = 33,
-			JsonuiLayoutmanager = 34,
-			JsonuiLayoutmanagerRemovedependencies = 35,
-			JsonuiLayoutmanagerInitvariable = 36,
+			JsonUi = 20,
+			JsonUiControlFactoryJson = 21,
+			JsonUiControlTree = 22,
+			JsonUiControlTreeControlElement = 23,
+			JsonUiControlTreePopulateDataBinding = 24,
+			JsonUiControlTreePopulateFocus = 25,
+			JsonUiControlTreePopulateLayout = 26,
+			JsonUiControlTreePopulateOther = 27,
+			JsonUiControlTreePopulateSprite = 28,
+			JsonUiControlTreePopulateText = 29,
+			JsonUiControlTreePopulateTts = 30,
+			JsonUiControlTreeVisibility = 31,
+			JsonUiCreateUi = 32,
+			JsonUiDefs = 33,
+			JsonUiLayoutManager = 34,
+			JsonUiLayoutManagerRemoveDependencies = 35,
+			JsonUiLayoutManagerInitVariable = 36,
 			Languages = 37,
 			Level = 38,
-			Levelstructures = 39,
-			Levelchunk = 40,
-			Levelchunkgen = 41,
-			Levelchunkgenthreadlocal = 42,
-			Lightvolumemanager = 43,
+			LevelStructures = 39,
+			LevelChunk = 40,
+			LevelChunkGen = 41,
+			LevelChunkGenThreadLocal = 42,
+			LightVolumeManager = 43,
 			Network = 44,
 			Marketplace = 45,
-			MaterialDragoncompileddefinition = 46,
-			MaterialDragonmaterial = 47,
-			MaterialDragonresource = 48,
-			MaterialDragonuniformmap = 49,
-			MaterialRendermaterial = 50,
-			MaterialRendermaterialgroup = 51,
-			MaterialVariationmanager = 52,
+			MaterialDragonCompiledDefinition = 46,
+			MaterialDragonMaterial = 47,
+			MaterialDragonResource = 48,
+			MaterialDragonUniformMap = 49,
+			MaterialRenderMaterial = 50,
+			MaterialRenderMaterialGroup = 51,
+			MaterialVariationManager = 52,
 			Molang = 53,
-			Oreui = 54,
-			OreuiClient = 55,
+			OreUi = 54,
+			OreUiClient = 55,
 			PersonaPieces = 56,
 			PersonaAnimations = 57,
 			PersonaCharacters = 58,
-			PersonaSkinpacks = 59,
+			PersonaSkinPacks = 59,
 			PersonaRepo = 60,
 			Player = 61,
-			Renderchunk = 62,
-			RenderchunkIndexbuffer = 63,
-			RenderchunkVertexbuffer = 64,
+			RenderChunk = 62,
+			RenderChunkIndexBuffer = 63,
+			RenderChunkVertexBuffer = 64,
 			Rendering = 65,
-			RenderingBgfxinit = 66,
-			RenderingBgfxstartframe = 67,
-			RenderingBlocktessellator = 68,
-			RenderingEndframe = 69,
-			RenderingGraphicstasksinit = 70,
+			RenderingBgfxInit = 66,
+			RenderingBgfxStartFrame = 67,
+			RenderingBlockTessellator = 68,
+			RenderingEndFrame = 69,
+			RenderingGraphicsTasksInit = 70,
 			RenderingLibrary = 71,
-			RenderingPolygonoperatorpool = 72,
-			RenderingPbrtexturedata = 73,
-			RenderingRenderregistry = 74,
+			RenderingPolygonOperatorPool = 72,
+			RenderingPbrtextureData = 73,
+			RenderingRenderRegistry = 74,
 			RenderingSetup = 75,
 			RenderingVertices = 76,
-			Requestlog = 77,
-			Resourcepacks = 78,
+			RequestLog = 77,
+			ResourcePacks = 78,
 			Sound = 79,
-			SubchunkBiomedata = 80,
-			SubchunkBlockdata = 81,
-			SubchunkLightdata = 82,
+			SubChunkBiomeData = 80,
+			SubChunkBlockData = 81,
+			SubChunkLightData = 82,
 			Textures = 83,
-			Weatherrenderer = 84,
+			WeatherRenderer = 84,
 			WorldGenerator = 85,
 			Tasks = 86,
 			Test = 87,
-			TestLoadtesttags = 88,
+			TestLoadTestTags = 88,
 			Scripting = 89,
 			ScriptingRuntime = 90,
 			ScriptingContext = 91,
 			ScriptingContextBindingsMc = 92,
 			ScriptingContextBindingsGt = 93,
 			ScriptingContextRun = 94,
-			Datadrivenui = 95,
-			DatadrivenuiDefs = 96,
+			DataDrivenUi = 95,
+			DataDrivenUiDefs = 96,
 			Gameface = 97,
 			GamefaceSystem = 98,
 			GamefaceDom = 99,
 			GamefaceCss = 100,
 			GamefaceDisplay = 101,
-			GamefaceTempallocator = 102,
-			GamefacePoolallocator = 103,
+			GamefaceTempAllocator = 102,
+			GamefacePoolAllocator = 103,
 			GamefaceDump = 104,
 			GamefaceMedia = 105,
 			GamefaceJson = 106,
-			GamefaceScriptengine = 107,
+			GamefaceScriptEngine = 107,
 			GamefaceScript = 108,
 			GamefaceLayout = 109,
 			Executable = 110,
@@ -5930,22 +5930,22 @@ namespace MiNET.Net
 		public enum MolangVersion
 		{
 			Invalid = -1,
-			Beforeversioning = 0,
+			BeforeVersioning = 0,
 			Initial = 1,
-			Fixeditemremainingusedurationquery = 2,
-			Expressionerrormessages = 3,
-			Unexpectedoperatorerrors = 4,
-			Conditionaloperatorassociativity = 5,
-			Comparisonandlogicaloperatorprecedence = 6,
-			Dividebynegativevalue = 7,
-			Fixedcapeflapamountquery = 8,
-			Queryblockpropertyrenamedtostate = 9,
-			Deprecateoldblockquerynames = 10,
-			Deprecatedsnifferandcamelqueries = 11,
-			Leafsupportinginfirstsolidblockbelow = 12,
-			Numvalidversions = 14,
+			FixedItemRemainingUseDurationQuery = 2,
+			ExpressionErrorMessages = 3,
+			UnexpectedOperatorErrors = 4,
+			ConditionalOperatorAssociativity = 5,
+			ComparisonAndLogicalOperatorPrecedence = 6,
+			DivideByNegativeValue = 7,
+			FixedCapeFlapAmountQuery = 8,
+			QueryBlockPropertyRenamedToState = 9,
+			DeprecateOldBlockQueryNames = 10,
+			DeprecatedSnifferAndCamelQueries = 11,
+			LeafSupportingInFirstSolidBlockBelow = 12,
+			NumValidVersions = 14,
 			Latest = 13,
-			Hardcodedmolang = 13,
+			HardcodedMolang = 13,
 		}
 
 		public string tagExpression;
@@ -6014,11 +6014,11 @@ namespace MiNET.Net
 			Laying = 2,
 		}
 
-		public BlockCoordinates blockpos;
+		public BlockCoordinates blockPos;
 		public Vector3 offset;
 		public float rotation;
-		public float rotationlimit;
-		public PassengerOfBlockArguments.EmoteType emotetype;
+		public float rotationLimit;
+		public PassengerOfBlockArguments.EmoteType emoteType;
 	}
 
 	public class Pause : EventBase
@@ -6030,39 +6030,39 @@ namespace MiNET.Net
 		public enum PlayerActionType
 		{
 			Unknown = -1,
-			Startdestroyblock = 0,
-			Abortdestroyblock = 1,
-			Stopdestroyblock = 2,
-			Startsleeping = 5,
-			Stopsleeping = 6,
+			StartDestroyBlock = 0,
+			AbortDestroyBlock = 1,
+			StopDestroyBlock = 2,
+			StartSleeping = 5,
+			StopSleeping = 6,
 			Respawn = 7,
-			Startjump = 8,
-			Startsprinting = 9,
-			Stopsprinting = 10,
-			Startsneaking = 11,
-			Stopsneaking = 12,
-			Creativedestroyblock = 13,
-			Changedimensionack = 14,
-			Startgliding = 15,
-			Stopgliding = 16,
-			Denydestroyblock = 17,
-			Crackblock = 18,
-			Startswimming = 21,
-			Stopswimming = 22,
-			Startspinattack = 23,
-			Stopspinattack = 24,
-			Predictdestroyblock = 26,
-			Continuedestroyblock = 27,
-			Startitemuseon = 28,
-			Stopitemuseon = 29,
-			Handledteleport = 30,
-			Missedswing = 31,
-			Startcrawling = 32,
-			Stopcrawling = 33,
-			Startflying = 34,
-			Stopflying = 35,
-			Startusingitem = 37,
-			Internalupdate = 38,
+			StartJump = 8,
+			StartSprinting = 9,
+			StopSprinting = 10,
+			StartSneaking = 11,
+			StopSneaking = 12,
+			CreativeDestroyBlock = 13,
+			ChangeDimensionAck = 14,
+			StartGliding = 15,
+			StopGliding = 16,
+			DenyDestroyBlock = 17,
+			CrackBlock = 18,
+			StartSwimming = 21,
+			StopSwimming = 22,
+			StartSpinAttack = 23,
+			StopSpinAttack = 24,
+			PredictDestroyBlock = 26,
+			ContinueDestroyBlock = 27,
+			StartItemUseOn = 28,
+			StopItemUseOn = 29,
+			HandledTeleport = 30,
+			MissedSwing = 31,
+			StartCrawling = 32,
+			StopCrawling = 33,
+			StartFlying = 34,
+			StopFlying = 35,
+			StartUsingItem = 37,
+			InternalUpdate = 38,
 			Count = 39,
 		}
 
@@ -6081,7 +6081,7 @@ namespace MiNET.Net
 		public enum BuildPlatform
 		{
 			Google = 1,
-			Ios = 2,
+			IOs = 2,
 			Osx = 3,
 			Amazon = 4,
 			Win32 = 8,
@@ -6098,13 +6098,13 @@ namespace MiNET.Net
 		public long actorUniqueId;
 		public string playerName;
 		public string xblXuid;
-		public string playfabId;
+		public string playFabId;
 		public string platformOnlineId;
 		public PlayerListAddEntry.BuildPlatform buildPlatform;
 		public Skin serializedSkin;
 		public bool isTeacher;
 		public bool isHost;
-		public bool isSubclient;
+		public bool isSubClient;
 		public int playerColor;
 	}
 
@@ -6205,7 +6205,7 @@ namespace MiNET.Net
 		public enum CommandPermissionLevel
 		{
 			Any = 0,
-			Gamedirectors = 1,
+			GameDirectors = 1,
 			Admin = 2,
 			Host = 3,
 			Owner = 4,
@@ -6227,9 +6227,9 @@ namespace MiNET.Net
 	public class ServerConfig
 	{
 		public GatheringsConfig gathering;
-		public ClientStoreEntryPointConfig clientstoreentrypoint;
+		public ClientStoreEntryPointConfig clientStoreEntryPoint;
 		public string presence;
-		public bool? managedchat;
+		public bool? managedChat;
 	}
 
 	public class ServerTelemetryData
@@ -6266,7 +6266,7 @@ namespace MiNET.Net
 		public enum SpawnBiomeType
 		{
 			Default = 0,
-			Userdefined = 1,
+			UserDefined = 1,
 		}
 
 		public SpawnSettings.SpawnBiomeType spawnBiomeType;
@@ -6292,8 +6292,8 @@ namespace MiNET.Net
 
 		public enum StructureRedstoneSaveMode
 		{
-			Savestomemory = 0,
-			Savestodisk = 1,
+			SavesToMemory = 0,
+			SavesToDisk = 1,
 		}
 
 		public BedrockSafetyRedactableString structureName;
@@ -6309,19 +6309,19 @@ namespace MiNET.Net
 	{
 		public enum HeightMapType
 		{
-			Nodata = 0,
-			Hasdata = 1,
-			Alltoohigh = 2,
-			Alltoolow = 3,
+			NoData = 0,
+			HasData = 1,
+			AllTooHigh = 2,
+			AllTooLow = 3,
 		}
 
 		public enum RenderHeightMapType
 		{
-			Nodata = 0,
-			Hasdata = 1,
-			Alltoohigh = 2,
-			Alltoolow = 3,
-			Allcopied = 4,
+			NoData = 0,
+			HasData = 1,
+			AllTooHigh = 2,
+			AllTooLow = 3,
+			AllCopied = 4,
 		}
 
 		public SubChunkHeightmapData.HeightMapType heightMapType;
@@ -6332,19 +6332,19 @@ namespace MiNET.Net
 
 	public class SubChunkPacketData
 	{
-		public enum SubchunkRequestResult
+		public enum SubChunkRequestResult
 		{
 			Undefined = 0,
 			Success = 1,
-			Levelchunkdoesntexist = 2,
-			Wrongdimension = 3,
-			Playerdoesntexist = 4,
-			Indexoutofbounds = 5,
-			Successallair = 6,
+			LevelChunkDoesntExist = 2,
+			WrongDimension = 3,
+			PlayerDoesntExist = 4,
+			IndexOutOfBounds = 5,
+			SuccessAllAir = 6,
 		}
 
-		public SubChunkPosOffset subchunkPosOffset;
-		public SubChunkPacketData.SubchunkRequestResult subchunkRequestResult;
+		public SubChunkPosOffset subChunkPosOffset;
+		public SubChunkPacketData.SubChunkRequestResult subChunkRequestResult;
 		public byte[] serializedSubChunk;
 		public SubChunkHeightmapData heightMapData;
 		public ulong? blobId;
@@ -6388,9 +6388,9 @@ namespace MiNET.Net
 	{
 		public string label;
 		public string indentation;
-		public ulong totalhighcostns;
-		public ulong totalmidcostns;
-		public ulong totallowcostns;
+		public ulong totalHighCostNs;
+		public ulong totalMidCostNs;
+		public ulong totalLowCostNs;
 	}
 
 	public abstract partial class Packet
@@ -6661,15 +6661,15 @@ namespace MiNET.Net
 
 		public void Write(ClientStoreEntryPointConfig data)
 		{
-			Write(data.storeid);
-			Write(data.storename);
+			Write(data.storeId);
+			Write(data.storeName);
 		}
 
 		public ClientStoreEntryPointConfig ReadClientStoreEntryPointConfig()
 		{
 			var data = new ClientStoreEntryPointConfig();
-			data.storeid = ReadString();
-			data.storename = ReadString();
+			data.storeId = ReadString();
+			data.storeName = ReadString();
 			return data;
 		}
 
@@ -6858,35 +6858,35 @@ namespace MiNET.Net
 
 		public void Write(GatheringsConfig data)
 		{
-			Write(data.experienceid != null);
-			if (data.experienceid != null) Write(data.experienceid);
-			Write(data.experiencename != null);
-			if (data.experiencename != null) Write(data.experiencename);
-			Write(data.worldid != null);
-			if (data.worldid != null) Write(data.worldid);
-			Write(data.worldname != null);
-			if (data.worldname != null) Write(data.worldname);
-			Write(data.creatorid != null);
-			if (data.creatorid != null) Write(data.creatorid);
-			Write(data.targetid != null);
-			if (data.targetid != null) Write(data.targetid);
-			Write(data.scenarioid != null);
-			if (data.scenarioid != null) Write(data.scenarioid);
-			Write(data.serverid != null);
-			if (data.serverid != null) Write(data.serverid);
+			Write(data.experienceId != null);
+			if (data.experienceId != null) Write(data.experienceId);
+			Write(data.experienceName != null);
+			if (data.experienceName != null) Write(data.experienceName);
+			Write(data.worldId != null);
+			if (data.worldId != null) Write(data.worldId);
+			Write(data.worldName != null);
+			if (data.worldName != null) Write(data.worldName);
+			Write(data.creatorId != null);
+			if (data.creatorId != null) Write(data.creatorId);
+			Write(data.targetId != null);
+			if (data.targetId != null) Write(data.targetId);
+			Write(data.scenarioId != null);
+			if (data.scenarioId != null) Write(data.scenarioId);
+			Write(data.serverId != null);
+			if (data.serverId != null) Write(data.serverId);
 		}
 
 		public GatheringsConfig ReadGatheringsConfig()
 		{
 			var data = new GatheringsConfig();
-			if (ReadBool()) data.experienceid = ReadUUID();
-			if (ReadBool()) data.experiencename = ReadString();
-			if (ReadBool()) data.worldid = ReadUUID();
-			if (ReadBool()) data.worldname = ReadString();
-			if (ReadBool()) data.creatorid = ReadString();
-			if (ReadBool()) data.targetid = ReadUUID();
-			if (ReadBool()) data.scenarioid = ReadString();
-			if (ReadBool()) data.serverid = ReadString();
+			if (ReadBool()) data.experienceId = ReadUUID();
+			if (ReadBool()) data.experienceName = ReadString();
+			if (ReadBool()) data.worldId = ReadUUID();
+			if (ReadBool()) data.worldName = ReadString();
+			if (ReadBool()) data.creatorId = ReadString();
+			if (ReadBool()) data.targetId = ReadUUID();
+			if (ReadBool()) data.scenarioId = ReadString();
+			if (ReadBool()) data.serverId = ReadString();
 			return data;
 		}
 
@@ -7102,7 +7102,7 @@ namespace MiNET.Net
 			else WriteUnsignedVarInt(0);
 			WriteUnsignedVarInt((uint) (data.stringsToFilter?.Count ?? 0));
 			if (data.stringsToFilter != null) foreach (string item in data.stringsToFilter) Write(item);
-			Write((int) data.stringstofilterorigin);
+			Write((int) data.stringsToFilterOrigin);
 		}
 
 		public ItemStackRequest ReadItemStackRequest()
@@ -7115,7 +7115,7 @@ namespace MiNET.Net
 			uint stringsToFilterCount = ReadUnsignedVarInt();
 			data.stringsToFilter = new List<string>((int) stringsToFilterCount);
 			for (int i = 0; i < stringsToFilterCount; i++) data.stringsToFilter.Add(ReadString());
-			data.stringstofilterorigin = (ItemStackRequest.TextProcessingEventOrigin) ReadInt();
+			data.stringsToFilterOrigin = (ItemStackRequest.TextProcessingEventOrigin) ReadInt();
 			return data;
 		}
 
@@ -7995,21 +7995,21 @@ namespace MiNET.Net
 
 		public void Write(PassengerOfBlockArguments data)
 		{
-			Write(data.blockpos);
+			Write(data.blockPos);
 			Write(data.offset);
 			Write(data.rotation);
-			Write(data.rotationlimit);
-			Write((byte) data.emotetype);
+			Write(data.rotationLimit);
+			Write((byte) data.emoteType);
 		}
 
 		public PassengerOfBlockArguments ReadPassengerOfBlockArguments()
 		{
 			var data = new PassengerOfBlockArguments();
-			data.blockpos = ReadBlockCoordinates();
+			data.blockPos = ReadBlockCoordinates();
 			data.offset = ReadVector3();
 			data.rotation = ReadFloat();
-			data.rotationlimit = ReadFloat();
-			data.emotetype = (PassengerOfBlockArguments.EmoteType) ReadByte();
+			data.rotationLimit = ReadFloat();
+			data.emoteType = (PassengerOfBlockArguments.EmoteType) ReadByte();
 			return data;
 		}
 
@@ -8060,13 +8060,13 @@ namespace MiNET.Net
 			WriteSignedVarLong(data.actorUniqueId);
 			Write(data.playerName);
 			Write(data.xblXuid);
-			Write(data.playfabId);
+			Write(data.playFabId);
 			Write(data.platformOnlineId);
 			Write((int) data.buildPlatform);
 			Write(data.serializedSkin);
 			Write(data.isTeacher);
 			Write(data.isHost);
-			Write(data.isSubclient);
+			Write(data.isSubClient);
 			Write(data.playerColor);
 		}
 
@@ -8078,13 +8078,13 @@ namespace MiNET.Net
 			data.actorUniqueId = ReadSignedVarLong();
 			data.playerName = ReadString();
 			data.xblXuid = ReadString();
-			data.playfabId = ReadString();
+			data.playFabId = ReadString();
 			data.platformOnlineId = ReadString();
 			data.buildPlatform = (PlayerListAddEntry.BuildPlatform) ReadInt();
 			data.serializedSkin = ReadSkin();
 			data.isTeacher = ReadBool();
 			data.isHost = ReadBool();
-			data.isSubclient = ReadBool();
+			data.isSubClient = ReadBool();
 			data.playerColor = ReadInt();
 			return data;
 		}
@@ -8341,21 +8341,21 @@ namespace MiNET.Net
 		{
 			Write(data.gathering != null);
 			if (data.gathering != null) Write(data.gathering);
-			Write(data.clientstoreentrypoint != null);
-			if (data.clientstoreentrypoint != null) Write(data.clientstoreentrypoint);
+			Write(data.clientStoreEntryPoint != null);
+			if (data.clientStoreEntryPoint != null) Write(data.clientStoreEntryPoint);
 			Write(data.presence != null);
 			if (data.presence != null) Write(data.presence);
-			Write(data.managedchat != null);
-			if (data.managedchat != null) Write(data.managedchat.Value);
+			Write(data.managedChat != null);
+			if (data.managedChat != null) Write(data.managedChat.Value);
 		}
 
 		public ServerConfig ReadServerConfig()
 		{
 			var data = new ServerConfig();
 			if (ReadBool()) data.gathering = ReadGatheringsConfig();
-			if (ReadBool()) data.clientstoreentrypoint = ReadClientStoreEntryPointConfig();
+			if (ReadBool()) data.clientStoreEntryPoint = ReadClientStoreEntryPointConfig();
 			if (ReadBool()) data.presence = ReadString();
-			if (ReadBool()) data.managedchat = ReadBool();
+			if (ReadBool()) data.managedChat = ReadBool();
 			return data;
 		}
 
@@ -8503,8 +8503,8 @@ namespace MiNET.Net
 
 		public void Write(SubChunkPacketData data)
 		{
-			Write(data.subchunkPosOffset ?? new SubChunkPosOffset());
-			Write((byte) data.subchunkRequestResult);
+			Write(data.subChunkPosOffset ?? new SubChunkPosOffset());
+			Write((byte) data.subChunkRequestResult);
 			Write(data.serializedSubChunk != null);
 			if (data.serializedSubChunk != null) WriteByteArray(data.serializedSubChunk);
 			Write(data.heightMapData ?? new SubChunkHeightmapData());
@@ -8515,8 +8515,8 @@ namespace MiNET.Net
 		public SubChunkPacketData ReadSubChunkPacketData()
 		{
 			var data = new SubChunkPacketData();
-			data.subchunkPosOffset = ReadSubChunkPosOffset();
-			data.subchunkRequestResult = (SubChunkPacketData.SubchunkRequestResult) ReadByte();
+			data.subChunkPosOffset = ReadSubChunkPosOffset();
+			data.subChunkRequestResult = (SubChunkPacketData.SubChunkRequestResult) ReadByte();
 			if (ReadBool()) data.serializedSubChunk = ReadByteArray();
 			data.heightMapData = ReadSubChunkHeightmapData();
 			if (ReadBool()) data.blobId = ReadUlong();
@@ -8605,9 +8605,9 @@ namespace MiNET.Net
 		{
 			Write(data.label);
 			Write(data.indentation);
-			Write(data.totalhighcostns);
-			Write(data.totalmidcostns);
-			Write(data.totallowcostns);
+			Write(data.totalHighCostNs);
+			Write(data.totalMidCostNs);
+			Write(data.totalLowCostNs);
 		}
 
 		public WhiskerScopeDataSummary ReadWhiskerScopeDataSummary()
@@ -8615,9 +8615,9 @@ namespace MiNET.Net
 			var data = new WhiskerScopeDataSummary();
 			data.label = ReadString();
 			data.indentation = ReadString();
-			data.totalhighcostns = ReadUlong();
-			data.totalmidcostns = ReadUlong();
-			data.totallowcostns = ReadUlong();
+			data.totalHighCostNs = ReadUlong();
+			data.totalMidCostNs = ReadUlong();
+			data.totalLowCostNs = ReadUlong();
 			return data;
 		}
 	}

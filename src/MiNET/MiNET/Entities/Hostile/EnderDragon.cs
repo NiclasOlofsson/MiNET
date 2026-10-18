@@ -30,11 +30,11 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities.Hostile
 {
-	public class Dragon : HostileMob, IAgeable
+	public class EnderDragon : HostileMob, IAgeable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ElderGuardian));
 
-		public Dragon(Level level) : base(EntityType.Dragon, level)
+		public EnderDragon(Level level) : base(EntityType.EnderDragon, level)
 		{
 			Width = Length = 13;
 			Height = 4;

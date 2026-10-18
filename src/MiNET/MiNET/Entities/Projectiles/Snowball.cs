@@ -30,14 +30,16 @@ namespace MiNET.Entities.Projectiles
 {
 	public class Snowball : Projectile
 	{
-		public Snowball(Player shooter, Level level) : base(shooter, EntityType.ThrownSnowball, level, 0)
+		public Snowball(Player shooter, Level level) : base(shooter, EntityType.Snowball, level, 0)
 		{
 			Width = 0.25;
 			Length = 0.25;
 			Height = 0.25;
 
 			Gravity = 0.03;
-			Drag = 0.01;
+			Power = 1.5;
+			DamageMin = DamageMax = 3;
+			DamageFilter = "blaze";
 
 			HealthManager.IsInvulnerable = true;
 			DespawnOnImpact = true;

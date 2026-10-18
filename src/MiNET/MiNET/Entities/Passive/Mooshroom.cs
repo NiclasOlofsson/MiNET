@@ -24,68 +24,26 @@
 #endregion
 
 using MiNET.Items;
-using MiNET.Net;
-using MiNET.Utils;
-using MiNET.Utils.Metadata;
 using MiNET.Worlds;
 
-namespace MiNET.Entities
+namespace MiNET.Entities.Passive
 {
-	public class Camera : Entity
+	public class Mooshroom : PassiveMob
 	{
-		private long _countdown;
-
-		public string InteractionLabel { get; set; } = "action.interact.takepicture";
-
-
-		public Camera(Level level) : base(EntityType.Camera, level)
+		public Mooshroom(Level level) : base(EntityType.Mooshroom, level)
 		{
-			Width = Length = 0.75f;
-			Height = 1.8f;
-
-			HasCollision = true;
-			IsAffectedByGravity = true;
-
-			HealthManager.IsInvulnerable = true;
+			Width = Length = 0.9;
+			Height = 1.4;
+			HealthManager.MaxHealth = 100;
+			HealthManager.ResetHealth();
 		}
-
-		public override MetadataDictionary GetMetadata()
-		{
-			var metadata = base.GetMetadata();
-			metadata[40] = new MetadataString(InteractionLabel);
-			return metadata;
-		}
-
-		public override void DoInteraction(int actionId, Player player)
-		{
-			McpeCamera camera = McpeCamera.CreateObject();
-			camera.unknown1 = EntityId;
-			camera.unknown2 = player.EntityId;
-			player.Level.RelayBroadcast(camera);
-
-			_countdown = Age + 100;
-			InteractionLabel = "";
-			BroadcastSetEntityData();
-		}
-
-		public override void OnTick(Entity[] entities)
-		{
-			base.OnTick(entities);
-
-			if (!IsSpawned) return;
-
-			if (_countdown > 0 && Age > _countdown)
-			{
-				DespawnEntity();
-			}
-		}
-
 
 		public override Item[] GetDrops()
 		{
 			return new[]
 			{
-				ItemFactory.GetItemByName("minecraft:camera")
+				ItemFactory.GetItemByName("minecraft:red_mushroom", 0, 2),
+				ItemFactory.GetItemByName("minecraft:leather", 0, 1)
 			};
 		}
 	}

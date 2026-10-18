@@ -39,12 +39,10 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			float force = 1.5f;
-
 			var snowBall = new Snowball(player, world);
 			snowBall.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			snowBall.KnownPosition.Y += 1.62f;
-			snowBall.Velocity = snowBall.KnownPosition.GetDirection().Normalize() * force;
+			snowBall.Velocity = snowBall.KnownPosition.GetDirection().Normalize() * (float) snowBall.Power;
 			snowBall.SpawnEntity();
 		}
 	}

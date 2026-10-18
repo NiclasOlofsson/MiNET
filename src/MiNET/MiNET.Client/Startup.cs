@@ -518,7 +518,7 @@ namespace MiNET.Client
 			//		foreach (EntityType entityType in Enum.GetValues(typeof(EntityType)))
 			//		{
 			//			if (entityType == EntityType.Wither) continue;
-			//			if (entityType == EntityType.Dragon) continue;
+			//			if (entityType == EntityType.EnderDragon) continue;
 			//			if (entityType == EntityType.Slime) continue;
 
 			//			string entityName = entityType.ToString();

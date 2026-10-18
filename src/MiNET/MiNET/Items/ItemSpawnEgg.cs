@@ -77,8 +77,8 @@ namespace MiNET.Items
 				case EntityType.Villager:
 					mob = new Villager(world);
 					break;
-				case EntityType.MushroomCow:
-					mob = new MushroomCow(world);
+				case EntityType.Mooshroom:
+					mob = new Mooshroom(world);
 					break;
 				case EntityType.Squid:
 					mob = new Squid(world);
@@ -165,8 +165,8 @@ namespace MiNET.Items
 				case EntityType.Shulker:
 					mob = new Shulker(world);
 					break;
-				case EntityType.Dragon:
-					mob = new Dragon(world);
+				case EntityType.EnderDragon:
+					mob = new EnderDragon(world);
 					break;
 				case EntityType.SkeletonHorse:
 					mob = new SkeletonHorse(world);
@@ -174,8 +174,8 @@ namespace MiNET.Items
 				case EntityType.Wither:
 					mob = new Wither(world);
 					break;
-				case EntityType.Evoker:
-					mob = new Evoker(world);
+				case EntityType.EvocationIllager:
+					mob = new EvocationIllager(world);
 					break;
 				case EntityType.Vindicator:
 					mob = new Vindicator(world);

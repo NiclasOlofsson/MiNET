@@ -43,7 +43,7 @@ namespace MiNET.Entities.World
 		public int PickupDelay { get; set; }
 		public int TimeToLive { get; set; }
 
-		public ItemEntity(Level level, Item item) : base(EntityType.DroppedItem, level)
+		public ItemEntity(Level level, Item item) : base(EntityType.Item, level)
 		{
 			Item = item;
 

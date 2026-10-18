@@ -39,12 +39,10 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			float force = 1.5f;
-
 			var egg = new Egg(player, world);
 			egg.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			egg.KnownPosition.Y += 1.62f;
-			egg.Velocity = egg.KnownPosition.GetDirection().Normalize() * (force);
+			egg.Velocity = egg.KnownPosition.GetDirection().Normalize() * (float) egg.Power;
 			egg.SpawnEntity();
 		}
 	}

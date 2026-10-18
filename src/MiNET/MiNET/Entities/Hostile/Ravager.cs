@@ -27,7 +27,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities.Hostile
 {
-	/// <summary>Raid mob. Carries a pillager or an <see cref="Evoker" /> into the village.</summary>
+	/// <summary>Raid mob. Carries a pillager or an <see cref="EvocationIllager" /> into the village.</summary>
 	public class Ravager : HostileMob, IRideable
 	{
 		public Entity Rider { get; set; }

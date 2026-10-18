@@ -1441,7 +1441,7 @@ namespace TestPlugin
 		[Command(Name = "xporb")]
 		public void ExperienceOrb(Player player)
 		{
-			Mob xpOrb = new Mob(EntityType.ExperienceOrb, player.Level);
+			Mob xpOrb = new Mob(EntityType.XpOrb, player.Level);
 			xpOrb.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			xpOrb.SpawnEntity();
 		}

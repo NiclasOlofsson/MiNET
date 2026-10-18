@@ -25,24 +25,19 @@
 
 using MiNET.Worlds;
 
-namespace MiNET.Entities.Projectiles
+namespace MiNET.Entities.Vehicles
 {
 	/// <summary>
-	///     The wind charge a player throws. It does no damage on its own: the hit is the wind burst
-	///     it leaves behind, which shoves entities and flips levers, doors and buttons.
+	///     A one-seat cushion, flagged experimental in its definition. Values are BDS's vanilla
+	///     definition, last changed in the 1.26.60 pack: a seat at 0.0625 up, variant 15 unless set.
 	/// </summary>
-	public class WindCharge : Projectile
+	public class Cushion : Vehicle
 	{
-		public WindCharge(Player shooter, Level level) : base(shooter, EntityType.WindCharge, level, 0)
+		public Cushion(Level level) : base(EntityType.Cushion, level)
 		{
-			Width = Length = Height = 0.3125;
-
-			Gravity = 0;
-			Drag = 0.01;
-
-			HealthManager.IsInvulnerable = true;
-			DespawnOnImpact = true;
-			BroadcastMovement = true;
+			Width = Length = 0.999;
+			Height = 0.249;
+			Variant = 15;
 		}
 	}
 }

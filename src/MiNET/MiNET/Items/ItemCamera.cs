@@ -41,8 +41,7 @@ namespace MiNET.Items
 		{
 			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 
-			// Qualified: MiNET.Camera is the view-camera namespace, this is the tripod camera entity.
-			Entities.Camera entity = new Entities.Camera(world) {KnownPosition = coordinates};
+			var entity = new TripodCamera(world) {KnownPosition = coordinates};
 			entity.SpawnEntity();
 		}
 	}

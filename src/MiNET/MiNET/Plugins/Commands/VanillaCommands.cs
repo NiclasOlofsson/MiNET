@@ -33,6 +33,7 @@ using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
+using MiNET.Entities.Projectiles;
 using MiNET.Entities.Vehicles;
 using MiNET.Items;
 using MiNET.Net;
@@ -146,17 +147,11 @@ namespace MiNET.Plugins.Commands
 		[Command]
 		public void Summon(Player player, EntityTypeEnum entityType, bool noAi = true, BlockPos spawnPos = null)
 		{
-			EntityType petType;
-			try
-			{
-				petType = (EntityType) Enum.Parse(typeof(EntityType), entityType.Value, true);
-			}
-			catch (ArgumentException)
-			{
-				return;
-			}
-
-			if (!Enum.IsDefined(typeof(EntityType), petType))
+			// The client offers vanilla identifiers (ender_dragon, minecraft:ender_dragon), so those are
+			// looked up by identity; the enum name is the fallback for a name typed the C# way.
+			string id = entityType.Value.Contains(':') ? entityType.Value : "minecraft:" + entityType.Value;
+			EntityType petType = EntityHelpers.LegacyEntityTypeIdConverter.FirstOrDefault(entry => entry.Value.Id == id).Key;
+			if ((petType == EntityType.None && !Enum.TryParse(entityType.Value, true, out petType)) || !Enum.IsDefined(typeof(EntityType), petType))
 			{
 				player.SendMessage("No entity found");
 				return;
@@ -207,8 +202,8 @@ namespace MiNET.Plugins.Commands
 				case EntityType.Villager:
 					mob = new Villager(world);
 					break;
-				case EntityType.MushroomCow:
-					mob = new MushroomCow(world);
+				case EntityType.Mooshroom:
+					mob = new Mooshroom(world);
 					break;
 				case EntityType.Squid:
 					mob = new Squid(world);
@@ -295,8 +290,8 @@ namespace MiNET.Plugins.Commands
 				case EntityType.Shulker:
 					mob = new Shulker(world);
 					break;
-				case EntityType.Dragon:
-					mob = new Dragon(world);
+				case EntityType.EnderDragon:
+					mob = new EnderDragon(world);
 					break;
 				case EntityType.SkeletonHorse:
 					mob = new SkeletonHorse(world);
@@ -304,8 +299,8 @@ namespace MiNET.Plugins.Commands
 				case EntityType.Wither:
 					mob = new Wither(world);
 					break;
-				case EntityType.Evoker:
-					mob = new Evoker(world);
+				case EntityType.EvocationIllager:
+					mob = new EvocationIllager(world);
 					break;
 				case EntityType.Vindicator:
 					mob = new Vindicator(world);
@@ -325,6 +320,15 @@ namespace MiNET.Plugins.Commands
 					break;
 				case EntityType.Boat:
 					entity = new Boat(world);
+					break;
+				case EntityType.Frostbite:
+					mob = new Frostbite(world);
+					break;
+				case EntityType.Cushion:
+					entity = new Cushion(world);
+					break;
+				case EntityType.IceBall:
+					entity = new IceBall(null, world);
 					break;
 			}
 

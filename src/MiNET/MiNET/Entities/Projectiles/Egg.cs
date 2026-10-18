@@ -31,14 +31,14 @@ namespace MiNET.Entities.Projectiles
 {
 	public class Egg : Projectile
 	{
-		public Egg(Player shooter, Level level) : base(shooter, EntityType.ThrownEgg, level, 0)
+		public Egg(Player shooter, Level level) : base(shooter, EntityType.Egg, level, 0)
 		{
 			Width = 0.25;
 			Length = 0.25;
 			Height = 0.25;
 
 			Gravity = 0.03;
-			Drag = 0.01;
+			Power = 1.5;
 
 			HealthManager.IsInvulnerable = true;
 			DespawnOnImpact = true;

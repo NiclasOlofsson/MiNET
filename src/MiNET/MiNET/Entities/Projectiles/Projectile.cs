@@ -44,18 +44,46 @@ namespace MiNET.Entities.Projectiles
 		public Player Shooter { get; set; }
 		public int Ttl { get; set; } = 0;
 		public bool DespawnOnImpact { get; set; } = true;
-		public int Damage { get; set; }
 		public int PowerLevel { get; set; } = 0;
 		public float HitBoxPrecision { get; set; } = 0.3f;
 		public Vector3 Force { get; set; } = new Vector3();
 
 		public bool BroadcastMovement { get; set; } = false;
 
-		protected Projectile(Player shooter, EntityType entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
+		// The minecraft:projectile component, by its own field names and with BDS's schema defaults.
+		// A projectile sets what its vanilla definition states and inherits the rest.
+
+		/// <summary>Launch speed, in blocks per tick.</summary>
+		public double Power { get; set; } = 1.3;
+
+		/// <summary>The share of its speed kept each tick in air.</summary>
+		public double Inertia { get; set; } = 0.99;
+
+		/// <summary>The share of its speed kept each tick in water or lava.</summary>
+		public double LiquidInertia { get; set; } = 0.6;
+
+		/// <summary>Launch inaccuracy. Carried, not applied: BDS states the values, not how they spread a throw.</summary>
+		public double UncertaintyBase { get; set; }
+
+		public double UncertaintyMultiplier { get; set; }
+
+		// Its on_hit.impact_damage: a fixed range plus speed times the power multiplier.
+
+		public double DamageMin { get; set; }
+		public double DamageMax { get; set; }
+		public double PowerMultiplier { get; set; }
+		public bool CeilPreCriticalDamage { get; set; }
+		public int MaxCriticalDamage { get; set; } = int.MaxValue;
+
+		/// <summary>The one target the impact damage applies to, by its bare identifier; any target when null.</summary>
+		public string DamageFilter { get; set; }
+
+		protected Projectile(Player shooter, EntityType entityTypeId, Level level, double powerMultiplier, bool isCritical = false) : base(entityTypeId, level)
 		{
 			Shooter = shooter;
-			Damage = damage;
+			PowerMultiplier = powerMultiplier;
 			IsCritical = isCritical;
+			Gravity = 0.05;
 		}
 
 		private object _spawnSync = new object();
@@ -120,10 +148,10 @@ namespace MiNET.Entities.Projectiles
 			if (entityCollided != null)
 			{
 				double speed = Math.Sqrt(Velocity.X * Velocity.X + Velocity.Y * Velocity.Y + Velocity.Z * Velocity.Z);
-				double damage = Math.Ceiling(speed * Damage);
+				double damage = ImpactDamage(speed);
 				if (IsCritical)
 				{
-					damage += Level.Random.Next((int) (damage / 2 + 2));
+					damage = Math.Min(damage + Level.Random.Next((int) (damage / 2 + 2)), MaxCriticalDamage);
 
 					McpeAnimate animate = McpeAnimate.CreateObject();
 					animate.runtimeEntityId = entityCollided.EntityId;
@@ -135,6 +163,8 @@ namespace MiNET.Entities.Projectiles
 				{
 					damage = damage + ((PowerLevel + 1) * 0.25);
 				}
+
+				if (!Damages(entityCollided)) damage = 0;
 
 				Player player = entityCollided as Player;
 
@@ -154,7 +184,7 @@ namespace MiNET.Entities.Projectiles
 			else
 			{
 				var velocity2 = Velocity;
-				velocity2 *= (float) (1.0d - Drag);
+				velocity2 *= (float) CurrentInertia();
 				velocity2 -= new Vector3(0, (float) Gravity, 0);
 				double distance = velocity2.Length();
 				velocity2 = Vector3.Normalize(velocity2) / 2;
@@ -189,7 +219,7 @@ namespace MiNET.Entities.Projectiles
 				KnownPosition.Y += (float) Velocity.Y;
 				KnownPosition.Z += (float) Velocity.Z;
 
-				Velocity *= (float) (1.0 - Drag);
+				Velocity *= (float) CurrentInertia();
 				Velocity -= new Vector3(0, (float) Gravity, 0);
 				Velocity += Force;
 
@@ -209,6 +239,25 @@ namespace MiNET.Entities.Projectiles
 			{
 				OnHitBlock(collidedWithBlock);
 			}
+		}
+
+		/// <summary>A hit's damage before criticals and enchantments: the fixed range plus speed times the power multiplier.</summary>
+		public double ImpactDamage(double speed)
+		{
+			double fixedPart = DamageMax > DamageMin ? DamageMin + Level.Random.NextDouble() * (DamageMax - DamageMin) : DamageMin;
+			double damage = fixedPart + speed * PowerMultiplier;
+			return CeilPreCriticalDamage ? Math.Ceiling(damage) : damage;
+		}
+
+		/// <summary>Whether the impact damage applies to this target at all; knockback applies either way.</summary>
+		public bool Damages(Entity target)
+		{
+			return DamageFilter == null || target.EntityTypeId == "minecraft:" + DamageFilter;
+		}
+
+		private double CurrentInertia()
+		{
+			return Level.GetBlock(KnownPosition) is Stationary or Flowing ? LiquidInertia : Inertia;
 		}
 
 		protected virtual void OnHitBlock(Block blockCollided)

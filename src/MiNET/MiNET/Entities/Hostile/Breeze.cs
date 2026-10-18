@@ -29,7 +29,7 @@ namespace MiNET.Entities.Hostile
 {
 	/// <summary>
 	///     Trial chamber mob. Fights by hopping around and firing
-	///     <see cref="Projectiles.BreezeWindCharge" />, which knocks back rather than damages.
+	///     <see cref="Projectiles.BreezeWindChargeProjectile" />, which hits for 1 with knockback.
 	/// </summary>
 	public class Breeze : HostileMob
 	{

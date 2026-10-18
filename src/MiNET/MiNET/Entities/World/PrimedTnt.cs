@@ -38,7 +38,7 @@ namespace MiNET.Entities.World
 		public byte Fuse { get; set; }
 		public bool Fire { get; set; }
 
-		public PrimedTnt(Level level) : base(EntityType.PrimedTnt, level)
+		public PrimedTnt(Level level) : base(EntityType.Tnt, level)
 		{
 			IsIgnited = true;
 			NoAi = false;

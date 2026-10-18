@@ -28,18 +28,23 @@ using MiNET.Worlds;
 namespace MiNET.Entities.Projectiles
 {
 	/// <summary>
-	///     What a <see cref="Hostile.Breeze" /> fires. Separate from the player's
-	///     <see cref="WindCharge" /> because it hits for damage as well as knockback, and it does not
-	///     activate blocks.
+	///     The wind charge a player throws. A direct hit deals 1 with knockback; its vanilla
+	///     definition also bursts on hit, shoving entities and toggling levers, doors and buttons,
+	///     which this class does not do. It never slows, in air or water.
 	/// </summary>
-	public class BreezeWindCharge : Projectile
+	public class WindChargeProjectile : Projectile
 	{
-		public BreezeWindCharge(Player shooter, Level level) : base(shooter, EntityType.BreezeWindCharge, level, 1)
+		public WindChargeProjectile(Player shooter, Level level) : base(shooter, EntityType.WindChargeProjectile, level, 0)
 		{
 			Width = Length = Height = 0.3125;
 
 			Gravity = 0;
-			Drag = 0.01;
+			Inertia = 1;
+			LiquidInertia = 1;
+			Power = 1.5;
+			UncertaintyBase = 1;
+			DamageMin = DamageMax = 1;
+			MaxCriticalDamage = 1;
 
 			HealthManager.IsInvulnerable = true;
 			DespawnOnImpact = true;

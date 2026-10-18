@@ -23,28 +23,18 @@
 
 #endregion
 
-using MiNET.Items;
 using MiNET.Worlds;
 
-namespace MiNET.Entities.Passive
+namespace MiNET.Entities.Hostile
 {
-	public class MushroomCow : PassiveMob
+	public class EvocationIllager : HostileMob
 	{
-		public MushroomCow(Level level) : base(EntityType.MushroomCow, level)
+		public EvocationIllager(Level level) : base(EntityType.EvocationIllager, level)
 		{
-			Width = Length = 0.9;
-			Height = 1.4;
-			HealthManager.MaxHealth = 100;
+			Width = Length = 0.6;
+			Height = 1.95;
+			HealthManager.MaxHealth = 240;
 			HealthManager.ResetHealth();
-		}
-
-		public override Item[] GetDrops()
-		{
-			return new[]
-			{
-				ItemFactory.GetItemByName("minecraft:red_mushroom", 0, 2),
-				ItemFactory.GetItemByName("minecraft:leather", 0, 1)
-			};
 		}
 	}
 }

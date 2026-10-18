@@ -52,7 +52,6 @@ namespace MiNET.Entities.Projectiles
 			Height = 0.25;
 
 			Gravity = 0.0;
-			Drag = 0.01;
 
 			HealthManager.IsInvulnerable = true;
 

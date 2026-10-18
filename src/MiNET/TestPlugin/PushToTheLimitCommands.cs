@@ -102,7 +102,7 @@ namespace TestPlugin
 			{
 				for (int z = 0; z < limit; z++)
 				{
-					var dragon = new Dragon(player.Level);
+					var dragon = new EnderDragon(player.Level);
 					dragon.NoAi = false;
 					dragon.KnownPosition = coordinates + new Vector3(x * 15, 0, z * 15);
 					dragon.SpawnEntity();

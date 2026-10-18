@@ -33,16 +33,17 @@ namespace MiNET.Entities.Projectiles
 {
 	public class Arrow : Projectile
 	{
-		public Arrow(Player shooter, Level level, int damage = 2, bool isCritical = false) : base(shooter, EntityType.ShotArrow, level, damage, isCritical)
+		public Arrow(Player shooter, Level level, double powerMultiplier = 2, bool isCritical = false) : base(shooter, EntityType.Arrow, level, powerMultiplier, isCritical)
 		{
-			Width = 0.15;
-			Length = 0.15;
-			Height = 0.15;
+			Width = 0.25;
+			Length = 0.25;
+			Height = 0.25;
 
 			Gravity = 0.05;
-			Drag = 0.01;
-
-			//OK: Drag = 0.0083;
+			Power = 1.1;
+			UncertaintyBase = 16;
+			UncertaintyMultiplier = 4;
+			CeilPreCriticalDamage = true;
 
 			HealthManager.IsInvulnerable = true;
 			Ttl = 1200;

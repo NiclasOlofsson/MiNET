@@ -37,35 +37,35 @@ namespace MiNET.Entities
 	{
 		None = 0,
 
-		DroppedItem = 64,
-		ExperienceOrb = 69,
+		Item = 64,
+		XpOrb = 69,
 
 		ArmorStand = 61,
-		PrimedTnt = 65,
+		Tnt = 65,
 		FallingBlock = 66,
 
-		ThrownBottleoEnchanting = 68,
-		EnderEye = 70,
+		XpBottle = 68,
+		EyeOfEnderSignal = 70,
 		EnderCrystal = 71,
 		FireworksRocket = 72,
-		Trident = 73,
+		ThrownTrident = 73,
 		ShulkerBullet = 76,
-		FishingRodHook = 77,
+		FishingHook = 77,
 		DragonFireball = 79,
-		ShotArrow = 80,
-		ThrownSnowball = 81,
-		ThrownEgg = 82,
+		Arrow = 80,
+		Snowball = 81,
+		Egg = 82,
 		Painting = 83,
 		Minecart = 84,
-		GhastFireball = 85,
-		ThrownSpashPotion = 86,
-		ThrownEnderPerl = 87,
+		Fireball = 85,
+		SplashPotion = 86,
+		EnderPearl = 87,
 		LeashKnot = 88,
 		WitherSkull = 89,
 		Boat = 90,
 		WitherSkullDangerous = 91,
 		LightningBolt = 93,
-		BlazeFireball = 94,
+		SmallFireball = 94,
 		AreaEffectCloud = 95,
 		HopperMinecart = 96,
 		TntMinecart = 97,
@@ -73,11 +73,11 @@ namespace MiNET.Entities
 		CommandBlockMinecart = 100,
 		LingeringPotion = 101,
 		LlamaSpit = 102,
-		EvocationFangs = 103,
+		EvocationFang = 103,
 		IceBomb = 106,
 		Balloon = 107,
-		WindCharge = 143,
-		BreezeWindCharge = 141,
+		WindChargeProjectile = 143,
+		BreezeWindChargeProjectile = 141,
 		OminousItemSpawner = 145,
 		Cushion = 154,
 		IceBall = 156,
@@ -103,12 +103,12 @@ namespace MiNET.Entities
 		Guardian = 49,
 		ElderGuardian = 50,
 		Wither = 52,
-		Dragon = 53,
+		EnderDragon = 53,
 		Shulker = 54,
 		Endermite = 55,
 		Vindicator = 57,
 		Phantom = 58,
-		Evoker = 104,
+		EvocationIllager = 104,
 		Vex = 105,
 		Drowned = 110,
 		Pillager = 114,
@@ -135,7 +135,7 @@ namespace MiNET.Entities
 		Sheep = 13,
 		Wolf = 14,
 		Villager = 15,
-		MushroomCow = 16,
+		Mooshroom = 16,
 		Squid = 17,
 		Rabbit = 18,
 		Bat = 19,
@@ -155,8 +155,8 @@ namespace MiNET.Entities
 		Cat = 75,
 		Pufferfish = 108,
 		Salmon = 109,
-		TropicalFish = 111,
-		Fish = 112,
+		Tropicalfish = 111,
+		Cod = 112,
 		Panda = 113,
 		VillagerV2 = 115,
 		WanderingTrader = 118,
@@ -181,7 +181,7 @@ namespace MiNET.Entities
 
 		Npc = 51,
 		Agent = 56,
-		Camera = 62,
+		TripodCamera = 62,
 		Chalkboard = 78,
 
 		Herobrine = 666
@@ -228,17 +228,17 @@ namespace MiNET.Entities
 			{ EntityType.Mule, new EntityIdentity("minecraft:mule", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Donkey, new EntityIdentity("minecraft:donkey", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Dolphin, new EntityIdentity("minecraft:dolphin", HasSpawnEgg: true, Summonable: true) },
-			{ EntityType.TropicalFish, new EntityIdentity("minecraft:tropicalfish", HasSpawnEgg: true, Summonable: true) },
+			{ EntityType.Tropicalfish, new EntityIdentity("minecraft:tropicalfish", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Wolf, new EntityIdentity("minecraft:wolf", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Squid, new EntityIdentity("minecraft:squid", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Drowned, new EntityIdentity("minecraft:drowned", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Sheep, new EntityIdentity("minecraft:sheep", HasSpawnEgg: true, Summonable: true) },
-			{ EntityType.MushroomCow, new EntityIdentity("minecraft:mooshroom", HasSpawnEgg: true, Summonable: true) },
+			{ EntityType.Mooshroom, new EntityIdentity("minecraft:mooshroom", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Panda, new EntityIdentity("minecraft:panda", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Salmon, new EntityIdentity("minecraft:salmon", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Pig, new EntityIdentity("minecraft:pig", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Villager, new EntityIdentity("minecraft:villager", HasSpawnEgg: false, Summonable: true) },
-			{ EntityType.Fish, new EntityIdentity("minecraft:cod", HasSpawnEgg: true, Summonable: true) },
+			{ EntityType.Cod, new EntityIdentity("minecraft:cod", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Pufferfish, new EntityIdentity("minecraft:pufferfish", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Cow, new EntityIdentity("minecraft:cow", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Chicken, new EntityIdentity("minecraft:chicken", HasSpawnEgg: true, Summonable: true) },
@@ -259,7 +259,7 @@ namespace MiNET.Entities
 			{ EntityType.ElderGuardian, new EntityIdentity("minecraft:elder_guardian", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Vindicator, new EntityIdentity("minecraft:vindicator", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Wither, new EntityIdentity("minecraft:wither", HasSpawnEgg: true, Summonable: true) },
-			{ EntityType.Dragon, new EntityIdentity("minecraft:ender_dragon", HasSpawnEgg: true, Summonable: true) },
+			{ EntityType.EnderDragon, new EntityIdentity("minecraft:ender_dragon", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Shulker, new EntityIdentity("minecraft:shulker", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Endermite, new EntityIdentity("minecraft:endermite", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Minecart, new EntityIdentity("minecraft:minecart", HasSpawnEgg: false, Summonable: true) },
@@ -268,41 +268,41 @@ namespace MiNET.Entities
 			{ EntityType.ChestMinecart, new EntityIdentity("minecraft:chest_minecart", HasSpawnEgg: false, Summonable: true) },
 			{ EntityType.CommandBlockMinecart, new EntityIdentity("minecraft:command_block_minecart", HasSpawnEgg: false, Summonable: true) },
 			{ EntityType.ArmorStand, new EntityIdentity("minecraft:armor_stand", HasSpawnEgg: false, Summonable: true) },
-			{ EntityType.DroppedItem, new EntityIdentity("minecraft:item", HasSpawnEgg: false, Summonable: false) },
-			{ EntityType.PrimedTnt, new EntityIdentity("minecraft:tnt", HasSpawnEgg: false, Summonable: true) },
+			{ EntityType.Item, new EntityIdentity("minecraft:item", HasSpawnEgg: false, Summonable: false) },
+			{ EntityType.Tnt, new EntityIdentity("minecraft:tnt", HasSpawnEgg: false, Summonable: true) },
 			{ EntityType.FallingBlock, new EntityIdentity("minecraft:falling_block", HasSpawnEgg: false, Summonable: false) },
-			{ EntityType.ThrownBottleoEnchanting, new EntityIdentity("minecraft:xp_bottle", HasSpawnEgg: false, Summonable: true) },
-			{ EntityType.ExperienceOrb, new EntityIdentity("minecraft:xp_orb", HasSpawnEgg: false, Summonable: true) },
-			{ EntityType.EnderEye, new EntityIdentity("minecraft:eye_of_ender_signal", HasSpawnEgg: false, Summonable: false) },
+			{ EntityType.XpBottle, new EntityIdentity("minecraft:xp_bottle", HasSpawnEgg: false, Summonable: true) },
+			{ EntityType.XpOrb, new EntityIdentity("minecraft:xp_orb", HasSpawnEgg: false, Summonable: true) },
+			{ EntityType.EyeOfEnderSignal, new EntityIdentity("minecraft:eye_of_ender_signal", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.EnderCrystal, new EntityIdentity("minecraft:ender_crystal", HasSpawnEgg: false, Summonable: true) },
 			{ EntityType.ShulkerBullet, new EntityIdentity("minecraft:shulker_bullet", HasSpawnEgg: false, Summonable: false) },
-			{ EntityType.FishingRodHook, new EntityIdentity("minecraft:fishing_hook", HasSpawnEgg: false, Summonable: false) },
+			{ EntityType.FishingHook, new EntityIdentity("minecraft:fishing_hook", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.DragonFireball, new EntityIdentity("minecraft:dragon_fireball", HasSpawnEgg: false, Summonable: false) },
-			{ EntityType.ShotArrow, new EntityIdentity("minecraft:arrow", HasSpawnEgg: false, Summonable: true) },
-			{ EntityType.ThrownSnowball, new EntityIdentity("minecraft:snowball", HasSpawnEgg: false, Summonable: true) },
-			{ EntityType.ThrownEgg, new EntityIdentity("minecraft:egg", HasSpawnEgg: false, Summonable: true) },
+			{ EntityType.Arrow, new EntityIdentity("minecraft:arrow", HasSpawnEgg: false, Summonable: true) },
+			{ EntityType.Snowball, new EntityIdentity("minecraft:snowball", HasSpawnEgg: false, Summonable: true) },
+			{ EntityType.Egg, new EntityIdentity("minecraft:egg", HasSpawnEgg: false, Summonable: true) },
 			{ EntityType.Painting, new EntityIdentity("minecraft:painting", HasSpawnEgg: false, Summonable: false) },
-			{ EntityType.Trident, new EntityIdentity("minecraft:thrown_trident", HasSpawnEgg: false, Summonable: false) },
-			{ EntityType.GhastFireball, new EntityIdentity("minecraft:fireball", HasSpawnEgg: false, Summonable: false) },
-			{ EntityType.ThrownSpashPotion, new EntityIdentity("minecraft:splash_potion", HasSpawnEgg: false, Summonable: true) },
-			{ EntityType.ThrownEnderPerl, new EntityIdentity("minecraft:ender_pearl", HasSpawnEgg: false, Summonable: false) },
+			{ EntityType.ThrownTrident, new EntityIdentity("minecraft:thrown_trident", HasSpawnEgg: false, Summonable: false) },
+			{ EntityType.Fireball, new EntityIdentity("minecraft:fireball", HasSpawnEgg: false, Summonable: false) },
+			{ EntityType.SplashPotion, new EntityIdentity("minecraft:splash_potion", HasSpawnEgg: false, Summonable: true) },
+			{ EntityType.EnderPearl, new EntityIdentity("minecraft:ender_pearl", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.LeashKnot, new EntityIdentity("minecraft:leash_knot", HasSpawnEgg: false, Summonable: true) },
 			{ EntityType.WitherSkull, new EntityIdentity("minecraft:wither_skull", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.WitherSkullDangerous, new EntityIdentity("minecraft:wither_skull_dangerous", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.Boat, new EntityIdentity("minecraft:boat", HasSpawnEgg: false, Summonable: true) },
 			{ EntityType.LightningBolt, new EntityIdentity("minecraft:lightning_bolt", HasSpawnEgg: false, Summonable: true) },
-			{ EntityType.BlazeFireball, new EntityIdentity("minecraft:small_fireball", HasSpawnEgg: false, Summonable: false) },
+			{ EntityType.SmallFireball, new EntityIdentity("minecraft:small_fireball", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.LlamaSpit, new EntityIdentity("minecraft:llama_spit", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.AreaEffectCloud, new EntityIdentity("minecraft:area_effect_cloud", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.LingeringPotion, new EntityIdentity("minecraft:lingering_potion", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.FireworksRocket, new EntityIdentity("minecraft:fireworks_rocket", HasSpawnEgg: false, Summonable: true) },
-			{ EntityType.EvocationFangs, new EntityIdentity("minecraft:evocation_fang", HasSpawnEgg: false, Summonable: true) },
-			{ EntityType.Evoker, new EntityIdentity("minecraft:evocation_illager", HasSpawnEgg: true, Summonable: true) },
+			{ EntityType.EvocationFang, new EntityIdentity("minecraft:evocation_fang", HasSpawnEgg: false, Summonable: true) },
+			{ EntityType.EvocationIllager, new EntityIdentity("minecraft:evocation_illager", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Vex, new EntityIdentity("minecraft:vex", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Agent, new EntityIdentity("minecraft:agent", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.IceBomb, new EntityIdentity("minecraft:ice_bomb", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.Phantom, new EntityIdentity("minecraft:phantom", HasSpawnEgg: true, Summonable: true) },
-			{ EntityType.Camera, new EntityIdentity("minecraft:tripod_camera", HasSpawnEgg: false, Summonable: false) },
+			{ EntityType.TripodCamera, new EntityIdentity("minecraft:tripod_camera", HasSpawnEgg: false, Summonable: false) },
 			{ EntityType.Pillager, new EntityIdentity("minecraft:pillager", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Ravager, new EntityIdentity("minecraft:ravager", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.ElderGuardianGhost, new EntityIdentity("minecraft:elder_guardian_ghost", HasSpawnEgg: false, Summonable: true) },
@@ -327,8 +327,8 @@ namespace MiNET.Entities
 			{ EntityType.Camel, new EntityIdentity("minecraft:camel", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Sniffer, new EntityIdentity("minecraft:sniffer", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Breeze, new EntityIdentity("minecraft:breeze", HasSpawnEgg: true, Summonable: true) },
-			{ EntityType.BreezeWindCharge, new EntityIdentity("minecraft:breeze_wind_charge_projectile", HasSpawnEgg: false, Summonable: false) },
-			{ EntityType.WindCharge, new EntityIdentity("minecraft:wind_charge_projectile", HasSpawnEgg: false, Summonable: true) },
+			{ EntityType.BreezeWindChargeProjectile, new EntityIdentity("minecraft:breeze_wind_charge_projectile", HasSpawnEgg: false, Summonable: false) },
+			{ EntityType.WindChargeProjectile, new EntityIdentity("minecraft:wind_charge_projectile", HasSpawnEgg: false, Summonable: true) },
 			{ EntityType.Armadillo, new EntityIdentity("minecraft:armadillo", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.Bogged, new EntityIdentity("minecraft:bogged", HasSpawnEgg: true, Summonable: true) },
 			{ EntityType.OminousItemSpawner, new EntityIdentity("minecraft:ominous_item_spawner", HasSpawnEgg: false, Summonable: false) },
@@ -421,8 +421,8 @@ namespace MiNET.Entities
 				case EntityType.Villager:
 					entity = new Villager(world);
 					break;
-				case EntityType.MushroomCow:
-					entity = new MushroomCow(world);
+				case EntityType.Mooshroom:
+					entity = new Mooshroom(world);
 					break;
 				case EntityType.Squid:
 					entity = new Squid(world);
@@ -509,8 +509,8 @@ namespace MiNET.Entities
 				case EntityType.Shulker:
 					entity = new Shulker(world);
 					break;
-				case EntityType.Dragon:
-					entity = new Dragon(world);
+				case EntityType.EnderDragon:
+					entity = new EnderDragon(world);
 					break;
 				case EntityType.SkeletonHorse:
 					entity = new SkeletonHorse(world);
@@ -518,8 +518,8 @@ namespace MiNET.Entities
 				case EntityType.Wither:
 					entity = new Wither(world);
 					break;
-				case EntityType.Evoker:
-					entity = new Evoker(world);
+				case EntityType.EvocationIllager:
+					entity = new EvocationIllager(world);
 					break;
 				case EntityType.Vindicator:
 					entity = new Vindicator(world);
@@ -565,6 +565,9 @@ namespace MiNET.Entities
 					break;
 				case EntityType.Parched:
 					entity = new Parched(world);
+					break;
+				case EntityType.Frostbite:
+					entity = new Frostbite(world);
 					break;
 				case EntityType.CamelHusk:
 					entity = new CamelHusk(world);

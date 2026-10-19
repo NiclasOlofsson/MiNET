@@ -141,12 +141,18 @@ namespace MiNET.Entities.Projectiles
 
 			if (KnownPosition.Y <= 0 || Velocity.Length() <= 0) return;
 
-			Entity entityCollided = CheckEntityCollide(KnownPosition, Velocity);
+			// BDS tests the stretch this tick's motion covers, before drag and gravity, and acts on
+			// the nearest hit, block or entity.
+			Vector3 start = KnownPosition.ToVector3();
+			double? blockFraction = ClipBlocks(start, start + Velocity, out Block collidedWithBlock);
+			double blockDistance = blockFraction.HasValue ? blockFraction.Value * Velocity.Length() : double.MaxValue;
 
-			bool collided = false;
-			Block collidedWithBlock = null;
-			if (entityCollided != null)
+			Entity entityCollided = CheckEntityCollide(start, Velocity, out double entityDistance);
+			if (entityCollided != null && entityDistance <= blockDistance)
 			{
+				Vector3 p = start + Vector3.Normalize(Velocity) * (float) entityDistance;
+				KnownPosition = new PlayerLocation(p.X, p.Y, p.Z);
+
 				double speed = Math.Sqrt(Velocity.X * Velocity.X + Velocity.Y * Velocity.Y + Velocity.Z * Velocity.Z);
 				double damage = ImpactDamage(speed);
 				if (IsCritical)
@@ -181,50 +187,35 @@ namespace MiNET.Entities.Projectiles
 				DespawnEntity();
 				return;
 			}
-			else
-			{
-				var velocity2 = Velocity;
-				velocity2 *= (float) CurrentInertia();
-				velocity2 -= new Vector3(0, (float) Gravity, 0);
-				double distance = velocity2.Length();
-				velocity2 = Vector3.Normalize(velocity2) / 2;
 
-				for (int i = 0; i < Math.Ceiling(distance) * 2; i++)
-				{
-					Vector3 nextPos = KnownPosition.ToVector3();
-					nextPos.X += (float) velocity2.X * i;
-					nextPos.Y += (float) velocity2.Y * i;
-					nextPos.Z += (float) velocity2.Z * i;
-
-					Block block = Level.GetBlock(nextPos);
-					collided = block.IsSolid && block.GetBoundingBox().Contains(nextPos);
-					if (collided)
-					{
-						SetIntersectLocation(block.GetBoundingBox(), KnownPosition.ToVector3());
-						collidedWithBlock = block;
-						break;
-					}
-				}
-			}
-
+			bool collided = collidedWithBlock != null;
 			bool sendPosition = Velocity != Vector3.Zero;
 
 			if (collided)
 			{
+				// It rests exactly on the hit point: stick_in_ground leaves no motion and no offset.
+				Vector3 hit = start + Velocity * (float) blockFraction.Value;
+				KnownPosition.X = hit.X;
+				KnownPosition.Y = hit.Y;
+				KnownPosition.Z = hit.Z;
 				Velocity = Vector3.Zero;
 			}
 			else
 			{
+				// Liquid drag is decided by where the tick starts, and only water counts.
+				bool wasInWater = Level.GetBlock(KnownPosition) is Water or FlowingWater;
+
 				KnownPosition.X += (float) Velocity.X;
 				KnownPosition.Y += (float) Velocity.Y;
 				KnownPosition.Z += (float) Velocity.Z;
 
-				Velocity *= (float) CurrentInertia();
+				// Rotation turns a fifth of the way per tick toward this tick's motion, taken before drag and gravity.
+				KnownPosition.Yaw += WrapDegrees((float) Velocity.GetYaw() - KnownPosition.Yaw) * 0.2f;
+				KnownPosition.Pitch += WrapDegrees((float) Velocity.GetPitch() - KnownPosition.Pitch) * 0.2f;
+
+				Velocity *= (float) (wasInWater ? LiquidInertia : Inertia);
 				Velocity -= new Vector3(0, (float) Gravity, 0);
 				Velocity += Force;
-
-				KnownPosition.Yaw = (float) Velocity.GetYaw();
-				KnownPosition.Pitch = (float) Velocity.GetPitch();
 			}
 
 			// For debugging of flight-path
@@ -295,9 +286,70 @@ namespace MiNET.Entities.Projectiles
 			return DamageFilter == null || target.EntityTypeId == "minecraft:" + DamageFilter;
 		}
 
-		private double CurrentInertia()
+		/// <summary>
+		///     The first solid block the segment from start to end runs into, walking the blocks it
+		///     crosses in order: the fraction of the segment at the hit, or null when the path is clear.
+		/// </summary>
+		private double? ClipBlocks(Vector3 start, Vector3 end, out Block hitBlock)
 		{
-			return Level.GetBlock(KnownPosition) is Stationary or Flowing ? LiquidInertia : Inertia;
+			hitBlock = null;
+			Vector3 delta = end - start;
+			var ray = new Ray(start, delta);
+
+			int x = (int) Math.Floor(start.X), y = (int) Math.Floor(start.Y), z = (int) Math.Floor(start.Z);
+			int stepX = Math.Sign(delta.X), stepY = Math.Sign(delta.Y), stepZ = Math.Sign(delta.Z);
+			double nextX = FirstCrossing(start.X, delta.X, x), nextY = FirstCrossing(start.Y, delta.Y, y), nextZ = FirstCrossing(start.Z, delta.Z, z);
+			double perX = delta.X != 0 ? 1 / Math.Abs(delta.X) : double.MaxValue;
+			double perY = delta.Y != 0 ? 1 / Math.Abs(delta.Y) : double.MaxValue;
+			double perZ = delta.Z != 0 ? 1 / Math.Abs(delta.Z) : double.MaxValue;
+
+			while (true)
+			{
+				Block block = Level.GetBlock(x, y, z);
+				if (block.IsSolid)
+				{
+					double? t = ray.Intersects(block.GetBoundingBox());
+					if (t <= 1)
+					{
+						hitBlock = block;
+						return t;
+					}
+				}
+
+				if (nextX > 1 && nextY > 1 && nextZ > 1) return null;
+
+				if (nextX <= nextY && nextX <= nextZ)
+				{
+					x += stepX;
+					nextX += perX;
+				}
+				else if (nextY <= nextZ)
+				{
+					y += stepY;
+					nextY += perY;
+				}
+				else
+				{
+					z += stepZ;
+					nextZ += perZ;
+				}
+			}
+		}
+
+		// The fraction of the segment at which it first leaves its starting block along one axis.
+		private static double FirstCrossing(float start, float delta, int block)
+		{
+			if (delta > 0) return (block + 1 - start) / delta;
+			if (delta < 0) return (block - start) / delta;
+			return double.MaxValue;
+		}
+
+		// An angle difference brought into [-180, 180).
+		private static float WrapDegrees(float degrees)
+		{
+			float wrapped = (degrees + 180) % 360;
+			if (wrapped < 0) wrapped += 360;
+			return wrapped - 180;
 		}
 
 		protected virtual void OnHitBlock(Block blockCollided)
@@ -308,8 +360,9 @@ namespace MiNET.Entities.Projectiles
 		{
 		}
 
-		private Entity CheckEntityCollide(Vector3 position, Vector3 direction)
+		private Entity CheckEntityCollide(Vector3 position, Vector3 direction, out double distance)
 		{
+			distance = double.MaxValue;
 			Ray2 ray = new Ray2 {x = position, d = Vector3.Normalize(direction)};
 
 			var entities = Level.Entities.Values.Concat(Level.GetSpawnedPlayers()).OrderBy(entity => Vector3.Distance(position, entity.KnownPosition.ToVector3()));
@@ -324,30 +377,12 @@ namespace MiNET.Entities.Projectiles
 				{
 					if (ray.tNear > direction.Length()) break;
 
-					Vector3 p = ray.x + new Vector3((float) ray.tNear) * ray.d;
-					KnownPosition = new PlayerLocation(p.X, p.Y, p.Z);
+					distance = ray.tNear;
 					return entity;
 				}
 			}
 
 			return null;
-		}
-
-		private bool SetIntersectLocation(BoundingBox bbox, Vector3 location)
-		{
-			Ray ray = new Ray(location - Velocity, Vector3.Normalize(Velocity));
-			double? distance = ray.Intersects(bbox);
-			if (distance != null)
-			{
-				float dist = (float) distance - 0.1f;
-				Vector3 pos = ray.Position + (ray.Direction * new Vector3(dist));
-				KnownPosition.X = pos.X;
-				KnownPosition.Y = pos.Y;
-				KnownPosition.Z = pos.Z;
-				return true;
-			}
-
-			return false;
 		}
 
 		/// <summary>

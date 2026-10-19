@@ -195,14 +195,14 @@ namespace MiNET.Entities.World
 					{
 						{
 							var takeItemEntity = McpeTakeItemEntity.CreateObject();
-							takeItemEntity.runtimeEntityId = EntityId;
-							takeItemEntity.target = player.EntityId;
+							takeItemEntity.itemRuntimeId = EntityId;
+							takeItemEntity.actorRuntimeId = player.EntityId;
 							Level.RelayBroadcast(player, takeItemEntity);
 						}
 						{
 							var takeItemEntity = McpeTakeItemEntity.CreateObject();
-							takeItemEntity.runtimeEntityId = EntityId;
-							takeItemEntity.target = EntityManager.EntityIdSelf;
+							takeItemEntity.itemRuntimeId = EntityId;
+							takeItemEntity.actorRuntimeId = EntityManager.EntityIdSelf;
 							player.SendPacket(takeItemEntity);
 						}
 

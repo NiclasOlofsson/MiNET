@@ -362,7 +362,7 @@ namespace MiNET
 
 			McpeServerSettingsResponse response = McpeServerSettingsResponse.CreateObject();
 			response.formId = form.Id;
-			response.data = form.ToJson();
+			response.formUiJson = form.ToJson();
 			SendPacket(response);
 		}
 
@@ -1342,7 +1342,7 @@ namespace MiNET
 		public virtual void SendCurrentStructureFeature()
 		{
 			var packet = McpeCurrentStructureFeature.CreateObject();
-			packet.currentFeature = "";
+			packet.currentStructureFeature = "";
 			SendPacket(packet);
 		}
 
@@ -1497,7 +1497,7 @@ namespace MiNET
 		protected virtual void SendSetCommandsEnabled()
 		{
 			McpeSetCommandsEnabled enabled = McpeSetCommandsEnabled.CreateObject();
-			enabled.enabled = EnableCommands;
+			enabled.commandsEnabled = EnableCommands;
 			SendPacket(enabled);
 		}
 
@@ -3399,13 +3399,13 @@ namespace MiNET
 				OpenScreen(new Screen(kind, type, windowId, coordinates, null));
 
 				var containerOpen = McpeContainerOpen.CreateObject();
-				containerOpen.windowId = windowId;
-				containerOpen.type = (byte) type;
-				containerOpen.coordinates = coordinates;
+				containerOpen.containerId = windowId;
+				containerOpen.containerType = (byte) type;
+				containerOpen.position = coordinates;
 				// -1, the same as every block container BDS opens. The anvil, the crafting table and
 				// the loom used to send EntityIdSelf here and the client took that too, so the field
 				// looks unread for a screen that names a block.
-				containerOpen.actorUniqueId = -1;
+				containerOpen.targetActorId = -1;
 				SendPacket(containerOpen);
 			}
 		}
@@ -3460,9 +3460,9 @@ namespace MiNET
 				if (inventory.BlockEntity is ChestBlockEntity or ShulkerBoxBlockEntity && !inventory.IsOpen())
 				{
 					var tileEvent = McpeBlockEvent.CreateObject();
-					tileEvent.coordinates = inventoryCoord;
-					tileEvent.case1 = 1;
-					tileEvent.case2 = 2;
+					tileEvent.blockPosition = inventoryCoord;
+					tileEvent.eventType = 1;
+					tileEvent.eventValue = 2;
 					Level.RelayBroadcast(tileEvent);
 				}
 
@@ -3473,10 +3473,10 @@ namespace MiNET
 				// open inventory
 
 				var containerOpen = McpeContainerOpen.CreateObject();
-				containerOpen.windowId = inventory.WindowsId;
-				containerOpen.type = inventory.Type;
-				containerOpen.coordinates = inventoryCoord;
-				containerOpen.actorUniqueId = -1;
+				containerOpen.containerId = inventory.WindowsId;
+				containerOpen.containerType = inventory.Type;
+				containerOpen.position = inventoryCoord;
+				containerOpen.targetActorId = -1;
 				SendPacket(containerOpen);
 
 				var containerSetContent = McpeInventoryContent.CreateObject();
@@ -3878,9 +3878,9 @@ namespace MiNET
 				if (inventory.BlockEntity is ChestBlockEntity or ShulkerBoxBlockEntity && !inventory.IsOpen())
 				{
 					var tileEvent = McpeBlockEvent.CreateObject();
-					tileEvent.coordinates = inventory.Coordinates;
-					tileEvent.case1 = 1;
-					tileEvent.case2 = 0;
+					tileEvent.blockPosition = inventory.Coordinates;
+					tileEvent.eventType = 1;
+					tileEvent.eventValue = 0;
 					Level.RelayBroadcast(tileEvent);
 				}
 
@@ -3982,10 +3982,10 @@ namespace MiNET
 						// runtime entity id -1. Sending window id 0 here corrupts the client's
 						// own-inventory screen state.
 						var containerOpen = McpeContainerOpen.CreateObject();
-						containerOpen.windowId = 2;
-						containerOpen.type = 255;
-						containerOpen.coordinates = (BlockCoordinates) KnownPosition;
-						containerOpen.actorUniqueId = -1;
+						containerOpen.containerId = 2;
+						containerOpen.containerType = 255;
+						containerOpen.position = (BlockCoordinates) KnownPosition;
+						containerOpen.targetActorId = -1;
 						SendPacket(containerOpen);
 					}
 					else if (IsRiding) // Riding; Open inventory
@@ -4767,7 +4767,7 @@ namespace MiNET
 
 			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
 			message.formId = form.Id; // whatever
-			message.data = form.ToJson();
+			message.formUiJson = form.ToJson();
 			SendPacket(message);
 		}
 

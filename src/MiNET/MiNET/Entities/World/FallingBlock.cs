@@ -100,12 +100,12 @@ namespace MiNET.Entities.World
 			foreach (var player in players)
 			{
 				var updateBlock = McpeUpdateBlockSynced.CreateObject();
-				updateBlock.coordinates = (BlockCoordinates) KnownPosition;
+				updateBlock.blockPosition = (BlockCoordinates) KnownPosition;
 				updateBlock.blockRuntimeId = BlockFactory.GetNetworkId(new Air());
-				updateBlock.blockPriority = 3;
-				updateBlock.dataLayerId = 0;
-				updateBlock.unknown0 = EntityId;
-				updateBlock.unknown1 = 1;
+				updateBlock.flags = 3;
+				updateBlock.layer = 0;
+				updateBlock.uniqueActorId = EntityId;
+				updateBlock.actorSyncMessage = 1;
 
 				var addEntity = McpeAddEntity.CreateObject();
 				addEntity.entityType = EntityTypeId;
@@ -136,12 +136,12 @@ namespace MiNET.Entities.World
 			else
 			{
 				var updateBlock = McpeUpdateBlockSynced.CreateObject();
-				updateBlock.coordinates = new BlockCoordinates(KnownPosition);
+				updateBlock.blockPosition = new BlockCoordinates(KnownPosition);
 				updateBlock.blockRuntimeId = BlockFactory.GetNetworkId(_original);
-				updateBlock.blockPriority = 3;
-				updateBlock.dataLayerId = 0;
-				updateBlock.unknown0 = EntityId;
-				updateBlock.unknown1 = 2;
+				updateBlock.flags = 3;
+				updateBlock.layer = 0;
+				updateBlock.uniqueActorId = EntityId;
+				updateBlock.actorSyncMessage = 2;
 
 				Level.RelayBroadcast(updateBlock);
 

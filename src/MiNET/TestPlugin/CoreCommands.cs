@@ -733,7 +733,7 @@ namespace TestPlugin
 				// 128 = 32 + 32 + 32
 				var msg = McpeSpawnExperienceOrb.CreateObject();
 				msg.position = player1.KnownPosition.ToVector3() + new Vector3(1, 2, 1);
-				msg.count = 10;
+				msg.xpValue = 10;
 				player.Level.RelayBroadcast(msg);
 			}
 		}
@@ -1777,10 +1777,10 @@ namespace TestPlugin
 		public string ShowScoreboard(Player player)
 		{
 			McpeSetDisplayObjective objective = McpeSetDisplayObjective.CreateObject();
-			objective.displaySlot = "sidebar";
+			objective.displaySlotName = "sidebar";
 			objective.objectiveName = "ObjectiveName";
 			objective.criteriaName = "dummy";
-			objective.displayName = "DisplayName";
+			objective.objectiveDisplayName = "DisplayName";
 			objective.sortOrder = 0;
 			player.SendPacket(objective);
 

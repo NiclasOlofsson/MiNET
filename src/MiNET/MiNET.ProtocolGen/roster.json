@@ -560,6 +560,254 @@
 			"client": true,
 			"server": false,
 			"schema": "PartyDestinationCookieResponsePacket"
+		},
+		{
+			"name": "MCPE_SERVER_PLAYER_POST_MOVE_POSITION",
+			"id": "0x10",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ServerPlayerPostMovePositionPacket"
+		},
+		{
+			"name": "MCPE_TAKE_ITEM_ENTITY",
+			"id": "0x11",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "TakeItemActorPacket"
+		},
+		{
+			"name": "MCPE_ADD_PAINTING",
+			"id": "0x16",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "AddPaintingPacket"
+		},
+		{
+			"name": "MCPE_BLOCK_EVENT",
+			"id": "0x1a",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "BlockEventPacket"
+		},
+		{
+			"name": "MCPE_HURT_ARMOR",
+			"id": "0x26",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "HurtArmorPacket"
+		},
+		{
+			"name": "MCPE_CONTAINER_OPEN",
+			"id": "0x2e",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ContainerOpenPacket"
+		},
+		{
+			"name": "MCPE_GUI_DATA_PICK_ITEM",
+			"id": "0x36",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "GuiDataPickItemPacket"
+		},
+		{
+			"name": "MCPE_SET_COMMANDS_ENABLED",
+			"id": "0x3b",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SetCommandsEnabledPacket"
+		},
+		{
+			"name": "MCPE_SPAWN_EXPERIENCE_ORB",
+			"id": "0x42",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SpawnExperienceOrbPacket"
+		},
+		{
+			"name": "MCPE_CAMERA",
+			"id": "0x49",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "CameraPacket"
+		},
+		{
+			"name": "MCPE_SHOW_CREDITS",
+			"id": "0x4b",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ShowCreditsPacket"
+		},
+		{
+			"name": "MCPE_STOP_SOUND",
+			"id": "0x57",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "StopSoundPacket"
+		},
+		{
+			"name": "MCPE_ADD_BEHAVIOR_TREE",
+			"id": "0x59",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "AddBehaviorTreePacket"
+		},
+		{
+			"name": "MCPE_INITIATE_WEB_SOCKET_CONNECTION",
+			"id": "0x5f",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "AutomationClientConnectPacket"
+		},
+		{
+			"name": "MCPE_MODAL_FORM_REQUEST",
+			"id": "0x64",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ModalFormRequestPacket"
+		},
+		{
+			"name": "MCPE_SERVER_SETTINGS_RESPONSE",
+			"id": "0x67",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ServerSettingsResponsePacket"
+		},
+		{
+			"name": "MCPE_SHOW_PROFILE",
+			"id": "0x68",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ShowProfilePacket"
+		},
+		{
+			"name": "MCPE_SET_DISPLAY_OBJECTIVE",
+			"id": "0x6b",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SetDisplayObjectivePacket"
+		},
+		{
+			"name": "MCPE_UPDATE_BLOCK_SYNCED",
+			"id": "0x6e",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "UpdateBlockSyncedPacket"
+		},
+		{
+			"name": "MCPE_LECTERN_UPDATE",
+			"id": "0x7d",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "LecternUpdatePacket"
+		},
+		{
+			"name": "MCPE_COMPLETED_USING_ITEM",
+			"id": "0x8e",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "CompletedUsingItemPacket"
+		},
+		{
+			"name": "MCPE_CODE_BUILDER",
+			"id": "0x96",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "CodeBuilderPacket"
+		},
+		{
+			"name": "MCPE_MOTION_PREDICTION_HINTS",
+			"id": "0x9d",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "MotionPredictionHintsPacket"
+		},
+		{
+			"name": "MCPE_PLAYER_START_ITEM_COOLDOWN",
+			"id": "0xb0",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "PlayerStartItemCooldownPacket"
+		},
+		{
+			"name": "MCPE_LESSON_PROGRESS",
+			"id": "0xb7",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "LessonProgressPacket"
+		},
+		{
+			"name": "MCPE_SERVER_STATS",
+			"id": "0xc0",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ServerStatsPacket"
+		},
+		{
+			"name": "MCPE_GAME_TEST_RESULTS",
+			"id": "0xc3",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "GameTestResultsPacket"
+		},
+		{
+			"name": "MCPE_UPDATE_CLIENT_INPUT_LOCKS",
+			"id": "0xc4",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "UpdateClientInputLocksPacket"
+		},
+		{
+			"name": "MCPE_OPEN_SIGN",
+			"id": "0x12f",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "OpenSignPacket"
+		},
+		{
+			"name": "MCPE_AWARD_ACHIEVEMENT",
+			"id": "0x135",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "AwardAchievementPacket"
+		},
+		{
+			"name": "MCPE_CURRENT_STRUCTURE_FEATURE",
+			"id": "0x13a",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "CurrentStructureFeaturePacket"
 		}
 	]
 }

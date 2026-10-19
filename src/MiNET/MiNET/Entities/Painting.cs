@@ -52,11 +52,11 @@ namespace MiNET.Entities
 		public override void SpawnToPlayers(Player[] players)
 		{
 			McpeAddPainting painting = McpeAddPainting.CreateObject();
-			painting.coordinates = KnownPosition;
+			painting.position = KnownPosition;
 			painting.direction = FacingDirection;
-			painting.entityIdSelf = EntityId;
-			painting.runtimeEntityId = EntityId;
-			painting.title = PaintingData.Title;
+			painting.targetActorId = EntityId;
+			painting.targetRuntimeId = EntityId;
+			painting.motif = PaintingData.Title;
 
 			Level.RelayBroadcast(players, painting);
 		}

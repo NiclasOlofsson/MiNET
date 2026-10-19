@@ -29,6 +29,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
+using MiNET.Utils;
 
 namespace MiNET.Net.NetherNet
 {
@@ -90,6 +91,8 @@ namespace MiNET.Net.NetherNet
 			}
 
 			if (ping == null) return null;
+
+			Log.Trace($"RakNet unconnected ping 0x{datagram[0]:x2} from {from}, ping id {ping.pingId}, client guid {ping.guid}");
 
 			_connectionInfo.NumberOfPlayers = _playerCount();
 

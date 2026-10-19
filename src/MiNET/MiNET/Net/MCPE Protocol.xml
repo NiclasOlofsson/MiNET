@@ -115,17 +115,6 @@
 		<field name="Data" type="SignedVarInt" />
 	</pdu>
 
-	<pdu id="0x1c" online="false" client="false" server="true" name="MCPE_MOB_EFFECT">
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Event ID" type="byte" />
-		<field name="Effect ID" type="SignedVarInt" />
-		<field name="Amplifier" type="SignedVarInt" />
-		<field name="Particles" type="bool" />
-		<field name="Duration" type="SignedVarInt" />
-		<field name="Tick" type="UnsignedVarLong" />
-		<field name="Ambient" type="bool" />
-	</pdu>
-
 	<pdu id="0x1d" online="false" client="false" server="true" name="MCPE_UPDATE_ATTRIBUTES">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Attributes" type="PlayerAttributes" />
@@ -160,14 +149,6 @@
 		<field name="Add User Data" type="bool" />
 	</pdu>
 
-	<pdu id="0x24" online="false" client="true" server="false" name="MCPE_PLAYER_ACTION">
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Action ID" type="SignedVarInt" />
-		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Result Coordinates" type="BlockCoordinates" />
-		<field name="Face" type="SignedVarInt" />
-	</pdu>
-
 	<pdu id="0x28" online="false" client="true" server="true" name="MCPE_SET_ENTITY_MOTION">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Velocity" type="Vector3" />
@@ -185,13 +166,6 @@
 		<field name="Immediate" type="bool" />
 		<field name="Rider Initiated" type="bool" />
 		<field name="Vehicle Angular Velocity" type="float" />
-	</pdu>
-
-	<pdu id="0x2b" online="false" client="false" server="true" name="MCPE_SET_SPAWN_POSITION">
-		<field name="Spawn Type" type="SignedVarInt" />
-		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Dimension" type="SignedVarInt" />
-		<field name="Unknown coordinates" type="BlockCoordinates" />
 	</pdu>
 
 	<!-- 0x2c Animate is Cereal: generated from AnimatePacket.json, see MiNET.ProtocolGen/roster.json -->
@@ -257,14 +231,6 @@
 		<field name="Dimension" type="SignedVarInt" />
 		<field name="Position" type="Vector3" />
 		<field name="Respawn" type="bool" />
-	</pdu>
-
-	<pdu id="0x3e" online="false" client="true" server="true" name="MCPE_SET_PLAYER_GAME_TYPE">
-		<field name="Gamemode" type="SignedVarInt" />
-	</pdu>
-
-	<pdu id="0x40" online="false" client="false" server="true" name="MCPE_SIMPLE_EVENT">
-		<field name="Event Type" type="ushort" />
 	</pdu>
 
 	<pdu id="0x41" online="false" client="false" server="true" name="MCPE_TELEMETRY_EVENT">
@@ -353,30 +319,6 @@
 	</pdu>
 
 
-	<pdu id="0x58" online="false" client="false" server="true" name="MCPE_SET_TITLE">
-		<!--
-		TYPE_CLEAR_TITLE = 0;
-		TYPE_RESET_TITLE = 1;
-		TYPE_SET_TITLE = 2;
-		TYPE_SET_SUBTITLE = 3;
-		TYPE_SET_ACTIONBAR_MESSAGE = 4;
-		TYPE_SET_ANIMATION_TIMES = 5;		
-		-->
-		<field name="Type" type="SignedVarInt" />
-		<field name="Text" type="string" />
-		<field name="Fade In Time" type="SignedVarInt" />
-		<field name="Stay Time" type="SignedVarInt" />
-		<field name="Fade Out Time" type="SignedVarInt" />
-		<field name="Xuid" type="string" />
-		<field name="Platform Online Id" type="string" />
-		<field name="Filtered Title Text" type="string" />
-	</pdu>
-
-	<pdu id="0x5b" online="false" client="false" server="true" name="MCPE_SHOW_STORE_OFFER">
-		<field name="Offer Id" type="UUID" />
-		<field name="Redirect Type" type="byte" />
-	</pdu>
-
 	<pdu id="0x5c" online="false" client="true" server="false" name="MCPE_PURCHASE_RECEIPT">
 		<!-- all fields handled in partial: receipts[] -->
 	</pdu>
@@ -395,21 +337,9 @@
 		<!-- remaining fields, conditional on Type, handled in partial -->
 	</pdu>
 
-	<pdu id="0x62" online="false" client="true" server="true" name="MCPE_NPC_REQUEST">
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Unknown0" type="byte" />
-		<field name="Unknown1" type="string" />
-		<field name="Unknown2" type="byte" />
-		<field name="Scene Name" type="string" />
-	</pdu>
-
 
 	<pdu id="0x65" online="false" client="true" server="false" name="MCPE_MODAL_FORM_RESPONSE">
 		<field name="Form Id" type="UnsignedVarInt" />
-	</pdu>
-
-	<pdu id="0x69" online="false" client="false" server="true" name="MCPE_SET_DEFAULT_GAME_TYPE">
-		<field name="Gamemode" type="SignedVarInt" />
 	</pdu>
 
 
@@ -473,13 +403,6 @@
 
 	<!-- 0x7e VideoStreamConnect gone since 407 (Jun 2020); the websocket packet is AutomationClientConnect at 0x5f -->
 
-	<pdu id="0x84" online="false" client="false" server="true" name="MCPE_STRUCTURE_TEMPLATE_DATA_EXPORT_REQUEST">
-		<field name="Name" type="string" />
-		<field name="Position" type="BlockCoordinates" />
-		<field name="Settings" type="StructureSettings" />
-		<field name="Request Type" type="byte" />
-	</pdu>
-
 	<pdu id="0x85" online="false" client="false" server="true" name="MCPE_STRUCTURE_TEMPLATE_DATA_EXPORT_RESPONSE">
 		<field name="Name" type="string" />
 	</pdu>
@@ -506,25 +429,6 @@
 		<field name="Screenshot Border Resource Path" type="string" />
 	</pdu>
 
-	<pdu id="0x8b" online="false" client="true" server="true" name="MCPE_MULTIPLAYER_SETTINGS">
-		<!-- 0=enable, 1=disable, 2=refresh join code -->
-		<field name="Action" type="SignedVarInt" />
-	</pdu>
-
-	<pdu id="0x8f" online="false" client="false" server="true" name="MCPE_NETWORK_SETTINGS">
-		<enums id="CompressionAlgorithm">
-			<enum id="ZLib" value="0" />
-			<enum id="Snappy" value="1" />
-			<enum id="None" value="65535" />
-		</enums>
-
-		<field name="Compression threshold" type="ushort" />
-		<field name="Compression algorithm" type="ushort" />
-		<field name="Client throttle enabled" type="bool" />
-		<field name="Client throttle threshold" type="byte" />
-		<field name="Client throttle scalar" type="float" />
-	</pdu>
-
 	<!--
 	public const PLAYER_AUTH_INPUT_PACKET = 0x90;
 	public const PLAYER_ARMOR_DAMAGE_PACKET = 0x95;
@@ -545,12 +449,6 @@
 		<!-- all fields handled in partial: armorSlotAndDamagePairs[] -->
 	</pdu>
 
-	<pdu id="0x97" online="false" client="true" server="false" name="MCPE_UPDATE_PLAYER_GAME_TYPE">
-		<field name="Player Game Type" type="SignedVarInt" />
-		<field name="Target Player Unique ID" type="SignedVarLong" />
-		<field name="Tick" type="UnsignedVarLong" />
-	</pdu>
-
 	<!-- Sent by the client right after login, listing the emotes it owns so the server can
 	     validate an Emote packet later. The piece id list is a UUID array, which the generator has
 	     no type for, so it lives in the partial (Net/McpeEmoteList.cs). -->
@@ -562,18 +460,6 @@
 		<field name="Action" type="byte" />
 		<field name="Tracking ID" type="SignedVarInt" />
 		<field name="NBT" type="NbtBody" />
-	</pdu>
-
-	<pdu id="0x9a" online="false" client="true" server="false" name="MCPE_POSITION_TRACKING_DB_CLIENT_REQUEST">
-		<field name="Action" type="byte" />
-		<field name="Tracking ID" type="SignedVarInt" />
-	</pdu>
-
-	<pdu id="0x9c" online="false" client="true" server="false" name="MCPE_PACKET_VIOLATION_WARNING">
-		<field name="Violation Type" type="SignedVarInt" />
-		<field name="Severity" type="SignedVarInt" />
-		<field name="Packet Id" type="SignedVarInt" />
-		<field name="Reason" type="string" />
 	</pdu>
 
 	<!-- Trailing runtime entity id list is a VarInt-count-prefixed array of UnsignedVarLong,
@@ -616,10 +502,6 @@
 		<field name="NamedTag" type="Nbt" />
 	</pdu>
 
-	<pdu id="0xa8" online="false" client="false" server="true" name="MCPE_SIMULATION_TYPE">
-		<field name="Simulation Type" type="byte" />
-	</pdu>
-
 	<pdu id="0xa9" online="false" client="false" server="true" name="MCPE_NPC_DIALOGUE">
 		<field name="Npc Unique ID" type="long" endianess="LE" />
 		<field name="Action Type" type="SignedVarInt" />
@@ -648,18 +530,6 @@
 
 	<pdu id="0xaf" online="false" client="true" server="false" name="MCPE_SUB_CHUNK_REQUEST_PACKET">
 		<!-- all fields handled in partial: dimension, offset list, origin (li32 triple) -->
-	</pdu>
-
-	<pdu id="0xb2" online="false" client="true" server="false" name="MCPE_CODE_BUILDER_SOURCE">
-		<field name="Operation" type="byte" />
-		<field name="Category" type="byte" />
-		<field name="Code Status" type="byte" />
-	</pdu>
-
-	<pdu id="0xb5" online="false" client="false" server="true" name="MCPE_AGENT_ACTION_EVENT">
-		<field name="Request Id" type="string" />
-		<field name="Action" type="int" />
-		<field name="Response Json" type="string" />
 	</pdu>
 
 
@@ -696,16 +566,6 @@
 		<field name="Protocol Version" type="int" endianess="BE" />
 	</pdu>
 
-	<pdu id="0xc2" online="false" client="true" server="false" name="MCPE_GAME_TEST_REQUEST">
-		<field name="Max Tests Per Batch" type="SignedVarInt" />
-		<field name="Repeat Count" type="SignedVarInt" />
-		<field name="Rotation" type="byte" />
-		<field name="Stop On Failure" type="bool" />
-		<field name="Test Position" type="BlockCoordinates" />
-		<field name="Tests Per Row" type="SignedVarInt" />
-		<field name="Test Name" type="string" />
-	</pdu>
-
 	<pdu id="0xc7" online="false" client="false" server="true" name="MCPE_UNLOCKED_RECIPES">
 		<field name="Type" type="uint" />
 		<!-- recipes[] handled in partial -->
@@ -713,11 +573,6 @@
 
 	<pdu id="0x12e" online="false" client="false" server="true" name="MCPE_TRIM_DATA">
 		<!-- all fields handled in partial: patterns[] and materials[] -->
-	</pdu>
-
-	<pdu id="0x130" online="false" client="false" server="true" name="MCPE_AGENT_ANIMATION">
-		<field name="Animation Type" type="byte" />
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x133" online="false" client="true" server="false" name="MCPE_SET_PLAYER_INVENTORY_OPTIONS">
@@ -741,15 +596,6 @@
 		<field name="Structure Data" type="Nbt" />
 	</pdu>
 
-
-	<pdu id="0x13c" online="false" client="false" server="true" name="MCPE_CAMERA_AIM_ASSIST">
-		<field name="Preset ID" type="string" />
-		<field name="View Angle" type="Vector2" />
-		<field name="Distance" type="float" />
-		<field name="Target Mode" type="byte" />
-		<field name="Action Type" type="byte" />
-		<field name="Show Debug Render" type="bool" />
-	</pdu>
 
 	<pdu id="0x13d" online="false" client="false" server="true" name="MCPE_CONTAINER_REGISTRY_CLEANUP">
 		<!-- all fields handled in partial: removed containers[] (FullContainerName) -->
@@ -799,10 +645,6 @@
 		<!-- frame_rate + file_prefix (present only when Recording == true) handled in partial -->
 	</pdu>
 
-
-	<pdu id="0x147" online="false" client="false" server="true" name="MCPE_CLIENTBOUND_CONTROL_SCHEME_SET">
-		<field name="Control Scheme" type="byte" />
-	</pdu>
 
 	<pdu id="0x148" online="false" client="false" server="true" name="MCPE_PRIMITIVE_SHAPES">
 		<!-- all fields handled in partial: shapes[] -->
@@ -857,13 +699,6 @@
 	<pdu id="0x12c" online="false" client="false" server="true" name="MCPE_CAMERA_INSTRUCTION">
 		<!-- all fields handled in partial: every field is an independent optional (set, clear,
 		     fade, target, remove target, fov, spline, attach/detach) -->
-	</pdu>
-
-	<pdu id="0x9f" online="false" client="false" server="true" name="MCPE_CAMERA_SHAKE">
-		<field name="Intensity" type="float" />
-		<field name="Duration" type="float" />
-		<field name="Type" type="byte" />
-		<field name="Action" type="byte" />
 	</pdu>
 
 	<pdu id="0x155" online="false" client="false" server="true" name="MCPE_LOCATOR_BAR">

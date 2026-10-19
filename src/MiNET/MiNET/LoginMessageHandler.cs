@@ -73,7 +73,7 @@ namespace MiNET
 			// 0xff compressor id. Advertising 1 here would order the client to deflate every tiny
 			// input packet it sends us; advertising the real threshold spares both sides.
 			settings.compressionThreshold = Compression.CompressionThresholdBytes;
-			settings.compressionAlgorithm = (ushort) McpeNetworkSettings.Compressionalgorithm.Zlib;
+			settings.compressionAlgorithm = McpeNetworkSettings.PacketCompressionAlgorithm.Zlib;
 			settings.clientThrottleEnabled = false;
 			settings.clientThrottleThreshold = 0;
 			settings.clientThrottleScalar = 0;

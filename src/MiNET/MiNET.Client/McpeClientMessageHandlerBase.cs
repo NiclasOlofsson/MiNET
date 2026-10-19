@@ -315,7 +315,7 @@ namespace MiNET.Client
 
 		public virtual void HandleMcpeSetSpawnPosition(McpeSetSpawnPosition message)
 		{
-			Client.SpawnPoint = new Vector3(message.coordinates.X, message.coordinates.Y, message.coordinates.Z);
+			Client.SpawnPoint = new Vector3(message.blockPosition.X, message.blockPosition.Y, message.blockPosition.Z);
 			Client.LevelInfo.SpawnX = (int) Client.SpawnPoint.X;
 			Client.LevelInfo.SpawnY = (int) Client.SpawnPoint.Y;
 			Client.LevelInfo.SpawnZ = (int) Client.SpawnPoint.Z;
@@ -429,8 +429,8 @@ namespace MiNET.Client
 			Thread.Sleep(3000);
 
 			var action = McpePlayerAction.CreateObject();
-			action.runtimeEntityId = Client.EntityId;
-			action.actionId = (int) PlayerAction.DimensionChangeAck;
+			action.playerRuntimeId = Client.EntityId;
+			action.action = (McpePlayerAction.PlayerActionType) (int) PlayerAction.DimensionChangeAck;
 			Client.SendPacket(action);
 		}
 
@@ -734,7 +734,7 @@ namespace MiNET.Client
 
 		public virtual void HandleMcpeNetworkSettings(McpeNetworkSettings message)
 		{
-			if (message.compressionAlgorithm == 1) Log.Warn("Server negotiated snappy compression, which is not implemented. Expect failures.");
+			if ((ushort) message.compressionAlgorithm == 1) Log.Warn("Server negotiated snappy compression, which is not implemented. Expect failures.");
 
 			Client.SendLogin(Client.Username);
 		}

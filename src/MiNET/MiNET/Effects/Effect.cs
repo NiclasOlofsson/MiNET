@@ -104,12 +104,12 @@ namespace MiNET.Effects
 		public virtual void SendAdd(Player player)
 		{
 			var message = McpeMobEffect.CreateObject();
-			message.runtimeEntityId = EntityManager.EntityIdSelf;
-			message.eventId = 1;
+			message.targetRuntimeId = EntityManager.EntityIdSelf;
+			message.eventId = (McpeMobEffect.Event) 1;
 			message.effectId = (int) EffectId;
-			message.duration = Duration;
-			message.amplifier = Level;
-			message.particles = Particles;
+			message.effectDurationTicks = Duration;
+			message.effectAmplifier = Level;
+			message.showParticles = Particles;
 			message.tick = 0;
 			player.SendPacket(message);
 
@@ -119,12 +119,12 @@ namespace MiNET.Effects
 		public virtual void SendUpdate(Player player)
 		{
 			var message = McpeMobEffect.CreateObject();
-			message.runtimeEntityId = EntityManager.EntityIdSelf;
-			message.eventId = 2;
+			message.targetRuntimeId = EntityManager.EntityIdSelf;
+			message.eventId = (McpeMobEffect.Event) 2;
 			message.effectId = (int) EffectId;
-			message.duration = Duration;
-			message.amplifier = Level;
-			message.particles = Particles;
+			message.effectDurationTicks = Duration;
+			message.effectAmplifier = Level;
+			message.showParticles = Particles;
 			message.tick = 0;
 			player.SendPacket(message);
 		}
@@ -132,8 +132,8 @@ namespace MiNET.Effects
 		public virtual void SendRemove(Player player)
 		{
 			var message = McpeMobEffect.CreateObject();
-			message.runtimeEntityId = EntityManager.EntityIdSelf;
-			message.eventId = 3;
+			message.targetRuntimeId = EntityManager.EntityIdSelf;
+			message.eventId = (McpeMobEffect.Event) 3;
 			message.effectId = (int) EffectId;
 			message.tick = 0;
 			player.SendPacket(message);

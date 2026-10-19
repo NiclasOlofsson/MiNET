@@ -179,9 +179,9 @@ namespace MiNET.Camera
 				{
 					McpeCameraShake packet = McpeCameraShake.CreateObject();
 					packet.intensity = 0.5f;
-					packet.duration = 1.5f;
-					packet.type = 1;
-					packet.action = 0;
+					packet.seconds = 1.5f;
+					packet.shakeType = (McpeCameraShake.CameraShakeType) 1;
+					packet.shakeAction = 0;
 					Send(player, packet);
 					break;
 				}
@@ -220,9 +220,9 @@ namespace MiNET.Camera
 				{
 					McpeCameraShake p = McpeCameraShake.CreateObject();
 					p.intensity = 0.5f;
-					p.duration = 1.5f;
-					p.type = 1;
-					p.action = 0;
+					p.seconds = 1.5f;
+					p.shakeType = (McpeCameraShake.CameraShakeType) 1;
+					p.shakeAction = 0;
 					return p;
 				}),
 				("fade", () =>

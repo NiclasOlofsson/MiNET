@@ -324,9 +324,9 @@ namespace MiNET.Camera
 		{
 			McpeCameraShake packet = McpeCameraShake.CreateObject();
 			packet.intensity = intensity;
-			packet.duration = duration;
-			packet.type = (byte) type;
-			packet.action = 0; // add
+			packet.seconds = duration;
+			packet.shakeType = (McpeCameraShake.CameraShakeType) (byte) type;
+			packet.shakeAction = 0; // add
 			Player.SendPacket(packet);
 		}
 
@@ -334,9 +334,9 @@ namespace MiNET.Camera
 		{
 			McpeCameraShake packet = McpeCameraShake.CreateObject();
 			packet.intensity = 0;
-			packet.duration = 0;
-			packet.type = (byte) CameraShakeType.Positional;
-			packet.action = 1; // stop
+			packet.seconds = 0;
+			packet.shakeType = (byte) CameraShakeType.Positional;
+			packet.shakeAction = (McpeCameraShake.CameraShakeAction) 1; // stop
 			Player.SendPacket(packet);
 		}
 	}

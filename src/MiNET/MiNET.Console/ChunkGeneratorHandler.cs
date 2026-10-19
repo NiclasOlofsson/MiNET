@@ -80,7 +80,7 @@ namespace MiNET.Console
 
 		public override void HandleMcpeSetSpawnPosition(McpeSetSpawnPosition message)
 		{
-			Client.SpawnPoint = new Vector3(message.coordinates.X, message.coordinates.Y, message.coordinates.Z);
+			Client.SpawnPoint = new Vector3(message.blockPosition.X, message.blockPosition.Y, message.blockPosition.Z);
 			Client.LevelInfo.SpawnX = (int) Client.SpawnPoint.X;
 			Client.LevelInfo.SpawnY = (int) Client.SpawnPoint.Y;
 			Client.LevelInfo.SpawnZ = (int) Client.SpawnPoint.Z;

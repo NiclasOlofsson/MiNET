@@ -517,8 +517,8 @@ namespace MiNET.Client
 						Log.Warn("Sending sneak for player");
 
 						McpePlayerAction action = McpePlayerAction.CreateObject();
-						action.runtimeEntityId = Client.EntityId;
-						action.actionId = (int) PlayerAction.StartSneak;
+						action.playerRuntimeId = Client.EntityId;
+						action.action = (McpePlayerAction.PlayerActionType) (int) PlayerAction.StartSneak;
 						Client.SendPacket(action);
 					})
 					.ContinueWith(t => Task.Delay(2000).Wait())

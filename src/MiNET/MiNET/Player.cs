@@ -371,11 +371,11 @@ namespace MiNET
 			// Fallback is the "inherit the level's mode" sentinel StartGame sends, and the client
 			// acknowledges it verbatim. It is not a mode: storing it leaves GameMode matching
 			// nothing at all, which silently disables every creative-gated path.
-			var requested = (GameMode) message.gamemode;
+			var requested = (GameMode) message.playerGameType;
 			GameMode gameMode = requested == GameMode.Fallback ? Level.GameMode : requested;
 			if (!Enum.IsDefined(gameMode))
 			{
-				Log.Warn($"Ignoring SetPlayerGameType with unknown game mode {message.gamemode}");
+				Log.Warn($"Ignoring SetPlayerGameType with unknown game mode {message.playerGameType}");
 				return;
 			}
 
@@ -503,16 +503,16 @@ namespace MiNET
 		{
 			// Only used by EDU NPC.
 
-			if (Level.TryGetEntity(message.runtimeEntityId, out Entity entity))
+			if (Level.TryGetEntity(message.npcRuntimeId, out Entity entity))
 			{
 				// 0 is edit
 				// 0 is exec command
 				// 2 is exec link
 
-				if (message.unknown0 == 0)
+				if (message.requestType == 0)
 				{
 					MetadataDictionary metadata = new MetadataDictionary();
-					metadata[42] = new MetadataString(message.unknown1);
+					metadata[42] = new MetadataString(message.actions);
 					entity.SetEntityData(metadata);
 				}
 			}
@@ -796,17 +796,17 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public virtual void HandleMcpePlayerAction(McpePlayerAction message)
 		{
-			switch ((PlayerAction) message.actionId)
+			switch ((PlayerAction) message.action)
 			{
 				case PlayerAction.StartBreak:
 				case PlayerAction.ContinueDestroyBlock: // same as StartBreak, sent when block breaking is server authoritative
 				{
 					if (message.face == (int) BlockFace.Up)
 					{
-						Block block = Level.GetBlock(message.coordinates.BlockUp());
+						Block block = Level.GetBlock(message.blockPosition.BlockUp());
 						if (block is Fire)
 						{
-							Level.BreakBlock(this, message.coordinates.BlockUp());
+							Level.BreakBlock(this, message.blockPosition.BlockUp());
 							break;
 						}
 					}
@@ -814,7 +814,7 @@ namespace MiNET
 
 					if (GameMode == GameMode.Survival)
 					{
-						Block target = Level.GetBlock(message.coordinates);
+						Block target = Level.GetBlock(message.blockPosition);
 						if (target.IsUnbreakable) break;
 
 						var drops = target.GetDrops(Inventory.GetItemInHand());
@@ -823,7 +823,7 @@ namespace MiNET
 
 						McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
 						breakEvent.eventId = 3600;
-						breakEvent.position = message.coordinates;
+						breakEvent.position = message.blockPosition;
 						breakEvent.data = (int) (65535 / breakTime);
 						Log.Debug("Break speed: " + breakEvent.data);
 						Level.RelayBroadcast(breakEvent);
@@ -833,12 +833,12 @@ namespace MiNET
 				}
 				case PlayerAction.Breaking:
 				{
-					Block target = Level.GetBlock(message.coordinates);
+					Block target = Level.GetBlock(message.blockPosition);
 					int data = ((int) target.GetRuntimeId()) | ((byte) (message.face << 24));
 
 					McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
 					breakEvent.eventId = 2014;
-					breakEvent.position = message.coordinates;
+					breakEvent.position = message.blockPosition;
 					breakEvent.data = data;
 					Level.RelayBroadcast(breakEvent);
 					break;
@@ -849,7 +849,7 @@ namespace MiNET
 				{
 					McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
 					breakEvent.eventId = 3601;
-					breakEvent.position = message.coordinates;
+					breakEvent.position = message.blockPosition;
 					Level.RelayBroadcast(breakEvent);
 					break;
 				}
@@ -957,7 +957,7 @@ namespace MiNET
 				}
 				case PlayerAction.SetEnchantmentSeed:
 				{
-					Log.Debug($"Got PlayerAction.SetEnchantmentSeed with data={message.face} at {message.coordinates}");
+					Log.Debug($"Got PlayerAction.SetEnchantmentSeed with data={message.face} at {message.blockPosition}");
 					break;
 				}
 				case PlayerAction.InteractBlock:
@@ -969,7 +969,7 @@ namespace MiNET
 					// Not implemented is not a protocol error. Throwing here abandons the rest of the
 					// batch this packet arrived in, so one unhandled action drops the movement and
 					// transactions sent with it.
-					Log.Debug($"Unhandled player action {(PlayerAction) message.actionId} ({message.actionId})");
+					Log.Debug($"Unhandled player action {(PlayerAction) message.action} ({message.action})");
 					break;
 				}
 			}
@@ -1322,10 +1322,10 @@ namespace MiNET
 			var undefined = new BlockCoordinates(int.MinValue, -1, int.MinValue);
 
 			var packet = McpeSetSpawnPosition.CreateObject();
-			packet.spawnType = 0; // player spawn
-			packet.coordinates = undefined;
-			packet.dimension = 3; // undefined
-			packet.unknownCoordinates = undefined;
+			packet.spawnPositionType = 0; // player spawn
+			packet.blockPosition = undefined;
+			packet.dimensionType = 3; // undefined
+			packet.spawnBlockPos = undefined;
 			SendPacket(packet);
 		}
 
@@ -2463,8 +2463,8 @@ namespace MiNET
 		public void SendUpdatePlayerGameType()
 		{
 			McpeUpdatePlayerGameType gametype = McpeUpdatePlayerGameType.CreateObject();
-			gametype.playerGameType = (int) GameMode;
-			gametype.targetPlayerUniqueId = EntityId;
+			gametype.playerGameType = (McpeUpdatePlayerGameType.GameType) (int) GameMode;
+			gametype.targetPlayer = EntityId;
 			gametype.tick = 0;
 			SendPacket(gametype);
 		}
@@ -3222,7 +3222,7 @@ namespace MiNET
 
 		public virtual void HandleMcpePacketViolationWarning(McpePacketViolationWarning message)
 		{
-			Log.Error($"Client reported a level {message.severity} packet violation of type {message.violationType} for packet 0x{message.packetId:X2}: {message.reason}");
+			Log.Error($"Client reported a level {message.violationSeverity} packet violation of type {message.violationType} for packet 0x{message.violationPacketId:X2}: {message.violationContext}");
 		}
 
 		/// <inheritdoc />
@@ -4198,9 +4198,9 @@ namespace MiNET
 		public void SendSetSpawnPosition()
 		{
 			McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
-			mcpeSetSpawnPosition.spawnType = 1;
-			mcpeSetSpawnPosition.coordinates = (BlockCoordinates) SpawnPosition;
-			mcpeSetSpawnPosition.dimension = (int) Level.Dimension;
+			mcpeSetSpawnPosition.spawnPositionType = (McpeSetSpawnPosition.SpawnPositionType) 1;
+			mcpeSetSpawnPosition.blockPosition = (BlockCoordinates) SpawnPosition;
+			mcpeSetSpawnPosition.dimensionType = (int) Level.Dimension;
 			SendPacket(mcpeSetSpawnPosition);
 		}
 

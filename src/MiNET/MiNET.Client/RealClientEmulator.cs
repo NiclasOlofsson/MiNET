@@ -143,7 +143,7 @@ namespace MiNET.Client
 		private static void SendSetPlayerGameType(MiNetClient client)
 		{
 			var packet = McpeSetPlayerGameType.CreateObject();
-			packet.gamemode = 5; // GameType.Default, what the real client sends at join
+			packet.playerGameType = (McpeSetPlayerGameType.GameType) 5; // GameType.Default, what the real client sends at join
 			client.SendPacket(packet);
 		}
 
@@ -198,10 +198,10 @@ namespace MiNET.Client
 		private static void SendPlayerAction(MiNetClient client, PlayerAction action, BlockCoordinates coordinates, BlockFace face)
 		{
 			var packet = McpePlayerAction.CreateObject();
-			packet.runtimeEntityId = client.EntityId;
-			packet.actionId = (int) action;
-			packet.coordinates = coordinates;
-			packet.resultCoordinates = default; // matches captured real-client frames (always zeroed)
+			packet.playerRuntimeId = client.EntityId;
+			packet.action = (McpePlayerAction.PlayerActionType) (int) action;
+			packet.blockPosition = coordinates;
+			packet.resultPos = default; // matches captured real-client frames (always zeroed)
 			packet.face = (int) face;
 			client.SendPacket(packet);
 		}

@@ -620,8 +620,8 @@ namespace MiNET.Worlds
 			mcpeSetTitle.fadeInTime = fadeIn;
 			mcpeSetTitle.stayTime = stayTime;
 			mcpeSetTitle.fadeOutTime = fadeOut;
-			mcpeSetTitle.type = (int) type;
-			mcpeSetTitle.text = text;
+			mcpeSetTitle.titleType = (McpeSetTitle.SetTitlePacketTitleType) (int) type;
+			mcpeSetTitle.titleText = text;
 
 			RelayBroadcast(sender, sendList, mcpeSetTitle);
 		}

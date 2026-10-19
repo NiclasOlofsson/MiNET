@@ -15,12 +15,10 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Move Entity | 0x12 | 18 |   
 | Camera Instruction | 0x12c | 18 |   
 | Trim Data | 0x12e | 18 |   
-| Agent Animation | 0x130 | 19 |   
 | Set Player Inventory Options | 0x133 | 19 |   
 | Set Hud | 0x134 | 19 |   
 | Server Bound Loading Screen | 0x138 | 19 |   
 | Jigsaw Structure Data | 0x139 | 19 |   
-| Camera Aim Assist | 0x13c | 19 |   
 | Container Registry Cleanup | 0x13d | 19 |   
 | Movement Effect | 0x13e | 19 |   
 | Camera Aim Assist Presets | 0x140 | 20 |   
@@ -28,7 +26,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Client Movement Prediction Sync | 0x142 | 20 |   
 | Update Client Options | 0x143 | 20 |   
 | Player Video Capture | 0x144 | 20 |   
-| Clientbound Control Scheme Set | 0x147 | 20 |   
 | Primitive Shapes | 0x148 | 20 |   
 | Clientbound Data Store | 0x14a | 20 |   
 | Graphics Override Parameter | 0x14b | 20 |   
@@ -48,21 +45,16 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Server Presence Info | 0x15b | 21 |   
 | Send Party Destination Cookie | 0x15d | 21 |   
 | Entity Event | 0x1b | 27 |   
-| Mob Effect | 0x1c | 28 |   
 | Update Attributes | 0x1d | 29 |   
 | Interact | 0x21 | 33 |   
 | Block Pick Request | 0x22 | 34 |   
 | Entity Pick Request | 0x23 | 35 |   
-| Player Action | 0x24 | 36 |   
 | Set Entity Motion | 0x28 | 40 |   
 | Set Entity Link | 0x29 | 41 |   
-| Set Spawn Position | 0x2b | 43 |   
 | Respawn | 0x2d | 45 |   
 | Crafting Data | 0x34 | 52 |   
 | Block Entity Data | 0x38 | 56 |   
 | Change Dimension | 0x3d | 61 |   
-| Set Player Game Type | 0x3e | 62 |   
-| Simple Event | 0x40 | 64 |   
 | Telemetry Event | 0x41 | 65 |   
 | Map Info Request | 0x44 | 68 |   
 | Game Rules Changed | 0x48 | 72 |   
@@ -75,15 +67,11 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Resource Pack Data Info | 0x52 | 82 |   
 | Resource Pack Chunk Data | 0x53 | 83 |   
 | Resource Pack Chunk Request | 0x54 | 84 |   
-| Set Title | 0x58 | 88 |   
-| Show Store Offer | 0x5b | 91 |   
 | Purchase Receipt | 0x5c | 92 |   
 | Sub Client Login | 0x5e | 94 |   
 | Set Last Hurt By | 0x60 | 96 |   
 | Book Edit | 0x61 | 97 |   
-| Npc Request | 0x62 | 98 |   
 | Modal Form Response | 0x65 | 101 |   
-| Set Default Game Type | 0x69 | 105 |   
 | Lab Table | 0x6d | 109 |   
 | Update Soft Enum | 0x72 | 114 |   
 | Network Stack Latency | 0x73 | 115 |   
@@ -93,42 +81,31 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Biome Definition List | 0x7a | 122 |   
 | Level Sound Event | 0x7b | 123 |   
 | Level Event Generic | 0x7c | 124 |   
-| Structure Template Data Export Request | 0x84 | 132 |   
 | Structure Template Data Export Response | 0x85 | 133 |   
 | Client Cache Blob Status | 0x87 | 135 |   
 | Client Cache Miss Response | 0x88 | 136 |   
 | Education Settings | 0x89 | 137 |   
-| Multiplayer Settings | 0x8b | 139 |   
-| Network Settings | 0x8f | 143 |   
 | Player Enchant Options | 0x92 | 146 |   
 | Player Armor Damage | 0x95 | 149 |   
-| Update Player Game Type | 0x97 | 151 |   
 | Emote List | 0x98 | 152 |   
 | Position Tracking Db Server Broadcast | 0x99 | 153 |   
-| Position Tracking Db Client Request | 0x9a | 154 |   
-| Packet Violation Warning | 0x9c | 156 |   
 | Animate Entity | 0x9e | 158 |   
-| Camera Shake | 0x9f | 159 |   
 | Player Fog | 0xa0 | 160 |   
 | Correct Player Move Prediction | 0xa1 | 161 |   
 | Item Component | 0xa2 | 162 |   
 | Clientbound Debug Renderer | 0xa4 | 164 |   
 | Sync Entity Property | 0xa5 | 165 |   
-| Simulation Type | 0xa8 | 168 |   
 | Npc Dialogue | 0xa9 | 169 |   
 | Edu Uri Resource | 0xaa | 170 |   
 | Create Photo | 0xab | 171 |   
 | Update Sub Chunk Blocks Packet | 0xac | 172 |   
 | Sub Chunk Request Packet | 0xaf | 175 |   
-| Code Builder Source | 0xb2 | 178 |   
-| Agent Action Event | 0xb5 | 181 |   
 | Update Abilities | 0xbb | 187 |   
 | Update Adventure Settings | 0xbc | 188 |   
 | Death Info | 0xbd | 189 |   
 | Editor Network | 0xbe | 190 |   
 | Feature Registry | 0xbf | 191 |   
 | Request Network Settings | 0xc1 | 193 |   
-| Game Test Request | 0xc2 | 194 |   
 | Unlocked Recipes | 0xc7 | 199 |   
 
 
@@ -163,16 +140,13 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | SignedVarLong [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-SignedVarLong) |
 | Skin [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Skin) |
 | string [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-string) |
-| StructureSettings [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-StructureSettings) |
 | uint [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-uint) |
 | ulong [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ulong) |
 | UnsignedVarInt [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-UnsignedVarInt) |
 | UnsignedVarLong [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-UnsignedVarLong) |
 | UpdateSubChunkBlocksPacketEntry[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-UpdateSubChunkBlocksPacketEntry[]) |
-| ushort [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ushort) |
 | UUID [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-UUID) |
 | VarInt [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-VarInt) |
-| Vector2 [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Vector2) |
 | Vector3 [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Vector3) |
 
 ## Constants
@@ -340,28 +314,6 @@ Wiki: [Entity Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Enti
 |Event ID | byte |  |
 |Data | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Mob Effect (0x1c)
-Wiki: [Mob Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MobEffect)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Runtime Entity ID | UnsignedVarLong |  |
-|Event ID | byte |  |
-|Effect ID | SignedVarInt |  |
-|Amplifier | SignedVarInt |  |
-|Particles | bool |  |
-|Duration | SignedVarInt |  |
-|Tick | UnsignedVarLong |  |
-|Ambient | bool |  |
------------------------------------------------------------------------
 ### Update Attributes (0x1d)
 Wiki: [Update Attributes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateAttributes)
 
@@ -442,25 +394,6 @@ Wiki: [Entity Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 |Selected Slot | byte |  |
 |Add User Data | bool |  |
 -----------------------------------------------------------------------
-### Player Action (0x24)
-Wiki: [Player Action](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerAction)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Runtime Entity ID | UnsignedVarLong |  |
-|Action ID | SignedVarInt |  |
-|Coordinates | BlockCoordinates |  |
-|Result Coordinates | BlockCoordinates |  |
-|Face | SignedVarInt |  |
------------------------------------------------------------------------
 ### Set Entity Motion (0x28)
 Wiki: [Set Entity Motion](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetEntityMotion)
 
@@ -504,24 +437,6 @@ Wiki: [Set Entity Link](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-S
 |Immediate | bool |  |
 |Rider Initiated | bool |  |
 |Vehicle Angular Velocity | float |  |
------------------------------------------------------------------------
-### Set Spawn Position (0x2b)
-Wiki: [Set Spawn Position](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetSpawnPosition)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Spawn Type | SignedVarInt |  |
-|Coordinates | BlockCoordinates |  |
-|Dimension | SignedVarInt |  |
-|Unknown coordinates | BlockCoordinates |  |
 -----------------------------------------------------------------------
 ### Respawn (0x2d)
 Wiki: [Respawn](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Respawn)
@@ -601,36 +516,6 @@ Wiki: [Change Dimension](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 |Dimension | SignedVarInt |  |
 |Position | Vector3 |  |
 |Respawn | bool |  |
------------------------------------------------------------------------
-### Set Player Game Type (0x3e)
-Wiki: [Set Player Game Type](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetPlayerGameType)
-
-**Sent from server:** true  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Gamemode | SignedVarInt |  |
------------------------------------------------------------------------
-### Simple Event (0x40)
-Wiki: [Simple Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SimpleEvent)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Event Type | ushort |  |
 -----------------------------------------------------------------------
 ### Telemetry Event (0x41)
 Wiki: [Telemetry Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TelemetryEvent)
@@ -838,44 +723,6 @@ Wiki: [Resource Pack Chunk Request](https://github.com/NiclasOlofsson/MiNET/wiki
 |Package ID | string |  |
 |Chunk Index | uint |  |
 -----------------------------------------------------------------------
-### Set Title (0x58)
-Wiki: [Set Title](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetTitle)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Type | SignedVarInt |  |
-|Text | string |  |
-|Fade In Time | SignedVarInt |  |
-|Stay Time | SignedVarInt |  |
-|Fade Out Time | SignedVarInt |  |
-|Xuid | string |  |
-|Platform Online Id | string |  |
-|Filtered Title Text | string |  |
------------------------------------------------------------------------
-### Show Store Offer (0x5b)
-Wiki: [Show Store Offer](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ShowStoreOffer)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Offer Id | UUID |  |
-|Redirect Type | byte |  |
------------------------------------------------------------------------
 ### Purchase Receipt (0x5c)
 Wiki: [Purchase Receipt](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PurchaseReceipt)
 
@@ -936,25 +783,6 @@ Wiki: [Book Edit](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BookEdi
 |Inventory Slot | SignedVarInt |  |
 |Type | UnsignedVarInt |  |
 -----------------------------------------------------------------------
-### Npc Request (0x62)
-Wiki: [Npc Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NpcRequest)
-
-**Sent from server:** true  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Runtime Entity ID | UnsignedVarLong |  |
-|Unknown0 | byte |  |
-|Unknown1 | string |  |
-|Unknown2 | byte |  |
-|Scene Name | string |  |
------------------------------------------------------------------------
 ### Modal Form Response (0x65)
 Wiki: [Modal Form Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ModalFormResponse)
 
@@ -969,21 +797,6 @@ Wiki: [Modal Form Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Form Id | UnsignedVarInt |  |
------------------------------------------------------------------------
-### Set Default Game Type (0x69)
-Wiki: [Set Default Game Type](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetDefaultGameType)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Gamemode | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Lab Table (0x6d)
 Wiki: [Lab Table](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LabTable)
@@ -1133,31 +946,13 @@ Wiki: [Level Event Generic](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 |Event ID | SignedVarInt |  |
 |Event Data | NbtBody |  |
 -----------------------------------------------------------------------
-### Structure Template Data Export Request (0x84)
-Wiki: [Structure Template Data Export Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StructureTemplateDataExportRequest)
-
-**Sent from server:** true  
-**Sent from client:** false
-
- 0x7e VideoStreamConnect gone since 407 (Jun 2020); the websocket packet is AutomationClientConnect at 0x5f 
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Name | string |  |
-|Position | BlockCoordinates |  |
-|Settings | StructureSettings |  |
-|Request Type | byte |  |
------------------------------------------------------------------------
 ### Structure Template Data Export Response (0x85)
 Wiki: [Structure Template Data Export Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StructureTemplateDataExportResponse)
 
 **Sent from server:** true  
 **Sent from client:** false
 
-
+ 0x7e VideoStreamConnect gone since 407 (Jun 2020); the websocket packet is AutomationClientConnect at 0x5f 
 
 
 #### Fields
@@ -1216,48 +1011,6 @@ Wiki: [Education Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 |Post Process Filter | string |  |
 |Screenshot Border Resource Path | string |  |
 -----------------------------------------------------------------------
-### Multiplayer Settings (0x8b)
-Wiki: [Multiplayer Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MultiplayerSettings)
-
-**Sent from server:** true  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Action | SignedVarInt |  |
------------------------------------------------------------------------
-### Network Settings (0x8f)
-Wiki: [Network Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkSettings)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-#### Compressionalgorithm constants
-
-| Name | Value |
-|:-----|:-----|
-|Zlib | 0 |
-|Snappy | 1 |
-|None | 65535 |
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Compression threshold | ushort |  |
-|Compression algorithm | ushort |  |
-|Client throttle enabled | bool |  |
-|Client throttle threshold | byte |  |
-|Client throttle scalar | float |  |
------------------------------------------------------------------------
 ### Player Enchant Options (0x92)
 Wiki: [Player Enchant Options](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerEnchantOptions)
 
@@ -1297,23 +1050,6 @@ Wiki: [Player Armor Damage](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Update Player Game Type (0x97)
-Wiki: [Update Player Game Type](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdatePlayerGameType)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Player Game Type | SignedVarInt |  |
-|Target Player Unique ID | SignedVarLong |  |
-|Tick | UnsignedVarLong |  |
------------------------------------------------------------------------
 ### Emote List (0x98)
 Wiki: [Emote List](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EmoteList)
 
@@ -1347,40 +1083,6 @@ Wiki: [Position Tracking Db Server Broadcast](https://github.com/NiclasOlofsson/
 |Action | byte |  |
 |Tracking ID | SignedVarInt |  |
 |NBT | NbtBody |  |
------------------------------------------------------------------------
-### Position Tracking Db Client Request (0x9a)
-Wiki: [Position Tracking Db Client Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PositionTrackingDbClientRequest)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Action | byte |  |
-|Tracking ID | SignedVarInt |  |
------------------------------------------------------------------------
-### Packet Violation Warning (0x9c)
-Wiki: [Packet Violation Warning](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PacketViolationWarning)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Violation Type | SignedVarInt |  |
-|Severity | SignedVarInt |  |
-|Packet Id | SignedVarInt |  |
-|Reason | string |  |
 -----------------------------------------------------------------------
 ### Animate Entity (0x9e)
 Wiki: [Animate Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AnimateEntity)
@@ -1481,21 +1183,6 @@ Wiki: [Sync Entity Property](https://github.com/NiclasOlofsson/MiNET/wiki//Proto
 |:-----|:-----|:-----|
 |NamedTag | Nbt |  |
 -----------------------------------------------------------------------
-### Simulation Type (0xa8)
-Wiki: [Simulation Type](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SimulationType)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Simulation Type | byte |  |
------------------------------------------------------------------------
 ### Npc Dialogue (0xa9)
 Wiki: [Npc Dialogue](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NpcDialogue)
 
@@ -1579,40 +1266,6 @@ Wiki: [Sub Chunk Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//P
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
------------------------------------------------------------------------
-### Code Builder Source (0xb2)
-Wiki: [Code Builder Source](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CodeBuilderSource)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Operation | byte |  |
-|Category | byte |  |
-|Code Status | byte |  |
------------------------------------------------------------------------
-### Agent Action Event (0xb5)
-Wiki: [Agent Action Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AgentActionEvent)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Request Id | string |  |
-|Action | int |  |
-|Response Json | string |  |
 -----------------------------------------------------------------------
 ### Update Abilities (0xbb)
 Wiki: [Update Abilities](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateAbilities)
@@ -1710,27 +1363,6 @@ Wiki: [Request Network Settings](https://github.com/NiclasOlofsson/MiNET/wiki//P
 |:-----|:-----|:-----|
 |Protocol Version | int |  |
 -----------------------------------------------------------------------
-### Game Test Request (0xc2)
-Wiki: [Game Test Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-GameTestRequest)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Max Tests Per Batch | SignedVarInt |  |
-|Repeat Count | SignedVarInt |  |
-|Rotation | byte |  |
-|Stop On Failure | bool |  |
-|Test Position | BlockCoordinates |  |
-|Tests Per Row | SignedVarInt |  |
-|Test Name | string |  |
------------------------------------------------------------------------
 ### Unlocked Recipes (0xc7)
 Wiki: [Unlocked Recipes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UnlockedRecipes)
 
@@ -1759,22 +1391,6 @@ Wiki: [Trim Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TrimDat
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
------------------------------------------------------------------------
-### Agent Animation (0x130)
-Wiki: [Agent Animation](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AgentAnimation)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Animation Type | byte |  |
-|Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Set Player Inventory Options (0x133)
 Wiki: [Set Player Inventory Options](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetPlayerInventoryOptions)
@@ -1838,26 +1454,6 @@ Wiki: [Jigsaw Structure Data](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Structure Data | Nbt |  |
------------------------------------------------------------------------
-### Camera Aim Assist (0x13c)
-Wiki: [Camera Aim Assist](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CameraAimAssist)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Preset ID | string |  |
-|View Angle | Vector2 |  |
-|Distance | float |  |
-|Target Mode | byte |  |
-|Action Type | byte |  |
-|Show Debug Render | bool |  |
 -----------------------------------------------------------------------
 ### Container Registry Cleanup (0x13d)
 Wiki: [Container Registry Cleanup](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ContainerRegistryCleanup)
@@ -1978,21 +1574,6 @@ Wiki: [Player Video Capture](https://github.com/NiclasOlofsson/MiNET/wiki//Proto
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Recording | bool |  |
------------------------------------------------------------------------
-### Clientbound Control Scheme Set (0x147)
-Wiki: [Clientbound Control Scheme Set](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientboundControlSchemeSet)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Control Scheme | byte |  |
 -----------------------------------------------------------------------
 ### Primitive Shapes (0x148)
 Wiki: [Primitive Shapes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PrimitiveShapes)
@@ -2156,24 +1737,6 @@ Wiki: [Camera Instruction](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
------------------------------------------------------------------------
-### Camera Shake (0x9f)
-Wiki: [Camera Shake](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CameraShake)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Intensity | float |  |
-|Duration | float |  |
-|Type | byte |  |
-|Action | byte |  |
 -----------------------------------------------------------------------
 ### Locator Bar (0x155)
 Wiki: [Locator Bar](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LocatorBar)

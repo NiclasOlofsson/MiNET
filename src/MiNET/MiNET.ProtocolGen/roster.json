@@ -920,6 +920,190 @@
 			"client": true,
 			"server": false,
 			"schema": "RequestPermissionsPacket"
+		},
+		{
+			"name": "MCPE_MOB_EFFECT",
+			"id": "0x1c",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "MobEffectPacket"
+		},
+		{
+			"name": "MCPE_PLAYER_ACTION",
+			"id": "0x24",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "PlayerActionPacket"
+		},
+		{
+			"name": "MCPE_SET_SPAWN_POSITION",
+			"id": "0x2b",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SetSpawnPositionPacket"
+		},
+		{
+			"name": "MCPE_SET_PLAYER_GAME_TYPE",
+			"id": "0x3e",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "SetPlayerGameTypePacket"
+		},
+		{
+			"name": "MCPE_SIMPLE_EVENT",
+			"id": "0x40",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SimpleEventPacket"
+		},
+		{
+			"name": "MCPE_SET_TITLE",
+			"id": "0x58",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SetTitlePacket"
+		},
+		{
+			"name": "MCPE_SHOW_STORE_OFFER",
+			"id": "0x5b",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ShowStoreOfferPacket"
+		},
+		{
+			"name": "MCPE_NPC_REQUEST",
+			"id": "0x62",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "NpcRequestPacket"
+		},
+		{
+			"name": "MCPE_SET_DEFAULT_GAME_TYPE",
+			"id": "0x69",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SetDefaultGameTypePacket"
+		},
+		{
+			"name": "MCPE_STRUCTURE_TEMPLATE_DATA_EXPORT_REQUEST",
+			"id": "0x84",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "StructureTemplateDataRequestPacket"
+		},
+		{
+			"name": "MCPE_MULTIPLAYER_SETTINGS",
+			"id": "0x8b",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "MultiplayerSettingsPacket"
+		},
+		{
+			"name": "MCPE_NETWORK_SETTINGS",
+			"id": "0x8f",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "NetworkSettingsPacket"
+		},
+		{
+			"name": "MCPE_UPDATE_PLAYER_GAME_TYPE",
+			"id": "0x97",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "UpdatePlayerGameTypePacket"
+		},
+		{
+			"name": "MCPE_POSITION_TRACKING_DB_CLIENT_REQUEST",
+			"id": "0x9a",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "PositionTrackingDBClientRequestPacket"
+		},
+		{
+			"name": "MCPE_PACKET_VIOLATION_WARNING",
+			"id": "0x9c",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "PacketViolationWarningPacket"
+		},
+		{
+			"name": "MCPE_CAMERA_SHAKE",
+			"id": "0x9f",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "CameraShakePacket"
+		},
+		{
+			"name": "MCPE_SIMULATION_TYPE",
+			"id": "0xa8",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SimulationTypePacket"
+		},
+		{
+			"name": "MCPE_CODE_BUILDER_SOURCE",
+			"id": "0xb2",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "CodeBuilderSourcePacket"
+		},
+		{
+			"name": "MCPE_AGENT_ACTION_EVENT",
+			"id": "0xb5",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "AgentActionEventPacket"
+		},
+		{
+			"name": "MCPE_GAME_TEST_REQUEST",
+			"id": "0xc2",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "GameTestRequestPacket"
+		},
+		{
+			"name": "MCPE_AGENT_ANIMATION",
+			"id": "0x130",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "AgentAnimationPacket"
+		},
+		{
+			"name": "MCPE_CAMERA_AIM_ASSIST",
+			"id": "0x13c",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "CameraAimAssistPacket"
+		},
+		{
+			"name": "MCPE_CLIENTBOUND_CONTROL_SCHEME_SET",
+			"id": "0x147",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ClientboundControlSchemeSetPacket"
 		}
 	]
 }

@@ -1270,6 +1270,89 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeMobEffect : Packet<McpeMobEffect>
+	{
+		public enum Event
+		{
+			Invalid = 0,
+			Add = 1,
+			Update = 2,
+			Remove = 3,
+		}
+
+		public long targetRuntimeId; // = null;
+		public McpeMobEffect.Event eventId; // = null;
+		public int effectId; // = null;
+		public int effectAmplifier; // = null;
+		public bool showParticles; // = null;
+		public int effectDurationTicks; // = null;
+		public long tick; // = null;
+		public bool ambient; // = null;
+
+		public McpeMobEffect()
+		{
+			Id = 0x1c;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteUnsignedVarLong(targetRuntimeId);
+			Write((byte) eventId);
+			WriteSignedVarInt(effectId);
+			WriteSignedVarInt(effectAmplifier);
+			Write(showParticles);
+			WriteSignedVarInt(effectDurationTicks);
+			WriteUnsignedVarLong(tick);
+			Write(ambient);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			targetRuntimeId = ReadUnsignedVarLong();
+			eventId = (McpeMobEffect.Event) ReadByte();
+			effectId = ReadSignedVarInt();
+			effectAmplifier = ReadSignedVarInt();
+			showParticles = ReadBool();
+			effectDurationTicks = ReadSignedVarInt();
+			tick = ReadUnsignedVarLong();
+			ambient = ReadBool();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			targetRuntimeId=default(long);
+			eventId=default(McpeMobEffect.Event);
+			effectId=default(int);
+			effectAmplifier=default(int);
+			showParticles=default(bool);
+			effectDurationTicks=default(int);
+			tick=default(long);
+			ambient=default(bool);
+		}
+
+	}
+
 	public partial class McpeInventoryTransaction : Packet<McpeInventoryTransaction>
 	{
 
@@ -1501,6 +1584,108 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpePlayerAction : Packet<McpePlayerAction>
+	{
+		public enum PlayerActionType
+		{
+			Unknown = -1,
+			StartDestroyBlock = 0,
+			AbortDestroyBlock = 1,
+			StopDestroyBlock = 2,
+			StartSleeping = 5,
+			StopSleeping = 6,
+			Respawn = 7,
+			StartJump = 8,
+			StartSprinting = 9,
+			StopSprinting = 10,
+			StartSneaking = 11,
+			StopSneaking = 12,
+			CreativeDestroyBlock = 13,
+			ChangeDimensionAck = 14,
+			StartGliding = 15,
+			StopGliding = 16,
+			DenyDestroyBlock = 17,
+			CrackBlock = 18,
+			StartSwimming = 21,
+			StopSwimming = 22,
+			StartSpinAttack = 23,
+			StopSpinAttack = 24,
+			PredictDestroyBlock = 26,
+			ContinueDestroyBlock = 27,
+			StartItemUseOn = 28,
+			StopItemUseOn = 29,
+			HandledTeleport = 30,
+			MissedSwing = 31,
+			StartCrawling = 32,
+			StopCrawling = 33,
+			StartFlying = 34,
+			StopFlying = 35,
+			StartUsingItem = 37,
+			InternalUpdate = 38,
+			Count = 39,
+		}
+
+		public long playerRuntimeId; // = null;
+		public McpePlayerAction.PlayerActionType action; // = null;
+		public BlockCoordinates blockPosition; // = null;
+		public BlockCoordinates resultPos; // = null;
+		public int face; // = null;
+
+		public McpePlayerAction()
+		{
+			Id = 0x24;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteUnsignedVarLong(playerRuntimeId);
+			WriteSignedVarInt((int) action);
+			Write(blockPosition);
+			Write(resultPos);
+			WriteSignedVarInt(face);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			playerRuntimeId = ReadUnsignedVarLong();
+			action = (McpePlayerAction.PlayerActionType) ReadSignedVarInt();
+			blockPosition = ReadBlockCoordinates();
+			resultPos = ReadBlockCoordinates();
+			face = ReadSignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			playerRuntimeId=default(long);
+			action=default(McpePlayerAction.PlayerActionType);
+			blockPosition=default(BlockCoordinates);
+			resultPos=default(BlockCoordinates);
+			face=default(int);
+		}
+
+	}
+
 	public partial class McpeHurtArmor : Packet<McpeHurtArmor>
 	{
 
@@ -1661,6 +1846,71 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			health=default(int);
+		}
+
+	}
+
+	public partial class McpeSetSpawnPosition : Packet<McpeSetSpawnPosition>
+	{
+		public enum SpawnPositionType
+		{
+			PlayerRespawn = 0,
+			WorldSpawn = 1,
+		}
+
+		public McpeSetSpawnPosition.SpawnPositionType spawnPositionType; // = null;
+		public BlockCoordinates blockPosition; // = null;
+		public int dimensionType; // = null;
+		public BlockCoordinates spawnBlockPos; // = null;
+
+		public McpeSetSpawnPosition()
+		{
+			Id = 0x2b;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarInt((int) spawnPositionType);
+			Write(blockPosition);
+			WriteSignedVarInt(dimensionType);
+			Write(spawnBlockPos);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			spawnPositionType = (McpeSetSpawnPosition.SpawnPositionType) ReadSignedVarInt();
+			blockPosition = ReadBlockCoordinates();
+			dimensionType = ReadSignedVarInt();
+			spawnBlockPos = ReadBlockCoordinates();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			spawnPositionType=default(McpeSetSpawnPosition.SpawnPositionType);
+			blockPosition=default(BlockCoordinates);
+			dimensionType=default(int);
+			spawnBlockPos=default(BlockCoordinates);
 		}
 
 	}
@@ -2343,6 +2593,64 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeSetPlayerGameType : Packet<McpeSetPlayerGameType>
+	{
+		public enum GameType
+		{
+			Undefined = -1,
+			Survival = 0,
+			Creative = 1,
+			Adventure = 2,
+			Default = 5,
+			Spectator = 6,
+			WorldDefault = 0,
+		}
+
+		public McpeSetPlayerGameType.GameType playerGameType; // = null;
+
+		public McpeSetPlayerGameType()
+		{
+			Id = 0x3e;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarInt((int) playerGameType);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			playerGameType = (McpeSetPlayerGameType.GameType) ReadSignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			playerGameType=default(McpeSetPlayerGameType.GameType);
+		}
+
+	}
+
 	public partial class McpePlayerList : Packet<McpePlayerList>
 	{
 
@@ -2409,6 +2717,61 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			records=default(List<PlayerListBase>);
+		}
+
+	}
+
+	public partial class McpeSimpleEvent : Packet<McpeSimpleEvent>
+	{
+		public enum Subtype
+		{
+			UninitializedSubtype = 0,
+			EnableCommands = 1,
+			DisableCommands = 2,
+			UnlockWorldTemplateSettings = 3,
+		}
+
+		public McpeSimpleEvent.Subtype type; // = null;
+
+		public McpeSimpleEvent()
+		{
+			Id = 0x40;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((ushort) type);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			type = (McpeSimpleEvent.Subtype) ReadUshort();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			type=default(McpeSimpleEvent.Subtype);
 		}
 
 	}
@@ -3108,6 +3471,94 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeSetTitle : Packet<McpeSetTitle>
+	{
+		public enum SetTitlePacketTitleType
+		{
+			Clear = 0,
+			Reset = 1,
+			Title = 2,
+			Subtitle = 3,
+			Actionbar = 4,
+			Times = 5,
+			TitleTextObject = 6,
+			SubtitleTextObject = 7,
+			ActionbarTextObject = 8,
+		}
+
+		public McpeSetTitle.SetTitlePacketTitleType titleType; // = null;
+		public string titleText; // = null;
+		public int fadeInTime; // = null;
+		public int stayTime; // = null;
+		public int fadeOutTime; // = null;
+		public string xuid; // = null;
+		public string platformOnlineId; // = null;
+		public string filteredTitleMessage; // = null;
+
+		public McpeSetTitle()
+		{
+			Id = 0x58;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarInt((int) titleType);
+			Write(titleText);
+			WriteSignedVarInt(fadeInTime);
+			WriteSignedVarInt(stayTime);
+			WriteSignedVarInt(fadeOutTime);
+			Write(xuid);
+			Write(platformOnlineId);
+			Write(filteredTitleMessage);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			titleType = (McpeSetTitle.SetTitlePacketTitleType) ReadSignedVarInt();
+			titleText = ReadString();
+			fadeInTime = ReadSignedVarInt();
+			stayTime = ReadSignedVarInt();
+			fadeOutTime = ReadSignedVarInt();
+			xuid = ReadString();
+			platformOnlineId = ReadString();
+			filteredTitleMessage = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			titleType=default(McpeSetTitle.SetTitlePacketTitleType);
+			titleText=default(string);
+			fadeInTime=default(int);
+			stayTime=default(int);
+			fadeOutTime=default(int);
+			xuid=default(string);
+			platformOnlineId=default(string);
+			filteredTitleMessage=default(string);
+		}
+
+	}
+
 	public partial class McpeAddBehaviorTree : Packet<McpeAddBehaviorTree>
 	{
 
@@ -3220,6 +3671,64 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeShowStoreOffer : Packet<McpeShowStoreOffer>
+	{
+		public enum ShowStoreOfferRedirectType
+		{
+			MarketplaceOffer = 0,
+			DressingRoomOffer = 1,
+			ThirdPartyServerPage = 2,
+		}
+
+		public UUID offerId; // = null;
+		public McpeShowStoreOffer.ShowStoreOfferRedirectType redirectType; // = null;
+
+		public McpeShowStoreOffer()
+		{
+			Id = 0x5b;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(offerId);
+			Write((byte) redirectType);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			offerId = ReadUUID();
+			redirectType = (McpeShowStoreOffer.ShowStoreOfferRedirectType) ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			offerId=default(UUID);
+			redirectType=default(McpeShowStoreOffer.ShowStoreOfferRedirectType);
+		}
+
+	}
+
 	public partial class McpePlayerSkin : Packet<McpePlayerSkin>
 	{
 
@@ -3324,6 +3833,80 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			webSocketData=default(string);
+		}
+
+	}
+
+	public partial class McpeNpcRequest : Packet<McpeNpcRequest>
+	{
+		public enum NpcRequestPacketPayloadRequestType
+		{
+			SetActions = 0,
+			ExecuteAction = 1,
+			ExecuteClosingCommands = 2,
+			SetName = 3,
+			SetSkin = 4,
+			SetInteractText = 5,
+			ExecuteOpeningCommands = 6,
+		}
+
+		public long npcRuntimeId; // = null;
+		public McpeNpcRequest.NpcRequestPacketPayloadRequestType requestType; // = null;
+		public string actions; // = null;
+		public byte actionIndex; // = null;
+		public string sceneName; // = null;
+
+		public McpeNpcRequest()
+		{
+			Id = 0x62;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteUnsignedVarLong(npcRuntimeId);
+			Write((byte) requestType);
+			Write(actions);
+			Write(actionIndex);
+			Write(sceneName);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			npcRuntimeId = ReadUnsignedVarLong();
+			requestType = (McpeNpcRequest.NpcRequestPacketPayloadRequestType) ReadByte();
+			actions = ReadString();
+			actionIndex = ReadByte();
+			sceneName = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			npcRuntimeId=default(long);
+			requestType=default(McpeNpcRequest.NpcRequestPacketPayloadRequestType);
+			actions=default(string);
+			actionIndex=default(byte);
+			sceneName=default(string);
 		}
 
 	}
@@ -3598,6 +4181,63 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			playerXuid=default(string);
+		}
+
+	}
+
+	public partial class McpeSetDefaultGameType : Packet<McpeSetDefaultGameType>
+	{
+		public enum DefaultGameType
+		{
+			Survival = 0,
+			Creative = 1,
+			Adventure = 2,
+			Default = 5,
+			Spectator = 6,
+			WorldDefault = 0,
+		}
+
+		public McpeSetDefaultGameType.DefaultGameType defaultGameType; // = null;
+
+		public McpeSetDefaultGameType()
+		{
+			Id = 0x69;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarInt((int) defaultGameType);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			defaultGameType = (McpeSetDefaultGameType.DefaultGameType) ReadSignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			defaultGameType=default(McpeSetDefaultGameType.DefaultGameType);
 		}
 
 	}
@@ -4220,6 +4860,73 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeStructureTemplateDataExportRequest : Packet<McpeStructureTemplateDataExportRequest>
+	{
+		public enum StructureTemplateRequestOperation
+		{
+			None = 0,
+			ExportFromSaveMode = 1,
+			ExportFromLoadMode = 2,
+			QuerySavedStructure = 3,
+		}
+
+		public string structureName; // = null;
+		public BlockCoordinates structurePosition; // = null;
+		public StructureSettings structureSettings; // = null;
+		public McpeStructureTemplateDataExportRequest.StructureTemplateRequestOperation requestedOperation; // = null;
+
+		public McpeStructureTemplateDataExportRequest()
+		{
+			Id = 0x84;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(structureName);
+			Write(structurePosition);
+			Write(structureSettings);
+			Write((byte) requestedOperation);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			structureName = ReadString();
+			structurePosition = ReadBlockCoordinates();
+			structureSettings = ReadStructureSettings();
+			requestedOperation = (McpeStructureTemplateDataExportRequest.StructureTemplateRequestOperation) ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			structureName=default(string);
+			structurePosition=default(BlockCoordinates);
+			structureSettings=default(StructureSettings);
+			requestedOperation=default(McpeStructureTemplateDataExportRequest.StructureTemplateRequestOperation);
+		}
+
+	}
+
 	public partial class McpeEmote : Packet<McpeEmote>
 	{
 
@@ -4284,6 +4991,60 @@ namespace MiNET.Net
 			xuid=default(string);
 			platformId=default(string);
 			flags=default(byte);
+		}
+
+	}
+
+	public partial class McpeMultiplayerSettings : Packet<McpeMultiplayerSettings>
+	{
+		public enum MultiplayerSettingsPacketType
+		{
+			EnableMultiplayer = 0,
+			DisableMultiplayer = 1,
+			RefreshJoincode = 2,
+		}
+
+		public McpeMultiplayerSettings.MultiplayerSettingsPacketType packetType; // = null;
+
+		public McpeMultiplayerSettings()
+		{
+			Id = 0x8b;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarInt((int) packetType);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			packetType = (McpeMultiplayerSettings.MultiplayerSettingsPacketType) ReadSignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			packetType=default(McpeMultiplayerSettings.MultiplayerSettingsPacketType);
 		}
 
 	}
@@ -4436,6 +5197,76 @@ namespace MiNET.Net
 
 			itemId=default(short);
 			itemUseMethod=default(int);
+		}
+
+	}
+
+	public partial class McpeNetworkSettings : Packet<McpeNetworkSettings>
+	{
+		public enum PacketCompressionAlgorithm
+		{
+			Zlib = 0,
+			Snappy = 1,
+			None = 65535,
+		}
+
+		public ushort compressionThreshold; // = null;
+		public McpeNetworkSettings.PacketCompressionAlgorithm compressionAlgorithm; // = null;
+		public bool clientThrottleEnabled; // = null;
+		public byte clientThrottleThreshold; // = null;
+		public float clientThrottleScalar; // = null;
+
+		public McpeNetworkSettings()
+		{
+			Id = 0x8f;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(compressionThreshold);
+			Write((ushort) compressionAlgorithm);
+			Write(clientThrottleEnabled);
+			Write(clientThrottleThreshold);
+			Write(clientThrottleScalar);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			compressionThreshold = ReadUshort();
+			compressionAlgorithm = (McpeNetworkSettings.PacketCompressionAlgorithm) ReadUshort();
+			clientThrottleEnabled = ReadBool();
+			clientThrottleThreshold = ReadByte();
+			clientThrottleScalar = ReadFloat();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			compressionThreshold=default(ushort);
+			compressionAlgorithm=default(McpeNetworkSettings.PacketCompressionAlgorithm);
+			clientThrottleEnabled=default(bool);
+			clientThrottleThreshold=default(byte);
+			clientThrottleScalar=default(float);
 		}
 
 	}
@@ -4809,6 +5640,128 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeUpdatePlayerGameType : Packet<McpeUpdatePlayerGameType>
+	{
+		public enum GameType
+		{
+			Undefined = -1,
+			Survival = 0,
+			Creative = 1,
+			Adventure = 2,
+			Default = 5,
+			Spectator = 6,
+			WorldDefault = 0,
+		}
+
+		public McpeUpdatePlayerGameType.GameType playerGameType; // = null;
+		public long targetPlayer; // = null;
+		public long tick; // = null;
+
+		public McpeUpdatePlayerGameType()
+		{
+			Id = 0x97;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarInt((int) playerGameType);
+			WriteSignedVarLong(targetPlayer);
+			WriteUnsignedVarLong(tick);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			playerGameType = (McpeUpdatePlayerGameType.GameType) ReadSignedVarInt();
+			targetPlayer = ReadSignedVarLong();
+			tick = ReadUnsignedVarLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			playerGameType=default(McpeUpdatePlayerGameType.GameType);
+			targetPlayer=default(long);
+			tick=default(long);
+		}
+
+	}
+
+	public partial class McpePositionTrackingDbClientRequest : Packet<McpePositionTrackingDbClientRequest>
+	{
+		public enum Action
+		{
+			Query = 0,
+		}
+
+		public McpePositionTrackingDbClientRequest.Action action; // = null;
+		public int id; // = null;
+
+		public McpePositionTrackingDbClientRequest()
+		{
+			Id = 0x9a;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((byte) action);
+			WriteSignedVarInt(id);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			action = (McpePositionTrackingDbClientRequest.Action) ReadByte();
+			id = ReadSignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			action=default(McpePositionTrackingDbClientRequest.Action);
+			id=default(int);
+		}
+
+	}
+
 	public partial class McpeDebugInfo : Packet<McpeDebugInfo>
 	{
 
@@ -4857,6 +5810,78 @@ namespace MiNET.Net
 
 			actorId=default(long);
 			data=default(string);
+		}
+
+	}
+
+	public partial class McpePacketViolationWarning : Packet<McpePacketViolationWarning>
+	{
+		public enum PacketViolationType
+		{
+			Unknown = -1,
+			PacketMalformed = 0,
+		}
+		public enum PacketViolationSeverity
+		{
+			Unknown = -1,
+			Warning = 0,
+			FinalWarning = 1,
+			TerminatingConnection = 2,
+		}
+
+		public McpePacketViolationWarning.PacketViolationType violationType; // = null;
+		public McpePacketViolationWarning.PacketViolationSeverity violationSeverity; // = null;
+		public int violationPacketId; // = null;
+		public string violationContext; // = null;
+
+		public McpePacketViolationWarning()
+		{
+			Id = 0x9c;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarInt((int) violationType);
+			WriteSignedVarInt((int) violationSeverity);
+			WriteSignedVarInt(violationPacketId);
+			Write(violationContext);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			violationType = (McpePacketViolationWarning.PacketViolationType) ReadSignedVarInt();
+			violationSeverity = (McpePacketViolationWarning.PacketViolationSeverity) ReadSignedVarInt();
+			violationPacketId = ReadSignedVarInt();
+			violationContext = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			violationType=default(McpePacketViolationWarning.PacketViolationType);
+			violationSeverity=default(McpePacketViolationWarning.PacketViolationSeverity);
+			violationPacketId=default(int);
+			violationContext=default(string);
 		}
 
 	}
@@ -4913,6 +5938,131 @@ namespace MiNET.Net
 			mRuntimeId=default(long);
 			mMotion=default(Vector3);
 			mOnGround=default(bool);
+		}
+
+	}
+
+	public partial class McpeCameraShake : Packet<McpeCameraShake>
+	{
+		public enum CameraShakeType
+		{
+			Positional = 0,
+			Rotational = 1,
+		}
+		public enum CameraShakeAction
+		{
+			Add = 0,
+			Stop = 1,
+		}
+
+		public float intensity; // = null;
+		public float seconds; // = null;
+		public McpeCameraShake.CameraShakeType shakeType; // = null;
+		public McpeCameraShake.CameraShakeAction shakeAction; // = null;
+
+		public McpeCameraShake()
+		{
+			Id = 0x9f;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(intensity);
+			Write(seconds);
+			Write((byte) shakeType);
+			Write((byte) shakeAction);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			intensity = ReadFloat();
+			seconds = ReadFloat();
+			shakeType = (McpeCameraShake.CameraShakeType) ReadByte();
+			shakeAction = (McpeCameraShake.CameraShakeAction) ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			intensity=default(float);
+			seconds=default(float);
+			shakeType=default(McpeCameraShake.CameraShakeType);
+			shakeAction=default(McpeCameraShake.CameraShakeAction);
+		}
+
+	}
+
+	public partial class McpeSimulationType : Packet<McpeSimulationType>
+	{
+		public enum SimulationType
+		{
+			Game = 0,
+			Editor = 1,
+			Test = 2,
+			Invalid = 3,
+		}
+
+		public McpeSimulationType.SimulationType simType; // = null;
+
+		public McpeSimulationType()
+		{
+			Id = 0xa8;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((byte) simType);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			simType = (McpeSimulationType.SimulationType) ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			simType=default(McpeSimulationType.SimulationType);
 		}
 
 	}
@@ -5084,6 +6234,84 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeCodeBuilderSource : Packet<McpeCodeBuilderSource>
+	{
+		public enum CodeBuilderStorageQueryOptionsOperation
+		{
+			None = 0,
+			Get = 1,
+			Set = 2,
+			Reset = 3,
+		}
+		public enum CodeBuilderStorageQueryOptionsCategory
+		{
+			None = 0,
+			CodeStatus = 1,
+			Instantiation = 2,
+		}
+		public enum CodeBuilderExecutionStateCodeStatus
+		{
+			None = 0,
+			NotStarted = 1,
+			InProgress = 2,
+			Paused = 3,
+			Error = 4,
+			Succeeded = 5,
+		}
+
+		public McpeCodeBuilderSource.CodeBuilderStorageQueryOptionsOperation operation; // = null;
+		public McpeCodeBuilderSource.CodeBuilderStorageQueryOptionsCategory category; // = null;
+		public McpeCodeBuilderSource.CodeBuilderExecutionStateCodeStatus codeStatus; // = null;
+
+		public McpeCodeBuilderSource()
+		{
+			Id = 0xb2;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((byte) operation);
+			Write((byte) category);
+			Write((byte) codeStatus);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			operation = (McpeCodeBuilderSource.CodeBuilderStorageQueryOptionsOperation) ReadByte();
+			category = (McpeCodeBuilderSource.CodeBuilderStorageQueryOptionsCategory) ReadByte();
+			codeStatus = (McpeCodeBuilderSource.CodeBuilderExecutionStateCodeStatus) ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			operation=default(McpeCodeBuilderSource.CodeBuilderStorageQueryOptionsOperation);
+			category=default(McpeCodeBuilderSource.CodeBuilderStorageQueryOptionsCategory);
+			codeStatus=default(McpeCodeBuilderSource.CodeBuilderExecutionStateCodeStatus);
+		}
+
+	}
+
 	public partial class McpeTickingAreasLoadStatus : Packet<McpeTickingAreasLoadStatus>
 	{
 
@@ -5179,6 +6407,83 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			definitions=default(Dictionary<string, DimensionDefinition>);
+		}
+
+	}
+
+	public partial class McpeAgentActionEvent : Packet<McpeAgentActionEvent>
+	{
+		public enum AgentActionType
+		{
+			Attack = 1,
+			Collect = 2,
+			Destroy = 3,
+			DetectRedstone = 4,
+			DetectObstacle = 5,
+			Drop = 6,
+			DropAll = 7,
+			Inspect = 8,
+			InspectData = 9,
+			InspectItemCount = 10,
+			InspectItemDetail = 11,
+			InspectItemSpace = 12,
+			Interact = 13,
+			Move = 14,
+			PlaceBlock = 15,
+			Till = 16,
+			TransferItemTo = 17,
+			Turn = 18,
+		}
+
+		public string requestId; // = null;
+		public McpeAgentActionEvent.AgentActionType action; // = null;
+		public string response; // = null;
+
+		public McpeAgentActionEvent()
+		{
+			Id = 0xb5;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(requestId);
+			Write((int) action);
+			Write(response);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			requestId = ReadString();
+			action = (McpeAgentActionEvent.AgentActionType) ReadInt();
+			response = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			requestId=default(string);
+			action=default(McpeAgentActionEvent.AgentActionType);
+			response=default(string);
 		}
 
 	}
@@ -5533,6 +6838,88 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeGameTestRequest : Packet<McpeGameTestRequest>
+	{
+		public enum Rotation
+		{
+			None = 0,
+			Rotate90 = 1,
+			Rotate180 = 2,
+			Rotate270 = 3,
+			Clockwise90 = 1,
+			Clockwise180 = 2,
+			CounterClockwise90 = 3,
+		}
+
+		public int maxTestsPerBatch; // = null;
+		public int repeatCount; // = null;
+		public McpeGameTestRequest.Rotation rotation; // = null;
+		public bool stopOnFailure; // = null;
+		public BlockCoordinates testPos; // = null;
+		public int testsPerRow; // = null;
+		public string testName; // = null;
+
+		public McpeGameTestRequest()
+		{
+			Id = 0xc2;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarInt(maxTestsPerBatch);
+			WriteSignedVarInt(repeatCount);
+			Write((byte) rotation);
+			Write(stopOnFailure);
+			Write(testPos);
+			WriteSignedVarInt(testsPerRow);
+			Write(testName);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			maxTestsPerBatch = ReadSignedVarInt();
+			repeatCount = ReadSignedVarInt();
+			rotation = (McpeGameTestRequest.Rotation) ReadByte();
+			stopOnFailure = ReadBool();
+			testPos = ReadBlockCoordinates();
+			testsPerRow = ReadSignedVarInt();
+			testName = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			maxTestsPerBatch=default(int);
+			repeatCount=default(int);
+			rotation=default(McpeGameTestRequest.Rotation);
+			stopOnFailure=default(bool);
+			testPos=default(BlockCoordinates);
+			testsPerRow=default(int);
+			testName=default(string);
+		}
+
+	}
+
 	public partial class McpeGameTestResults : Packet<McpeGameTestResults>
 	{
 
@@ -5736,6 +7123,63 @@ namespace MiNET.Net
 
 			pos=default(BlockCoordinates);
 			isFrontSide=default(bool);
+		}
+
+	}
+
+	public partial class McpeAgentAnimation : Packet<McpeAgentAnimation>
+	{
+		public enum AgentAnimation
+		{
+			ArmSwing = 0,
+			Shrug = 1,
+		}
+
+		public McpeAgentAnimation.AgentAnimation agentAnimation; // = null;
+		public long runtimeId; // = null;
+
+		public McpeAgentAnimation()
+		{
+			Id = 0x130;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((byte) agentAnimation);
+			WriteUnsignedVarLong(runtimeId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			agentAnimation = (McpeAgentAnimation.AgentAnimation) ReadByte();
+			runtimeId = ReadUnsignedVarLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			agentAnimation=default(McpeAgentAnimation.AgentAnimation);
+			runtimeId=default(long);
 		}
 
 	}
@@ -6110,6 +7554,84 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeCameraAimAssist : Packet<McpeCameraAimAssist>
+	{
+		public enum CameraAimAssistPacketPayloadTargetMode
+		{
+			Angle = 0,
+			Distance = 1,
+		}
+		public enum CameraAimAssistPacketPayloadAction
+		{
+			Set = 0,
+			Clear = 1,
+		}
+
+		public string presetId; // = null;
+		public Vector2 viewAngle; // = null;
+		public float distance; // = null;
+		public McpeCameraAimAssist.CameraAimAssistPacketPayloadTargetMode targetMode; // = null;
+		public McpeCameraAimAssist.CameraAimAssistPacketPayloadAction action; // = null;
+		public bool showDebugRender; // = null;
+
+		public McpeCameraAimAssist()
+		{
+			Id = 0x13c;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(presetId);
+			Write(viewAngle);
+			Write(distance);
+			Write((byte) targetMode);
+			Write((byte) action);
+			Write(showDebugRender);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			presetId = ReadString();
+			viewAngle = ReadVector2();
+			distance = ReadFloat();
+			targetMode = (McpeCameraAimAssist.CameraAimAssistPacketPayloadTargetMode) ReadByte();
+			action = (McpeCameraAimAssist.CameraAimAssistPacketPayloadAction) ReadByte();
+			showDebugRender = ReadBool();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			presetId=default(string);
+			viewAngle=default(Vector2);
+			distance=default(float);
+			targetMode=default(McpeCameraAimAssist.CameraAimAssistPacketPayloadTargetMode);
+			action=default(McpeCameraAimAssist.CameraAimAssistPacketPayloadAction);
+			showDebugRender=default(bool);
+		}
+
+	}
+
 	public partial class McpePlayerUpdateEntityOverrides : Packet<McpePlayerUpdateEntityOverrides>
 	{
 
@@ -6260,6 +7782,62 @@ namespace MiNET.Net
 
 			targetActorId=default(long);
 			location=default(LocationBase);
+		}
+
+	}
+
+	public partial class McpeClientboundControlSchemeSet : Packet<McpeClientboundControlSchemeSet>
+	{
+		public enum ControlScheme
+		{
+			LockedPlayerRelativeStrafe = 0,
+			CameraRelative = 1,
+			CameraRelativeStrafe = 2,
+			PlayerRelative = 3,
+			PlayerRelativeStrafe = 4,
+		}
+
+		public McpeClientboundControlSchemeSet.ControlScheme controlScheme; // = null;
+
+		public McpeClientboundControlSchemeSet()
+		{
+			Id = 0x147;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((byte) controlScheme);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			controlScheme = (McpeClientboundControlSchemeSet.ControlScheme) ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			controlScheme=default(McpeClientboundControlSchemeSet.ControlScheme);
 		}
 
 	}

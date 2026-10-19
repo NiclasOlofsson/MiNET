@@ -44,6 +44,13 @@ namespace MiNET.Items
 			set { ExtraData = new NbtCompound("tag") {new NbtLong("map_uuid", value)}; }
 		}
 
+		// ItemFactory resolves a name to a class only through a true parameterless constructor. The
+		// map id stays unset: it travels in the item's NBT, which the decode supplies.
+		public ItemFilledMap() : base("minecraft:filled_map")
+		{
+			MaxStackSize = 1;
+		}
+
 		public ItemFilledMap(long mapId = 0, byte count = 1) : base("minecraft:filled_map", 0, count)
 		{
 			MapId = mapId;

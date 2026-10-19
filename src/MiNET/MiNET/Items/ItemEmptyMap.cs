@@ -35,6 +35,11 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemEmptyMap));
 
+		// ItemFactory resolves a name to a class only through a true parameterless constructor.
+		public ItemEmptyMap() : this(0, 1)
+		{
+		}
+
 		public ItemEmptyMap(short metadata = 0, byte count = 1) : base("minecraft:empty_map", metadata, count)
 		{
 		}

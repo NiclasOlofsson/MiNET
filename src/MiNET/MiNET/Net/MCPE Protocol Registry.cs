@@ -113,6 +113,7 @@ namespace MiNET.Net
 		void HandleMcpeServerboundDataDrivenScreenClosed(McpeServerboundDataDrivenScreenClosed message);
 		void HandleMcpePartyDestinationCookieResponse(McpePartyDestinationCookieResponse message);
 		void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message);
+		void HandleMcpeServerboundStonecutterSetRecipe(McpeServerboundStonecutterSetRecipe message);
 		void HandleMcpeServerboundMatchmakingCancel(McpeServerboundMatchmakingCancel message);
 		void HandleMcpeServerboundCursorItemDrag(McpeServerboundCursorItemDrag message);
 		void HandleMcpeServerboundRegisterAudioContent(McpeServerboundRegisterAudioContent message);
@@ -308,6 +309,7 @@ namespace MiNET.Net
 		void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message);
 		void HandleMcpeRecordStarted(McpeRecordStarted message);
 		void HandleMcpeClientboundMatchmakingState(McpeClientboundMatchmakingState message);
+		void HandleMcpeClientboundStonecutterSetRecipe(McpeClientboundStonecutterSetRecipe message);
 		void HandleMcpeSetPassengerOfBlock(McpeSetPassengerOfBlock message);
 		void HandleMcpeClientboundPlayAudioContent(McpeClientboundPlayAudioContent message);
 		void HandleMcpeChat(McpeChat message);
@@ -887,6 +889,9 @@ namespace MiNET.Net
 				case McpeClientboundMatchmakingState msg:
 					_messageHandler.HandleMcpeClientboundMatchmakingState(msg);
 					break;
+				case McpeClientboundStonecutterSetRecipe msg:
+					_messageHandler.HandleMcpeClientboundStonecutterSetRecipe(msg);
+					break;
 				case McpeSetPassengerOfBlock msg:
 					_messageHandler.HandleMcpeSetPassengerOfBlock(msg);
 					break;
@@ -1395,6 +1400,10 @@ namespace MiNET.Net
 						return McpeRecordStarted.CreateObject().Decode(buffer);
 					case 0x161:
 						return McpeClientboundMatchmakingState.CreateObject().Decode(buffer);
+					case 0x162:
+						return McpeServerboundStonecutterSetRecipe.CreateObject().Decode(buffer);
+					case 0x163:
+						return McpeClientboundStonecutterSetRecipe.CreateObject().Decode(buffer);
 					case 0x164:
 						return McpeServerboundMatchmakingCancel.CreateObject().Decode(buffer);
 					case 0x165:

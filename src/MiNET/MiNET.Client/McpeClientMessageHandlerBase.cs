@@ -984,6 +984,10 @@ namespace MiNET.Client
 		{
 		}
 
+		public virtual void HandleMcpeClientboundStonecutterSetRecipe(McpeClientboundStonecutterSetRecipe message)
+		{
+		}
+
 		public virtual void HandleMcpeChat(McpeChat message)
 		{
 		}

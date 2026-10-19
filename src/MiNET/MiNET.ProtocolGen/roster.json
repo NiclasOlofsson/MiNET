@@ -306,6 +306,22 @@
 			"schema": "ClientboundMatchmakingStatePacket"
 		},
 		{
+			"name": "MCPE_SERVERBOUND_STONECUTTER_SET_RECIPE",
+			"id": "0x162",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ServerboundStonecutterSetRecipePacket"
+		},
+		{
+			"name": "MCPE_CLIENTBOUND_STONECUTTER_SET_RECIPE",
+			"id": "0x163",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ClientboundStonecutterSetRecipePacket"
+		},
+		{
 			"name": "MCPE_SERVERBOUND_MATCHMAKING_CANCEL",
 			"id": "0x164",
 			"online": false,

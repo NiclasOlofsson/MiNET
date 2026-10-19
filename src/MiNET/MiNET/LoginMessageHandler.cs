@@ -817,6 +817,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeServerboundStonecutterSetRecipe(McpeServerboundStonecutterSetRecipe message)
+		{
+		}
+
 		public void HandleMcpeChat(McpeChat message)
 		{
 		}

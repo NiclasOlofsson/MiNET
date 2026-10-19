@@ -3019,6 +3019,11 @@ namespace MiNET
 			// Client registration of signed audio content (new at 2225). Ignored.
 		}
 
+		public virtual void HandleMcpeServerboundStonecutterSetRecipe(McpeServerboundStonecutterSetRecipe message)
+		{
+			// Client selected a recipe in the stonecutter screen (new at 2208). The craft itself arrives as an item stack request. Ignored.
+		}
+
 		public virtual void HandleMcpeChat(McpeChat message)
 		{
 			// Chat Service signed message (new at 2235). MiNET declares no managed chat, so chat arrives as Text. Ignored.

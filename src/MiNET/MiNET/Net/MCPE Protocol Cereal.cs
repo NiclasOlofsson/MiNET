@@ -6735,6 +6735,114 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeServerboundStonecutterSetRecipe : Packet<McpeServerboundStonecutterSetRecipe>
+	{
+
+		public byte containerId; // = null;
+		public int recipeIndex; // = null;
+
+		public McpeServerboundStonecutterSetRecipe()
+		{
+			Id = 0x162;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(containerId);
+			WriteSignedVarInt(recipeIndex);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			containerId = ReadByte();
+			recipeIndex = ReadSignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			containerId=default(byte);
+			recipeIndex=default(int);
+		}
+
+	}
+
+	public partial class McpeClientboundStonecutterSetRecipe : Packet<McpeClientboundStonecutterSetRecipe>
+	{
+
+		public long playerId; // = null;
+		public byte containerId; // = null;
+		public int recipeIndex; // = null;
+
+		public McpeClientboundStonecutterSetRecipe()
+		{
+			Id = 0x163;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarLong(playerId);
+			Write(containerId);
+			WriteSignedVarInt(recipeIndex);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			playerId = ReadSignedVarLong();
+			containerId = ReadByte();
+			recipeIndex = ReadSignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			playerId=default(long);
+			containerId=default(byte);
+			recipeIndex=default(int);
+		}
+
+	}
+
 	public partial class McpeServerboundMatchmakingCancel : Packet<McpeServerboundMatchmakingCancel>
 	{
 

@@ -169,6 +169,9 @@ namespace MiNET.Net
 				case McpeServerboundRegisterAudioContent msg:
 					handler.HandleMcpeServerboundRegisterAudioContent(msg);
 					break;
+				case McpeServerboundStonecutterSetRecipe msg:
+					handler.HandleMcpeServerboundStonecutterSetRecipe(msg);
+					break;
 				case McpeChat msg:
 					handler.HandleMcpeChat(msg);
 					break;

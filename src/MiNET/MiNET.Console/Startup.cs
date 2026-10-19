@@ -71,8 +71,12 @@ namespace MiNET.Console
 			Log.Info(MiNetServer.MiNET);
 			System.Console.WriteLine(MiNetServer.MiNET);
 
-			var currentProcess = Process.GetCurrentProcess();
-			currentProcess.ProcessorAffinity = (IntPtr) Config.GetProperty("ProcessorAffinity", (int) currentProcess.ProcessorAffinity);
+			// Processor affinity exists only on Windows and Linux. macOS throws PlatformNotSupportedException.
+			if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
+			{
+				var currentProcess = Process.GetCurrentProcess();
+				currentProcess.ProcessorAffinity = Config.GetProperty("ProcessorAffinity", (int) currentProcess.ProcessorAffinity);
+			}
 
 			var service = new MiNetServer();
 			Log.Info("Starting...");

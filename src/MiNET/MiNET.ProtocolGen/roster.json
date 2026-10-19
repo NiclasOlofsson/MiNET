@@ -808,6 +808,102 @@
 			"client": false,
 			"server": true,
 			"schema": "CurrentStructureFeaturePacket"
+		},
+		{
+			"name": "MCPE_REMOVE_ENTITY",
+			"id": "0x0e",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "RemoveActorPacket"
+		},
+		{
+			"name": "MCPE_UPDATE_BLOCK",
+			"id": "0x15",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "UpdateBlockPacket"
+		},
+		{
+			"name": "MCPE_CONTAINER_CLOSE",
+			"id": "0x2f",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "ContainerClosePacket"
+		},
+		{
+			"name": "MCPE_PLAYER_HOTBAR",
+			"id": "0x30",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "PlayerHotbarPacket"
+		},
+		{
+			"name": "MCPE_CONTAINER_SET_DATA",
+			"id": "0x33",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ContainerSetDataPacket"
+		},
+		{
+			"name": "MCPE_REQUEST_CHUNK_RADIUS",
+			"id": "0x45",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "RequestChunkRadiusPacket"
+		},
+		{
+			"name": "MCPE_SET_LOCAL_PLAYER_AS_INITIALIZED",
+			"id": "0x71",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "SetLocalPlayerAsInitializedPacket"
+		},
+		{
+			"name": "MCPE_CLIENT_CACHE_STATUS",
+			"id": "0x81",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "ClientCacheStatusPacket"
+		},
+		{
+			"name": "MCPE_EMOTE",
+			"id": "0x8a",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "EmotePacket"
+		},
+		{
+			"name": "MCPE_DEBUG_INFO",
+			"id": "0x9b",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "DebugInfoPacket"
+		},
+		{
+			"name": "MCPE_CHANGE_MOB_PROPERTY",
+			"id": "0xb6",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ChangeMobPropertyPacket"
+		},
+		{
+			"name": "MCPE_REQUEST_PERMISSIONS",
+			"id": "0xb9",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "RequestPermissionsPacket"
 		}
 	]
 }

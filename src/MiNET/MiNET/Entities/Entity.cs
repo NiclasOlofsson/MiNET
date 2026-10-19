@@ -640,7 +640,7 @@ namespace MiNET.Entities
 		public virtual void DespawnFromPlayers(Player[] players)
 		{
 			McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
-			mcpeRemoveEntity.entityIdSelf = EntityId;
+			mcpeRemoveEntity.targetActorId = EntityId;
 			Level.RelayBroadcast(players, mcpeRemoveEntity);
 		}
 

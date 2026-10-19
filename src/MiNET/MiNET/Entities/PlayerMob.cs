@@ -297,7 +297,7 @@ namespace MiNET.Entities
 			}
 
 			McpeRemoveEntity mcpeRemovePlayer = McpeRemoveEntity.CreateObject();
-			mcpeRemovePlayer.entityIdSelf = EntityId;
+			mcpeRemovePlayer.targetActorId = EntityId;
 			Level.RelayBroadcast(players, mcpeRemovePlayer);
 		}
 

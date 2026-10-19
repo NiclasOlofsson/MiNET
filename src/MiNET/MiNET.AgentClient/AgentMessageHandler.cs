@@ -97,14 +97,14 @@ namespace MiNET.AgentClient
 			base.HandleMcpeUpdateBlock(message);
 
 			// Layer 0 is the block layer the picture draws; layer 1 is waterlogging.
-			if (message.storage == 0)
+			if (message.layer == 0)
 			{
 				int runtimeId = BlockFactory.GetRuntimeIdFromNetworkId(message.blockRuntimeId);
-				if (runtimeId >= 0) World?.SetRuntimeId(message.coordinates.X, message.coordinates.Y, message.coordinates.Z, runtimeId);
+				if (runtimeId >= 0) World?.SetRuntimeId(message.blockPosition.X, message.blockPosition.Y, message.blockPosition.Z, runtimeId);
 			}
 
 			if (TraceChunks)
-				Console.WriteLine($"< updateblock {message.coordinates.X},{message.coordinates.Y},{message.coordinates.Z} runtimeId {message.blockRuntimeId} {BlockFactory.GetBlockName(BlockFactory.GetRuntimeIdFromNetworkId(message.blockRuntimeId))} flags {message.blockPriority} layer {message.storage}");
+				Console.WriteLine($"< updateblock {message.blockPosition.X},{message.blockPosition.Y},{message.blockPosition.Z} runtimeId {message.blockRuntimeId} {BlockFactory.GetBlockName(BlockFactory.GetRuntimeIdFromNetworkId(message.blockRuntimeId))} flags {message.flags} layer {message.layer}");
 		}
 
 		public override void HandleMcpeBlockEntityData(McpeBlockEntityData message)
@@ -133,7 +133,7 @@ namespace MiNET.AgentClient
 		public override void HandleMcpeRemoveEntity(McpeRemoveEntity message)
 		{
 			base.HandleMcpeRemoveEntity(message);
-			Players.TryRemove(message.entityIdSelf, out _);
+			Players.TryRemove(message.targetActorId, out _);
 		}
 
 		public override void HandleMcpeText(McpeText message)

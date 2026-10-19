@@ -57,7 +57,7 @@ namespace MiNET.Client
 				// A real client announces its blob cache right after login success; the server
 				// keys the chunk send path (cached or plain) off this packet.
 				var packet = McpeClientCacheStatus.CreateObject();
-				packet.enabled = Client.UseBlobCache;
+				packet.isCacheSupported = Client.UseBlobCache;
 				Client.SendPacket(packet);
 			}
 
@@ -72,7 +72,7 @@ namespace MiNET.Client
 				Client.SendPacket(loadingScreen);
 
 				var initialized = McpeSetLocalPlayerAsInitialized.CreateObject();
-				initialized.runtimeEntityId = Client.EntityId;
+				initialized.playerId = Client.EntityId;
 				Client.SendPacket(initialized);
 
 				Client.HasSpawned = true;
@@ -196,7 +196,7 @@ namespace MiNET.Client
 			// the join-burst radius that must be covered for the client to spawn.
 			client.ChunkRadius = Math.Max(4, client.ChunkRadius);
 			packet.chunkRadius = client.ChunkRadius;
-			packet.maxRadius = 32;
+			packet.maxChunkRadius = 32;
 
 			client.SendPacket(packet);
 

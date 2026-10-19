@@ -1880,8 +1880,8 @@ namespace MiNET.Worlds
 			{
 				var message = McpeUpdateBlock.CreateObject();
 				message.blockRuntimeId = BlockFactory.GetNetworkId(block);
-				message.coordinates = block.Coordinates;
-				message.blockPriority = 0xb;
+				message.blockPosition = block.Coordinates;
+				message.flags = 0xb;
 				RelayBroadcast(message);
 			}
 
@@ -2093,8 +2093,8 @@ namespace MiNET.Worlds
 
 					var message = McpeUpdateBlock.CreateObject();
 					message.blockRuntimeId = BlockFactory.GetNetworkId(block);
-					message.coordinates = block.Coordinates;
-					message.blockPriority = 0xb;
+					message.blockPosition = block.Coordinates;
+					message.flags = 0xb;
 					player.SendPacket(message);
 
 					return;
@@ -2141,8 +2141,8 @@ namespace MiNET.Worlds
 		{
 			var message = McpeUpdateBlock.CreateObject();
 			message.blockRuntimeId = BlockFactory.GetNetworkId(block);
-			message.coordinates = block.Coordinates;
-			message.blockPriority = 0xb;
+			message.blockPosition = block.Coordinates;
+			message.flags = 0xb;
 			player.SendPacket(message);
 
 			// Revert block entity if exists

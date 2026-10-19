@@ -95,10 +95,6 @@
 				val1 float
 				val2 float
 		-->
-	<pdu id="0x0e" online="false" client="false" server="true" name="MCPE_REMOVE_ENTITY">
-		<field name="Entity ID Self" type="SignedVarLong" />
-	</pdu>
-
 	<pdu id="0x12" online="false" client="true" server="true" name="MCPE_MOVE_ENTITY">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Flags" type="byte" />
@@ -108,23 +104,6 @@
 	</pdu>
 
 	<!-- 0x14 RiderJump became PassengerJump at 471 and was removed from the protocol at 800 (Apr 2025) -->
-
-	<pdu id="0x15" online="false" client="false" server="true" name="MCPE_UPDATE_BLOCK">
-		<enums id="Flags">
-			<enum id="None" value="0" />
-			<enum id="Neighbors" value="1" />
-			<enum id="Network" value="2" />
-			<enum id="Nographic" value="4" />
-			<enum id="Priority" value="8" />
-
-			<enum id="All" value="(Neighbors | Network)" />
-			<enum id="All Priority" value="(All | Priority)" />
-		</enums>
-		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Block Runtime ID" type="UnsignedVarInt" />
-		<field name="Block Priority" type="UnsignedVarInt" />
-		<field name="Storage" type="UnsignedVarInt" />
-	</pdu>
 
 	<!-- 0x17 TickSync deprecated at 685 (Apr 2024) and gone from the protocol since -->
 
@@ -230,24 +209,6 @@
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 	</pdu>
 
-	<pdu id="0x2f" online="false" client="true" server="true" name="MCPE_CONTAINER_CLOSE">
-		<field name="Window ID" type="byte" />
-		<field name="Window Type" type="byte" />
-		<field name="Server" type="bool" />
-	</pdu>
-
-	<pdu id="0x30" online="false" client="true" server="true" name="MCPE_PLAYER_HOTBAR">
-		<field name="Selected Slot" type="UnsignedVarInt" />
-		<field name="Window ID" type="byte" />
-		<field name="Select Slot " type="bool" />
-	</pdu>
-
-	<pdu id="0x33" online="false" client="false" server="true" name="MCPE_CONTAINER_SET_DATA">
-		<field name="Window ID" type="byte" />
-		<field name="Property" type="SignedVarInt" />
-		<field name="Value" type="SignedVarInt" />
-	</pdu>
-
 	<pdu id="0x34" online="false" client="false" server="true" name="MCPE_CRAFTING_DATA">
 		<field name="Recipes" type="Recipes" />
 		<field name="Potion type recipes" type="PotionTypeRecipe[]" />
@@ -316,11 +277,6 @@
 
 	<pdu id="0x44" online="false" client="true" server="true" name="MCPE_MAP_INFO_REQUEST">
 		<field name="Map ID" type="SignedVarLong" />
-	</pdu>
-
-	<pdu id="0x45" online="false" client="true" server="true" name="MCPE_REQUEST_CHUNK_RADIUS">
-		<field name="Chunk Radius" type="SignedVarInt" />
-		<field name="Max Radius" type="byte" />
 	</pdu>
 
 	<!-- 0x47 ItemFrameDropItem removed from the protocol at 662 (Feb 2024); frame drops arrive via the block-attack path -->
@@ -468,10 +424,6 @@
 
 
 
-	<pdu id="0x71" online="false" client="true" server="false" name="MCPE_SET_LOCAL_PLAYER_AS_INITIALIZED">
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-	</pdu>
-
 	<pdu id="0x72" online="false" client="false" server="true" name="MCPE_UPDATE_SOFT_ENUM">
 	</pdu>
 
@@ -521,10 +473,6 @@
 
 	<!-- 0x7e VideoStreamConnect gone since 407 (Jun 2020); the websocket packet is AutomationClientConnect at 0x5f -->
 
-	<pdu id="0x81" online="false" client="true" server="true" name="MCPE_CLIENT_CACHE_STATUS">
-		<field name="Enabled" type="bool" />
-	</pdu>
-
 	<pdu id="0x84" online="false" client="false" server="true" name="MCPE_STRUCTURE_TEMPLATE_DATA_EXPORT_REQUEST">
 		<field name="Name" type="string" />
 		<field name="Position" type="BlockCoordinates" />
@@ -556,15 +504,6 @@
 		<field name="Disable Legacy Title Bar" type="bool" />
 		<field name="Post Process Filter" type="string" />
 		<field name="Screenshot Border Resource Path" type="string" />
-	</pdu>
-
-	<pdu id="0x8a" online="false" client="true" server="true" name="MCPE_EMOTE">
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Emote Id" type="string" />
-		<field name="Emote Length Ticks" type="UnsignedVarInt" />
-		<field name="Xbox User Id" type="string" />
-		<field name="Platform Chat Id" type="string" />
-		<field name="Flags" type="byte" />
 	</pdu>
 
 	<pdu id="0x8b" online="false" client="true" server="true" name="MCPE_MULTIPLAYER_SETTINGS">
@@ -628,11 +567,6 @@
 	<pdu id="0x9a" online="false" client="true" server="false" name="MCPE_POSITION_TRACKING_DB_CLIENT_REQUEST">
 		<field name="Action" type="byte" />
 		<field name="Tracking ID" type="SignedVarInt" />
-	</pdu>
-
-	<pdu id="0x9b" online="false" client="true" server="true" name="MCPE_DEBUG_INFO">
-		<field name="Actor Unique ID" type="SignedVarLong" />
-		<field name="Data" type="string" />
 	</pdu>
 
 	<pdu id="0x9c" online="false" client="true" server="false" name="MCPE_PACKET_VIOLATION_WARNING">
@@ -728,21 +662,6 @@
 		<field name="Response Json" type="string" />
 	</pdu>
 
-	<pdu id="0xb6" online="false" client="true" server="false" name="MCPE_CHANGE_MOB_PROPERTY">
-		<field name="Actor Unique Id" type="SignedVarLong" />
-		<field name="Property Name" type="string" />
-		<field name="Bool Value" type="bool" />
-		<field name="String Value" type="string" />
-		<field name="Int Value" type="SignedVarInt" />
-		<field name="Float Value" type="float" />
-	</pdu>
-
-
-	<pdu id="0xb9" online="false" client="true" server="false" name="MCPE_REQUEST_PERMISSIONS">
-		<field name="Target Actor Unique ID" type="long" endianess="LE" />
-		<field name="Player Permission" type="SignedVarInt" />
-		<field name="Custom Flags" type="ushort" />
-	</pdu>
 
 	<pdu id="0xbb" online="false" client="false" server="true" name="MCPE_UPDATE_ABILITIES">
 		<field name="Entity Unique ID" type="long" endianess="LE" />

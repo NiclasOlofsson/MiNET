@@ -1333,8 +1333,8 @@ namespace MiNET
 		{
 			var packet = McpePlayerHotbar.CreateObject();
 			packet.selectedSlot = (uint) Inventory.InHandSlot;
-			packet.windowId = 0;
-			packet.selectSlot = true;
+			packet.containerId = 0;
+			packet.shouldSelectSlot = true;
 			SendPacket(packet);
 		}
 
@@ -2702,7 +2702,7 @@ namespace MiNET
 		/// </summary>
 		public virtual void HandleMcpeClientCacheStatus(McpeClientCacheStatus message)
 		{
-			if (!message.enabled)
+			if (!message.isCacheSupported)
 			{
 				Log.Warn($"Refusing {Username}: the client says it does not cache chunks, which this server requires.");
 				Disconnect("This server requires a client that caches chunks.");
@@ -3899,9 +3899,9 @@ namespace MiNET
 				// The player's own screen is answered with an allocated id (see the self open-inventory
 				// case in HandleMcpeInteract) that is never recorded here, so only a screen the server
 				// opened has an id worth comparing.
-				if (message != null && closing.Kind != ScreenKind.Inventory && message.windowId != closing.WindowId)
+				if (message != null && closing.Kind != ScreenKind.Inventory && message.containerId != closing.WindowId)
 				{
-					Log.Warn($"Client closed window {message.windowId} while {closing.Kind} held window {closing.WindowId}");
+					Log.Warn($"Client closed window {message.containerId} while {closing.Kind} held window {closing.WindowId}");
 				}
 
 				// A close the client asked for is ALWAYS answered, with the id it named. Skipping the
@@ -3909,9 +3909,9 @@ namespace MiNET
 				// and it then refuses to open any other: no inventory, no chest, and the lid of the
 				// one it thinks is open stays up because the block event above never ran either.
 				var closePacket = McpeContainerClose.CreateObject();
-				closePacket.windowId = message?.windowId ?? closing.WindowId;
-				closePacket.windowType = message?.windowType ?? (byte) ContainerType.None;
-				closePacket.server = message == null;
+				closePacket.containerId = message?.containerId ?? closing.WindowId;
+				closePacket.containerType = message?.containerType ?? (byte) ContainerType.None;
+				closePacket.serverInitiatedClose = message == null;
 				SendPacket(closePacket);
 			}
 		}
@@ -5396,7 +5396,7 @@ namespace MiNET
 		public override void DespawnFromPlayers(Player[] players)
 		{
 			McpeRemoveEntity mcpeRemovePlayer = McpeRemoveEntity.CreateObject();
-			mcpeRemovePlayer.entityIdSelf = EntityId;
+			mcpeRemovePlayer.targetActorId = EntityId;
 			Level.RelayBroadcast(this, players, mcpeRemovePlayer);
 		}
 

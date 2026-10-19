@@ -1071,7 +1071,7 @@ namespace TestPlugin.NiceLobby
 			entity.SpawnEntity();
 
 			var remove = McpeRemoveEntity.CreateObject();
-			remove.entityIdSelf = entity.EntityId;
+			remove.targetActorId = entity.EntityId;
 			player.SendPacket(remove);
 
 			_playerEntities[player] = entity;

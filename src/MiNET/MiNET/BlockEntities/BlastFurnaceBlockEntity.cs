@@ -190,14 +190,14 @@ namespace MiNET.BlockEntities
 			foreach (var observer in Inventory.Observers)
 			{
 				var cookTimeSetData = McpeContainerSetData.CreateObject();
-				cookTimeSetData.windowId = Inventory.WindowsId;
-				cookTimeSetData.property = 0;
+				cookTimeSetData.containerId = Inventory.WindowsId;
+				cookTimeSetData.id = 0;
 				cookTimeSetData.value = CookTime;
 				observer.SendPacket(cookTimeSetData);
 
 				var burnTimeSetData = McpeContainerSetData.CreateObject();
-				burnTimeSetData.windowId = Inventory.WindowsId;
-				burnTimeSetData.property = 1;
+				burnTimeSetData.containerId = Inventory.WindowsId;
+				burnTimeSetData.id = 1;
 				burnTimeSetData.value = BurnTick;
 				observer.SendPacket(burnTimeSetData);
 			}

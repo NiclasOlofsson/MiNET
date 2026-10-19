@@ -356,7 +356,7 @@ namespace MiNET.Client
 
 		public override void HandleMcpeUpdateBlock(McpeUpdateBlock message)
 		{
-			if (message.storage == 0) RecordLiveId(message.coordinates, message.blockRuntimeId);
+			if (message.layer == 0) RecordLiveId(message.blockPosition, message.blockRuntimeId);
 			CallPacketHandlers(message);
 		}
 
@@ -545,7 +545,7 @@ namespace MiNET.Client
 
 		public override void HandleMcpeRemoveEntity(McpeRemoveEntity message)
 		{
-			Client.Entities.TryRemove(message.entityIdSelf, out _);
+			Client.Entities.TryRemove(message.targetActorId, out _);
 		}
 
 		public override void HandleMcpeLevelEvent(McpeLevelEvent message)

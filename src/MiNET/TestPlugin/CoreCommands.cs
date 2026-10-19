@@ -1728,8 +1728,8 @@ namespace TestPlugin
 
 						var message = McpeUpdateBlock.CreateObject();
 						message.blockRuntimeId = BlockFactory.GetNetworkId(block);
-						message.coordinates = block.Coordinates;
-						message.blockPriority = 0xb;
+						message.blockPosition = block.Coordinates;
+						message.flags = 0xb;
 						level.RelayBroadcast(sendList.ToArray(), message);
 					}
 				}

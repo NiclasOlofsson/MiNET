@@ -732,8 +732,8 @@ namespace MiNET.Client
 			//if (message.OrderingIndex <= lastNumber) return;
 			//lastNumber = message.OrderingIndex;
 
-			if (message.storage != 0) return;
-			if (message.blockPriority != 3) return;
+			if (message.layer != 0) return;
+			if (message.flags != 3) return;
 
 			if (!_runningBlockMetadataDiscovery)
 			{
@@ -742,14 +742,14 @@ namespace MiNET.Client
 			}
 
 			int runtimeId = (int) message.blockRuntimeId;
-			int bid = message.coordinates.X / 2;
-			int meta = (message.coordinates.Y - 100) / 2;
+			int bid = message.blockPosition.X / 2;
+			int meta = (message.blockPosition.Y - 100) / 2;
 
 			//TODO: Fix for doors and beds. They get 2 updates.
 			BlockStateContainer blockstate = caller.Client.BlockPalette[runtimeId];
-			if (!_blockCoordinates.Contains(new BlockCoordinates(message.coordinates.X, 0, message.coordinates.Z)))
+			if (!_blockCoordinates.Contains(new BlockCoordinates(message.blockPosition.X, 0, message.blockPosition.Z)))
 			{
-				Log.Warn($"Update block outside of grid {message.coordinates}, {caller.Client.BlockPalette[runtimeId]}");
+				Log.Warn($"Update block outside of grid {message.blockPosition}, {caller.Client.BlockPalette[runtimeId]}");
 
 				if (blockstate.Name.EndsWith("_door"))
 				{
@@ -793,7 +793,7 @@ namespace MiNET.Client
 					}
 					finally
 					{
-						Log.Warn($"Got {blockstate.Id}, {meta} storage {message.storage}, {message.blockPriority} (Name={blockstate.Name} Id={blockstate.Id})");
+						Log.Warn($"Got {blockstate.Id}, {meta} storage {message.layer}, {message.flags} (Name={blockstate.Name} Id={blockstate.Id})");
 						_lastUpdatedBlockstate = blockstate;
 						_resetEventUpdateBlock.Set();
 					}

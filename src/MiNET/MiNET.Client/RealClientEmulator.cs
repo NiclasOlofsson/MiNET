@@ -310,9 +310,9 @@ namespace MiNET.Client
 		private static void SendContainerClose(MiNetClient client)
 		{
 			var packet = McpeContainerClose.CreateObject();
-			packet.windowId = 0;
-			packet.windowType = 0xf7;
-			packet.server = false;
+			packet.containerId = 0;
+			packet.containerType = 0xf7;
+			packet.serverInitiatedClose = false;
 			client.SendPacket(packet);
 		}
 	}

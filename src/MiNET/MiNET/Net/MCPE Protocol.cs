@@ -193,119 +193,6 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeLogin : Packet<McpeLogin>
-	{
-
-		public int protocolVersion; // = null;
-		public byte[] payload; // = null;
-
-		public McpeLogin()
-		{
-			Id = 0x01;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			WriteBe(protocolVersion);
-			WriteByteArray(payload);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			protocolVersion = ReadIntBe();
-			payload = ReadByteArray();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			protocolVersion=default(int);
-			payload=default(byte[]);
-		}
-
-	}
-
-	public partial class McpePlayStatus : Packet<McpePlayStatus>
-	{
-		public enum PlayStatus
-		{
-			LoginSuccess = 0,
-			LoginFailedClient = 1,
-			LoginFailedServer = 2,
-			PlayerSpawn = 3,
-			LoginFailedInvalidTenant = 4,
-			LoginFailedVanillaEdu = 5,
-			LoginFailedEduVanilla = 6,
-			LoginFailedServerFull = 7,
-			LoginFailedEditorVanillaMismatch = 8,
-			LoginFailedVanillaEditorMismatch = 9,
-		}
-
-		public int status; // = null;
-
-		public McpePlayStatus()
-		{
-			Id = 0x02;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			WriteBe(status);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			status = ReadIntBe();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			status=default(int);
-		}
-
-	}
-
 	public partial class McpeDisconnect : Packet<McpeDisconnect>
 	{
 
@@ -1150,54 +1037,6 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeMapInfoRequest : Packet<McpeMapInfoRequest>
-	{
-
-		public long mapId; // = null;
-
-		public McpeMapInfoRequest()
-		{
-			Id = 0x44;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			WriteSignedVarLong(mapId);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			mapId = ReadSignedVarLong();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			mapId=default(long);
-		}
-
-	}
-
 	public partial class McpeGameRulesChanged : Packet<McpeGameRulesChanged>
 	{
 
@@ -1898,58 +1737,6 @@ namespace MiNET.Net
 			entityId=default(long);
 			position=default(Vector3);
 			particleName=default(string);
-		}
-
-	}
-
-	public partial class McpeNetworkChunkPublisherUpdate : Packet<McpeNetworkChunkPublisherUpdate>
-	{
-
-		public BlockCoordinates coordinates; // = null;
-		public uint radius; // = null;
-
-		public McpeNetworkChunkPublisherUpdate()
-		{
-			Id = 0x79;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			Write(coordinates);
-			WriteUnsignedVarInt(radius);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			coordinates = ReadBlockCoordinates();
-			radius = ReadUnsignedVarInt();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			coordinates=default(BlockCoordinates);
-			radius=default(uint);
 		}
 
 	}
@@ -3222,54 +3009,6 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeRequestNetworkSettings : Packet<McpeRequestNetworkSettings>
-	{
-
-		public int protocolVersion; // = null;
-
-		public McpeRequestNetworkSettings()
-		{
-			Id = 0xc1;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			WriteBe(protocolVersion);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			protocolVersion = ReadIntBe();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			protocolVersion=default(int);
-		}
-
-	}
-
 	public partial class McpeUnlockedRecipes : Packet<McpeUnlockedRecipes>
 	{
 
@@ -3422,50 +3161,6 @@ namespace MiNET.Net
 			filtering=default(bool);
 			layout=default(int);
 			craftingLayout=default(int);
-		}
-
-	}
-
-	public partial class McpeSetHud : Packet<McpeSetHud>
-	{
-
-
-		public McpeSetHud()
-		{
-			Id = 0x134;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
 		}
 
 	}
@@ -4578,54 +4273,6 @@ namespace MiNET.Net
 
 			formId=default(uint);
 			closeReason=default(string);
-		}
-
-	}
-
-	public partial class McpeSyncWorldClocks : Packet<McpeSyncWorldClocks>
-	{
-
-		public uint payloadType; // = null;
-
-		public McpeSyncWorldClocks()
-		{
-			Id = 0x158;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePacket()
-		{
-			base.EncodePacket();
-
-			BeforeEncode();
-
-			WriteUnsignedVarInt(payloadType);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePacket()
-		{
-			base.DecodePacket();
-
-			BeforeDecode();
-
-			payloadType = ReadUnsignedVarInt();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPacket()
-		{
-			base.ResetPacket();
-
-			payloadType=default(uint);
 		}
 
 	}

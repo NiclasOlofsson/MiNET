@@ -42,13 +42,13 @@ namespace MiNET.Test
 		public void McpePlayStatus_encode_decode_test()
 		{
 			var input = new McpePlayStatus();
-			input.status = 10;
+			input.status = (McpePlayStatus.PlayStatus) 10;
 			var bytes = input.Encode();
 
 			var packet = new McpePlayStatus();
 			packet.Decode(bytes.AsMemory());
 
-			Assert.AreEqual(10, packet.status);
+			Assert.AreEqual(10, (int) packet.status);
 		}
 
 		private const int _loops = 10_000_000;

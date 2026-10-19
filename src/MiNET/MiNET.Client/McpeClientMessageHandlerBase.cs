@@ -662,8 +662,8 @@ namespace MiNET.Client
 			// the stream has moved past. What the client HOLDS is a separate mechanism
 			// entirely: the disc around its own position and radius, forgotten position-driven
 			// as it moves (see BotWalker).
-			Client.PublishedCenter = new ChunkCoordinates(message.coordinates.X >> 4, message.coordinates.Z >> 4);
-			Client.PublishedRadiusChunks = (int) (message.radius >> 4);
+			Client.PublishedCenter = new ChunkCoordinates(message.newPositionForView.X >> 4, message.newPositionForView.Z >> 4);
+			Client.PublishedRadiusChunks = (int) (message.newRadiusForView >> 4);
 		}
 
 		public virtual void HandleMcpeBiomeDefinitionList(McpeBiomeDefinitionList message)
@@ -1002,14 +1002,20 @@ namespace MiNET.Client
 
 		public virtual void HandleMcpeSyncWorldClocks(McpeSyncWorldClocks message)
 		{
-			foreach (var clock in message.Clocks)
+			switch (message.data)
 			{
-				Log.Warn($"WorldClock registry: id={clock.Id} name={clock.Name} time={clock.Time} paused={clock.Paused} markers={clock.TimeMarkers.Count}");
-			}
-
-			foreach (var state in message.SyncStates)
-			{
-				Log.Warn($"WorldClock state: id={state.ClockId} time={state.Time} paused={state.Paused}");
+				case InitializeRegistryData registry:
+					foreach (var clock in registry.clockData)
+					{
+						Log.Warn($"WorldClock registry: id={clock.id} name={clock.name} time={clock.time} paused={clock.isPaused} markers={clock.timeMarkers.Count}");
+					}
+					break;
+				case SyncStateData sync:
+					foreach (var state in sync.clockData)
+					{
+						Log.Warn($"WorldClock state: id={state.clockId} time={state.time} paused={state.isPaused}");
+					}
+					break;
 			}
 		}
 

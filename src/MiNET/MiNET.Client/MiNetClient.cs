@@ -367,7 +367,7 @@ namespace MiNET.Client
 		public void SendRequestNetworkSettings()
 		{
 			var packet = McpeRequestNetworkSettings.CreateObject();
-			packet.protocolVersion = McpeProtocolInfo.ProtocolVersion;
+			packet.clientNetworkVersion = McpeProtocolInfo.ProtocolVersion;
 
 			// Pre-wrapped raw, exactly as the server pre-wraps its NetworkSettings reply. This is one
 			// half of the exchange that decides compression, so it cannot carry a compressor id byte:
@@ -418,8 +418,8 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : McpeProtocolInfo.ProtocolVersion,
-				payload = data
+				clientNetworkVersion = Config.GetProperty("EnableEdu", false) ? 111 : McpeProtocolInfo.ProtocolVersion,
+				connectionRequest = data
 			};
 
 			SendPacket(loginPacket);

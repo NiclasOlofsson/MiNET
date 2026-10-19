@@ -148,26 +148,26 @@ namespace MiNET.Worlds
 		{
 			var clock = new WorldClockData
 			{
-				Id = Id,
-				Name = Name,
-				Time = (int) Time,
-				Paused = Paused
+				id = Id,
+				name = Name,
+				time = (int) Time,
+				isPaused = Paused,
+				timeMarkers = new List<TimeMarkerData>()
 			};
 
 			foreach (WorldClockMarker marker in Markers)
 			{
-				clock.TimeMarkers.Add(new TimeMarkerData
+				clock.timeMarkers.Add(new TimeMarkerData
 				{
-					Id = marker.Id,
-					Name = marker.Name,
-					Time = marker.Time,
-					Period = marker.Period
+					id = marker.Id,
+					name = marker.Name,
+					time = marker.Time,
+					period = marker.Period
 				});
 			}
 
 			McpeSyncWorldClocks packet = McpeSyncWorldClocks.CreateObject();
-			packet.payloadType = 1;
-			packet.Clocks.Add(clock);
+			packet.data = new InitializeRegistryData {clockData = new List<WorldClockData> {clock}};
 			return packet;
 		}
 
@@ -175,13 +175,18 @@ namespace MiNET.Worlds
 		public McpeSyncWorldClocks CreateStatePacket()
 		{
 			McpeSyncWorldClocks packet = McpeSyncWorldClocks.CreateObject();
-			packet.payloadType = 0;
-			packet.SyncStates.Add(new SyncWorldClockStateData
+			packet.data = new SyncStateData
 			{
-				ClockId = Id,
-				Time = (int) Time,
-				Paused = Paused
-			});
+				clockData = new List<SyncWorldClockStateData>
+				{
+					new SyncWorldClockStateData
+					{
+						clockId = Id,
+						time = (int) Time,
+						isPaused = Paused
+					}
+				}
+			};
 			return packet;
 		}
 

@@ -7,8 +7,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 
 | ID  | ID (hex) | ID (dec) | 
 |:--- |:---------|---------:| 
-| Login | 0x01 | 1 |   
-| Play Status | 0x02 | 2 |   
 | Disconnect | 0x05 | 5 |   
 | Resource Pack Stack | 0x07 | 7 |   
 | Text | 0x09 | 9 |   
@@ -16,7 +14,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Camera Instruction | 0x12c | 18 |   
 | Trim Data | 0x12e | 18 |   
 | Set Player Inventory Options | 0x133 | 19 |   
-| Set Hud | 0x134 | 19 |   
 | Server Bound Loading Screen | 0x138 | 19 |   
 | Container Registry Cleanup | 0x13d | 19 |   
 | Movement Effect | 0x13e | 19 |   
@@ -38,7 +35,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Locator Bar | 0x155 | 21 |   
 | Party Changed | 0x156 | 21 |   
 | Serverbound Data Driven Screen Closed | 0x157 | 21 |   
-| Sync World Clocks | 0x158 | 21 |   
 | Clientbound Attribute Layer Sync | 0x159 | 21 |   
 | Server Store Info | 0x15a | 21 |   
 | Server Presence Info | 0x15b | 21 |   
@@ -53,7 +49,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Crafting Data | 0x34 | 52 |   
 | Change Dimension | 0x3d | 61 |   
 | Telemetry Event | 0x41 | 65 |   
-| Map Info Request | 0x44 | 68 |   
 | Game Rules Changed | 0x48 | 72 |   
 | Available Commands | 0x4c | 76 |   
 | Command Request | 0x4d | 77 |   
@@ -68,7 +63,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Update Soft Enum | 0x72 | 114 |   
 | Network Stack Latency | 0x73 | 115 |   
 | Spawn Particle Effect | 0x76 | 118 |   
-| Network Chunk Publisher Update | 0x79 | 121 |   
 | Biome Definition List | 0x7a | 122 |   
 | Level Sound Event | 0x7b | 123 |   
 | Structure Template Data Export Response | 0x85 | 133 |   
@@ -93,7 +87,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Death Info | 0xbd | 189 |   
 | Editor Network | 0xbe | 190 |   
 | Feature Registry | 0xbf | 191 |   
-| Request Network Settings | 0xc1 | 193 |   
 | Unlocked Recipes | 0xc7 | 199 |   
 
 
@@ -105,7 +98,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | bool [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-bool) |
 | byte [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte) |
 | byte[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte[]) |
-| ByteArray [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ByteArray) |
 | CommandOriginData [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-CommandOriginData) |
 | EnchantOptions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-EnchantOptions) |
 | Experiments [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Experiments) |
@@ -142,52 +134,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 
 ## Packets
 
-### Login (0x01)
-Wiki: [Login](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Login)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Protocol Version | int |  |
-|Payload | ByteArray |  |
------------------------------------------------------------------------
-### Play Status (0x02)
-Wiki: [Play Status](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayStatus)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-#### Play Status constants
-
-| Name | Value |
-|:-----|:-----|
-|Login Success | 0 |
-|Login Failed Client | 1 |
-|Login Failed Server | 2 |
-|Player Spawn | 3 |
-|Login Failed Invalid Tenant | 4 |
-|Login Failed Vanilla Edu | 5 |
-|Login Failed Edu Vanilla | 6 |
-|Login Failed Server Full | 7 |
-|Login Failed Editor Vanilla Mismatch | 8 |
-|Login Failed Vanilla Editor Mismatch | 9 |
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Status | int |  |
------------------------------------------------------------------------
 ### Disconnect (0x05)
 Wiki: [Disconnect](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Disconnect)
 
@@ -488,21 +434,6 @@ Wiki: [Telemetry Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-T
 |Event type | byte |  |
 |Aux Data | byte[] | 0, true |
 -----------------------------------------------------------------------
-### Map Info Request (0x44)
-Wiki: [Map Info Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MapInfoRequest)
-
-**Sent from server:** true  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Map ID | SignedVarLong |  |
------------------------------------------------------------------------
 ### Game Rules Changed (0x48)
 Wiki: [Game Rules Changed](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-GameRulesChanged)
 
@@ -721,29 +652,13 @@ Wiki: [Spawn Particle Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Position | Vector3 |  |
 |Particle name | string |  |
 -----------------------------------------------------------------------
-### Network Chunk Publisher Update (0x79)
-Wiki: [Network Chunk Publisher Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkChunkPublisherUpdate)
-
-**Sent from server:** true  
-**Sent from client:** false
-
- 0x78 LevelSoundEventV2 removed from the protocol at 785 (Feb 2025); use 0x7b LevelSoundEvent 
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Coordinates | BlockCoordinates |  |
-|Radius | UnsignedVarInt |  |
------------------------------------------------------------------------
 ### Biome Definition List (0x7a)
 Wiki: [Biome Definition List](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BiomeDefinitionList)
 
 **Sent from server:** true  
 **Sent from client:** false
 
-
+ 0x78 LevelSoundEventV2 removed from the protocol at 785 (Feb 2025); use 0x7b LevelSoundEvent 
 
 
 #### Fields
@@ -1141,21 +1056,6 @@ Wiki: [Feature Registry](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Request Network Settings (0xc1)
-Wiki: [Request Network Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-RequestNetworkSettings)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Protocol Version | int |  |
------------------------------------------------------------------------
 ### Unlocked Recipes (0xc7)
 Wiki: [Unlocked Recipes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UnlockedRecipes)
 
@@ -1203,20 +1103,6 @@ Wiki: [Set Player Inventory Options](https://github.com/NiclasOlofsson/MiNET/wik
 |Filtering | bool |  |
 |Layout | SignedVarInt |  |
 |Crafting Layout | SignedVarInt |  |
------------------------------------------------------------------------
-### Set Hud (0x134)
-Wiki: [Set Hud](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetHud)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Server Bound Loading Screen (0x138)
 Wiki: [Server Bound Loading Screen](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ServerBoundLoadingScreen)
@@ -1561,21 +1447,6 @@ Wiki: [Serverbound Data Driven Screen Closed](https://github.com/NiclasOlofsson/
 |:-----|:-----|:-----|
 |Form Id | uint |  |
 |Close Reason | string |  |
------------------------------------------------------------------------
-### Sync World Clocks (0x158)
-Wiki: [Sync World Clocks](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SyncWorldClocks)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Payload Type | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 ### Clientbound Attribute Layer Sync (0x159)
 Wiki: [Clientbound Attribute Layer Sync](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientboundAttributeLayerSync)

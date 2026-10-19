@@ -83,10 +83,10 @@ namespace MiNET.AgentClient
 		public override void HandleMcpeNetworkChunkPublisherUpdate(McpeNetworkChunkPublisherUpdate message)
 		{
 			base.HandleMcpeNetworkChunkPublisherUpdate(message);
-			string built = message.serverBuiltChunks == null || message.serverBuiltChunks.Count == 0
+			string built = message.serverBuiltChunksList == null || message.serverBuiltChunksList.Count == 0
 				? "none"
-				: string.Join(" ", message.serverBuiltChunks.Select(c => $"{c.X},{c.Z}"));
-			Console.WriteLine($"< publisher block {message.coordinates.X},{message.coordinates.Y},{message.coordinates.Z} radius {message.radius} blocks (chunk {Client.PublishedCenter.X},{Client.PublishedCenter.Z} r{Client.PublishedRadiusChunks}) built {built}, holding {Client.ChunkCache.Columns.Count}");
+				: string.Join(" ", message.serverBuiltChunksList.Select(c => $"{c.x},{c.z}"));
+			Console.WriteLine($"< publisher block {message.newPositionForView.X},{message.newPositionForView.Y},{message.newPositionForView.Z} radius {message.newRadiusForView} blocks (chunk {Client.PublishedCenter.X},{Client.PublishedCenter.Z} r{Client.PublishedRadiusChunks}) built {built}, holding {Client.ChunkCache.Columns.Count}");
 		}
 
 		/// <summary>The world view the renderer reads; edits are applied to it as they arrive.</summary>

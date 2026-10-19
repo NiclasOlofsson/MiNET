@@ -529,7 +529,7 @@ namespace MiNET
 				//	_mapSender = new Timer(Callback);
 				//}
 
-				long mapId = message.mapId;
+				long mapId = message.mapUniqueId;
 
 				Log.Trace($"Requested map with ID: {mapId} 0x{mapId:X2}");
 
@@ -2442,7 +2442,7 @@ namespace MiNET
 		public void SendPlayerStatus(McpePlayStatus.PlayStatus status)
 		{
 			McpePlayStatus mcpePlayerStatus = McpePlayStatus.CreateObject();
-			mcpePlayerStatus.status = (int) status;
+			mcpePlayerStatus.status = status;
 			SendPacket(mcpePlayerStatus);
 		}
 
@@ -4297,13 +4297,13 @@ namespace MiNET
 			// player is. Respawn, teleport and both dimension paths stream the destination before
 			// SetPosition moves anyone onto it, so taking KnownPosition there publishes an area
 			// around the place they are leaving and the client drops everything just sent.
-			pk.coordinates = (position ?? KnownPosition).GetCoordinates3D();
+			pk.newPositionForView = (position ?? KnownPosition).GetCoordinates3D();
 
 			// The radius the view actually covers, in blocks. Every captured BDS value is exactly
 			// view x 16 (64/80/160/192 for views 4/5/10/12), no rounding or padding for rim
 			// coverage, so the client converts to chunk space itself rather than testing
 			// block-precise containment.
-			pk.radius = (uint) (chunkRadius * 16);
+			pk.newRadiusForView = (uint) (chunkRadius * 16);
 			return pk;
 		}
 

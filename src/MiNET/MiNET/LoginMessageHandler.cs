@@ -66,7 +66,7 @@ namespace MiNET
 
 		public virtual void HandleMcpeRequestNetworkSettings(McpeRequestNetworkSettings message)
 		{
-			_playerInfo.ProtocolVersion = message.protocolVersion;
+			_playerInfo.ProtocolVersion = message.clientNetworkVersion;
 
 			var settings = McpeNetworkSettings.CreateObject();
 			// The same rule both directions: at or below the threshold a batch ships raw under the
@@ -102,7 +102,7 @@ namespace MiNET
 				_session.Username = string.Empty;
 			}
 
-			_playerInfo.ProtocolVersion = message.protocolVersion;
+			_playerInfo.ProtocolVersion = message.clientNetworkVersion;
 			//_playerInfo.Edition = message.edition;
 
 			DecodeCert(message);
@@ -138,15 +138,15 @@ namespace MiNET
 
 		public void DecodeCert(McpeLogin message)
 		{
-			byte[] buffer = message.payload;
+			byte[] buffer = message.connectionRequest;
 
-			if (message.payload.Length != buffer.Length)
+			if (message.connectionRequest.Length != buffer.Length)
 			{
-				Log.Debug($"Wrong lenght {message.payload.Length} != {message.payload.Length}");
-				throw new Exception($"Wrong lenght {message.payload.Length} != {message.payload.Length}");
+				Log.Debug($"Wrong lenght {message.connectionRequest.Length} != {message.connectionRequest.Length}");
+				throw new Exception($"Wrong lenght {message.connectionRequest.Length} != {message.connectionRequest.Length}");
 			}
 
-			if (Log.IsDebugEnabled) Log.Debug("Lenght: " + message.payload.Length + ", Message: " + buffer.EncodeBase64());
+			if (Log.IsDebugEnabled) Log.Debug("Lenght: " + message.connectionRequest.Length + ", Message: " + buffer.EncodeBase64());
 
 			string certificateChain;
 			string skinData;

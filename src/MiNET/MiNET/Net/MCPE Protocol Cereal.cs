@@ -41,6 +41,119 @@ using MiNET.Utils.Vectors;
 
 namespace MiNET.Net
 {
+	public partial class McpeLogin : Packet<McpeLogin>
+	{
+
+		public int clientNetworkVersion; // = null;
+		public byte[] connectionRequest; // = null;
+
+		public McpeLogin()
+		{
+			Id = 0x01;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteBe(clientNetworkVersion);
+			WriteByteArray(connectionRequest);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			clientNetworkVersion = ReadIntBe();
+			connectionRequest = ReadByteArray();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			clientNetworkVersion=default(int);
+			connectionRequest=default(byte[]);
+		}
+
+	}
+
+	public partial class McpePlayStatus : Packet<McpePlayStatus>
+	{
+		public enum PlayStatus
+		{
+			LoginSuccess = 0,
+			LoginFailedClientOld = 1,
+			LoginFailedServerOld = 2,
+			PlayerSpawn = 3,
+			LoginFailedInvalidTenant = 4,
+			LoginFailedEditionMismatchEduToVanilla = 5,
+			LoginFailedEditionMismatchVanillaToEdu = 6,
+			LoginFailedServerFullSubClient = 7,
+			LoginFailedEditorMismatchEditorToVanilla = 8,
+			LoginFailedEditorMismatchVanillaToEditor = 9,
+		}
+
+		public McpePlayStatus.PlayStatus status; // = null;
+
+		public McpePlayStatus()
+		{
+			Id = 0x02;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteBe((int) status);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			status = (McpePlayStatus.PlayStatus) ReadIntBe();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			status=default(McpePlayStatus.PlayStatus);
+		}
+
+	}
+
 	public partial class McpeServerToClientHandshake : Packet<McpeServerToClientHandshake>
 	{
 
@@ -3077,6 +3190,61 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeMapInfoRequest : Packet<McpeMapInfoRequest>
+	{
+
+		public long mapUniqueId; // = null;
+		public List<MapInfoRequestClientPixel> clientPixelsList; // = null;
+
+		public McpeMapInfoRequest()
+		{
+			Id = 0x44;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarLong(mapUniqueId);
+			Write((uint) (clientPixelsList?.Count ?? 0));
+			if (clientPixelsList != null) foreach (MapInfoRequestClientPixel item in clientPixelsList) Write(item);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			mapUniqueId = ReadSignedVarLong();
+			uint clientPixelsListCount = ReadUint();
+			clientPixelsList = new List<MapInfoRequestClientPixel>((int) clientPixelsListCount);
+			for (int i = 0; i < clientPixelsListCount; i++) clientPixelsList.Add(ReadMapInfoRequestClientPixel());
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			mapUniqueId=default(long);
+			clientPixelsList=default(List<MapInfoRequestClientPixel>);
+		}
+
+	}
+
 	public partial class McpeRequestChunkRadius : Packet<McpeRequestChunkRadius>
 	{
 
@@ -5136,6 +5304,65 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			identifierList=default(Nbt);
+		}
+
+	}
+
+	public partial class McpeNetworkChunkPublisherUpdate : Packet<McpeNetworkChunkPublisherUpdate>
+	{
+
+		public BlockCoordinates newPositionForView; // = null;
+		public uint newRadiusForView; // = null;
+		public List<ChunkPos> serverBuiltChunksList; // = null;
+
+		public McpeNetworkChunkPublisherUpdate()
+		{
+			Id = 0x79;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(newPositionForView);
+			WriteUnsignedVarInt(newRadiusForView);
+			Write((uint) (serverBuiltChunksList?.Count ?? 0));
+			if (serverBuiltChunksList != null) foreach (ChunkPos item in serverBuiltChunksList) Write(item);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			newPositionForView = ReadBlockCoordinates();
+			newRadiusForView = ReadUnsignedVarInt();
+			uint serverBuiltChunksListCount = ReadUint();
+			serverBuiltChunksList = new List<ChunkPos>((int) serverBuiltChunksListCount);
+			for (int i = 0; i < serverBuiltChunksListCount; i++) serverBuiltChunksList.Add(ReadChunkPos());
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			newPositionForView=default(BlockCoordinates);
+			newRadiusForView=default(uint);
+			serverBuiltChunksList=default(List<ChunkPos>);
 		}
 
 	}
@@ -7484,6 +7711,54 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeRequestNetworkSettings : Packet<McpeRequestNetworkSettings>
+	{
+
+		public int clientNetworkVersion; // = null;
+
+		public McpeRequestNetworkSettings()
+		{
+			Id = 0xc1;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteBe(clientNetworkVersion);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			clientNetworkVersion = ReadIntBe();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			clientNetworkVersion=default(int);
+		}
+
+	}
+
 	public partial class McpeGameTestRequest : Packet<McpeGameTestRequest>
 	{
 		public enum Rotation
@@ -7934,6 +8209,82 @@ namespace MiNET.Net
 			posZ=default(int);
 			slotIndex=default(byte);
 			isDisabled=default(bool);
+		}
+
+	}
+
+	public partial class McpeSetHud : Packet<McpeSetHud>
+	{
+		public enum HudElement
+		{
+			PaperDoll = 0,
+			Armor = 1,
+			ToolTips = 2,
+			TouchControls = 3,
+			Crosshair = 4,
+			HotBar = 5,
+			Health = 6,
+			ProgressBar = 7,
+			Hunger = 8,
+			AirBubbles = 9,
+			HorseHealth = 10,
+			StatusEffects = 11,
+			ItemText = 12,
+		}
+		public enum HudVisibility
+		{
+			Hide = 0,
+			Reset = 1,
+		}
+
+		public List<McpeSetHud.HudElement> hudElement; // = null;
+		public McpeSetHud.HudVisibility hudVisible; // = null;
+
+		public McpeSetHud()
+		{
+			Id = 0x134;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteUnsignedVarInt((uint) (hudElement?.Count ?? 0));
+			if (hudElement != null) foreach (McpeSetHud.HudElement item in hudElement) WriteSignedVarInt((int) item);
+			WriteSignedVarInt((int) hudVisible);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			uint hudElementCount = ReadUnsignedVarInt();
+			hudElement = new List<McpeSetHud.HudElement>((int) hudElementCount);
+			for (int i = 0; i < hudElementCount; i++) hudElement.Add((McpeSetHud.HudElement) ReadSignedVarInt());
+			hudVisible = (McpeSetHud.HudVisibility) ReadSignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			hudElement=default(List<McpeSetHud.HudElement>);
+			hudVisible=default(McpeSetHud.HudVisibility);
 		}
 
 	}
@@ -8676,6 +9027,82 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+		}
+
+	}
+
+	public partial class McpeSyncWorldClocks : Packet<McpeSyncWorldClocks>
+	{
+
+		public DataBase data; // = null;
+
+		public McpeSyncWorldClocks()
+		{
+			Id = 0x158;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			switch (data)
+			{
+				case SyncStateData v0:
+					WriteUnsignedVarInt(0);
+					Write(v0);
+					break;
+				case InitializeRegistryData v1:
+					WriteUnsignedVarInt(1);
+					Write(v1);
+					break;
+				case AddTimeMarkerData v2:
+					WriteUnsignedVarInt(2);
+					Write(v2);
+					break;
+				case RemoveTimeMarkerData v3:
+					WriteUnsignedVarInt(3);
+					Write(v3);
+					break;
+				default:
+					throw new Exception($"data variant not set or unknown: {data}");
+			}
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			uint dataTag = ReadUnsignedVarInt();
+			data = dataTag switch
+			{
+				0 => ReadSyncStateData(),
+				1 => ReadInitializeRegistryData(),
+				2 => ReadAddTimeMarkerData(),
+				3 => ReadRemoveTimeMarkerData(),
+				uint other => throw new Exception($"Unknown data variant tag {other}"),
+			};
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			data=default(DataBase);
 		}
 
 	}
@@ -9434,6 +9861,10 @@ namespace MiNET.Net
 
 	}
 
+	public abstract class DataBase
+	{
+	}
+
 	public abstract class EventBase
 	{
 	}
@@ -9485,6 +9916,12 @@ namespace MiNET.Net
 		public bool immediate;
 		public bool passengerInitiated;
 		public float vehicleAngularVelocity;
+	}
+
+	public class AddTimeMarkerData : DataBase
+	{
+		public long clockId;
+		public List<TimeMarkerData> timeMarkers;
 	}
 
 	public class AudioContentRegistrationEntry
@@ -9822,6 +10259,11 @@ namespace MiNET.Net
 		}
 
 		public HiddenLocation.PacketType packetType;
+	}
+
+	public class InitializeRegistryData : DataBase
+	{
+		public List<WorldClockData> clockData;
 	}
 
 	public class IntOverride : UpdateBase
@@ -10492,6 +10934,12 @@ namespace MiNET.Net
 		public int color;
 	}
 
+	public class MapInfoRequestClientPixel
+	{
+		public uint pixel;
+		public ushort index;
+	}
+
 	public class MapItemTrackedActorUniqueId
 	{
 		public enum MapItemTrackedActorType
@@ -10868,6 +11316,12 @@ namespace MiNET.Net
 		public string objectiveName;
 	}
 
+	public class RemoveTimeMarkerData : DataBase
+	{
+		public long clockId;
+		public List<long> timeMarkerIds;
+	}
+
 	public class ResourcePackClientResponseCancel : ResourcePackClientResponseBase
 	{
 	}
@@ -11078,6 +11532,18 @@ namespace MiNET.Net
 		public bool serverAuthoritativeBlockBreaking;
 	}
 
+	public class SyncStateData : DataBase
+	{
+		public List<SyncWorldClockStateData> clockData;
+	}
+
+	public class SyncWorldClockStateData
+	{
+		public long clockId;
+		public int time;
+		public bool isPaused;
+	}
+
 	public class SystemCategory
 	{
 		public string categoryName;
@@ -11092,6 +11558,14 @@ namespace MiNET.Net
 		public byte percentOfTotal;
 	}
 
+	public class TimeMarkerData
+	{
+		public long id;
+		public string name;
+		public int time;
+		public int? period;
+	}
+
 	public class WhiskerScopeDataSummary
 	{
 		public string label;
@@ -11099,6 +11573,15 @@ namespace MiNET.Net
 		public ulong totalHighCostNs;
 		public ulong totalMidCostNs;
 		public ulong totalLowCostNs;
+	}
+
+	public class WorldClockData
+	{
+		public long id;
+		public string name;
+		public int time;
+		public bool isPaused;
+		public List<TimeMarkerData> timeMarkers;
 	}
 
 	public abstract partial class Packet
@@ -11122,6 +11605,23 @@ namespace MiNET.Net
 			data.immediate = ReadBool();
 			data.passengerInitiated = ReadBool();
 			data.vehicleAngularVelocity = ReadFloat();
+			return data;
+		}
+
+		public void Write(AddTimeMarkerData data)
+		{
+			WriteUnsignedVarLong(data.clockId);
+			WriteUnsignedVarInt((uint) (data.timeMarkers?.Count ?? 0));
+			if (data.timeMarkers != null) foreach (TimeMarkerData item in data.timeMarkers) Write(item);
+		}
+
+		public AddTimeMarkerData ReadAddTimeMarkerData()
+		{
+			var data = new AddTimeMarkerData();
+			data.clockId = ReadUnsignedVarLong();
+			uint timeMarkersCount = ReadUnsignedVarInt();
+			data.timeMarkers = new List<TimeMarkerData>((int) timeMarkersCount);
+			for (int i = 0; i < timeMarkersCount; i++) data.timeMarkers.Add(ReadTimeMarkerData());
 			return data;
 		}
 
@@ -11607,6 +12107,21 @@ namespace MiNET.Net
 		{
 			var data = new HiddenLocation();
 			data.packetType = (HiddenLocation.PacketType) ReadSignedVarInt();
+			return data;
+		}
+
+		public void Write(InitializeRegistryData data)
+		{
+			WriteUnsignedVarInt((uint) (data.clockData?.Count ?? 0));
+			if (data.clockData != null) foreach (WorldClockData item in data.clockData) Write(item);
+		}
+
+		public InitializeRegistryData ReadInitializeRegistryData()
+		{
+			var data = new InitializeRegistryData();
+			uint clockDataCount = ReadUnsignedVarInt();
+			data.clockData = new List<WorldClockData>((int) clockDataCount);
+			for (int i = 0; i < clockDataCount; i++) data.clockData.Add(ReadWorldClockData());
 			return data;
 		}
 
@@ -12501,6 +13016,20 @@ namespace MiNET.Net
 			return data;
 		}
 
+		public void Write(MapInfoRequestClientPixel data)
+		{
+			Write((int) data.pixel);
+			Write(data.index);
+		}
+
+		public MapInfoRequestClientPixel ReadMapInfoRequestClientPixel()
+		{
+			var data = new MapInfoRequestClientPixel();
+			data.pixel = (uint) ReadInt();
+			data.index = ReadUshort();
+			return data;
+		}
+
 		public void Write(MapItemTrackedActorUniqueId data)
 		{
 			Write((int) data.type);
@@ -12916,6 +13445,23 @@ namespace MiNET.Net
 			return data;
 		}
 
+		public void Write(RemoveTimeMarkerData data)
+		{
+			WriteUnsignedVarLong(data.clockId);
+			WriteUnsignedVarInt((uint) (data.timeMarkerIds?.Count ?? 0));
+			if (data.timeMarkerIds != null) foreach (long item in data.timeMarkerIds) WriteUnsignedVarLong(item);
+		}
+
+		public RemoveTimeMarkerData ReadRemoveTimeMarkerData()
+		{
+			var data = new RemoveTimeMarkerData();
+			data.clockId = ReadUnsignedVarLong();
+			uint timeMarkerIdsCount = ReadUnsignedVarInt();
+			data.timeMarkerIds = new List<long>((int) timeMarkerIdsCount);
+			for (int i = 0; i < timeMarkerIdsCount; i++) data.timeMarkerIds.Add(ReadUnsignedVarLong());
+			return data;
+		}
+
 		public void Write(ResourcePackClientResponseCancel data)
 		{
 			Write("cancel");
@@ -13277,6 +13823,37 @@ namespace MiNET.Net
 			return data;
 		}
 
+		public void Write(SyncStateData data)
+		{
+			WriteUnsignedVarInt((uint) (data.clockData?.Count ?? 0));
+			if (data.clockData != null) foreach (SyncWorldClockStateData item in data.clockData) Write(item);
+		}
+
+		public SyncStateData ReadSyncStateData()
+		{
+			var data = new SyncStateData();
+			uint clockDataCount = ReadUnsignedVarInt();
+			data.clockData = new List<SyncWorldClockStateData>((int) clockDataCount);
+			for (int i = 0; i < clockDataCount; i++) data.clockData.Add(ReadSyncWorldClockStateData());
+			return data;
+		}
+
+		public void Write(SyncWorldClockStateData data)
+		{
+			WriteUnsignedVarLong(data.clockId);
+			WriteSignedVarInt(data.time);
+			Write(data.isPaused);
+		}
+
+		public SyncWorldClockStateData ReadSyncWorldClockStateData()
+		{
+			var data = new SyncWorldClockStateData();
+			data.clockId = ReadUnsignedVarLong();
+			data.time = ReadSignedVarInt();
+			data.isPaused = ReadBool();
+			return data;
+		}
+
 		public void Write(SystemCategory data)
 		{
 			Write(data.categoryName);
@@ -13309,6 +13886,25 @@ namespace MiNET.Net
 			return data;
 		}
 
+		public void Write(TimeMarkerData data)
+		{
+			WriteUnsignedVarLong(data.id);
+			Write(data.name);
+			WriteSignedVarInt(data.time);
+			Write(data.period != null);
+			if (data.period != null) Write(data.period.Value);
+		}
+
+		public TimeMarkerData ReadTimeMarkerData()
+		{
+			var data = new TimeMarkerData();
+			data.id = ReadUnsignedVarLong();
+			data.name = ReadString();
+			data.time = ReadSignedVarInt();
+			if (ReadBool()) data.period = ReadInt();
+			return data;
+		}
+
 		public void Write(WhiskerScopeDataSummary data)
 		{
 			Write(data.label);
@@ -13326,6 +13922,29 @@ namespace MiNET.Net
 			data.totalHighCostNs = ReadUlong();
 			data.totalMidCostNs = ReadUlong();
 			data.totalLowCostNs = ReadUlong();
+			return data;
+		}
+
+		public void Write(WorldClockData data)
+		{
+			WriteUnsignedVarLong(data.id);
+			Write(data.name);
+			WriteSignedVarInt(data.time);
+			Write(data.isPaused);
+			WriteUnsignedVarInt((uint) (data.timeMarkers?.Count ?? 0));
+			if (data.timeMarkers != null) foreach (TimeMarkerData item in data.timeMarkers) Write(item);
+		}
+
+		public WorldClockData ReadWorldClockData()
+		{
+			var data = new WorldClockData();
+			data.id = ReadUnsignedVarLong();
+			data.name = ReadString();
+			data.time = ReadSignedVarInt();
+			data.isPaused = ReadBool();
+			uint timeMarkersCount = ReadUnsignedVarInt();
+			data.timeMarkers = new List<TimeMarkerData>((int) timeMarkersCount);
+			for (int i = 0; i < timeMarkersCount; i++) data.timeMarkers.Add(ReadTimeMarkerData());
 			return data;
 		}
 	}

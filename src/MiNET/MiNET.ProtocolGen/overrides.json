@@ -992,6 +992,22 @@
 					"reason": "Byte-identical to the schema's AttributeData list, checked field by field against Write(PlayerAttributes); PlayerAttributes is the type the attribute system already builds."
 				}
 			}
+		},
+		"LoginPacket": {
+			"fields": {
+				"Connection Request": {
+					"type": {
+						"csType": "byte[]",
+						"write": "WriteByteArray({0});",
+						"read": "{0} = ReadByteArray();"
+					},
+					"reason": "Binary: a real 2235 client's payload opens with a little-endian length before the JSON chain (captured 2026-10-19), and length bytes from 0x80 up are not valid UTF-8. Typed string by the schema."
+				}
+			}
+		},
+		"(anonymous_namespace)__MapInfoRequestPacketAnon__ClientPixelsProxy": {
+			"typeName": "MapInfoRequestClientPixel",
+			"reason": "The schema title is an anonymous-namespace C++ name, which sanitizes to an invalid C# identifier."
 		}
 	}
 }

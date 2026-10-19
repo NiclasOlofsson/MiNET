@@ -1200,6 +1200,62 @@
 			"client": false,
 			"server": true,
 			"schema": "JigsawStructureDataPacket"
+		},
+		{
+			"name": "MCPE_LOGIN",
+			"id": "0x01",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "LoginPacket"
+		},
+		{
+			"name": "MCPE_PLAY_STATUS",
+			"id": "0x02",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "PlayStatusPacket"
+		},
+		{
+			"name": "MCPE_MAP_INFO_REQUEST",
+			"id": "0x44",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "MapInfoRequestPacket"
+		},
+		{
+			"name": "MCPE_NETWORK_CHUNK_PUBLISHER_UPDATE",
+			"id": "0x79",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "NetworkChunkPublisherUpdatePacket"
+		},
+		{
+			"name": "MCPE_REQUEST_NETWORK_SETTINGS",
+			"id": "0xc1",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "RequestNetworkSettingsPacket"
+		},
+		{
+			"name": "MCPE_SET_HUD",
+			"id": "0x134",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SetHudPacket"
+		},
+		{
+			"name": "MCPE_SYNC_WORLD_CLOCKS",
+			"id": "0x158",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SyncWorldClocksPacket"
 		}
 	]
 }

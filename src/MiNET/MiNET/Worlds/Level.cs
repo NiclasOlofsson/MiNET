@@ -2036,8 +2036,8 @@ namespace MiNET.Worlds
 			if (Log.IsDebugEnabled) Log.Debug($"Nbt: {nbt.NbtFile.RootTag}");
 
 			var entityData = McpeBlockEntityData.CreateObject();
-			entityData.namedtag = nbt;
-			entityData.coordinates = blockEntity.Coordinates;
+			entityData.actorDataTags = nbt;
+			entityData.blockPosition = blockEntity.Coordinates;
 
 			RelayBroadcast(entityData);
 		}
@@ -2158,8 +2158,8 @@ namespace MiNET.Worlds
 				};
 
 				var entityData = McpeBlockEntityData.CreateObject();
-				entityData.namedtag = nbt;
-				entityData.coordinates = blockEntity.Coordinates;
+				entityData.actorDataTags = nbt;
+				entityData.blockPosition = blockEntity.Coordinates;
 
 				player.SendPacket(entityData);
 			}

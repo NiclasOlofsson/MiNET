@@ -1353,6 +1353,62 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeUpdateAttributes : Packet<McpeUpdateAttributes>
+	{
+
+		public long targetRuntimeId; // = null;
+		public PlayerAttributes attributeList; // = null;
+		public long tick; // = null;
+
+		public McpeUpdateAttributes()
+		{
+			Id = 0x1d;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteUnsignedVarLong(targetRuntimeId);
+			Write(attributeList);
+			WriteUnsignedVarLong(tick);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			targetRuntimeId = ReadUnsignedVarLong();
+			attributeList = ReadPlayerAttributes();
+			tick = ReadUnsignedVarLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			targetRuntimeId=default(long);
+			attributeList=default(PlayerAttributes);
+			tick=default(long);
+		}
+
+	}
+
 	public partial class McpeInventoryTransaction : Packet<McpeInventoryTransaction>
 	{
 
@@ -2417,6 +2473,58 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeBlockEntityData : Packet<McpeBlockEntityData>
+	{
+
+		public BlockCoordinates blockPosition; // = null;
+		public Nbt actorDataTags; // = null;
+
+		public McpeBlockEntityData()
+		{
+			Id = 0x38;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(blockPosition);
+			Write(actorDataTags);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			blockPosition = ReadBlockCoordinates();
+			actorDataTags = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			blockPosition=default(BlockCoordinates);
+			actorDataTags=default(Nbt);
+		}
+
+	}
+
 	public partial class McpeLevelChunk : Packet<McpeLevelChunk>
 	{
 
@@ -3276,6 +3384,286 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeUpdateTrade : Packet<McpeUpdateTrade>
+	{
+
+		public byte containerId; // = null;
+		public byte type; // = null;
+		public int size; // = null;
+		public int traderTier; // = null;
+		public long entityUniqueId; // = null;
+		public long lastTradingPlayer; // = null;
+		public string displayName; // = null;
+		public bool useNewTradeScreen; // = null;
+		public bool usingEconomyTrade; // = null;
+		public Nbt data; // = null;
+
+		public McpeUpdateTrade()
+		{
+			Id = 0x50;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(containerId);
+			Write(type);
+			WriteSignedVarInt(size);
+			WriteSignedVarInt(traderTier);
+			WriteSignedVarLong(entityUniqueId);
+			WriteSignedVarLong(lastTradingPlayer);
+			Write(displayName);
+			Write(useNewTradeScreen);
+			Write(usingEconomyTrade);
+			Write(data);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			containerId = ReadByte();
+			type = ReadByte();
+			size = ReadSignedVarInt();
+			traderTier = ReadSignedVarInt();
+			entityUniqueId = ReadSignedVarLong();
+			lastTradingPlayer = ReadSignedVarLong();
+			displayName = ReadString();
+			useNewTradeScreen = ReadBool();
+			usingEconomyTrade = ReadBool();
+			data = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			containerId=default(byte);
+			type=default(byte);
+			size=default(int);
+			traderTier=default(int);
+			entityUniqueId=default(long);
+			lastTradingPlayer=default(long);
+			displayName=default(string);
+			useNewTradeScreen=default(bool);
+			usingEconomyTrade=default(bool);
+			data=default(Nbt);
+		}
+
+	}
+
+	public partial class McpeUpdateEquipment : Packet<McpeUpdateEquipment>
+	{
+
+		public byte containerId; // = null;
+		public byte type; // = null;
+		public int size; // = null;
+		public long entityUniqueId; // = null;
+		public Nbt data; // = null;
+
+		public McpeUpdateEquipment()
+		{
+			Id = 0x51;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(containerId);
+			Write(type);
+			WriteSignedVarInt(size);
+			WriteSignedVarLong(entityUniqueId);
+			Write(data);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			containerId = ReadByte();
+			type = ReadByte();
+			size = ReadSignedVarInt();
+			entityUniqueId = ReadSignedVarLong();
+			data = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			containerId=default(byte);
+			type=default(byte);
+			size=default(int);
+			entityUniqueId=default(long);
+			data=default(Nbt);
+		}
+
+	}
+
+	public partial class McpeResourcePackDataInfo : Packet<McpeResourcePackDataInfo>
+	{
+
+		public string resourceName; // = null;
+		public uint chunkSize; // = null;
+		public uint numberOfChunks; // = null;
+		public ulong fileSize; // = null;
+		public byte[] fileHash; // = null;
+		public bool isPremiumPack; // = null;
+		public byte packType; // = null;
+
+		public McpeResourcePackDataInfo()
+		{
+			Id = 0x52;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(resourceName);
+			Write((int) chunkSize);
+			Write((int) numberOfChunks);
+			Write(fileSize);
+			WriteByteArray(fileHash);
+			Write(isPremiumPack);
+			Write(packType);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			resourceName = ReadString();
+			chunkSize = (uint) ReadInt();
+			numberOfChunks = (uint) ReadInt();
+			fileSize = ReadUlong();
+			fileHash = ReadByteArray();
+			isPremiumPack = ReadBool();
+			packType = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			resourceName=default(string);
+			chunkSize=default(uint);
+			numberOfChunks=default(uint);
+			fileSize=default(ulong);
+			fileHash=default(byte[]);
+			isPremiumPack=default(bool);
+			packType=default(byte);
+		}
+
+	}
+
+	public partial class McpeResourcePackChunkData : Packet<McpeResourcePackChunkData>
+	{
+
+		public string resourceName; // = null;
+		public uint chunkId; // = null;
+		public ulong byteOffset; // = null;
+		public byte[] chunkData; // = null;
+
+		public McpeResourcePackChunkData()
+		{
+			Id = 0x53;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(resourceName);
+			Write((int) chunkId);
+			Write(byteOffset);
+			WriteByteArray(chunkData);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			resourceName = ReadString();
+			chunkId = (uint) ReadInt();
+			byteOffset = ReadUlong();
+			chunkData = ReadByteArray();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			resourceName=default(string);
+			chunkId=default(uint);
+			byteOffset=default(ulong);
+			chunkData=default(byte[]);
+		}
+
+	}
+
 	public partial class McpeTransfer : Packet<McpeTransfer>
 	{
 
@@ -3785,6 +4173,54 @@ namespace MiNET.Net
 			skin=default(Skin);
 			skinName=default(string);
 			oldSkinName=default(string);
+		}
+
+	}
+
+	public partial class McpeSubClientLogin : Packet<McpeSubClientLogin>
+	{
+
+		public byte[] subClientConnectionRequest; // = null;
+
+		public McpeSubClientLogin()
+		{
+			Id = 0x5e;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteByteArray(subClientConnectionRequest);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			subClientConnectionRequest = ReadByteArray();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			subClientConnectionRequest=default(byte[]);
 		}
 
 	}
@@ -4652,6 +5088,106 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			playerId=default(long);
+		}
+
+	}
+
+	public partial class McpeAvailableEntityIdentifiers : Packet<McpeAvailableEntityIdentifiers>
+	{
+
+		public Nbt identifierList; // = null;
+
+		public McpeAvailableEntityIdentifiers()
+		{
+			Id = 0x77;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(identifierList);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			identifierList = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			identifierList=default(Nbt);
+		}
+
+	}
+
+	public partial class McpeLevelEventGeneric : Packet<McpeLevelEventGeneric>
+	{
+
+		public int eventId; // = null;
+		public fNbt.NbtCompound eventData; // = null;
+
+		public McpeLevelEventGeneric()
+		{
+			Id = 0x7c;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			WriteSignedVarInt(eventId);
+			WriteNbtBody(eventData);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			eventId = ReadSignedVarInt();
+			eventData = ReadNbtBody();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			eventId=default(int);
+			eventData=default(fNbt.NbtCompound);
 		}
 
 	}
@@ -5706,6 +6242,68 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpePositionTrackingDbServerBroadcast : Packet<McpePositionTrackingDbServerBroadcast>
+	{
+		public enum Action
+		{
+			Update = 0,
+			Destroy = 1,
+			NotFound = 2,
+		}
+
+		public McpePositionTrackingDbServerBroadcast.Action action; // = null;
+		public int id; // = null;
+		public fNbt.NbtCompound positionTrackingData; // = null;
+
+		public McpePositionTrackingDbServerBroadcast()
+		{
+			Id = 0x99;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((byte) action);
+			WriteSignedVarInt(id);
+			WriteNbtBody(positionTrackingData);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			action = (McpePositionTrackingDbServerBroadcast.Action) ReadByte();
+			id = ReadSignedVarInt();
+			positionTrackingData = ReadNbtBody();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			action=default(McpePositionTrackingDbServerBroadcast.Action);
+			id=default(int);
+			positionTrackingData=default(fNbt.NbtCompound);
+		}
+
+	}
+
 	public partial class McpePositionTrackingDbClientRequest : Packet<McpePositionTrackingDbClientRequest>
 	{
 		public enum Action
@@ -6008,6 +6606,54 @@ namespace MiNET.Net
 			seconds=default(float);
 			shakeType=default(McpeCameraShake.CameraShakeType);
 			shakeAction=default(McpeCameraShake.CameraShakeAction);
+		}
+
+	}
+
+	public partial class McpeSyncEntityProperty : Packet<McpeSyncEntityProperty>
+	{
+
+		public Nbt propertyData; // = null;
+
+		public McpeSyncEntityProperty()
+		{
+			Id = 0xa5;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(propertyData);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			propertyData = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			propertyData=default(Nbt);
 		}
 
 	}
@@ -7380,6 +8026,54 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+		}
+
+	}
+
+	public partial class McpeJigsawStructureData : Packet<McpeJigsawStructureData>
+	{
+
+		public Nbt jigsawStructureDataTag; // = null;
+
+		public McpeJigsawStructureData()
+		{
+			Id = 0x139;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(jigsawStructureDataTag);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			jigsawStructureDataTag = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			jigsawStructureDataTag=default(Nbt);
 		}
 
 	}

@@ -561,7 +561,7 @@ namespace MiNET.Client
 
 		public override void HandleMcpeUpdateAttributes(McpeUpdateAttributes message)
 		{
-			foreach (var playerAttribute in message.attributes)
+			foreach (var playerAttribute in message.attributeList)
 			{
 				Log.Debug($"Attribute {playerAttribute}");
 			}
@@ -695,10 +695,10 @@ namespace MiNET.Client
 
 		public override void HandleMcpeBlockEntityData(McpeBlockEntityData message)
 		{
-			Log.DebugFormat("X: {0}", message.coordinates.X);
-			Log.DebugFormat("Y: {0}", message.coordinates.Y);
-			Log.DebugFormat("Z: {0}", message.coordinates.Z);
-			Log.DebugFormat("NBT:\n{0}", message.namedtag.NbtFile.RootTag);
+			Log.DebugFormat("X: {0}", message.blockPosition.X);
+			Log.DebugFormat("Y: {0}", message.blockPosition.Y);
+			Log.DebugFormat("Z: {0}", message.blockPosition.Z);
+			Log.DebugFormat("NBT:\n{0}", message.actorDataTags.NbtFile.RootTag);
 		}
 
 		public override void HandleMcpeLevelChunk(McpeLevelChunk message)
@@ -796,26 +796,26 @@ namespace MiNET.Client
 
 		public override void HandleMcpeResourcePackChunkData(McpeResourcePackChunkData message)
 		{
-			string fileName = Path.GetTempPath() + "ResourcePackChunkData_" + message.packageId + ".zip";
-			Log.Warn("Writing ResourcePackChunkData part " + message.chunkIndex.ToString() + " to filename: " + fileName);
+			string fileName = Path.GetTempPath() + "ResourcePackChunkData_" + message.resourceName + ".zip";
+			Log.Warn("Writing ResourcePackChunkData part " + message.chunkId.ToString() + " to filename: " + fileName);
 
 			FileStream file = File.OpenWrite(fileName);
-			file.Seek((long) message.progress, SeekOrigin.Begin);
+			file.Seek((long) message.byteOffset, SeekOrigin.Begin);
 
-			file.Write(message.payload, 0, message.payload.Length);
+			file.Write(message.chunkData, 0, message.chunkData.Length);
 			file.Close();
 
-			Log.Debug($"packageId={message.packageId}");
-			Log.Debug($"unknown1={message.chunkIndex}");
-			Log.Debug($"unknown3={message.progress}");
-			Log.Debug($"Actual Lenght={message.payload.Length}");
+			Log.Debug($"packageId={message.resourceName}");
+			Log.Debug($"unknown1={message.chunkId}");
+			Log.Debug($"unknown3={message.byteOffset}");
+			Log.Debug($"Actual Lenght={message.chunkData.Length}");
 
 			base.HandleMcpeResourcePackChunkData(message);
 		}
 
 		public override void HandleMcpeAvailableEntityIdentifiers(McpeAvailableEntityIdentifiers message)
 		{
-			foreach (var entity in message.namedtag.NbtFile.RootTag["idlist"] as NbtList)
+			foreach (var entity in message.identifierList.NbtFile.RootTag["idlist"] as NbtList)
 			{
 				var id = (entity["id"] as NbtString).Value;
 				var rid = (entity["rid"] as NbtInt).Value;

@@ -211,8 +211,8 @@ namespace MiNET.BuilderBase
 				};
 
 				var entityData = McpeBlockEntityData.CreateObject();
-				entityData.namedtag = nbt;
-				entityData.coordinates = _structureBlockBlockEntity.Coordinates;
+				entityData.actorDataTags = nbt;
+				entityData.blockPosition = _structureBlockBlockEntity.Coordinates;
 				Player.SendPacket(entityData);
 			}
 
@@ -295,8 +295,8 @@ namespace MiNET.BuilderBase
 					};
 
 					var entityData = McpeBlockEntityData.CreateObject();
-					entityData.namedtag = nbt;
-					entityData.coordinates = _structureBlockBlockEntity.Coordinates;
+					entityData.actorDataTags = nbt;
+					entityData.blockPosition = _structureBlockBlockEntity.Coordinates;
 					Player.SendPacket(entityData);
 				}
 

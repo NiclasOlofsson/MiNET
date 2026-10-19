@@ -1104,6 +1104,102 @@
 			"client": false,
 			"server": true,
 			"schema": "ClientboundControlSchemeSetPacket"
+		},
+		{
+			"name": "MCPE_UPDATE_ATTRIBUTES",
+			"id": "0x1d",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "UpdateAttributesPacket"
+		},
+		{
+			"name": "MCPE_BLOCK_ENTITY_DATA",
+			"id": "0x38",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "BlockActorDataPacket"
+		},
+		{
+			"name": "MCPE_UPDATE_TRADE",
+			"id": "0x50",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "UpdateTradePacket"
+		},
+		{
+			"name": "MCPE_UPDATE_EQUIPMENT",
+			"id": "0x51",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "UpdateEquipPacket"
+		},
+		{
+			"name": "MCPE_RESOURCE_PACK_DATA_INFO",
+			"id": "0x52",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ResourcePackDataInfoPacket"
+		},
+		{
+			"name": "MCPE_RESOURCE_PACK_CHUNK_DATA",
+			"id": "0x53",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ResourcePackChunkDataPacket"
+		},
+		{
+			"name": "MCPE_SUB_CLIENT_LOGIN",
+			"id": "0x5e",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SubClientLoginPacket"
+		},
+		{
+			"name": "MCPE_AVAILABLE_ENTITY_IDENTIFIERS",
+			"id": "0x77",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "AvailableActorIdentifiersPacket"
+		},
+		{
+			"name": "MCPE_LEVEL_EVENT_GENERIC",
+			"id": "0x7c",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "LevelEventGenericPacket"
+		},
+		{
+			"name": "MCPE_POSITION_TRACKING_DB_SERVER_BROADCAST",
+			"id": "0x99",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "PositionTrackingDBServerBroadcastPacket"
+		},
+		{
+			"name": "MCPE_SYNC_ENTITY_PROPERTY",
+			"id": "0xa5",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SyncActorPropertyPacket"
+		},
+		{
+			"name": "MCPE_JIGSAW_STRUCTURE_DATA",
+			"id": "0x139",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "JigsawStructureDataPacket"
 		}
 	]
 }

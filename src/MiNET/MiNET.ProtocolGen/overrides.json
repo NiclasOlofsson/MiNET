@@ -847,6 +847,151 @@
 					"optional": false
 				}
 			}
+		},
+		"ResourcePackDataInfoPacket": {
+			"fields": {
+				"File Hash": {
+					"type": {
+						"csType": "byte[]",
+						"write": "WriteByteArray({0});",
+						"read": "{0} = ReadByteArray();"
+					},
+					"reason": "Raw hash bytes. The schema types it string, and ReadString decodes UTF-8, which cannot carry arbitrary bytes."
+				}
+			}
+		},
+		"ResourcePackChunkDataPacket": {
+			"fields": {
+				"Chunk Data": {
+					"type": {
+						"csType": "byte[]",
+						"write": "WriteByteArray({0});",
+						"read": "{0} = ReadByteArray();"
+					},
+					"reason": "Raw pack file bytes, typed string by the schema; same reason as the data info hash."
+				}
+			}
+		},
+		"SubClientLoginPacket": {
+			"fields": {
+				"Sub Client Connection Request": {
+					"type": {
+						"csType": "byte[]",
+						"write": "WriteByteArray({0});",
+						"read": "{0} = ReadByteArray();"
+					},
+					"reason": "Binary, like Login's connection request: a real 2235 client's Login payload opens with a little-endian length before the JSON (captured 2026-10-19). Typed string by the schema."
+				}
+			}
+		},
+		"BlockActorDataPacket": {
+			"fields": {
+				"Actor Data Tags": {
+					"type": {
+						"csType": "Nbt",
+						"write": "Write({0});",
+						"read": "{0} = ReadNbt();"
+					},
+					"reason": "Untyped in the schema; network NBT, as the XML pdu carried it."
+				}
+			}
+		},
+		"UpdateTradePacket": {
+			"fields": {
+				"Data": {
+					"type": {
+						"csType": "Nbt",
+						"write": "Write({0});",
+						"read": "{0} = ReadNbt();"
+					},
+					"reason": "Untyped in the schema; network NBT, as the XML pdu carried it."
+				}
+			}
+		},
+		"UpdateEquipPacket": {
+			"fields": {
+				"Data": {
+					"type": {
+						"csType": "Nbt",
+						"write": "Write({0});",
+						"read": "{0} = ReadNbt();"
+					},
+					"reason": "Untyped in the schema; network NBT, as the XML pdu carried it."
+				}
+			}
+		},
+		"AvailableActorIdentifiersPacket": {
+			"fields": {
+				"Identifier List": {
+					"type": {
+						"csType": "Nbt",
+						"write": "Write({0});",
+						"read": "{0} = ReadNbt();"
+					},
+					"reason": "Untyped in the schema; network NBT, as the XML pdu carried it."
+				}
+			}
+		},
+		"SyncActorPropertyPacket": {
+			"fields": {
+				"Property Data": {
+					"type": {
+						"csType": "Nbt",
+						"write": "Write({0});",
+						"read": "{0} = ReadNbt();"
+					},
+					"reason": "Untyped in the schema; network NBT, as the XML pdu carried it."
+				}
+			}
+		},
+		"JigsawStructureDataPacket": {
+			"fields": {
+				"Jigsaw Structure Data Tag": {
+					"type": {
+						"csType": "Nbt",
+						"write": "Write({0});",
+						"read": "{0} = ReadNbt();"
+					},
+					"reason": "Untyped in the schema; network NBT, as the XML pdu carried it."
+				}
+			}
+		},
+		"LevelEventGenericPacket": {
+			"fields": {
+				"__[[CTD]]__": {
+					"name": "eventData",
+					"type": {
+						"csType": "fNbt.NbtCompound",
+						"write": "WriteNbtBody({0});",
+						"read": "{0} = ReadNbtBody();"
+					},
+					"reason": "Untyped in the schema and named after a template placeholder. The wire is the root compound's body without its header, as the XML pdu carried it."
+				}
+			}
+		},
+		"PositionTrackingDBServerBroadcastPacket": {
+			"fields": {
+				"Position tracking data": {
+					"type": {
+						"csType": "fNbt.NbtCompound",
+						"write": "WriteNbtBody({0});",
+						"read": "{0} = ReadNbtBody();"
+					},
+					"reason": "Untyped in the schema. The wire is the root compound's body without its header, as the XML pdu carried it."
+				}
+			}
+		},
+		"UpdateAttributesPacket": {
+			"fields": {
+				"Attribute List": {
+					"type": {
+						"csType": "PlayerAttributes",
+						"write": "Write({0});",
+						"read": "{0} = ReadPlayerAttributes();"
+					},
+					"reason": "Byte-identical to the schema's AttributeData list, checked field by field against Write(PlayerAttributes); PlayerAttributes is the type the attribute system already builds."
+				}
+			}
 		}
 	}
 }

@@ -115,12 +115,6 @@
 		<field name="Data" type="SignedVarInt" />
 	</pdu>
 
-	<pdu id="0x1d" online="false" client="false" server="true" name="MCPE_UPDATE_ATTRIBUTES">
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Attributes" type="PlayerAttributes" />
-		<field name="Tick" type="UnsignedVarLong" />
-	</pdu>
-
 	<pdu id="0x21" online="false" client="true" server="true" name="MCPE_INTERACT">
 		<enums id="Actions">
 			<enum id="Right click" value="1" />
@@ -222,11 +216,6 @@
 			value="(BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs | Operator | Teleport)" />
 	</enums>
 
-	<pdu id="0x38" online="false" client="true" server="true" name="MCPE_BLOCK_ENTITY_DATA">
-		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="NamedTag" type="Nbt" />
-	</pdu>
-
 	<pdu id="0x3d" online="false" client="false" server="true" name="MCPE_CHANGE_DIMENSION">
 		<field name="Dimension" type="SignedVarInt" />
 		<field name="Position" type="Vector3" />
@@ -274,45 +263,6 @@
 	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_COMMAND_OUTPUT">
 	</pdu>
 
-	<pdu id="0x50" online="false" client="false" server="true" name="MCPE_UPDATE_TRADE">
-		<field name="Window ID" type="byte" />
-		<field name="Window Type" type="byte" />
-		<field name="Size" type="SignedVarInt" />
-		<field name="Trade Tier" type="SignedVarInt" />
-		<field name="Trader Entity ID" type="SignedVarLong" />
-		<field name="Player Entity ID" type="SignedVarLong" />
-		<field name="Display Name" type="string" />
-		<field name="Use New Trade Screen" type="bool" />
-		<field name="Using Economy Trade" type="bool" />
-		<field name="NamedTag" type="Nbt" />
-	</pdu>
-
-	<pdu id="0x51" online="false" client="false" server="true" name="MCPE_UPDATE_EQUIPMENT">
-		<field name="Window ID" type="byte" />
-		<field name="Window Type" type="byte" />
-		<field name="Size" type="SignedVarInt" />
-		<field name="Entity ID" type="SignedVarLong" />
-		<field name="NamedTag" type="Nbt" />
-	</pdu>
-
-	<pdu id="0x52" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
-		<field name="Package ID" type="string" />
-		<field name="Max Chunk Size" type="uint" />
-		<field name="Chunk Count" type="uint" />
-		<field name="Compressed Package Size" type="ulong" />
-		<!-- SHA256 -->
-		<field name="Hash" type="ByteArray" />
-		<field name="Is Premium" type="bool" />
-		<field name="Pack Type" type="byte" />
-	</pdu>
-
-	<pdu id="0x53" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
-		<field name="Package ID" type="string" />
-		<field name="Chunk Index" type="uint" />
-		<field name="Progress" type="ulong" />
-		<field name="Payload" type="ByteArray" />
-	</pdu>
-
 	<pdu id="0x54" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
 		<field name="Package ID" type="string" />
 		<field name="Chunk Index" type="uint" />
@@ -321,10 +271,6 @@
 
 	<pdu id="0x5c" online="false" client="true" server="false" name="MCPE_PURCHASE_RECEIPT">
 		<!-- all fields handled in partial: receipts[] -->
-	</pdu>
-
-	<pdu id="0x5e" online="false" client="false" server="true" name="MCPE_SUB_CLIENT_LOGIN">
-		<field name="Connection Request" type="ByteArray" />
 	</pdu>
 
 	<pdu id="0x60" online="false" client="false" server="true" name="MCPE_SET_LAST_HURT_BY">
@@ -371,10 +317,6 @@
 		<field name="Particle name" type="string" />
 	</pdu>
 
-	<pdu id="0x77" online="false" client="false" server="true" name="MCPE_AVAILABLE_ENTITY_IDENTIFIERS">
-		<field name="NamedTag" type="Nbt" />
-	</pdu>
-
 	<!-- 0x78 LevelSoundEventV2 removed from the protocol at 785 (Feb 2025); use 0x7b LevelSoundEvent -->
 
 	<pdu id="0x79" online="false" client="false" server="true" name="MCPE_NETWORK_CHUNK_PUBLISHER_UPDATE">
@@ -394,11 +336,6 @@
 		<field name="Is baby mob" type="bool" />
 		<field name="Is global" type="bool" />
 		<!-- entity unique id and optional fire position handled in partial -->
-	</pdu>
-
-	<pdu id="0x7c" online="false" client="false" server="true" name="MCPE_LEVEL_EVENT_GENERIC">
-		<field name="Event ID" type="SignedVarInt" />
-		<field name="Event Data" type="NbtBody" />
 	</pdu>
 
 	<!-- 0x7e VideoStreamConnect gone since 407 (Jun 2020); the websocket packet is AutomationClientConnect at 0x5f -->
@@ -456,12 +393,6 @@
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 	</pdu>
 
-	<pdu id="0x99" online="false" client="false" server="true" name="MCPE_POSITION_TRACKING_DB_SERVER_BROADCAST">
-		<field name="Action" type="byte" />
-		<field name="Tracking ID" type="SignedVarInt" />
-		<field name="NBT" type="NbtBody" />
-	</pdu>
-
 	<!-- Trailing runtime entity id list is a VarInt-count-prefixed array of UnsignedVarLong,
 	     which the generator has no type for, so it lives in the partial (Net/McpeAnimateEntity.cs). -->
 	<pdu id="0x9e" online="false" client="false" server="true" name="MCPE_ANIMATE_ENTITY">
@@ -496,10 +427,6 @@
 	<pdu id="0xa4" online="false" client="false" server="true" name="MCPE_CLIENTBOUND_DEBUG_RENDERER">
 		<field name="Type" type="string" />
 		<!-- optional debug marker data (bool + text/position/color/duration) handled in partial -->
-	</pdu>
-
-	<pdu id="0xa5" online="false" client="false" server="true" name="MCPE_SYNC_ENTITY_PROPERTY">
-		<field name="NamedTag" type="Nbt" />
 	</pdu>
 
 	<pdu id="0xa9" online="false" client="false" server="true" name="MCPE_NPC_DIALOGUE">
@@ -590,10 +517,6 @@
 	<pdu id="0x138" online="false" client="true" server="false" name="MCPE_SERVER_BOUND_LOADING_SCREEN">
 		<field name="Type" type="SignedVarInt" />
 		<!-- optional loading_screen_id (bool + lu32) handled in partial -->
-	</pdu>
-
-	<pdu id="0x139" online="false" client="false" server="true" name="MCPE_JIGSAW_STRUCTURE_DATA">
-		<field name="Structure Data" type="Nbt" />
 	</pdu>
 
 

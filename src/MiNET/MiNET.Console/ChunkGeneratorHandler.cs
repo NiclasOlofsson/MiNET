@@ -112,8 +112,8 @@ namespace MiNET.Console
 
 		public override void HandleMcpeBlockEntityData(McpeBlockEntityData message)
 		{
-			BlockCoordinates coordinates = message.coordinates;
-			Nbt nbt = message.namedtag;
+			BlockCoordinates coordinates = message.blockPosition;
+			Nbt nbt = message.actorDataTags;
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn((ChunkCoordinates) coordinates, true);
 			if(chunk == null)
 			{

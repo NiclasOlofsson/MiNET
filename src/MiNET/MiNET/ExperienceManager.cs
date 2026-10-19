@@ -95,8 +95,8 @@ namespace MiNET
 			attributes = AddExperienceAttributes(attributes);
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
-			attributesPackate.runtimeEntityId = EntityManager.EntityIdSelf;
-			attributesPackate.attributes = attributes;
+			attributesPackate.targetRuntimeId = EntityManager.EntityIdSelf;
+			attributesPackate.attributeList = attributes;
 			Player.SendPacket(attributesPackate);
 		}
 	}

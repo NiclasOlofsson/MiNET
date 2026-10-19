@@ -510,24 +510,24 @@ namespace MiNET.Client
 		public virtual void HandleMcpeResourcePackDataInfo(McpeResourcePackDataInfo message)
 		{
 			var request = new McpeResourcePackChunkRequest();
-			request.packageId = message.packageId;
+			request.packageId = message.resourceName;
 			request.chunkIndex = 0;
 			Client.SendPacket(request);
-			_resourcePackDataInfos.Add(message.packageId, message.chunkCount);
+			_resourcePackDataInfos.Add(message.resourceName, message.numberOfChunks);
 		}
 
 		public virtual void HandleMcpeResourcePackChunkData(McpeResourcePackChunkData message)
 		{
-			if (message.chunkIndex + 1 < _resourcePackDataInfos[message.packageId])
+			if (message.chunkId + 1 < _resourcePackDataInfos[message.resourceName])
 			{
 				var request = new McpeResourcePackChunkRequest();
-				request.packageId = message.packageId;
-				request.chunkIndex = message.chunkIndex + 1;
+				request.packageId = message.resourceName;
+				request.chunkIndex = message.chunkId + 1;
 				Client.SendPacket(request);
 			}
 			else
 			{
-				_resourcePackDataInfos.Remove(message.packageId);
+				_resourcePackDataInfos.Remove(message.resourceName);
 			}
 
 			if (_resourcePackDataInfos.Count == 0)

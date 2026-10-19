@@ -111,7 +111,7 @@ namespace MiNET.AgentClient
 		{
 			base.HandleMcpeBlockEntityData(message);
 			if (TraceChunks)
-				Console.WriteLine($"< blockentity {message.coordinates.X},{message.coordinates.Y},{message.coordinates.Z} {message.namedtag?.NbtFile?.RootTag}");
+				Console.WriteLine($"< blockentity {message.blockPosition.X},{message.blockPosition.Y},{message.blockPosition.Z} {message.actorDataTags?.NbtFile?.RootTag}");
 		}
 
 		/// <summary>Other players by runtime id: name and last known position, for "build it where I stand".</summary>

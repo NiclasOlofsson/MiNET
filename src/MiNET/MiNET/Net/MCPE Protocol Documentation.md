@@ -18,7 +18,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Set Player Inventory Options | 0x133 | 19 |   
 | Set Hud | 0x134 | 19 |   
 | Server Bound Loading Screen | 0x138 | 19 |   
-| Jigsaw Structure Data | 0x139 | 19 |   
 | Container Registry Cleanup | 0x13d | 19 |   
 | Movement Effect | 0x13e | 19 |   
 | Camera Aim Assist Presets | 0x140 | 20 |   
@@ -45,7 +44,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Server Presence Info | 0x15b | 21 |   
 | Send Party Destination Cookie | 0x15d | 21 |   
 | Entity Event | 0x1b | 27 |   
-| Update Attributes | 0x1d | 29 |   
 | Interact | 0x21 | 33 |   
 | Block Pick Request | 0x22 | 34 |   
 | Entity Pick Request | 0x23 | 35 |   
@@ -53,7 +51,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Set Entity Link | 0x29 | 41 |   
 | Respawn | 0x2d | 45 |   
 | Crafting Data | 0x34 | 52 |   
-| Block Entity Data | 0x38 | 56 |   
 | Change Dimension | 0x3d | 61 |   
 | Telemetry Event | 0x41 | 65 |   
 | Map Info Request | 0x44 | 68 |   
@@ -62,13 +59,8 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Command Request | 0x4d | 77 |   
 | Command Block Update | 0x4e | 78 |   
 | Command Output | 0x4f | 79 |   
-| Update Trade | 0x50 | 80 |   
-| Update Equipment | 0x51 | 81 |   
-| Resource Pack Data Info | 0x52 | 82 |   
-| Resource Pack Chunk Data | 0x53 | 83 |   
 | Resource Pack Chunk Request | 0x54 | 84 |   
 | Purchase Receipt | 0x5c | 92 |   
-| Sub Client Login | 0x5e | 94 |   
 | Set Last Hurt By | 0x60 | 96 |   
 | Book Edit | 0x61 | 97 |   
 | Modal Form Response | 0x65 | 101 |   
@@ -76,11 +68,9 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Update Soft Enum | 0x72 | 114 |   
 | Network Stack Latency | 0x73 | 115 |   
 | Spawn Particle Effect | 0x76 | 118 |   
-| Available Entity Identifiers | 0x77 | 119 |   
 | Network Chunk Publisher Update | 0x79 | 121 |   
 | Biome Definition List | 0x7a | 122 |   
 | Level Sound Event | 0x7b | 123 |   
-| Level Event Generic | 0x7c | 124 |   
 | Structure Template Data Export Response | 0x85 | 133 |   
 | Client Cache Blob Status | 0x87 | 135 |   
 | Client Cache Miss Response | 0x88 | 136 |   
@@ -88,13 +78,11 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Player Enchant Options | 0x92 | 146 |   
 | Player Armor Damage | 0x95 | 149 |   
 | Emote List | 0x98 | 152 |   
-| Position Tracking Db Server Broadcast | 0x99 | 153 |   
 | Animate Entity | 0x9e | 158 |   
 | Player Fog | 0xa0 | 160 |   
 | Correct Player Move Prediction | 0xa1 | 161 |   
 | Item Component | 0xa2 | 162 |   
 | Clientbound Debug Renderer | 0xa4 | 164 |   
-| Sync Entity Property | 0xa5 | 165 |   
 | Npc Dialogue | 0xa9 | 169 |   
 | Edu Uri Resource | 0xaa | 170 |   
 | Create Photo | 0xab | 171 |   
@@ -127,10 +115,8 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | ItemComponentList [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ItemComponentList) |
 | long [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-long) |
 | MaterialReducerRecipe[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-MaterialReducerRecipe[]) |
-| Nbt [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Nbt) |
 | NbtBody [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-NbtBody) |
 | OFFLINE_MESSAGE_DATA_ID [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-OFFLINE_MESSAGE_DATA_ID) |
-| PlayerAttributes [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PlayerAttributes) |
 | PlayerLocation [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PlayerLocation) |
 | PotionContainerChangeRecipe[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PotionContainerChangeRecipe[]) |
 | PotionTypeRecipe[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PotionTypeRecipe[]) |
@@ -314,23 +300,6 @@ Wiki: [Entity Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Enti
 |Event ID | byte |  |
 |Data | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Update Attributes (0x1d)
-Wiki: [Update Attributes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateAttributes)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Runtime Entity ID | UnsignedVarLong |  |
-|Attributes | PlayerAttributes |  |
-|Tick | UnsignedVarLong |  |
------------------------------------------------------------------------
 ### Interact (0x21)
 Wiki: [Interact](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Interact)
 
@@ -484,22 +453,6 @@ Wiki: [Crafting Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Cra
 |Material reducer recipes | MaterialReducerRecipe[] |  |
 |Is Clean | bool |  |
 -----------------------------------------------------------------------
-### Block Entity Data (0x38)
-Wiki: [Block Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BlockEntityData)
-
-**Sent from server:** true  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Coordinates | BlockCoordinates |  |
-|NamedTag | Nbt |  |
------------------------------------------------------------------------
 ### Change Dimension (0x3d)
 Wiki: [Change Dimension](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ChangeDimension)
 
@@ -625,88 +578,6 @@ Wiki: [Command Output](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Co
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Update Trade (0x50)
-Wiki: [Update Trade](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateTrade)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Window ID | byte |  |
-|Window Type | byte |  |
-|Size | SignedVarInt |  |
-|Trade Tier | SignedVarInt |  |
-|Trader Entity ID | SignedVarLong |  |
-|Player Entity ID | SignedVarLong |  |
-|Display Name | string |  |
-|Use New Trade Screen | bool |  |
-|Using Economy Trade | bool |  |
-|NamedTag | Nbt |  |
------------------------------------------------------------------------
-### Update Equipment (0x51)
-Wiki: [Update Equipment](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateEquipment)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Window ID | byte |  |
-|Window Type | byte |  |
-|Size | SignedVarInt |  |
-|Entity ID | SignedVarLong |  |
-|NamedTag | Nbt |  |
------------------------------------------------------------------------
-### Resource Pack Data Info (0x52)
-Wiki: [Resource Pack Data Info](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackDataInfo)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Package ID | string |  |
-|Max Chunk Size | uint |  |
-|Chunk Count | uint |  |
-|Compressed Package Size | ulong |  |
-|Hash | ByteArray |  |
-|Is Premium | bool |  |
-|Pack Type | byte |  |
------------------------------------------------------------------------
-### Resource Pack Chunk Data (0x53)
-Wiki: [Resource Pack Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackChunkData)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Package ID | string |  |
-|Chunk Index | uint |  |
-|Progress | ulong |  |
-|Payload | ByteArray |  |
------------------------------------------------------------------------
 ### Resource Pack Chunk Request (0x54)
 Wiki: [Resource Pack Chunk Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackChunkRequest)
 
@@ -736,21 +607,6 @@ Wiki: [Purchase Receipt](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
------------------------------------------------------------------------
-### Sub Client Login (0x5e)
-Wiki: [Sub Client Login](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SubClientLogin)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Connection Request | ByteArray |  |
 -----------------------------------------------------------------------
 ### Set Last Hurt By (0x60)
 Wiki: [Set Last Hurt By](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetLastHurtBy)
@@ -865,21 +721,6 @@ Wiki: [Spawn Particle Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Position | Vector3 |  |
 |Particle name | string |  |
 -----------------------------------------------------------------------
-### Available Entity Identifiers (0x77)
-Wiki: [Available Entity Identifiers](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AvailableEntityIdentifiers)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|NamedTag | Nbt |  |
------------------------------------------------------------------------
 ### Network Chunk Publisher Update (0x79)
 Wiki: [Network Chunk Publisher Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NetworkChunkPublisherUpdate)
 
@@ -929,22 +770,6 @@ Wiki: [Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol
 |Entity Type | string |  |
 |Is baby mob | bool |  |
 |Is global | bool |  |
------------------------------------------------------------------------
-### Level Event Generic (0x7c)
-Wiki: [Level Event Generic](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelEventGeneric)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Event ID | SignedVarInt |  |
-|Event Data | NbtBody |  |
 -----------------------------------------------------------------------
 ### Structure Template Data Export Response (0x85)
 Wiki: [Structure Template Data Export Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StructureTemplateDataExportResponse)
@@ -1067,23 +892,6 @@ Wiki: [Emote List](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EmoteL
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
-### Position Tracking Db Server Broadcast (0x99)
-Wiki: [Position Tracking Db Server Broadcast](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PositionTrackingDbServerBroadcast)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Action | byte |  |
-|Tracking ID | SignedVarInt |  |
-|NBT | NbtBody |  |
------------------------------------------------------------------------
 ### Animate Entity (0x9e)
 Wiki: [Animate Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AnimateEntity)
 
@@ -1167,21 +975,6 @@ Wiki: [Clientbound Debug Renderer](https://github.com/NiclasOlofsson/MiNET/wiki/
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Type | string |  |
------------------------------------------------------------------------
-### Sync Entity Property (0xa5)
-Wiki: [Sync Entity Property](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SyncEntityProperty)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|NamedTag | Nbt |  |
 -----------------------------------------------------------------------
 ### Npc Dialogue (0xa9)
 Wiki: [Npc Dialogue](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NpcDialogue)
@@ -1439,21 +1232,6 @@ Wiki: [Server Bound Loading Screen](https://github.com/NiclasOlofsson/MiNET/wiki
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Type | SignedVarInt |  |
------------------------------------------------------------------------
-### Jigsaw Structure Data (0x139)
-Wiki: [Jigsaw Structure Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-JigsawStructureData)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Structure Data | Nbt |  |
 -----------------------------------------------------------------------
 ### Container Registry Cleanup (0x13d)
 Wiki: [Container Registry Cleanup](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ContainerRegistryCleanup)

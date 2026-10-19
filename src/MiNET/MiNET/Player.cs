@@ -222,10 +222,10 @@ namespace MiNET
 
 			var content = File.ReadAllBytes(@"D:\Temp\ResourcePackChunkData_8f760cf7-2ca4-44ab-ab60-9be2469b9777.zip");
 			McpeResourcePackChunkData chunkData = McpeResourcePackChunkData.CreateObject();
-			chunkData.packageId = "5abdb963-4f3f-4d97-8482-88e2049ab149";
-			chunkData.chunkIndex = 0; // Package index ?
-			chunkData.progress = 0; // Long, maybe timestamp?
-			chunkData.payload = content;
+			chunkData.resourceName = "5abdb963-4f3f-4d97-8482-88e2049ab149";
+			chunkData.chunkId = 0; // Package index ?
+			chunkData.byteOffset = 0; // Long, maybe timestamp?
+			chunkData.chunkData = content;
 			SendPacket(chunkData);
 		}
 
@@ -406,11 +406,11 @@ namespace MiNET
 			if (message.response is ResourcePackClientResponseDownloading)
 			{
 				McpeResourcePackDataInfo dataInfo = McpeResourcePackDataInfo.CreateObject();
-				dataInfo.packageId = "5abdb963-4f3f-4d97-8482-88e2049ab149";
-				dataInfo.maxChunkSize = 1048576;
-				dataInfo.chunkCount = 1;
-				dataInfo.compressedPackageSize = 359901; // Lenght of data
-				dataInfo.hash = new byte[] {57, 38, 13, 50, 39, 63, 88, 63, 59, 27, 63, 63, 63, 63, 6, 63, 54, 7, 84, 63, 47, 91, 63, 120, 63, 120, 42, 5, 104, 2, 63, 18};
+				dataInfo.resourceName = "5abdb963-4f3f-4d97-8482-88e2049ab149";
+				dataInfo.chunkSize = 1048576;
+				dataInfo.numberOfChunks = 1;
+				dataInfo.fileSize = 359901; // Lenght of data
+				dataInfo.fileHash = new byte[] {57, 38, 13, 50, 39, 63, 88, 63, 59, 27, 63, 63, 63, 63, 6, 63, 54, 7, 84, 63, 47, 91, 63, 120, 63, 120, 42, 5, 104, 2, 63, 18};
 				SendPacket(dataInfo);
 				return;
 			}
@@ -1007,17 +1007,17 @@ namespace MiNET
 		{
 			if (Log.IsDebugEnabled)
 			{
-				Log.DebugFormat("x:  {0}", message.coordinates.X);
-				Log.DebugFormat("y:  {0}", message.coordinates.Y);
-				Log.DebugFormat("z:  {0}", message.coordinates.Z);
-				Log.DebugFormat("NBT {0}", message.namedtag.NbtFile);
+				Log.DebugFormat("x:  {0}", message.blockPosition.X);
+				Log.DebugFormat("y:  {0}", message.blockPosition.Y);
+				Log.DebugFormat("z:  {0}", message.blockPosition.Z);
+				Log.DebugFormat("NBT {0}", message.actorDataTags.NbtFile);
 			}
 
-			var blockEntity = Level.GetBlockEntity(message.coordinates);
+			var blockEntity = Level.GetBlockEntity(message.blockPosition);
 
 			if (blockEntity == null) return;
 
-			blockEntity.SetCompound((NbtCompound) message.namedtag.NbtFile.RootTag);
+			blockEntity.SetCompound((NbtCompound) message.actorDataTags.NbtFile.RootTag);
 			Level.SetBlockEntity(blockEntity);
 		}
 
@@ -1396,7 +1396,7 @@ namespace MiNET
 			var root = new NbtCompound("") {EntityHelpers.GenerateEntityIdentifiers()};
 
 			var pk = McpeAvailableEntityIdentifiers.CreateObject();
-			pk.namedtag = new Nbt {NbtFile = new NbtFile(root) {BigEndian = false, UseVarInt = true}};
+			pk.identifierList = new Nbt {NbtFile = new NbtFile(root) {BigEndian = false, UseVarInt = true}};
 			SendPacket(pk);
 		}
 
@@ -1414,7 +1414,7 @@ namespace MiNET
 		public virtual void SendJigsawStructureData()
 		{
 			var pk = McpeJigsawStructureData.CreateObject();
-			pk.structureData = JoinSequenceData.NbtFromBase64(JoinSequenceData.JigsawStructureData.Value.NbtB64);
+			pk.jigsawStructureDataTag = JoinSequenceData.NbtFromBase64(JoinSequenceData.JigsawStructureData.Value.NbtB64);
 			SendPacket(pk);
 		}
 
@@ -1436,7 +1436,7 @@ namespace MiNET
 			foreach (var entry in JoinSequenceData.EntityProperties.Value.Entries)
 			{
 				var pk = McpeSyncEntityProperty.CreateObject();
-				pk.namedtag = JoinSequenceData.NbtFromBase64(entry.NbtB64);
+				pk.propertyData = JoinSequenceData.NbtFromBase64(entry.NbtB64);
 				SendPacket(pk);
 			}
 		}
@@ -4761,8 +4761,8 @@ namespace MiNET
 			Add("minecraft:air_drag_modifier", 0, 256, AirDragModifier, 1);
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
-			attributesPackate.runtimeEntityId = EntityManager.EntityIdSelf;
-			attributesPackate.attributes = attributes;
+			attributesPackate.targetRuntimeId = EntityManager.EntityIdSelf;
+			attributesPackate.attributeList = attributes;
 			SendPacket(attributesPackate);
 		}
 

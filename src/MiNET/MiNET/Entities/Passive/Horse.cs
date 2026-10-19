@@ -336,9 +336,9 @@ namespace MiNET.Entities.Passive
 			player.OpenScreen(new Screen(ScreenKind.Horse, this));
 
 			McpeUpdateEquipment equ = McpeUpdateEquipment.CreateObject();
-			equ.entityId = _horse.EntityId;
-			equ.windowId = 2;
-			equ.windowType = 12;
+			equ.entityUniqueId = _horse.EntityId;
+			equ.containerId = 2;
+			equ.type = 12;
 
 			Nbt nbt = new Nbt
 			{
@@ -349,7 +349,7 @@ namespace MiNET.Entities.Passive
 					RootTag = GetNbt()
 				}
 			};
-			equ.namedtag = nbt;
+			equ.data = nbt;
 
 			player.SendPacket(equ);
 

@@ -62,7 +62,7 @@ namespace MiNET.Entities.Projectiles
 		/// <summary>The share of its speed kept each tick in water or lava.</summary>
 		public double LiquidInertia { get; set; } = 0.6;
 
-		/// <summary>Launch inaccuracy. Carried, not applied: BDS states the values, not how they spread a throw.</summary>
+		/// <summary>Launch inaccuracy at peaceful; each step of difficulty takes off <see cref="UncertaintyMultiplier" />.</summary>
 		public double UncertaintyBase { get; set; }
 
 		public double UncertaintyMultiplier { get; set; }
@@ -239,6 +239,46 @@ namespace MiNET.Entities.Projectiles
 			{
 				OnHitBlock(collidedWithBlock);
 			}
+		}
+
+		/// <summary>The launch inaccuracy at a difficulty, never below zero. Hardcore counts as hard.</summary>
+		public double Uncertainty(Difficulty difficulty)
+		{
+			int step = Math.Min((int) difficulty, (int) Difficulty.Hard);
+			return Math.Max(0, UncertaintyBase - UncertaintyMultiplier * step);
+		}
+
+		/// <summary>
+		///     Launches along a direction the way BDS's projectile component does: the unit direction,
+		///     each axis pushed by a gaussian times 0.0075 times the uncertainty, all scaled by power.
+		///     The shooter's own motion is not added.
+		/// </summary>
+		public void Shoot(Vector3 direction, double power)
+		{
+			float length = direction.Length();
+			direction = length < 0.001f ? Vector3.Zero : direction / length;
+
+			double spread = 0.0075 * Uncertainty(Level.Difficulty);
+			direction.X += (float) (NextGaussian(Level.Random) * spread);
+			direction.Y += (float) (NextGaussian(Level.Random) * spread);
+			direction.Z += (float) (NextGaussian(Level.Random) * spread);
+
+			Velocity = direction * (float) power;
+			KnownPosition.Yaw = (float) Velocity.GetYaw();
+			KnownPosition.Pitch = (float) Velocity.GetPitch();
+		}
+
+		private static double NextGaussian(Random random)
+		{
+			double v1, v2, s;
+			do
+			{
+				v1 = 2 * random.NextDouble() - 1;
+				v2 = 2 * random.NextDouble() - 1;
+				s = v1 * v1 + v2 * v2;
+			} while (s >= 1 || s == 0);
+
+			return v1 * Math.Sqrt(-2 * Math.Log(s) / s);
 		}
 
 		/// <summary>A hit's damage before criticals and enchantments: the fixed range plus speed times the power multiplier.</summary>

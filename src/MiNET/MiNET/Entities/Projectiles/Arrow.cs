@@ -40,10 +40,21 @@ namespace MiNET.Entities.Projectiles
 			Height = 0.25;
 
 			Gravity = 0.05;
-			Power = 1.1;
-			UncertaintyBase = 16;
-			UncertaintyMultiplier = 4;
 			CeilPreCriticalDamage = true;
+
+			if (shooter != null)
+			{
+				// minecraft:player_arrow, the group a player's shot adds.
+				Power = 3;
+				UncertaintyBase = 1;
+				UncertaintyMultiplier = 0;
+			}
+			else
+			{
+				Power = 1.1;
+				UncertaintyBase = 16;
+				UncertaintyMultiplier = 4;
+			}
 
 			HealthManager.IsInvulnerable = true;
 			Ttl = 1200;

@@ -24,7 +24,6 @@
 #endregion
 
 using System;
-using System.Numerics;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Entities;
@@ -74,8 +73,8 @@ namespace MiNET.Items
 
 		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			long timeUsed = world.TickTime - _useTime;
-			if (timeUsed < 6) // questionable, but we go with it for now.
+			float force = CalculateForce(world.TickTime - _useTime);
+			if (force < 0.1f)
 			{
 				player.SendPlayerInventory(); // Need to reset inventory, because we don't know what the client did here
 				return;
@@ -120,17 +119,12 @@ namespace MiNET.Items
 
 			if (!haveArrow) return;
 
-			float force = CalculateForce(timeUsed);
-			if (force < 0.1D) return;
-
 			var arrow = new Arrow(player, world, 2, !(force < 1.0));
 			arrow.PowerLevel = this.GetEnchantingLevel(EnchantingType.Power);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
-			arrow.KnownPosition.Y += 1.62f;
+			arrow.KnownPosition.Y += 1.62f - 0.1f; // eye height plus the arrow definition's offset
 
-			arrow.Velocity = arrow.KnownPosition.GetHeadDirection().Normalize() * (force * 3);
-			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
-			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
+			arrow.Shoot(arrow.KnownPosition.GetHeadDirection(), force * arrow.Power);
 			arrow.BroadcastMovement = true;
 			arrow.DespawnOnImpact = false;
 
@@ -138,7 +132,8 @@ namespace MiNET.Items
 			player.Inventory.DamageItemInHand(ItemDamageReason.ItemUse, player, null);
 		}
 
-		private float CalculateForce(long timeUsed)
+		/// <summary>The draw: (s² + 2s) / 3 over s seconds held, capped at 1. Under 0.1, under three ticks, the bow does not fire.</summary>
+		internal static float CalculateForce(long timeUsed)
 		{
 			float force = timeUsed / 20.0F;
 
@@ -154,30 +149,6 @@ namespace MiNET.Items
 			}
 
 			return force;
-		}
-
-		public Vector3 GetShootVector(double motX, double motY, double motZ, double f, double f1)
-		{
-			double f2 = Math.Sqrt(motX * motX + motY * motY + motZ * motZ);
-
-			motX /= f2;
-			motY /= f2;
-			motZ /= f2;
-			//motX += this.random.nextGaussian() * (double)(this.random.nextBoolean() ? -1 : 1) * 0.007499999832361937D * (double)f1;
-			//motY += this.random.nextGaussian() * (double)(this.random.nextBoolean() ? -1 : 1) * 0.007499999832361937D * (double)f1;
-			//motZ += this.random.nextGaussian() * (double)(this.random.nextBoolean() ? -1 : 1) * 0.007499999832361937D * (double)f1;
-			motX *= f;
-			motY *= f;
-			motZ *= f;
-			return new Vector3((float) motX, (float) motY, (float) motZ);
-			//thismotX = motX;
-			//thismotY = motY;
-			//thismotZ = motZ;
-			//double f3 = Math.Sqrt(motX * motX + motZ * motZ);
-
-			//thislastYaw = this.yaw = (float)(Math.atan2(motX, motZ) * 180.0D / 3.1415927410125732D);
-			//this.lastPitch = this.pitch = (float)(Math.atan2(motY, (double)f3) * 180.0D / 3.1415927410125732D);
-			//this.ttl = 0;
 		}
 	}
 }

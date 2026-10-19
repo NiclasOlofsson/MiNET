@@ -292,6 +292,13 @@ public class CerealField
 	public int PresenceBytes = 1;
 
 	/// <summary>
+	///     For arrays: the count is a raw little-endian uint32, not a varint. The schema says "No size
+	///     compression"; BDS's NetworkChunkPublisherUpdate and a real client's MapInfoRequest both
+	///     carry four count bytes.
+	/// </summary>
+	public bool RawCount;
+
+	/// <summary>
 	///     A variant whose payload carries its own presence byte after the tag. Mojang's docs
 	///     collapse a pair of C++ optionals, one for the discriminator and one for the data, into a
 	///     single oneOf, so the wire is presence, tag, presence, payload where the schema shows only
@@ -556,7 +563,12 @@ public class CerealPacket
 		}
 	}
 
-	private static void ResolveType(string owner, CerealField field, JObject prop, SchemaRepo schemas, Overrides overrides, Dictionary<string, CerealStruct> structs)
+	/// <param name="inheritCompression">
+	///     Set for an array's element when the array carries "Compression": the elements are then
+	///     compressed (zigzag or plain varints). BDS writes SetHud's elements that way and a real client
+	///     writes PlayerAuthInput's input flags that way.
+	/// </param>
+	private static void ResolveType(string owner, CerealField field, JObject prop, SchemaRepo schemas, Overrides overrides, Dictionary<string, CerealStruct> structs, bool inheritCompression = false)
 	{
 		if (prop["const"] != null)
 		{
@@ -611,10 +623,11 @@ public class CerealPacket
 				VariantConstIsByte = field.VariantConstIsByte,
 				VariantPayloadGate = field.VariantPayloadGate,
 			};
-			ResolveType(owner, element, (JObject) prop["items"], schemas, overrides, structs);
+			ResolveType(owner, element, (JObject) prop["items"], schemas, overrides, structs, HasOption(prop, "Compression"));
 			if (element.Kind == FieldKind.Array) throw new NotImplementedException($"{owner}.{field.WireName}: nested arrays are not implemented yet");
 			field.Kind = FieldKind.Array;
 			field.Element = element;
+			field.RawCount = HasOption(prop, "No size compression");
 			return;
 		}
 
@@ -644,8 +657,8 @@ public class CerealPacket
 				field.Kind = FieldKind.Plain;
 				// Compression is a property of the reference, not of the enum: GameType.json says
 				// nothing, while AddPlayer's Player Game Type asks for it and StartGame's does too.
-				bool refCompressed = HasOption(prop, "Compression") || HasOption(target, "Compression");
-				field.Type = Primitive(owner, field.WireName, (string) target["x-underlying-type"], refCompressed);
+				bool refCompressed = inheritCompression || HasOption(prop, "Compression") || HasOption(target, "Compression");
+				field.Type = Primitive(owner, field.WireName, (string) target["x-underlying-type"], refCompressed, IsBigEndian(prop) || IsBigEndian(target));
 				return;
 			}
 
@@ -653,7 +666,7 @@ public class CerealPacket
 			if (targetProps != null && targetProps.Count == 1)
 			{
 				// Single-field wrapper (ActorRuntimeID and friends): flatten to its primitive.
-				ResolveType(owner, field, (JObject) targetProps[0].Value, schemas, overrides, structs);
+				ResolveType(owner, field, (JObject) targetProps[0].Value, schemas, overrides, structs, inheritCompression);
 				return;
 			}
 
@@ -746,7 +759,7 @@ public class CerealPacket
 				BinaryValues = CerealEnum.ReadBinaryValues(prop),
 			};
 			field.Kind = FieldKind.Plain;
-			field.Type = Primitive(owner, field.WireName, (string) prop["x-underlying-type"], HasOption(prop, "Compression"));
+			field.Type = Primitive(owner, field.WireName, (string) prop["x-underlying-type"], inheritCompression || HasOption(prop, "Compression"), IsBigEndian(prop));
 			return;
 		}
 
@@ -755,13 +768,16 @@ public class CerealPacket
 		if (underlying == null)
 			throw new NotImplementedException($"{owner}.{field.WireName}: field has no type information; needs a field type override (NBT payload?)");
 		field.Kind = FieldKind.Plain;
-		field.Type = Primitive(owner, field.WireName, underlying, HasOption(prop, "Compression"));
+		field.Type = Primitive(owner, field.WireName, underlying, inheritCompression || HasOption(prop, "Compression"), IsBigEndian(prop));
 	}
 
 	private static bool HasOption(JObject schema, string option)
 	{
 		return ((JArray) schema["x-serialization-options"])?.Any(o => (string) o == option) ?? false;
 	}
+
+	// Both spellings occur: Login's protocol version says "Big Endian", PlayStatus's status "BigEndian".
+	private static bool IsBigEndian(JObject schema) => HasOption(schema, "Big Endian") || HasOption(schema, "BigEndian");
 
 	private static CerealStruct ResolveStruct(string name, JObject schema, SchemaRepo schemas, Overrides overrides, Dictionary<string, CerealStruct> structs)
 	{
@@ -809,8 +825,16 @@ public class CerealPacket
 		return char.ToUpperInvariant(joined[0]) + joined.Substring(1);
 	}
 
-	private static TypeMapping Primitive(string owner, string fieldName, string underlying, bool compressed)
+	private static TypeMapping Primitive(string owner, string fieldName, string underlying, bool compressed, bool bigEndian = false)
 	{
+		if (bigEndian)
+		{
+			// The handshake's int32s (Login, RequestNetworkSettings, PlayStatus) are the only big-endian
+			// fields; anything else asking for it has no measured wire form yet.
+			if (underlying == "int32" && !compressed) return new TypeMapping {CsType = "int", Write = "WriteBe({0});", Read = "{0} = ReadIntBe();"};
+			throw new NotImplementedException($"{owner}.{fieldName}: big-endian {underlying}{(compressed ? "+Compression" : "")} is not implemented yet");
+		}
+
 		switch (underlying)
 		{
 			case "boolean":

@@ -438,6 +438,12 @@ public static class CerealEmitter
 		yield return "}";
 	}
 
+	// An array's count: a varint, or a raw little-endian uint32 where the schema says "No size compression".
+	// The argument arrives already cast to uint (or as the literal 0), so the varint form is unchanged text.
+	private static string CountWrite(CerealField field, string count) => field.RawCount ? $"Write({(count == "0" ? "(uint) 0" : count)});" : $"WriteUnsignedVarInt({count});";
+
+	private static string CountRead(CerealField field) => field.RawCount ? "ReadUint()" : "ReadUnsignedVarInt()";
+
 	private static IEnumerable<string> WriteLinesInner(CerealField field, string prefix)
 	{
 		string name = prefix + field.FieldName;
@@ -511,7 +517,7 @@ public static class CerealEmitter
 			if (field.Optional) yield return $"Write({name} != null);";
 			yield return $"if ({name} != null)";
 			yield return "{";
-			yield return $"\tWriteUnsignedVarInt((uint) {name}.Count);";
+			yield return $"\t{CountWrite(field, $"(uint) {name}.Count")}";
 			yield return $"\tforeach ({field.Element.CsType} item in {name})";
 			yield return "\t{";
 			yield return "\t\tswitch (item)";
@@ -529,7 +535,7 @@ public static class CerealEmitter
 			yield return "\t}";
 			yield return "}";
 			// Cereal has no null: a required vector that was never set is an empty vector, count 0.
-			if (!field.Optional) yield return $"else WriteUnsignedVarInt(0);";
+			if (!field.Optional) yield return $"else {CountWrite(field, "0")}";
 			yield break;
 		}
 
@@ -564,14 +570,14 @@ public static class CerealEmitter
 				yield return $"Write({name} != null);";
 				yield return $"if ({name} != null)";
 				yield return "{";
-				yield return $"\tWriteUnsignedVarInt((uint) {name}.Count);";
+				yield return $"\t{CountWrite(field, $"(uint) {name}.Count")}";
 				yield return $"\tforeach ({field.Element.CsType} item in {name}) {writeItem}";
 				yield return "}";
 			}
 			else
 			{
 				// Cereal has no null: an unset vector is an empty vector, count 0.
-				yield return $"WriteUnsignedVarInt((uint) ({name}?.Count ?? 0));";
+				yield return CountWrite(field, $"(uint) ({name}?.Count ?? 0)");
 				yield return $"if ({name} != null) foreach ({field.Element.CsType} item in {name}) {writeItem}";
 			}
 			yield break;
@@ -698,14 +704,14 @@ public static class CerealEmitter
 			{
 				yield return $"if ({present})";
 				yield return "{";
-				yield return $"\tuint {field.FieldName}Count = ReadUnsignedVarInt();";
+				yield return $"\tuint {field.FieldName}Count = {CountRead(field)};";
 				yield return $"\t{name} = new List<{field.Element.CsType}>((int) {field.FieldName}Count);";
 				yield return $"\tfor (int i = 0; i < {field.FieldName}Count; i++) {name}.Add({ReadExpression(field.Element)});";
 				yield return "}";
 			}
 			else
 			{
-				yield return $"uint {field.FieldName}Count = ReadUnsignedVarInt();";
+				yield return $"uint {field.FieldName}Count = {CountRead(field)};";
 				yield return $"{name} = new List<{field.Element.CsType}>((int) {field.FieldName}Count);";
 				yield return $"for (int i = 0; i < {field.FieldName}Count; i++) {name}.Add({ReadExpression(field.Element)});";
 			}

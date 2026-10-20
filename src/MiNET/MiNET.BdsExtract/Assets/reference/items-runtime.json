@@ -118,21 +118,15 @@
 					"kind": "Bool"
 				},
 				{
-					"name": "mirroredArt",
-					"at": 53,
-					"bytes": 1,
-					"kind": "Bool"
-				},
-				{
 					"name": "useAnimation",
-					"at": 54,
+					"at": 53,
 					"bytes": 1,
 					"kind": "Enum8"
 				},
 				{
 					"name": "padding2",
-					"at": 55,
-					"bytes": 1,
+					"at": 54,
+					"bytes": 2,
 					"kind": "Padding",
 					"comparable": false
 				},

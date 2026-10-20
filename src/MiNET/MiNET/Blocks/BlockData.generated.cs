@@ -1110,6 +1110,14 @@ namespace MiNET.Blocks
 		}
 	} // class
 
+	public partial class BrittleIce : Block // minecraft:brittle_ice
+	{
+		public BrittleIce()
+		{
+			IsGenerated = true;
+		}
+	} // class
+
 	public partial class BrownCandle : Block // minecraft:brown_candle
 	{
 		public BrownCandle()
@@ -3177,14 +3185,6 @@ namespace MiNET.Blocks
 	public partial class DirtWithRoots : Block // minecraft:dirt_with_roots
 	{
 		public DirtWithRoots()
-		{
-			IsGenerated = true;
-		}
-	} // class
-
-	public partial class DiscPress : Block // minecraft:disc_press
-	{
-		public DiscPress()
 		{
 			IsGenerated = true;
 		}
@@ -7576,6 +7576,104 @@ namespace MiNET.Blocks
 		{
 			IsGenerated = true;
 		}
+	} // class
+
+	public partial class PackedIceBricks : StoneBrickBase // minecraft:packed_ice_bricks
+	{
+		public PackedIceBricks()
+		{
+			IsGenerated = true;
+		}
+
+		public override BlockDefinition CreateDefinition() => new(
+			Tags: ["minecraft:is_pickaxe_item_destructible"],
+			MenuCategory: new("nature", "", false),
+			VanillaBlockData: new(1505, "solid", null, false, null, false, false),
+			Components: new(
+				DestructibleByMining: 0.5f,
+				DestructionParticles: new(100, "", "none"),
+				Geometry: new("minecraft:geometry.full_block", "", "minecraft:culling_layer.undefined", "", false, false, false, false, false),
+				MaterialInstances: new(new Dictionary<string, MaterialInstance> {["*"] = new(1f, 5, "opaque", "packed_ice_bricks", "none")})),
+			Permutations: []);
+	} // class
+
+	public partial class PackedIceBricksChiseled : StoneBrickBase // minecraft:packed_ice_bricks_chiseled
+	{
+		public PackedIceBricksChiseled()
+		{
+			IsGenerated = true;
+		}
+
+		public override BlockDefinition CreateDefinition() => new(
+			Tags: ["minecraft:is_pickaxe_item_destructible"],
+			MenuCategory: new("nature", "", false),
+			VanillaBlockData: new(1513, "solid", null, false, null, false, false),
+			Components: new(
+				DestructibleByMining: 0.5f,
+				DestructionParticles: new(100, "", "none"),
+				Geometry: new("minecraft:geometry.full_block", "", "minecraft:culling_layer.undefined", "", false, false, false, false, false),
+				MaterialInstances: new(new Dictionary<string, MaterialInstance> {["*"] = new(1f, 5, "opaque", "chiseled_packed_ice", "none")})),
+			Permutations: []);
+	} // class
+
+	public partial class PackedIceBricksDoubleSlab : Block // minecraft:packed_ice_bricks_double_slab
+	{
+		public PackedIceBricksDoubleSlab()
+		{
+			IsGenerated = true;
+		}
+
+		public override BlockDefinition CreateDefinition() => new(
+			Tags: ["minecraft:is_pickaxe_item_destructible"],
+			MenuCategory: new("none", "", true),
+			VanillaBlockData: new(1515, "solid", new SlabArchetype("minecraft:packed_ice_bricks_slab", true), false, null, false, false),
+			Components: new(DestructibleByMining: 0.5f, DestructionParticles: new(100, "", "none")),
+			Permutations: []);
+	} // class
+
+	public partial class PackedIceBricksSlab : SlabBase // minecraft:packed_ice_bricks_slab
+	{
+		public PackedIceBricksSlab()
+		{
+			IsGenerated = true;
+		}
+
+		public override BlockDefinition CreateDefinition() => new(
+			Tags: ["minecraft:is_pickaxe_item_destructible"],
+			MenuCategory: new("nature", "minecraft:itemGroup.name.slab", false),
+			VanillaBlockData: new(1511, "solid", new SlabArchetype("minecraft:packed_ice_bricks_double_slab", false), false, null, false, false),
+			Components: new(DestructibleByMining: 0.5f, DestructionParticles: new(100, "", "none")),
+			Permutations: []);
+	} // class
+
+	public partial class PackedIceBricksStairs : StairsBase // minecraft:packed_ice_bricks_stairs
+	{
+		public PackedIceBricksStairs()
+		{
+			IsGenerated = true;
+		}
+
+		public override BlockDefinition CreateDefinition() => new(
+			Tags: ["minecraft:is_pickaxe_item_destructible"],
+			MenuCategory: new("nature", "minecraft:itemGroup.name.stairs", false),
+			VanillaBlockData: new(1512, "solid", new StairArchetype("minecraft:packed_ice_bricks"), false, null, false, false),
+			Components: new(DestructibleByMining: 0.5f, DestructionParticles: new(100, "", "none"), SupportShape: "stair"),
+			Permutations: []);
+	} // class
+
+	public partial class PackedIceBricksWall : Block // minecraft:packed_ice_bricks_wall
+	{
+		public PackedIceBricksWall()
+		{
+			IsGenerated = true;
+		}
+
+		public override BlockDefinition CreateDefinition() => new(
+			Tags: [],
+			MenuCategory: new("none", "", false),
+			VanillaBlockData: new(1514, "solid", null, false, null, false, false),
+			Components: new(),
+			Permutations: []);
 	} // class
 
 	public partial class PackedMud : Block // minecraft:packed_mud

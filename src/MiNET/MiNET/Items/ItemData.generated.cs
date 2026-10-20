@@ -799,6 +799,11 @@ namespace MiNET.Items
 		public ItemHuskSpawnEgg() : base("minecraft:husk_spawn_egg") { }
 	} // class
 
+	public partial class ItemIceBall : Item // minecraft:ice_ball
+	{
+		public ItemIceBall() : base("minecraft:ice_ball") { }
+	} // class
+
 	public partial class ItemInkSac : Item // minecraft:ink_sac
 	{
 		public ItemInkSac() : base("minecraft:ink_sac") { }

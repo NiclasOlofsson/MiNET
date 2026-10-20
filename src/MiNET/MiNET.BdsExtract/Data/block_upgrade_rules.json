@@ -32,7 +32,9 @@
 			},
 			"result": {
 				"states": {
-					"unread": 104
+					"2347714444640": "tile.cobblestone_wall.stone_brick",
+					"2347714441952": "tile.cobblestone_wall.nether_brick",
+					"2347714442848": "tile.cobblestone_wall.prismarine"
 				}
 			}
 		},
@@ -858,8 +860,6 @@
 				"direction",
 				"name"
 			],
-			"produces": "minecraft:wood",
-			"producesFrom": "code",
 			"remaps": [
 				[
 					"oak",
@@ -1119,10 +1119,14 @@
 			"match": {},
 			"result": {
 				"facing_direction": {
-					"unread": 104
+					"3": "tile.cobblestone_wall.diorite",
+					"4": "tile.cobblestone_wall.andesite",
+					"5": "tile.cobblestone_wall.sandstone"
 				},
 				"fill_level": {
-					"unread": 104
+					"2345052143619": "tile.double_stone_slab3.andesite",
+					"2345052143620": "tile.double_stone_slab3.diorite",
+					"2345052143621": "tile.double_stone_slab3.diorite.smooth"
 				}
 			}
 		},
@@ -1566,11 +1570,7 @@
 		},
 		{
 			"version": "1.20.20.8",
-			"match": {
-				"states": {
-					"unread": 0
-				}
-			},
+			"match": {},
 			"result": {},
 			"fields": [
 				"top_slot_bit"
@@ -2343,7 +2343,11 @@
 		{
 			"version": "1.20.30.12",
 			"match": {},
-			"result": {},
+			"result": {
+				"states": {
+					"unread": 0
+				}
+			},
 			"fields": [
 				"direction"
 			]

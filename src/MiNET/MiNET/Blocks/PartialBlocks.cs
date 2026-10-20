@@ -57,7 +57,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 20769 + d0 * 6 + d1;
+			return 21022 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -127,7 +127,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 10618 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 10836 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -181,7 +181,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 14772 + d0;
+			return 15027 + d0;
 		} // method
 	} // class
 
@@ -247,7 +247,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 23149 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 23405 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -312,7 +312,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 22031 + d0 * 8 + d1 + d2 * 4;
+			return 22286 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -380,7 +380,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 5493 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 5655 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -432,7 +432,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 5256 + d0 * 2 + d1;
+			return 5418 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -486,7 +486,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10372 + d0;
+			return 10550 + d0;
 		} // method
 	} // class
 
@@ -525,7 +525,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10668;
+		public override int GetRuntimeId() => 10886;
 	} // class
 
 	public partial class AcaciaPressurePlate // minecraft:acacia_pressure_plate
@@ -573,7 +573,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 13174 + d0;
+			return 13412 + d0;
 		} // method
 	} // class
 
@@ -621,7 +621,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = AgeBit ? 1 : 0;
 
-			return 18335 + d0;
+			return 18592 + d0;
 		} // method
 	} // class
 
@@ -690,7 +690,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 493 + d0 * 8 + d1 * 4 + d2;
+			return 655 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -743,7 +743,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21942 + d0;
+			return 22197 + d0;
 		} // method
 	} // class
 
@@ -810,7 +810,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 17955 + d0 * 8 + d1 * 4 + d2;
+			return 18212 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -858,7 +858,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 18065 + d0;
+			return 18322 + d0;
 		} // method
 	} // class
 
@@ -916,7 +916,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 14631 + d0 + d1 * 8 + d2 * 4;
+			return 14886 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -964,7 +964,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 6997 + d0;
+			return 7175 + d0;
 		} // method
 	} // class
 
@@ -1019,7 +1019,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19228 + d0;
+			return 19481 + d0;
 		} // method
 	} // class
 
@@ -1074,7 +1074,7 @@ namespace MiNET.Blocks
 			if (RailDirection < 0 || RailDirection > 5) return -1;
 			int d1 = RailDirection;
 
-			return 2297 + d0 * 6 + d1;
+			return 2459 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -1113,7 +1113,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18894;
+		public override int GetRuntimeId() => 19147;
 	} // class
 
 	public partial class Allium // minecraft:allium
@@ -1151,7 +1151,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2431;
+		public override int GetRuntimeId() => 2593;
 	} // class
 
 	public partial class Allow // minecraft:allow
@@ -1189,7 +1189,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20096;
+		public override int GetRuntimeId() => 20349;
 	} // class
 
 	public partial class AmethystBlock // minecraft:amethyst_block
@@ -1227,7 +1227,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1984;
+		public override int GetRuntimeId() => 2146;
 	} // class
 
 	public partial class AmethystCluster // minecraft:amethyst_cluster
@@ -1284,7 +1284,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22616 + d0;
+			return 22871 + d0;
 		} // method
 	} // class
 
@@ -1323,7 +1323,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17803;
+		public override int GetRuntimeId() => 18058;
 	} // class
 
 	public partial class Andesite // minecraft:andesite
@@ -1361,7 +1361,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3315;
+		public override int GetRuntimeId() => 3477;
 	} // class
 
 	public partial class AndesiteDoubleSlab // minecraft:andesite_double_slab
@@ -1414,7 +1414,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16311 + d0;
+			return 16566 + d0;
 		} // method
 	} // class
 
@@ -1467,7 +1467,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18340 + d0;
+			return 18597 + d0;
 		} // method
 	} // class
 
@@ -1534,7 +1534,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 13280 + d0 * 8 + d1 * 4 + d2;
+			return 13518 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -1634,7 +1634,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 14415 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 14670 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -1690,7 +1690,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18841 + d0;
+			return 19094 + d0;
 		} // method
 	} // class
 
@@ -1729,7 +1729,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19210;
+		public override int GetRuntimeId() => 19463;
 	} // class
 
 	public partial class AzaleaLeaves // minecraft:azalea_leaves
@@ -1780,7 +1780,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 22223 + d0 * 2 + d1;
+			return 22478 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -1832,7 +1832,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 18264 + d0 * 2 + d1;
+			return 18521 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -1871,7 +1871,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 972;
+		public override int GetRuntimeId() => 1134;
 	} // class
 
 	public partial class Bamboo // minecraft:bamboo
@@ -1943,7 +1943,7 @@ namespace MiNET.Blocks
 			};
 			if (d2 < 0) return -1;
 
-			return 7074 + d0 * 6 + d1 * 2 + d2;
+			return 7252 + d0 * 6 + d1 * 2 + d2;
 		} // method
 	} // class
 
@@ -2053,7 +2053,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 18500 + d0 * 6 + d1;
+			return 18757 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -2123,7 +2123,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 1952 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 2114 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -2177,7 +2177,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9934 + d0;
+			return 10112 + d0;
 		} // method
 	} // class
 
@@ -2243,7 +2243,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 2811 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 2973 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -2308,7 +2308,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 12926 + d0 * 8 + d1 + d2 * 4;
+			return 13164 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -2376,7 +2376,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 11319 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 11557 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -2415,7 +2415,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23868;
+		public override int GetRuntimeId() => 24124;
 	} // class
 
 	public partial class BambooMosaicDoubleSlab // minecraft:bamboo_mosaic_double_slab
@@ -2468,7 +2468,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9714 + d0;
+			return 9892 + d0;
 		} // method
 	} // class
 
@@ -2521,7 +2521,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 5488 + d0;
+			return 5650 + d0;
 		} // method
 	} // class
 
@@ -2588,7 +2588,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 17995 + d0 * 8 + d1 * 4 + d2;
+			return 18252 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -2627,7 +2627,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14671;
+		public override int GetRuntimeId() => 14926;
 	} // class
 
 	public partial class BambooPressurePlate // minecraft:bamboo_pressure_plate
@@ -2675,7 +2675,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 17670 + d0;
+			return 17925 + d0;
 		} // method
 	} // class
 
@@ -2723,7 +2723,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = AgeBit ? 1 : 0;
 
-			return 21915 + d0;
+			return 22170 + d0;
 		} // method
 	} // class
 
@@ -2792,7 +2792,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 9899 + d0 * 8 + d1 * 4 + d2;
+			return 10077 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -2845,7 +2845,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18645 + d0;
+			return 18898 + d0;
 		} // method
 	} // class
 
@@ -2912,7 +2912,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 3830 + d0 * 8 + d1 * 4 + d2;
+			return 3992 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -2961,7 +2961,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 20711 + d0;
+			return 20964 + d0;
 		} // method
 	} // class
 
@@ -3019,7 +3019,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 13202 + d0 + d1 * 8 + d2 * 4;
+			return 13440 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -3068,7 +3068,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 19220 + d0;
+			return 19473 + d0;
 		} // method
 	} // class
 
@@ -3123,7 +3123,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = OpenBit ? 1 : 0;
 
-			return 10777 + d0 + d1 * 6;
+			return 10995 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -3162,7 +3162,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16903;
+		public override int GetRuntimeId() => 17158;
 	} // class
 
 	public partial class Basalt // minecraft:basalt
@@ -3216,7 +3216,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10391 + d0;
+			return 10569 + d0;
 		} // method
 	} // class
 
@@ -3255,7 +3255,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 973;
+		public override int GetRuntimeId() => 1135;
 	} // class
 
 	public partial class Bed // minecraft:bed
@@ -3315,7 +3315,7 @@ namespace MiNET.Blocks
 			int d1 = HeadPieceBit ? 1 : 0;
 			int d2 = OccupiedBit ? 1 : 0;
 
-			return 18895 + d0 + d1 * 8 + d2 * 4;
+			return 19148 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -3363,7 +3363,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = InfiniburnBit ? 1 : 0;
 
-			return 19770 + d0;
+			return 20023 + d0;
 		} // method
 	} // class
 
@@ -3419,7 +3419,7 @@ namespace MiNET.Blocks
 			if (HoneyLevel < 0 || HoneyLevel > 5) return -1;
 			int d1 = HoneyLevel;
 
-			return 14828 + d0 + d1 * 4;
+			return 15083 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -3475,7 +3475,7 @@ namespace MiNET.Blocks
 			if (HoneyLevel < 0 || HoneyLevel > 5) return -1;
 			int d1 = HoneyLevel;
 
-			return 17836 + d0 + d1 * 4;
+			return 18091 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -3523,7 +3523,7 @@ namespace MiNET.Blocks
 			if (Growth < 0 || Growth > 7) return -1;
 			int d0 = Growth;
 
-			return 13262 + d0;
+			return 13500 + d0;
 		} // method
 	} // class
 
@@ -3592,7 +3592,7 @@ namespace MiNET.Blocks
 			int d1 = Direction;
 			int d2 = ToggleBit ? 1 : 0;
 
-			return 19424 + d0 * 4 + d1 + d2 * 16;
+			return 19677 + d0 * 4 + d1 + d2 * 16;
 		} // method
 	} // class
 
@@ -3668,7 +3668,7 @@ namespace MiNET.Blocks
 			};
 			if (d2 < 0) return -1;
 
-			return 16409 + d0 * 4 + d1 + d2 * 8;
+			return 16664 + d0 * 4 + d1 + d2 * 8;
 		} // method
 	} // class
 
@@ -3721,7 +3721,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 22522 + d0 * 6 + d1;
+			return 22777 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -3791,7 +3791,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 20119 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 20372 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -3845,7 +3845,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 23090 + d0;
+			return 23345 + d0;
 		} // method
 	} // class
 
@@ -3911,7 +3911,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 23067 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 23322 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -3976,7 +3976,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 7457 + d0 * 8 + d1 + d2 * 4;
+			return 7635 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -4044,7 +4044,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 2872 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 3034 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -4096,7 +4096,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 9659 + d0 * 2 + d1;
+			return 9837 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -4150,7 +4150,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3320 + d0;
+			return 3482 + d0;
 		} // method
 	} // class
 
@@ -4189,7 +4189,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13320;
+		public override int GetRuntimeId() => 13558;
 	} // class
 
 	public partial class BirchPressurePlate // minecraft:birch_pressure_plate
@@ -4237,7 +4237,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 6601 + d0;
+			return 6763 + d0;
 		} // method
 	} // class
 
@@ -4285,7 +4285,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = AgeBit ? 1 : 0;
 
-			return 21821 + d0;
+			return 22076 + d0;
 		} // method
 	} // class
 
@@ -4407,7 +4407,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9173 + d0;
+			return 9351 + d0;
 		} // method
 	} // class
 
@@ -4474,7 +4474,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 19561 + d0 * 8 + d1 * 4 + d2;
+			return 19814 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -4580,7 +4580,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 18845 + d0 + d1 * 8 + d2 * 4;
+			return 19098 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -4628,7 +4628,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 19214 + d0;
+			return 19467 + d0;
 		} // method
 	} // class
 
@@ -4683,7 +4683,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3533 + d0;
+			return 3695 + d0;
 		} // method
 	} // class
 
@@ -4745,7 +4745,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 1197 + d0 + d1 * 4;
+			return 1359 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -4797,7 +4797,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 11113 + d0;
+			return 11347 + d0;
 		} // method
 	} // class
 
@@ -4836,7 +4836,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16912;
+		public override int GetRuntimeId() => 17167;
 	} // class
 
 	public partial class BlackConcrete // minecraft:black_concrete
@@ -4874,7 +4874,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18911;
+		public override int GetRuntimeId() => 19164;
 	} // class
 
 	public partial class BlackConcreteDoubleSlab // minecraft:black_concrete_double_slab
@@ -4927,7 +4927,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 12597 + d0;
+			return 12835 + d0;
 		} // method
 	} // class
 
@@ -4966,7 +4966,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2502;
+		public override int GetRuntimeId() => 2664;
 	} // class
 
 	public partial class BlackConcreteSlab // minecraft:black_concrete_slab
@@ -5018,7 +5018,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1205 + d0;
+			return 1367 + d0;
 		} // method
 	} // class
 
@@ -5085,7 +5085,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 11935 + d0 * 8 + d1 * 4 + d2;
+			return 12173 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -5133,7 +5133,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 15434 + d0;
+			return 15689 + d0;
 		} // method
 	} // class
 
@@ -5172,7 +5172,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16855;
+		public override int GetRuntimeId() => 17110;
 	} // class
 
 	public partial class BlackStainedGlass // minecraft:black_stained_glass
@@ -5210,7 +5210,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16237;
+		public override int GetRuntimeId() => 16492;
 	} // class
 
 	public partial class BlackStainedGlassPane // minecraft:black_stained_glass_pane
@@ -5271,7 +5271,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 5260 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 5422 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -5310,7 +5310,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17721;
+		public override int GetRuntimeId() => 17976;
 	} // class
 
 	public partial class BlackWool // minecraft:black_wool
@@ -5348,7 +5348,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2434;
+		public override int GetRuntimeId() => 2596;
 	} // class
 
 	public partial class BlackWoolDoubleSlab // minecraft:black_wool_double_slab
@@ -5401,7 +5401,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3508 + d0;
+			return 3670 + d0;
 		} // method
 	} // class
 
@@ -5454,7 +5454,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18338 + d0;
+			return 18595 + d0;
 		} // method
 	} // class
 
@@ -5521,7 +5521,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 4819 + d0 * 8 + d1 * 4 + d2;
+			return 4981 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -5560,7 +5560,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22030;
+		public override int GetRuntimeId() => 22285;
 	} // class
 
 	public partial class BlackstoneDoubleSlab // minecraft:blackstone_double_slab
@@ -5613,7 +5613,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 409 + d0;
+			return 571 + d0;
 		} // method
 	} // class
 
@@ -5666,7 +5666,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4082 + d0;
+			return 4244 + d0;
 		} // method
 	} // class
 
@@ -5733,7 +5733,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 19814 + d0 * 8 + d1 * 4 + d2;
+			return 20067 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -5833,7 +5833,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 9386 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 9564 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -5888,7 +5888,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21937 + d0;
+			return 22192 + d0;
 		} // method
 	} // class
 
@@ -6002,7 +6002,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 16827 + d0;
+			return 17082 + d0;
 		} // method
 	} // class
 
@@ -6041,7 +6041,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1207;
+		public override int GetRuntimeId() => 1369;
 	} // class
 
 	public partial class BlueConcrete // minecraft:blue_concrete
@@ -6079,7 +6079,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20910;
+		public override int GetRuntimeId() => 21163;
 	} // class
 
 	public partial class BlueConcreteDoubleSlab // minecraft:blue_concrete_double_slab
@@ -6132,7 +6132,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1619 + d0;
+			return 1781 + d0;
 		} // method
 	} // class
 
@@ -6171,7 +6171,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18982;
+		public override int GetRuntimeId() => 19235;
 	} // class
 
 	public partial class BlueConcreteSlab // minecraft:blue_concrete_slab
@@ -6223,7 +6223,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11315 + d0;
+			return 11553 + d0;
 		} // method
 	} // class
 
@@ -6290,7 +6290,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 16031 + d0 * 8 + d1 * 4 + d2;
+			return 16286 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -6338,7 +6338,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 13599 + d0;
+			return 13837 + d0;
 		} // method
 	} // class
 
@@ -6377,7 +6377,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19854;
+		public override int GetRuntimeId() => 20107;
 	} // class
 
 	public partial class BlueOrchid // minecraft:blue_orchid
@@ -6415,7 +6415,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9602;
+		public override int GetRuntimeId() => 9780;
 	} // class
 
 	public partial class BlueShulkerBox // minecraft:blue_shulker_box
@@ -6453,7 +6453,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18126;
+		public override int GetRuntimeId() => 18383;
 	} // class
 
 	public partial class BlueStainedGlass // minecraft:blue_stained_glass
@@ -6491,7 +6491,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14826;
+		public override int GetRuntimeId() => 15081;
 	} // class
 
 	public partial class BlueStainedGlassPane // minecraft:blue_stained_glass_pane
@@ -6591,7 +6591,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6953;
+		public override int GetRuntimeId() => 7131;
 	} // class
 
 	public partial class BlueWool // minecraft:blue_wool
@@ -6629,7 +6629,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13647;
+		public override int GetRuntimeId() => 13886;
 	} // class
 
 	public partial class BlueWoolDoubleSlab // minecraft:blue_wool_double_slab
@@ -6682,7 +6682,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22219 + d0;
+			return 22474 + d0;
 		} // method
 	} // class
 
@@ -6735,7 +6735,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21291 + d0;
+			return 21544 + d0;
 		} // method
 	} // class
 
@@ -6802,7 +6802,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 10124 + d0 * 8 + d1 * 4 + d2;
+			return 10302 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -6864,7 +6864,7 @@ namespace MiNET.Blocks
 			};
 			if (d1 < 0) return -1;
 
-			return 9851 + d0 + d1 * 4;
+			return 10029 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -6903,7 +6903,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18887;
+		public override int GetRuntimeId() => 19140;
 	} // class
 
 	public partial class BorderBlock // minecraft:border_block
@@ -7002,7 +7002,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 12763 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 13001 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -7041,7 +7041,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3503;
+		public override int GetRuntimeId() => 3665;
 	} // class
 
 	public partial class BrainCoralBlock // minecraft:brain_coral_block
@@ -7079,7 +7079,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14651;
+		public override int GetRuntimeId() => 14906;
 	} // class
 
 	public partial class BrainCoralFan // minecraft:brain_coral_fan
@@ -7127,7 +7127,7 @@ namespace MiNET.Blocks
 			if (CoralFanDirection < 0 || CoralFanDirection > 1) return -1;
 			int d0 = CoralFanDirection;
 
-			return 3664 + d0;
+			return 3826 + d0;
 		} // method
 	} // class
 
@@ -7176,7 +7176,7 @@ namespace MiNET.Blocks
 			if (CoralDirection < 0 || CoralDirection > 3) return -1;
 			int d0 = CoralDirection;
 
-			return 9672 + d0;
+			return 9850 + d0;
 		} // method
 	} // class
 
@@ -7236,7 +7236,7 @@ namespace MiNET.Blocks
 			int d1 = BrewingStandSlotBBit ? 1 : 0;
 			int d2 = BrewingStandSlotCBit ? 1 : 0;
 
-			return 21907 + d0 + d1 * 2 + d2 * 4;
+			return 22162 + d0 + d1 * 2 + d2 * 4;
 		} // method
 	} // class
 
@@ -7275,7 +7275,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11915;
+		public override int GetRuntimeId() => 12153;
 	} // class
 
 	public partial class BrickDoubleSlab // minecraft:brick_double_slab
@@ -7328,7 +7328,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1195 + d0;
+			return 1357 + d0;
 		} // method
 	} // class
 
@@ -7381,7 +7381,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21856 + d0;
+			return 22111 + d0;
 		} // method
 	} // class
 
@@ -7448,7 +7448,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 18648 + d0 * 8 + d1 * 4 + d2;
+			return 18901 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -7548,7 +7548,56 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 975 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 1137 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+		} // method
+	} // class
+
+	public partial class BrittleIce // minecraft:brittle_ice
+	{
+		public override string Name => "minecraft:brittle_ice";
+
+		public override float Hardness => 0.5f;
+		public override float BlastResistance => 0.5f;
+		public override float FrictionFactor => 0.98f;
+		public override int LightLevel => 0;
+		public override int LightDampening => 0;
+		public override float Translucency => 0.0f;
+		public override int BurnOdds => 0;
+		public override int FlameOdds => 0;
+		public override bool IsSolid => false;
+		public override bool RequiresCorrectToolForDrops => false;
+		public override bool CanContainLiquidSource => false;
+
+		[StateRange(0, 3)] public int Age { get; set; } = 0;
+
+		public override void SetState(List<IBlockState> states)
+		{
+			foreach (var state in states)
+			{
+				switch (state)
+				{
+					case BlockStateInt s when s.Name == "age":
+						Age = s.Value;
+						break;
+				} // switch
+			} // foreach
+		} // method
+
+		public override BlockStateContainer GetState()
+		{
+			var record = new BlockStateContainer();
+			record.Name = "minecraft:brittle_ice";
+			record.Id = 1504;
+			record.States.Add(new BlockStateInt {Name = "age", Value = Age});
+			return record;
+		} // method
+
+		public override int GetRuntimeId()
+		{
+			if (Age < 0 || Age > 3) return -1;
+			int d0 = Age;
+
+			return 11353 + d0;
 		} // method
 	} // class
 
@@ -7610,7 +7659,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 16023 + d0 + d1 * 4;
+			return 16278 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -7662,7 +7711,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 6995 + d0;
+			return 7173 + d0;
 		} // method
 	} // class
 
@@ -7701,7 +7750,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4133;
+		public override int GetRuntimeId() => 4295;
 	} // class
 
 	public partial class BrownConcrete // minecraft:brown_concrete
@@ -7739,7 +7788,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18035;
+		public override int GetRuntimeId() => 18292;
 	} // class
 
 	public partial class BrownConcreteDoubleSlab // minecraft:brown_concrete_double_slab
@@ -7792,7 +7841,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16005 + d0;
+			return 16260 + d0;
 		} // method
 	} // class
 
@@ -7831,7 +7880,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 15620;
+		public override int GetRuntimeId() => 15875;
 	} // class
 
 	public partial class BrownConcreteSlab // minecraft:brown_concrete_slab
@@ -7883,7 +7932,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21482 + d0;
+			return 21735 + d0;
 		} // method
 	} // class
 
@@ -7950,7 +7999,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 7356 + d0 * 8 + d1 * 4 + d2;
+			return 7534 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -7998,7 +8047,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 6498 + d0;
+			return 6660 + d0;
 		} // method
 	} // class
 
@@ -8037,7 +8086,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6492;
+		public override int GetRuntimeId() => 6654;
 	} // class
 
 	public partial class BrownMushroomBlock // minecraft:brown_mushroom_block
@@ -8085,7 +8134,7 @@ namespace MiNET.Blocks
 			if (HugeMushroomBits < 0 || HugeMushroomBits > 15) return -1;
 			int d0 = HugeMushroomBits;
 
-			return 21084 + d0;
+			return 21337 + d0;
 		} // method
 	} // class
 
@@ -8124,7 +8173,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19167;
+		public override int GetRuntimeId() => 19420;
 	} // class
 
 	public partial class BrownStainedGlass // minecraft:brown_stained_glass
@@ -8162,7 +8211,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3314;
+		public override int GetRuntimeId() => 3476;
 	} // class
 
 	public partial class BrownStainedGlassPane // minecraft:brown_stained_glass_pane
@@ -8223,7 +8272,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 1902 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 2064 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -8262,7 +8311,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22839;
+		public override int GetRuntimeId() => 23094;
 	} // class
 
 	public partial class BrownWool // minecraft:brown_wool
@@ -8300,7 +8349,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1669;
+		public override int GetRuntimeId() => 1831;
 	} // class
 
 	public partial class BrownWoolDoubleSlab // minecraft:brown_wool_double_slab
@@ -8353,7 +8402,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19231 + d0;
+			return 19484 + d0;
 		} // method
 	} // class
 
@@ -8406,7 +8455,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9285 + d0;
+			return 9463 + d0;
 		} // method
 	} // class
 
@@ -8473,7 +8522,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 6698 + d0 * 8 + d1 * 4 + d2;
+			return 6876 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -8521,7 +8570,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = DragDown ? 1 : 0;
 
-			return 14860 + d0;
+			return 15115 + d0;
 		} // method
 	} // class
 
@@ -8560,7 +8609,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18039;
+		public override int GetRuntimeId() => 18296;
 	} // class
 
 	public partial class BubbleCoralBlock // minecraft:bubble_coral_block
@@ -8598,7 +8647,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9944;
+		public override int GetRuntimeId() => 10122;
 	} // class
 
 	public partial class BubbleCoralFan // minecraft:bubble_coral_fan
@@ -8646,7 +8695,7 @@ namespace MiNET.Blocks
 			if (CoralFanDirection < 0 || CoralFanDirection > 1) return -1;
 			int d0 = CoralFanDirection;
 
-			return 1514 + d0;
+			return 1676 + d0;
 		} // method
 	} // class
 
@@ -8695,7 +8744,7 @@ namespace MiNET.Blocks
 			if (CoralDirection < 0 || CoralDirection > 3) return -1;
 			int d0 = CoralDirection;
 
-			return 19162 + d0;
+			return 19415 + d0;
 		} // method
 	} // class
 
@@ -8734,7 +8783,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19555;
+		public override int GetRuntimeId() => 19808;
 	} // class
 
 	public partial class Bush // minecraft:bush
@@ -8772,7 +8821,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19464;
+		public override int GetRuntimeId() => 19717;
 	} // class
 
 	public partial class Cactus // minecraft:cactus
@@ -8820,7 +8869,7 @@ namespace MiNET.Blocks
 			if (Age < 0 || Age > 15) return -1;
 			int d0 = Age;
 
-			return 19539 + d0;
+			return 19792 + d0;
 		} // method
 	} // class
 
@@ -8859,7 +8908,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1578;
+		public override int GetRuntimeId() => 1740;
 	} // class
 
 	public partial class Cake // minecraft:cake
@@ -8907,7 +8956,7 @@ namespace MiNET.Blocks
 			if (BiteCounter < 0 || BiteCounter > 6) return -1;
 			int d0 = BiteCounter;
 
-			return 20231 + d0;
+			return 20484 + d0;
 		} // method
 	} // class
 
@@ -8946,7 +8995,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1447;
+		public override int GetRuntimeId() => 1609;
 	} // class
 
 	public partial class CalibratedSculkSensor // minecraft:calibrated_sculk_sensor
@@ -9012,7 +9061,7 @@ namespace MiNET.Blocks
 			if (SculkSensorPhase < 0 || SculkSensorPhase > 2) return -1;
 			int d1 = SculkSensorPhase;
 
-			return 15506 + d0 * 3 + d1;
+			return 15761 + d0 * 3 + d1;
 		} // method
 	} // class
 
@@ -9051,7 +9100,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20924;
+		public override int GetRuntimeId() => 21177;
 	} // class
 
 	public partial class Campfire // minecraft:campfire
@@ -9116,7 +9165,7 @@ namespace MiNET.Blocks
 			};
 			if (d1 < 0) return -1;
 
-			return 14862 + d0 * 4 + d1;
+			return 15117 + d0 * 4 + d1;
 		} // method
 	} // class
 
@@ -9178,7 +9227,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 21342 + d0 + d1 * 4;
+			return 21595 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -9230,7 +9279,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 21961 + d0;
+			return 22216 + d0;
 		} // method
 	} // class
 
@@ -9278,7 +9327,7 @@ namespace MiNET.Blocks
 			if (Growth < 0 || Growth > 7) return -1;
 			int d0 = Growth;
 
-			return 16187 + d0;
+			return 16442 + d0;
 		} // method
 	} // class
 
@@ -9317,7 +9366,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23922;
+		public override int GetRuntimeId() => 24178;
 	} // class
 
 	public partial class CarvedPumpkin // minecraft:carved_pumpkin
@@ -9372,7 +9421,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21275 + d0;
+			return 21528 + d0;
 		} // method
 	} // class
 
@@ -9452,7 +9501,7 @@ namespace MiNET.Blocks
 			if (FillLevel < 0 || FillLevel > 6) return -1;
 			int d1 = FillLevel;
 
-			return 21768 + d0 * 7 + d1;
+			return 22023 + d0 * 7 + d1;
 		} // method
 	} // class
 
@@ -9501,7 +9550,7 @@ namespace MiNET.Blocks
 			if (GrowingPlantAge < 0 || GrowingPlantAge > 25) return -1;
 			int d0 = GrowingPlantAge;
 
-			return 12015 + d0;
+			return 12253 + d0;
 		} // method
 	} // class
 
@@ -9550,7 +9599,7 @@ namespace MiNET.Blocks
 			if (GrowingPlantAge < 0 || GrowingPlantAge > 25) return -1;
 			int d0 = GrowingPlantAge;
 
-			return 16330 + d0;
+			return 16585 + d0;
 		} // method
 	} // class
 
@@ -9599,7 +9648,7 @@ namespace MiNET.Blocks
 			if (GrowingPlantAge < 0 || GrowingPlantAge > 25) return -1;
 			int d0 = GrowingPlantAge;
 
-			return 21789 + d0;
+			return 22044 + d0;
 		} // method
 	} // class
 
@@ -9654,7 +9703,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 18741 + d0 * 6 + d1;
+			return 18994 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -9703,7 +9752,7 @@ namespace MiNET.Blocks
 			if (Direction < 0 || Direction > 15) return -1;
 			int d0 = Direction;
 
-			return 6937 + d0;
+			return 7115 + d0;
 		} // method
 	} // class
 
@@ -9742,7 +9791,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21507;
+		public override int GetRuntimeId() => 21762;
 	} // class
 
 	public partial class CherryButton // minecraft:cherry_button
@@ -9796,7 +9845,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 11251 + d0 * 6 + d1;
+			return 11489 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -9866,7 +9915,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 10183 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 10361 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -9920,7 +9969,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16932 + d0;
+			return 17187 + d0;
 		} // method
 	} // class
 
@@ -9986,7 +10035,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 4183 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 4345 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -10051,7 +10100,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 23839 + d0 * 8 + d1 + d2 * 4;
+			return 24095 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -10119,7 +10168,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 564 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 726 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -10171,7 +10220,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 15424 + d0 * 2 + d1;
+			return 15679 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -10225,7 +10274,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20822 + d0;
+			return 21075 + d0;
 		} // method
 	} // class
 
@@ -10264,7 +10313,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22279;
+		public override int GetRuntimeId() => 22534;
 	} // class
 
 	public partial class CherryPressurePlate // minecraft:cherry_pressure_plate
@@ -10312,7 +10361,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 548 + d0;
+			return 710 + d0;
 		} // method
 	} // class
 
@@ -10360,7 +10409,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = AgeBit ? 1 : 0;
 
-			return 20820 + d0;
+			return 21073 + d0;
 		} // method
 	} // class
 
@@ -10429,7 +10478,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 20151 + d0 * 8 + d1 * 4 + d2;
+			return 20404 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -10482,7 +10531,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18036 + d0;
+			return 18293 + d0;
 		} // method
 	} // class
 
@@ -10549,7 +10598,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 20191 + d0 * 8 + d1 * 4 + d2;
+			return 20444 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -10598,7 +10647,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 15567 + d0;
+			return 15822 + d0;
 		} // method
 	} // class
 
@@ -10656,7 +10705,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 4066 + d0 + d1 * 8 + d2 * 4;
+			return 4228 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -10705,7 +10754,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 22230 + d0;
+			return 22485 + d0;
 		} // method
 	} // class
 
@@ -10760,7 +10809,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20187 + d0;
+			return 20440 + d0;
 		} // method
 	} // class
 
@@ -10815,7 +10864,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20183 + d0;
+			return 20436 + d0;
 		} // method
 	} // class
 
@@ -10871,7 +10920,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11833 + d0;
+			return 12071 + d0;
 		} // method
 	} // class
 
@@ -10927,7 +10976,7 @@ namespace MiNET.Blocks
 			if (Direction < 0 || Direction > 3) return -1;
 			int d1 = Direction;
 
-			return 1992 + d0 * 4 + d1;
+			return 2154 + d0 * 4 + d1;
 		} // method
 	} // class
 
@@ -10966,7 +11015,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18292;
+		public override int GetRuntimeId() => 18549;
 	} // class
 
 	public partial class ChiseledCopper // minecraft:chiseled_copper
@@ -11004,7 +11053,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14771;
+		public override int GetRuntimeId() => 15026;
 	} // class
 
 	public partial class ChiseledDeepslate // minecraft:chiseled_deepslate
@@ -11042,7 +11091,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13162;
+		public override int GetRuntimeId() => 13400;
 	} // class
 
 	public partial class ChiseledNetherBricks // minecraft:chiseled_nether_bricks
@@ -11080,7 +11129,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20803;
+		public override int GetRuntimeId() => 21056;
 	} // class
 
 	public partial class ChiseledPolishedBlackstone // minecraft:chiseled_polished_blackstone
@@ -11118,7 +11167,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12943;
+		public override int GetRuntimeId() => 13181;
 	} // class
 
 	public partial class ChiseledQuartzBlock // minecraft:chiseled_quartz_block
@@ -11172,7 +11221,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20961 + d0;
+			return 21214 + d0;
 		} // method
 	} // class
 
@@ -11211,7 +11260,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21816;
+		public override int GetRuntimeId() => 22071;
 	} // class
 
 	public partial class ChiseledResinBricks // minecraft:chiseled_resin_bricks
@@ -11249,7 +11298,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18038;
+		public override int GetRuntimeId() => 18295;
 	} // class
 
 	public partial class ChiseledSandstone // minecraft:chiseled_sandstone
@@ -11287,7 +11336,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16902;
+		public override int GetRuntimeId() => 17157;
 	} // class
 
 	public partial class ChiseledStoneBricks // minecraft:chiseled_stone_bricks
@@ -11363,7 +11412,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12596;
+		public override int GetRuntimeId() => 12834;
 	} // class
 
 	public partial class ChiseledTuff // minecraft:chiseled_tuff
@@ -11401,7 +11450,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22812;
+		public override int GetRuntimeId() => 23067;
 	} // class
 
 	public partial class ChiseledTuffBricks // minecraft:chiseled_tuff_bricks
@@ -11439,7 +11488,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21496;
+		public override int GetRuntimeId() => 21749;
 	} // class
 
 	public partial class ChorusFlower // minecraft:chorus_flower
@@ -11487,7 +11536,7 @@ namespace MiNET.Blocks
 			if (Age < 0 || Age > 5) return -1;
 			int d0 = Age;
 
-			return 10793 + d0;
+			return 11011 + d0;
 		} // method
 	} // class
 
@@ -11565,7 +11614,7 @@ namespace MiNET.Blocks
 			int d4 = ConnectionUp ? 1 : 0;
 			int d5 = ConnectionWest ? 1 : 0;
 
-			return 14058 + d0 * 32 + d1 * 2 + d2 + d3 * 4 + d4 * 16 + d5 * 8;
+			return 14297 + d0 * 32 + d1 * 2 + d2 + d3 * 4 + d4 * 16 + d5 * 8;
 		} // method
 	} // class
 
@@ -11604,7 +11653,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18083;
+		public override int GetRuntimeId() => 18340;
 	} // class
 
 	public partial class CinnabarBrickDoubleSlab // minecraft:cinnabar_brick_double_slab
@@ -11657,7 +11706,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10816 + d0;
+			return 11034 + d0;
 		} // method
 	} // class
 
@@ -11710,7 +11759,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20077 + d0;
+			return 20330 + d0;
 		} // method
 	} // class
 
@@ -11777,7 +11826,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 17762 + d0 * 8 + d1 * 4 + d2;
+			return 18017 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -11877,7 +11926,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 22360 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 22615 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -11916,7 +11965,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 15539;
+		public override int GetRuntimeId() => 15794;
 	} // class
 
 	public partial class CinnabarDoubleSlab // minecraft:cinnabar_double_slab
@@ -11969,7 +12018,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9892 + d0;
+			return 10070 + d0;
 		} // method
 	} // class
 
@@ -12022,7 +12071,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22810 + d0;
+			return 23065 + d0;
 		} // method
 	} // class
 
@@ -12089,7 +12138,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 18605 + d0 * 8 + d1 * 4 + d2;
+			return 18858 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -12189,7 +12238,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 1673 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 1835 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -12228,7 +12277,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20190;
+		public override int GetRuntimeId() => 20443;
 	} // class
 
 	public partial class ClientRequestPlaceholderBlock // minecraft:client_request_placeholder_block
@@ -12266,7 +12315,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9898;
+		public override int GetRuntimeId() => 10076;
 	} // class
 
 	public partial class ClosedEyeblossom // minecraft:closed_eyeblossom
@@ -12304,7 +12353,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18988;
+		public override int GetRuntimeId() => 19241;
 	} // class
 
 	public partial class CoalBlock // minecraft:coal_block
@@ -12342,7 +12391,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13454;
+		public override int GetRuntimeId() => 13692;
 	} // class
 
 	public partial class CoalOre // minecraft:coal_ore
@@ -12380,7 +12429,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9891;
+		public override int GetRuntimeId() => 10069;
 	} // class
 
 	public partial class CoarseDirt // minecraft:coarse_dirt
@@ -12418,7 +12467,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10792;
+		public override int GetRuntimeId() => 11010;
 	} // class
 
 	public partial class CobbledDeepslate // minecraft:cobbled_deepslate
@@ -12456,7 +12505,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18882;
+		public override int GetRuntimeId() => 19135;
 	} // class
 
 	public partial class CobbledDeepslateDoubleSlab // minecraft:cobbled_deepslate_double_slab
@@ -12509,7 +12558,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 15540 + d0;
+			return 15795 + d0;
 		} // method
 	} // class
 
@@ -12562,7 +12611,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20941 + d0;
+			return 21194 + d0;
 		} // method
 	} // class
 
@@ -12629,7 +12678,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 1138 + d0 * 8 + d1 * 4 + d2;
+			return 1300 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -12729,7 +12778,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 23328 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 23584 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -12768,7 +12817,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6797;
+		public override int GetRuntimeId() => 6975;
 	} // class
 
 	public partial class CobblestoneDoubleSlab // minecraft:cobblestone_double_slab
@@ -12821,7 +12870,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22840 + d0;
+			return 23095 + d0;
 		} // method
 	} // class
 
@@ -12874,7 +12923,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9716 + d0;
+			return 9894 + d0;
 		} // method
 	} // class
 
@@ -12974,7 +13023,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 5276 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 5438 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -13030,7 +13079,7 @@ namespace MiNET.Blocks
 			if (Direction < 0 || Direction > 3) return -1;
 			int d1 = Direction;
 
-			return 18577 + d0 * 4 + d1;
+			return 18830 + d0 * 4 + d1;
 		} // method
 	} // class
 
@@ -13088,7 +13137,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10215 + d0;
+			return 10393 + d0;
 		} // method
 	} // class
 
@@ -13146,7 +13195,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18688 + d0;
+			return 18941 + d0;
 		} // method
 	} // class
 
@@ -13204,7 +13253,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22257 + d0;
+			return 22512 + d0;
 		} // method
 	} // class
 
@@ -13262,7 +13311,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 23861 + d0;
+			return 24117 + d0;
 		} // method
 	} // class
 
@@ -13317,7 +13366,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 22536 + d0 * 6 + d1;
+			return 22791 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -13366,7 +13415,7 @@ namespace MiNET.Blocks
 			if (ComposterFillLevel < 0 || ComposterFillLevel > 8) return -1;
 			int d0 = ComposterFillLevel;
 
-			return 13527 + d0;
+			return 13765 + d0;
 		} // method
 	} // class
 
@@ -13415,7 +13464,7 @@ namespace MiNET.Blocks
 			if (Direction < 0 || Direction > 3) return -1;
 			int d0 = Direction;
 
-			return 7434 + d0;
+			return 7612 + d0;
 		} // method
 	} // class
 
@@ -13454,7 +13503,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9843;
+		public override int GetRuntimeId() => 10021;
 	} // class
 
 	public partial class CopperBars // minecraft:copper_bars
@@ -13519,7 +13568,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 10525 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 10743 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -13558,7 +13607,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11713;
+		public override int GetRuntimeId() => 11951;
 	} // class
 
 	public partial class CopperBulb // minecraft:copper_bulb
@@ -13615,7 +13664,7 @@ namespace MiNET.Blocks
 			int d0 = Lit ? 1 : 0;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 10521 + d0 + d1 * 2;
+			return 10739 + d0 + d1 * 2;
 		} // method
 	} // class
 
@@ -13670,7 +13719,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 7348 + d0;
+			return 7526 + d0;
 		} // method
 	} // class
 
@@ -13725,7 +13774,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 7351 + d0;
+			return 7529 + d0;
 		} // method
 	} // class
 
@@ -13795,7 +13844,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 16372 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 16627 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -13851,7 +13900,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10483 + d0;
+			return 10661 + d0;
 		} // method
 	} // class
 
@@ -13890,7 +13939,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2433;
+		public override int GetRuntimeId() => 2595;
 	} // class
 
 	public partial class CopperLantern // minecraft:copper_lantern
@@ -13937,7 +13986,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Hanging ? 1 : 0;
 
-			return 23917 + d0;
+			return 24173 + d0;
 		} // method
 	} // class
 
@@ -13976,7 +14025,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6557;
+		public override int GetRuntimeId() => 6719;
 	} // class
 
 	public partial class CopperTorch // minecraft:copper_torch
@@ -14033,7 +14082,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9845 + d0;
+			return 10023 + d0;
 		} // method
 	} // class
 
@@ -14091,7 +14140,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 15520 + d0 + d1 * 8 + d2 * 4;
+			return 15775 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -14130,7 +14179,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12942;
+		public override int GetRuntimeId() => 13180;
 	} // class
 
 	public partial class CrackedDeepslateBricks // minecraft:cracked_deepslate_bricks
@@ -14168,7 +14217,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13398;
+		public override int GetRuntimeId() => 13636;
 	} // class
 
 	public partial class CrackedDeepslateTiles // minecraft:cracked_deepslate_tiles
@@ -14206,7 +14255,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9671;
+		public override int GetRuntimeId() => 9849;
 	} // class
 
 	public partial class CrackedNetherBricks // minecraft:cracked_nether_bricks
@@ -14244,7 +14293,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11025;
+		public override int GetRuntimeId() => 11243;
 	} // class
 
 	public partial class CrackedPolishedBlackstoneBricks // minecraft:cracked_polished_blackstone_bricks
@@ -14282,7 +14331,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20710;
+		public override int GetRuntimeId() => 20963;
 	} // class
 
 	public partial class CrackedStoneBricks // minecraft:cracked_stone_bricks
@@ -14320,7 +14369,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6794;
+		public override int GetRuntimeId() => 6972;
 	} // class
 
 	public partial class Crafter // minecraft:crafter
@@ -14395,7 +14444,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = TriggeredBit ? 1 : 0;
 
-			return 22560 + d0 * 24 + d1 + d2 * 12;
+			return 22815 + d0 * 24 + d1 + d2 * 12;
 		} // method
 	} // class
 
@@ -14434,7 +14483,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 15558;
+		public override int GetRuntimeId() => 15813;
 	} // class
 
 	public partial class CreakingHeart // minecraft:creaking_heart
@@ -14507,7 +14556,7 @@ namespace MiNET.Blocks
 			};
 			if (d2 < 0) return -1;
 
-			return 21464 + d0 * 3 + d1 * 9 + d2;
+			return 21717 + d0 * 3 + d1 * 9 + d2;
 		} // method
 	} // class
 
@@ -14556,7 +14605,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 15428 + d0;
+			return 15683 + d0;
 		} // method
 	} // class
 
@@ -14611,7 +14660,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 10656 + d0 * 6 + d1;
+			return 10874 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -14681,7 +14730,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 9187 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 9365 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -14735,7 +14784,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3514 + d0;
+			return 3676 + d0;
 		} // method
 	} // class
 
@@ -14801,7 +14850,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 22794 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 23049 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -14866,7 +14915,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 11755 + d0 * 8 + d1 + d2 * 4;
+			return 11993 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -14905,7 +14954,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22278;
+		public override int GetRuntimeId() => 22533;
 	} // class
 
 	public partial class CrimsonHangingSign // minecraft:crimson_hanging_sign
@@ -14972,7 +15021,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 20238 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 20491 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -15027,7 +15076,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10221 + d0;
+			return 10399 + d0;
 		} // method
 	} // class
 
@@ -15066,7 +15115,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9718;
+		public override int GetRuntimeId() => 9896;
 	} // class
 
 	public partial class CrimsonPlanks // minecraft:crimson_planks
@@ -15104,7 +15153,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12511;
+		public override int GetRuntimeId() => 12749;
 	} // class
 
 	public partial class CrimsonPressurePlate // minecraft:crimson_pressure_plate
@@ -15152,7 +15201,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 23898 + d0;
+			return 24154 + d0;
 		} // method
 	} // class
 
@@ -15191,7 +15240,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21941;
+		public override int GetRuntimeId() => 22196;
 	} // class
 
 	public partial class CrimsonShelf // minecraft:crimson_shelf
@@ -15259,7 +15308,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 19981 + d0 * 8 + d1 * 4 + d2;
+			return 20234 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -15312,7 +15361,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16123 + d0;
+			return 16378 + d0;
 		} // method
 	} // class
 
@@ -15379,7 +15428,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 18152 + d0 * 8 + d1 * 4 + d2;
+			return 18409 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -15427,7 +15476,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 20967 + d0;
+			return 21220 + d0;
 		} // method
 	} // class
 
@@ -15481,7 +15530,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16117 + d0;
+			return 16372 + d0;
 		} // method
 	} // class
 
@@ -15539,7 +15588,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 10375 + d0 + d1 * 8 + d2 * 4;
+			return 10553 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -15587,7 +15636,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 949 + d0;
+			return 1111 + d0;
 		} // method
 	} // class
 
@@ -15626,7 +15675,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18986;
+		public override int GetRuntimeId() => 19239;
 	} // class
 
 	public partial class CutCopper // minecraft:cut_copper
@@ -15664,7 +15713,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11789;
+		public override int GetRuntimeId() => 12027;
 	} // class
 
 	public partial class CutCopperSlab // minecraft:cut_copper_slab
@@ -15716,7 +15765,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13163 + d0;
+			return 13401 + d0;
 		} // method
 	} // class
 
@@ -15783,7 +15832,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 11204 + d0 * 8 + d1 * 4 + d2;
+			return 11442 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -15822,7 +15871,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9375;
+		public override int GetRuntimeId() => 9553;
 	} // class
 
 	public partial class CutRedSandstoneDoubleSlab // minecraft:cut_red_sandstone_double_slab
@@ -15875,7 +15924,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9896 + d0;
+			return 10074 + d0;
 		} // method
 	} // class
 
@@ -15928,7 +15977,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21366 + d0;
+			return 21619 + d0;
 		} // method
 	} // class
 
@@ -15967,7 +16016,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16441;
+		public override int GetRuntimeId() => 16696;
 	} // class
 
 	public partial class CutSandstoneDoubleSlab // minecraft:cut_sandstone_double_slab
@@ -16020,7 +16069,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2475 + d0;
+			return 2637 + d0;
 		} // method
 	} // class
 
@@ -16073,7 +16122,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13472 + d0;
+			return 13710 + d0;
 		} // method
 	} // class
 
@@ -16135,7 +16184,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 22236 + d0 + d1 * 4;
+			return 22491 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -16187,7 +16236,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 3666 + d0;
+			return 3828 + d0;
 		} // method
 	} // class
 
@@ -16226,7 +16275,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6844;
+		public override int GetRuntimeId() => 7022;
 	} // class
 
 	public partial class CyanConcrete // minecraft:cyan_concrete
@@ -16264,7 +16313,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20868;
+		public override int GetRuntimeId() => 21121;
 	} // class
 
 	public partial class CyanConcreteDoubleSlab // minecraft:cyan_concrete_double_slab
@@ -16317,7 +16366,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 17945 + d0;
+			return 18202 + d0;
 		} // method
 	} // class
 
@@ -16356,7 +16405,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6493;
+		public override int GetRuntimeId() => 6655;
 	} // class
 
 	public partial class CyanConcreteSlab // minecraft:cyan_concrete_slab
@@ -16408,7 +16457,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20781 + d0;
+			return 21034 + d0;
 		} // method
 	} // class
 
@@ -16475,7 +16524,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 18295 + d0 * 8 + d1 * 4 + d2;
+			return 18552 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -16523,7 +16572,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 13392 + d0;
+			return 13630 + d0;
 		} // method
 	} // class
 
@@ -16562,7 +16611,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19855;
+		public override int GetRuntimeId() => 20108;
 	} // class
 
 	public partial class CyanStainedGlass // minecraft:cyan_stained_glass
@@ -16600,7 +16649,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16236;
+		public override int GetRuntimeId() => 16491;
 	} // class
 
 	public partial class CyanStainedGlassPane // minecraft:cyan_stained_glass_pane
@@ -16661,7 +16710,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 18523 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 18780 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -16738,7 +16787,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13333;
+		public override int GetRuntimeId() => 13571;
 	} // class
 
 	public partial class CyanWoolDoubleSlab // minecraft:cyan_wool_double_slab
@@ -16844,7 +16893,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19468 + d0;
+			return 19721 + d0;
 		} // method
 	} // class
 
@@ -16911,7 +16960,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 16128 + d0 * 8 + d1 * 4 + d2;
+			return 16383 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -16967,7 +17016,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 23086 + d0;
+			return 23341 + d0;
 		} // method
 	} // class
 
@@ -17006,7 +17055,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23959;
+		public override int GetRuntimeId() => 24215;
 	} // class
 
 	public partial class DarkOakButton // minecraft:dark_oak_button
@@ -17128,7 +17177,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 14774 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 15029 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -17182,7 +17231,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9664 + d0;
+			return 9842 + d0;
 		} // method
 	} // class
 
@@ -17248,7 +17297,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 20097 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 20350 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -17313,7 +17362,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 9696 + d0 * 8 + d1 + d2 * 4;
+			return 9874 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -17381,7 +17430,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 6107 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 6269 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -17433,7 +17482,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 16972 + d0 * 2 + d1;
+			return 17227 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -17487,7 +17536,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 5490 + d0;
+			return 5652 + d0;
 		} // method
 	} // class
 
@@ -17526,7 +17575,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6558;
+		public override int GetRuntimeId() => 6720;
 	} // class
 
 	public partial class DarkOakPressurePlate // minecraft:dark_oak_pressure_plate
@@ -17574,7 +17623,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 16356 + d0;
+			return 16611 + d0;
 		} // method
 	} // class
 
@@ -17622,7 +17671,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = AgeBit ? 1 : 0;
 
-			return 2499 + d0;
+			return 2661 + d0;
 		} // method
 	} // class
 
@@ -17691,7 +17740,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 13230 + d0 * 8 + d1 * 4 + d2;
+			return 13468 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -17744,7 +17793,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2604 + d0;
+			return 2766 + d0;
 		} // method
 	} // class
 
@@ -17811,7 +17860,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 12944 + d0 * 8 + d1 * 4 + d2;
+			return 13182 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -17869,7 +17918,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 21823 + d0 + d1 * 8 + d2 * 4;
+			return 22078 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -17963,7 +18012,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10492;
+		public override int GetRuntimeId() => 10710;
 	} // class
 
 	public partial class DarkPrismarineDoubleSlab // minecraft:dark_prismarine_double_slab
@@ -18016,7 +18065,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1856 + d0;
+			return 2018 + d0;
 		} // method
 	} // class
 
@@ -18069,7 +18118,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 15518 + d0;
+			return 15773 + d0;
 		} // method
 	} // class
 
@@ -18136,7 +18185,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 21424 + d0 * 8 + d1 * 4 + d2;
+			return 21677 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -18184,7 +18233,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 20983 + d0;
+			return 21236 + d0;
 		} // method
 	} // class
 
@@ -18232,7 +18281,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 13341 + d0;
+			return 13579 + d0;
 		} // method
 	} // class
 
@@ -18281,7 +18330,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 9808 + d0;
+			return 9986 + d0;
 		} // method
 	} // class
 
@@ -18330,7 +18379,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 10761 + d0;
+			return 10979 + d0;
 		} // method
 	} // class
 
@@ -18369,7 +18418,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20686;
+		public override int GetRuntimeId() => 20939;
 	} // class
 
 	public partial class DeadBrainCoralBlock // minecraft:dead_brain_coral_block
@@ -18407,7 +18456,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18823;
+		public override int GetRuntimeId() => 19076;
 	} // class
 
 	public partial class DeadBrainCoralFan // minecraft:dead_brain_coral_fan
@@ -18455,7 +18504,7 @@ namespace MiNET.Blocks
 			if (CoralFanDirection < 0 || CoralFanDirection > 1) return -1;
 			int d0 = CoralFanDirection;
 
-			return 1621 + d0;
+			return 1783 + d0;
 		} // method
 	} // class
 
@@ -18504,7 +18553,7 @@ namespace MiNET.Blocks
 			if (CoralDirection < 0 || CoralDirection > 3) return -1;
 			int d0 = CoralDirection;
 
-			return 9369 + d0;
+			return 9547 + d0;
 		} // method
 	} // class
 
@@ -18543,7 +18592,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20819;
+		public override int GetRuntimeId() => 21072;
 	} // class
 
 	public partial class DeadBubbleCoralBlock // minecraft:dead_bubble_coral_block
@@ -18581,7 +18630,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4174;
+		public override int GetRuntimeId() => 4336;
 	} // class
 
 	public partial class DeadBubbleCoralFan // minecraft:dead_bubble_coral_fan
@@ -18629,7 +18678,7 @@ namespace MiNET.Blocks
 			if (CoralFanDirection < 0 || CoralFanDirection > 1) return -1;
 			int d0 = CoralFanDirection;
 
-			return 1509 + d0;
+			return 1671 + d0;
 		} // method
 	} // class
 
@@ -18678,7 +18727,7 @@ namespace MiNET.Blocks
 			if (CoralDirection < 0 || CoralDirection > 3) return -1;
 			int d0 = CoralDirection;
 
-			return 1985 + d0;
+			return 2147 + d0;
 		} // method
 	} // class
 
@@ -18717,7 +18766,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18147;
+		public override int GetRuntimeId() => 18404;
 	} // class
 
 	public partial class DeadFireCoralBlock // minecraft:dead_fire_coral_block
@@ -18755,7 +18804,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4406;
+		public override int GetRuntimeId() => 4568;
 	} // class
 
 	public partial class DeadFireCoralFan // minecraft:dead_fire_coral_fan
@@ -18803,7 +18852,7 @@ namespace MiNET.Blocks
 			if (CoralFanDirection < 0 || CoralFanDirection > 1) return -1;
 			int d0 = CoralFanDirection;
 
-			return 18989 + d0;
+			return 19242 + d0;
 		} // method
 	} // class
 
@@ -18852,7 +18901,7 @@ namespace MiNET.Blocks
 			if (CoralDirection < 0 || CoralDirection > 3) return -1;
 			int d0 = CoralDirection;
 
-			return 6494 + d0;
+			return 6656 + d0;
 		} // method
 	} // class
 
@@ -18891,7 +18940,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16310;
+		public override int GetRuntimeId() => 16565;
 	} // class
 
 	public partial class DeadHornCoralBlock // minecraft:dead_horn_coral_block
@@ -18929,7 +18978,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18539;
+		public override int GetRuntimeId() => 18796;
 	} // class
 
 	public partial class DeadHornCoralFan // minecraft:dead_horn_coral_fan
@@ -18977,7 +19026,7 @@ namespace MiNET.Blocks
 			if (CoralFanDirection < 0 || CoralFanDirection > 1) return -1;
 			int d0 = CoralFanDirection;
 
-			return 19977 + d0;
+			return 20230 + d0;
 		} // method
 	} // class
 
@@ -19026,7 +19075,7 @@ namespace MiNET.Blocks
 			if (CoralDirection < 0 || CoralDirection > 3) return -1;
 			int d0 = CoralDirection;
 
-			return 19912 + d0;
+			return 20165 + d0;
 		} // method
 	} // class
 
@@ -19065,7 +19114,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10177;
+		public override int GetRuntimeId() => 10355;
 	} // class
 
 	public partial class DeadTubeCoralBlock // minecraft:dead_tube_coral_block
@@ -19103,7 +19152,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9183;
+		public override int GetRuntimeId() => 9361;
 	} // class
 
 	public partial class DeadTubeCoralFan // minecraft:dead_tube_coral_fan
@@ -19151,7 +19200,7 @@ namespace MiNET.Blocks
 			if (CoralFanDirection < 0 || CoralFanDirection > 1) return -1;
 			int d0 = CoralFanDirection;
 
-			return 18917 + d0;
+			return 19170 + d0;
 		} // method
 	} // class
 
@@ -19200,7 +19249,7 @@ namespace MiNET.Blocks
 			if (CoralDirection < 0 || CoralDirection > 3) return -1;
 			int d0 = CoralDirection;
 
-			return 21817 + d0;
+			return 22072 + d0;
 		} // method
 	} // class
 
@@ -19239,7 +19288,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11771;
+		public override int GetRuntimeId() => 12009;
 	} // class
 
 	public partial class DecoratedPot // minecraft:decorated_pot
@@ -19287,7 +19336,7 @@ namespace MiNET.Blocks
 			if (Direction < 0 || Direction > 3) return -1;
 			int d0 = Direction;
 
-			return 18991 + d0;
+			return 19244 + d0;
 		} // method
 	} // class
 
@@ -19342,7 +19391,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1633 + d0;
+			return 1795 + d0;
 		} // method
 	} // class
 
@@ -19396,7 +19445,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 5484 + d0;
+			return 5646 + d0;
 		} // method
 	} // class
 
@@ -19449,7 +19498,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 7133 + d0;
+			return 7311 + d0;
 		} // method
 	} // class
 
@@ -19516,7 +19565,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 21368 + d0 * 8 + d1 * 4 + d2;
+			return 21621 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -19616,7 +19665,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 2606 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 2768 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -19655,7 +19704,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13598;
+		public override int GetRuntimeId() => 13836;
 	} // class
 
 	public partial class DeepslateCoalOre // minecraft:deepslate_coal_ore
@@ -19693,7 +19742,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20687;
+		public override int GetRuntimeId() => 20940;
 	} // class
 
 	public partial class DeepslateCopperOre // minecraft:deepslate_copper_ore
@@ -19769,7 +19818,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22842;
+		public override int GetRuntimeId() => 23097;
 	} // class
 
 	public partial class DeepslateEmeraldOre // minecraft:deepslate_emerald_ore
@@ -19807,7 +19856,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18294;
+		public override int GetRuntimeId() => 18551;
 	} // class
 
 	public partial class DeepslateGoldOre // minecraft:deepslate_gold_ore
@@ -19845,7 +19894,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17802;
+		public override int GetRuntimeId() => 18057;
 	} // class
 
 	public partial class DeepslateIronOre // minecraft:deepslate_iron_ore
@@ -19883,7 +19932,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20912;
+		public override int GetRuntimeId() => 21165;
 	} // class
 
 	public partial class DeepslateLapisOre // minecraft:deepslate_lapis_ore
@@ -19921,7 +19970,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20818;
+		public override int GetRuntimeId() => 21071;
 	} // class
 
 	public partial class DeepslateRedstoneOre // minecraft:deepslate_redstone_ore
@@ -19959,7 +20008,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18822;
+		public override int GetRuntimeId() => 19075;
 	} // class
 
 	public partial class DeepslateTileDoubleSlab // minecraft:deepslate_tile_double_slab
@@ -20012,7 +20061,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2424 + d0;
+			return 2586 + d0;
 		} // method
 	} // class
 
@@ -20065,7 +20114,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10170 + d0;
+			return 10348 + d0;
 		} // method
 	} // class
 
@@ -20132,7 +20181,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 11715 + d0 * 8 + d1 * 4 + d2;
+			return 11953 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -20232,7 +20281,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 12984 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 13222 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -20271,7 +20320,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11074;
+		public override int GetRuntimeId() => 11308;
 	} // class
 
 	public partial class Deny // minecraft:deny
@@ -20309,7 +20358,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14827;
+		public override int GetRuntimeId() => 15082;
 	} // class
 
 	public partial class DeprecatedAnvil // minecraft:deprecated_anvil
@@ -20364,7 +20413,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13336 + d0;
+			return 13574 + d0;
 		} // method
 	} // class
 
@@ -20419,7 +20468,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20116 + d0;
+			return 20369 + d0;
 		} // method
 	} // class
 
@@ -20474,7 +20523,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20113 + d0;
+			return 20366 + d0;
 		} // method
 	} // class
 
@@ -20529,7 +20578,7 @@ namespace MiNET.Blocks
 			if (RailDirection < 0 || RailDirection > 5) return -1;
 			int d1 = RailDirection;
 
-			return 9590 + d0 * 6 + d1;
+			return 9768 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -20568,7 +20617,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1855;
+		public override int GetRuntimeId() => 2017;
 	} // class
 
 	public partial class DiamondOre // minecraft:diamond_ore
@@ -20606,7 +20655,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10489;
+		public override int GetRuntimeId() => 10707;
 	} // class
 
 	public partial class Diorite // minecraft:diorite
@@ -20644,7 +20693,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 525;
+		public override int GetRuntimeId() => 687;
 	} // class
 
 	public partial class DioriteDoubleSlab // minecraft:diorite_double_slab
@@ -20697,7 +20746,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2867 + d0;
+			return 3029 + d0;
 		} // method
 	} // class
 
@@ -20750,7 +20799,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1448 + d0;
+			return 1610 + d0;
 		} // method
 	} // class
 
@@ -20817,7 +20866,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 10573 + d0 * 8 + d1 * 4 + d2;
+			return 10791 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -20917,7 +20966,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 4204 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 4366 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -20956,7 +21005,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14825;
+		public override int GetRuntimeId() => 15080;
 	} // class
 
 	public partial class DirtWithRoots // minecraft:dirt_with_roots
@@ -20994,63 +21043,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13453;
-	} // class
-
-	public partial class DiscPress // minecraft:disc_press
-	{
-		public override string Name => "minecraft:disc_press";
-
-		public override float Hardness => 0.0f;
-		public override float BlastResistance => 0.0f;
-		public override float FrictionFactor => 0.6f;
-		public override int LightLevel => 0;
-		public override int LightDampening => 0;
-		public override float Translucency => 0.0f;
-		public override int BurnOdds => 0;
-		public override int FlameOdds => 0;
-		public override bool IsSolid => false;
-		public override bool RequiresCorrectToolForDrops => false;
-		public override bool CanContainLiquidSource => false;
-
-		[StateEnum("south","west","north","east")] public string CardinalDirection { get; set; } = "south";
-
-		public override void SetState(List<IBlockState> states)
-		{
-			foreach (var state in states)
-			{
-				switch (state)
-				{
-					case BlockStateString s when s.Name == "minecraft:cardinal_direction":
-						CardinalDirection = s.Value;
-						break;
-				} // switch
-			} // foreach
-		} // method
-
-		public override BlockStateContainer GetState()
-		{
-			var record = new BlockStateContainer();
-			record.Name = "minecraft:disc_press";
-			record.Id = 1506;
-			record.States.Add(new BlockStateString {Name = "minecraft:cardinal_direction", Value = CardinalDirection});
-			return record;
-		} // method
-
-		public override int GetRuntimeId()
-		{
-			int d0 = CardinalDirection switch
-			{
-				"south" => 0,
-				"west" => 1,
-				"north" => 2,
-				"east" => 3,
-				_ => -1
-			};
-			if (d0 < 0) return -1;
-
-			return 18570 + d0;
-		} // method
+		public override int GetRuntimeId() => 13691;
 	} // class
 
 	public partial class Dispenser // minecraft:dispenser
@@ -21104,7 +21097,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = TriggeredBit ? 1 : 0;
 
-			return 22827 + d0 + d1 * 6;
+			return 23082 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -21158,7 +21151,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 6935 + d0;
+			return 7113 + d0;
 		} // method
 	} // class
 
@@ -21197,7 +21190,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20909;
+		public override int GetRuntimeId() => 21162;
 	} // class
 
 	public partial class DragonHead // minecraft:dragon_head
@@ -21245,7 +21238,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 15484 + d0;
+			return 15739 + d0;
 		} // method
 	} // class
 
@@ -21308,7 +21301,7 @@ namespace MiNET.Blocks
 			if (RehydrationLevel < 0 || RehydrationLevel > 3) return -1;
 			int d1 = RehydrationLevel;
 
-			return 4110 + d0 + d1 * 4;
+			return 4272 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -21347,7 +21340,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22789;
+		public override int GetRuntimeId() => 23044;
 	} // class
 
 	public partial class DripstoneBlock // minecraft:dripstone_block
@@ -21385,7 +21378,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4045;
+		public override int GetRuntimeId() => 4207;
 	} // class
 
 	public partial class Dropper // minecraft:dropper
@@ -21439,7 +21432,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = TriggeredBit ? 1 : 0;
 
-			return 21279 + d0 + d1 * 6;
+			return 21532 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -21478,7 +21471,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20914;
+		public override int GetRuntimeId() => 21167;
 	} // class
 
 	public partial class Element1 // minecraft:element_1
@@ -21516,7 +21509,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20913;
+		public override int GetRuntimeId() => 21166;
 	} // class
 
 	public partial class Element10 // minecraft:element_10
@@ -21554,7 +21547,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22080;
+		public override int GetRuntimeId() => 22335;
 	} // class
 
 	public partial class Element100 // minecraft:element_100
@@ -21592,7 +21585,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14396;
+		public override int GetRuntimeId() => 14651;
 	} // class
 
 	public partial class Element101 // minecraft:element_101
@@ -21630,7 +21623,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14397;
+		public override int GetRuntimeId() => 14652;
 	} // class
 
 	public partial class Element102 // minecraft:element_102
@@ -21668,7 +21661,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14398;
+		public override int GetRuntimeId() => 14653;
 	} // class
 
 	public partial class Element103 // minecraft:element_103
@@ -21706,7 +21699,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14399;
+		public override int GetRuntimeId() => 14654;
 	} // class
 
 	public partial class Element104 // minecraft:element_104
@@ -21744,7 +21737,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14400;
+		public override int GetRuntimeId() => 14655;
 	} // class
 
 	public partial class Element105 // minecraft:element_105
@@ -21782,7 +21775,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14401;
+		public override int GetRuntimeId() => 14656;
 	} // class
 
 	public partial class Element106 // minecraft:element_106
@@ -21820,7 +21813,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14402;
+		public override int GetRuntimeId() => 14657;
 	} // class
 
 	public partial class Element107 // minecraft:element_107
@@ -21858,7 +21851,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14403;
+		public override int GetRuntimeId() => 14658;
 	} // class
 
 	public partial class Element108 // minecraft:element_108
@@ -21896,7 +21889,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14404;
+		public override int GetRuntimeId() => 14659;
 	} // class
 
 	public partial class Element109 // minecraft:element_109
@@ -21934,7 +21927,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14405;
+		public override int GetRuntimeId() => 14660;
 	} // class
 
 	public partial class Element11 // minecraft:element_11
@@ -21972,7 +21965,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22081;
+		public override int GetRuntimeId() => 22336;
 	} // class
 
 	public partial class Element110 // minecraft:element_110
@@ -22010,7 +22003,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14409;
+		public override int GetRuntimeId() => 14664;
 	} // class
 
 	public partial class Element111 // minecraft:element_111
@@ -22048,7 +22041,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14408;
+		public override int GetRuntimeId() => 14663;
 	} // class
 
 	public partial class Element112 // minecraft:element_112
@@ -22086,7 +22079,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14407;
+		public override int GetRuntimeId() => 14662;
 	} // class
 
 	public partial class Element113 // minecraft:element_113
@@ -22124,7 +22117,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14406;
+		public override int GetRuntimeId() => 14661;
 	} // class
 
 	public partial class Element114 // minecraft:element_114
@@ -22162,7 +22155,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14413;
+		public override int GetRuntimeId() => 14668;
 	} // class
 
 	public partial class Element115 // minecraft:element_115
@@ -22200,7 +22193,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14412;
+		public override int GetRuntimeId() => 14667;
 	} // class
 
 	public partial class Element116 // minecraft:element_116
@@ -22238,7 +22231,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14411;
+		public override int GetRuntimeId() => 14666;
 	} // class
 
 	public partial class Element117 // minecraft:element_117
@@ -22276,7 +22269,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14410;
+		public override int GetRuntimeId() => 14665;
 	} // class
 
 	public partial class Element118 // minecraft:element_118
@@ -22314,7 +22307,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14414;
+		public override int GetRuntimeId() => 14669;
 	} // class
 
 	public partial class Element12 // minecraft:element_12
@@ -22352,7 +22345,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22082;
+		public override int GetRuntimeId() => 22337;
 	} // class
 
 	public partial class Element13 // minecraft:element_13
@@ -22390,7 +22383,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22083;
+		public override int GetRuntimeId() => 22338;
 	} // class
 
 	public partial class Element14 // minecraft:element_14
@@ -22428,7 +22421,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22084;
+		public override int GetRuntimeId() => 22339;
 	} // class
 
 	public partial class Element15 // minecraft:element_15
@@ -22466,7 +22459,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22085;
+		public override int GetRuntimeId() => 22340;
 	} // class
 
 	public partial class Element16 // minecraft:element_16
@@ -22504,7 +22497,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22086;
+		public override int GetRuntimeId() => 22341;
 	} // class
 
 	public partial class Element17 // minecraft:element_17
@@ -22542,7 +22535,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22087;
+		public override int GetRuntimeId() => 22342;
 	} // class
 
 	public partial class Element18 // minecraft:element_18
@@ -22580,7 +22573,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22088;
+		public override int GetRuntimeId() => 22343;
 	} // class
 
 	public partial class Element19 // minecraft:element_19
@@ -22618,7 +22611,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22089;
+		public override int GetRuntimeId() => 22344;
 	} // class
 
 	public partial class Element2 // minecraft:element_2
@@ -22656,7 +22649,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20916;
+		public override int GetRuntimeId() => 21169;
 	} // class
 
 	public partial class Element20 // minecraft:element_20
@@ -22694,7 +22687,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22103;
+		public override int GetRuntimeId() => 22358;
 	} // class
 
 	public partial class Element21 // minecraft:element_21
@@ -22732,7 +22725,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22102;
+		public override int GetRuntimeId() => 22357;
 	} // class
 
 	public partial class Element22 // minecraft:element_22
@@ -22770,7 +22763,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22105;
+		public override int GetRuntimeId() => 22360;
 	} // class
 
 	public partial class Element23 // minecraft:element_23
@@ -22808,7 +22801,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22104;
+		public override int GetRuntimeId() => 22359;
 	} // class
 
 	public partial class Element24 // minecraft:element_24
@@ -22846,7 +22839,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22107;
+		public override int GetRuntimeId() => 22362;
 	} // class
 
 	public partial class Element25 // minecraft:element_25
@@ -22884,7 +22877,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22106;
+		public override int GetRuntimeId() => 22361;
 	} // class
 
 	public partial class Element26 // minecraft:element_26
@@ -22922,7 +22915,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22109;
+		public override int GetRuntimeId() => 22364;
 	} // class
 
 	public partial class Element27 // minecraft:element_27
@@ -22960,7 +22953,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22108;
+		public override int GetRuntimeId() => 22363;
 	} // class
 
 	public partial class Element28 // minecraft:element_28
@@ -22998,7 +22991,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22101;
+		public override int GetRuntimeId() => 22356;
 	} // class
 
 	public partial class Element29 // minecraft:element_29
@@ -23036,7 +23029,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22100;
+		public override int GetRuntimeId() => 22355;
 	} // class
 
 	public partial class Element3 // minecraft:element_3
@@ -23074,7 +23067,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20915;
+		public override int GetRuntimeId() => 21168;
 	} // class
 
 	public partial class Element30 // minecraft:element_30
@@ -23112,7 +23105,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22096;
+		public override int GetRuntimeId() => 22351;
 	} // class
 
 	public partial class Element31 // minecraft:element_31
@@ -23150,7 +23143,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22097;
+		public override int GetRuntimeId() => 22352;
 	} // class
 
 	public partial class Element32 // minecraft:element_32
@@ -23188,7 +23181,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22094;
+		public override int GetRuntimeId() => 22349;
 	} // class
 
 	public partial class Element33 // minecraft:element_33
@@ -23226,7 +23219,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22095;
+		public override int GetRuntimeId() => 22350;
 	} // class
 
 	public partial class Element34 // minecraft:element_34
@@ -23264,7 +23257,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22092;
+		public override int GetRuntimeId() => 22347;
 	} // class
 
 	public partial class Element35 // minecraft:element_35
@@ -23302,7 +23295,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22093;
+		public override int GetRuntimeId() => 22348;
 	} // class
 
 	public partial class Element36 // minecraft:element_36
@@ -23340,7 +23333,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22090;
+		public override int GetRuntimeId() => 22345;
 	} // class
 
 	public partial class Element37 // minecraft:element_37
@@ -23378,7 +23371,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22091;
+		public override int GetRuntimeId() => 22346;
 	} // class
 
 	public partial class Element38 // minecraft:element_38
@@ -23416,7 +23409,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22098;
+		public override int GetRuntimeId() => 22353;
 	} // class
 
 	public partial class Element39 // minecraft:element_39
@@ -23454,7 +23447,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22099;
+		public override int GetRuntimeId() => 22354;
 	} // class
 
 	public partial class Element4 // minecraft:element_4
@@ -23492,7 +23485,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20918;
+		public override int GetRuntimeId() => 21171;
 	} // class
 
 	public partial class Element40 // minecraft:element_40
@@ -23530,7 +23523,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22129;
+		public override int GetRuntimeId() => 22384;
 	} // class
 
 	public partial class Element41 // minecraft:element_41
@@ -23568,7 +23561,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22128;
+		public override int GetRuntimeId() => 22383;
 	} // class
 
 	public partial class Element42 // minecraft:element_42
@@ -23606,7 +23599,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22127;
+		public override int GetRuntimeId() => 22382;
 	} // class
 
 	public partial class Element43 // minecraft:element_43
@@ -23644,7 +23637,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22126;
+		public override int GetRuntimeId() => 22381;
 	} // class
 
 	public partial class Element44 // minecraft:element_44
@@ -23682,7 +23675,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22125;
+		public override int GetRuntimeId() => 22380;
 	} // class
 
 	public partial class Element45 // minecraft:element_45
@@ -23720,7 +23713,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22124;
+		public override int GetRuntimeId() => 22379;
 	} // class
 
 	public partial class Element46 // minecraft:element_46
@@ -23758,7 +23751,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22123;
+		public override int GetRuntimeId() => 22378;
 	} // class
 
 	public partial class Element47 // minecraft:element_47
@@ -23796,7 +23789,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22122;
+		public override int GetRuntimeId() => 22377;
 	} // class
 
 	public partial class Element48 // minecraft:element_48
@@ -23834,7 +23827,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22121;
+		public override int GetRuntimeId() => 22376;
 	} // class
 
 	public partial class Element49 // minecraft:element_49
@@ -23872,7 +23865,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22120;
+		public override int GetRuntimeId() => 22375;
 	} // class
 
 	public partial class Element5 // minecraft:element_5
@@ -23910,7 +23903,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20917;
+		public override int GetRuntimeId() => 21170;
 	} // class
 
 	public partial class Element50 // minecraft:element_50
@@ -23948,7 +23941,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22116;
+		public override int GetRuntimeId() => 22371;
 	} // class
 
 	public partial class Element51 // minecraft:element_51
@@ -23986,7 +23979,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22117;
+		public override int GetRuntimeId() => 22372;
 	} // class
 
 	public partial class Element52 // minecraft:element_52
@@ -24024,7 +24017,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22118;
+		public override int GetRuntimeId() => 22373;
 	} // class
 
 	public partial class Element53 // minecraft:element_53
@@ -24062,7 +24055,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22119;
+		public override int GetRuntimeId() => 22374;
 	} // class
 
 	public partial class Element54 // minecraft:element_54
@@ -24100,7 +24093,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22112;
+		public override int GetRuntimeId() => 22367;
 	} // class
 
 	public partial class Element55 // minecraft:element_55
@@ -24138,7 +24131,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22113;
+		public override int GetRuntimeId() => 22368;
 	} // class
 
 	public partial class Element56 // minecraft:element_56
@@ -24176,7 +24169,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22114;
+		public override int GetRuntimeId() => 22369;
 	} // class
 
 	public partial class Element57 // minecraft:element_57
@@ -24214,7 +24207,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22115;
+		public override int GetRuntimeId() => 22370;
 	} // class
 
 	public partial class Element58 // minecraft:element_58
@@ -24252,7 +24245,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22110;
+		public override int GetRuntimeId() => 22365;
 	} // class
 
 	public partial class Element59 // minecraft:element_59
@@ -24290,7 +24283,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22111;
+		public override int GetRuntimeId() => 22366;
 	} // class
 
 	public partial class Element6 // minecraft:element_6
@@ -24328,7 +24321,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20920;
+		public override int GetRuntimeId() => 21173;
 	} // class
 
 	public partial class Element60 // minecraft:element_60
@@ -24366,7 +24359,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22145;
+		public override int GetRuntimeId() => 22400;
 	} // class
 
 	public partial class Element61 // minecraft:element_61
@@ -24404,7 +24397,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22144;
+		public override int GetRuntimeId() => 22399;
 	} // class
 
 	public partial class Element62 // minecraft:element_62
@@ -24442,7 +24435,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22147;
+		public override int GetRuntimeId() => 22402;
 	} // class
 
 	public partial class Element63 // minecraft:element_63
@@ -24480,7 +24473,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22146;
+		public override int GetRuntimeId() => 22401;
 	} // class
 
 	public partial class Element64 // minecraft:element_64
@@ -24518,7 +24511,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22141;
+		public override int GetRuntimeId() => 22396;
 	} // class
 
 	public partial class Element65 // minecraft:element_65
@@ -24556,7 +24549,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22140;
+		public override int GetRuntimeId() => 22395;
 	} // class
 
 	public partial class Element66 // minecraft:element_66
@@ -24594,7 +24587,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22143;
+		public override int GetRuntimeId() => 22398;
 	} // class
 
 	public partial class Element67 // minecraft:element_67
@@ -24632,7 +24625,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22142;
+		public override int GetRuntimeId() => 22397;
 	} // class
 
 	public partial class Element68 // minecraft:element_68
@@ -24670,7 +24663,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22149;
+		public override int GetRuntimeId() => 22404;
 	} // class
 
 	public partial class Element69 // minecraft:element_69
@@ -24708,7 +24701,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22148;
+		public override int GetRuntimeId() => 22403;
 	} // class
 
 	public partial class Element7 // minecraft:element_7
@@ -24746,7 +24739,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20919;
+		public override int GetRuntimeId() => 21172;
 	} // class
 
 	public partial class Element70 // minecraft:element_70
@@ -24784,7 +24777,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22132;
+		public override int GetRuntimeId() => 22387;
 	} // class
 
 	public partial class Element71 // minecraft:element_71
@@ -24822,7 +24815,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22133;
+		public override int GetRuntimeId() => 22388;
 	} // class
 
 	public partial class Element72 // minecraft:element_72
@@ -24860,7 +24853,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22130;
+		public override int GetRuntimeId() => 22385;
 	} // class
 
 	public partial class Element73 // minecraft:element_73
@@ -24898,7 +24891,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22131;
+		public override int GetRuntimeId() => 22386;
 	} // class
 
 	public partial class Element74 // minecraft:element_74
@@ -24936,7 +24929,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22136;
+		public override int GetRuntimeId() => 22391;
 	} // class
 
 	public partial class Element75 // minecraft:element_75
@@ -24974,7 +24967,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22137;
+		public override int GetRuntimeId() => 22392;
 	} // class
 
 	public partial class Element76 // minecraft:element_76
@@ -25012,7 +25005,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22134;
+		public override int GetRuntimeId() => 22389;
 	} // class
 
 	public partial class Element77 // minecraft:element_77
@@ -25050,7 +25043,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22135;
+		public override int GetRuntimeId() => 22390;
 	} // class
 
 	public partial class Element78 // minecraft:element_78
@@ -25088,7 +25081,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22138;
+		public override int GetRuntimeId() => 22393;
 	} // class
 
 	public partial class Element79 // minecraft:element_79
@@ -25126,7 +25119,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22139;
+		public override int GetRuntimeId() => 22394;
 	} // class
 
 	public partial class Element8 // minecraft:element_8
@@ -25164,7 +25157,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20922;
+		public override int GetRuntimeId() => 21175;
 	} // class
 
 	public partial class Element80 // minecraft:element_80
@@ -25202,7 +25195,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22165;
+		public override int GetRuntimeId() => 22420;
 	} // class
 
 	public partial class Element81 // minecraft:element_81
@@ -25240,7 +25233,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22164;
+		public override int GetRuntimeId() => 22419;
 	} // class
 
 	public partial class Element82 // minecraft:element_82
@@ -25278,7 +25271,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22163;
+		public override int GetRuntimeId() => 22418;
 	} // class
 
 	public partial class Element83 // minecraft:element_83
@@ -25316,7 +25309,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22162;
+		public override int GetRuntimeId() => 22417;
 	} // class
 
 	public partial class Element84 // minecraft:element_84
@@ -25354,7 +25347,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22169;
+		public override int GetRuntimeId() => 22424;
 	} // class
 
 	public partial class Element85 // minecraft:element_85
@@ -25392,7 +25385,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22168;
+		public override int GetRuntimeId() => 22423;
 	} // class
 
 	public partial class Element86 // minecraft:element_86
@@ -25430,7 +25423,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22167;
+		public override int GetRuntimeId() => 22422;
 	} // class
 
 	public partial class Element87 // minecraft:element_87
@@ -25468,7 +25461,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22166;
+		public override int GetRuntimeId() => 22421;
 	} // class
 
 	public partial class Element88 // minecraft:element_88
@@ -25506,7 +25499,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22161;
+		public override int GetRuntimeId() => 22416;
 	} // class
 
 	public partial class Element89 // minecraft:element_89
@@ -25544,7 +25537,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22160;
+		public override int GetRuntimeId() => 22415;
 	} // class
 
 	public partial class Element9 // minecraft:element_9
@@ -25582,7 +25575,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20921;
+		public override int GetRuntimeId() => 21174;
 	} // class
 
 	public partial class Element90 // minecraft:element_90
@@ -25620,7 +25613,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22152;
+		public override int GetRuntimeId() => 22407;
 	} // class
 
 	public partial class Element91 // minecraft:element_91
@@ -25658,7 +25651,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22153;
+		public override int GetRuntimeId() => 22408;
 	} // class
 
 	public partial class Element92 // minecraft:element_92
@@ -25696,7 +25689,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22154;
+		public override int GetRuntimeId() => 22409;
 	} // class
 
 	public partial class Element93 // minecraft:element_93
@@ -25734,7 +25727,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22155;
+		public override int GetRuntimeId() => 22410;
 	} // class
 
 	public partial class Element94 // minecraft:element_94
@@ -25772,7 +25765,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22156;
+		public override int GetRuntimeId() => 22411;
 	} // class
 
 	public partial class Element95 // minecraft:element_95
@@ -25810,7 +25803,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22157;
+		public override int GetRuntimeId() => 22412;
 	} // class
 
 	public partial class Element96 // minecraft:element_96
@@ -25848,7 +25841,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22158;
+		public override int GetRuntimeId() => 22413;
 	} // class
 
 	public partial class Element97 // minecraft:element_97
@@ -25886,7 +25879,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22159;
+		public override int GetRuntimeId() => 22414;
 	} // class
 
 	public partial class Element98 // minecraft:element_98
@@ -25924,7 +25917,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22150;
+		public override int GetRuntimeId() => 22405;
 	} // class
 
 	public partial class Element99 // minecraft:element_99
@@ -25962,7 +25955,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22151;
+		public override int GetRuntimeId() => 22406;
 	} // class
 
 	public partial class ElementConstructor // minecraft:element_constructor
@@ -26010,7 +26003,7 @@ namespace MiNET.Blocks
 			if (Direction < 0 || Direction > 3) return -1;
 			int d0 = Direction;
 
-			return 11070 + d0;
+			return 11304 + d0;
 		} // method
 	} // class
 
@@ -26049,7 +26042,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4632;
+		public override int GetRuntimeId() => 4794;
 	} // class
 
 	public partial class EmeraldOre // minecraft:emerald_ore
@@ -26087,7 +26080,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21041;
+		public override int GetRuntimeId() => 21294;
 	} // class
 
 	public partial class EnchantingTable // minecraft:enchanting_table
@@ -26125,7 +26118,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18997;
+		public override int GetRuntimeId() => 19250;
 	} // class
 
 	public partial class EndBrickStairs // minecraft:end_brick_stairs
@@ -26191,7 +26184,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 18372 + d0 * 8 + d1 * 4 + d2;
+			return 18629 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -26230,7 +26223,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1928;
+		public override int GetRuntimeId() => 2090;
 	} // class
 
 	public partial class EndGateway // minecraft:end_gateway
@@ -26268,7 +26261,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 971;
+		public override int GetRuntimeId() => 1133;
 	} // class
 
 	public partial class EndPortal // minecraft:end_portal
@@ -26306,7 +26299,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21979;
+		public override int GetRuntimeId() => 22234;
 	} // class
 
 	public partial class EndPortalFrame // minecraft:end_portal_frame
@@ -26367,7 +26360,7 @@ namespace MiNET.Blocks
 			};
 			if (d1 < 0) return -1;
 
-			return 17662 + d0 * 4 + d1;
+			return 17917 + d0 * 4 + d1;
 		} // method
 	} // class
 
@@ -26416,7 +26409,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 16111 + d0;
+			return 16366 + d0;
 		} // method
 	} // class
 
@@ -26455,7 +26448,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9184;
+		public override int GetRuntimeId() => 9362;
 	} // class
 
 	public partial class EndStoneBrickDoubleSlab // minecraft:end_stone_brick_double_slab
@@ -26508,7 +26501,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18462 + d0;
+			return 18719 + d0;
 		} // method
 	} // class
 
@@ -26561,7 +26554,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2869 + d0;
+			return 3031 + d0;
 		} // method
 	} // class
 
@@ -26716,7 +26709,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10499 + d0;
+			return 10717 + d0;
 		} // method
 	} // class
 
@@ -26755,7 +26748,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18756;
+		public override int GetRuntimeId() => 19009;
 	} // class
 
 	public partial class ExposedCopper // minecraft:exposed_copper
@@ -26793,7 +26786,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2771;
+		public override int GetRuntimeId() => 2933;
 	} // class
 
 	public partial class ExposedCopperBars // minecraft:exposed_copper_bars
@@ -26858,7 +26851,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 18131 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 18388 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -26916,7 +26909,7 @@ namespace MiNET.Blocks
 			int d0 = Lit ? 1 : 0;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 18127 + d0 + d1 * 2;
+			return 18384 + d0 + d1 * 2;
 		} // method
 	} // class
 
@@ -26971,7 +26964,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13484 + d0;
+			return 13722 + d0;
 		} // method
 	} // class
 
@@ -27026,7 +27019,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13480 + d0;
+			return 13718 + d0;
 		} // method
 	} // class
 
@@ -27096,7 +27089,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 11843 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 12081 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -27152,7 +27145,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21498 + d0;
+			return 21751 + d0;
 		} // method
 	} // class
 
@@ -27191,7 +27184,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13419;
+		public override int GetRuntimeId() => 13657;
 	} // class
 
 	public partial class ExposedCopperLantern // minecraft:exposed_copper_lantern
@@ -27238,7 +27231,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Hanging ? 1 : 0;
 
-			return 9359 + d0;
+			return 9537 + d0;
 		} // method
 	} // class
 
@@ -27296,7 +27289,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 17689 + d0 + d1 * 8 + d2 * 4;
+			return 17944 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -27335,7 +27328,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17903;
+		public override int GetRuntimeId() => 18160;
 	} // class
 
 	public partial class ExposedCutCopperSlab // minecraft:exposed_cut_copper_slab
@@ -27387,7 +27380,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18773 + d0;
+			return 19026 + d0;
 		} // method
 	} // class
 
@@ -27454,7 +27447,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 11121 + d0 * 8 + d1 * 4 + d2;
+			return 11359 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -27508,7 +27501,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2809 + d0;
+			return 2971 + d0;
 		} // method
 	} // class
 
@@ -27563,7 +27556,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 7062 + d0 + d1 * 6;
+			return 7240 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -27612,7 +27605,7 @@ namespace MiNET.Blocks
 			if (MoisturizedAmount < 0 || MoisturizedAmount > 7) return -1;
 			int d0 = MoisturizedAmount;
 
-			return 9361 + d0;
+			return 9539 + d0;
 		} // method
 	} // class
 
@@ -27716,7 +27709,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17492;
+		public override int GetRuntimeId() => 17747;
 	} // class
 
 	public partial class Fire // minecraft:fire
@@ -27794,7 +27787,7 @@ namespace MiNET.Blocks
 			int d4 = ConnectionUp ? 1 : 0;
 			int d5 = ConnectionWest ? 1 : 0;
 
-			return 16978 + d0 + d1 * 32 + d2 * 16 + d3 * 64 + d4 * 256 + d5 * 128;
+			return 17233 + d0 + d1 * 32 + d2 * 16 + d3 * 64 + d4 * 256 + d5 * 128;
 		} // method
 	} // class
 
@@ -27833,7 +27826,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3316;
+		public override int GetRuntimeId() => 3478;
 	} // class
 
 	public partial class FireCoralBlock // minecraft:fire_coral_block
@@ -27871,7 +27864,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10669;
+		public override int GetRuntimeId() => 10887;
 	} // class
 
 	public partial class FireCoralFan // minecraft:fire_coral_fan
@@ -27919,7 +27912,7 @@ namespace MiNET.Blocks
 			if (CoralFanDirection < 0 || CoralFanDirection > 1) return -1;
 			int d0 = CoralFanDirection;
 
-			return 18723 + d0;
+			return 18976 + d0;
 		} // method
 	} // class
 
@@ -27968,7 +27961,7 @@ namespace MiNET.Blocks
 			if (CoralDirection < 0 || CoralDirection > 3) return -1;
 			int d0 = CoralDirection;
 
-			return 13399 + d0;
+			return 13637 + d0;
 		} // method
 	} // class
 
@@ -28007,7 +28000,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1854;
+		public override int GetRuntimeId() => 2016;
 	} // class
 
 	public partial class FletchingTable // minecraft:fletching_table
@@ -28045,7 +28038,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 15423;
+		public override int GetRuntimeId() => 15678;
 	} // class
 
 	public partial class FlowerPot // minecraft:flower_pot
@@ -28092,7 +28085,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = UpdateBit ? 1 : 0;
 
-			return 1990 + d0;
+			return 2152 + d0;
 		} // method
 	} // class
 
@@ -28131,7 +28124,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13613;
+		public override int GetRuntimeId() => 13852;
 	} // class
 
 	public partial class FlowingLava // minecraft:flowing_lava
@@ -28178,7 +28171,7 @@ namespace MiNET.Blocks
 			if (LiquidDepth < 0 || LiquidDepth > 15) return -1;
 			int d0 = LiquidDepth;
 
-			return 20727 + d0;
+			return 20980 + d0;
 		} // method
 	} // class
 
@@ -28226,7 +28219,7 @@ namespace MiNET.Blocks
 			if (LiquidDepth < 0 || LiquidDepth > 15) return -1;
 			int d0 = LiquidDepth;
 
-			return 11899 + d0;
+			return 12137 + d0;
 		} // method
 	} // class
 
@@ -28287,7 +28280,7 @@ namespace MiNET.Blocks
 			int d1 = ItemFrameMapBit ? 1 : 0;
 			int d2 = ItemFramePhotoBit ? 1 : 0;
 
-			return 9863 + d0 + d1 * 6 + d2 * 12;
+			return 10041 + d0 + d1 * 6 + d2 * 12;
 		} // method
 	} // class
 
@@ -28326,7 +28319,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10617;
+		public override int GetRuntimeId() => 10835;
 	} // class
 
 	public partial class FrostedIce // minecraft:frosted_ice
@@ -28374,7 +28367,7 @@ namespace MiNET.Blocks
 			if (Age < 0 || Age > 3) return -1;
 			int d0 = Age;
 
-			return 11829 + d0;
+			return 12067 + d0;
 		} // method
 	} // class
 
@@ -28429,7 +28422,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22611 + d0;
+			return 22866 + d0;
 		} // method
 	} // class
 
@@ -28468,7 +28461,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11118;
+		public override int GetRuntimeId() => 11352;
 	} // class
 
 	public partial class Glass // minecraft:glass
@@ -28506,7 +28499,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17896;
+		public override int GetRuntimeId() => 18153;
 	} // class
 
 	public partial class GlassPane // minecraft:glass_pane
@@ -28567,7 +28560,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 13146 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 13384 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -28628,7 +28621,7 @@ namespace MiNET.Blocks
 			int d1 = ItemFrameMapBit ? 1 : 0;
 			int d2 = ItemFramePhotoBit ? 1 : 0;
 
-			return 1208 + d0 + d1 * 6 + d2 * 12;
+			return 1370 + d0 + d1 * 6 + d2 * 12;
 		} // method
 	} // class
 
@@ -28677,7 +28670,7 @@ namespace MiNET.Blocks
 			if (MultiFaceDirectionBits < 0 || MultiFaceDirectionBits > 63) return -1;
 			int d0 = MultiFaceDirectionBits;
 
-			return 14672 + d0;
+			return 14927 + d0;
 		} // method
 	} // class
 
@@ -28716,7 +28709,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6491;
+		public override int GetRuntimeId() => 6653;
 	} // class
 
 	public partial class Glowstone // minecraft:glowstone
@@ -28754,7 +28747,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9287;
+		public override int GetRuntimeId() => 9465;
 	} // class
 
 	public partial class GoldBlock // minecraft:gold_block
@@ -28792,7 +28785,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1989;
+		public override int GetRuntimeId() => 2151;
 	} // class
 
 	public partial class GoldOre // minecraft:gold_ore
@@ -28830,7 +28823,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4084;
+		public override int GetRuntimeId() => 4246;
 	} // class
 
 	public partial class GoldenDandelion // minecraft:golden_dandelion
@@ -28868,7 +28861,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2296;
+		public override int GetRuntimeId() => 2458;
 	} // class
 
 	public partial class GoldenRail // minecraft:golden_rail
@@ -28922,7 +28915,7 @@ namespace MiNET.Blocks
 			if (RailDirection < 0 || RailDirection > 5) return -1;
 			int d1 = RailDirection;
 
-			return 13321 + d0 * 6 + d1;
+			return 13559 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -29014,7 +29007,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18995 + d0;
+			return 19248 + d0;
 		} // method
 	} // class
 
@@ -29067,7 +29060,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11109 + d0;
+			return 11343 + d0;
 		} // method
 	} // class
 
@@ -29134,7 +29127,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 6066 + d0 * 8 + d1 * 4 + d2;
+			return 6228 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -29234,7 +29227,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 14875 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 15130 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -29273,7 +29266,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16313;
+		public override int GetRuntimeId() => 16568;
 	} // class
 
 	public partial class GrassPath // minecraft:grass_path
@@ -29311,7 +29304,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23165;
+		public override int GetRuntimeId() => 23421;
 	} // class
 
 	public partial class Gravel // minecraft:gravel
@@ -29349,7 +29342,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23919;
+		public override int GetRuntimeId() => 24175;
 	} // class
 
 	public partial class GrayCandle // minecraft:gray_candle
@@ -29410,7 +29403,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 4175 + d0 + d1 * 4;
+			return 4337 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -29462,7 +29455,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 542 + d0;
+			return 704 + d0;
 		} // method
 	} // class
 
@@ -29501,7 +29494,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1554;
+		public override int GetRuntimeId() => 1716;
 	} // class
 
 	public partial class GrayConcrete // minecraft:gray_concrete
@@ -29539,7 +29532,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21103;
+		public override int GetRuntimeId() => 21356;
 	} // class
 
 	public partial class GrayConcreteDoubleSlab // minecraft:gray_concrete_double_slab
@@ -29592,7 +29585,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 17490 + d0;
+			return 17745 + d0;
 		} // method
 	} // class
 
@@ -29631,7 +29624,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21100;
+		public override int GetRuntimeId() => 21353;
 	} // class
 
 	public partial class GrayConcreteSlab // minecraft:gray_concrete_slab
@@ -29683,7 +29676,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1234 + d0;
+			return 1396 + d0;
 		} // method
 	} // class
 
@@ -29750,7 +29743,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 3549 + d0 * 8 + d1 * 4 + d2;
+			return 3711 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -29798,7 +29791,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 23855 + d0;
+			return 24111 + d0;
 		} // method
 	} // class
 
@@ -29837,7 +29830,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13351;
+		public override int GetRuntimeId() => 13589;
 	} // class
 
 	public partial class GrayStainedGlass // minecraft:gray_stained_glass
@@ -29875,7 +29868,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7131;
+		public override int GetRuntimeId() => 7309;
 	} // class
 
 	public partial class GrayStainedGlassPane // minecraft:gray_stained_glass_pane
@@ -29936,7 +29929,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 19395 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 19648 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -29975,7 +29968,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11092;
+		public override int GetRuntimeId() => 11326;
 	} // class
 
 	public partial class GrayWool // minecraft:gray_wool
@@ -30013,7 +30006,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1521;
+		public override int GetRuntimeId() => 1683;
 	} // class
 
 	public partial class GrayWoolDoubleSlab // minecraft:gray_wool_double_slab
@@ -30066,7 +30059,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13165 + d0;
+			return 13403 + d0;
 		} // method
 	} // class
 
@@ -30119,7 +30112,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19211 + d0;
+			return 19464 + d0;
 		} // method
 	} // class
 
@@ -30186,7 +30179,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 7215 + d0 * 8 + d1 * 4 + d2;
+			return 7393 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -30248,7 +30241,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 3522 + d0 + d1 * 4;
+			return 3684 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -30300,7 +30293,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 6693 + d0;
+			return 6871 + d0;
 		} // method
 	} // class
 
@@ -30339,7 +30332,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7397;
+		public override int GetRuntimeId() => 7575;
 	} // class
 
 	public partial class GreenConcrete // minecraft:green_concrete
@@ -30377,7 +30370,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16120;
+		public override int GetRuntimeId() => 16375;
 	} // class
 
 	public partial class GreenConcreteDoubleSlab // minecraft:green_concrete_double_slab
@@ -30430,7 +30423,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11772 + d0;
+			return 12010 + d0;
 		} // method
 	} // class
 
@@ -30469,7 +30462,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19769;
+		public override int GetRuntimeId() => 20022;
 	} // class
 
 	public partial class GreenConcreteSlab // minecraft:green_concrete_slab
@@ -30521,7 +30514,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19226 + d0;
+			return 19479 + d0;
 		} // method
 	} // class
 
@@ -30588,7 +30581,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 10442 + d0 * 8 + d1 * 4 + d2;
+			return 10620 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -30636,7 +30629,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 18815 + d0;
+			return 19068 + d0;
 		} // method
 	} // class
 
@@ -30675,7 +30668,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18567;
+		public override int GetRuntimeId() => 18824;
 	} // class
 
 	public partial class GreenStainedGlass // minecraft:green_stained_glass
@@ -30713,7 +30706,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9940;
+		public override int GetRuntimeId() => 10118;
 	} // class
 
 	public partial class GreenStainedGlassPane // minecraft:green_stained_glass_pane
@@ -30774,7 +30767,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 9603 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 9781 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -30813,7 +30806,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7132;
+		public override int GetRuntimeId() => 7310;
 	} // class
 
 	public partial class GreenWool // minecraft:green_wool
@@ -30851,7 +30844,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7396;
+		public override int GetRuntimeId() => 7574;
 	} // class
 
 	public partial class GreenWoolDoubleSlab // minecraft:green_wool_double_slab
@@ -30904,7 +30897,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2354 + d0;
+			return 2516 + d0;
 		} // method
 	} // class
 
@@ -30957,7 +30950,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20743 + d0;
+			return 20996 + d0;
 		} // method
 	} // class
 
@@ -31024,7 +31017,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 5438 + d0 * 8 + d1 * 4 + d2;
+			return 5600 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -31087,7 +31080,7 @@ namespace MiNET.Blocks
 			if (Direction < 0 || Direction > 3) return -1;
 			int d1 = Direction;
 
-			return 22843 + d0 * 4 + d1;
+			return 23098 + d0 * 4 + d1;
 		} // method
 	} // class
 
@@ -31126,7 +31119,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1236;
+		public override int GetRuntimeId() => 1398;
 	} // class
 
 	public partial class HardBlackStainedGlass // minecraft:hard_black_stained_glass
@@ -31164,7 +31157,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16404;
+		public override int GetRuntimeId() => 16659;
 	} // class
 
 	public partial class HardBlackStainedGlassPane // minecraft:hard_black_stained_glass_pane
@@ -31229,7 +31222,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 1538 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 1700 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -31268,7 +31261,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10487;
+		public override int GetRuntimeId() => 10665;
 	} // class
 
 	public partial class HardBlueStainedGlassPane // minecraft:hard_blue_stained_glass_pane
@@ -31333,7 +31326,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 23869 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 24125 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -31372,7 +31365,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1516;
+		public override int GetRuntimeId() => 1678;
 	} // class
 
 	public partial class HardBrownStainedGlassPane // minecraft:hard_brown_stained_glass_pane
@@ -31437,7 +31430,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 4608 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 4770 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -31476,7 +31469,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10394;
+		public override int GetRuntimeId() => 10572;
 	} // class
 
 	public partial class HardCyanStainedGlassPane // minecraft:hard_cyan_stained_glass_pane
@@ -31541,7 +31534,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 20783 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 21036 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -31580,7 +31573,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11916;
+		public override int GetRuntimeId() => 12154;
 	} // class
 
 	public partial class HardGlassPane // minecraft:hard_glass_pane
@@ -31645,7 +31638,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 3323 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 3485 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -31684,7 +31677,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1898;
+		public override int GetRuntimeId() => 2060;
 	} // class
 
 	public partial class HardGrayStainedGlassPane // minecraft:hard_gray_stained_glass_pane
@@ -31749,7 +31742,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 18543 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 18800 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -31788,7 +31781,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18647;
+		public override int GetRuntimeId() => 18900;
 	} // class
 
 	public partial class HardGreenStainedGlassPane // minecraft:hard_green_stained_glass_pane
@@ -31853,7 +31846,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 477 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 639 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -31892,7 +31885,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4631;
+		public override int GetRuntimeId() => 4793;
 	} // class
 
 	public partial class HardLightBlueStainedGlassPane // minecraft:hard_light_blue_stained_glass_pane
@@ -31957,7 +31950,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 13421 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 13659 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -31996,7 +31989,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22793;
+		public override int GetRuntimeId() => 23048;
 	} // class
 
 	public partial class HardLightGrayStainedGlassPane // minecraft:hard_light_gray_stained_glass_pane
@@ -32061,7 +32054,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 11076 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 11310 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -32100,7 +32093,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18464;
+		public override int GetRuntimeId() => 18721;
 	} // class
 
 	public partial class HardLimeStainedGlassPane // minecraft:hard_lime_stained_glass_pane
@@ -32165,7 +32158,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 11050 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 11284 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -32204,7 +32197,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9589;
+		public override int GetRuntimeId() => 9767;
 	} // class
 
 	public partial class HardMagentaStainedGlassPane // minecraft:hard_magenta_stained_glass_pane
@@ -32269,7 +32262,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 18270 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 18527 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -32308,7 +32301,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17863;
+		public override int GetRuntimeId() => 18120;
 	} // class
 
 	public partial class HardOrangeStainedGlassPane // minecraft:hard_orange_stained_glass_pane
@@ -32373,7 +32366,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 1493 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 1655 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -32477,7 +32470,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 21839 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 22094 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -32516,7 +32509,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10488;
+		public override int GetRuntimeId() => 10706;
 	} // class
 
 	public partial class HardPurpleStainedGlassPane // minecraft:hard_purple_stained_glass_pane
@@ -32581,7 +32574,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 19923 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 20176 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -32620,7 +32613,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19423;
+		public override int GetRuntimeId() => 19676;
 	} // class
 
 	public partial class HardRedStainedGlassPane // minecraft:hard_red_stained_glass_pane
@@ -32685,7 +32678,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 19856 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 20109 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -32724,7 +32717,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9344;
+		public override int GetRuntimeId() => 9522;
 	} // class
 
 	public partial class HardWhiteStainedGlassPane // minecraft:hard_white_stained_glass_pane
@@ -32789,7 +32782,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 20753 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 21006 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -32828,7 +32821,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11119;
+		public override int GetRuntimeId() => 11357;
 	} // class
 
 	public partial class HardYellowStainedGlassPane // minecraft:hard_yellow_stained_glass_pane
@@ -32893,7 +32886,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 9787 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 9965 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -32932,7 +32925,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2871;
+		public override int GetRuntimeId() => 3033;
 	} // class
 
 	public partial class HayBlock // minecraft:hay_block
@@ -32993,7 +32986,7 @@ namespace MiNET.Blocks
 			};
 			if (d1 < 0) return -1;
 
-			return 3537 + d0 + d1 * 4;
+			return 3699 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -33032,7 +33025,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20940;
+		public override int GetRuntimeId() => 21193;
 	} // class
 
 	public partial class HeavyWeightedPressurePlate // minecraft:heavy_weighted_pressure_plate
@@ -33080,7 +33073,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 4803 + d0;
+			return 4965 + d0;
 		} // method
 	} // class
 
@@ -33119,7 +33112,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4042;
+		public override int GetRuntimeId() => 4204;
 	} // class
 
 	public partial class HoneycombBlock // minecraft:honeycomb_block
@@ -33157,7 +33150,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10703;
+		public override int GetRuntimeId() => 10921;
 	} // class
 
 	public partial class Hopper // minecraft:hopper
@@ -33211,7 +33204,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = ToggleBit ? 1 : 0;
 
-			return 19411 + d0 + d1 * 6;
+			return 19664 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -33250,7 +33243,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6810;
+		public override int GetRuntimeId() => 6988;
 	} // class
 
 	public partial class HornCoralBlock // minecraft:horn_coral_block
@@ -33288,7 +33281,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13229;
+		public override int GetRuntimeId() => 13467;
 	} // class
 
 	public partial class HornCoralFan // minecraft:horn_coral_fan
@@ -33336,7 +33329,7 @@ namespace MiNET.Blocks
 			if (CoralFanDirection < 0 || CoralFanDirection > 1) return -1;
 			int d0 = CoralFanDirection;
 
-			return 18565 + d0;
+			return 18822 + d0;
 		} // method
 	} // class
 
@@ -33385,7 +33378,7 @@ namespace MiNET.Blocks
 			if (CoralDirection < 0 || CoralDirection > 3) return -1;
 			int d0 = CoralDirection;
 
-			return 12517 + d0;
+			return 12755 + d0;
 		} // method
 	} // class
 
@@ -33424,7 +33417,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18893;
+		public override int GetRuntimeId() => 19146;
 	} // class
 
 	public partial class IceCrystal // minecraft:ice_crystal
@@ -33481,7 +33474,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10366 + d0;
+			return 10544 + d0;
 		} // method
 	} // class
 
@@ -33550,7 +33543,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = Hanging ? 1 : 0;
 
-			return 6673 + d0 * 10 + d1 + d2 * 5;
+			return 6851 + d0 * 10 + d1 + d2 * 5;
 		} // method
 	} // class
 
@@ -33589,7 +33582,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9945;
+		public override int GetRuntimeId() => 10123;
 	} // class
 
 	public partial class InfestedCobblestone // minecraft:infested_cobblestone
@@ -33627,7 +33620,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9666;
+		public override int GetRuntimeId() => 9844;
 	} // class
 
 	public partial class InfestedCrackedStoneBricks // minecraft:infested_cracked_stone_bricks
@@ -33665,7 +33658,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3593;
+		public override int GetRuntimeId() => 3755;
 	} // class
 
 	public partial class InfestedDeepslate // minecraft:infested_deepslate
@@ -33719,7 +33712,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11703 + d0;
+			return 11941 + d0;
 		} // method
 	} // class
 
@@ -33758,7 +33751,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3870;
+		public override int GetRuntimeId() => 4032;
 	} // class
 
 	public partial class InfestedStone // minecraft:infested_stone
@@ -33796,7 +33789,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17497;
+		public override int GetRuntimeId() => 17752;
 	} // class
 
 	public partial class InfestedStoneBricks // minecraft:infested_stone_bricks
@@ -33834,7 +33827,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13173;
+		public override int GetRuntimeId() => 13411;
 	} // class
 
 	public partial class InfoUpdate // minecraft:info_update
@@ -33872,7 +33865,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1623;
+		public override int GetRuntimeId() => 1785;
 	} // class
 
 	public partial class InfoUpdate2 // minecraft:info_update2
@@ -33910,7 +33903,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22615;
+		public override int GetRuntimeId() => 22870;
 	} // class
 
 	public partial class InvisibleBedrock // minecraft:invisible_bedrock
@@ -33948,7 +33941,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4202;
+		public override int GetRuntimeId() => 4364;
 	} // class
 
 	public partial class IronBars // minecraft:iron_bars
@@ -34013,7 +34006,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 12057 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 12295 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -34052,7 +34045,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23891;
+		public override int GetRuntimeId() => 24147;
 	} // class
 
 	public partial class IronChain // minecraft:iron_chain
@@ -34106,7 +34099,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20935 + d0;
+			return 21188 + d0;
 		} // method
 	} // class
 
@@ -34176,7 +34169,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 10671 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 10889 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -34215,7 +34208,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11794;
+		public override int GetRuntimeId() => 12032;
 	} // class
 
 	public partial class IronTrapdoor // minecraft:iron_trapdoor
@@ -34272,7 +34265,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 2309 + d0 + d1 * 8 + d2 * 4;
+			return 2471 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -34328,7 +34321,7 @@ namespace MiNET.Blocks
 			if (Rotation < 0 || Rotation > 3) return -1;
 			int d1 = Rotation;
 
-			return 12568 + d0 + d1 * 6;
+			return 12806 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -34367,7 +34360,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12564;
+		public override int GetRuntimeId() => 12802;
 	} // class
 
 	public partial class JungleButton // minecraft:jungle_button
@@ -34419,7 +34412,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 425 + d0 * 6 + d1;
+			return 587 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -34489,7 +34482,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 17864 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 18121 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -34543,7 +34536,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22023 + d0;
+			return 22278 + d0;
 		} // method
 	} // class
 
@@ -34609,7 +34602,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 2459 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 2621 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -34674,7 +34667,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 13403 + d0 * 8 + d1 + d2 * 4;
+			return 13641 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -34742,7 +34735,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 8789 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 8967 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -34794,7 +34787,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 13347 + d0 * 2 + d1;
+			return 13585 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -34848,7 +34841,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1511 + d0;
+			return 1673 + d0;
 		} // method
 	} // class
 
@@ -34887,7 +34880,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18821;
+		public override int GetRuntimeId() => 19074;
 	} // class
 
 	public partial class JunglePressurePlate // minecraft:jungle_pressure_plate
@@ -34935,7 +34928,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 6919 + d0;
+			return 7097 + d0;
 		} // method
 	} // class
 
@@ -34983,7 +34976,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = AgeBit ? 1 : 0;
 
-			return 16900 + d0;
+			return 17155 + d0;
 		} // method
 	} // class
 
@@ -35052,7 +35045,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 9235 + d0 * 8 + d1 * 4 + d2;
+			return 9413 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -35105,7 +35098,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9267 + d0;
+			return 9445 + d0;
 		} // method
 	} // class
 
@@ -35172,7 +35165,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 19489 + d0 * 8 + d1 * 4 + d2;
+			return 19742 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -35220,7 +35213,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 16916 + d0;
+			return 17171 + d0;
 		} // method
 	} // class
 
@@ -35278,7 +35271,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 13437 + d0 + d1 * 8 + d2 * 4;
+			return 13675 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -35326,7 +35319,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 10512 + d0;
+			return 10730 + d0;
 		} // method
 	} // class
 
@@ -35381,7 +35374,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3589 + d0;
+			return 3751 + d0;
 		} // method
 	} // class
 
@@ -35430,7 +35423,7 @@ namespace MiNET.Blocks
 			if (KelpAge < 0 || KelpAge > 25) return -1;
 			int d0 = KelpAge;
 
-			return 13538 + d0;
+			return 13776 + d0;
 		} // method
 	} // class
 
@@ -35479,7 +35472,7 @@ namespace MiNET.Blocks
 			if (Direction < 0 || Direction > 3) return -1;
 			int d0 = Direction;
 
-			return 11245 + d0;
+			return 11483 + d0;
 		} // method
 	} // class
 
@@ -35528,7 +35521,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 23892 + d0;
+			return 24148 + d0;
 		} // method
 	} // class
 
@@ -35576,7 +35569,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Hanging ? 1 : 0;
 
-			return 19979 + d0;
+			return 20232 + d0;
 		} // method
 	} // class
 
@@ -35615,7 +35608,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9890;
+		public override int GetRuntimeId() => 10068;
 	} // class
 
 	public partial class LapisOre // minecraft:lapis_ore
@@ -35653,7 +35646,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22174;
+		public override int GetRuntimeId() => 22429;
 	} // class
 
 	public partial class LargeAmethystBud // minecraft:large_amethyst_bud
@@ -35710,7 +35703,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11837 + d0;
+			return 12075 + d0;
 		} // method
 	} // class
 
@@ -35758,7 +35751,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = UpperBlockBit ? 1 : 0;
 
-			return 18568 + d0;
+			return 18825 + d0;
 		} // method
 	} // class
 
@@ -35806,7 +35799,7 @@ namespace MiNET.Blocks
 			if (LiquidDepth < 0 || LiquidDepth > 15) return -1;
 			int d0 = LiquidDepth;
 
-			return 8773 + d0;
+			return 8951 + d0;
 		} // method
 	} // class
 
@@ -35931,7 +35924,7 @@ namespace MiNET.Blocks
 			if (d0 < 0) return -1;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 19456 + d0 + d1 * 4;
+			return 19709 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -35997,7 +35990,7 @@ namespace MiNET.Blocks
 			if (d0 < 0) return -1;
 			int d1 = OpenBit ? 1 : 0;
 
-			return 18589 + d0 + d1 * 8;
+			return 18842 + d0 + d1 * 8;
 		} // method
 	} // class
 
@@ -36036,7 +36029,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3272;
+		public override int GetRuntimeId() => 3434;
 	} // class
 
 	public partial class LightBlock1 // minecraft:light_block_1
@@ -36074,7 +36067,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3271;
+		public override int GetRuntimeId() => 3433;
 	} // class
 
 	public partial class LightBlock10 // minecraft:light_block_10
@@ -36112,7 +36105,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18518;
+		public override int GetRuntimeId() => 18775;
 	} // class
 
 	public partial class LightBlock11 // minecraft:light_block_11
@@ -36150,7 +36143,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18519;
+		public override int GetRuntimeId() => 18776;
 	} // class
 
 	public partial class LightBlock12 // minecraft:light_block_12
@@ -36188,7 +36181,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18516;
+		public override int GetRuntimeId() => 18773;
 	} // class
 
 	public partial class LightBlock13 // minecraft:light_block_13
@@ -36226,7 +36219,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18517;
+		public override int GetRuntimeId() => 18774;
 	} // class
 
 	public partial class LightBlock14 // minecraft:light_block_14
@@ -36264,7 +36257,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18520;
+		public override int GetRuntimeId() => 18777;
 	} // class
 
 	public partial class LightBlock15 // minecraft:light_block_15
@@ -36302,7 +36295,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18521;
+		public override int GetRuntimeId() => 18778;
 	} // class
 
 	public partial class LightBlock2 // minecraft:light_block_2
@@ -36340,7 +36333,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3270;
+		public override int GetRuntimeId() => 3432;
 	} // class
 
 	public partial class LightBlock3 // minecraft:light_block_3
@@ -36378,7 +36371,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3269;
+		public override int GetRuntimeId() => 3431;
 	} // class
 
 	public partial class LightBlock4 // minecraft:light_block_4
@@ -36416,7 +36409,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3268;
+		public override int GetRuntimeId() => 3430;
 	} // class
 
 	public partial class LightBlock5 // minecraft:light_block_5
@@ -36454,7 +36447,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3267;
+		public override int GetRuntimeId() => 3429;
 	} // class
 
 	public partial class LightBlock6 // minecraft:light_block_6
@@ -36492,7 +36485,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3266;
+		public override int GetRuntimeId() => 3428;
 	} // class
 
 	public partial class LightBlock7 // minecraft:light_block_7
@@ -36530,7 +36523,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3265;
+		public override int GetRuntimeId() => 3427;
 	} // class
 
 	public partial class LightBlock8 // minecraft:light_block_8
@@ -36568,7 +36561,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3264;
+		public override int GetRuntimeId() => 3426;
 	} // class
 
 	public partial class LightBlock9 // minecraft:light_block_9
@@ -36606,7 +36599,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3263;
+		public override int GetRuntimeId() => 3425;
 	} // class
 
 	public partial class LightBlueCandle // minecraft:light_blue_candle
@@ -36667,7 +36660,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 11042 + d0 + d1 * 4;
+			return 11276 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -36719,7 +36712,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 1934 + d0;
+			return 2096 + d0;
 		} // method
 	} // class
 
@@ -36758,7 +36751,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12077;
+		public override int GetRuntimeId() => 12315;
 	} // class
 
 	public partial class LightBlueConcrete // minecraft:light_blue_concrete
@@ -36796,7 +36789,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21497;
+		public override int GetRuntimeId() => 21750;
 	} // class
 
 	public partial class LightBlueConcreteDoubleSlab // minecraft:light_blue_concrete_double_slab
@@ -36849,7 +36842,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4407 + d0;
+			return 4569 + d0;
 		} // method
 	} // class
 
@@ -36940,7 +36933,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18150 + d0;
+			return 18407 + d0;
 		} // method
 	} // class
 
@@ -37007,7 +37000,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 6954 + d0 * 8 + d1 * 4 + d2;
+			return 7132 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -37055,7 +37048,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 13605 + d0;
+			return 13843 + d0;
 		} // method
 	} // class
 
@@ -37094,7 +37087,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19486;
+		public override int GetRuntimeId() => 19739;
 	} // class
 
 	public partial class LightBlueStainedGlass // minecraft:light_blue_stained_glass
@@ -37132,7 +37125,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14872;
+		public override int GetRuntimeId() => 15127;
 	} // class
 
 	public partial class LightBlueStainedGlassPane // minecraft:light_blue_stained_glass_pane
@@ -37193,7 +37186,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 9269 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 9447 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -37232,7 +37225,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10441;
+		public override int GetRuntimeId() => 10619;
 	} // class
 
 	public partial class LightBlueWool // minecraft:light_blue_wool
@@ -37270,7 +37263,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20095;
+		public override int GetRuntimeId() => 20348;
 	} // class
 
 	public partial class LightBlueWoolDoubleSlab // minecraft:light_blue_wool_double_slab
@@ -37376,7 +37369,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11774 + d0;
+			return 12012 + d0;
 		} // method
 	} // class
 
@@ -37443,7 +37436,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 16860 + d0 * 8 + d1 * 4 + d2;
+			return 17115 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -37505,7 +37498,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 18041 + d0 + d1 * 4;
+			return 18298 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -37557,7 +37550,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 13270 + d0;
+			return 13508 + d0;
 		} // method
 	} // class
 
@@ -37596,7 +37589,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23889;
+		public override int GetRuntimeId() => 24145;
 	} // class
 
 	public partial class LightGrayConcrete // minecraft:light_gray_concrete
@@ -37634,7 +37627,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3521;
+		public override int GetRuntimeId() => 3683;
 	} // class
 
 	public partial class LightGrayConcreteDoubleSlab // minecraft:light_gray_concrete_double_slab
@@ -37687,7 +37680,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18268 + d0;
+			return 18525 + d0;
 		} // method
 	} // class
 
@@ -37726,7 +37719,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20817;
+		public override int GetRuntimeId() => 21070;
 	} // class
 
 	public partial class LightGrayConcreteSlab // minecraft:light_gray_concrete_slab
@@ -37778,7 +37771,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21042 + d0;
+			return 21295 + d0;
 		} // method
 	} // class
 
@@ -37845,7 +37838,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 10395 + d0 * 8 + d1 * 4 + d2;
+			return 10573 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -37884,7 +37877,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16185;
+		public override int GetRuntimeId() => 16440;
 	} // class
 
 	public partial class LightGrayStainedGlass // minecraft:light_gray_stained_glass
@@ -37922,7 +37915,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2586;
+		public override int GetRuntimeId() => 2748;
 	} // class
 
 	public partial class LightGrayStainedGlassPane // minecraft:light_gray_stained_glass_pane
@@ -37983,7 +37976,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 2588 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 2750 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -38022,7 +38015,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3309;
+		public override int GetRuntimeId() => 3471;
 	} // class
 
 	public partial class LightGrayWool // minecraft:light_gray_wool
@@ -38060,7 +38053,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22863;
+		public override int GetRuntimeId() => 23118;
 	} // class
 
 	public partial class LightGrayWoolDoubleSlab // minecraft:light_gray_wool_double_slab
@@ -38113,7 +38106,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19168 + d0;
+			return 19421 + d0;
 		} // method
 	} // class
 
@@ -38166,7 +38159,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10437 + d0;
+			return 10615 + d0;
 		} // method
 	} // class
 
@@ -38233,7 +38226,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 6754 + d0 * 8 + d1 * 4 + d2;
+			return 6932 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -38282,7 +38275,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 7043 + d0;
+			return 7221 + d0;
 		} // method
 	} // class
 
@@ -38337,7 +38330,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 5244 + d0 + d1 * 6;
+			return 5406 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -38385,7 +38378,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = UpperBlockBit ? 1 : 0;
 
-			return 20943 + d0;
+			return 21196 + d0;
 		} // method
 	} // class
 
@@ -38424,7 +38417,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1555;
+		public override int GetRuntimeId() => 1717;
 	} // class
 
 	public partial class LimeCandle // minecraft:lime_candle
@@ -38485,7 +38478,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 18358 + d0 + d1 * 4;
+			return 18615 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -38537,7 +38530,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 23083 + d0;
+			return 23338 + d0;
 		} // method
 	} // class
 
@@ -38576,7 +38569,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18987;
+		public override int GetRuntimeId() => 19240;
 	} // class
 
 	public partial class LimeConcrete // minecraft:lime_concrete
@@ -38614,7 +38607,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11112;
+		public override int GetRuntimeId() => 11346;
 	} // class
 
 	public partial class LimeConcreteDoubleSlab // minecraft:lime_concrete_double_slab
@@ -38667,7 +38660,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21352 + d0;
+			return 21605 + d0;
 		} // method
 	} // class
 
@@ -38706,7 +38699,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22813;
+		public override int GetRuntimeId() => 23068;
 	} // class
 
 	public partial class LimeConcreteSlab // minecraft:lime_concrete_slab
@@ -38758,7 +38751,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11115 + d0;
+			return 11349 + d0;
 		} // method
 	} // class
 
@@ -38825,7 +38818,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 4366 + d0 * 8 + d1 * 4 + d2;
+			return 4528 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -38873,7 +38866,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 1556 + d0;
+			return 1718 + d0;
 		} // method
 	} // class
 
@@ -38912,7 +38905,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2288;
+		public override int GetRuntimeId() => 2450;
 	} // class
 
 	public partial class LimeStainedGlass // minecraft:lime_stained_glass
@@ -38950,7 +38943,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 411;
+		public override int GetRuntimeId() => 573;
 	} // class
 
 	public partial class LimeStainedGlassPane // minecraft:lime_stained_glass_pane
@@ -39011,7 +39004,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 21963 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 22218 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -39050,7 +39043,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23838;
+		public override int GetRuntimeId() => 24094;
 	} // class
 
 	public partial class LimeWool // minecraft:lime_wool
@@ -39088,7 +39081,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16826;
+		public override int GetRuntimeId() => 17081;
 	} // class
 
 	public partial class LimeWoolDoubleSlab // minecraft:lime_wool_double_slab
@@ -39141,7 +39134,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18460 + d0;
+			return 18717 + d0;
 		} // method
 	} // class
 
@@ -39194,7 +39187,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9932 + d0;
+			return 10110 + d0;
 		} // method
 	} // class
 
@@ -39261,7 +39254,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 1450 + d0 * 8 + d1 * 4 + d2;
+			return 1612 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -39316,7 +39309,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20061 + d0;
+			return 20314 + d0;
 		} // method
 	} // class
 
@@ -39355,7 +39348,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22047;
+		public override int GetRuntimeId() => 22302;
 	} // class
 
 	public partial class LitFurnace // minecraft:lit_furnace
@@ -39409,7 +39402,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20799 + d0;
+			return 21052 + d0;
 		} // method
 	} // class
 
@@ -39465,7 +39458,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18889 + d0;
+			return 19142 + d0;
 		} // method
 	} // class
 
@@ -39504,7 +39497,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10482;
+		public override int GetRuntimeId() => 10660;
 	} // class
 
 	public partial class LitRedstoneOre // minecraft:lit_redstone_ore
@@ -39542,7 +39535,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11714;
+		public override int GetRuntimeId() => 11952;
 	} // class
 
 	public partial class LitSmoker // minecraft:lit_smoker
@@ -39597,7 +39590,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22170 + d0;
+			return 22425 + d0;
 		} // method
 	} // class
 
@@ -39636,7 +39629,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23867;
+		public override int GetRuntimeId() => 24123;
 	} // class
 
 	public partial class Loom // minecraft:loom
@@ -39684,7 +39677,7 @@ namespace MiNET.Blocks
 			if (Direction < 0 || Direction > 3) return -1;
 			int d0 = Direction;
 
-			return 9175 + d0;
+			return 9353 + d0;
 		} // method
 	} // class
 
@@ -39746,7 +39739,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 2574 + d0 + d1 * 4;
+			return 2736 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -39798,7 +39791,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 17687 + d0;
+			return 17942 + d0;
 		} // method
 	} // class
 
@@ -39837,7 +39830,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1652;
+		public override int GetRuntimeId() => 1814;
 	} // class
 
 	public partial class MagentaConcrete // minecraft:magenta_concrete
@@ -39875,7 +39868,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10491;
+		public override int GetRuntimeId() => 10709;
 	} // class
 
 	public partial class MagentaConcreteDoubleSlab // minecraft:magenta_concrete_double_slab
@@ -39928,7 +39921,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 6554 + d0;
+			return 6716 + d0;
 		} // method
 	} // class
 
@@ -39967,7 +39960,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10670;
+		public override int GetRuntimeId() => 10888;
 	} // class
 
 	public partial class MagentaConcreteSlab // minecraft:magenta_concrete_slab
@@ -40019,7 +40012,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1930 + d0;
+			return 2092 + d0;
 		} // method
 	} // class
 
@@ -40086,7 +40079,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 7256 + d0 * 8 + d1 * 4 + d2;
+			return 7434 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -40134,7 +40127,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 4430 + d0;
+			return 4592 + d0;
 		} // method
 	} // class
 
@@ -40173,7 +40166,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1929;
+		public override int GetRuntimeId() => 2091;
 	} // class
 
 	public partial class MagentaStainedGlass // minecraft:magenta_stained_glass
@@ -40211,7 +40204,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20752;
+		public override int GetRuntimeId() => 21005;
 	} // class
 
 	public partial class MagentaStainedGlassPane // minecraft:magenta_stained_glass_pane
@@ -40272,7 +40265,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 12041 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 12279 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -40311,7 +40304,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11120;
+		public override int GetRuntimeId() => 11358;
 	} // class
 
 	public partial class MagentaWool // minecraft:magenta_wool
@@ -40349,7 +40342,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4413;
+		public override int GetRuntimeId() => 4575;
 	} // class
 
 	public partial class MagentaWoolDoubleSlab // minecraft:magenta_wool_double_slab
@@ -40402,7 +40395,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19487 + d0;
+			return 19740 + d0;
 		} // method
 	} // class
 
@@ -40455,7 +40448,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9669 + d0;
+			return 9847 + d0;
 		} // method
 	} // class
 
@@ -40522,7 +40515,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 7003 + d0 * 8 + d1 * 4 + d2;
+			return 7181 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -40561,7 +40554,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22826;
+		public override int GetRuntimeId() => 23081;
 	} // class
 
 	public partial class MangroveButton // minecraft:mangrove_button
@@ -40615,7 +40608,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 19964 + d0 * 6 + d1;
+			return 20217 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -40685,7 +40678,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 18426 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 18683 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -40739,7 +40732,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2582 + d0;
+			return 2744 + d0;
 		} // method
 	} // class
 
@@ -40805,7 +40798,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 18824 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 19077 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -40870,7 +40863,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 11265 + d0 * 8 + d1 + d2 * 4;
+			return 11503 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -40938,7 +40931,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 15621 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 15876 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -40990,7 +40983,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 18862 + d0 * 2 + d1;
+			return 19115 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -41044,7 +41037,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2361 + d0;
+			return 2523 + d0;
 		} // method
 	} // class
 
@@ -41083,7 +41076,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4201;
+		public override int GetRuntimeId() => 4363;
 	} // class
 
 	public partial class MangrovePressurePlate // minecraft:mangrove_pressure_plate
@@ -41131,7 +41124,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 9219 + d0;
+			return 9397 + d0;
 		} // method
 	} // class
 
@@ -41186,7 +41179,7 @@ namespace MiNET.Blocks
 			if (PropaguleStage < 0 || PropaguleStage > 4) return -1;
 			int d1 = PropaguleStage;
 
-			return 19529 + d0 * 5 + d1;
+			return 19782 + d0 * 5 + d1;
 		} // method
 	} // class
 
@@ -41225,7 +41218,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17944;
+		public override int GetRuntimeId() => 18201;
 	} // class
 
 	public partial class MangroveShelf // minecraft:mangrove_shelf
@@ -41293,7 +41286,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 6812 + d0 * 8 + d1 * 4 + d2;
+			return 6990 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -41346,7 +41339,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4600 + d0;
+			return 4762 + d0;
 		} // method
 	} // class
 
@@ -41413,7 +41406,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 11161 + d0 * 8 + d1 * 4 + d2;
+			return 11399 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -41462,7 +41455,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 9824 + d0;
+			return 10002 + d0;
 		} // method
 	} // class
 
@@ -41520,7 +41513,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 10744 + d0 + d1 * 8 + d2 * 4;
+			return 10962 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -41569,7 +41562,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 13219 + d0;
+			return 13457 + d0;
 		} // method
 	} // class
 
@@ -41624,7 +41617,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9676 + d0;
+			return 9854 + d0;
 		} // method
 	} // class
 
@@ -41673,7 +41666,7 @@ namespace MiNET.Blocks
 			if (Direction < 0 || Direction > 3) return -1;
 			int d0 = Direction;
 
-			return 23093 + d0;
+			return 23349 + d0;
 		} // method
 	} // class
 
@@ -41731,7 +41724,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10503 + d0;
+			return 10721 + d0;
 		} // method
 	} // class
 
@@ -41770,7 +41763,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2501;
+		public override int GetRuntimeId() => 2663;
 	} // class
 
 	public partial class MelonStem // minecraft:melon_stem
@@ -41825,7 +41818,7 @@ namespace MiNET.Blocks
 			if (Growth < 0 || Growth > 7) return -1;
 			int d1 = Growth;
 
-			return 12463 + d0 * 8 + d1;
+			return 12701 + d0 * 8 + d1;
 		} // method
 	} // class
 
@@ -41864,7 +41857,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2546;
+		public override int GetRuntimeId() => 2708;
 	} // class
 
 	public partial class MossBlock // minecraft:moss_block
@@ -41902,7 +41895,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18712;
+		public override int GetRuntimeId() => 18965;
 	} // class
 
 	public partial class MossCarpet // minecraft:moss_carpet
@@ -41940,7 +41933,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1936;
+		public override int GetRuntimeId() => 2098;
 	} // class
 
 	public partial class MossyCobblestone // minecraft:mossy_cobblestone
@@ -41978,7 +41971,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1632;
+		public override int GetRuntimeId() => 1794;
 	} // class
 
 	public partial class MossyCobblestoneDoubleSlab // minecraft:mossy_cobblestone_double_slab
@@ -42031,7 +42024,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22609 + d0;
+			return 22864 + d0;
 		} // method
 	} // class
 
@@ -42084,7 +42077,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9712 + d0;
+			return 9890 + d0;
 		} // method
 	} // class
 
@@ -42151,7 +42144,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 9549 + d0 * 8 + d1 * 4 + d2;
+			return 9727 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -42251,7 +42244,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 4641 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 4803 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -42305,7 +42298,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9894 + d0;
+			return 10072 + d0;
 		} // method
 	} // class
 
@@ -42358,7 +42351,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2428 + d0;
+			return 2590 + d0;
 		} // method
 	} // class
 
@@ -42425,7 +42418,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 16071 + d0 * 8 + d1 * 4 + d2;
+			return 16326 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -42525,7 +42518,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 23506 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 23762 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -42564,7 +42557,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7355;
+		public override int GetRuntimeId() => 7533;
 	} // class
 
 	public partial class MovingBlock // minecraft:moving_block
@@ -42602,7 +42595,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14586;
+		public override int GetRuntimeId() => 14841;
 	} // class
 
 	public partial class Mud // minecraft:mud
@@ -42640,7 +42633,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18888;
+		public override int GetRuntimeId() => 19141;
 	} // class
 
 	public partial class MudBrickDoubleSlab // minecraft:mud_brick_double_slab
@@ -42693,7 +42686,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1232 + d0;
+			return 1394 + d0;
 		} // method
 	} // class
 
@@ -42746,7 +42739,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9345 + d0;
+			return 9523 + d0;
 		} // method
 	} // class
 
@@ -42813,7 +42806,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 14138 + d0 * 8 + d1 * 4 + d2;
+			return 14377 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -42913,7 +42906,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 3878 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 4040 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -42952,7 +42945,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19213;
+		public override int GetRuntimeId() => 19466;
 	} // class
 
 	public partial class MuddyMangroveRoots // minecraft:muddy_mangrove_roots
@@ -43006,7 +42999,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2335 + d0;
+			return 2497 + d0;
 		} // method
 	} // class
 
@@ -43055,7 +43048,7 @@ namespace MiNET.Blocks
 			if (HugeMushroomBits < 0 || HugeMushroomBits > 15) return -1;
 			int d0 = HugeMushroomBits;
 
-			return 17705 + d0;
+			return 17960 + d0;
 		} // method
 	} // class
 
@@ -43094,7 +43087,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7061;
+		public override int GetRuntimeId() => 7239;
 	} // class
 
 	public partial class NetherBrick // minecraft:nether_brick
@@ -43132,7 +43125,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20911;
+		public override int GetRuntimeId() => 21164;
 	} // class
 
 	public partial class NetherBrickDoubleSlab // minecraft:nether_brick_double_slab
@@ -43185,7 +43178,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 17898 + d0;
+			return 18155 + d0;
 		} // method
 	} // class
 
@@ -43251,7 +43244,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 10108 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 10286 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -43304,7 +43297,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16976 + d0;
+			return 17231 + d0;
 		} // method
 	} // class
 
@@ -43471,7 +43464,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 19601 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 19854 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -43548,7 +43541,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18522;
+		public override int GetRuntimeId() => 18779;
 	} // class
 
 	public partial class NetherWart // minecraft:nether_wart
@@ -43596,7 +43589,7 @@ namespace MiNET.Blocks
 			if (Age < 0 || Age > 3) return -1;
 			int d0 = Age;
 
-			return 22263 + d0;
+			return 22518 + d0;
 		} // method
 	} // class
 
@@ -43635,7 +43628,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10178;
+		public override int GetRuntimeId() => 10356;
 	} // class
 
 	public partial class NetheriteBlock // minecraft:netherite_block
@@ -43673,7 +43666,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7454;
+		public override int GetRuntimeId() => 7632;
 	} // class
 
 	public partial class Netherrack // minecraft:netherrack
@@ -43711,7 +43704,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19939;
+		public override int GetRuntimeId() => 20192;
 	} // class
 
 	public partial class Netherreactor // minecraft:netherreactor
@@ -43749,7 +43742,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21365;
+		public override int GetRuntimeId() => 21618;
 	} // class
 
 	public partial class NormalStoneDoubleSlab // minecraft:normal_stone_double_slab
@@ -43802,7 +43795,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10435 + d0;
+			return 10613 + d0;
 		} // method
 	} // class
 
@@ -43855,7 +43848,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9745 + d0;
+			return 9923 + d0;
 		} // method
 	} // class
 
@@ -43922,7 +43915,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 2827 + d0 * 8 + d1 * 4 + d2;
+			return 2989 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -43961,7 +43954,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2359;
+		public override int GetRuntimeId() => 2521;
 	} // class
 
 	public partial class OakDoubleSlab // minecraft:oak_double_slab
@@ -44014,7 +44007,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 6877 + d0;
+			return 7055 + d0;
 		} // method
 	} // class
 
@@ -44080,7 +44073,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 14806 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 15061 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -44148,7 +44141,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 12078 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 12316 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -44200,7 +44193,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 3596 + d0 * 2 + d1;
+			return 3758 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -44254,7 +44247,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1899 + d0;
+			return 2061 + d0;
 		} // method
 	} // class
 
@@ -44293,7 +44286,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21899;
+		public override int GetRuntimeId() => 22154;
 	} // class
 
 	public partial class OakSapling // minecraft:oak_sapling
@@ -44340,7 +44333,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = AgeBit ? 1 : 0;
 
-			return 3305 + d0;
+			return 3467 + d0;
 		} // method
 	} // class
 
@@ -44409,7 +44402,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 10541 + d0 * 8 + d1 * 4 + d2;
+			return 10759 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -44462,7 +44455,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10165 + d0;
+			return 10343 + d0;
 		} // method
 	} // class
 
@@ -44529,7 +44522,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 1858 + d0 * 8 + d1 * 4 + d2;
+			return 2020 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -44584,7 +44577,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 12521 + d0;
+			return 12759 + d0;
 		} // method
 	} // class
 
@@ -44648,7 +44641,7 @@ namespace MiNET.Blocks
 			if (d0 < 0) return -1;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 6042 + d0 + d1 * 6;
+			return 6204 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -44687,7 +44680,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2587;
+		public override int GetRuntimeId() => 2749;
 	} // class
 
 	public partial class OchreFroglight // minecraft:ochre_froglight
@@ -44741,7 +44734,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 5877 + d0;
+			return 6039 + d0;
 		} // method
 	} // class
 
@@ -44780,7 +44773,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2545;
+		public override int GetRuntimeId() => 2707;
 	} // class
 
 	public partial class OrangeCandle // minecraft:orange_candle
@@ -44841,7 +44834,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 2435 + d0 + d1 * 4;
+			return 2597 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -44893,7 +44886,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 23503 + d0;
+			return 23759 + d0;
 		} // method
 	} // class
 
@@ -44932,7 +44925,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19976;
+		public override int GetRuntimeId() => 20229;
 	} // class
 
 	public partial class OrangeConcrete // minecraft:orange_concrete
@@ -44970,7 +44963,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18983;
+		public override int GetRuntimeId() => 19236;
 	} // class
 
 	public partial class OrangeConcreteDoubleSlab // minecraft:orange_concrete_double_slab
@@ -45023,7 +45016,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18984 + d0;
+			return 19237 + d0;
 		} // method
 	} // class
 
@@ -45062,7 +45055,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23502;
+		public override int GetRuntimeId() => 23758;
 	} // class
 
 	public partial class OrangeConcreteSlab // minecraft:orange_concrete_slab
@@ -45114,7 +45107,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18458 + d0;
+			return 18715 + d0;
 		} // method
 	} // class
 
@@ -45181,7 +45174,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 23109 + d0 * 8 + d1 * 4 + d2;
+			return 23365 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -45229,7 +45222,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 4602 + d0;
+			return 4764 + d0;
 		} // method
 	} // class
 
@@ -45281,7 +45274,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 21502 + d0 * 2 + d1;
+			return 21755 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -45320,7 +45313,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18040;
+		public override int GetRuntimeId() => 18297;
 	} // class
 
 	public partial class OrangeStainedGlass // minecraft:orange_stained_glass
@@ -45358,7 +45351,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10799;
+		public override int GetRuntimeId() => 11017;
 	} // class
 
 	public partial class OrangeStainedGlassPane // minecraft:orange_stained_glass_pane
@@ -45419,7 +45412,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 1522 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 1684 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -45458,7 +45451,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21855;
+		public override int GetRuntimeId() => 22110;
 	} // class
 
 	public partial class OrangeTulip // minecraft:orange_tulip
@@ -45496,7 +45489,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19166;
+		public override int GetRuntimeId() => 19419;
 	} // class
 
 	public partial class OrangeWool // minecraft:orange_wool
@@ -45534,7 +45527,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3507;
+		public override int GetRuntimeId() => 3669;
 	} // class
 
 	public partial class OrangeWoolDoubleSlab // minecraft:orange_wool_double_slab
@@ -45587,7 +45580,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4626 + d0;
+			return 4788 + d0;
 		} // method
 	} // class
 
@@ -45640,7 +45633,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11933 + d0;
+			return 12171 + d0;
 		} // method
 	} // class
 
@@ -45707,7 +45700,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 21293 + d0 * 8 + d1 * 4 + d2;
+			return 21546 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -45746,7 +45739,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20923;
+		public override int GetRuntimeId() => 21176;
 	} // class
 
 	public partial class OxidizedChiseledCopper // minecraft:oxidized_chiseled_copper
@@ -45784,7 +45777,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13218;
+		public override int GetRuntimeId() => 13456;
 	} // class
 
 	public partial class OxidizedCopper // minecraft:oxidized_copper
@@ -45822,7 +45815,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6556;
+		public override int GetRuntimeId() => 6718;
 	} // class
 
 	public partial class OxidizedCopperBars // minecraft:oxidized_copper_bars
@@ -45887,7 +45880,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 4414 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 4576 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -45945,7 +45938,7 @@ namespace MiNET.Blocks
 			int d0 = Lit ? 1 : 0;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 4409 + d0 + d1 * 2;
+			return 4571 + d0 + d1 * 2;
 		} // method
 	} // class
 
@@ -46000,7 +45993,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18923 + d0;
+			return 19176 + d0;
 		} // method
 	} // class
 
@@ -46055,7 +46048,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18919 + d0;
+			return 19172 + d0;
 		} // method
 	} // class
 
@@ -46125,7 +46118,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 23923 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 24179 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -46181,7 +46174,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3259 + d0;
+			return 3421 + d0;
 		} // method
 	} // class
 
@@ -46220,7 +46213,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18840;
+		public override int GetRuntimeId() => 19093;
 	} // class
 
 	public partial class OxidizedCopperLantern // minecraft:oxidized_copper_lantern
@@ -46267,7 +46260,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Hanging ? 1 : 0;
 
-			return 16968 + d0;
+			return 17223 + d0;
 		} // method
 	} // class
 
@@ -46325,7 +46318,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 11093 + d0 + d1 * 8 + d2 * 4;
+			return 11327 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -46364,7 +46357,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13614;
+		public override int GetRuntimeId() => 13853;
 	} // class
 
 	public partial class OxidizedCutCopperSlab // minecraft:oxidized_cut_copper_slab
@@ -46416,7 +46409,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13227 + d0;
+			return 13465 + d0;
 		} // method
 	} // class
 
@@ -46483,7 +46476,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 2364 + d0 * 8 + d1 * 4 + d2;
+			return 2526 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -46537,7 +46530,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2769 + d0;
+			return 2931 + d0;
 		} // method
 	} // class
 
@@ -46592,7 +46585,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 1938 + d0 + d1 * 6;
+			return 2100 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -46631,7 +46624,357 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1932;
+		public override int GetRuntimeId() => 2094;
+	} // class
+
+	public partial class PackedIceBricks // minecraft:packed_ice_bricks
+	{
+		public override string Name => "minecraft:packed_ice_bricks";
+
+		public override float Hardness => 0.5f;
+		public override float BlastResistance => 0.5f;
+		public override float FrictionFactor => 0.6f;
+		public override int LightLevel => 0;
+		public override int LightDampening => 0;
+		public override float Translucency => 0.0f;
+		public override int BurnOdds => 0;
+		public override int FlameOdds => 0;
+		public override bool IsSolid => true;
+		public override bool RequiresCorrectToolForDrops => false;
+		public override bool CanContainLiquidSource => false;
+
+
+		public override void SetState(List<IBlockState> states)
+		{
+			foreach (var state in states)
+			{
+				switch (state)
+				{
+				} // switch
+			} // foreach
+		} // method
+
+		public override BlockStateContainer GetState()
+		{
+			var record = new BlockStateContainer();
+			record.Name = "minecraft:packed_ice_bricks";
+			record.Id = 1505;
+			return record;
+		} // method
+
+		public override int GetRuntimeId() => 23347;
+	} // class
+
+	public partial class PackedIceBricksChiseled // minecraft:packed_ice_bricks_chiseled
+	{
+		public override string Name => "minecraft:packed_ice_bricks_chiseled";
+
+		public override float Hardness => 0.5f;
+		public override float BlastResistance => 0.5f;
+		public override float FrictionFactor => 0.6f;
+		public override int LightLevel => 0;
+		public override int LightDampening => 0;
+		public override float Translucency => 0.0f;
+		public override int BurnOdds => 0;
+		public override int FlameOdds => 0;
+		public override bool IsSolid => true;
+		public override bool RequiresCorrectToolForDrops => false;
+		public override bool CanContainLiquidSource => false;
+
+
+		public override void SetState(List<IBlockState> states)
+		{
+			foreach (var state in states)
+			{
+				switch (state)
+				{
+				} // switch
+			} // foreach
+		} // method
+
+		public override BlockStateContainer GetState()
+		{
+			var record = new BlockStateContainer();
+			record.Name = "minecraft:packed_ice_bricks_chiseled";
+			record.Id = 1513;
+			return record;
+		} // method
+
+		public override int GetRuntimeId() => 13851;
+	} // class
+
+	public partial class PackedIceBricksDoubleSlab // minecraft:packed_ice_bricks_double_slab
+	{
+		public override string Name => "minecraft:packed_ice_bricks_double_slab";
+
+		public override float Hardness => 0.5f;
+		public override float BlastResistance => 0.5f;
+		public override float FrictionFactor => 0.6f;
+		public override int LightLevel => 0;
+		public override int LightDampening => 15;
+		public override float Translucency => 0.0f;
+		public override int BurnOdds => 0;
+		public override int FlameOdds => 0;
+		public override bool IsSolid => true;
+		public override bool RequiresCorrectToolForDrops => false;
+		public override bool CanContainLiquidSource => false;
+
+		[StateEnum("bottom","top")] public string VerticalHalf { get; set; } = "bottom";
+
+		public override void SetState(List<IBlockState> states)
+		{
+			foreach (var state in states)
+			{
+				switch (state)
+				{
+					case BlockStateString s when s.Name == "minecraft:vertical_half":
+						VerticalHalf = s.Value;
+						break;
+				} // switch
+			} // foreach
+		} // method
+
+		public override BlockStateContainer GetState()
+		{
+			var record = new BlockStateContainer();
+			record.Name = "minecraft:packed_ice_bricks_double_slab";
+			record.Id = 1515;
+			record.States.Add(new BlockStateString {Name = "minecraft:vertical_half", Value = VerticalHalf});
+			return record;
+		} // method
+
+		public override int GetRuntimeId()
+		{
+			int d0 = VerticalHalf switch
+			{
+				"bottom" => 0,
+				"top" => 1,
+				_ => -1
+			};
+			if (d0 < 0) return -1;
+
+			return 18115 + d0;
+		} // method
+	} // class
+
+	public partial class PackedIceBricksSlab // minecraft:packed_ice_bricks_slab
+	{
+		public override string Name => "minecraft:packed_ice_bricks_slab";
+
+		public override float Hardness => 0.5f;
+		public override float BlastResistance => 0.5f;
+		public override float FrictionFactor => 0.6f;
+		public override int LightLevel => 0;
+		public override int LightDampening => 0;
+		public override float Translucency => 0.0f;
+		public override int BurnOdds => 0;
+		public override int FlameOdds => 0;
+		public override bool IsSolid => false;
+		public override bool RequiresCorrectToolForDrops => false;
+		public override bool CanContainLiquidSource => false;
+
+
+		public override void SetState(List<IBlockState> states)
+		{
+			foreach (var state in states)
+			{
+				switch (state)
+				{
+					case BlockStateString s when s.Name == "minecraft:vertical_half":
+						VerticalHalf = s.Value;
+						break;
+				} // switch
+			} // foreach
+		} // method
+
+		public override BlockStateContainer GetState()
+		{
+			var record = new BlockStateContainer();
+			record.Name = "minecraft:packed_ice_bricks_slab";
+			record.Id = 1511;
+			record.States.Add(new BlockStateString {Name = "minecraft:vertical_half", Value = VerticalHalf});
+			return record;
+		} // method
+
+		public override int GetRuntimeId()
+		{
+			int d0 = VerticalHalf switch
+			{
+				"bottom" => 0,
+				"top" => 1,
+				_ => -1
+			};
+			if (d0 < 0) return -1;
+
+			return 21759 + d0;
+		} // method
+	} // class
+
+	public partial class PackedIceBricksStairs // minecraft:packed_ice_bricks_stairs
+	{
+		public override string Name => "minecraft:packed_ice_bricks_stairs";
+
+		public override float Hardness => 0.5f;
+		public override float BlastResistance => 0.5f;
+		public override float FrictionFactor => 0.6f;
+		public override int LightLevel => 0;
+		public override int LightDampening => 0;
+		public override float Translucency => 0.8f;
+		public override int BurnOdds => 0;
+		public override int FlameOdds => 0;
+		public override bool IsSolid => false;
+		public override bool RequiresCorrectToolForDrops => false;
+		public override bool CanContainLiquidSource => false;
+
+
+		public override void SetState(List<IBlockState> states)
+		{
+			foreach (var state in states)
+			{
+				switch (state)
+				{
+					case BlockStateString s when s.Name == "minecraft:corner":
+						Corner = s.Value;
+						break;
+					case BlockStateByte s when s.Name == "upside_down_bit":
+						UpsideDownBit = Convert.ToBoolean(s.Value);
+						break;
+					case BlockStateInt s when s.Name == "weirdo_direction":
+						WeirdoDirection = s.Value;
+						break;
+				} // switch
+			} // foreach
+		} // method
+
+		public override BlockStateContainer GetState()
+		{
+			var record = new BlockStateContainer();
+			record.Name = "minecraft:packed_ice_bricks_stairs";
+			record.Id = 1512;
+			record.States.Add(new BlockStateString {Name = "minecraft:corner", Value = Corner});
+			record.States.Add(new BlockStateByte {Name = "upside_down_bit", Value = Convert.ToByte(UpsideDownBit)});
+			record.States.Add(new BlockStateInt {Name = "weirdo_direction", Value = WeirdoDirection});
+			return record;
+		} // method
+
+		public override int GetRuntimeId()
+		{
+			int d0 = Corner switch
+			{
+				"none" => 0,
+				"inner_left" => 1,
+				"inner_right" => 2,
+				"outer_left" => 3,
+				"outer_right" => 4,
+				_ => -1
+			};
+			if (d0 < 0) return -1;
+			int d1 = UpsideDownBit ? 1 : 0;
+			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
+			int d2 = WeirdoDirection;
+
+			return 10666 + d0 * 8 + d1 * 4 + d2;
+		} // method
+	} // class
+
+	public partial class PackedIceBricksWall // minecraft:packed_ice_bricks_wall
+	{
+		public override string Name => "minecraft:packed_ice_bricks_wall";
+
+		public override float Hardness => 0.5f;
+		public override float BlastResistance => 0.5f;
+		public override float FrictionFactor => 0.6f;
+		public override int LightLevel => 0;
+		public override int LightDampening => 0;
+		public override float Translucency => 0.8f;
+		public override int BurnOdds => 0;
+		public override int FlameOdds => 0;
+		public override bool IsSolid => false;
+		public override bool RequiresCorrectToolForDrops => false;
+		public override bool CanContainLiquidSource => true;
+
+		[StateEnum("none","short","tall")] public string WallConnectionTypeEast { get; set; } = "none";
+		[StateEnum("none","short","tall")] public string WallConnectionTypeNorth { get; set; } = "none";
+		[StateEnum("none","short","tall")] public string WallConnectionTypeSouth { get; set; } = "none";
+		[StateEnum("none","short","tall")] public string WallConnectionTypeWest { get; set; } = "none";
+		[StateBit] public bool WallPostBit { get; set; } = false;
+
+		public override void SetState(List<IBlockState> states)
+		{
+			foreach (var state in states)
+			{
+				switch (state)
+				{
+					case BlockStateString s when s.Name == "wall_connection_type_east":
+						WallConnectionTypeEast = s.Value;
+						break;
+					case BlockStateString s when s.Name == "wall_connection_type_north":
+						WallConnectionTypeNorth = s.Value;
+						break;
+					case BlockStateString s when s.Name == "wall_connection_type_south":
+						WallConnectionTypeSouth = s.Value;
+						break;
+					case BlockStateString s when s.Name == "wall_connection_type_west":
+						WallConnectionTypeWest = s.Value;
+						break;
+					case BlockStateByte s when s.Name == "wall_post_bit":
+						WallPostBit = Convert.ToBoolean(s.Value);
+						break;
+				} // switch
+			} // foreach
+		} // method
+
+		public override BlockStateContainer GetState()
+		{
+			var record = new BlockStateContainer();
+			record.Name = "minecraft:packed_ice_bricks_wall";
+			record.Id = 1514;
+			record.States.Add(new BlockStateString {Name = "wall_connection_type_east", Value = WallConnectionTypeEast});
+			record.States.Add(new BlockStateString {Name = "wall_connection_type_north", Value = WallConnectionTypeNorth});
+			record.States.Add(new BlockStateString {Name = "wall_connection_type_south", Value = WallConnectionTypeSouth});
+			record.States.Add(new BlockStateString {Name = "wall_connection_type_west", Value = WallConnectionTypeWest});
+			record.States.Add(new BlockStateByte {Name = "wall_post_bit", Value = Convert.ToByte(WallPostBit)});
+			return record;
+		} // method
+
+		public override int GetRuntimeId()
+		{
+			int d0 = WallConnectionTypeEast switch
+			{
+				"none" => 0,
+				"short" => 1,
+				"tall" => 2,
+				_ => -1
+			};
+			if (d0 < 0) return -1;
+			int d1 = WallConnectionTypeNorth switch
+			{
+				"none" => 0,
+				"short" => 1,
+				"tall" => 2,
+				_ => -1
+			};
+			if (d1 < 0) return -1;
+			int d2 = WallConnectionTypeSouth switch
+			{
+				"none" => 0,
+				"short" => 1,
+				"tall" => 2,
+				_ => -1
+			};
+			if (d2 < 0) return -1;
+			int d3 = WallConnectionTypeWest switch
+			{
+				"none" => 0,
+				"short" => 1,
+				"tall" => 2,
+				_ => -1
+			};
+			if (d3 < 0) return -1;
+			int d4 = WallPostBit ? 1 : 0;
+
+			return 408 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+		} // method
 	} // class
 
 	public partial class PackedMud // minecraft:packed_mud
@@ -46669,7 +47012,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1933;
+		public override int GetRuntimeId() => 2095;
 	} // class
 
 	public partial class PaleHangingMoss // minecraft:pale_hanging_moss
@@ -46716,7 +47059,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Tip ? 1 : 0;
 
-			return 17498 + d0;
+			return 17753 + d0;
 		} // method
 	} // class
 
@@ -46755,7 +47098,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14822;
+		public override int GetRuntimeId() => 15077;
 	} // class
 
 	public partial class PaleMossCarpet // minecraft:pale_moss_carpet
@@ -46854,7 +47197,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = UpperBlockBit ? 1 : 0;
 
-			return 17500 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 17755 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -46909,7 +47252,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 21484 + d0 * 6 + d1;
+			return 21737 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -46979,7 +47322,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 3273 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 3435 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -47033,7 +47376,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 23836 + d0;
+			return 24092 + d0;
 		} // method
 	} // class
 
@@ -47099,7 +47442,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 2404 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 2566 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -47164,7 +47507,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 526 + d0 * 8 + d1 + d2 * 4;
+			return 688 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -47232,7 +47575,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 13648 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 13887 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -47284,7 +47627,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 2420 + d0 * 2 + d1;
+			return 2582 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -47338,7 +47681,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16913 + d0;
+			return 17168 + d0;
 		} // method
 	} // class
 
@@ -47377,7 +47720,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7089;
+		public override int GetRuntimeId() => 7267;
 	} // class
 
 	public partial class PaleOakPressurePlate // minecraft:pale_oak_pressure_plate
@@ -47425,7 +47768,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 2338 + d0;
+			return 2500 + d0;
 		} // method
 	} // class
 
@@ -47473,7 +47816,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = AgeBit ? 1 : 0;
 
-			return 2547 + d0;
+			return 2709 + d0;
 		} // method
 	} // class
 
@@ -47542,7 +47885,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 15583 + d0 * 8 + d1 * 4 + d2;
+			return 15838 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -47595,7 +47938,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10173 + d0;
+			return 10351 + d0;
 		} // method
 	} // class
 
@@ -47662,7 +48005,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 21001 + d0 * 8 + d1 * 4 + d2;
+			return 21254 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -47711,7 +48054,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 18926 + d0;
+			return 19179 + d0;
 		} // method
 	} // class
 
@@ -47769,7 +48112,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 20945 + d0 + d1 * 8 + d2 * 4;
+			return 21198 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -47818,7 +48161,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 2550 + d0;
+			return 2712 + d0;
 		} // method
 	} // class
 
@@ -47873,7 +48216,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13170 + d0;
+			return 13408 + d0;
 		} // method
 	} // class
 
@@ -47928,7 +48271,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18497 + d0;
+			return 18754 + d0;
 		} // method
 	} // class
 
@@ -47976,7 +48319,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = UpperBlockBit ? 1 : 0;
 
-			return 22534 + d0;
+			return 22789 + d0;
 		} // method
 	} // class
 
@@ -48030,7 +48373,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13334 + d0;
+			return 13572 + d0;
 		} // method
 	} // class
 
@@ -48084,7 +48427,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21101 + d0;
+			return 21354 + d0;
 		} // method
 	} // class
 
@@ -48133,7 +48476,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 19916 + d0;
+			return 20169 + d0;
 		} // method
 	} // class
 
@@ -48195,7 +48538,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 21104 + d0 + d1 * 4;
+			return 21357 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -48247,7 +48590,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 9667 + d0;
+			return 9845 + d0;
 		} // method
 	} // class
 
@@ -48286,7 +48629,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22176;
+		public override int GetRuntimeId() => 22431;
 	} // class
 
 	public partial class PinkConcrete // minecraft:pink_concrete
@@ -48324,7 +48667,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6106;
+		public override int GetRuntimeId() => 6268;
 	} // class
 
 	public partial class PinkConcreteDoubleSlab // minecraft:pink_concrete_double_slab
@@ -48377,7 +48720,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20688 + d0;
+			return 20941 + d0;
 		} // method
 	} // class
 
@@ -48416,7 +48759,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10172;
+		public override int GetRuntimeId() => 10350;
 	} // class
 
 	public partial class PinkConcreteSlab // minecraft:pink_concrete_slab
@@ -48468,7 +48811,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21764 + d0;
+			return 22019 + d0;
 		} // method
 	} // class
 
@@ -48535,7 +48878,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 6561 + d0 * 8 + d1 * 4 + d2;
+			return 6723 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -48583,7 +48926,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 18714 + d0;
+			return 18967 + d0;
 		} // method
 	} // class
 
@@ -48646,7 +48989,7 @@ namespace MiNET.Blocks
 			};
 			if (d1 < 0) return -1;
 
-			return 11283 + d0 + d1 * 8;
+			return 11521 + d0 + d1 * 8;
 		} // method
 	} // class
 
@@ -48685,7 +49028,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10509;
+		public override int GetRuntimeId() => 10727;
 	} // class
 
 	public partial class PinkStainedGlass // minecraft:pink_stained_glass
@@ -48723,7 +49066,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10352;
+		public override int GetRuntimeId() => 10530;
 	} // class
 
 	public partial class PinkStainedGlassPane // minecraft:pink_stained_glass_pane
@@ -48784,7 +49127,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 20079 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 20332 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -48823,7 +49166,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9663;
+		public override int GetRuntimeId() => 9841;
 	} // class
 
 	public partial class PinkTulip // minecraft:pink_tulip
@@ -48861,7 +49204,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10164;
+		public override int GetRuntimeId() => 10342;
 	} // class
 
 	public partial class PinkWool // minecraft:pink_wool
@@ -48899,7 +49242,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7455;
+		public override int GetRuntimeId() => 7633;
 	} // class
 
 	public partial class PinkWoolDoubleSlab // minecraft:pink_wool_double_slab
@@ -48952,7 +49295,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9373 + d0;
+			return 9551 + d0;
 		} // method
 	} // class
 
@@ -49005,7 +49348,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4199 + d0;
+			return 4361 + d0;
 		} // method
 	} // class
 
@@ -49072,7 +49415,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 21044 + d0 * 8 + d1 * 4 + d2;
+			return 21297 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -49121,7 +49464,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 4127 + d0;
+			return 4289 + d0;
 		} // method
 	} // class
 
@@ -49225,7 +49568,7 @@ namespace MiNET.Blocks
 			int d0 = Growth;
 			int d1 = UpperBlockBit ? 1 : 0;
 
-			return 1653 + d0 * 2 + d1;
+			return 1815 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -49273,7 +49616,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = UpperBlockBit ? 1 : 0;
 
-			return 7432 + d0;
+			return 7610 + d0;
 		} // method
 	} // class
 
@@ -49322,7 +49665,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 7296 + d0;
+			return 7474 + d0;
 		} // method
 	} // class
 
@@ -49361,7 +49704,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11712;
+		public override int GetRuntimeId() => 11950;
 	} // class
 
 	public partial class PointedDripstone // minecraft:pointed_dripstone
@@ -49423,7 +49766,7 @@ namespace MiNET.Blocks
 			if (d0 < 0) return -1;
 			int d1 = Hanging ? 1 : 0;
 
-			return 21354 + d0 + d1 * 5;
+			return 21607 + d0 + d1 * 5;
 		} // method
 	} // class
 
@@ -49462,7 +49805,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21905;
+		public override int GetRuntimeId() => 22160;
 	} // class
 
 	public partial class PolishedAndesiteDoubleSlab // minecraft:polished_andesite_double_slab
@@ -49515,7 +49858,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20707 + d0;
+			return 20960 + d0;
 		} // method
 	} // class
 
@@ -49568,7 +49911,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21350 + d0;
+			return 21603 + d0;
 		} // method
 	} // class
 
@@ -49635,7 +49978,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 19872 + d0 * 8 + d1 * 4 + d2;
+			return 20125 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -49729,7 +50072,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7060;
+		public override int GetRuntimeId() => 7238;
 	} // class
 
 	public partial class PolishedBlackstoneBrickDoubleSlab // minecraft:polished_blackstone_brick_double_slab
@@ -49782,7 +50125,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3510 + d0;
+			return 3672 + d0;
 		} // method
 	} // class
 
@@ -49835,7 +50178,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9743 + d0;
+			return 9921 + d0;
 		} // method
 	} // class
 
@@ -49902,7 +50245,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 10704 + d0 * 8 + d1 * 4 + d2;
+			return 10922 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -50002,7 +50345,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 4438 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 4600 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -50041,7 +50384,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11778;
+		public override int GetRuntimeId() => 12016;
 	} // class
 
 	public partial class PolishedBlackstoneButton // minecraft:polished_blackstone_button
@@ -50095,7 +50438,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 22548 + d0 * 6 + d1;
+			return 22803 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -50149,7 +50492,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3307 + d0;
+			return 3469 + d0;
 		} // method
 	} // class
 
@@ -50198,7 +50541,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 18049 + d0;
+			return 18306 + d0;
 		} // method
 	} // class
 
@@ -50251,7 +50594,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16837 + d0;
+			return 17092 + d0;
 		} // method
 	} // class
 
@@ -50318,7 +50661,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 10224 + d0 * 8 + d1 * 4 + d2;
+			return 10402 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -50418,7 +50761,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 18998 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 19251 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -50457,7 +50800,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20709;
+		public override int GetRuntimeId() => 20962;
 	} // class
 
 	public partial class PolishedCinnabarDoubleSlab // minecraft:polished_cinnabar_double_slab
@@ -50510,7 +50853,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10818 + d0;
+			return 11036 + d0;
 		} // method
 	} // class
 
@@ -50563,7 +50906,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 12599 + d0;
+			return 12837 + d0;
 		} // method
 	} // class
 
@@ -50630,7 +50973,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 21983 + d0 * 8 + d1 * 4 + d2;
+			return 22238 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -50730,7 +51073,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 9946 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 10124 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -50769,7 +51112,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22280;
+		public override int GetRuntimeId() => 22535;
 	} // class
 
 	public partial class PolishedDeepslateDoubleSlab // minecraft:polished_deepslate_double_slab
@@ -50822,7 +51165,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2772 + d0;
+			return 2934 + d0;
 		} // method
 	} // class
 
@@ -50875,7 +51218,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1950 + d0;
+			return 2112 + d0;
 		} // method
 	} // class
 
@@ -50942,7 +51285,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 2248 + d0 * 8 + d1 * 4 + d2;
+			return 2410 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -51042,7 +51385,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 22625 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 22880 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -51081,7 +51424,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 15421;
+		public override int GetRuntimeId() => 15676;
 	} // class
 
 	public partial class PolishedDioriteDoubleSlab // minecraft:polished_diorite_double_slab
@@ -51134,7 +51477,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19559 + d0;
+			return 19812 + d0;
 		} // method
 	} // class
 
@@ -51187,7 +51530,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11201 + d0;
+			return 11439 + d0;
 		} // method
 	} // class
 
@@ -51254,7 +51597,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 18942 + d0 * 8 + d1 * 4 + d2;
+			return 19195 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -51293,7 +51636,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2549;
+		public override int GetRuntimeId() => 2711;
 	} // class
 
 	public partial class PolishedGraniteDoubleSlab // minecraft:polished_granite_double_slab
@@ -51346,7 +51689,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22025 + d0;
+			return 22280 + d0;
 		} // method
 	} // class
 
@@ -51399,7 +51742,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18081 + d0;
+			return 18338 + d0;
 		} // method
 	} // class
 
@@ -51466,7 +51809,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 9619 + d0 * 8 + d1 * 4 + d2;
+			return 9797 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -51505,7 +51848,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1137;
+		public override int GetRuntimeId() => 1299;
 	} // class
 
 	public partial class PolishedSulfurDoubleSlab // minecraft:polished_sulfur_double_slab
@@ -51558,7 +51901,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13167 + d0;
+			return 13405 + d0;
 		} // method
 	} // class
 
@@ -51611,7 +51954,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20866 + d0;
+			return 21119 + d0;
 		} // method
 	} // class
 
@@ -51678,7 +52021,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 10312 + d0 * 8 + d1 * 4 + d2;
+			return 10490 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -51778,7 +52121,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 23674 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 23930 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -51817,7 +52160,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20751;
+		public override int GetRuntimeId() => 21004;
 	} // class
 
 	public partial class PolishedTuffDoubleSlab // minecraft:polished_tuff_double_slab
@@ -51870,7 +52213,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9185 + d0;
+			return 9363 + d0;
 		} // method
 	} // class
 
@@ -51923,7 +52266,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 544 + d0;
+			return 706 + d0;
 		} // method
 	} // class
 
@@ -51990,7 +52333,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 20869 + d0 * 8 + d1 * 4 + d2;
+			return 21122 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -52090,7 +52433,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 3668 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 3830 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -52145,7 +52488,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 413 + d0 * 6 + d1;
+			return 575 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -52215,7 +52558,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 16936 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 17191 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -52269,7 +52612,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18883 + d0;
+			return 19136 + d0;
 		} // method
 	} // class
 
@@ -52335,7 +52678,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 21408 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 21661 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -52400,7 +52743,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 22873 + d0 * 8 + d1 + d2 * 4;
+			return 23128 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -52468,7 +52811,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 4859 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 5021 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -52522,7 +52865,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22790 + d0;
+			return 23045 + d0;
 		} // method
 	} // class
 
@@ -52561,7 +52904,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18215;
+		public override int GetRuntimeId() => 18472;
 	} // class
 
 	public partial class PoplarPressurePlate // minecraft:poplar_pressure_plate
@@ -52609,7 +52952,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 16169 + d0;
+			return 16424 + d0;
 		} // method
 	} // class
 
@@ -52657,7 +53000,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = AgeBit ? 1 : 0;
 
-			return 21766 + d0;
+			return 22021 + d0;
 		} // method
 	} // class
 
@@ -52726,7 +53069,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 13615 + d0 * 8 + d1 * 4 + d2;
+			return 13854 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -52779,7 +53122,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2556 + d0;
+			return 2718 + d0;
 		} // method
 	} // class
 
@@ -52846,7 +53189,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 19170 + d0 * 8 + d1 * 4 + d2;
+			return 19423 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -52895,7 +53238,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 4094 + d0;
+			return 4256 + d0;
 		} // method
 	} // class
 
@@ -52953,7 +53296,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 1636 + d0 + d1 * 8 + d2 * 4;
+			return 1798 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -53002,7 +53345,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 21948 + d0;
+			return 22203 + d0;
 		} // method
 	} // class
 
@@ -53057,7 +53400,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 23886 + d0;
+			return 24142 + d0;
 		} // method
 	} // class
 
@@ -53096,7 +53439,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7303;
+		public override int GetRuntimeId() => 7481;
 	} // class
 
 	public partial class Portal // minecraft:portal
@@ -53150,7 +53493,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22357 + d0;
+			return 22612 + d0;
 		} // method
 	} // class
 
@@ -53198,7 +53541,7 @@ namespace MiNET.Blocks
 			if (Growth < 0 || Growth > 7) return -1;
 			int d0 = Growth;
 
-			return 2325 + d0;
+			return 2487 + d0;
 		} // method
 	} // class
 
@@ -53255,7 +53598,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 15615 + d0;
+			return 15870 + d0;
 		} // method
 	} // class
 
@@ -53361,7 +53704,7 @@ namespace MiNET.Blocks
 			int d1 = OutputLitBit ? 1 : 0;
 			int d2 = OutputSubtractBit ? 1 : 0;
 
-			return 2443 + d0 + d1 * 8 + d2 * 4;
+			return 2605 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -53381,6 +53724,7 @@ namespace MiNET.Blocks
 		public override bool RequiresCorrectToolForDrops => false;
 		public override bool CanContainLiquidSource => true;
 
+		[StateBit] public bool Locked { get; set; } = false;
 		[StateEnum("south","west","north","east")] public string CardinalDirection { get; set; } = "south";
 		[StateRange(0, 3)] public int RepeaterDelay { get; set; } = 0;
 
@@ -53390,6 +53734,9 @@ namespace MiNET.Blocks
 			{
 				switch (state)
 				{
+					case BlockStateByte s when s.Name == "locked":
+						Locked = Convert.ToBoolean(s.Value);
+						break;
 					case BlockStateString s when s.Name == "minecraft:cardinal_direction":
 						CardinalDirection = s.Value;
 						break;
@@ -53405,6 +53752,7 @@ namespace MiNET.Blocks
 			var record = new BlockStateContainer();
 			record.Name = "minecraft:powered_repeater";
 			record.Id = 94;
+			record.States.Add(new BlockStateByte {Name = "locked", Value = Convert.ToByte(Locked)});
 			record.States.Add(new BlockStateString {Name = "minecraft:cardinal_direction", Value = CardinalDirection});
 			record.States.Add(new BlockStateInt {Name = "repeater_delay", Value = RepeaterDelay});
 			return record;
@@ -53412,7 +53760,8 @@ namespace MiNET.Blocks
 
 		public override int GetRuntimeId()
 		{
-			int d0 = CardinalDirection switch
+			int d0 = Locked ? 1 : 0;
+			int d1 = CardinalDirection switch
 			{
 				"south" => 0,
 				"west" => 1,
@@ -53420,11 +53769,11 @@ namespace MiNET.Blocks
 				"east" => 3,
 				_ => -1
 			};
-			if (d0 < 0) return -1;
+			if (d1 < 0) return -1;
 			if (RepeaterDelay < 0 || RepeaterDelay > 3) return -1;
-			int d1 = RepeaterDelay;
+			int d2 = RepeaterDelay;
 
-			return 11026 + d0 + d1 * 4;
+			return 11244 + d0 * 16 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -53463,7 +53812,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17686;
+		public override int GetRuntimeId() => 17941;
 	} // class
 
 	public partial class PrismarineBrickDoubleSlab // minecraft:prismarine_brick_double_slab
@@ -53516,7 +53865,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22787 + d0;
+			return 23042 + d0;
 		} // method
 	} // class
 
@@ -53569,7 +53918,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 7398 + d0;
+			return 7576 + d0;
 		} // method
 	} // class
 
@@ -53608,7 +53957,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22872;
+		public override int GetRuntimeId() => 23127;
 	} // class
 
 	public partial class PrismarineBricksStairs // minecraft:prismarine_bricks_stairs
@@ -53674,7 +54023,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 1399 + d0 * 8 + d1 * 4 + d2;
+			return 1561 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -53728,7 +54077,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10181 + d0;
+			return 10359 + d0;
 		} // method
 	} // class
 
@@ -53781,7 +54130,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10179 + d0;
+			return 10357 + d0;
 		} // method
 	} // class
 
@@ -53848,7 +54197,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 20825 + d0 * 8 + d1 * 4 + d2;
+			return 21078 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -53948,7 +54297,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 12601 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 12839 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -54004,7 +54353,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11066 + d0;
+			return 11300 + d0;
 		} // method
 	} // class
 
@@ -54060,7 +54409,7 @@ namespace MiNET.Blocks
 			if (Growth < 0 || Growth > 7) return -1;
 			int d1 = Growth;
 
-			return 18216 + d0 * 8 + d1;
+			return 18473 + d0 * 8 + d1;
 		} // method
 	} // class
 
@@ -54122,7 +54471,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 19940 + d0 + d1 * 4;
+			return 20193 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -54174,7 +54523,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 18914 + d0;
+			return 19167 + d0;
 		} // method
 	} // class
 
@@ -54213,7 +54562,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22271;
+		public override int GetRuntimeId() => 22526;
 	} // class
 
 	public partial class PurpleConcrete // minecraft:purple_concrete
@@ -54251,7 +54600,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9736;
+		public override int GetRuntimeId() => 9914;
 	} // class
 
 	public partial class PurpleConcreteDoubleSlab // minecraft:purple_concrete_double_slab
@@ -54304,7 +54653,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2333 + d0;
+			return 2495 + d0;
 		} // method
 	} // class
 
@@ -54343,7 +54692,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18713;
+		public override int GetRuntimeId() => 18966;
 	} // class
 
 	public partial class PurpleConcreteSlab // minecraft:purple_concrete_slab
@@ -54395,7 +54744,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9741 + d0;
+			return 9919 + d0;
 		} // method
 	} // class
 
@@ -54462,7 +54811,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 1579 + d0 * 8 + d1 * 4 + d2;
+			return 1741 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -54510,7 +54859,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 19763 + d0;
+			return 20016 + d0;
 		} // method
 	} // class
 
@@ -54549,7 +54898,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21274;
+		public override int GetRuntimeId() => 21527;
 	} // class
 
 	public partial class PurpleStainedGlass // minecraft:purple_stained_glass
@@ -54587,7 +54936,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 5243;
+		public override int GetRuntimeId() => 5405;
 	} // class
 
 	public partial class PurpleStainedGlassPane // minecraft:purple_stained_glass_pane
@@ -54648,7 +54997,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 12524 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 12762 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -54687,7 +55036,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18412;
+		public override int GetRuntimeId() => 18669;
 	} // class
 
 	public partial class PurpleWool // minecraft:purple_wool
@@ -54725,7 +55074,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23890;
+		public override int GetRuntimeId() => 24146;
 	} // class
 
 	public partial class PurpleWoolDoubleSlab // minecraft:purple_wool_double_slab
@@ -54778,7 +55127,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11787 + d0;
+			return 12025 + d0;
 		} // method
 	} // class
 
@@ -54831,7 +55180,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3512 + d0;
+			return 3674 + d0;
 		} // method
 	} // class
 
@@ -54898,7 +55247,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 16270 + d0 * 8 + d1 * 4 + d2;
+			return 16525 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -54953,7 +55302,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22227 + d0;
+			return 22482 + d0;
 		} // method
 	} // class
 
@@ -55007,7 +55356,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 17493 + d0;
+			return 17748 + d0;
 		} // method
 	} // class
 
@@ -55062,7 +55411,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 14736 + d0;
+			return 14991 + d0;
 		} // method
 	} // class
 
@@ -55115,7 +55464,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3501 + d0;
+			return 3663 + d0;
 		} // method
 	} // class
 
@@ -55182,7 +55531,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 22284 + d0 * 8 + d1 * 4 + d2;
+			return 22539 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -55237,7 +55586,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 7086 + d0;
+			return 7264 + d0;
 		} // method
 	} // class
 
@@ -55276,7 +55625,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18337;
+		public override int GetRuntimeId() => 18594;
 	} // class
 
 	public partial class QuartzDoubleSlab // minecraft:quartz_double_slab
@@ -55329,7 +55678,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4436 + d0;
+			return 4598 + d0;
 		} // method
 	} // class
 
@@ -55368,7 +55717,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10760;
+		public override int GetRuntimeId() => 10978;
 	} // class
 
 	public partial class QuartzPillar // minecraft:quartz_pillar
@@ -55422,7 +55771,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 8769 + d0;
+			return 8947 + d0;
 		} // method
 	} // class
 
@@ -55475,7 +55824,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18885 + d0;
+			return 19138 + d0;
 		} // method
 	} // class
 
@@ -55542,7 +55891,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 11975 + d0 * 8 + d1 * 4 + d2;
+			return 12213 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -55591,7 +55940,7 @@ namespace MiNET.Blocks
 			if (RailDirection < 0 || RailDirection > 9) return -1;
 			int d0 = RailDirection;
 
-			return 9376 + d0;
+			return 9554 + d0;
 		} // method
 	} // class
 
@@ -55630,7 +55979,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13225;
+		public override int GetRuntimeId() => 13463;
 	} // class
 
 	public partial class RawGoldBlock // minecraft:raw_gold_block
@@ -55668,7 +56017,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2430;
+		public override int GetRuntimeId() => 2592;
 	} // class
 
 	public partial class RawIronBlock // minecraft:raw_iron_block
@@ -55706,7 +56055,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23885;
+		public override int GetRuntimeId() => 24141;
 	} // class
 
 	public partial class RedCandle // minecraft:red_candle
@@ -55767,7 +56116,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 11779 + d0 + d1 * 4;
+			return 12017 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -55819,7 +56168,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 22217 + d0;
+			return 22472 + d0;
 		} // method
 	} // class
 
@@ -55858,7 +56207,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21364;
+		public override int GetRuntimeId() => 21617;
 	} // class
 
 	public partial class RedConcrete // minecraft:red_concrete
@@ -55896,7 +56245,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22175;
+		public override int GetRuntimeId() => 22430;
 	} // class
 
 	public partial class RedConcreteDoubleSlab // minecraft:red_concrete_double_slab
@@ -55949,7 +56298,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 23920 + d0;
+			return 24176 + d0;
 		} // method
 	} // class
 
@@ -55988,7 +56337,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20816;
+		public override int GetRuntimeId() => 21069;
 	} // class
 
 	public partial class RedConcreteSlab // minecraft:red_concrete_slab
@@ -56040,7 +56389,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 12556 + d0;
+			return 12794 + d0;
 		} // method
 	} // class
 
@@ -56107,7 +56456,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 14587 + d0 * 8 + d1 * 4 + d2;
+			return 14842 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -56155,7 +56504,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 9683 + d0;
+			return 9861 + d0;
 		} // method
 	} // class
 
@@ -56194,7 +56543,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11117;
+		public override int GetRuntimeId() => 11351;
 	} // class
 
 	public partial class RedMushroomBlock // minecraft:red_mushroom_block
@@ -56242,7 +56591,7 @@ namespace MiNET.Blocks
 			if (HugeMushroomBits < 0 || HugeMushroomBits > 15) return -1;
 			int d0 = HugeMushroomBits;
 
-			return 6738 + d0;
+			return 6916 + d0;
 		} // method
 	} // class
 
@@ -56281,7 +56630,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 974;
+		public override int GetRuntimeId() => 1136;
 	} // class
 
 	public partial class RedNetherBrickDoubleSlab // minecraft:red_nether_brick_double_slab
@@ -56334,7 +56683,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2802 + d0;
+			return 2964 + d0;
 		} // method
 	} // class
 
@@ -56387,7 +56736,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18754 + d0;
+			return 19007 + d0;
 		} // method
 	} // class
 
@@ -56454,7 +56803,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 18775 + d0 * 8 + d1 * 4 + d2;
+			return 19028 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -56554,7 +56903,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 21112 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 21365 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -56606,7 +56955,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 22272 + d0 * 2 + d1;
+			return 22527 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -56645,7 +56994,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3536;
+		public override int GetRuntimeId() => 3698;
 	} // class
 
 	public partial class RedSandstone // minecraft:red_sandstone
@@ -56683,7 +57032,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18753;
+		public override int GetRuntimeId() => 19006;
 	} // class
 
 	public partial class RedSandstoneDoubleSlab // minecraft:red_sandstone_double_slab
@@ -56736,7 +57085,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3531 + d0;
+			return 3693 + d0;
 		} // method
 	} // class
 
@@ -56789,7 +57138,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4064 + d0;
+			return 4226 + d0;
 		} // method
 	} // class
 
@@ -56856,7 +57205,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 13352 + d0 * 8 + d1 * 4 + d2;
+			return 13590 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -56956,7 +57305,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 1237 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 1399 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -56995,7 +57344,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13340;
+		public override int GetRuntimeId() => 13578;
 	} // class
 
 	public partial class RedShulkerBox // minecraft:red_shulker_box
@@ -57033,7 +57382,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10652;
+		public override int GetRuntimeId() => 10870;
 	} // class
 
 	public partial class RedStainedGlass // minecraft:red_stained_glass
@@ -57071,7 +57420,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13169;
+		public override int GetRuntimeId() => 13407;
 	} // class
 
 	public partial class RedStainedGlassPane // minecraft:red_stained_glass_pane
@@ -57132,7 +57481,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 20045 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 20298 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -57171,7 +57520,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4203;
+		public override int GetRuntimeId() => 4365;
 	} // class
 
 	public partial class RedTulip // minecraft:red_tulip
@@ -57209,7 +57558,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21506;
+		public override int GetRuntimeId() => 21761;
 	} // class
 
 	public partial class RedWool // minecraft:red_wool
@@ -57247,7 +57596,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 412;
+		public override int GetRuntimeId() => 574;
 	} // class
 
 	public partial class RedWoolDoubleSlab // minecraft:red_wool_double_slab
@@ -57300,7 +57649,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11795 + d0;
+			return 12033 + d0;
 		} // method
 	} // class
 
@@ -57353,7 +57702,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10175 + d0;
+			return 10353 + d0;
 		} // method
 	} // class
 
@@ -57420,7 +57769,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 7304 + d0 * 8 + d1 * 4 + d2;
+			return 7482 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -57459,7 +57808,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7456;
+		public override int GetRuntimeId() => 7634;
 	} // class
 
 	public partial class RedstoneLamp // minecraft:redstone_lamp
@@ -57497,7 +57846,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1631;
+		public override int GetRuntimeId() => 1793;
 	} // class
 
 	public partial class RedstoneOre // minecraft:redstone_ore
@@ -57535,7 +57884,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9931;
+		public override int GetRuntimeId() => 10109;
 	} // class
 
 	public partial class RedstoneTorch // minecraft:redstone_torch
@@ -57591,7 +57940,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 6054 + d0;
+			return 6216 + d0;
 		} // method
 	} // class
 
@@ -57692,7 +58041,7 @@ namespace MiNET.Blocks
 			};
 			if (d4 < 0) return -1;
 
-			return 7473 + d0 * 48 + d1 * 16 + d2 + d3 * 144 + d4 * 432;
+			return 7651 + d0 * 48 + d1 * 16 + d2 + d3 * 144 + d4 * 432;
 		} // method
 	} // class
 
@@ -57741,7 +58090,7 @@ namespace MiNET.Blocks
 			if (Age < 0 || Age > 15) return -1;
 			int d0 = Age;
 
-			return 16839 + d0;
+			return 17094 + d0;
 		} // method
 	} // class
 
@@ -57780,7 +58129,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 15422;
+		public override int GetRuntimeId() => 15677;
 	} // class
 
 	public partial class RepeatingCommandBlock // minecraft:repeating_command_block
@@ -57834,7 +58183,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 22245 + d0 * 6 + d1;
+			return 22500 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -57873,7 +58222,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11203;
+		public override int GetRuntimeId() => 11441;
 	} // class
 
 	public partial class ResinBlock // minecraft:resin_block
@@ -57911,7 +58260,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18559;
+		public override int GetRuntimeId() => 18816;
 	} // class
 
 	public partial class ResinBrickDoubleSlab // minecraft:resin_brick_double_slab
@@ -57964,7 +58313,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 6552 + d0;
+			return 6714 + d0;
 		} // method
 	} // class
 
@@ -58017,7 +58366,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20938 + d0;
+			return 21191 + d0;
 		} // method
 	} // class
 
@@ -58084,7 +58433,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 17722 + d0 * 8 + d1 * 4 + d2;
+			return 17977 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -58184,7 +58533,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 23166 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 23422 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -58223,7 +58572,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16186;
+		public override int GetRuntimeId() => 16441;
 	} // class
 
 	public partial class ResinClump // minecraft:resin_clump
@@ -58271,7 +58620,7 @@ namespace MiNET.Blocks
 			if (MultiFaceDirectionBits < 0 || MultiFaceDirectionBits > 63) return -1;
 			int d0 = MultiFaceDirectionBits;
 
-			return 3600 + d0;
+			return 3762 + d0;
 		} // method
 	} // class
 
@@ -58327,7 +58676,7 @@ namespace MiNET.Blocks
 			if (RespawnAnchorCharge < 0 || RespawnAnchorCharge > 4) return -1;
 			int d0 = RespawnAnchorCharge;
 
-			return 3516 + d0;
+			return 3678 + d0;
 		} // method
 	} // class
 
@@ -58375,7 +58724,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = UpperBlockBit ? 1 : 0;
 
-			return 13611 + d0;
+			return 13849 + d0;
 		} // method
 	} // class
 
@@ -58414,7 +58763,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9807;
+		public override int GetRuntimeId() => 9985;
 	} // class
 
 	public partial class Sandstone // minecraft:sandstone
@@ -58452,7 +58801,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6994;
+		public override int GetRuntimeId() => 7172;
 	} // class
 
 	public partial class SandstoneDoubleSlab // minecraft:sandstone_double_slab
@@ -58505,7 +58854,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2503 + d0;
+			return 2665 + d0;
 		} // method
 	} // class
 
@@ -58558,7 +58907,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2426 + d0;
+			return 2588 + d0;
 		} // method
 	} // class
 
@@ -58625,7 +58974,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 6633 + d0 * 8 + d1 * 4 + d2;
+			return 6811 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -58725,7 +59074,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 22905 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 23160 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -58745,6 +59094,7 @@ namespace MiNET.Blocks
 		public override bool RequiresCorrectToolForDrops => false;
 		public override bool CanContainLiquidSource => true;
 
+		[StateBit] public bool Bottom { get; set; } = false;
 		[StateRange(0, 7)] public int Stability { get; set; } = 0;
 		[StateBit] public bool StabilityCheck { get; set; } = false;
 
@@ -58754,6 +59104,9 @@ namespace MiNET.Blocks
 			{
 				switch (state)
 				{
+					case BlockStateByte s when s.Name == "bottom":
+						Bottom = Convert.ToBoolean(s.Value);
+						break;
 					case BlockStateInt s when s.Name == "stability":
 						Stability = s.Value;
 						break;
@@ -58769,6 +59122,7 @@ namespace MiNET.Blocks
 			var record = new BlockStateContainer();
 			record.Name = "minecraft:scaffolding";
 			record.Id = 420;
+			record.States.Add(new BlockStateByte {Name = "bottom", Value = Convert.ToByte(Bottom)});
 			record.States.Add(new BlockStateInt {Name = "stability", Value = Stability});
 			record.States.Add(new BlockStateByte {Name = "stability_check", Value = Convert.ToByte(StabilityCheck)});
 			return record;
@@ -58776,11 +59130,12 @@ namespace MiNET.Blocks
 
 		public override int GetRuntimeId()
 		{
+			int d0 = Bottom ? 1 : 0;
 			if (Stability < 0 || Stability > 7) return -1;
-			int d0 = Stability;
-			int d1 = StabilityCheck ? 1 : 0;
+			int d1 = Stability;
+			int d2 = StabilityCheck ? 1 : 0;
 
-			return 6617 + d0 + d1 * 8;
+			return 6779 + d0 * 16 + d1 + d2 * 8;
 		} // method
 	} // class
 
@@ -58819,7 +59174,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 19922;
+		public override int GetRuntimeId() => 20175;
 	} // class
 
 	public partial class SculkCatalyst // minecraft:sculk_catalyst
@@ -58866,7 +59221,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Bloom ? 1 : 0;
 
-			return 6795 + d0;
+			return 6973 + d0;
 		} // method
 	} // class
 
@@ -58919,7 +59274,7 @@ namespace MiNET.Blocks
 			if (SculkSensorPhase < 0 || SculkSensorPhase > 2) return -1;
 			int d0 = SculkSensorPhase;
 
-			return 10518 + d0;
+			return 10736 + d0;
 		} // method
 	} // class
 
@@ -58973,7 +59328,7 @@ namespace MiNET.Blocks
 			int d0 = Active ? 1 : 0;
 			int d1 = CanSummon ? 1 : 0;
 
-			return 1517 + d0 + d1 * 2;
+			return 1679 + d0 + d1 * 2;
 		} // method
 	} // class
 
@@ -59022,7 +59377,7 @@ namespace MiNET.Blocks
 			if (MultiFaceDirectionBits < 0 || MultiFaceDirectionBits > 63) return -1;
 			int d0 = MultiFaceDirectionBits;
 
-			return 20622 + d0;
+			return 20875 + d0;
 		} // method
 	} // class
 
@@ -59061,7 +59416,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21906;
+		public override int GetRuntimeId() => 22161;
 	} // class
 
 	public partial class SeaPickle // minecraft:sea_pickle
@@ -59122,7 +59477,7 @@ namespace MiNET.Blocks
 			int d0 = ClusterCount;
 			int d1 = DeadBit ? 1 : 0;
 
-			return 15559 + d0 + d1 * 4;
+			return 15814 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -59177,7 +59532,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1624 + d0;
+			return 1786 + d0;
 		} // method
 	} // class
 
@@ -59240,7 +59595,7 @@ namespace MiNET.Blocks
 			};
 			if (d1 < 0) return -1;
 
-			return 14852 + d0 * 4 + d1;
+			return 15107 + d0 * 4 + d1;
 		} // method
 	} // class
 
@@ -59279,7 +59634,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17496;
+		public override int GetRuntimeId() => 17751;
 	} // class
 
 	public partial class ShortGrass // minecraft:short_grass
@@ -59317,7 +59672,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18720;
+		public override int GetRuntimeId() => 18973;
 	} // class
 
 	public partial class Shroomlight // minecraft:shroomlight
@@ -59355,7 +59710,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12925;
+		public override int GetRuntimeId() => 13163;
 	} // class
 
 	public partial class SilverGlazedTerracotta // minecraft:silver_glazed_terracotta
@@ -59402,7 +59757,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 6060 + d0;
+			return 6222 + d0;
 		} // method
 	} // class
 
@@ -59451,7 +59806,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 13474 + d0;
+			return 13712 + d0;
 		} // method
 	} // class
 
@@ -59490,7 +59845,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9844;
+		public override int GetRuntimeId() => 10022;
 	} // class
 
 	public partial class SmallAmethystBud // minecraft:small_amethyst_bud
@@ -59547,7 +59902,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2290 + d0;
+			return 2452 + d0;
 		} // method
 	} // class
 
@@ -59609,7 +59964,7 @@ namespace MiNET.Blocks
 			if (d0 < 0) return -1;
 			int d1 = UpperBlockBit ? 1 : 0;
 
-			return 10304 + d0 * 2 + d1;
+			return 10482 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -59648,7 +60003,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7255;
+		public override int GetRuntimeId() => 7433;
 	} // class
 
 	public partial class Smoker // minecraft:smoker
@@ -59703,7 +60058,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3310 + d0;
+			return 3472 + d0;
 		} // method
 	} // class
 
@@ -59742,7 +60097,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4624;
+		public override int GetRuntimeId() => 4786;
 	} // class
 
 	public partial class SmoothQuartz // minecraft:smooth_quartz
@@ -59796,7 +60151,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10789 + d0;
+			return 11007 + d0;
 		} // method
 	} // class
 
@@ -59850,7 +60205,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2584 + d0;
+			return 2746 + d0;
 		} // method
 	} // class
 
@@ -59903,7 +60258,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21954 + d0;
+			return 22209 + d0;
 		} // method
 	} // class
 
@@ -59970,7 +60325,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 22177 + d0 * 8 + d1 * 4 + d2;
+			return 22432 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -60009,7 +60364,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22283;
+		public override int GetRuntimeId() => 22538;
 	} // class
 
 	public partial class SmoothRedSandstoneDoubleSlab // minecraft:smooth_red_sandstone_double_slab
@@ -60062,7 +60417,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18084 + d0;
+			return 18341 + d0;
 		} // method
 	} // class
 
@@ -60115,7 +60470,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18710 + d0;
+			return 18963 + d0;
 		} // method
 	} // class
 
@@ -60182,7 +60537,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 14356 + d0 * 8 + d1 * 4 + d2;
+			return 14611 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -60221,7 +60576,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1178;
+		public override int GetRuntimeId() => 1340;
 	} // class
 
 	public partial class SmoothSandstoneDoubleSlab // minecraft:smooth_sandstone_double_slab
@@ -60274,7 +60629,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10650 + d0;
+			return 10868 + d0;
 		} // method
 	} // class
 
@@ -60327,7 +60682,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3318 + d0;
+			return 3480 + d0;
 		} // method
 	} // class
 
@@ -60394,7 +60749,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 6879 + d0 * 8 + d1 * 4 + d2;
+			return 7057 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -60433,7 +60788,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11075;
+		public override int GetRuntimeId() => 11309;
 	} // class
 
 	public partial class SmoothStoneDoubleSlab // minecraft:smooth_stone_double_slab
@@ -60486,7 +60841,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 14870 + d0;
+			return 15125 + d0;
 		} // method
 	} // class
 
@@ -60539,7 +60894,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21903 + d0;
+			return 22158 + d0;
 		} // method
 	} // class
 
@@ -60594,7 +60949,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19556 + d0;
+			return 19809 + d0;
 		} // method
 	} // class
 
@@ -60633,7 +60988,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9806;
+		public override int GetRuntimeId() => 9984;
 	} // class
 
 	public partial class SnowLayer // minecraft:snow_layer
@@ -60687,7 +61042,7 @@ namespace MiNET.Blocks
 			if (Height < 0 || Height > 7) return -1;
 			int d1 = Height;
 
-			return 1179 + d0 * 8 + d1;
+			return 1341 + d0 * 8 + d1;
 		} // method
 	} // class
 
@@ -60753,7 +61108,7 @@ namespace MiNET.Blocks
 			};
 			if (d1 < 0) return -1;
 
-			return 22864 + d0 * 4 + d1;
+			return 23119 + d0 * 4 + d1;
 		} // method
 	} // class
 
@@ -60802,7 +61157,7 @@ namespace MiNET.Blocks
 			if (Age < 0 || Age > 15) return -1;
 			int d0 = Age;
 
-			return 2558 + d0;
+			return 2720 + d0;
 		} // method
 	} // class
 
@@ -60850,7 +61205,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Hanging ? 1 : 0;
 
-			return 14823 + d0;
+			return 15078 + d0;
 		} // method
 	} // class
 
@@ -60889,7 +61244,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14874;
+		public override int GetRuntimeId() => 15129;
 	} // class
 
 	public partial class SoulSoil // minecraft:soul_soil
@@ -60927,7 +61282,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 14873;
+		public override int GetRuntimeId() => 15128;
 	} // class
 
 	public partial class SoulTorch // minecraft:soul_torch
@@ -60984,7 +61339,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11706 + d0;
+			return 11944 + d0;
 		} // method
 	} // class
 
@@ -61023,7 +61378,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2808;
+		public override int GetRuntimeId() => 2970;
 	} // class
 
 	public partial class SporeBlossom // minecraft:spore_blossom
@@ -61061,7 +61416,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20964;
+		public override int GetRuntimeId() => 21217;
 	} // class
 
 	public partial class SpruceButton // minecraft:spruce_button
@@ -61113,7 +61468,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 10354 + d0 * 6 + d1;
+			return 10532 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -61183,7 +61538,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 11797 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 12035 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -61237,7 +61592,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 5486 + d0;
+			return 5648 + d0;
 		} // method
 	} // class
 
@@ -61303,7 +61658,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 2483 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 2645 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -61368,7 +61723,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 18757 + d0 * 8 + d1 + d2 * 4;
+			return 19010 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -61436,7 +61791,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 15037 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 15292 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -61488,7 +61843,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 10613 + d0 * 2 + d1;
+			return 10831 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -61542,7 +61897,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9887 + d0;
+			return 10065 + d0;
 		} // method
 	} // class
 
@@ -61581,7 +61936,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22608;
+		public override int GetRuntimeId() => 22863;
 	} // class
 
 	public partial class SprucePressurePlate // minecraft:spruce_pressure_plate
@@ -61629,7 +61984,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 7438 + d0;
+			return 7616 + d0;
 		} // method
 	} // class
 
@@ -61677,7 +62032,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = AgeBit ? 1 : 0;
 
-			return 9803 + d0;
+			return 9981 + d0;
 		} // method
 	} // class
 
@@ -61746,7 +62101,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 6520 + d0 * 8 + d1 * 4 + d2;
+			return 6682 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -61799,7 +62154,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19812 + d0;
+			return 20065 + d0;
 		} // method
 	} // class
 
@@ -61866,7 +62221,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 437 + d0 * 8 + d1 * 4 + d2;
+			return 599 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -61914,7 +62269,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 19948 + d0;
+			return 20201 + d0;
 		} // method
 	} // class
 
@@ -61972,7 +62327,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 18725 + d0 + d1 * 8 + d2 * 4;
+			return 18978 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -62020,7 +62375,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 21333 + d0;
+			return 21586 + d0;
 		} // method
 	} // class
 
@@ -62075,7 +62430,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22027 + d0;
+			return 22282 + d0;
 		} // method
 	} // class
 
@@ -62124,7 +62479,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 19470 + d0;
+			return 19723 + d0;
 		} // method
 	} // class
 
@@ -62172,7 +62527,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 14655 + d0;
+			return 14910 + d0;
 		} // method
 	} // class
 
@@ -62221,7 +62576,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 10493 + d0;
+			return 10711 + d0;
 		} // method
 	} // class
 
@@ -62270,7 +62625,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 18286 + d0;
+			return 18543 + d0;
 		} // method
 	} // class
 
@@ -62309,7 +62664,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3317;
+		public override int GetRuntimeId() => 3479;
 	} // class
 
 	public partial class StoneBrickDoubleSlab // minecraft:stone_brick_double_slab
@@ -62362,7 +62717,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10439 + d0;
+			return 10617 + d0;
 		} // method
 	} // class
 
@@ -62415,7 +62770,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18148 + d0;
+			return 18405 + d0;
 		} // method
 	} // class
 
@@ -62482,7 +62837,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 4134 + d0 * 8 + d1 * 4 + d2;
+			return 4296 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -62582,7 +62937,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 14194 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 14449 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -62621,7 +62976,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9548;
+		public override int GetRuntimeId() => 9726;
 	} // class
 
 	public partial class StoneButton // minecraft:stone_button
@@ -62673,7 +63028,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 2790 + d0 * 6 + d1;
+			return 2952 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -62722,7 +63077,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 9288 + d0;
+			return 9466 + d0;
 		} // method
 	} // class
 
@@ -62789,7 +63144,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 7090 + d0 * 8 + d1 * 4 + d2;
+			return 7268 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -62828,7 +63183,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4093;
+		public override int GetRuntimeId() => 4255;
 	} // class
 
 	public partial class StonecutterBlock // minecraft:stonecutter_block
@@ -62883,7 +63238,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21944 + d0;
+			return 22199 + d0;
 		} // method
 	} // class
 
@@ -62951,7 +63306,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OccupiedBit ? 1 : 0;
 
-			return 18866 + d0 * 2 + d1 * 4 + d2;
+			return 19119 + d0 * 2 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -63005,7 +63360,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 15536 + d0;
+			return 15791 + d0;
 		} // method
 	} // class
 
@@ -63060,7 +63415,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1851 + d0;
+			return 2013 + d0;
 		} // method
 	} // class
 
@@ -63115,7 +63470,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 6695 + d0;
+			return 6873 + d0;
 		} // method
 	} // class
 
@@ -63169,7 +63524,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16405 + d0;
+			return 16660 + d0;
 		} // method
 	} // class
 
@@ -63224,7 +63579,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11022 + d0;
+			return 11240 + d0;
 		} // method
 	} // class
 
@@ -63278,7 +63633,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10653 + d0;
+			return 10871 + d0;
 		} // method
 	} // class
 
@@ -63333,7 +63688,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 12565 + d0;
+			return 12803 + d0;
 		} // method
 	} // class
 
@@ -63388,7 +63743,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18574 + d0;
+			return 18827 + d0;
 		} // method
 	} // class
 
@@ -63442,7 +63797,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19465 + d0;
+			return 19718 + d0;
 		} // method
 	} // class
 
@@ -63496,7 +63851,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1490 + d0;
+			return 1652 + d0;
 		} // method
 	} // class
 
@@ -63551,7 +63906,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 12512 + d0;
+			return 12750 + d0;
 		} // method
 	} // class
 
@@ -63605,7 +63960,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3256 + d0;
+			return 3418 + d0;
 		} // method
 	} // class
 
@@ -63660,7 +64015,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 2356 + d0;
+			return 2518 + d0;
 		} // method
 	} // class
 
@@ -63714,7 +64069,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 23914 + d0;
+			return 24170 + d0;
 		} // method
 	} // class
 
@@ -63769,7 +64124,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9840 + d0;
+			return 10018 + d0;
 		} // method
 	} // class
 
@@ -63823,7 +64178,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21900 + d0;
+			return 22155 + d0;
 		} // method
 	} // class
 
@@ -63878,7 +64233,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 12074 + d0;
+			return 12312 + d0;
 		} // method
 	} // class
 
@@ -63932,7 +64287,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10167 + d0;
+			return 10345 + d0;
 		} // method
 	} // class
 
@@ -63987,7 +64342,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4628 + d0;
+			return 4790 + d0;
 		} // method
 	} // class
 
@@ -64041,7 +64396,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 17860 + d0;
+			return 18117 + d0;
 		} // method
 	} // class
 
@@ -64096,7 +64451,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 17900 + d0;
+			return 18157 + d0;
 		} // method
 	} // class
 
@@ -64150,7 +64505,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18208 + d0;
+			return 18465 + d0;
 		} // method
 	} // class
 
@@ -64205,7 +64560,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3504 + d0;
+			return 3666 + d0;
 		} // method
 	} // class
 
@@ -64260,7 +64615,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 14583 + d0;
+			return 14838 + d0;
 		} // method
 	} // class
 
@@ -64314,7 +64669,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21339 + d0;
+			return 21592 + d0;
 		} // method
 	} // class
 
@@ -64372,7 +64727,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18366 + d0;
+			return 18623 + d0;
 		} // method
 	} // class
 
@@ -64411,7 +64766,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9719;
+		public override int GetRuntimeId() => 9897;
 	} // class
 
 	public partial class Sulfur // minecraft:sulfur
@@ -64449,7 +64804,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20934;
+		public override int GetRuntimeId() => 21187;
 	} // class
 
 	public partial class SulfurBrickDoubleSlab // minecraft:sulfur_brick_double_slab
@@ -64502,7 +64857,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 6559 + d0;
+			return 6721 + d0;
 		} // method
 	} // class
 
@@ -64555,7 +64910,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21956 + d0;
+			return 22211 + d0;
 		} // method
 	} // class
 
@@ -64622,7 +64977,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 10982 + d0 * 8 + d1 * 4 + d2;
+			return 11200 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -64722,7 +65077,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 19233 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 19486 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -64761,7 +65116,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3877;
+		public override int GetRuntimeId() => 4039;
 	} // class
 
 	public partial class SulfurDoubleSlab // minecraft:sulfur_double_slab
@@ -64814,7 +65169,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13564 + d0;
+			return 13802 + d0;
 		} // method
 	} // class
 
@@ -64867,7 +65222,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 7344 + d0;
+			return 7522 + d0;
 		} // method
 	} // class
 
@@ -64930,7 +65285,7 @@ namespace MiNET.Blocks
 			if (d0 < 0) return -1;
 			int d1 = Hanging ? 1 : 0;
 
-			return 1918 + d0 + d1 * 5;
+			return 2080 + d0 + d1 * 5;
 		} // method
 	} // class
 
@@ -64997,7 +65352,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 9747 + d0 * 8 + d1 * 4 + d2;
+			return 9925 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -65097,7 +65452,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 10820 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 11038 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -65145,7 +65500,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = UpperBlockBit ? 1 : 0;
 
-			return 11281 + d0;
+			return 11519 + d0;
 		} // method
 	} // class
 
@@ -65200,7 +65555,7 @@ namespace MiNET.Blocks
 			int d0 = BrushedProgress;
 			int d1 = Hanging ? 1 : 0;
 
-			return 11875 + d0 * 2 + d1;
+			return 12113 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -65255,7 +65610,7 @@ namespace MiNET.Blocks
 			int d0 = BrushedProgress;
 			int d1 = Hanging ? 1 : 0;
 
-			return 4633 + d0 * 2 + d1;
+			return 4795 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -65304,7 +65659,7 @@ namespace MiNET.Blocks
 			if (Growth < 0 || Growth > 7) return -1;
 			int d0 = Growth;
 
-			return 16829 + d0;
+			return 17084 + d0;
 		} // method
 	} // class
 
@@ -65343,7 +65698,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13226;
+		public override int GetRuntimeId() => 13464;
 	} // class
 
 	public partial class TallGrass // minecraft:tall_grass
@@ -65390,7 +65745,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = UpperBlockBit ? 1 : 0;
 
-			return 18512 + d0;
+			return 18769 + d0;
 		} // method
 	} // class
 
@@ -65429,7 +65784,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18413;
+		public override int GetRuntimeId() => 18670;
 	} // class
 
 	public partial class TintedGlass // minecraft:tinted_glass
@@ -65467,7 +65822,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16408;
+		public override int GetRuntimeId() => 16663;
 	} // class
 
 	public partial class Tnt // minecraft:tnt
@@ -65514,7 +65869,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = ExplodeBit ? 1 : 0;
 
-			return 18912 + d0;
+			return 19165 + d0;
 		} // method
 	} // class
 
@@ -65572,7 +65927,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3871 + d0;
+			return 4033 + d0;
 		} // method
 	} // class
 
@@ -65611,7 +65966,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17495;
+		public override int GetRuntimeId() => 17750;
 	} // class
 
 	public partial class TorchflowerCrop // minecraft:torchflower_crop
@@ -65659,7 +66014,7 @@ namespace MiNET.Blocks
 			if (Growth < 0 || Growth > 7) return -1;
 			int d0 = Growth;
 
-			return 16904 + d0;
+			return 17159 + d0;
 		} // method
 	} // class
 
@@ -65717,7 +66072,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 1562 + d0 + d1 * 8 + d2 * 4;
+			return 1724 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -65772,7 +66127,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 14627 + d0;
+			return 14882 + d0;
 		} // method
 	} // class
 
@@ -65833,7 +66188,7 @@ namespace MiNET.Blocks
 			if (TrialSpawnerState < 0 || TrialSpawnerState > 5) return -1;
 			int d1 = TrialSpawnerState;
 
-			return 23097 + d0 * 6 + d1;
+			return 23353 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -65923,7 +66278,7 @@ namespace MiNET.Blocks
 			int d6 = PoweredBit ? 1 : 0;
 			int d7 = SuspendedBit ? 1 : 0;
 
-			return 21508 + d0 * 64 + d1 * 128 + d2 * 2 + d3 + d4 * 4 + d5 * 8 + d6 * 16 + d7 * 32;
+			return 21763 + d0 * 64 + d1 * 128 + d2 * 2 + d3 + d4 * 4 + d5 * 8 + d6 * 16 + d7 * 32;
 		} // method
 	} // class
 
@@ -65984,7 +66339,7 @@ namespace MiNET.Blocks
 			int d1 = Direction;
 			int d2 = PoweredBit ? 1 : 0;
 
-			return 16314 + d0 * 4 + d1 + d2 * 8;
+			return 16569 + d0 * 4 + d1 + d2 * 8;
 		} // method
 	} // class
 
@@ -66023,7 +66378,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22324;
+		public override int GetRuntimeId() => 22579;
 	} // class
 
 	public partial class TubeCoralBlock // minecraft:tube_coral_block
@@ -66061,7 +66416,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21815;
+		public override int GetRuntimeId() => 22070;
 	} // class
 
 	public partial class TubeCoralFan // minecraft:tube_coral_fan
@@ -66109,7 +66464,7 @@ namespace MiNET.Blocks
 			if (CoralFanDirection < 0 || CoralFanDirection > 1) return -1;
 			int d0 = CoralFanDirection;
 
-			return 1627 + d0;
+			return 1789 + d0;
 		} // method
 	} // class
 
@@ -66158,7 +66513,7 @@ namespace MiNET.Blocks
 			if (CoralDirection < 0 || CoralDirection > 3) return -1;
 			int d0 = CoralDirection;
 
-			return 23955 + d0;
+			return 24211 + d0;
 		} // method
 	} // class
 
@@ -66197,7 +66552,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2360;
+		public override int GetRuntimeId() => 2522;
 	} // class
 
 	public partial class TuffBrickDoubleSlab // minecraft:tuff_brick_double_slab
@@ -66250,7 +66605,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16121 + d0;
+			return 16376 + d0;
 		} // method
 	} // class
 
@@ -66303,7 +66658,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 7346 + d0;
+			return 7524 + d0;
 		} // method
 	} // class
 
@@ -66370,7 +66725,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 18086 + d0 * 8 + d1 * 4 + d2;
+			return 18343 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -66470,7 +66825,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 3339 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 3501 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -66509,7 +66864,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18861;
+		public override int GetRuntimeId() => 19114;
 	} // class
 
 	public partial class TuffDoubleSlab // minecraft:tuff_double_slab
@@ -66562,7 +66917,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22281 + d0;
+			return 22536 + d0;
 		} // method
 	} // class
 
@@ -66615,7 +66970,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1671 + d0;
+			return 1833 + d0;
 		} // method
 	} // class
 
@@ -66682,7 +67037,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 16195 + d0 * 8 + d1 * 4 + d2;
+			return 16450 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -66782,7 +67137,7 @@ namespace MiNET.Blocks
 			if (d3 < 0) return -1;
 			int d4 = WallPostBit ? 1 : 0;
 
-			return 5880 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
+			return 6042 + d0 * 6 + d1 * 2 + d2 * 18 + d3 * 54 + d4;
 		} // method
 	} // class
 
@@ -66851,7 +67206,7 @@ namespace MiNET.Blocks
 			};
 			if (d1 < 0) return -1;
 
-			return 22814 + d0 * 4 + d1;
+			return 23069 + d0 * 4 + d1;
 		} // method
 	} // class
 
@@ -66900,7 +67255,7 @@ namespace MiNET.Blocks
 			if (TwistingVinesAge < 0 || TwistingVinesAge > 25) return -1;
 			int d0 = TwistingVinesAge;
 
-			return 14745 + d0;
+			return 15000 + d0;
 		} // method
 	} // class
 
@@ -66948,7 +67303,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = ExplodeBit ? 1 : 0;
 
-			return 4043 + d0;
+			return 4205 + d0;
 		} // method
 	} // class
 
@@ -67006,7 +67361,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 5478 + d0;
+			return 5640 + d0;
 		} // method
 	} // class
 
@@ -67045,7 +67400,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7059;
+		public override int GetRuntimeId() => 7237;
 	} // class
 
 	public partial class Unknown // minecraft:unknown
@@ -67083,7 +67438,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11244;
+		public override int GetRuntimeId() => 11482;
 	} // class
 
 	public partial class UnlitRedstoneTorch // minecraft:unlit_redstone_torch
@@ -67139,7 +67494,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 23668 + d0;
+			return 23924 + d0;
 		} // method
 	} // class
 
@@ -67207,7 +67562,7 @@ namespace MiNET.Blocks
 			int d1 = OutputLitBit ? 1 : 0;
 			int d2 = OutputSubtractBit ? 1 : 0;
 
-			return 18342 + d0 + d1 * 8 + d2 * 4;
+			return 18599 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -67227,6 +67582,7 @@ namespace MiNET.Blocks
 		public override bool RequiresCorrectToolForDrops => false;
 		public override bool CanContainLiquidSource => true;
 
+		[StateBit] public bool Locked { get; set; } = false;
 		[StateEnum("south","west","north","east")] public string CardinalDirection { get; set; } = "south";
 		[StateRange(0, 3)] public int RepeaterDelay { get; set; } = 0;
 
@@ -67236,6 +67592,9 @@ namespace MiNET.Blocks
 			{
 				switch (state)
 				{
+					case BlockStateByte s when s.Name == "locked":
+						Locked = Convert.ToBoolean(s.Value);
+						break;
 					case BlockStateString s when s.Name == "minecraft:cardinal_direction":
 						CardinalDirection = s.Value;
 						break;
@@ -67251,6 +67610,7 @@ namespace MiNET.Blocks
 			var record = new BlockStateContainer();
 			record.Name = "minecraft:unpowered_repeater";
 			record.Id = 93;
+			record.States.Add(new BlockStateByte {Name = "locked", Value = Convert.ToByte(Locked)});
 			record.States.Add(new BlockStateString {Name = "minecraft:cardinal_direction", Value = CardinalDirection});
 			record.States.Add(new BlockStateInt {Name = "repeater_delay", Value = RepeaterDelay});
 			return record;
@@ -67258,7 +67618,8 @@ namespace MiNET.Blocks
 
 		public override int GetRuntimeId()
 		{
-			int d0 = CardinalDirection switch
+			int d0 = Locked ? 1 : 0;
+			int d1 = CardinalDirection switch
 			{
 				"south" => 0,
 				"west" => 1,
@@ -67266,11 +67627,11 @@ namespace MiNET.Blocks
 				"east" => 3,
 				_ => -1
 			};
-			if (d0 < 0) return -1;
+			if (d1 < 0) return -1;
 			if (RepeaterDelay < 0 || RepeaterDelay > 3) return -1;
-			int d1 = RepeaterDelay;
+			int d2 = RepeaterDelay;
 
-			return 14178 + d0 + d1 * 4;
+			return 14417 + d0 * 16 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -67350,7 +67711,7 @@ namespace MiNET.Blocks
 			};
 			if (d2 < 0) return -1;
 
-			return 17804 + d0 + d1 * 16 + d2 * 4;
+			return 18059 + d0 + d1 * 16 + d2 * 4;
 		} // method
 	} // class
 
@@ -67405,7 +67766,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18540 + d0;
+			return 18797 + d0;
 		} // method
 	} // class
 
@@ -67454,7 +67815,7 @@ namespace MiNET.Blocks
 			if (VineDirectionBits < 0 || VineDirectionBits > 15) return -1;
 			int d0 = VineDirectionBits;
 
-			return 4046 + d0;
+			return 4208 + d0;
 		} // method
 	} // class
 
@@ -67503,7 +67864,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 14739 + d0;
+			return 14994 + d0;
 		} // method
 	} // class
 
@@ -67551,7 +67912,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 12558 + d0;
+			return 12796 + d0;
 		} // method
 	} // class
 
@@ -67606,7 +67967,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 20804 + d0 * 6 + d1;
+			return 21057 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -67730,7 +68091,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 10510 + d0;
+			return 10728 + d0;
 		} // method
 	} // class
 
@@ -67796,7 +68157,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 15542 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 15797 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -67861,7 +68222,7 @@ namespace MiNET.Blocks
 			if (d1 < 0) return -1;
 			int d2 = OpenBit ? 1 : 0;
 
-			return 13456 + d0 * 8 + d1 + d2 * 4;
+			return 13694 + d0 * 8 + d1 + d2 * 4;
 		} // method
 	} // class
 
@@ -67900,7 +68261,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1937;
+		public override int GetRuntimeId() => 2099;
 	} // class
 
 	public partial class WarpedHangingSign // minecraft:warped_hanging_sign
@@ -67967,7 +68328,7 @@ namespace MiNET.Blocks
 			int d2 = GroundSignDirection;
 			int d3 = Hanging ? 1 : 0;
 
-			return 16442 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
+			return 16697 + d0 * 192 + d1 + d2 * 6 + d3 * 96;
 		} // method
 	} // class
 
@@ -68022,7 +68383,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16125 + d0;
+			return 16380 + d0;
 		} // method
 	} // class
 
@@ -68061,7 +68422,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18293;
+		public override int GetRuntimeId() => 18550;
 	} // class
 
 	public partial class WarpedPlanks // minecraft:warped_planks
@@ -68099,7 +68460,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4126;
+		public override int GetRuntimeId() => 4288;
 	} // class
 
 	public partial class WarpedPressurePlate // minecraft:warped_pressure_plate
@@ -68147,7 +68508,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 1835 + d0;
+			return 1997 + d0;
 		} // method
 	} // class
 
@@ -68186,7 +68547,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10490;
+		public override int GetRuntimeId() => 10708;
 	} // class
 
 	public partial class WarpedShelf // minecraft:warped_shelf
@@ -68254,7 +68615,7 @@ namespace MiNET.Blocks
 			if (PoweredShelfType < 0 || PoweredShelfType > 3) return -1;
 			int d2 = PoweredShelfType;
 
-			return 6845 + d0 * 8 + d1 * 4 + d2;
+			return 7023 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -68307,7 +68668,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18560 + d0;
+			return 18817 + d0;
 		} // method
 	} // class
 
@@ -68374,7 +68735,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 7135 + d0 * 8 + d1 * 4 + d2;
+			return 7313 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -68422,7 +68783,7 @@ namespace MiNET.Blocks
 			if (GroundSignDirection < 0 || GroundSignDirection > 15) return -1;
 			int d0 = GroundSignDirection;
 
-			return 20691 + d0;
+			return 20944 + d0;
 		} // method
 	} // class
 
@@ -68476,7 +68837,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18562 + d0;
+			return 18819 + d0;
 		} // method
 	} // class
 
@@ -68534,7 +68895,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 11883 + d0 + d1 * 8 + d2 * 4;
+			return 12121 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -68582,7 +68943,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 2477 + d0;
+			return 2639 + d0;
 		} // method
 	} // class
 
@@ -68621,7 +68982,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16168;
+		public override int GetRuntimeId() => 16423;
 	} // class
 
 	public partial class Water // minecraft:water
@@ -68668,7 +69029,7 @@ namespace MiNET.Blocks
 			if (LiquidDepth < 0 || LiquidDepth > 15) return -1;
 			int d0 = LiquidDepth;
 
-			return 14122 + d0;
+			return 14361 + d0;
 		} // method
 	} // class
 
@@ -68707,7 +69068,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 4625;
+		public override int GetRuntimeId() => 4787;
 	} // class
 
 	public partial class WaxedChiseledCopper // minecraft:waxed_chiseled_copper
@@ -68745,7 +69106,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22622;
+		public override int GetRuntimeId() => 22877;
 	} // class
 
 	public partial class WaxedCopper // minecraft:waxed_copper
@@ -68783,7 +69144,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 22244;
+		public override int GetRuntimeId() => 22499;
 	} // class
 
 	public partial class WaxedCopperBars // minecraft:waxed_copper_bars
@@ -68848,7 +69209,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 2774 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 2936 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -68906,7 +69267,7 @@ namespace MiNET.Blocks
 			int d0 = Lit ? 1 : 0;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 2804 + d0 + d1 * 2;
+			return 2966 + d0 + d1 * 2;
 		} // method
 	} // class
 
@@ -68961,7 +69322,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9941 + d0;
+			return 10119 + d0;
 		} // method
 	} // class
 
@@ -69016,7 +69377,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9936 + d0;
+			return 10114 + d0;
 		} // method
 	} // class
 
@@ -69086,7 +69447,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 22325 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 22580 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -69142,7 +69503,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22859 + d0;
+			return 23114 + d0;
 		} // method
 	} // class
 
@@ -69181,7 +69542,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13420;
+		public override int GetRuntimeId() => 13658;
 	} // class
 
 	public partial class WaxedCopperLantern // minecraft:waxed_copper_lantern
@@ -69228,7 +69589,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Hanging ? 1 : 0;
 
-			return 22221 + d0;
+			return 22476 + d0;
 		} // method
 	} // class
 
@@ -69286,7 +69647,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 6504 + d0 + d1 * 8 + d2 * 4;
+			return 6666 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -69325,7 +69686,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20933;
+		public override int GetRuntimeId() => 21186;
 	} // class
 
 	public partial class WaxedCutCopperSlab // minecraft:waxed_cut_copper_slab
@@ -69377,7 +69738,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22623 + d0;
+			return 22878 + d0;
 		} // method
 	} // class
 
@@ -69444,7 +69805,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 2505 + d0 * 8 + d1 * 4 + d2;
+			return 2667 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -69498,7 +69859,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 13536 + d0;
+			return 13774 + d0;
 		} // method
 	} // class
 
@@ -69537,7 +69898,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1670;
+		public override int GetRuntimeId() => 1832;
 	} // class
 
 	public partial class WaxedExposedCopper // minecraft:waxed_exposed_copper
@@ -69575,7 +69936,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3530;
+		public override int GetRuntimeId() => 3692;
 	} // class
 
 	public partial class WaxedExposedCopperBars // minecraft:waxed_exposed_copper_bars
@@ -69640,7 +70001,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 9720 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 9898 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -69698,7 +70059,7 @@ namespace MiNET.Blocks
 			int d0 = Lit ? 1 : 0;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 9737 + d0 + d1 * 2;
+			return 9915 + d0 + d1 * 2;
 		} // method
 	} // class
 
@@ -69753,7 +70114,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1440 + d0;
+			return 1602 + d0;
 		} // method
 	} // class
 
@@ -69808,7 +70169,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1443 + d0;
+			return 1605 + d0;
 		} // method
 	} // class
 
@@ -69878,7 +70239,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 13566 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 13804 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -69934,7 +70295,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9679 + d0;
+			return 9857 + d0;
 		} // method
 	} // class
 
@@ -69973,7 +70334,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2768;
+		public override int GetRuntimeId() => 2930;
 	} // class
 
 	public partial class WaxedExposedCopperLantern // minecraft:waxed_exposed_copper_lantern
@@ -70020,7 +70381,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Hanging ? 1 : 0;
 
-			return 20965 + d0;
+			return 21218 + d0;
 		} // method
 	} // class
 
@@ -70078,7 +70439,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 16007 + d0 + d1 * 8 + d2 * 4;
+			return 16262 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -70117,7 +70478,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 8772;
+		public override int GetRuntimeId() => 8950;
 	} // class
 
 	public partial class WaxedExposedCutCopperSlab // minecraft:waxed_exposed_cut_copper_slab
@@ -70169,7 +70530,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 1629 + d0;
+			return 1791 + d0;
 		} // method
 	} // class
 
@@ -70236,7 +70597,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 9304 + d0 * 8 + d1 * 4 + d2;
+			return 9482 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -70290,7 +70651,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 19160 + d0;
+			return 19413 + d0;
 		} // method
 	} // class
 
@@ -70345,7 +70706,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 9347 + d0 + d1 * 6;
+			return 9525 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -70400,7 +70761,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 6798 + d0 + d1 * 6;
+			return 6976 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -70477,7 +70838,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21898;
+		public override int GetRuntimeId() => 22153;
 	} // class
 
 	public partial class WaxedOxidizedCopperBars // minecraft:waxed_oxidized_copper_bars
@@ -70542,7 +70903,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 18192 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 18449 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -70600,7 +70961,7 @@ namespace MiNET.Blocks
 			int d0 = Lit ? 1 : 0;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 18211 + d0 + d1 * 2;
+			return 18468 + d0 + d1 * 2;
 		} // method
 	} // class
 
@@ -70655,7 +71016,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9693 + d0;
+			return 9871 + d0;
 		} // method
 	} // class
 
@@ -70710,7 +71071,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9689 + d0;
+			return 9867 + d0;
 		} // method
 	} // class
 
@@ -70780,7 +71141,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 16238 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 16493 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -70836,7 +71197,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 12592 + d0;
+			return 12830 + d0;
 		} // method
 	} // class
 
@@ -70875,7 +71236,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23085;
+		public override int GetRuntimeId() => 23340;
 	} // class
 
 	public partial class WaxedOxidizedCopperLantern // minecraft:waxed_oxidized_copper_lantern
@@ -70922,7 +71283,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Hanging ? 1 : 0;
 
-			return 11249 + d0;
+			return 11487 + d0;
 		} // method
 	} // class
 
@@ -70980,7 +71341,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 12540 + d0 + d1 * 8 + d2 * 4;
+			return 12778 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -71019,7 +71380,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 1439;
+		public override int GetRuntimeId() => 1601;
 	} // class
 
 	public partial class WaxedOxidizedCutCopperSlab // minecraft:waxed_oxidized_cut_copper_slab
@@ -71071,7 +71432,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 3594 + d0;
+			return 3756 + d0;
 		} // method
 	} // class
 
@@ -71138,7 +71499,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 15440 + d0 * 8 + d1 * 4 + d2;
+			return 15695 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -71192,7 +71553,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 22276 + d0;
+			return 22531 + d0;
 		} // method
 	} // class
 
@@ -71247,7 +71608,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 20065 + d0 + d1 * 6;
+			return 20318 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -71286,7 +71647,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7130;
+		public override int GetRuntimeId() => 7308;
 	} // class
 
 	public partial class WaxedWeatheredCopper // minecraft:waxed_weathered_copper
@@ -71324,7 +71685,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 3592;
+		public override int GetRuntimeId() => 3754;
 	} // class
 
 	public partial class WaxedWeatheredCopperBars // minecraft:waxed_weathered_copper_bars
@@ -71389,7 +71750,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 15490 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 15745 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -71447,7 +71808,7 @@ namespace MiNET.Blocks
 			int d0 = Lit ? 1 : 0;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 15480 + d0 + d1 * 2;
+			return 15735 + d0 + d1 * 2;
 		} // method
 	} // class
 
@@ -71627,7 +71988,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 20013 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 20266 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -71683,7 +72044,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11790 + d0;
+			return 12028 + d0;
 		} // method
 	} // class
 
@@ -71722,7 +72083,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 10353;
+		public override int GetRuntimeId() => 10531;
 	} // class
 
 	public partial class WaxedWeatheredCopperLantern // minecraft:waxed_weathered_copper_lantern
@@ -71769,7 +72130,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Hanging ? 1 : 0;
 
-			return 9179 + d0;
+			return 9357 + d0;
 		} // method
 	} // class
 
@@ -71827,7 +72188,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 11917 + d0 + d1 * 8 + d2 * 4;
+			return 12155 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -71866,7 +72227,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12515;
+		public override int GetRuntimeId() => 12753;
 	} // class
 
 	public partial class WaxedWeatheredCutCopperSlab // minecraft:waxed_weathered_cut_copper_slab
@@ -71918,7 +72279,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 18721 + d0;
+			return 18974 + d0;
 		} // method
 	} // class
 
@@ -71985,7 +72346,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 17904 + d0 * 8 + d1 * 4 + d2;
+			return 18161 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -72039,7 +72400,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11776 + d0;
+			return 12014 + d0;
 		} // method
 	} // class
 
@@ -72094,7 +72455,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 23490 + d0 + d1 * 6;
+			return 23746 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -72133,7 +72494,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2289;
+		public override int GetRuntimeId() => 2451;
 	} // class
 
 	public partial class WeatheredCopper // minecraft:weathered_copper
@@ -72171,7 +72532,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23505;
+		public override int GetRuntimeId() => 23761;
 	} // class
 
 	public partial class WeatheredCopperBars // minecraft:weathered_copper_bars
@@ -72236,7 +72597,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 21921 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 22176 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -72294,7 +72655,7 @@ namespace MiNET.Blocks
 			int d0 = Lit ? 1 : 0;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 21917 + d0 + d1 * 2;
+			return 22172 + d0 + d1 * 2;
 		} // method
 	} // class
 
@@ -72349,7 +72710,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 14652 + d0;
+			return 14907 + d0;
 		} // method
 	} // class
 
@@ -72404,7 +72765,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 14647 + d0;
+			return 14902 + d0;
 		} // method
 	} // class
 
@@ -72474,7 +72835,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 18465 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 18722 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -72530,7 +72891,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16856 + d0;
+			return 17111 + d0;
 		} // method
 	} // class
 
@@ -72569,7 +72930,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 7302;
+		public override int GetRuntimeId() => 7480;
 	} // class
 
 	public partial class WeatheredCopperLantern // minecraft:weathered_copper_lantern
@@ -72616,7 +72977,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Hanging ? 1 : 0;
 
-			return 18514 + d0;
+			return 18771 + d0;
 		} // method
 	} // class
 
@@ -72674,7 +73035,7 @@ namespace MiNET.Blocks
 			int d1 = OpenBit ? 1 : 0;
 			int d2 = UpsideDownBit ? 1 : 0;
 
-			return 18694 + d0 + d1 * 8 + d2 * 4;
+			return 18947 + d0 + d1 * 8 + d2 * 4;
 		} // method
 	} // class
 
@@ -72713,7 +73074,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20690;
+		public override int GetRuntimeId() => 20943;
 	} // class
 
 	public partial class WeatheredCutCopperSlab // minecraft:weathered_cut_copper_slab
@@ -72765,7 +73126,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16934 + d0;
+			return 17189 + d0;
 		} // method
 	} // class
 
@@ -72832,7 +73193,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 10264 + d0 * 8 + d1 * 4 + d2;
+			return 10442 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -72886,7 +73247,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 20999 + d0;
+			return 21252 + d0;
 		} // method
 	} // class
 
@@ -72941,7 +73302,7 @@ namespace MiNET.Blocks
 			int d0 = FacingDirection;
 			int d1 = PoweredBit ? 1 : 0;
 
-			return 13190 + d0 + d1 * 6;
+			return 13428 + d0 + d1 * 6;
 		} // method
 	} // class
 
@@ -72980,7 +73341,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 18916;
+		public override int GetRuntimeId() => 19169;
 	} // class
 
 	public partial class WeepingVines // minecraft:weeping_vines
@@ -73028,7 +73389,7 @@ namespace MiNET.Blocks
 			if (WeepingVinesAge < 0 || WeepingVinesAge > 25) return -1;
 			int d0 = WeepingVinesAge;
 
-			return 14032 + d0;
+			return 14271 + d0;
 		} // method
 	} // class
 
@@ -73114,7 +73475,7 @@ namespace MiNET.Blocks
 			if (Growth < 0 || Growth > 7) return -1;
 			int d0 = Growth;
 
-			return 20925 + d0;
+			return 21178 + d0;
 		} // method
 	} // class
 
@@ -73176,7 +73537,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 13272 + d0 + d1 * 4;
+			return 13510 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -73228,7 +73589,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 21959 + d0;
+			return 22214 + d0;
 		} // method
 	} // class
 
@@ -73267,7 +73628,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 20865;
+		public override int GetRuntimeId() => 21118;
 	} // class
 
 	public partial class WhiteConcrete // minecraft:white_concrete
@@ -73305,7 +73666,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 23092;
+		public override int GetRuntimeId() => 23348;
 	} // class
 
 	public partial class WhiteConcreteDoubleSlab // minecraft:white_concrete_double_slab
@@ -73358,7 +73719,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4091 + d0;
+			return 4253 + d0;
 		} // method
 	} // class
 
@@ -73397,7 +73758,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12462;
+		public override int GetRuntimeId() => 12700;
 	} // class
 
 	public partial class WhiteConcreteSlab // minecraft:white_concrete_slab
@@ -73449,7 +73810,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 11317 + d0;
+			return 11555 + d0;
 		} // method
 	} // class
 
@@ -73516,7 +73877,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 13487 + d0 * 8 + d1 * 4 + d2;
+			return 13725 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -73564,7 +73925,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 14577 + d0;
+			return 14832 + d0;
 		} // method
 	} // class
 
@@ -73603,7 +73964,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 2432;
+		public override int GetRuntimeId() => 2594;
 	} // class
 
 	public partial class WhiteStainedGlass // minecraft:white_stained_glass
@@ -73641,7 +74002,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12516;
+		public override int GetRuntimeId() => 12754;
 	} // class
 
 	public partial class WhiteStainedGlassPane // minecraft:white_stained_glass_pane
@@ -73702,7 +74063,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 10800 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 11018 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -73741,7 +74102,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 12073;
+		public override int GetRuntimeId() => 12311;
 	} // class
 
 	public partial class WhiteTulip // minecraft:white_tulip
@@ -73779,7 +74140,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 11111;
+		public override int GetRuntimeId() => 11345;
 	} // class
 
 	public partial class WhiteWool // minecraft:white_wool
@@ -73817,7 +74178,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 13455;
+		public override int GetRuntimeId() => 13693;
 	} // class
 
 	public partial class WhiteWoolDoubleSlab // minecraft:white_wool_double_slab
@@ -73870,7 +74231,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 546 + d0;
+			return 708 + d0;
 		} // method
 	} // class
 
@@ -73923,7 +74284,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4062 + d0;
+			return 4224 + d0;
 		} // method
 	} // class
 
@@ -73990,7 +74351,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 21858 + d0 * 8 + d1 * 4 + d2;
+			return 22113 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -74053,7 +74414,7 @@ namespace MiNET.Blocks
 			};
 			if (d1 < 0) return -1;
 
-			return 22048 + d0 + d1 * 8;
+			return 22303 + d0 + d1 * 8;
 		} // method
 	} // class
 
@@ -74092,7 +74453,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 17897;
+		public override int GetRuntimeId() => 18154;
 	} // class
 
 	public partial class WitherSkeletonSkull // minecraft:wither_skeleton_skull
@@ -74140,7 +74501,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 20745 + d0;
+			return 20998 + d0;
 		} // method
 	} // class
 
@@ -74193,7 +74554,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d1 = FacingDirection;
 
-			return 18414 + d0 * 6 + d1;
+			return 18671 + d0 * 6 + d1;
 		} // method
 	} // class
 
@@ -74263,7 +74624,7 @@ namespace MiNET.Blocks
 			int d2 = OpenBit ? 1 : 0;
 			int d3 = UpperBlockBit ? 1 : 0;
 
-			return 7400 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
+			return 7578 + d0 * 16 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -74312,7 +74673,7 @@ namespace MiNET.Blocks
 			if (RedstoneSignal < 0 || RedstoneSignal > 15) return -1;
 			int d0 = RedstoneSignal;
 
-			return 22889 + d0;
+			return 23144 + d0;
 		} // method
 	} // class
 
@@ -74374,7 +74735,7 @@ namespace MiNET.Blocks
 			int d0 = Candles;
 			int d1 = Lit ? 1 : 0;
 
-			return 17947 + d0 + d1 * 4;
+			return 18204 + d0 + d1 * 4;
 		} // method
 	} // class
 
@@ -74426,7 +74787,7 @@ namespace MiNET.Blocks
 		{
 			int d0 = Lit ? 1 : 0;
 
-			return 11263 + d0;
+			return 11501 + d0;
 		} // method
 	} // class
 
@@ -74465,7 +74826,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 16235;
+		public override int GetRuntimeId() => 16490;
 	} // class
 
 	public partial class YellowConcrete // minecraft:yellow_concrete
@@ -74503,7 +74864,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 6811;
+		public override int GetRuntimeId() => 6989;
 	} // class
 
 	public partial class YellowConcreteDoubleSlab // minecraft:yellow_concrete_double_slab
@@ -74556,7 +74917,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 21981 + d0;
+			return 22236 + d0;
 		} // method
 	} // class
 
@@ -74595,7 +74956,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21958;
+		public override int GetRuntimeId() => 22213;
 	} // class
 
 	public partial class YellowConcreteSlab // minecraft:yellow_concrete_slab
@@ -74647,7 +75008,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 4040 + d0;
+			return 4202 + d0;
 		} // method
 	} // class
 
@@ -74714,7 +75075,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 19772 + d0 * 8 + d1 * 4 + d2;
+			return 20025 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 
@@ -74762,7 +75123,7 @@ namespace MiNET.Blocks
 			if (FacingDirection < 0 || FacingDirection > 5) return -1;
 			int d0 = FacingDirection;
 
-			return 4085 + d0;
+			return 4247 + d0;
 		} // method
 	} // class
 
@@ -74814,7 +75175,7 @@ namespace MiNET.Blocks
 			int d0 = PersistentBit ? 1 : 0;
 			int d1 = UpdateBit ? 1 : 0;
 
-			return 22267 + d0 * 2 + d1;
+			return 22522 + d0 * 2 + d1;
 		} // method
 	} // class
 
@@ -74853,7 +75214,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 408;
+		public override int GetRuntimeId() => 570;
 	} // class
 
 	public partial class YellowStainedGlass // minecraft:yellow_stained_glass
@@ -74891,7 +75252,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 21980;
+		public override int GetRuntimeId() => 22235;
 	} // class
 
 	public partial class YellowStainedGlassPane // minecraft:yellow_stained_glass_pane
@@ -74952,7 +75313,7 @@ namespace MiNET.Blocks
 			int d2 = ConnectionSouth ? 1 : 0;
 			int d3 = ConnectionWest ? 1 : 0;
 
-			return 955 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
+			return 1117 + d0 * 2 + d1 + d2 * 4 + d3 * 8;
 		} // method
 	} // class
 
@@ -74991,7 +75352,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 9805;
+		public override int GetRuntimeId() => 9983;
 	} // class
 
 	public partial class YellowWool // minecraft:yellow_wool
@@ -75029,7 +75390,7 @@ namespace MiNET.Blocks
 			return record;
 		} // method
 
-		public override int GetRuntimeId() => 948;
+		public override int GetRuntimeId() => 1110;
 	} // class
 
 	public partial class YellowWoolDoubleSlab // minecraft:yellow_wool_double_slab
@@ -75082,7 +75443,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 16970 + d0;
+			return 17225 + d0;
 		} // method
 	} // class
 
@@ -75135,7 +75496,7 @@ namespace MiNET.Blocks
 			};
 			if (d0 < 0) return -1;
 
-			return 9181 + d0;
+			return 9359 + d0;
 		} // method
 	} // class
 
@@ -75202,7 +75563,7 @@ namespace MiNET.Blocks
 			if (WeirdoDirection < 0 || WeirdoDirection > 3) return -1;
 			int d2 = WeirdoDirection;
 
-			return 7175 + d0 * 8 + d1 * 4 + d2;
+			return 7353 + d0 * 8 + d1 * 4 + d2;
 		} // method
 	} // class
 

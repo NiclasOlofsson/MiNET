@@ -370,6 +370,22 @@
 			"schema": "ChatPacket"
 		},
 		{
+			"name": "MCPE_SERVERBOUND_REQUEST_ONLINE_MUSIC_PLAYBACK",
+			"id": "0x16a",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ServerboundRequestOnlineMusicPlaybackPacket"
+		},
+		{
+			"name": "MCPE_CLIENTBOUND_ONLINE_MUSIC_PLAYBACK_RESPONSE",
+			"id": "0x16b",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ClientboundOnlineMusicPlaybackResponsePacket"
+		},
+		{
 			"name": "MCPE_SET_ENTITY_DATA",
 			"id": "0x27",
 			"online": false,

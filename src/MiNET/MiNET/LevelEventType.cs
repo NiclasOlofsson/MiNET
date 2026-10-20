@@ -797,10 +797,9 @@ namespace MiNET
 		Mount = 611,
 		Dismount = 612,
 		StrawBedBreakLeave = 613,
-		IceBallBreak = 614,
-		ConvertToFrostbite = 615,
-		ConvertToZombie = 616,
-		Crack = 617,
-		Undefined = 618,
+		ConvertToFrostbite = 614,
+		ConvertToZombie = 615,
+		Crack = 616,
+		Undefined = 617,
 	}
 }

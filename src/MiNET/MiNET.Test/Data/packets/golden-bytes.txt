@@ -285,6 +285,12 @@
   back[0] 43
   back[1] s2
   back[2] {s31,False}
+== McpeClientboundOnlineMusicPlaybackResponse id=0x16b
+  hex EB022B00000050027333027334
+  back[0] 43
+  back[1] 80
+  back[2] s3
+  back[3] s4
 == McpeClientboundPlayAudioContent id=0x167
   hex E7020273310273327503733431940BFB01A4420000594200005E42DE01000141000000000000000100007242
   back[0] s1
@@ -988,6 +994,10 @@
 == McpeServerboundRegisterAudioContent id=0x168
   hex E8020204733131310473313132047331313304733131340473313231047331323204733132330473313234
   back[0] [{s111,s112,s113,s114},{s121,s122,s123,s124}]
+== McpeServerboundRequestOnlineMusicPlayback id=0x16a
+  hex EA022B000000027332
+  back[0] 43
+  back[1] s2
 == McpeServerboundStonecutterSetRecipe id=0x162
   hex E2022BA001
   back[0] 43

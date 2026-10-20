@@ -118,6 +118,7 @@ namespace MiNET.Net
 		void HandleMcpeServerboundCursorItemDrag(McpeServerboundCursorItemDrag message);
 		void HandleMcpeServerboundRegisterAudioContent(McpeServerboundRegisterAudioContent message);
 		void HandleMcpeChat(McpeChat message);
+		void HandleMcpeServerboundRequestOnlineMusicPlayback(McpeServerboundRequestOnlineMusicPlayback message);
 	}
 
 	public interface IMcpeClientMessageHandler
@@ -313,6 +314,7 @@ namespace MiNET.Net
 		void HandleMcpeSetPassengerOfBlock(McpeSetPassengerOfBlock message);
 		void HandleMcpeClientboundPlayAudioContent(McpeClientboundPlayAudioContent message);
 		void HandleMcpeChat(McpeChat message);
+		void HandleMcpeClientboundOnlineMusicPlaybackResponse(McpeClientboundOnlineMusicPlaybackResponse message);
 	}
 
 	public class McpeClientMessageDispatcher
@@ -901,6 +903,9 @@ namespace MiNET.Net
 				case McpeChat msg:
 					_messageHandler.HandleMcpeChat(msg);
 					break;
+				case McpeClientboundOnlineMusicPlaybackResponse msg:
+					_messageHandler.HandleMcpeClientboundOnlineMusicPlaybackResponse(msg);
+					break;
 				default:
 					return false;
 			}
@@ -1416,6 +1421,10 @@ namespace MiNET.Net
 						return McpeServerboundRegisterAudioContent.CreateObject().Decode(buffer);
 					case 0x169:
 						return McpeChat.CreateObject().Decode(buffer);
+					case 0x16a:
+						return McpeServerboundRequestOnlineMusicPlayback.CreateObject().Decode(buffer);
+					case 0x16b:
+						return McpeClientboundOnlineMusicPlaybackResponse.CreateObject().Decode(buffer);
 				}
 			}
 

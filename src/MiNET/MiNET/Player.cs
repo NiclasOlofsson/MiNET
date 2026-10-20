@@ -3029,6 +3029,11 @@ namespace MiNET
 			// Chat Service signed message (new at 2235). MiNET declares no managed chat, so chat arrives as Text. Ignored.
 		}
 
+		public virtual void HandleMcpeServerboundRequestOnlineMusicPlayback(McpeServerboundRequestOnlineMusicPlayback message)
+		{
+			// Client asks for an online music track by sound event name (new at 2238). MiNET serves no online music. Ignored.
+		}
+
 		public virtual void HandleMcpeServerboundDataStore(McpeServerboundDataStore message)
 		{
 			// Client data store update request. Ignored.

@@ -175,6 +175,9 @@ namespace MiNET.Net
 				case McpeChat msg:
 					handler.HandleMcpeChat(msg);
 					break;
+				case McpeServerboundRequestOnlineMusicPlayback msg:
+					handler.HandleMcpeServerboundRequestOnlineMusicPlayback(msg);
+					break;
 				case McpeSetPlayerInventoryOptions msg:
 					handler.HandleMcpeSetPlayerInventoryOptions(msg);
 					break;

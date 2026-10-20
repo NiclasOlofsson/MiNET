@@ -992,6 +992,10 @@ namespace MiNET.Client
 		{
 		}
 
+		public virtual void HandleMcpeClientboundOnlineMusicPlaybackResponse(McpeClientboundOnlineMusicPlaybackResponse message)
+		{
+		}
+
 		public virtual void HandleMcpeSetPlayerFurnaceOptions(McpeSetPlayerFurnaceOptions message)
 		{
 		}

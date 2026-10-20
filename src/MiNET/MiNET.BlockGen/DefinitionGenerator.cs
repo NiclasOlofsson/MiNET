@@ -53,11 +53,12 @@ public static class DefinitionGenerator
 	};
 
 	/// <summary>
-	///     The only render layer the wire settles: 11 on both carriers, spelled
-	///     alpha_test_single_sided. The block definition schema names eight render methods and this
-	///     value is outside that range, so nothing else in the vocabulary is mapped.
+	///     The render layers the wire settles: 11 on both 1.26.60 carriers, spelled
+	///     alpha_test_single_sided, and 5 on packed_ice_bricks and its chiseled form in the 1.26.70.21
+	///     frame, spelled opaque. The block definition schema names eight render methods and the
+	///     layer numbers are not their order, so nothing unconfirmed is mapped.
 	/// </summary>
-	private static readonly Dictionary<int, string> RenderMethod = new() {[11] = "alpha_test_single_sided"};
+	private static readonly Dictionary<int, string> RenderMethod = new() {[5] = "opaque", [11] = "alpha_test_single_sided"};
 
 	/// <summary>The connection type the two carriers hold. One value, confirmed twice.</summary>
 	private static readonly Dictionary<int, string> ConnectionType = new() {[0] = "none"};
@@ -68,15 +69,17 @@ public static class DefinitionGenerator
 
 	/// <summary>
 	///     The block's own components, used only for the wire components no definition class is
-	///     declared for yet.
+	///     declared for yet. The value comes off the block, but whether it goes out is the matching
+	///     description's networked verdict: a block whose definition holds no such description keeps
+	///     its component local (packed_ice_bricks_wall's liquid detection in the 1.26.70.21 frame).
 	/// </summary>
-	private static readonly Dictionary<string, string> FromBlock = new()
+	private static readonly Dictionary<string, (string Description, string Wire)> FromBlock = new()
 	{
-		["BlockLiquidDetectionComponent"] = "minecraft:liquid_detection",
-		["BlockRedstoneComponent"] = "minecraft:redstone_conductivity",
-		["BlockSupportComponent"] = "minecraft:support",
-		["BlockPrecipitationInteractionsComponent"] = "minecraft:precipitation_interactions",
-		["BlockReplaceableComponent"] = "minecraft:replaceable"
+		["BlockLiquidDetectionComponent"] = ("BlockLiquidDetectionDescription", "minecraft:liquid_detection"),
+		["BlockRedstoneComponent"] = ("BlockRedstoneDescription", "minecraft:redstone_conductivity"),
+		["BlockSupportComponent"] = ("BlockSupportDescription", "minecraft:support"),
+		["BlockPrecipitationInteractionsComponent"] = ("BlockPrecipitationInteractionsComponentDescription", "minecraft:precipitation_interactions"),
+		["BlockReplaceableComponent"] = ("BlockReplaceableDescription", "minecraft:replaceable")
 	};
 
 	/// <summary>
@@ -206,10 +209,13 @@ public static class DefinitionGenerator
 		if (row == null) return components;
 
 		// What no definition class is declared for yet, from the block's own component.
-		foreach ((string component, string wire) in FromBlock)
+		foreach ((string component, (string description, string wire)) in FromBlock)
 		{
+			bool networked = described?.OfType<JObject>().Any(c => (string) c["class"] == description && c["networked"] is {} n && (bool) n) ?? false;
+			if (!networked) continue;
+
 			JObject held = ((JArray) row["components"]).OfType<JObject>().FirstOrDefault(c => (string) c["name"] == component);
-			if (held == null) continue;
+			if (held == null) throw new InvalidDataException($"{description} is networked but the block carries no {component} to read it from");
 
 			switch (wire)
 			{
@@ -321,14 +327,17 @@ public static class DefinitionGenerator
 	}
 
 	/// <summary>
-	///     The archetype the block places as. The type name belongs to the record that carries it;
-	///     the row's own name picks which record, so an archetype nothing declares fails here rather
-	///     than reaching the wire as a shape nobody read.
+	///     The archetype the block places as, or null for a block that declares none, which the wire
+	///     leaves out. The type name belongs to the record that carries it; the row's own name picks
+	///     which record, so an archetype nothing declares fails here rather than reaching the wire as
+	///     a shape nobody read.
 	/// </summary>
 	private static BlockArchetype Archetype(JObject vanilla)
 	{
 		var archetypes = (JArray) vanilla["blockArchetype"];
-		if (archetypes.Count != 1) throw new InvalidDataException($"{archetypes.Count} archetypes, expected one");
+		var names = (JArray) vanilla["blockArchetypeNames"];
+		if (archetypes.Count == 0 && names.Count == 0) return null;
+		if (archetypes.Count != 1) throw new InvalidDataException($"{archetypes.Count} archetypes and {names.Count} archetype names, expected one or none");
 
 		var archetype = (JObject) archetypes[0];
 		string name = (string) archetype["name"];
@@ -537,6 +546,7 @@ public static class DefinitionGenerator
 	{
 		return archetype switch
 		{
+			null => "null",
 			StairArchetype stair => $"new StairArchetype({Text(stair.BaseBlock)})",
 			SlabArchetype slab => $"new SlabArchetype({Text(slab.DoubleSlabBlock)}, {Bool(slab.IsDouble)})",
 			BushArchetype => "new BushArchetype()",

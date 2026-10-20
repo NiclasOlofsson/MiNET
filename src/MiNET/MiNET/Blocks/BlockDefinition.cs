@@ -37,7 +37,8 @@ namespace MiNET.Blocks
 	///     place.
 	///     A null member is a field the wire leaves out, which is a different statement from a field
 	///     holding a default: the server writes requires_correct_tool_for_drops only when it is true,
-	///     and permutations only when the block has one.
+	///     permutations only when the block has one, components only when one is networked, and the
+	///     archetype only when the block declares one.
 	/// </summary>
 	public sealed record BlockDefinition(
 		IReadOnlyList<string> Tags,
@@ -163,7 +164,8 @@ namespace MiNET.Blocks
 				root.Add(tags);
 			}
 
-			root.Add(WriteComponents("components", definition.Components));
+			NbtCompound components = WriteComponents("components", definition.Components);
+			if (components.Count > 0) root.Add(components);
 			root.Add(new NbtCompound("menu_category")
 			{
 				new NbtString("category", definition.MenuCategory.Category),
@@ -382,8 +384,25 @@ namespace MiNET.Blocks
 
 		private static NbtCompound WriteVanillaBlockData(VanillaBlockData data)
 		{
-			var archetype = new NbtCompound("block_archetype") {new NbtString("type", data.Archetype.Type)};
-			switch (data.Archetype)
+			var compound = new NbtCompound("vanilla_block_data")
+			{
+				new NbtInt("block_id", data.BlockId),
+				new NbtString("material", data.Material)
+			};
+
+			if (data.Archetype != null) compound.Add(WriteArchetype(data.Archetype));
+			if (data.CanDampenVibrations) compound.Add(new NbtByte("can_dampen_vibrations", 1));
+			if (data.CanOccludeVibrations) compound.Add(new NbtByte("can_occlude_vibrations", 1));
+			if (data.RequiresCorrectToolForDrops) compound.Add(new NbtByte("requires_correct_tool_for_drops", 1));
+			if (data.Translucency.HasValue) compound.Add(new NbtFloat("translucency", data.Translucency.Value));
+
+			return compound;
+		}
+
+		private static NbtCompound WriteArchetype(BlockArchetype blockArchetype)
+		{
+			var archetype = new NbtCompound("block_archetype") {new NbtString("type", blockArchetype.Type)};
+			switch (blockArchetype)
 			{
 				case StairArchetype stair:
 					archetype.Add(new NbtString("base_block", stair.BaseBlock));
@@ -400,19 +419,7 @@ namespace MiNET.Blocks
 					break;
 			}
 
-			var compound = new NbtCompound("vanilla_block_data")
-			{
-				archetype,
-				new NbtInt("block_id", data.BlockId),
-				new NbtString("material", data.Material)
-			};
-
-			if (data.CanDampenVibrations) compound.Add(new NbtByte("can_dampen_vibrations", 1));
-			if (data.CanOccludeVibrations) compound.Add(new NbtByte("can_occlude_vibrations", 1));
-			if (data.RequiresCorrectToolForDrops) compound.Add(new NbtByte("requires_correct_tool_for_drops", 1));
-			if (data.Translucency.HasValue) compound.Add(new NbtFloat("translucency", data.Translucency.Value));
-
-			return compound;
+			return archetype;
 		}
 
 		private static NbtList Floats(string name, Vec3 value)

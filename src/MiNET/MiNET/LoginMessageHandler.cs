@@ -825,6 +825,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeServerboundRequestOnlineMusicPlayback(McpeServerboundRequestOnlineMusicPlayback message)
+		{
+		}
+
 		public void HandleMcpeServerboundDataStore(McpeServerboundDataStore message)
 		{
 		}

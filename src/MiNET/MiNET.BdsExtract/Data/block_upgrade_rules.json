@@ -32,9 +32,9 @@
 			},
 			"result": {
 				"states": {
-					"2727304232963": "tile.double_stone_slab2.prismarine.dark",
-					"4": "tile.double_stone_slab2.prismarine.bricks",
-					"5": "tile.double_stone_slab2.mossy_cobblestone"
+					"3266462371584": "tile.light_block",
+					"3266462372528": "tile.light_block",
+					"3266462389520": "tile.light_block"
 				}
 			}
 		},
@@ -1119,14 +1119,13 @@
 			"match": {},
 			"result": {
 				"facing_direction": {
-					"140702861293632": "minecraft:stripped_spruce_wood",
-					"140702861293488": "minecraft:stripped_jungle_wood",
-					"140702861293392": "minecraft:stripped_dark_oak_wood"
+					"3266462367808": "tile.coral_block.purple_dead",
+					"3266462353648": "tile.coral_block.yellow_dead"
 				},
 				"fill_level": {
-					"3": "tile.stone_slab.cobble",
-					"4": "tile.stone_slab.brick",
-					"5": "tile.stone_slab.smoothStoneBrick"
+					"3": "tile.light_block",
+					"3264175144964": "tile.light_block",
+					"3264175144965": "tile.light_block"
 				}
 			}
 		},
@@ -1501,8 +1500,12 @@
 		{
 			"version": "1.20.20.3",
 			"match": {},
-			"result": {},
-			"fields": [
+			"result": {
+				"top_slot_bit": {
+					"unread": 0
+				}
+			},
+			"matchFields": [
 				"top_slot_bit"
 			],
 			"remaps": [

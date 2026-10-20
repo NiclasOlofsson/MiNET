@@ -6575,7 +6575,8 @@ namespace MiNET.Net
 			Mouse = 1,
 			Touch = 2,
 			GamePad = 3,
-			Count = 5,
+			GamePadAndMouse = 5,
+			Count = 6,
 		}
 		public enum ClientPlayMode
 		{
@@ -10751,6 +10752,7 @@ namespace MiNET.Net
 		{
 			Music = 0,
 			Sound = 1,
+			ConcurrentMusic = 2,
 		}
 
 		public string sharedMetadata; // = null;
@@ -10910,6 +10912,123 @@ namespace MiNET.Net
 
 			signedChat=default(SignedChat);
 			formatting=default(ChatPacketFormatting);
+		}
+
+	}
+
+	public partial class McpeServerboundRequestOnlineMusicPlayback : Packet<McpeServerboundRequestOnlineMusicPlayback>
+	{
+
+		public uint requestId; // = null;
+		public string soundEventName; // = null;
+
+		public McpeServerboundRequestOnlineMusicPlayback()
+		{
+			Id = 0x16a;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((int) requestId);
+			Write(soundEventName);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			requestId = (uint) ReadInt();
+			soundEventName = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			requestId=default(uint);
+			soundEventName=default(string);
+		}
+
+	}
+
+	public partial class McpeClientboundOnlineMusicPlaybackResponse : Packet<McpeClientboundOnlineMusicPlaybackResponse>
+	{
+		public enum MusicPlaybackSource
+		{
+			Local = 0,
+			Online = 1,
+		}
+
+		public uint requestId; // = null;
+		public McpeClientboundOnlineMusicPlaybackResponse.MusicPlaybackSource source; // = null;
+		public string sharedMetadata; // = null;
+		public string playbackContent; // = null;
+
+		public McpeClientboundOnlineMusicPlaybackResponse()
+		{
+			Id = 0x16b;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write((int) requestId);
+			Write((byte) source);
+			Write(sharedMetadata);
+			Write(playbackContent);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			requestId = (uint) ReadInt();
+			source = (McpeClientboundOnlineMusicPlaybackResponse.MusicPlaybackSource) ReadByte();
+			sharedMetadata = ReadString();
+			playbackContent = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			requestId=default(uint);
+			source=default(McpeClientboundOnlineMusicPlaybackResponse.MusicPlaybackSource);
+			sharedMetadata=default(string);
+			playbackContent=default(string);
 		}
 
 	}
@@ -11451,6 +11570,12 @@ namespace MiNET.Net
 		public byte numberOfRequestedCrafts;
 	}
 
+	public class ItemStackRequestCraftDiscPressAction : ItemStackRequestBase
+	{
+		public string trackSoundEventId;
+		public byte numCrafts;
+	}
+
 	public class ItemStackRequestCraftLoomAction : ItemStackRequestBase
 	{
 		public string patternNameId;
@@ -11535,12 +11660,6 @@ namespace MiNET.Net
 		public byte amount;
 		public ItemStackRequestSlotInfo source;
 		public ItemStackRequestSlotInfo destination;
-	}
-
-	public class ItemStackRequestReservedAction : ItemStackRequestBase
-	{
-		public string reservedId;
-		public byte numCrafts;
 	}
 
 	public class ItemStackRequestSlotInfo
@@ -11809,10 +11928,10 @@ namespace MiNET.Net
 			SmithingTableTemplateContainer = 61,
 			CrafterLevelEntityContainer = 62,
 			DynamicContainer = 63,
-			ReservedContainerA = 67,
-			ReservedContainerB = 68,
-			ReservedContainerC = 69,
-			ReservedContainerD = 70,
+			DiscPressBlockContainer = 67,
+			DiscPressDyeContainer = 68,
+			DiscPressDiscContainer = 69,
+			DiscPressResultPreviewContainer = 70,
 		}
 
 		public LegacySetSlot.ContainerEnumName containerEnum;
@@ -13405,7 +13524,7 @@ namespace MiNET.Net
 							WriteUnsignedVarInt(15);
 							Write(v15);
 							break;
-						case ItemStackRequestReservedAction v16:
+						case ItemStackRequestCraftDiscPressAction v16:
 							WriteUnsignedVarInt(16);
 							Write(v16);
 							break;
@@ -13434,7 +13553,7 @@ namespace MiNET.Net
 			data.clientRequestId = ReadSignedVarInt();
 			uint actionsCount = ReadUnsignedVarInt();
 			data.actions = new List<ItemStackRequestBase>((int) actionsCount);
-			for (int i = 0; i < actionsCount; i++) data.actions.Add(ReadUnsignedVarInt() switch { 0 => ReadItemStackRequestTakeAction(), 1 => ReadItemStackRequestPlaceAction(), 2 => ReadItemStackRequestSwapAction(), 3 => ReadItemStackRequestDropAction(), 4 => ReadItemStackRequestDestroyAction(), 5 => ReadItemStackRequestConsumeAction(), 6 => ReadItemStackRequestCreateAction(), 7 => ReadItemStackRequestLabTableCombineAction(), 8 => ReadItemStackRequestBeaconPaymentAction(), 9 => ReadItemStackRequestMineBlockAction(), 10 => ReadItemStackRequestCraftRecipeAction(), 11 => ReadItemStackRequestCraftRecipeAutoAction(), 12 => ReadItemStackRequestCraftCreativeAction(), 13 => ReadItemStackRequestCraftRecipeOptionalAction(), 14 => ReadItemStackRequestCraftRepairAndDisenchantAction(), 15 => ReadItemStackRequestCraftLoomAction(), 16 => ReadItemStackRequestReservedAction(), 17 => ReadItemStackRequestCraftNonImplementedDeprecatedAction(), 18 => ReadItemStackRequestCraftResultsDeprecatedAction(), uint other => throw new Exception($"Unknown item variant tag {other}") });
+			for (int i = 0; i < actionsCount; i++) data.actions.Add(ReadUnsignedVarInt() switch { 0 => ReadItemStackRequestTakeAction(), 1 => ReadItemStackRequestPlaceAction(), 2 => ReadItemStackRequestSwapAction(), 3 => ReadItemStackRequestDropAction(), 4 => ReadItemStackRequestDestroyAction(), 5 => ReadItemStackRequestConsumeAction(), 6 => ReadItemStackRequestCreateAction(), 7 => ReadItemStackRequestLabTableCombineAction(), 8 => ReadItemStackRequestBeaconPaymentAction(), 9 => ReadItemStackRequestMineBlockAction(), 10 => ReadItemStackRequestCraftRecipeAction(), 11 => ReadItemStackRequestCraftRecipeAutoAction(), 12 => ReadItemStackRequestCraftCreativeAction(), 13 => ReadItemStackRequestCraftRecipeOptionalAction(), 14 => ReadItemStackRequestCraftRepairAndDisenchantAction(), 15 => ReadItemStackRequestCraftLoomAction(), 16 => ReadItemStackRequestCraftDiscPressAction(), 17 => ReadItemStackRequestCraftNonImplementedDeprecatedAction(), 18 => ReadItemStackRequestCraftResultsDeprecatedAction(), uint other => throw new Exception($"Unknown item variant tag {other}") });
 			uint stringsToFilterCount = ReadUnsignedVarInt();
 			data.stringsToFilter = new List<string>((int) stringsToFilterCount);
 			for (int i = 0; i < stringsToFilterCount; i++) data.stringsToFilter.Add(ReadString());
@@ -13487,6 +13606,22 @@ namespace MiNET.Net
 			ReadByte();
 			data.creativeItemNetId = ReadUnsignedVarInt();
 			data.numberOfRequestedCrafts = ReadByte();
+			return data;
+		}
+
+		public void Write(ItemStackRequestCraftDiscPressAction data)
+		{
+			Write((byte) 18);
+			Write(data.trackSoundEventId);
+			Write(data.numCrafts);
+		}
+
+		public ItemStackRequestCraftDiscPressAction ReadItemStackRequestCraftDiscPressAction()
+		{
+			var data = new ItemStackRequestCraftDiscPressAction();
+			ReadByte();
+			data.trackSoundEventId = ReadString();
+			data.numCrafts = ReadByte();
 			return data;
 		}
 
@@ -13747,22 +13882,6 @@ namespace MiNET.Net
 			data.amount = ReadByte();
 			data.source = ReadItemStackRequestSlotInfo();
 			data.destination = ReadItemStackRequestSlotInfo();
-			return data;
-		}
-
-		public void Write(ItemStackRequestReservedAction data)
-		{
-			Write((byte) 18);
-			Write(data.reservedId);
-			Write(data.numCrafts);
-		}
-
-		public ItemStackRequestReservedAction ReadItemStackRequestReservedAction()
-		{
-			var data = new ItemStackRequestReservedAction();
-			ReadByte();
-			data.reservedId = ReadString();
-			data.numCrafts = ReadByte();
 			return data;
 		}
 

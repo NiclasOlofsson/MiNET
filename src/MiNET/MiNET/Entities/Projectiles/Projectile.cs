@@ -393,8 +393,8 @@ namespace MiNET.Entities.Projectiles
 			if (new Random().Next(5) == 0)
 			{
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.runtimeEntityId = EntityId;
-				motions.velocity = Velocity;
+				motions.targetRuntimeId = EntityId;
+				motions.motion = Velocity;
 				Level.RelayBroadcast(motions);
 			}
 

@@ -26,10 +26,10 @@ namespace MiNET.Particles
 		public virtual void Spawn(Player[] players)
 		{
 			var pk = McpeSpawnParticleEffect.CreateObject();
-			pk.particleName = Name;
+			pk.effectName = Name;
 			pk.position = Position;
 			pk.dimensionId = 0;
-			pk.entityId = -1;
+			pk.actorId = -1;
 			Level.RelayBroadcast(players, pk);
 		}
 

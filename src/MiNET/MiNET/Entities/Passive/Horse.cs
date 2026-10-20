@@ -175,8 +175,8 @@ namespace MiNET.Entities.Passive
 						BroadcastSetEntityData();
 
 						McpeEntityEvent entityEvent = McpeEntityEvent.CreateObject();
-						entityEvent.runtimeEntityId = EntityId;
-						entityEvent.eventId = (byte) ActorEventType.TamingSucceeded;
+						entityEvent.targetRuntimeId = EntityId;
+						entityEvent.eventId = (McpeEntityEvent.ActorEvent) (byte) ActorEventType.TamingSucceeded;
 						entityEvent.data = 0;
 						Level.RelayBroadcast(entityEvent);
 					}
@@ -284,8 +284,8 @@ namespace MiNET.Entities.Passive
 				else if (_rideTime > 120)
 				{
 					McpeEntityEvent entityEvent = McpeEntityEvent.CreateObject();
-					entityEvent.runtimeEntityId = _horse.EntityId;
-					entityEvent.eventId = (byte) ActorEventType.TamingFailed;
+					entityEvent.targetRuntimeId = _horse.EntityId;
+					entityEvent.eventId = (McpeEntityEvent.ActorEvent) (byte) ActorEventType.TamingFailed;
 					entityEvent.data = 0;
 					_horse.Level.RelayBroadcast(entityEvent);
 					_horse.Unmount(_horse.Rider);

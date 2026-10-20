@@ -99,8 +99,8 @@ namespace MiNET.Entities.Projectiles
 		public override void DespawnEntity()
 		{
 			McpeEntityEvent entityEvent = McpeEntityEvent.CreateObject();
-			entityEvent.runtimeEntityId = EntityId;
-			entityEvent.eventId = (byte) ActorEventType.FireworksExplode;
+			entityEvent.targetRuntimeId = EntityId;
+			entityEvent.eventId = (McpeEntityEvent.ActorEvent) (byte) ActorEventType.FireworksExplode;
 			entityEvent.data = 0;
 			Level.RelayBroadcast(entityEvent);
 

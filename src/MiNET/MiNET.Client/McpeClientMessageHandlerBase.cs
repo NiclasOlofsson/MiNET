@@ -67,7 +67,7 @@ namespace MiNET.Client
 				// screen, then announce spawn completion. Servers gate spawn-complete logic
 				// (mob spawning, etc.) on set_local_player_as_initialized.
 				var loadingScreen = McpeServerBoundLoadingScreen.CreateObject();
-				loadingScreen.type = 2;
+				loadingScreen.loadingScreenPacketType = (McpeServerBoundLoadingScreen.LoadingScreenPacketType) 2;
 				loadingScreen.loadingScreenId = null;
 				Client.SendPacket(loadingScreen);
 
@@ -203,7 +203,7 @@ namespace MiNET.Client
 			// A real client opens its loading screen right after requesting the chunk radius
 			// (captured live); the matching type 2 close is sent on PlayStatus(3).
 			var loadingScreen = McpeServerBoundLoadingScreen.CreateObject();
-			loadingScreen.type = 1;
+			loadingScreen.loadingScreenPacketType = (McpeServerBoundLoadingScreen.LoadingScreenPacketType) 1;
 			loadingScreen.loadingScreenId = null;
 			client.SendPacket(loadingScreen);
 		}

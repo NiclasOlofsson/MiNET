@@ -87,26 +87,6 @@
 
 	<!-- 0x18 LevelSoundEventV1 removed from the protocol at 785 (Feb 2025); use 0x7b LevelSoundEvent -->
 
-	<pdu id="0x1b" online="false" client="true" server="true" name="MCPE_ENTITY_EVENT">
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Event ID" type="byte" />
-		<field name="Data" type="SignedVarInt" />
-	</pdu>
-
-	<pdu id="0x21" online="false" client="true" server="true" name="MCPE_INTERACT">
-		<enums id="Actions">
-			<enum id="Right click" value="1" />
-			<enum id="Left click" value="2" />
-			<enum id="Leave vehicle" value="3" />
-			<enum id="Mouse over" value="4" />
-			<enum id="Open NPC" value="5" />
-			<enum id="Open inventory" value="6" />
-		</enums>
-
-		<field name="Action ID" type="byte" />
-		<field name="Target Runtime Entity ID" type="UnsignedVarLong" />
-	</pdu>
-
 	<pdu id="0x22" online="false" client="true" server="false" name="MCPE_BLOCK_PICK_REQUEST">
 		<field name="X" type="SignedVarInt" />
 		<field name="Y" type="SignedVarInt" />
@@ -119,11 +99,6 @@
 		<field name="Runtime Entity ID" type="ulong" />
 		<field name="Selected Slot" type="byte" />
 		<field name="Add User Data" type="bool" />
-	</pdu>
-
-	<pdu id="0x28" online="false" client="true" server="true" name="MCPE_SET_ENTITY_MOTION">
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Velocity" type="Vector3" />
 	</pdu>
 
 	<pdu id="0x29" online="false" client="false" server="true" name="MCPE_SET_ENTITY_LINK">
@@ -194,12 +169,6 @@
 			value="(BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs | Operator | Teleport)" />
 	</enums>
 
-	<pdu id="0x3d" online="false" client="false" server="true" name="MCPE_CHANGE_DIMENSION">
-		<field name="Dimension" type="SignedVarInt" />
-		<field name="Position" type="Vector3" />
-		<field name="Respawn" type="bool" />
-	</pdu>
-
 	<pdu id="0x41" online="false" client="false" server="true" name="MCPE_TELEMETRY_EVENT">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Event data" type="SignedVarInt" />
@@ -230,10 +199,6 @@
 		<field name="Version" type="string" />
 	</pdu>
 
-	<pdu id="0x4e" online="false" client="true" server="false" name="MCPE_COMMAND_BLOCK_UPDATE">
-		<field name="Is Block" type="bool" />
-	</pdu>
-
 	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_COMMAND_OUTPUT">
 	</pdu>
 
@@ -258,10 +223,6 @@
 	</pdu>
 
 
-	<pdu id="0x65" online="false" client="true" server="false" name="MCPE_MODAL_FORM_RESPONSE">
-		<field name="Form Id" type="UnsignedVarInt" />
-	</pdu>
-
 
 
 	<pdu id="0x6d" online="false" client="true" server="true" name="MCPE_LAB_TABLE">
@@ -283,13 +244,6 @@
 	</pdu>
 
 	<!-- 0x75 ScriptCustomEvent removed from the protocol at 594 (Jun 2023) -->
-
-	<pdu id="0x76" online="false" client="false" server="true" name="MCPE_SPAWN_PARTICLE_EFFECT">
-		<field name="Dimension ID" type="byte" />
-		<field name="Entity ID" type="SignedVarLong" />
-		<field name="Position" type="Vector3" />
-		<field name="Particle name" type="string" />
-	</pdu>
 
 	<!-- 0x78 LevelSoundEventV2 removed from the protocol at 785 (Feb 2025); use 0x7b LevelSoundEvent -->
 
@@ -358,33 +312,10 @@
 	<!-- Sent by the client right after login, listing the emotes it owns so the server can
 	     validate an Emote packet later. The piece id list is a UUID array, which the generator has
 	     no type for, so it lives in the partial (Net/McpeEmoteList.cs). -->
-	<pdu id="0x98" online="false" client="true" server="false" name="MCPE_EMOTE_LIST">
-		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-	</pdu>
-
 	<!-- Trailing runtime entity id list is a VarInt-count-prefixed array of UnsignedVarLong,
 	     which the generator has no type for, so it lives in the partial (Net/McpeAnimateEntity.cs). -->
-	<pdu id="0x9e" online="false" client="false" server="true" name="MCPE_ANIMATE_ENTITY">
-		<field name="Animation" type="string" />
-		<field name="Next State" type="string" />
-		<field name="Stop Expression" type="string" />
-		<field name="Stop Expression Version" type="int" />
-		<field name="Controller" type="string" />
-		<field name="Blend Out Time" type="float" />
-		<!-- runtime entity ids handled in partial -->
-	</pdu>
-
 	<pdu id="0xa0" online="false" client="false" server="true" name="MCPE_PLAYER_FOG">
 		<!-- all fields handled in partial: stack[] -->
-	</pdu>
-
-	<pdu id="0xa1" online="false" client="false" server="true" name="MCPE_CORRECT_PLAYER_MOVE_PREDICTION">
-		<field name="Prediction Type" type="byte" />
-		<field name="Position" type="Vector3" />
-		<field name="Delta" type="Vector3" />
-		<field name="Rotation Pitch" type="float" />
-		<field name="Rotation Yaw" type="float" />
-		<!-- optional vehicle angular velocity (bool + lf32), on ground bool and tick varlong handled in partial -->
 	</pdu>
 
 	<pdu id="0xa2" online="false" client="false" server="true" name="MCPE_ITEM_COMPONENT">
@@ -475,11 +406,6 @@
 		<field name="Crafting Layout" type="SignedVarInt" />
 	</pdu>
 
-	<pdu id="0x138" online="false" client="true" server="false" name="MCPE_SERVER_BOUND_LOADING_SCREEN">
-		<field name="Type" type="SignedVarInt" />
-		<!-- optional loading_screen_id (bool + lu32) handled in partial -->
-	</pdu>
-
 
 	<pdu id="0x13d" online="false" client="false" server="true" name="MCPE_CONTAINER_REGISTRY_CLEANUP">
 		<!-- all fields handled in partial: removed containers[] (FullContainerName) -->
@@ -520,10 +446,6 @@
 		<field name="Actor Flying State" type="bool" />
 	</pdu>
 
-	<pdu id="0x143" online="false" client="true" server="false" name="MCPE_UPDATE_CLIENT_OPTIONS">
-		<!-- all fields handled in partial: optional graphics_mode, optional filter_profanity_change -->
-	</pdu>
-
 	<pdu id="0x144" online="false" client="false" server="true" name="MCPE_PLAYER_VIDEO_CAPTURE">
 		<field name="Recording" type="bool" />
 		<!-- frame_rate + file_prefix (present only when Recording == true) handled in partial -->
@@ -548,24 +470,6 @@
 		<field name="Property" type="string" />
 		<field name="Path" type="string" />
 		<!-- trailing value-type switch + updateCount + pathUpdateCount handled in partial -->
-	</pdu>
-
-	<pdu id="0x14d" online="false" client="false" server="true" name="MCPE_CLIENTBOUND_DATA_DRIVEN_UI_SHOW_SCREEN">
-		<field name="Screen Id" type="string" />
-		<field name="Form Id" type="uint" comment="raw LE uint32, NOT varint" />
-		<!-- optional dataInstanceId (raw LE uint32) handled in partial -->
-	</pdu>
-
-	<pdu id="0x14e" online="false" client="false" server="true" name="MCPE_CLIENTBOUND_DATA_DRIVEN_UI_CLOSE_SCREEN">
-		<!-- single field handled in partial: optional formId (raw LE uint32) -->
-	</pdu>
-
-	<pdu id="0x150" online="false" client="false" server="true" name="MCPE_CLIENTBOUND_TEXTURE_SHIFT">
-		<field name="Action Id" type="byte" comment="TextureShiftAction enum: 0=Invalid,1=Initialize,2=Start,3=SetEnabled,4=Sync" />
-		<field name="Collection Name" type="string" />
-		<field name="From Step" type="string" />
-		<field name="To Step" type="string" />
-		<!-- trailing allSteps[], currentLengthTicks, totalLengthTicks, enabled handled in partial -->
 	</pdu>
 
 	<pdu id="0x151" online="false" client="false" server="true" name="MCPE_VOXEL_SHAPES">

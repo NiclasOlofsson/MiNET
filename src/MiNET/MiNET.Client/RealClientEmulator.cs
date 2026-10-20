@@ -209,9 +209,9 @@ namespace MiNET.Client
 		private static void SendInteractMouseOver(MiNetClient client)
 		{
 			var packet = McpeInteract.CreateObject();
-			packet.actionId = (byte) McpeInteract.Actions.MouseOver;
-			packet.targetRuntimeEntityId = 0;
-			packet.Position = null;
+			packet.action = McpeInteract.InteractPacketPayloadAction.InteractUpdate;
+			packet.targetRuntimeId = 0;
+			packet.position = null;
 			client.SendPacket(packet);
 		}
 
@@ -221,9 +221,9 @@ namespace MiNET.Client
 		private static void SendInteractOpenInventory(MiNetClient client)
 		{
 			var packet = McpeInteract.CreateObject();
-			packet.actionId = (byte) McpeInteract.Actions.OpenInventory;
-			packet.targetRuntimeEntityId = client.EntityId;
-			packet.Position = null;
+			packet.action = McpeInteract.InteractPacketPayloadAction.OpenInventory;
+			packet.targetRuntimeId = client.EntityId;
+			packet.position = null;
 			client.SendPacket(packet);
 		}
 

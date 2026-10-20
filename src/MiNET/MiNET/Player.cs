@@ -297,7 +297,7 @@ namespace MiNET
 				return;
 			}
 			CurrentForm = null;
-			form?.FromJson(message.data, this);
+			form?.FromJson(message.jsonResponse, this);
 		}
 
 		public virtual Form GetServerSettingsForm()
@@ -2289,7 +2289,7 @@ namespace MiNET
 		protected virtual void SendChangeDimension(Dimension dimension, bool respawn = false, Vector3 position = new Vector3())
 		{
 			var changeDimension = McpeChangeDimension.CreateObject();
-			changeDimension.dimension = (int) dimension;
+			changeDimension.dimensionId = (int) dimension;
 			changeDimension.position = position;
 			changeDimension.respawn = respawn;
 			changeDimension.NoBatch = true; // This is here because the client crashes otherwise.
@@ -2686,7 +2686,7 @@ namespace MiNET
 		/// </summary>
 		public virtual void HandleMcpeEmoteList(McpeEmoteList message)
 		{
-			if (Log.IsDebugEnabled) Log.Debug($"Emote list from {Username}: {message.emotePieceIds.Length} emotes");
+			if (Log.IsDebugEnabled) Log.Debug($"Emote list from {Username}: {message.emotePieceIds.Count} emotes");
 		}
 
 		/// <summary>
@@ -3937,7 +3937,7 @@ namespace MiNET
 		{
 			//Log.Info($"Interact. Target={message.targetRuntimeEntityId} Action={message.actionId} Position={message.position}");
 			Entity target = null;
-			long runtimeEntityId = message.targetRuntimeEntityId;
+			long runtimeEntityId = message.targetRuntimeId;
 			if (runtimeEntityId == EntityManager.EntityIdSelf)
 			{
 				target = this;
@@ -3947,16 +3947,16 @@ namespace MiNET
 				return;
 			}
 
-			if (message.actionId != 4)
+			if ((byte) message.action != 4)
 			{
-				Log.Debug($"Interact Action ID: {message.actionId}");
+				Log.Debug($"Interact Action ID: {message.action}");
 				Log.Debug($"Interact Target Entity ID: {runtimeEntityId}");
 			}
 
 			if (target == null) return;
-			switch ((McpeInteract.Actions)message.actionId)
+			switch (message.action)
 			{
-				case McpeInteract.Actions.LeaveVehicle:
+				case McpeInteract.InteractPacketPayloadAction.StopRiding:
 				{
 					if (Level.TryGetEntity(Vehicle, out Mob mob))
 					{
@@ -3965,14 +3965,14 @@ namespace MiNET
 
 					break;
 				}
-				case McpeInteract.Actions.MouseOver:
+				case McpeInteract.InteractPacketPayloadAction.InteractUpdate:
 				{
 					// Mouse over
-					DoMouseOverInteraction(message.actionId, this);
-					target.DoMouseOverInteraction(message.actionId, this);
+					DoMouseOverInteraction((byte) message.action, this);
+					target.DoMouseOverInteraction((byte) message.action, this);
 					break;
 				}
-				case McpeInteract.Actions.OpenInventory:
+				case McpeInteract.InteractPacketPayloadAction.OpenInventory:
 				{
 					if (target == this)
 					{
@@ -4056,19 +4056,19 @@ namespace MiNET
 		{
 			if (Log.IsDebugEnabled)
 			{
-				Log.Debug("Entity Id:" + message.runtimeEntityId);
+				Log.Debug("Entity Id:" + message.targetRuntimeId);
 				Log.Debug("Entity Event Id:" + message.eventId);
 				Log.Debug("Entity Event unknown:" + message.data);
 			}
 
 			switch (message.eventId)
 			{
-				case 34:
+				case (McpeEntityEvent.ActorEvent) 34:
 				{
 					ExperienceManager.RemoveExperienceLevels(message.data);
 					break;
 				}
-				case 57:
+				case (McpeEntityEvent.ActorEvent) 57:
 				{
 					int data = message.data;
 					if (data != 0) BroadcastEntityEvent(57, data);
@@ -4940,8 +4940,8 @@ namespace MiNET
 		public override void Knockback(Vector3 velocity)
 		{
 			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			motions.runtimeEntityId = EntityManager.EntityIdSelf;
-			motions.velocity = velocity;
+			motions.targetRuntimeId = EntityManager.EntityIdSelf;
+			motions.motion = velocity;
 			SendPacket(motions);
 		}
 
@@ -5128,15 +5128,15 @@ namespace MiNET
 		{
 			{
 				var entityEvent = McpeEntityEvent.CreateObject();
-				entityEvent.runtimeEntityId = EntityManager.EntityIdSelf;
-				entityEvent.eventId = (byte) eventId;
+				entityEvent.targetRuntimeId = EntityManager.EntityIdSelf;
+				entityEvent.eventId = (McpeEntityEvent.ActorEvent) (byte) eventId;
 				entityEvent.data = data;
 				SendPacket(entityEvent);
 			}
 			{
 				var entityEvent = McpeEntityEvent.CreateObject();
-				entityEvent.runtimeEntityId = EntityId;
-				entityEvent.eventId = (byte) eventId;
+				entityEvent.targetRuntimeId = EntityId;
+				entityEvent.eventId = (McpeEntityEvent.ActorEvent) (byte) eventId;
 				entityEvent.data = data;
 				Level.RelayBroadcast(this, entityEvent);
 			}

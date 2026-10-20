@@ -14,21 +14,16 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Camera Instruction | 0x12c | 18 |   
 | Trim Data | 0x12e | 18 |   
 | Set Player Inventory Options | 0x133 | 19 |   
-| Server Bound Loading Screen | 0x138 | 19 |   
 | Container Registry Cleanup | 0x13d | 19 |   
 | Movement Effect | 0x13e | 19 |   
 | Camera Aim Assist Presets | 0x140 | 20 |   
 | Client Camera Aim Assist | 0x141 | 20 |   
 | Client Movement Prediction Sync | 0x142 | 20 |   
-| Update Client Options | 0x143 | 20 |   
 | Player Video Capture | 0x144 | 20 |   
 | Primitive Shapes | 0x148 | 20 |   
 | Clientbound Data Store | 0x14a | 20 |   
 | Graphics Override Parameter | 0x14b | 20 |   
 | Serverbound Data Store | 0x14c | 20 |   
-| Clientbound Data Driven Ui Show Screen | 0x14d | 20 |   
-| Clientbound Data Driven Ui Close Screen | 0x14e | 20 |   
-| Clientbound Texture Shift | 0x150 | 21 |   
 | Voxel Shapes | 0x151 | 21 |   
 | Camera Spline | 0x152 | 21 |   
 | Camera Aim Assist Actor Priority | 0x153 | 21 |   
@@ -39,30 +34,23 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Server Store Info | 0x15a | 21 |   
 | Server Presence Info | 0x15b | 21 |   
 | Send Party Destination Cookie | 0x15d | 21 |   
-| Entity Event | 0x1b | 27 |   
-| Interact | 0x21 | 33 |   
 | Block Pick Request | 0x22 | 34 |   
 | Entity Pick Request | 0x23 | 35 |   
-| Set Entity Motion | 0x28 | 40 |   
 | Set Entity Link | 0x29 | 41 |   
 | Respawn | 0x2d | 45 |   
 | Crafting Data | 0x34 | 52 |   
-| Change Dimension | 0x3d | 61 |   
 | Telemetry Event | 0x41 | 65 |   
 | Game Rules Changed | 0x48 | 72 |   
 | Available Commands | 0x4c | 76 |   
 | Command Request | 0x4d | 77 |   
-| Command Block Update | 0x4e | 78 |   
 | Command Output | 0x4f | 79 |   
 | Resource Pack Chunk Request | 0x54 | 84 |   
 | Purchase Receipt | 0x5c | 92 |   
 | Set Last Hurt By | 0x60 | 96 |   
 | Book Edit | 0x61 | 97 |   
-| Modal Form Response | 0x65 | 101 |   
 | Lab Table | 0x6d | 109 |   
 | Update Soft Enum | 0x72 | 114 |   
 | Network Stack Latency | 0x73 | 115 |   
-| Spawn Particle Effect | 0x76 | 118 |   
 | Biome Definition List | 0x7a | 122 |   
 | Level Sound Event | 0x7b | 123 |   
 | Structure Template Data Export Response | 0x85 | 133 |   
@@ -71,10 +59,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Education Settings | 0x89 | 137 |   
 | Player Enchant Options | 0x92 | 146 |   
 | Player Armor Damage | 0x95 | 149 |   
-| Emote List | 0x98 | 152 |   
-| Animate Entity | 0x9e | 158 |   
 | Player Fog | 0xa0 | 160 |   
-| Correct Player Move Prediction | 0xa1 | 161 |   
 | Item Component | 0xa2 | 162 |   
 | Clientbound Debug Renderer | 0xa4 | 164 |   
 | Npc Dialogue | 0xa9 | 169 |   
@@ -103,7 +88,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Experiments [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Experiments) |
 | FixedString [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-FixedString) |
 | float [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-float) |
-| int [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-int) |
 | ItemComponentList [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ItemComponentList) |
 | long [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-long) |
 | MaterialReducerRecipe[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-MaterialReducerRecipe[]) |
@@ -229,57 +213,13 @@ val2 float
 |Flags | byte |  |
 |Position | PlayerLocation |  |
 -----------------------------------------------------------------------
-### Entity Event (0x1b)
-Wiki: [Entity Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EntityEvent)
-
-**Sent from server:** true  
-**Sent from client:** true
-
- 0x18 LevelSoundEventV1 removed from the protocol at 785 (Feb 2025); use 0x7b LevelSoundEvent 
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Runtime Entity ID | UnsignedVarLong |  |
-|Event ID | byte |  |
-|Data | SignedVarInt |  |
------------------------------------------------------------------------
-### Interact (0x21)
-Wiki: [Interact](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Interact)
-
-**Sent from server:** true  
-**Sent from client:** true
-
-
-
-#### Actions constants
-
-| Name | Value |
-|:-----|:-----|
-|Right Click | 1 |
-|Left Click | 2 |
-|Leave Vehicle | 3 |
-|Mouse Over | 4 |
-|Open Npc | 5 |
-|Open Inventory | 6 |
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Action ID | byte |  |
-|Target Runtime Entity ID | UnsignedVarLong |  |
------------------------------------------------------------------------
 ### Block Pick Request (0x22)
 Wiki: [Block Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BlockPickRequest)
 
 **Sent from server:** false  
 **Sent from client:** true
 
-
+ 0x18 LevelSoundEventV1 removed from the protocol at 785 (Feb 2025); use 0x7b LevelSoundEvent 
 
 
 #### Fields
@@ -308,22 +248,6 @@ Wiki: [Entity Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 |Runtime Entity ID | ulong |  |
 |Selected Slot | byte |  |
 |Add User Data | bool |  |
------------------------------------------------------------------------
-### Set Entity Motion (0x28)
-Wiki: [Set Entity Motion](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetEntityMotion)
-
-**Sent from server:** true  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Runtime Entity ID | UnsignedVarLong |  |
-|Velocity | Vector3 |  |
 -----------------------------------------------------------------------
 ### Set Entity Link (0x29)
 Wiki: [Set Entity Link](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetEntityLink)
@@ -399,23 +323,6 @@ Wiki: [Crafting Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Cra
 |Material reducer recipes | MaterialReducerRecipe[] |  |
 |Is Clean | bool |  |
 -----------------------------------------------------------------------
-### Change Dimension (0x3d)
-Wiki: [Change Dimension](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ChangeDimension)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Dimension | SignedVarInt |  |
-|Position | Vector3 |  |
-|Respawn | bool |  |
------------------------------------------------------------------------
 ### Telemetry Event (0x41)
 Wiki: [Telemetry Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TelemetryEvent)
 
@@ -479,21 +386,6 @@ Wiki: [Command Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-C
 |Origin | CommandOriginData |  |
 |Is Internal | bool |  |
 |Version | string |  |
------------------------------------------------------------------------
-### Command Block Update (0x4e)
-Wiki: [Command Block Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandBlockUpdate)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Is Block | bool |  |
 -----------------------------------------------------------------------
 ### Command Output (0x4f)
 Wiki: [Command Output](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandOutput)
@@ -570,21 +462,6 @@ Wiki: [Book Edit](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BookEdi
 |Inventory Slot | SignedVarInt |  |
 |Type | UnsignedVarInt |  |
 -----------------------------------------------------------------------
-### Modal Form Response (0x65)
-Wiki: [Modal Form Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ModalFormResponse)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Form Id | UnsignedVarInt |  |
------------------------------------------------------------------------
 ### Lab Table (0x6d)
 Wiki: [Lab Table](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LabTable)
 
@@ -633,24 +510,6 @@ Wiki: [Network Stack Latency](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |:-----|:-----|:-----|
 |Timestamp | ulong |  |
 |Unknown Flag | byte |  |
------------------------------------------------------------------------
-### Spawn Particle Effect (0x76)
-Wiki: [Spawn Particle Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SpawnParticleEffect)
-
-**Sent from server:** true  
-**Sent from client:** false
-
- 0x75 ScriptCustomEvent removed from the protocol at 594 (Jun 2023) 
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Dimension ID | byte |  |
-|Entity ID | SignedVarLong |  |
-|Position | Vector3 |  |
-|Particle name | string |  |
 -----------------------------------------------------------------------
 ### Biome Definition List (0x7a)
 Wiki: [Biome Definition List](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BiomeDefinitionList)
@@ -790,25 +649,8 @@ Wiki: [Player Armor Damage](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Emote List (0x98)
-Wiki: [Emote List](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EmoteList)
-
-**Sent from server:** false  
-**Sent from client:** true
-
- Sent by the client right after login, listing the emotes it owns so the server can
-     validate an Emote packet later. The piece id list is a UUID array, which the generator has
-     no type for, so it lives in the partial (Net/McpeEmoteList.cs). 
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Runtime Entity ID | UnsignedVarLong |  |
------------------------------------------------------------------------
-### Animate Entity (0x9e)
-Wiki: [Animate Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AnimateEntity)
+### Player Fog (0xa0)
+Wiki: [Player Fog](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerFog)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -821,45 +663,6 @@ Wiki: [Animate Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-An
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Animation | string |  |
-|Next State | string |  |
-|Stop Expression | string |  |
-|Stop Expression Version | int |  |
-|Controller | string |  |
-|Blend Out Time | float |  |
------------------------------------------------------------------------
-### Player Fog (0xa0)
-Wiki: [Player Fog](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerFog)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
------------------------------------------------------------------------
-### Correct Player Move Prediction (0xa1)
-Wiki: [Correct Player Move Prediction](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CorrectPlayerMovePrediction)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Prediction Type | byte |  |
-|Position | Vector3 |  |
-|Delta | Vector3 |  |
-|Rotation Pitch | float |  |
-|Rotation Yaw | float |  |
 -----------------------------------------------------------------------
 ### Item Component (0xa2)
 Wiki: [Item Component](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ItemComponent)
@@ -1104,21 +907,6 @@ Wiki: [Set Player Inventory Options](https://github.com/NiclasOlofsson/MiNET/wik
 |Layout | SignedVarInt |  |
 |Crafting Layout | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Server Bound Loading Screen (0x138)
-Wiki: [Server Bound Loading Screen](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ServerBoundLoadingScreen)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Type | SignedVarInt |  |
------------------------------------------------------------------------
 ### Container Registry Cleanup (0x13d)
 Wiki: [Container Registry Cleanup](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ContainerRegistryCleanup)
 
@@ -1210,20 +998,6 @@ Wiki: [Client Movement Prediction Sync](https://github.com/NiclasOlofsson/MiNET/
 |Actor Unique ID | SignedVarLong |  |
 |Actor Flying State | bool |  |
 -----------------------------------------------------------------------
-### Update Client Options (0x143)
-Wiki: [Update Client Options](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateClientOptions)
-
-**Sent from server:** false  
-**Sent from client:** true
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
------------------------------------------------------------------------
 ### Player Video Capture (0x144)
 Wiki: [Player Video Capture](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerVideoCapture)
 
@@ -1297,54 +1071,6 @@ Wiki: [Serverbound Data Store](https://github.com/NiclasOlofsson/MiNET/wiki//Pro
 |Name | string |  |
 |Property | string |  |
 |Path | string |  |
------------------------------------------------------------------------
-### Clientbound Data Driven Ui Show Screen (0x14d)
-Wiki: [Clientbound Data Driven Ui Show Screen](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientboundDataDrivenUiShowScreen)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Screen Id | string |  |
-|Form Id | uint |  |
------------------------------------------------------------------------
-### Clientbound Data Driven Ui Close Screen (0x14e)
-Wiki: [Clientbound Data Driven Ui Close Screen](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientboundDataDrivenUiCloseScreen)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
------------------------------------------------------------------------
-### Clientbound Texture Shift (0x150)
-Wiki: [Clientbound Texture Shift](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientboundTextureShift)
-
-**Sent from server:** true  
-**Sent from client:** false
-
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Action Id | byte |  |
-|Collection Name | string |  |
-|From Step | string |  |
-|To Step | string |  |
 -----------------------------------------------------------------------
 ### Voxel Shapes (0x151)
 Wiki: [Voxel Shapes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-VoxelShapes)

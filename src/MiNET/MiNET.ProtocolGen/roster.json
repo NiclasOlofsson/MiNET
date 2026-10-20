@@ -1256,6 +1256,126 @@
 			"client": false,
 			"server": true,
 			"schema": "SyncWorldClocksPacket"
+		},
+		{
+			"name": "MCPE_ENTITY_EVENT",
+			"id": "0x1b",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "ActorEventPacket"
+		},
+		{
+			"name": "MCPE_INTERACT",
+			"id": "0x21",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "InteractPacket"
+		},
+		{
+			"name": "MCPE_SET_ENTITY_MOTION",
+			"id": "0x28",
+			"online": false,
+			"client": true,
+			"server": true,
+			"schema": "SetActorMotionPacket"
+		},
+		{
+			"name": "MCPE_CHANGE_DIMENSION",
+			"id": "0x3d",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ChangeDimensionPacket"
+		},
+		{
+			"name": "MCPE_COMMAND_BLOCK_UPDATE",
+			"id": "0x4e",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "CommandBlockUpdatePacket"
+		},
+		{
+			"name": "MCPE_MODAL_FORM_RESPONSE",
+			"id": "0x65",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ModalFormResponsePacket"
+		},
+		{
+			"name": "MCPE_SPAWN_PARTICLE_EFFECT",
+			"id": "0x76",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "SpawnParticleEffectPacket"
+		},
+		{
+			"name": "MCPE_EMOTE_LIST",
+			"id": "0x98",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "EmoteListPacket"
+		},
+		{
+			"name": "MCPE_ANIMATE_ENTITY",
+			"id": "0x9e",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "AnimateEntityPacket"
+		},
+		{
+			"name": "MCPE_CORRECT_PLAYER_MOVE_PREDICTION",
+			"id": "0xa1",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "CorrectPlayerMovePredictionPacket"
+		},
+		{
+			"name": "MCPE_SERVER_BOUND_LOADING_SCREEN",
+			"id": "0x138",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "ServerboundLoadingScreenPacket"
+		},
+		{
+			"name": "MCPE_UPDATE_CLIENT_OPTIONS",
+			"id": "0x143",
+			"online": false,
+			"client": true,
+			"server": false,
+			"schema": "UpdateClientOptionsPacket"
+		},
+		{
+			"name": "MCPE_CLIENTBOUND_DATA_DRIVEN_UI_SHOW_SCREEN",
+			"id": "0x14d",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ClientboundDataDrivenUIShowScreenPacket"
+		},
+		{
+			"name": "MCPE_CLIENTBOUND_DATA_DRIVEN_UI_CLOSE_SCREEN",
+			"id": "0x14e",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ClientboundDataDrivenUICloseScreenPacket"
+		},
+		{
+			"name": "MCPE_CLIENTBOUND_TEXTURE_SHIFT",
+			"id": "0x150",
+			"online": false,
+			"client": false,
+			"server": true,
+			"schema": "ClientboundTextureShiftPacket"
 		}
 	]
 }

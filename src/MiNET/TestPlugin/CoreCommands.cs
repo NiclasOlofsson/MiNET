@@ -146,7 +146,7 @@ namespace TestPlugin
 		public void ParticleEffect(Player player, string particle)
 		{
 			var pk = McpeSpawnParticleEffect.CreateObject();
-			pk.particleName = particle;
+			pk.effectName = particle;
 			pk.position = player.KnownPosition;
 			pk.dimensionId = 0; // wat
 			player.Level.RelayBroadcast(pk);

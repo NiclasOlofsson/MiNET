@@ -64,17 +64,17 @@ namespace MiNET.Items
 				}
 
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.runtimeEntityId = EntityManager.EntityIdSelf;
-				motions.velocity = velocity;
+				motions.targetRuntimeId = EntityManager.EntityIdSelf;
+				motions.motion = velocity;
 
 				player.SendPacket(motions);
 			}
 			else if (player.Inventory.Chest is ItemElytra)
 			{
 				var motions = McpeSetEntityMotion.CreateObject();
-				motions.runtimeEntityId = EntityManager.EntityIdSelf;
+				motions.targetRuntimeId = EntityManager.EntityIdSelf;
 				var velocity = new Vector3(0, 2, 0);
-				motions.velocity = velocity;
+				motions.motion = velocity;
 				player.SendPacket(motions);
 
 				_ = SendWithDelay(200, () =>

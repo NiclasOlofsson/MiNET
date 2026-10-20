@@ -72,6 +72,12 @@
 			"write": "Write({0});",
 			"read": "{0} = ReadString();"
 		},
+		"MolangVariableMap": {
+			"csType": "string",
+			"write": "Write({0});",
+			"read": "{0} = ReadString();",
+			"reason": "The schema declares no properties. On the wire it is the Molang variables as one JSON string, which the retired hand codec for SpawnParticleEffect read and wrote."
+		},
 		"NetworkItemInstanceDescriptor": {
 			"csType": "Item",
 			"write": "WriteNetworkItemInstanceDescriptor({0});",

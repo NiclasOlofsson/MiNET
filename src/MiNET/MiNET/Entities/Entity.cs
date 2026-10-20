@@ -681,8 +681,8 @@ namespace MiNET.Entities
 		public virtual void BroadcastEntityEvent()
 		{
 			var entityEvent = McpeEntityEvent.CreateObject();
-			entityEvent.runtimeEntityId = EntityId;
-			entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? ActorEventType.Death : ActorEventType.Hurt);
+			entityEvent.targetRuntimeId = EntityId;
+			entityEvent.eventId = (McpeEntityEvent.ActorEvent) (byte) (HealthManager.Health <= 0 ? ActorEventType.Death : ActorEventType.Hurt);
 			Level.RelayBroadcast(entityEvent);
 		}
 

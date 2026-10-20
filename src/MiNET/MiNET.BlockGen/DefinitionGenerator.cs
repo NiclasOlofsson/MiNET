@@ -53,11 +53,11 @@ public static class DefinitionGenerator
 	};
 
 	/// <summary>
-	///     The only render layer the wire settles: 11 on both carriers, spelled
-	///     alpha_test_single_sided. The block definition schema names eight render methods and this
-	///     value is outside that range, so nothing else in the vocabulary is mapped.
+	///     The render layers the wire settles: 11 on both carriers, spelled alpha_test_single_sided,
+	///     and from 1.26.70.21 5 on both of its carriers (packed_ice_bricks and its chiseled form),
+	///     spelled opaque. Nothing else in the vocabulary is mapped.
 	/// </summary>
-	private static readonly Dictionary<int, string> RenderMethod = new() {[11] = "alpha_test_single_sided"};
+	private static readonly Dictionary<int, string> RenderMethod = new() {[5] = "opaque", [11] = "alpha_test_single_sided"};
 
 	/// <summary>The connection type the two carriers hold. One value, confirmed twice.</summary>
 	private static readonly Dictionary<int, string> ConnectionType = new() {[0] = "none"};
@@ -77,6 +77,19 @@ public static class DefinitionGenerator
 		["BlockSupportComponent"] = "minecraft:support",
 		["BlockPrecipitationInteractionsComponent"] = "minecraft:precipitation_interactions",
 		["BlockReplaceableComponent"] = "minecraft:replaceable"
+	};
+
+	/// <summary>
+	///     Whether one of those reaches the wire at all is the definition's call, not the block's:
+	///     the server sends it only when the definition holds the matching networked description.
+	/// </summary>
+	private static readonly Dictionary<string, string> DescribedBy = new()
+	{
+		["BlockLiquidDetectionComponent"] = "BlockLiquidDetectionDescription",
+		["BlockRedstoneComponent"] = "BlockRedstoneDescription",
+		["BlockSupportComponent"] = "BlockSupportDescription",
+		["BlockPrecipitationInteractionsComponent"] = "BlockPrecipitationInteractionsComponentDescription",
+		["BlockReplaceableComponent"] = "BlockReplaceableDescription"
 	};
 
 	/// <summary>
@@ -208,6 +221,10 @@ public static class DefinitionGenerator
 		// What no definition class is declared for yet, from the block's own component.
 		foreach ((string component, string wire) in FromBlock)
 		{
+			bool networkedDescription = described?.OfType<JObject>().Any(c => (string) c["class"] == DescribedBy[component]
+				&& c["networked"] is {} networked && (bool) networked) ?? false;
+			if (!networkedDescription) continue;
+
 			JObject held = ((JArray) row["components"]).OfType<JObject>().FirstOrDefault(c => (string) c["name"] == component);
 			if (held == null) continue;
 
@@ -328,11 +345,14 @@ public static class DefinitionGenerator
 	private static BlockArchetype Archetype(JObject vanilla)
 	{
 		var archetypes = (JArray) vanilla["blockArchetype"];
+		var names = (JArray) vanilla["blockArchetypeNames"];
+
+		if (archetypes.Count == 0 && names.Count == 0) return null;
 		if (archetypes.Count != 1) throw new InvalidDataException($"{archetypes.Count} archetypes, expected one");
 
 		var archetype = (JObject) archetypes[0];
 		string name = (string) archetype["name"];
-		string declared = (string) ((JArray) vanilla["blockArchetypeNames"])[0]["value"];
+		string declared = (string) names[0]["value"];
 		if (name != declared) throw new InvalidDataException($"archetype is '{name}' but the name list says '{declared}'");
 
 		BlockArchetype built = name switch
@@ -537,6 +557,7 @@ public static class DefinitionGenerator
 	{
 		return archetype switch
 		{
+			null => "null",
 			StairArchetype stair => $"new StairArchetype({Text(stair.BaseBlock)})",
 			SlabArchetype slab => $"new SlabArchetype({Text(slab.DoubleSlabBlock)}, {Bool(slab.IsDouble)})",
 			BushArchetype => "new BushArchetype()",

@@ -238,7 +238,12 @@ namespace MiNET.Net.NetherNet
 			_boundPort = OpenPort(_endPoint.Port);
 			if (_boundPort == 0) throw new IOException($"Could not bind the NetherNet signaling port {_endPoint.Port}");
 
-			LanDiscovery?.Start();
+			if (LanDiscovery != null)
+			{
+				// A LAN join is the HTTP join with the offer carried in a discovery message instead.
+				LanDiscovery.OfferHandler = (networkId, offer) => AcceptConnections ? AnswerOffer(networkId, offer, null, 0) : null;
+				LanDiscovery.Start();
+			}
 		}
 
 		/// <summary>

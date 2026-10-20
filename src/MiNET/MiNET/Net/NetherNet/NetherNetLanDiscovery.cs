@@ -41,7 +41,9 @@ namespace MiNET.Net.NetherNet
 	///     LAN visibility over NetherNet. The client broadcasts a discovery request on UDP 7551 every
 	///     two seconds and lists whoever answers with a response carrying the server data. BDS 1.26.70
 	///     binds nothing here even with enable-lan-visibility on, so the format follows go-nethernet's
-	///     discovery package and the client's own requests.
+	///     discovery package and the client's own requests. Joining from the world card is signaled
+	///     on the same port: the client's offer arrives as a CONNECTREQUEST message and the answer
+	///     goes back as a CONNECTRESPONSE.
 	///     <para>
 	///         Every datagram is an HMAC-SHA256 of the plaintext followed by the plaintext under
 	///         AES-256-ECB, both keyed with SHA-256 of the application id 0xdeadbeef as a little-endian
@@ -83,6 +85,12 @@ namespace MiNET.Net.NetherNet
 
 		/// <summary>The id this server signs its discovery packets with, and the one a LAN join addresses.</summary>
 		public ulong NetworkId { get; }
+
+		/// <summary>
+		///     Answers a LAN join: the client's network id and SDP offer in, the SDP answer out, or
+		///     null to refuse. The listener supplies the same negotiation its HTTP join runs.
+		/// </summary>
+		public Func<string, string, string> OfferHandler { get; set; }
 
 		public NetherNetLanDiscovery(MotdProvider motdProvider, ConnectionInfo connectionInfo, Func<int> playerCount)
 		{
@@ -175,11 +183,48 @@ namespace MiNET.Net.NetherNet
 					SendResponse(from);
 					break;
 				case MessagePacketId:
-					ulong recipientId = plain.Length >= HeaderLength + 8 ? BinaryPrimitives.ReadUInt64LittleEndian(plain.AsSpan(HeaderLength)) : 0;
-					string data = plain.Length > HeaderLength + 12 ? Encoding.UTF8.GetString(plain, HeaderLength + 12, plain.Length - HeaderLength - 12) : "";
-					Log.Debug($"NetherNet LAN message from {senderId} at {from} to {recipientId}: {data}");
+					HandleMessage(plain, senderId, from);
 					break;
 			}
+		}
+
+		/// <summary>
+		///     A message body is the recipient's network id and a uint32-prefixed signal,
+		///     "&lt;type&gt; &lt;connection id&gt; &lt;data&gt;". Vanilla can write more signal than the
+		///     prefix declares, so everything after the prefix is the signal.
+		/// </summary>
+		private void HandleMessage(byte[] plain, ulong senderId, IPEndPoint from)
+		{
+			if (plain.Length < HeaderLength + 12) return;
+
+			ulong recipientId = BinaryPrimitives.ReadUInt64LittleEndian(plain.AsSpan(HeaderLength));
+			if (recipientId != NetworkId) return;
+
+			string signal = Encoding.UTF8.GetString(plain, HeaderLength + 12, plain.Length - HeaderLength - 12);
+			string[] parts = signal.Split(' ', 3);
+			Log.Info($"NetherNet LAN signal from {senderId} at {from}: {(parts.Length >= 2 ? $"{parts[0]} {parts[1]}" : "(empty)")}");
+			if (parts.Length < 3 || parts[0] != "CONNECTREQUEST") return;
+
+			string answer = OfferHandler?.Invoke(senderId.ToString(), parts[2]);
+			if (answer == null) return;
+
+			byte[] signalBytes = Encoding.UTF8.GetBytes($"CONNECTRESPONSE {parts[1]} {answer}");
+			byte[] body = new byte[8 + 4 + signalBytes.Length];
+			BinaryPrimitives.WriteUInt64LittleEndian(body, senderId);
+			BinaryPrimitives.WriteUInt32LittleEndian(body.AsSpan(8), (uint) signalBytes.Length);
+			signalBytes.CopyTo(body, 12);
+
+			_socket.SendTo(Seal(MessagePacketId, body), ReplyTarget(from));
+			Log.Info($"NetherNet LAN signal to {senderId}: CONNECTRESPONSE {parts[1]} ({answer.Length} chars)");
+		}
+
+		// A requester on this machine shares the port with this socket, and Windows hands a
+		// unicast to only one of the sockets bound there. A broadcast reaches all of them.
+		private static IPEndPoint ReplyTarget(IPEndPoint requester)
+		{
+			return MotdProvider.IsThisMachine(requester.Address) || IPAddress.IsLoopback(requester.Address)
+				? new IPEndPoint(IPAddress.Broadcast, Port)
+				: requester;
 		}
 
 		private void SendResponse(IPEndPoint requester)
@@ -189,13 +234,7 @@ namespace MiNET.Net.NetherNet
 			BinaryPrimitives.WriteUInt32LittleEndian(body, (uint) hex.Length);
 			hex.CopyTo(body, 4);
 
-			// A requester on this machine shares the port with this socket, and Windows hands a
-			// unicast to only one of the sockets bound there. A broadcast reaches all of them.
-			IPEndPoint target = MotdProvider.IsThisMachine(requester.Address) || IPAddress.IsLoopback(requester.Address)
-				? new IPEndPoint(IPAddress.Broadcast, Port)
-				: requester;
-
-			_socket.SendTo(Seal(ResponsePacketId, body), target);
+			_socket.SendTo(Seal(ResponsePacketId, body), ReplyTarget(requester));
 		}
 
 		private byte[] BuildServerData()

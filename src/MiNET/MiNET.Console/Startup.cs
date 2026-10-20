@@ -75,7 +75,7 @@ namespace MiNET.Console
 			if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
 			{
 				var currentProcess = Process.GetCurrentProcess();
-				currentProcess.ProcessorAffinity = Config.GetProperty("ProcessorAffinity", (int) currentProcess.ProcessorAffinity);
+				currentProcess.ProcessorAffinity = (IntPtr) Config.GetProperty("ProcessorAffinity", (int) currentProcess.ProcessorAffinity);
 			}
 
 			var service = new MiNetServer();

@@ -129,8 +129,12 @@ namespace MiNET.ServiceKiller
 				return;
 			}
 
-			var currentProcess = Process.GetCurrentProcess();
-			currentProcess.ProcessorAffinity = processorAffinity <= 0 ? currentProcess.ProcessorAffinity : (IntPtr) processorAffinity;
+			// Processor affinity exists only on Windows and Linux. macOS throws PlatformNotSupportedException.
+			if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
+			{
+				var currentProcess = Process.GetCurrentProcess();
+				currentProcess.ProcessorAffinity = processorAffinity <= 0 ? currentProcess.ProcessorAffinity : (IntPtr) processorAffinity;
+			}
 
 			//var listener = new GcFinalizersEventListener();
 

@@ -34,9 +34,10 @@ using MiNET.Utils;
 namespace MiNET.Net.NetherNet
 {
 	/// <summary>
-	///     RakNet's unconnected ping/pong, outliving RakNet itself: the server tab discovers and
-	///     lists servers through this exchange and Mojang has shipped no NetherNet replacement, so
-	///     a NetherNet-only server still answers it on the gameplay UDP port. Both halves live
+	///     RakNet's unconnected ping/pong, outliving RakNet itself: clients up to 1.26.70.20 discovered
+	///     and listed servers through this exchange, and status tools still may, so a NetherNet-only
+	///     server still answers it on the gameplay UDP port. The 1.26.70.21 client discovers LAN
+	///     servers with <see cref="NetherNetLanDiscovery" /> instead. Both halves live
 	///     here, the server-side answerer the mux calls for non-STUN datagrams and the client-side
 	///     ping a NetherNet client uses to read a server's MOTD, so the whole legacy format is one
 	///     file that attaches (or does not) at one seam. It is stateless offline-message handling:

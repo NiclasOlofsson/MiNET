@@ -172,13 +172,6 @@ namespace MiNET
 			NumberOfPlayers = playerCount;
 			MaxNumberOfPlayers = connectionInfo.MaxNumberOfPlayers;
 
-			int gameType = GameMode?.Trim().ToLowerInvariant() switch
-			{
-				"creative" or "1" => 1,
-				"adventure" or "2" => 2,
-				_ => 0
-			};
-
 			return JsonConvert.SerializeObject(new
 			{
 				name = Motd,
@@ -187,9 +180,17 @@ namespace MiNET
 				level = SecondLine,
 				players = NumberOfPlayers,
 				maxPlayers = MaxNumberOfPlayers,
-				gameType
+				gameType = GameType
 			});
 		}
+
+		/// <summary>The configured game mode as the numeric Bedrock GameType: 0 survival, 1 creative, 2 adventure.</summary>
+		public int GameType => GameMode?.Trim().ToLowerInvariant() switch
+		{
+			"creative" or "1" => 1,
+			"adventure" or "2" => 2,
+			_ => 0
+		};
 
 		public virtual string GetMotd(ConnectionInfo connectionInfo, IPEndPoint caller, bool eduMotd = false)
 		{

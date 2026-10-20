@@ -109,6 +109,9 @@ namespace MiNET.Net.NetherNet
 		/// </summary>
 		public NetherNetDiscovery Discovery { get; set; }
 
+		/// <summary>Set before <see cref="Start" /> to answer the client's LAN discovery on UDP 7551.</summary>
+		public NetherNetLanDiscovery LanDiscovery { get; set; }
+
 		/// <summary>
 		///     Clear this to stop answering join signaling without tearing the socket down. A
 		///     shutdown needs it: transferring or disconnecting players frees the server only if they
@@ -234,6 +237,8 @@ namespace MiNET.Net.NetherNet
 			// take an offer that AnswerOffer then has nothing to answer with.
 			_boundPort = OpenPort(_endPoint.Port);
 			if (_boundPort == 0) throw new IOException($"Could not bind the NetherNet signaling port {_endPoint.Port}");
+
+			LanDiscovery?.Start();
 		}
 
 		/// <summary>
@@ -312,6 +317,7 @@ namespace MiNET.Net.NetherNet
 
 		public void Stop()
 		{
+			LanDiscovery?.Dispose();
 			_cancellation?.Cancel();
 
 			foreach (TcpListener listener in _ports.Values) listener.Stop();

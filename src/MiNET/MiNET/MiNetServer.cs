@@ -273,12 +273,13 @@ namespace MiNET
 					ConnectionInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 10);
 					ConnectionInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ConnectionInfo.MaxNumberOfPlayers);
 
-					// The mux answers RakNet's legacy unconnected ping on the gameplay UDP port so
-					// the server still shows in the client's server tab; Mojang shipped no NetherNet
-					// replacement for it. EnableDiscovery=false turns the responder off entirely.
+					// The mux answers RakNet's legacy unconnected ping on the gameplay UDP port, and
+					// NetherNet's own LAN discovery is answered on UDP 7551, which is all the 1.26.70.21
+					// client sends. EnableDiscovery=false turns both responders off.
 					if (Config.GetProperty("EnableDiscovery", true))
 					{
 						_netherNetListener.Discovery = new NetherNetDiscovery(MotdProvider, ConnectionInfo, () => listener.Sessions.Count);
+						_netherNetListener.LanDiscovery = new NetherNetLanDiscovery(MotdProvider, ConnectionInfo, () => listener.Sessions.Count);
 					}
 
 					_netherNetListener.Start();

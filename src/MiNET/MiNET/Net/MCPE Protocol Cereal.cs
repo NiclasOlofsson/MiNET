@@ -1843,6 +1843,7 @@ namespace MiNET.Net
 		public StructureEditorData structureData; // = null;
 		public bool trigger; // = null;
 		public bool iswaterlogged; // = null;
+		public bool keepstructurevoid; // = null;
 
 		public McpeStructureBlockUpdate()
 		{
@@ -1860,6 +1861,7 @@ namespace MiNET.Net
 			Write(structureData ?? new StructureEditorData());
 			Write(trigger);
 			Write(iswaterlogged);
+			Write(keepstructurevoid);
 
 			AfterEncode();
 		}
@@ -1877,6 +1879,7 @@ namespace MiNET.Net
 			structureData = ReadStructureEditorData();
 			trigger = ReadBool();
 			iswaterlogged = ReadBool();
+			keepstructurevoid = ReadBool();
 
 			AfterDecode();
 		}
@@ -1892,6 +1895,7 @@ namespace MiNET.Net
 			structureData=default(StructureEditorData);
 			trigger=default(bool);
 			iswaterlogged=default(bool);
+			keepstructurevoid=default(bool);
 		}
 
 	}
@@ -2324,7 +2328,8 @@ namespace MiNET.Net
 			Mouse = 1,
 			Touch = 2,
 			Gamepad = 3,
-			Count = 5,
+			Gamepadandmouse = 5,
+			Count = 6,
 		}
 		public enum ClientPlayMode
 		{
@@ -3627,6 +3632,7 @@ namespace MiNET.Net
 		{
 			Music = 0,
 			Sound = 1,
+			Concurrentmusic = 2,
 		}
 
 		public string sharedMetadata; // = null;
@@ -4234,6 +4240,12 @@ namespace MiNET.Net
 		public byte numberOfRequestedCrafts;
 	}
 
+	public class ItemStackRequestCraftDiscPressAction : ItemStackRequestBase
+	{
+		public string trackSoundEventId;
+		public byte numCrafts;
+	}
+
 	public class ItemStackRequestCraftLoomAction : ItemStackRequestBase
 	{
 		public string patternNameId;
@@ -4318,12 +4330,6 @@ namespace MiNET.Net
 		public byte amount;
 		public ItemStackRequestSlotInfo source;
 		public ItemStackRequestSlotInfo destination;
-	}
-
-	public class ItemStackRequestReservedAction : ItemStackRequestBase
-	{
-		public string reservedId;
-		public byte numCrafts;
 	}
 
 	public class ItemStackRequestSlotInfo
@@ -4592,10 +4598,10 @@ namespace MiNET.Net
 			Smithingtabletemplatecontainer = 61,
 			Crafterlevelentitycontainer = 62,
 			Dynamiccontainer = 63,
-			Reservedcontainera = 67,
-			Reservedcontainerb = 68,
-			Reservedcontainerc = 69,
-			Reservedcontainerd = 70,
+			Discpressblockcontainer = 67,
+			Discpressdyecontainer = 68,
+			Discpressdisccontainer = 69,
+			Discpressresultpreviewcontainer = 70,
 		}
 
 		public LegacySetSlot.ContainerEnumName containerEnum;
@@ -5232,6 +5238,7 @@ namespace MiNET.Net
 		public GatheringsConfig gathering;
 		public ClientStoreEntryPointConfig clientstoreentrypoint;
 		public string presence;
+		public bool? managedchat;
 	}
 
 	public class ServerTelemetryData
@@ -6051,7 +6058,7 @@ namespace MiNET.Net
 							WriteUnsignedVarInt(15);
 							Write(v15);
 							break;
-						case ItemStackRequestReservedAction v16:
+						case ItemStackRequestCraftDiscPressAction v16:
 							WriteUnsignedVarInt(16);
 							Write(v16);
 							break;
@@ -6080,7 +6087,7 @@ namespace MiNET.Net
 			data.clientRequestId = ReadSignedVarInt();
 			uint actionsCount = ReadUnsignedVarInt();
 			data.actions = new List<ItemStackRequestBase>((int) actionsCount);
-			for (int i = 0; i < actionsCount; i++) data.actions.Add(ReadUnsignedVarInt() switch { 0 => ReadItemStackRequestTakeAction(), 1 => ReadItemStackRequestPlaceAction(), 2 => ReadItemStackRequestSwapAction(), 3 => ReadItemStackRequestDropAction(), 4 => ReadItemStackRequestDestroyAction(), 5 => ReadItemStackRequestConsumeAction(), 6 => ReadItemStackRequestCreateAction(), 7 => ReadItemStackRequestLabTableCombineAction(), 8 => ReadItemStackRequestBeaconPaymentAction(), 9 => ReadItemStackRequestMineBlockAction(), 10 => ReadItemStackRequestCraftRecipeAction(), 11 => ReadItemStackRequestCraftRecipeAutoAction(), 12 => ReadItemStackRequestCraftCreativeAction(), 13 => ReadItemStackRequestCraftRecipeOptionalAction(), 14 => ReadItemStackRequestCraftRepairAndDisenchantAction(), 15 => ReadItemStackRequestCraftLoomAction(), 16 => ReadItemStackRequestReservedAction(), 17 => ReadItemStackRequestCraftNonImplementedDeprecatedAction(), 18 => ReadItemStackRequestCraftResultsDeprecatedAction(), uint other => throw new Exception($"Unknown item variant tag {other}") });
+			for (int i = 0; i < actionsCount; i++) data.actions.Add(ReadUnsignedVarInt() switch { 0 => ReadItemStackRequestTakeAction(), 1 => ReadItemStackRequestPlaceAction(), 2 => ReadItemStackRequestSwapAction(), 3 => ReadItemStackRequestDropAction(), 4 => ReadItemStackRequestDestroyAction(), 5 => ReadItemStackRequestConsumeAction(), 6 => ReadItemStackRequestCreateAction(), 7 => ReadItemStackRequestLabTableCombineAction(), 8 => ReadItemStackRequestBeaconPaymentAction(), 9 => ReadItemStackRequestMineBlockAction(), 10 => ReadItemStackRequestCraftRecipeAction(), 11 => ReadItemStackRequestCraftRecipeAutoAction(), 12 => ReadItemStackRequestCraftCreativeAction(), 13 => ReadItemStackRequestCraftRecipeOptionalAction(), 14 => ReadItemStackRequestCraftRepairAndDisenchantAction(), 15 => ReadItemStackRequestCraftLoomAction(), 16 => ReadItemStackRequestCraftDiscPressAction(), 17 => ReadItemStackRequestCraftNonImplementedDeprecatedAction(), 18 => ReadItemStackRequestCraftResultsDeprecatedAction(), uint other => throw new Exception($"Unknown item variant tag {other}") });
 			uint stringsToFilterCount = ReadUnsignedVarInt();
 			data.stringsToFilter = new List<string>((int) stringsToFilterCount);
 			for (int i = 0; i < stringsToFilterCount; i++) data.stringsToFilter.Add(ReadString());
@@ -6133,6 +6140,22 @@ namespace MiNET.Net
 			ReadByte();
 			data.creativeItemNetId = ReadUnsignedVarInt();
 			data.numberOfRequestedCrafts = ReadByte();
+			return data;
+		}
+
+		public void Write(ItemStackRequestCraftDiscPressAction data)
+		{
+			Write((byte) 18);
+			Write(data.trackSoundEventId);
+			Write(data.numCrafts);
+		}
+
+		public ItemStackRequestCraftDiscPressAction ReadItemStackRequestCraftDiscPressAction()
+		{
+			var data = new ItemStackRequestCraftDiscPressAction();
+			ReadByte();
+			data.trackSoundEventId = ReadString();
+			data.numCrafts = ReadByte();
 			return data;
 		}
 
@@ -6393,22 +6416,6 @@ namespace MiNET.Net
 			data.amount = ReadByte();
 			data.source = ReadItemStackRequestSlotInfo();
 			data.destination = ReadItemStackRequestSlotInfo();
-			return data;
-		}
-
-		public void Write(ItemStackRequestReservedAction data)
-		{
-			Write((byte) 18);
-			Write(data.reservedId);
-			Write(data.numCrafts);
-		}
-
-		public ItemStackRequestReservedAction ReadItemStackRequestReservedAction()
-		{
-			var data = new ItemStackRequestReservedAction();
-			ReadByte();
-			data.reservedId = ReadString();
-			data.numCrafts = ReadByte();
 			return data;
 		}
 
@@ -7314,6 +7321,8 @@ namespace MiNET.Net
 			if (data.clientstoreentrypoint != null) Write(data.clientstoreentrypoint);
 			Write(data.presence != null);
 			if (data.presence != null) Write(data.presence);
+			Write(data.managedchat != null);
+			if (data.managedchat != null) Write(data.managedchat.Value);
 		}
 
 		public ServerConfig ReadServerConfig()
@@ -7322,6 +7331,7 @@ namespace MiNET.Net
 			if (ReadBool()) data.gathering = ReadGatheringsConfig();
 			if (ReadBool()) data.clientstoreentrypoint = ReadClientStoreEntryPointConfig();
 			if (ReadBool()) data.presence = ReadString();
+			if (ReadBool()) data.managedchat = ReadBool();
 			return data;
 		}
 

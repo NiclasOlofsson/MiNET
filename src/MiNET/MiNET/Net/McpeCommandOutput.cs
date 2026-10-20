@@ -30,6 +30,7 @@ namespace MiNET.Net
 		public bool IsInternal { get; set; }
 		public string MessageId { get; set; }
 		public string[] Parameters { get; set; }
+		public string RawMessage { get; set; }
 
 		/// <inheritdoc />
 		public override string ToString()
@@ -132,6 +133,12 @@ namespace MiNET.Net
 			{
 				Write(parameter);
 			}
+
+			Write(message.RawMessage != null);
+			if (message.RawMessage != null)
+			{
+				Write(message.RawMessage);
+			}
 		}
 
 		private CommandOutputMessage ReadCommandOutputMessage()
@@ -146,6 +153,11 @@ namespace MiNET.Net
 			for (int i = 0; i < result.Parameters.Length; i++)
 			{
 				result.Parameters[i] = ReadString();
+			}
+
+			if (ReadBool())
+			{
+				result.RawMessage = ReadString();
 			}
 
 			return result;

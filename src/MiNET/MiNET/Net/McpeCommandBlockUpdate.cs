@@ -42,6 +42,7 @@ namespace MiNET.Net
 		public bool shouldTrackOutput; // = null;
 		public uint tickDelay; // = null;
 		public bool executeOnFirstTick; // = null;
+		public bool lastOutputIsRawMessage; // = null;
 
 		partial void AfterEncode()
 		{
@@ -64,6 +65,7 @@ namespace MiNET.Net
 			Write(shouldTrackOutput);
 			Write(tickDelay);
 			Write(executeOnFirstTick);
+			Write(lastOutputIsRawMessage);
 		}
 
 		partial void AfterDecode()
@@ -87,6 +89,7 @@ namespace MiNET.Net
 			shouldTrackOutput = ReadBool();
 			tickDelay = ReadUint();
 			executeOnFirstTick = ReadBool();
+			lastOutputIsRawMessage = ReadBool();
 		}
 
 		public override void Reset()
@@ -103,6 +106,7 @@ namespace MiNET.Net
 			shouldTrackOutput = default;
 			tickDelay = default;
 			executeOnFirstTick = default;
+			lastOutputIsRawMessage = default;
 
 			base.Reset();
 		}

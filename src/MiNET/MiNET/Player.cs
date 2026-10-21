@@ -43,6 +43,7 @@ using MiNET.Crafting;
 using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Entities.Passive;
+using MiNET.Entities.Projectiles;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
@@ -5124,8 +5125,7 @@ namespace MiNET
 
 			if (HealthManager.IsDead)
 			{
-				Player player = HealthManager.LastDamageSource as Player;
-				BroadcastDeathMessage(player, HealthManager.LastDamageCause);
+				BroadcastDeathMessage(HealthManager.LastDamageSource, HealthManager.LastDamageCause);
 			}
 		}
 
@@ -5147,11 +5147,102 @@ namespace MiNET
 			}
 		}
 
-		public virtual void BroadcastDeathMessage(Player player, DamageCause lastDamageCause)
+		// Sent the way BDS sends it: a death.attack.* translation key with the victim and, when the key
+		// names one, the killer as parameters, so the client words and localizes the message itself.
+		public virtual void BroadcastDeathMessage(Entity source, DamageCause lastDamageCause)
 		{
-			string deathMessage = string.Format(HealthManager.GetDescription(lastDamageCause), Username, player == null ? "" : player.Username);
-			Level.BroadcastMessage(deathMessage, type: MessageType.Raw);
-			Log.Debug(deathMessage);
+			// A projectile kill names whoever fired it, or the projectile itself when nobody did.
+			Entity killer = source is Projectile projectile ? projectile.Shooter ?? source : source;
+
+			(string key, bool namesKiller) = GetDeathMessageKey(lastDamageCause, source, killer);
+			string[] parameters = namesKiller ? new[] {Username, GetDeathMessageName(killer)} : new[] {Username};
+
+			Level.BroadcastMessage(key, MessageType.Translation, needsTranslation: true, parameters: parameters);
+			Log.Debug($"{key} {string.Join(", ", parameters)}");
+		}
+
+		// The death.attack.* key for a cause, and whether it names the killer. The causes vanilla words
+		// differently when someone else was involved take the .player form when there is a killer.
+		private static (string Key, bool NamesKiller) GetDeathMessageKey(DamageCause cause, Entity source, Entity killer)
+		{
+			bool hasKiller = killer != null;
+
+			string WithKiller(string key) => hasKiller ? $"{key}.player" : key;
+
+			switch (cause)
+			{
+				case DamageCause.EntityAttack:
+				case DamageCause.Charging:
+				case DamageCause.RamAttack:
+					if (!hasKiller) return ("death.attack.generic", false);
+					return (killer is Player ? "death.attack.player" : "death.attack.mob", true);
+				case DamageCause.Projectile:
+					if (!hasKiller) return ("death.attack.generic", false);
+					return (source is Projectile && !(source is Arrow) ? "death.attack.thrown" : "death.attack.arrow", true);
+				case DamageCause.Magic:
+					return hasKiller ? ("death.attack.indirectMagic", true) : ("death.attack.magic", false);
+				case DamageCause.Thorns:
+					return hasKiller ? ("death.attack.thorns", true) : ("death.attack.generic", false);
+				case DamageCause.Contact:
+					return (WithKiller("death.attack.cactus"), hasKiller);
+				case DamageCause.Drowning:
+					return (WithKiller("death.attack.drown"), hasKiller);
+				case DamageCause.Fire:
+				case DamageCause.Campfire:
+				case DamageCause.SoulCampfire:
+					return (WithKiller("death.attack.inFire"), hasKiller);
+				case DamageCause.FireTick:
+					return (WithKiller("death.attack.onFire"), hasKiller);
+				case DamageCause.Lava:
+					return (WithKiller("death.attack.lava"), hasKiller);
+				case DamageCause.Magma:
+					return (WithKiller("death.attack.magma"), hasKiller);
+				case DamageCause.SonicBoom:
+					return (WithKiller("death.attack.sonicBoom"), hasKiller);
+				case DamageCause.BlockExplosion:
+				case DamageCause.EntityExplosion:
+					return (WithKiller("death.attack.explosion"), hasKiller);
+				case DamageCause.Suffocation:
+					return ("death.attack.inWall", false);
+				case DamageCause.Fall:
+					return ("death.attack.fall", false);
+				case DamageCause.Void:
+					return ("death.attack.outOfWorld", false);
+				case DamageCause.Wither:
+					return ("death.attack.wither", false);
+				case DamageCause.Starving:
+					return ("death.attack.starve", false);
+				case DamageCause.Anvil:
+					return ("death.attack.anvil", false);
+				case DamageCause.FallingBlock:
+					return ("death.attack.fallingBlock", false);
+				case DamageCause.FlyIntoWall:
+					return ("death.attack.flyIntoWall", false);
+				case DamageCause.Fireworks:
+					return ("death.attack.fireworks", false);
+				case DamageCause.Lightning:
+					return ("death.attack.lightningBolt", false);
+				case DamageCause.Freezing:
+					return ("death.attack.freeze", false);
+				case DamageCause.Stalactite:
+					return ("death.attack.stalactite", false);
+				case DamageCause.Stalagmite:
+					return ("death.attack.stalagmite", false);
+				default:
+					return ("death.attack.generic", false);
+			}
+		}
+
+		// The killer as a death message parameter: a player by username, a named mob by its name tag,
+		// anything else by its entity name key, which the client resolves from its own language file.
+		private static string GetDeathMessageName(Entity killer)
+		{
+			if (killer is Player player) return player.Username;
+			if (!string.IsNullOrEmpty(killer.NameTag)) return killer.NameTag;
+
+			string id = killer.EntityTypeId ?? "";
+			if (id.StartsWith("minecraft:")) id = id.Substring("minecraft:".Length);
+			return $"%entity.{id}.name";
 		}
 
 		/// <summary>

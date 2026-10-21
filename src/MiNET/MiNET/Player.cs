@@ -974,8 +974,6 @@ namespace MiNET
 				}
 			}
 
-			IsUsingItem = false;
-
 			BroadcastSetEntityData();
 		}
 
@@ -1032,6 +1030,13 @@ namespace MiNET
 		public bool IsFlying { get; set; }
 
 		public DateTime? ItemUseStartedAt { get; set; }
+
+		public void StopUsingItem()
+		{
+			if (!IsUsingItem) return;
+			IsUsingItem = false;
+			BroadcastSetEntityData();
+		}
 
 		public bool HasUsedItemFor(int ticks)
 		{
@@ -2880,8 +2885,10 @@ namespace MiNET
 			// behaviors; without this the server keeps broadcasting stale entity state against
 			// the client's prediction and sprint/sneak stutter and cancel.
 			AuthInputFlags flags = message.inputData;
-			if ((flags & (AuthInputFlags.StartSprinting | AuthInputFlags.StopSprinting | AuthInputFlags.StartSneaking | AuthInputFlags.StopSneaking | AuthInputFlags.StartGliding | AuthInputFlags.StopGliding)) != 0)
+			if ((flags & (AuthInputFlags.StartSprinting | AuthInputFlags.StopSprinting | AuthInputFlags.StartSneaking | AuthInputFlags.StopSneaking | AuthInputFlags.StartGliding | AuthInputFlags.StopGliding | AuthInputFlags.StartUsingItem)) != 0)
 			{
+				if ((flags & AuthInputFlags.StartUsingItem) != 0) IsUsingItem = true;
+
 				if ((flags & AuthInputFlags.StartSprinting) != 0) SetSprinting(true);
 				if ((flags & AuthInputFlags.StopSprinting) != 0) SetSprinting(false);
 
@@ -3404,6 +3411,12 @@ namespace MiNET
 
 				if (Log.IsDebugEnabled) Log.Debug($"Player {Username} called set equipment with held hotbar slot {message.selectedSlot} with item {message.item}");
 
+				if (selectedHotbarSlot != Inventory.InHandSlot)
+				{
+					ItemUseStartedAt = null;
+					StopUsingItem();
+				}
+
 				Inventory.SetHeldItemSlot(selectedHotbarSlot, false);
 				if (Log.IsDebugEnabled)
 					Log.Debug($"Player {Username} now holding {Inventory.GetItemInHand()}");
@@ -3714,11 +3727,13 @@ namespace MiNET
 				{
 					itemInHand.Release(Level, this, transaction.fromPosition);
 					ItemUseStartedAt = null;
+					StopUsingItem();
 					break;
 				}
 				case ItemReleaseInventoryTransaction.ItemReleaseActionType.Use: // consume: eating or drinking finished
 				{
 					itemInHand.CompleteUsing(Level, this);
+					StopUsingItem();
 					break;
 				}
 				default:

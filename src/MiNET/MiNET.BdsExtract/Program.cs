@@ -130,6 +130,15 @@ public static class Program
 	/// </summary>
 	private const int MinimumRoundTrips = 8;
 
+	/// <summary>
+	///     Right after "Server started" the sweep can close only two or three round trips, and a few
+	///     seconds later the usual eighteen to twenty, so a short count is measured again before the
+	///     run gives up.
+	/// </summary>
+	private const int LayoutAttempts = 6;
+
+	private static readonly TimeSpan LayoutRetryDelay = TimeSpan.FromSeconds(5);
+
 	internal static string DefaultOutputDirectory()
 	{
 		var directory = new DirectoryInfo(AppContext.BaseDirectory);
@@ -177,20 +186,27 @@ public static class Program
 		// default state point at each other, and where those two pointers sit moves between builds:
 		// 224/352/104 on the versions we target, 200/448/96 on 1.26.3.1. Reading with the wrong
 		// ones finds no blocks at all, so they are taken from the server rather than compiled in.
-		(ulong lead, int stateAt, int backAt, int roundTrips) =
-			RegistryDiscovery.DeriveBlockLayout(server, RegistryDiscovery.NamedThings(server));
-		if (roundTrips >= MinimumRoundTrips)
+		(ulong lead, int stateAt, int backAt, int roundTrips) = (0, 0, 0, 0);
+		for (int attempt = 1; attempt <= LayoutAttempts; attempt++)
 		{
-			MemoryLayout.UseMeasured((int) lead, stateAt, backAt);
-			Console.WriteLine($"block layout measured on {roundTrips} round trips: name at +{lead}, "
-							+ $"state pointer at name+{stateAt}, back pointer at state+{backAt}");
+			(lead, stateAt, backAt, roundTrips) = RegistryDiscovery.DeriveBlockLayout(server, RegistryDiscovery.NamedThings(server));
+			if (roundTrips >= MinimumRoundTrips || attempt == LayoutAttempts) break;
+
+			Console.WriteLine($"block layout closed {roundTrips} round trips, {MinimumRoundTrips} needed; measuring again in {LayoutRetryDelay.TotalSeconds:0}s");
+			Thread.Sleep(LayoutRetryDelay);
 		}
-		else
+
+		// There is no fallback layout: an offset this server did not settle is never read.
+		if (roundTrips < MinimumRoundTrips)
 		{
-			Console.WriteLine($"block layout not measurable ({roundTrips} round trips), keeping "
-							+ $"name at +{MemoryLayout.NameInsideLegacy}, state pointer at name+{MemoryLayout.DefaultStatePointer}, "
-							+ $"back pointer at state+{MemoryLayout.BlockLegacyPointer}");
+			Console.Error.WriteLine($"block layout not measurable: {roundTrips} round trips after {LayoutAttempts} attempts, "
+									+ $"{MinimumRoundTrips} needed. Nothing is read without it.");
+			return 1;
 		}
+
+		MemoryLayout.UseMeasured((int) lead, stateAt, backAt);
+		Console.WriteLine($"block layout measured on {roundTrips} round trips: name at +{lead}, "
+						+ $"state pointer at name+{stateAt}, back pointer at state+{backAt}");
 
 		var blocks = BlockRegistry.Read(server);
 		Console.WriteLine($"blocks found: {blocks.Count:N0}");

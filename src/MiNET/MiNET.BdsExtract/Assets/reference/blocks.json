@@ -8535,7 +8535,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -20181,7 +20182,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -28510,7 +28512,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -29707,8 +29710,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -32445,9 +32447,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -32610,9 +32610,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -32930,9 +32928,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -33293,9 +33289,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -36726,8 +36720,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -39883,9 +39876,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -40048,9 +40039,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -40368,9 +40357,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -40731,9 +40718,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -46772,8 +46757,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -49934,9 +49918,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -50099,9 +50081,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -50419,9 +50399,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -50782,9 +50760,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -62238,7 +62214,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -80973,7 +80950,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -88897,7 +88875,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -91958,8 +91937,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -94696,9 +94674,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -94861,9 +94837,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -95181,9 +95155,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -95544,9 +95516,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -101373,7 +101343,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -143439,7 +143410,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -154749,8 +154721,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -157487,9 +157458,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -157652,9 +157621,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -157972,9 +157939,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -158335,9 +158300,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -159309,8 +159272,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -162047,9 +162009,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -162212,9 +162172,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -162532,9 +162490,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -162895,9 +162851,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -177009,7 +176963,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -182890,7 +182845,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -189657,8 +189613,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -192395,9 +192350,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -192560,9 +192513,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -192880,9 +192831,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -193243,9 +193192,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -194217,8 +194164,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -196734,9 +196680,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -196899,9 +196843,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -197219,9 +197161,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -197582,9 +197522,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -199547,8 +199485,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -202285,9 +202222,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -202450,9 +202385,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -202770,9 +202703,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -203133,9 +203064,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -205853,8 +205782,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -208591,9 +208519,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -208756,9 +208682,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -209076,9 +209000,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -209439,9 +209361,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -215422,7 +215342,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -235353,8 +235274,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -238594,9 +238514,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -238759,9 +238677,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -239079,9 +238995,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -239442,9 +239356,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -242374,7 +242286,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -250968,7 +250881,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -253228,8 +253142,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -256538,9 +256451,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -256703,9 +256614,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -257023,9 +256932,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -257386,9 +257293,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -281302,7 +281207,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -287917,8 +287823,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -290655,9 +290560,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -290820,9 +290723,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -291140,9 +291041,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -291503,9 +291402,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -295915,8 +295812,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -304821,9 +304717,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -304986,9 +304880,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -305306,9 +305198,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -305669,9 +305559,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -329948,7 +329836,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -348600,7 +348489,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -364504,7 +364394,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -367768,7 +367659,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -371172,7 +371064,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -375068,7 +374961,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -378720,7 +378614,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -382370,7 +382265,8 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Trap"
+				"Trap",
+				38
 			],
 			"creativeGroup": "itemGroup.name.trapdoor",
 			"thickness": 0,
@@ -385252,8 +385148,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -388254,9 +388149,7 @@
 				"preFlatteningName": "minecraft:wool"
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -388419,9 +388312,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -388739,9 +388630,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -389102,9 +388991,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,
@@ -391792,8 +391679,7 @@
 			},
 			"properties": [
 				"Carpet",
-				"Walkable",
-				"CanDamperVibrations"
+				"Walkable"
 			],
 			"creativeGroup": "itemGroup.name.woolCarpet",
 			"thickness": 0.07,
@@ -394769,9 +394655,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "itemGroup.name.wool",
 			"thickness": 0,
@@ -394934,9 +394818,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"CubeShaped",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"CubeShaped"
 			],
 			"creativeGroup": "",
 			"thickness": 0,
@@ -395254,9 +395136,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"HalfSlab",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"HalfSlab"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.slab",
 			"thickness": 0,
@@ -395617,9 +395497,7 @@
 				"preFlatteningName": ""
 			},
 			"properties": [
-				"Stair",
-				"CanDamperVibrations",
-				"CanOccludeVibrations"
+				"Stair"
 			],
 			"creativeGroup": "minecraft:itemGroup.name.stairs",
 			"thickness": 0,

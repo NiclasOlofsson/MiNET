@@ -1031,6 +1031,13 @@ namespace MiNET
 		public bool IsNoClip { get; set; }
 		public bool IsFlying { get; set; }
 
+		public DateTime? ItemUseStartedAt { get; set; }
+
+		public bool HasUsedItemFor(int ticks)
+		{
+			return ItemUseStartedAt != null && (DateTime.UtcNow - ItemUseStartedAt.Value).TotalMilliseconds >= (ticks - 2) * 50;
+		}
+
 		public virtual void SendGameRules()
 		{
 			McpeGameRulesChanged gameRulesChanged = McpeGameRulesChanged.CreateObject();
@@ -2591,21 +2598,7 @@ namespace MiNET
 				HeadYaw = message.headYaw
 			};
 
-			IsFalling = verticalMove < 0 && !IsOnGround;
-
-			if (IsFalling)
-			{
-				if (StartFallY == 0) StartFallY = KnownPosition.Y;
-			}
-			else
-			{
-				double damage = StartFallY - KnownPosition.Y;
-				if ((damage - 3) > 0)
-				{
-					HealthManager.TakeHit(null, (int) DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
-				}
-				StartFallY = 0;
-			}
+			UpdateFall(KnownPosition.Y - verticalMove, IsOnGround);
 
 			LastUpdatedTime = DateTime.UtcNow;
 
@@ -2618,6 +2611,50 @@ namespace MiNET
 
 		public double CurrentSpeed { get; private set; } = 0;
 		public double StartFallY { get; private set; } = 0;
+
+		/// <summary>Blocks fallen since the player last stood on something, downward moves only.</summary>
+		public double FallDistance { get; private set; } = 0;
+
+		/// <summary>
+		///     Accumulates the fall and lands it. Vanilla counts only downward movement and hurts for
+		///     every whole block past the third, so a jump's rise never adds to it. Water, flight and
+		///     gliding cancel the fall outright; game mode and armor are TakeHit's and the
+		///     calculator's business.
+		/// </summary>
+		protected virtual void UpdateFall(double previousY, bool isOnGround)
+		{
+			double y = KnownPosition.Y;
+
+			if (IsFlying || IsGliding || IsInWater)
+			{
+				IsFalling = false;
+				FallDistance = 0;
+				StartFallY = 0;
+				return;
+			}
+
+			if (!isOnGround)
+			{
+				if (y < previousY)
+				{
+					if (FallDistance == 0) StartFallY = previousY;
+					FallDistance += previousY - y;
+				}
+				IsFalling = y < previousY;
+				return;
+			}
+
+			double fallen = FallDistance;
+			IsFalling = false;
+			FallDistance = 0;
+			StartFallY = 0;
+
+			int damage = (int) Math.Ceiling(fallen - 3);
+			if (damage > 0 && Level.Falldamage)
+			{
+				HealthManager.TakeHit(null, (int) DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
+			}
+		}
 
 		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround, bool isFlyingHorizontally)
 		{
@@ -2801,8 +2838,19 @@ namespace MiNET
 
 			if (!IsGliding) HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(newPosition.X, 0, newPosition.Z)));
 
+			// Jump used to arrive as PlayerAction.Jump, which the 1.26 client no longer sends.
+			if ((message.inputData & AuthInputFlags.StartJumping) != 0) HungerManager.IncreaseExhaustion(IsSprinting ? 0.8f : 0.2f);
+
+			if ((message.inputData & AuthInputFlags.StartFlying) != 0) IsFlying = true;
+			if ((message.inputData & AuthInputFlags.StopFlying) != 0) IsFlying = false;
+
+			double previousY = KnownPosition.Y;
 			KnownPosition = newPosition;
 			LastUpdatedTime = DateTime.UtcNow;
+
+			// Fall damage used to hang off MovePlayer too. Vertical collision is also a head
+			// bump, so landing means collided while not moving up.
+			UpdateFall(previousY, IsOnGround && newPosition.Y <= previousY);
 
 			// Republish the live area the moment the player crosses into a new column, ahead of any
 			// streaming. The publisher update names the centre and radius the client treats as live,
@@ -3665,10 +3713,12 @@ namespace MiNET
 				case ItemReleaseInventoryTransaction.ItemReleaseActionType.Release:
 				{
 					itemInHand.Release(Level, this, transaction.fromPosition);
+					ItemUseStartedAt = null;
 					break;
 				}
-				case ItemReleaseInventoryTransaction.ItemReleaseActionType.Use:
+				case ItemReleaseInventoryTransaction.ItemReleaseActionType.Use: // consume: eating or drinking finished
 				{
+					itemInHand.CompleteUsing(Level, this);
 					break;
 				}
 				default:

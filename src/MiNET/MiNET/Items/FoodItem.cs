@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using MiNET.Utils;
 using MiNET.Utils.Vectors;
 using MiNET.Worlds;
@@ -40,29 +41,31 @@ namespace MiNET.Items
 			SaturationRestore = saturationRestore;
 		}
 
-		private bool _isUsing;
+		/// <summary>Ticks of eating before the food counts, vanilla's 32 for nearly everything.</summary>
+		public virtual int UseDurationTicks => 32;
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			if (player.GameMode == GameMode.Survival || player.GameMode == GameMode.Adventure)
-			{
-				if (_isUsing)
-				{
-					Consume(player);
+			if (player.GameMode != GameMode.Survival && player.GameMode != GameMode.Adventure) return;
 
-					Count--;
-					player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, this);
-					_isUsing = false;
-					return;
-				}
+			CompleteUsing(world, player);
 
-				if (player.HungerManager.CanEat()) _isUsing = true;
-			}
+			player.ItemUseStartedAt = player.HungerManager.CanEat() ? DateTime.UtcNow : null;
 		}
 
-		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void CompleteUsing(Level world, Player player)
 		{
-			_isUsing = false;
+			if (!player.HasUsedItemFor(UseDurationTicks)) return;
+			player.ItemUseStartedAt = null;
+
+			if (!player.HungerManager.CanEat()) return;
+
+			Consume(player);
+
+			Count--;
+			UniqueId = Environment.TickCount;
+			if (Count <= 0) player.Inventory.ClearInventorySlot((byte) player.Inventory.InHandSlot);
+			else player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, this);
 		}
 
 		public virtual void Consume(Player player)

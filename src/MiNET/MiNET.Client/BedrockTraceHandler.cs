@@ -548,6 +548,35 @@ namespace MiNET.Client
 			Client.Entities.TryRemove(message.targetActorId, out _);
 		}
 
+		public override void HandleMcpeRespawn(McpeRespawn message)
+		{
+			Log.Warn($"Respawn state={message.state} position=({message.x}, {message.y}, {message.z}) runtimeEntityId={message.runtimeEntityId}");
+
+			base.HandleMcpeRespawn(message);
+
+			if (message.state == (byte) McpeRespawn.RespawnState.Search)
+			{
+				var ready = McpeRespawn.CreateObject();
+				ready.state = (byte) McpeRespawn.RespawnState.ClientReady;
+				ready.runtimeEntityId = Client.EntityId;
+				Client.SendPacket(ready);
+			}
+			else if (message.state == (byte) McpeRespawn.RespawnState.Ready && Client.HasSpawned)
+			{
+				var action = McpePlayerAction.CreateObject();
+				action.playerRuntimeId = Client.EntityId;
+				action.action = (McpePlayerAction.PlayerActionType) (int) PlayerAction.Respawn;
+				Client.SendPacket(action);
+			}
+		}
+
+		public override void HandleMcpeMovePlayer(McpeMovePlayer message)
+		{
+			if (message.runtimeEntityId == Client.EntityId) Log.Warn($"MovePlayer mode={message.mode} position={message.position}");
+
+			base.HandleMcpeMovePlayer(message);
+		}
+
 		public override void HandleMcpeLevelEvent(McpeLevelEvent message)
 		{
 			int data = message.data;

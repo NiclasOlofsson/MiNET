@@ -101,6 +101,18 @@ namespace MiNET.Entities.Behaviors
 			return Math.Floor((degrees % 360 + 360) % 360);
 		}
 
+		public const double GroundFriction = 0.6 * 0.91;
+
+		public static double GetWalkSpeed(double speed)
+		{
+			return 0.98 * speed * speed / (1 - GroundFriction);
+		}
+
+		public static float GetWalkVelocity(Mob mob, double speed)
+		{
+			return (float) (GetWalkSpeed(speed) / (1 - mob.Drag));
+		}
+
 		private int _jumpCooldown = 0;
 
 		public void MoveForward(double speedMultiplier, Entity[] entities)
@@ -111,7 +123,7 @@ namespace MiNET.Entities.Behaviors
 				//return;
 			}
 
-			float speedFactor = (float) (_entity.Speed * speedMultiplier * 0.7f);
+			float speedFactor = GetWalkVelocity(_entity, _entity.Speed * speedMultiplier);
 			var level = _entity.Level;
 			var currPosition = _entity.KnownPosition;
 			var direction = Vector3.Normalize(_entity.GetHorizDir() * new Vector3(1, 0, 1));

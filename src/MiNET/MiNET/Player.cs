@@ -82,7 +82,16 @@ namespace MiNET
 		public ItemStackInventoryManager ItemStackInventoryManager { get; set; }
 
 		public PlayerLocation SpawnPosition { get; set; }
-		public bool IsSleeping { get; set; } = false;
+
+		public BlockCoordinates? SleepingPosition { get; private set; }
+
+		public bool IsSleeping => SleepingPosition != null;
+
+		public long SleepStartedTick { get; private set; }
+
+		public BlockCoordinates? RespawnBed { get; private set; }
+
+		private readonly object _sleepSync = new object();
 
 		public int MaxViewDistance { get; set; } = 22;
 		public int MoveRenderDistance { get; set; } = 1;
@@ -860,17 +869,7 @@ namespace MiNET
 				}
 				case PlayerAction.StopSleeping:
 				{
-					IsSleeping = false;
-					Bed bed = Level.GetBlock(SpawnPosition) as Bed;
-					if (bed != null)
-					{
-						bed.SetOccupied(Level, false);
-					}
-					else
-					{
-						Log.Warn($"Did not find a bed at {SpawnPosition}");
-					}
-
+					StopSleep();
 					break;
 				}
 				//case PlayerAction.Respawn:
@@ -975,8 +974,6 @@ namespace MiNET
 				}
 			}
 
-			IsUsingItem = false;
-
 			BroadcastSetEntityData();
 		}
 
@@ -1031,6 +1028,32 @@ namespace MiNET
 		public bool IsNoMvp { get; set; }
 		public bool IsNoClip { get; set; }
 		public bool IsFlying { get; set; }
+
+		public long ClientTick { get; set; }
+
+		public long? ItemUseStartedTick { get; private set; }
+
+		public void BeginItemUse()
+		{
+			ItemUseStartedTick = ClientTick;
+		}
+
+		public void EndItemUse()
+		{
+			ItemUseStartedTick = null;
+		}
+
+		public void StopUsingItem()
+		{
+			if (!IsUsingItem) return;
+			IsUsingItem = false;
+			BroadcastSetEntityData();
+		}
+
+		public bool HasUsedItemFor(int ticks)
+		{
+			return ItemUseStartedTick != null && ClientTick - ItemUseStartedTick.Value >= ticks - 2;
+		}
 
 		public virtual void SendGameRules()
 		{
@@ -1286,22 +1309,10 @@ namespace MiNET
 			SendPacket(playerList);
 		}
 
-		// Level event 19602: sleep status. Payload is an unframed network-NBT compound body:
-		// ableToSleep, overworldPlayerCount, sleepingPlayerCount (varint-NBT int tags, no root
-		// compound header). MiNET does not model sleeping yet, so sleeping count is 0.
 		public virtual void SendSleepStatus()
 		{
-			var root = new NbtCompound("")
-			{
-				new NbtInt("ableToSleep", 1),
-				new NbtInt("overworldPlayerCount", Math.Max(1, Level.PlayerCount)),
-				new NbtInt("sleepingPlayerCount", 0)
-			};
-
-			var packet = McpeLevelEventGeneric.CreateObject();
-			packet.eventId = (int) LevelEventType.SleepingPlayers;
-			packet.eventData = root;
-			SendPacket(packet);
+			int sleeping = Level.GetSpawnedPlayers().Count(p => p.IsSleeping);
+			SendPacket(Level.CreateSleepStatus(Math.Max(1, Level.PlayerCount), sleeping));
 		}
 
 		public virtual void SendWorldClockState()
@@ -1315,19 +1326,65 @@ namespace MiNET
 			Level.Clock.SendRegistryTo(this);
 		}
 
-		// The player's personal (bed/anchor) spawn. MiNET does not track one yet, so this is
-		// vanilla's undefined-position sentinel (INT32_MIN, -1, INT32_MIN in dimension 3).
+		// The player's personal (bed/anchor) spawn, or vanilla's undefined-position sentinel
+		// (INT32_MIN, -1, INT32_MIN in dimension 3).
 		// Distinct from SendSetSpawnPosition, which announces the WORLD spawn (type 1).
 		public virtual void SendPlayerSpawnPosition()
 		{
-			var undefined = new BlockCoordinates(int.MinValue, -1, int.MinValue);
+			BlockCoordinates? bed = RespawnBed;
+			var position = bed ?? new BlockCoordinates(int.MinValue, -1, int.MinValue);
 
 			var packet = McpeSetSpawnPosition.CreateObject();
 			packet.spawnPositionType = 0; // player spawn
-			packet.blockPosition = undefined;
-			packet.dimensionType = 3; // undefined
-			packet.spawnBlockPos = undefined;
+			packet.blockPosition = position;
+			packet.dimensionType = bed == null ? 3 : 0;
+			packet.spawnBlockPos = position;
 			SendPacket(packet);
+		}
+
+		public virtual void SetRespawnBed(BlockCoordinates bed)
+		{
+			if (RespawnBed == bed) return;
+
+			RespawnBed = bed;
+			SpawnPosition = new PlayerLocation(bed.X + 0.5f, bed.Y + 0.5625f, bed.Z + 0.5f);
+			SendPlayerSpawnPosition();
+			SendMessage("tile.bed.respawnSet", MessageType.Translation, needsTranslation: true);
+		}
+
+		public virtual void SleepOn(Bed bed)
+		{
+			lock (_sleepSync)
+			{
+				if (SleepingPosition != null) return;
+
+				SleepingPosition = bed.Coordinates;
+				SleepStartedTick = Level.TickTime;
+			}
+
+			bed.SetOccupied(Level, true);
+			BroadcastSetEntityData();
+		}
+
+		public virtual void StopSleep()
+		{
+			BlockCoordinates bedPosition;
+			lock (_sleepSync)
+			{
+				if (SleepingPosition == null) return;
+
+				bedPosition = SleepingPosition.Value;
+				SleepingPosition = null;
+			}
+
+			if (Level?.GetBlock(bedPosition) is Bed bed) bed.SetOccupied(Level, false);
+
+			var animate = McpeAnimate.CreateObject();
+			animate.runtimeEntityId = EntityManager.EntityIdSelf;
+			animate.actionId = McpeAnimate.AnimatePacketPayloadAction.WakeUp;
+			SendPacket(animate);
+
+			BroadcastSetEntityData();
 		}
 
 		public virtual void SendPlayerHotbar()
@@ -1657,7 +1714,7 @@ namespace MiNET
 
 				var mcpeRespawn = McpeRespawn.CreateObject();
 				mcpeRespawn.x = SpawnPosition.X;
-				mcpeRespawn.y = SpawnPosition.Y;
+				mcpeRespawn.y = SpawnPosition.Y + 1.62f;
 				mcpeRespawn.z = SpawnPosition.Z;
 				mcpeRespawn.state = (byte) McpeRespawn.RespawnState.Ready;
 				mcpeRespawn.runtimeEntityId = EntityId;
@@ -2183,6 +2240,8 @@ namespace MiNET
 			// dying, changing level does not make the client tear its own window down.
 			if (Screen.Kind != ScreenKind.Inventory) HandleMcpeContainerClose(null);
 
+			StopSleep();
+
 			bool oldNoAi = NoAi;
 			SetNoAi(true);
 			int oldChunkRadius = ChunkRadius;
@@ -2452,7 +2511,10 @@ namespace MiNET
 		{
 			GameMode = gameMode;
 
+			if (!AllowFly && (gameMode == GameMode.Survival || gameMode == GameMode.Adventure)) IsFlying = false;
+
 			SendUpdatePlayerGameType();
+			SendAdventureSettings();
 		}
 
 
@@ -2510,6 +2572,8 @@ namespace MiNET
 					// closing it reads as open forever: the lid stays up for everyone, and the inventory
 					// holds a departed player it keeps sending slot changes to.
 					ReleaseScreen();
+
+					StopSleep();
 
 					Level?.RemovePlayer(this);
 
@@ -2592,21 +2656,8 @@ namespace MiNET
 				HeadYaw = message.headYaw
 			};
 
-			IsFalling = verticalMove < 0 && !IsOnGround;
-
-			if (IsFalling)
-			{
-				if (StartFallY == 0) StartFallY = KnownPosition.Y;
-			}
-			else
-			{
-				double damage = StartFallY - KnownPosition.Y;
-				if ((damage - 3) > 0)
-				{
-					HealthManager.TakeHit(null, (int) DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
-				}
-				StartFallY = 0;
-			}
+			int fallDamage = UpdateFall(KnownPosition.Y - verticalMove, IsOnGround);
+			if (fallDamage > 0) TakeFallDamage(fallDamage);
 
 			LastUpdatedTime = DateTime.UtcNow;
 
@@ -2619,6 +2670,52 @@ namespace MiNET
 
 		public double CurrentSpeed { get; private set; } = 0;
 		public double StartFallY { get; private set; } = 0;
+
+		/// <summary>Blocks fallen since the player last stood on something, downward moves only.</summary>
+		public double FallDistance { get; private set; } = 0;
+
+		/// <summary>
+		///     Accumulates the fall and returns the damage owed on landing. Vanilla counts only
+		///     downward movement and hurts for every whole block past the third, so a jump's rise
+		///     never adds to it. Water, flight and gliding cancel the fall outright; game mode and
+		///     armor are TakeHit's and the calculator's business.
+		/// </summary>
+		protected virtual int UpdateFall(double previousY, bool isOnGround)
+		{
+			double y = KnownPosition.Y;
+
+			if (IsFlying || IsGliding || IsInWater)
+			{
+				IsFalling = false;
+				FallDistance = 0;
+				StartFallY = 0;
+				return 0;
+			}
+
+			if (!isOnGround)
+			{
+				if (y < previousY)
+				{
+					if (FallDistance == 0) StartFallY = previousY;
+					FallDistance += previousY - y;
+				}
+				IsFalling = y < previousY;
+				return 0;
+			}
+
+			double fallen = FallDistance;
+			IsFalling = false;
+			FallDistance = 0;
+			StartFallY = 0;
+
+			int damage = (int) Math.Ceiling(fallen - 3);
+			return damage > 0 && Level.Falldamage ? damage : 0;
+		}
+
+		protected virtual void TakeFallDamage(int damage)
+		{
+			HealthManager.TakeHit(null, (int) DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
+		}
 
 		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround, bool isFlyingHorizontally)
 		{
@@ -2783,6 +2880,8 @@ namespace MiNET
 			// is the transport's guarantee on both paths.
 			if (!IsSpawned || HealthManager.IsDead) return;
 
+			ClientTick = message.clientTick;
+
 			var newPosition = new PlayerLocation
 			{
 				X = message.position.X,
@@ -2802,8 +2901,24 @@ namespace MiNET
 
 			if (!IsGliding) HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(newPosition.X, 0, newPosition.Z)));
 
+			// Jump used to arrive as PlayerAction.Jump, which the 1.26 client no longer sends.
+			if ((message.inputData & AuthInputFlags.StartJumping) != 0) HungerManager.IncreaseExhaustion(IsSprinting ? 0.8f : 0.2f);
+
+			if ((message.inputData & AuthInputFlags.StartFlying) != 0) IsFlying = true;
+			if ((message.inputData & AuthInputFlags.StopFlying) != 0) IsFlying = false;
+
+			double previousY = KnownPosition.Y;
 			KnownPosition = newPosition;
 			LastUpdatedTime = DateTime.UtcNow;
+
+			// Fall damage used to hang off MovePlayer too. Vertical collision is also a head
+			// bump, so landing means collided while not moving up.
+			int fallDamage = UpdateFall(previousY, IsOnGround && newPosition.Y <= previousY);
+			if (fallDamage > 0)
+			{
+				int damage = fallDamage;
+				MiNetServer.FastThreadPool.QueueUserWorkItem(() => TakeFallDamage(damage));
+			}
 
 			// Republish the live area the moment the player crosses into a new column, ahead of any
 			// streaming. The publisher update names the centre and radius the client treats as live,
@@ -2833,8 +2948,10 @@ namespace MiNET
 			// behaviors; without this the server keeps broadcasting stale entity state against
 			// the client's prediction and sprint/sneak stutter and cancel.
 			AuthInputFlags flags = message.inputData;
-			if ((flags & (AuthInputFlags.StartSprinting | AuthInputFlags.StopSprinting | AuthInputFlags.StartSneaking | AuthInputFlags.StopSneaking | AuthInputFlags.StartGliding | AuthInputFlags.StopGliding)) != 0)
+			if ((flags & (AuthInputFlags.StartSprinting | AuthInputFlags.StopSprinting | AuthInputFlags.StartSneaking | AuthInputFlags.StopSneaking | AuthInputFlags.StartGliding | AuthInputFlags.StopGliding | AuthInputFlags.StartUsingItem)) != 0)
 			{
+				if ((flags & AuthInputFlags.StartUsingItem) != 0) IsUsingItem = true;
+
 				if ((flags & AuthInputFlags.StartSprinting) != 0) SetSprinting(true);
 				if ((flags & AuthInputFlags.StopSprinting) != 0) SetSprinting(false);
 
@@ -3357,6 +3474,12 @@ namespace MiNET
 
 				if (Log.IsDebugEnabled) Log.Debug($"Player {Username} called set equipment with held hotbar slot {message.selectedSlot} with item {message.item}");
 
+				if (selectedHotbarSlot != Inventory.InHandSlot)
+				{
+					EndItemUse();
+					StopUsingItem();
+				}
+
 				Inventory.SetHeldItemSlot(selectedHotbarSlot, false);
 				if (Log.IsDebugEnabled)
 					Log.Debug($"Player {Username} now holding {Inventory.GetItemInHand()}");
@@ -3666,10 +3789,14 @@ namespace MiNET
 				case ItemReleaseInventoryTransaction.ItemReleaseActionType.Release:
 				{
 					itemInHand.Release(Level, this, transaction.fromPosition);
+					EndItemUse();
+					StopUsingItem();
 					break;
 				}
-				case ItemReleaseInventoryTransaction.ItemReleaseActionType.Use:
+				case ItemReleaseInventoryTransaction.ItemReleaseActionType.Use: // consume: eating or drinking finished
 				{
+					itemInHand.CompleteUsing(Level, this);
+					StopUsingItem();
 					break;
 				}
 				default:
@@ -4087,7 +4214,7 @@ namespace MiNET
 		{
 			McpeRespawn mcpeRespawn = McpeRespawn.CreateObject();
 			mcpeRespawn.x = SpawnPosition.X;
-			mcpeRespawn.y = SpawnPosition.Y;
+			mcpeRespawn.y = SpawnPosition.Y + 1.62f;
 			mcpeRespawn.z = SpawnPosition.Z;
 			SendPacket(mcpeRespawn);
 		}
@@ -4958,13 +5085,16 @@ namespace MiNET
 			var metadata = base.GetMetadata();
 			metadata[(int) MetadataFlags.NameTag] = new MetadataString(NameTag ?? Username);
 			metadata[(int) MetadataFlags.ButtonText] = new MetadataString(ButtonText ?? string.Empty);
-			metadata[(int) MetadataFlags.PlayerFlags] = new MetadataByte((byte) (IsSleeping ? 0b10 : 0));
+			BlockCoordinates? sleepingPosition = SleepingPosition;
+			metadata[(int) MetadataFlags.PlayerFlags] = new MetadataByte((byte) (sleepingPosition != null ? 0b10 : 0));
 			// A player has no spawn position until the level assigns one, and metadata is broadcast
 			// before that: any throw here takes down the whole wrapper batch it rides in.
 			PlayerLocation bedPosition = SpawnPosition ?? KnownPosition;
-			metadata[(int) MetadataFlags.BedPosition] = bedPosition == null
-				? new MetadataIntCoordinates(0, 0, 0)
-				: new MetadataIntCoordinates((int) bedPosition.X, (int) bedPosition.Y, (int) bedPosition.Z);
+			metadata[(int) MetadataFlags.BedPosition] = sleepingPosition != null
+				? new MetadataIntCoordinates(sleepingPosition.Value.X, sleepingPosition.Value.Y, sleepingPosition.Value.Z)
+				: bedPosition == null
+					? new MetadataIntCoordinates(0, 0, 0)
+					: new MetadataIntCoordinates((int) bedPosition.X, (int) bedPosition.Y, (int) bedPosition.Z);
 
 			// Players report their bounding box as a single CollisionBox vector3 (width, height, 0)
 			// instead of the generic CollisionBoxWidth/Height floats used by mobs.

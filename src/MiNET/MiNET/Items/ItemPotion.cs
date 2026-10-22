@@ -95,29 +95,24 @@ namespace MiNET.Items
 			};
 		}
 
-		private bool _isUsing;
-
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			if (_isUsing)
-			{
-				Consume(player);
+			CompleteUsing(world, player);
 
-				if (player.GameMode == GameMode.Survival || player.GameMode == GameMode.Adventure)
-				{
-					player.Inventory.ClearInventorySlot((byte) player.Inventory.InHandSlot);
-					player.Inventory.SetFirstEmptySlot(ItemFactory.GetItemByName("minecraft:glass_bottle"), true);
-				}
-				_isUsing = false;
-				return;
-			}
-
-			_isUsing = true;
+			player.BeginItemUse();
 		}
 
-		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void CompleteUsing(Level world, Player player)
 		{
-			_isUsing = false;
+			if (!player.HasUsedItemFor(32)) return;
+			player.EndItemUse();
+
+			Consume(player);
+
+			if (player.GameMode == GameMode.Survival || player.GameMode == GameMode.Adventure)
+			{
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, ItemFactory.GetItemByName("minecraft:glass_bottle"));
+			}
 		}
 
 

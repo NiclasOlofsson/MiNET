@@ -28,6 +28,7 @@ using System.Numerics;
 using log4net;
 using MiNET.BlockEntities;
 using MiNET.Entities;
+using MiNET.Entities.Hostile;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Utils.Vectors;
@@ -72,7 +73,6 @@ namespace MiNET.Blocks
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			HeadPieceBit = false;
-			world.SetBlock(new GoldBlock() {Coordinates = Coordinates + BlockCoordinates.Down});
 			world.SetBlockEntity(new BedBlockEntity
 			{
 				Coordinates = Coordinates,
@@ -87,7 +87,6 @@ namespace MiNET.Blocks
 				HeadPieceBit = true,
 			};
 			world.SetBlock(blockOther);
-			world.SetBlock(new GoldBlock() {Coordinates = otherCoord + BlockCoordinates.Down});
 			world.SetBlockEntity(new BedBlockEntity
 			{
 				Coordinates = blockOther.Coordinates,
@@ -102,6 +101,12 @@ namespace MiNET.Blocks
 			if (level.GetBlockEntity(Coordinates) is BedBlockEntity blockEntiy)
 			{
 				Color = blockEntiy.Color;
+			}
+
+			BlockCoordinates head = GetHeadCoordinates();
+			foreach (Player sleeper in level.GetSpawnedPlayers())
+			{
+				if (sleeper.SleepingPosition == head) sleeper.StopSleep();
 			}
 
 			base.BreakBlock(level, face, silent);
@@ -130,19 +135,87 @@ namespace MiNET.Blocks
 			return Coordinates + direction;
 		}
 
+		private const float ReachDistance = 2;
+		private const int MonsterHorizontalRange = 8;
+		private const int MonsterVerticalRange = 5;
+
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
-			if (OccupiedBit)
+			Bed head = HeadPieceBit ? this : world.GetBlock(GetOtherPart()) as Bed;
+			if (head == null || !head.HeadPieceBit) return true;
+
+			if (world.Dimension != Dimension.Overworld)
 			{
-				Log.Debug($"Bed at {Coordinates} is already occupied"); // Send proper message to player
+				if (world.RespawnBlocksExplode) new Explosion(world, head.Coordinates, 5, true).Explode();
 				return true;
 			}
 
-			SetOccupied(world, true);
-			player.IsSleeping = true;
-			player.SpawnPosition = blockCoordinates;
-			player.BroadcastSetEntityData();
+			if (!IsInReach(player.KnownPosition, Coordinates) && !IsInReach(player.KnownPosition, GetOtherPart()))
+			{
+				player.SendMessage("tile.bed.tooFar", MessageType.Translation, needsTranslation: true);
+				return true;
+			}
+
+			if (head.OccupiedBit)
+			{
+				player.SendMessage("tile.bed.occupied", MessageType.Translation, needsTranslation: true);
+				return true;
+			}
+
+			player.SetRespawnBed(head.Coordinates);
+
+			if (!IsSleepTime(world))
+			{
+				player.SendMessage("tile.bed.noSleep", MessageType.Translation, needsTranslation: true);
+				return true;
+			}
+
+			if (AreMonstersNear(world, head.Coordinates))
+			{
+				player.SendMessage("tile.bed.notSafe", MessageType.Translation, needsTranslation: true);
+				return true;
+			}
+
+			player.SleepOn(head);
 			return true;
+		}
+
+		private static bool IsInReach(PlayerLocation position, BlockCoordinates half)
+		{
+			return Math.Abs(position.X - (half.X + 0.5f)) <= ReachDistance
+					&& Math.Abs(position.Y - half.Y) <= ReachDistance
+					&& Math.Abs(position.Z - (half.Z + 0.5f)) <= ReachDistance;
+		}
+
+		private static bool IsSleepTime(Level world)
+		{
+			long time = world.CurrentWorldCycleTime;
+			return world.RainLevel > 0
+				? time >= 12002 && time <= 23998
+				: time >= 12523 && time <= 23477;
+		}
+
+		private static bool AreMonstersNear(Level world, BlockCoordinates head)
+		{
+			foreach (Entity entity in world.Entities.Values)
+			{
+				if (entity is not HostileMob || entity.HealthManager.IsDead) continue;
+
+				PlayerLocation position = entity.KnownPosition;
+				if (Math.Abs(position.X - (head.X + 0.5f)) <= MonsterHorizontalRange
+					&& Math.Abs(position.Z - (head.Z + 0.5f)) <= MonsterHorizontalRange
+					&& Math.Abs(position.Y - head.Y) <= MonsterVerticalRange)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		public BlockCoordinates GetHeadCoordinates()
+		{
+			return HeadPieceBit ? Coordinates : GetOtherPart();
 		}
 
 		public void SetOccupied(Level world, bool isOccupied)

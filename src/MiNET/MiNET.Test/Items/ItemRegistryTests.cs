@@ -101,7 +101,7 @@ namespace MiNET.Test.Items
 
 				// Block items all share ItemBlock, and anything unmodelled shares Item; they carry
 				// their identity in Name rather than in the class, so they are not collisions.
-				if (type == typeof(Item) || type == typeof(ItemBlock)) continue;
+				if (type == typeof(Item) || type == typeof(ItemBlock) || type == typeof(GenericFoodItem)) continue;
 
 				if (byType.TryGetValue(type, out string first)) collisions.Add($"{type.Name}: {first} and {entry.Name}");
 				else byType[type] = entry.Name;

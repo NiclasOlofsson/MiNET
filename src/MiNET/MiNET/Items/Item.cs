@@ -249,6 +249,10 @@ namespace MiNET.Items
 		{
 		}
 
+		public virtual void CompleteUsing(Level world, Player player)
+		{
+		}
+
 		protected bool Equals(Item other)
 		{
 			if (!string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase) || Metadata != other.Metadata) return false;

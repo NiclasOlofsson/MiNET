@@ -243,7 +243,7 @@ namespace MiNET
 		public virtual void ResetHunger()
 		{
 			Hunger = MaxHunger;
-			Saturation = MaxHunger;
+			Saturation = 5;
 			Exhaustion = 0;
 		}
 	}

@@ -717,6 +717,8 @@ namespace MiNET.Worlds
 					Clock.BroadcastState();
 				}
 
+				TickSleep(players);
+
 				SkylightSubtracted = CalculateSkylightSubtracted(WorldTime);
 
 				// Save dirty chunks
@@ -960,6 +962,64 @@ namespace MiNET.Worlds
 			float f1 = 1.0F - (float) ((Math.Cos((double) f * Math.PI) + 1.0D) / 2.0D);
 			f = f + (f1 - f) / 3.0F;
 			return f;
+		}
+
+		private const int SleepTicksToSkipNight = 101;
+
+		private int _sleepStatusPlayers = -1;
+		private int _sleepStatusSleeping = -1;
+
+		public virtual void TickSleep(Player[] players)
+		{
+			if (Dimension != Dimension.Overworld) return;
+
+			int sleeping = 0;
+			int rested = 0;
+			foreach (Player player in players)
+			{
+				if (!player.IsSleeping) continue;
+
+				sleeping++;
+				if (TickTime - player.SleepStartedTick >= SleepTicksToSkipNight) rested++;
+			}
+
+			if (players.Length != _sleepStatusPlayers || sleeping != _sleepStatusSleeping)
+			{
+				_sleepStatusPlayers = players.Length;
+				_sleepStatusSleeping = sleeping;
+				if (players.Length > 0) RelayBroadcast(players, CreateSleepStatus(players.Length, sleeping));
+			}
+
+			if (rested == 0 || PlayersSleepingPercentage > 100) return;
+
+			int required = Math.Max(1, (int) Math.Ceiling(players.Length * PlayersSleepingPercentage / 100.0));
+			if (rested < required) return;
+
+			if (!Clock.Paused)
+			{
+				Clock.Time += Clock.TicksPerDay - Clock.TimeOfDay;
+				Clock.BroadcastState();
+			}
+
+			foreach (Player player in players) player.StopSleep();
+		}
+
+		// Level event 19602: sleep status. Payload is an unframed network-NBT compound body:
+		// ableToSleep, overworldPlayerCount, sleepingPlayerCount (varint-NBT int tags, no root
+		// compound header).
+		public McpeLevelEventGeneric CreateSleepStatus(int playerCount, int sleepingCount)
+		{
+			var root = new NbtCompound("")
+			{
+				new NbtInt("ableToSleep", PlayersSleepingPercentage <= 100 ? 1 : 0),
+				new NbtInt("overworldPlayerCount", playerCount),
+				new NbtInt("sleepingPlayerCount", sleepingCount)
+			};
+
+			var packet = McpeLevelEventGeneric.CreateObject();
+			packet.eventId = (int) LevelEventType.SleepingPlayers;
+			packet.eventData = root;
+			return packet;
 		}
 
 		public Player[] GetSpawnedPlayers()

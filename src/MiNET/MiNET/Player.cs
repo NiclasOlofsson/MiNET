@@ -2498,7 +2498,10 @@ namespace MiNET
 		{
 			GameMode = gameMode;
 
+			if (!AllowFly && (gameMode == GameMode.Survival || gameMode == GameMode.Adventure)) IsFlying = false;
+
 			SendUpdatePlayerGameType();
+			SendAdventureSettings();
 		}
 
 

@@ -1701,7 +1701,7 @@ namespace MiNET
 
 				var mcpeRespawn = McpeRespawn.CreateObject();
 				mcpeRespawn.x = SpawnPosition.X;
-				mcpeRespawn.y = SpawnPosition.Y;
+				mcpeRespawn.y = SpawnPosition.Y + 1.62f;
 				mcpeRespawn.z = SpawnPosition.Z;
 				mcpeRespawn.state = (byte) McpeRespawn.RespawnState.Ready;
 				mcpeRespawn.runtimeEntityId = EntityId;
@@ -4188,7 +4188,7 @@ namespace MiNET
 		{
 			McpeRespawn mcpeRespawn = McpeRespawn.CreateObject();
 			mcpeRespawn.x = SpawnPosition.X;
-			mcpeRespawn.y = SpawnPosition.Y;
+			mcpeRespawn.y = SpawnPosition.Y + 1.62f;
 			mcpeRespawn.z = SpawnPosition.Z;
 			SendPacket(mcpeRespawn);
 		}

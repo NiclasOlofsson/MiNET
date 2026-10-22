@@ -1028,7 +1028,19 @@ namespace MiNET
 		public bool IsNoClip { get; set; }
 		public bool IsFlying { get; set; }
 
-		public DateTime? ItemUseStartedAt { get; set; }
+		public long ClientTick { get; set; }
+
+		public long? ItemUseStartedTick { get; private set; }
+
+		public void BeginItemUse()
+		{
+			ItemUseStartedTick = ClientTick;
+		}
+
+		public void EndItemUse()
+		{
+			ItemUseStartedTick = null;
+		}
 
 		public void StopUsingItem()
 		{
@@ -1039,7 +1051,7 @@ namespace MiNET
 
 		public bool HasUsedItemFor(int ticks)
 		{
-			return ItemUseStartedAt != null && (DateTime.UtcNow - ItemUseStartedAt.Value).TotalMilliseconds >= (ticks - 2) * 50;
+			return ItemUseStartedTick != null && ClientTick - ItemUseStartedTick.Value >= ticks - 2;
 		}
 
 		public virtual void SendGameRules()
@@ -2867,6 +2879,8 @@ namespace MiNET
 			// is the transport's guarantee on both paths.
 			if (!IsSpawned || HealthManager.IsDead) return;
 
+			ClientTick = message.clientTick;
+
 			var newPosition = new PlayerLocation
 			{
 				X = message.position.X,
@@ -3461,7 +3475,7 @@ namespace MiNET
 
 				if (selectedHotbarSlot != Inventory.InHandSlot)
 				{
-					ItemUseStartedAt = null;
+					EndItemUse();
 					StopUsingItem();
 				}
 
@@ -3774,7 +3788,7 @@ namespace MiNET
 				case ItemReleaseInventoryTransaction.ItemReleaseActionType.Release:
 				{
 					itemInHand.Release(Level, this, transaction.fromPosition);
-					ItemUseStartedAt = null;
+					EndItemUse();
 					StopUsingItem();
 					break;
 				}

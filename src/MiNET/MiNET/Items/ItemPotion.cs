@@ -23,7 +23,6 @@
 
 #endregion
 
-using System;
 using log4net;
 using MiNET.Effects;
 using MiNET.Utils;
@@ -100,20 +99,19 @@ namespace MiNET.Items
 		{
 			CompleteUsing(world, player);
 
-			player.ItemUseStartedAt = DateTime.UtcNow;
+			player.BeginItemUse();
 		}
 
 		public override void CompleteUsing(Level world, Player player)
 		{
 			if (!player.HasUsedItemFor(32)) return;
-			player.ItemUseStartedAt = null;
+			player.EndItemUse();
 
 			Consume(player);
 
 			if (player.GameMode == GameMode.Survival || player.GameMode == GameMode.Adventure)
 			{
-				player.Inventory.ClearInventorySlot((byte) player.Inventory.InHandSlot);
-				player.Inventory.SetFirstEmptySlot(ItemFactory.GetItemByName("minecraft:glass_bottle"), true);
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, ItemFactory.GetItemByName("minecraft:glass_bottle"));
 			}
 		}
 

@@ -35,14 +35,24 @@ namespace MiNET.Items
 		public int FoodPoints { get; set; }
 		public double SaturationRestore { get; set; }
 
+		public ItemFoodData Food { get; }
+
 		public FoodItem(string name, short metadata, int foodPoints, double saturationRestore) : base(name, metadata)
 		{
-			FoodPoints = foodPoints;
-			SaturationRestore = saturationRestore;
+			Food = ItemFactory.ItemRegistry.TryGetByName(name, out ItemRegistryEntry entry) ? entry.Food : null;
+			FoodPoints = Food?.Nutrition ?? foodPoints;
+			SaturationRestore = Food?.SaturationRestore ?? saturationRestore;
 		}
 
 		/// <summary>Ticks of eating before the food counts, vanilla's 32 for nearly everything.</summary>
-		public virtual int UseDurationTicks => 32;
+		public virtual int UseDurationTicks => Food?.UseDurationTicks ?? 32;
+
+		public virtual bool CanAlwaysEat => Food?.CanAlwaysEat ?? false;
+
+		public bool CanEat(Player player)
+		{
+			return CanAlwaysEat || player.HungerManager.CanEat();
+		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
@@ -50,27 +60,48 @@ namespace MiNET.Items
 
 			CompleteUsing(world, player);
 
-			player.ItemUseStartedAt = player.HungerManager.CanEat() ? DateTime.UtcNow : null;
+			if (CanEat(player)) player.BeginItemUse();
+			else player.EndItemUse();
 		}
 
 		public override void CompleteUsing(Level world, Player player)
 		{
 			if (!player.HasUsedItemFor(UseDurationTicks)) return;
-			player.ItemUseStartedAt = null;
+			player.EndItemUse();
 
-			if (!player.HungerManager.CanEat()) return;
+			if (!CanEat(player)) return;
 
 			Consume(player);
 
 			Count--;
 			UniqueId = Environment.TickCount;
-			if (Count <= 0) player.Inventory.ClearInventorySlot((byte) player.Inventory.InHandSlot);
-			else player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, this);
+
+			Item leftover = Food?.UsingConvertsTo == null ? null : ItemFactory.GetItemByName(Food.UsingConvertsTo);
+			if (Count > 0)
+			{
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, this);
+				if (leftover != null && !player.Inventory.SetFirstEmptySlot(leftover, true)) player.DropItem(leftover);
+			}
+			else if (leftover != null)
+			{
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, leftover);
+			}
+			else
+			{
+				player.Inventory.ClearInventorySlot((byte) player.Inventory.InHandSlot);
+			}
 		}
 
 		public virtual void Consume(Player player)
 		{
 			player.HungerManager.IncreaseFoodAndSaturation(this, FoodPoints, SaturationRestore);
+		}
+	}
+
+	public class GenericFoodItem : FoodItem
+	{
+		public GenericFoodItem(string name) : base(name, 0, 0, 0)
+		{
 		}
 	}
 }

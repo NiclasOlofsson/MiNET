@@ -58,18 +58,63 @@ namespace MiNET.Items
 		/// </summary>
 		public byte[] ComponentNbt { get; }
 
-		public ItemRegistryEntry(string name, short networkId, bool componentBased, int version, byte[] componentNbt)
+		public ItemFoodData Food { get; }
+
+		public ItemRegistryEntry(string name, short networkId, bool componentBased, int version, byte[] componentNbt, ItemFoodData food = null)
 		{
 			Name = name;
 			NetworkId = networkId;
 			ComponentBased = componentBased;
 			Version = version;
 			ComponentNbt = componentNbt;
+			Food = food;
 		}
 
 		public override string ToString()
 		{
 			return $"{Name} (network id {NetworkId})";
+		}
+	}
+
+	public class ItemFoodData
+	{
+		public int Nutrition { get; }
+
+		public float SaturationModifier { get; }
+
+		public bool CanAlwaysEat { get; }
+
+		public string UsingConvertsTo { get; }
+
+		public int UseDurationTicks { get; }
+
+		public double SaturationRestore => Nutrition * SaturationModifier * 2;
+
+		public ItemFoodData(int nutrition, float saturationModifier, bool canAlwaysEat, string usingConvertsTo, int useDurationTicks)
+		{
+			Nutrition = nutrition;
+			SaturationModifier = saturationModifier;
+			CanAlwaysEat = canAlwaysEat;
+			UsingConvertsTo = usingConvertsTo;
+			UseDurationTicks = useDurationTicks;
+		}
+
+		public static ItemFoodData FromComponents(NbtCompound components)
+		{
+			if (components?["minecraft:food"] is not NbtCompound food) return null;
+
+			string convertsTo = (food["using_converts_to"] as NbtString)?.Value;
+
+			int useDuration = 32;
+			if (components["minecraft:use_duration"] is NbtInt legacyDuration) useDuration = legacyDuration.Value;
+			else if ((components["item_properties"] as NbtCompound)?["use_duration"] is NbtInt propertyDuration) useDuration = propertyDuration.Value;
+
+			return new ItemFoodData(
+				(food["nutrition"] as NbtInt)?.Value ?? 0,
+				(food["saturation_modifier"] as NbtFloat)?.Value ?? 0,
+				((food["can_always_eat"] as NbtByte)?.Value ?? 0) != 0,
+				string.IsNullOrEmpty(convertsTo) ? null : convertsTo,
+				useDuration);
 		}
 	}
 
@@ -102,7 +147,7 @@ namespace MiNET.Items
 				nbt = new NbtFile(root) {BigEndian = false, UseVarInt = true}.SaveToBuffer(NbtCompression.None);
 			}
 
-			var entry = new ItemRegistryEntry(name, networkId, componentBased, version, nbt);
+			var entry = new ItemRegistryEntry(name, networkId, componentBased, version, nbt, ItemFoodData.FromComponents(components));
 
 			_entries.Add(entry);
 			_byName[name] = entry;

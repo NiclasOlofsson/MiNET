@@ -168,7 +168,9 @@ namespace MiNET.Items
 			Item custom = CustomItemFactory?.GetItem(name, metadata, count);
 			if (custom != null) return custom;
 
-			Block block = BlockFactory.GetBlockByName(BlockNameOf(name));
+			ItemFoodData food = ItemRegistry.TryGetByName(name, out ItemRegistryEntry foodEntry) ? foodEntry.Food : null;
+
+			Block block = food == null ? BlockFactory.GetBlockByName(BlockNameOf(name)) : null;
 
 			Item item;
 			if (block != null)
@@ -182,9 +184,13 @@ namespace MiNET.Items
 				// item on a real registry identity, or it has no network id and goes out as empty.
 				if (!ItemRegistry.Contains(name) && _itemRenames.Value.TryGetValue(name, out string renamed)) name = renamed;
 			}
-			else if (_typedItemTypeByClassName.Value.TryGetValue(NormalizeItemKey(name), out Type itemType))
+			else if (_typedItemTypeByClassName.Value.TryGetValue(NormalizeItemKey(name), out Type itemType) && (food == null || typeof(FoodItem).IsAssignableFrom(itemType)))
 			{
 				item = (Item) Activator.CreateInstance(itemType);
+			}
+			else if (food != null)
+			{
+				item = new GenericFoodItem(name);
 			}
 			else
 			{

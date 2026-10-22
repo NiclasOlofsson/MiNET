@@ -63,7 +63,7 @@ namespace MiNET.Entities.Behaviors
 
 		public override void OnTick(Entity[] entities)
 		{
-			float speedFactor = (float) (_speed * _speedMultiplier * 0.7f * (_entity.IsInWater ? 0.3 : 1.0)); // 0.7 is a general mob base factor
+			float speedFactor = (float) (MobController.GetWalkVelocity(_entity, _speed * _speedMultiplier) * (_entity.IsInWater ? 0.3 : 1.0));
 			var level = _entity.Level;
 			var coordinates = _entity.KnownPosition;
 			var direction = _entity.GetHorizDir() * new Vector3(1, 0, 1);

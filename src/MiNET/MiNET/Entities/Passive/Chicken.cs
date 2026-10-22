@@ -52,7 +52,7 @@ namespace MiNET.Entities.Passive
 			var random = rnd ?? new Random();
 			_timeUntilLayEgg = 6000 + random.Next(6000);
 
-			Behaviors.Add(new PanicBehavior(this, 60, Speed, 1.4));
+			Behaviors.Add(new PanicBehavior(this, 60, Speed, 1.5));
 			Behaviors.Add(new TemptedBehavior(this, typeof(ItemWheatSeeds), 10, 1.0)); //TODO: Add other seeds
 			Behaviors.Add(new WanderBehavior(this, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this));

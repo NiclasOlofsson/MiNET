@@ -41,14 +41,14 @@ namespace MiNET.Entities.Hostile
 			Width = Length = 0.6;
 			Height = 1.7;
 			NoAi = true;
-			Speed = 0.25f;
+			Speed = 0.2f;
 
 			TargetBehaviors.Add(new HurtByTargetBehavior(this));
 			TargetBehaviors.Add(new FindAttackableTargetBehavior(this, 16));
 
 			Behaviors.Add(new CreeperSwellBehavior(this));
-			Behaviors.Add(new MeleeAttackBehavior(this, 1.0, 16));
-			Behaviors.Add(new WanderBehavior(this, 0.8));
+			Behaviors.Add(new MeleeAttackBehavior(this, 1.25, 16));
+			Behaviors.Add(new WanderBehavior(this, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}

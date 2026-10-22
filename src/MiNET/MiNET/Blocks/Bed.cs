@@ -72,7 +72,6 @@ namespace MiNET.Blocks
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			HeadPieceBit = false;
-			world.SetBlock(new GoldBlock() {Coordinates = Coordinates + BlockCoordinates.Down});
 			world.SetBlockEntity(new BedBlockEntity
 			{
 				Coordinates = Coordinates,
@@ -87,7 +86,6 @@ namespace MiNET.Blocks
 				HeadPieceBit = true,
 			};
 			world.SetBlock(blockOther);
-			world.SetBlock(new GoldBlock() {Coordinates = otherCoord + BlockCoordinates.Down});
 			world.SetBlockEntity(new BedBlockEntity
 			{
 				Coordinates = blockOther.Coordinates,

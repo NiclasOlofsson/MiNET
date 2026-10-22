@@ -2643,7 +2643,8 @@ namespace MiNET
 				HeadYaw = message.headYaw
 			};
 
-			UpdateFall(KnownPosition.Y - verticalMove, IsOnGround);
+			int fallDamage = UpdateFall(KnownPosition.Y - verticalMove, IsOnGround);
+			if (fallDamage > 0) TakeFallDamage(fallDamage);
 
 			LastUpdatedTime = DateTime.UtcNow;
 
@@ -2661,12 +2662,12 @@ namespace MiNET
 		public double FallDistance { get; private set; } = 0;
 
 		/// <summary>
-		///     Accumulates the fall and lands it. Vanilla counts only downward movement and hurts for
-		///     every whole block past the third, so a jump's rise never adds to it. Water, flight and
-		///     gliding cancel the fall outright; game mode and armor are TakeHit's and the
-		///     calculator's business.
+		///     Accumulates the fall and returns the damage owed on landing. Vanilla counts only
+		///     downward movement and hurts for every whole block past the third, so a jump's rise
+		///     never adds to it. Water, flight and gliding cancel the fall outright; game mode and
+		///     armor are TakeHit's and the calculator's business.
 		/// </summary>
-		protected virtual void UpdateFall(double previousY, bool isOnGround)
+		protected virtual int UpdateFall(double previousY, bool isOnGround)
 		{
 			double y = KnownPosition.Y;
 
@@ -2675,7 +2676,7 @@ namespace MiNET
 				IsFalling = false;
 				FallDistance = 0;
 				StartFallY = 0;
-				return;
+				return 0;
 			}
 
 			if (!isOnGround)
@@ -2686,7 +2687,7 @@ namespace MiNET
 					FallDistance += previousY - y;
 				}
 				IsFalling = y < previousY;
-				return;
+				return 0;
 			}
 
 			double fallen = FallDistance;
@@ -2695,10 +2696,12 @@ namespace MiNET
 			StartFallY = 0;
 
 			int damage = (int) Math.Ceiling(fallen - 3);
-			if (damage > 0 && Level.Falldamage)
-			{
-				HealthManager.TakeHit(null, (int) DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
-			}
+			return damage > 0 && Level.Falldamage ? damage : 0;
+		}
+
+		protected virtual void TakeFallDamage(int damage)
+		{
+			HealthManager.TakeHit(null, (int) DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
 		}
 
 		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround, bool isFlyingHorizontally)
@@ -2895,7 +2898,12 @@ namespace MiNET
 
 			// Fall damage used to hang off MovePlayer too. Vertical collision is also a head
 			// bump, so landing means collided while not moving up.
-			UpdateFall(previousY, IsOnGround && newPosition.Y <= previousY);
+			int fallDamage = UpdateFall(previousY, IsOnGround && newPosition.Y <= previousY);
+			if (fallDamage > 0)
+			{
+				int damage = fallDamage;
+				MiNetServer.FastThreadPool.QueueUserWorkItem(() => TakeFallDamage(damage));
+			}
 
 			// Republish the live area the moment the player crosses into a new column, ahead of any
 			// streaming. The publisher update names the centre and radius the client treats as live,

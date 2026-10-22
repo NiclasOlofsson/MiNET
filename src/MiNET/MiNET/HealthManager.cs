@@ -305,6 +305,7 @@ namespace MiNET
 			var player = Entity as Player;
 			if (player != null)
 			{
+				player.StopSleep();
 				player.SendUpdateAttributes();
 			}
 

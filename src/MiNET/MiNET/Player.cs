@@ -81,7 +81,16 @@ namespace MiNET
 		public ItemStackInventoryManager ItemStackInventoryManager { get; set; }
 
 		public PlayerLocation SpawnPosition { get; set; }
-		public bool IsSleeping { get; set; } = false;
+
+		public BlockCoordinates? SleepingPosition { get; private set; }
+
+		public bool IsSleeping => SleepingPosition != null;
+
+		public long SleepStartedTick { get; private set; }
+
+		public BlockCoordinates? RespawnBed { get; private set; }
+
+		private readonly object _sleepSync = new object();
 
 		public int MaxViewDistance { get; set; } = 22;
 		public int MoveRenderDistance { get; set; } = 1;
@@ -859,17 +868,7 @@ namespace MiNET
 				}
 				case PlayerAction.StopSleeping:
 				{
-					IsSleeping = false;
-					Bed bed = Level.GetBlock(SpawnPosition) as Bed;
-					if (bed != null)
-					{
-						bed.SetOccupied(Level, false);
-					}
-					else
-					{
-						Log.Warn($"Did not find a bed at {SpawnPosition}");
-					}
-
+					StopSleep();
 					break;
 				}
 				//case PlayerAction.Respawn:
@@ -1297,22 +1296,10 @@ namespace MiNET
 			SendPacket(playerList);
 		}
 
-		// Level event 19602: sleep status. Payload is an unframed network-NBT compound body:
-		// ableToSleep, overworldPlayerCount, sleepingPlayerCount (varint-NBT int tags, no root
-		// compound header). MiNET does not model sleeping yet, so sleeping count is 0.
 		public virtual void SendSleepStatus()
 		{
-			var root = new NbtCompound("")
-			{
-				new NbtInt("ableToSleep", 1),
-				new NbtInt("overworldPlayerCount", Math.Max(1, Level.PlayerCount)),
-				new NbtInt("sleepingPlayerCount", 0)
-			};
-
-			var packet = McpeLevelEventGeneric.CreateObject();
-			packet.eventId = (int) LevelEventType.SleepingPlayers;
-			packet.eventData = root;
-			SendPacket(packet);
+			int sleeping = Level.GetSpawnedPlayers().Count(p => p.IsSleeping);
+			SendPacket(Level.CreateSleepStatus(Math.Max(1, Level.PlayerCount), sleeping));
 		}
 
 		public virtual void SendWorldClockState()
@@ -1326,19 +1313,65 @@ namespace MiNET
 			Level.Clock.SendRegistryTo(this);
 		}
 
-		// The player's personal (bed/anchor) spawn. MiNET does not track one yet, so this is
-		// vanilla's undefined-position sentinel (INT32_MIN, -1, INT32_MIN in dimension 3).
+		// The player's personal (bed/anchor) spawn, or vanilla's undefined-position sentinel
+		// (INT32_MIN, -1, INT32_MIN in dimension 3).
 		// Distinct from SendSetSpawnPosition, which announces the WORLD spawn (type 1).
 		public virtual void SendPlayerSpawnPosition()
 		{
-			var undefined = new BlockCoordinates(int.MinValue, -1, int.MinValue);
+			BlockCoordinates? bed = RespawnBed;
+			var position = bed ?? new BlockCoordinates(int.MinValue, -1, int.MinValue);
 
 			var packet = McpeSetSpawnPosition.CreateObject();
 			packet.spawnPositionType = 0; // player spawn
-			packet.blockPosition = undefined;
-			packet.dimensionType = 3; // undefined
-			packet.spawnBlockPos = undefined;
+			packet.blockPosition = position;
+			packet.dimensionType = bed == null ? 3 : 0;
+			packet.spawnBlockPos = position;
 			SendPacket(packet);
+		}
+
+		public virtual void SetRespawnBed(BlockCoordinates bed)
+		{
+			if (RespawnBed == bed) return;
+
+			RespawnBed = bed;
+			SpawnPosition = new PlayerLocation(bed.X + 0.5f, bed.Y + 0.5625f, bed.Z + 0.5f);
+			SendPlayerSpawnPosition();
+			SendMessage("tile.bed.respawnSet", MessageType.Translation, needsTranslation: true);
+		}
+
+		public virtual void SleepOn(Bed bed)
+		{
+			lock (_sleepSync)
+			{
+				if (SleepingPosition != null) return;
+
+				SleepingPosition = bed.Coordinates;
+				SleepStartedTick = Level.TickTime;
+			}
+
+			bed.SetOccupied(Level, true);
+			BroadcastSetEntityData();
+		}
+
+		public virtual void StopSleep()
+		{
+			BlockCoordinates bedPosition;
+			lock (_sleepSync)
+			{
+				if (SleepingPosition == null) return;
+
+				bedPosition = SleepingPosition.Value;
+				SleepingPosition = null;
+			}
+
+			if (Level?.GetBlock(bedPosition) is Bed bed) bed.SetOccupied(Level, false);
+
+			var animate = McpeAnimate.CreateObject();
+			animate.runtimeEntityId = EntityManager.EntityIdSelf;
+			animate.actionId = McpeAnimate.AnimatePacketPayloadAction.WakeUp;
+			SendPacket(animate);
+
+			BroadcastSetEntityData();
 		}
 
 		public virtual void SendPlayerHotbar()
@@ -2194,6 +2227,8 @@ namespace MiNET
 			// dying, changing level does not make the client tear its own window down.
 			if (Screen.Kind != ScreenKind.Inventory) HandleMcpeContainerClose(null);
 
+			StopSleep();
+
 			bool oldNoAi = NoAi;
 			SetNoAi(true);
 			int oldChunkRadius = ChunkRadius;
@@ -2521,6 +2556,8 @@ namespace MiNET
 					// closing it reads as open forever: the lid stays up for everyone, and the inventory
 					// holds a departed player it keeps sending slot changes to.
 					ReleaseScreen();
+
+					StopSleep();
 
 					Level?.RemovePlayer(this);
 
@@ -5022,13 +5059,16 @@ namespace MiNET
 			var metadata = base.GetMetadata();
 			metadata[(int) MetadataFlags.NameTag] = new MetadataString(NameTag ?? Username);
 			metadata[(int) MetadataFlags.ButtonText] = new MetadataString(ButtonText ?? string.Empty);
-			metadata[(int) MetadataFlags.PlayerFlags] = new MetadataByte((byte) (IsSleeping ? 0b10 : 0));
+			BlockCoordinates? sleepingPosition = SleepingPosition;
+			metadata[(int) MetadataFlags.PlayerFlags] = new MetadataByte((byte) (sleepingPosition != null ? 0b10 : 0));
 			// A player has no spawn position until the level assigns one, and metadata is broadcast
 			// before that: any throw here takes down the whole wrapper batch it rides in.
 			PlayerLocation bedPosition = SpawnPosition ?? KnownPosition;
-			metadata[(int) MetadataFlags.BedPosition] = bedPosition == null
-				? new MetadataIntCoordinates(0, 0, 0)
-				: new MetadataIntCoordinates((int) bedPosition.X, (int) bedPosition.Y, (int) bedPosition.Z);
+			metadata[(int) MetadataFlags.BedPosition] = sleepingPosition != null
+				? new MetadataIntCoordinates(sleepingPosition.Value.X, sleepingPosition.Value.Y, sleepingPosition.Value.Z)
+				: bedPosition == null
+					? new MetadataIntCoordinates(0, 0, 0)
+					: new MetadataIntCoordinates((int) bedPosition.X, (int) bedPosition.Y, (int) bedPosition.Z);
 
 			// Players report their bounding box as a single CollisionBox vector3 (width, height, 0)
 			// instead of the generic CollisionBoxWidth/Height floats used by mobs.
